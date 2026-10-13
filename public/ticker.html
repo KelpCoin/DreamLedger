@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b1220">
+<title>Free ticker · Silo news | DreamLedger</title>
+<meta name="description" content="Free DreamLedger ticker with silo tags. Generic and silo-specific signals, labelled UNVERIFIED or SUPPORTED. No account. Payment does not improve truth verdicts.">
+<link rel="canonical" href="https://dreamledger.org/ticker.html">
+<style>
+:root{color-scheme:dark;--bg:#0b1220;--panel:#111d2e;--line:#2a3b51;--ink:#f4f7fb;--muted:#b4c0cf;--mint:#a9f2d0}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,sans-serif}
+.wrap{width:min(800px,calc(100% - 32px));margin:auto}
+.top{padding:18px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.brand{font-weight:850;color:var(--ink);text-decoration:none}
+.nav a{color:var(--muted);text-decoration:none;font-size:14px;margin-left:12px}
+.eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:850;color:var(--mint);margin-top:28px}
+h1{font-size:clamp(30px,6vw,44px);letter-spacing:-.04em;margin:10px 0 12px}
+.lede{color:var(--muted);max-width:52ch}
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin:20px 0}
+.filters a{border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:13px;color:var(--muted);text-decoration:none}
+.filters a:hover,.filters a.on{border-color:var(--mint);color:var(--mint)}
+.panel{border:1px solid var(--line);border-radius:16px;background:var(--panel);padding:8px 16px 16px;margin:18px 0}
+.muted{color:var(--muted);font-size:14px}
+a{color:var(--mint)}
+footer{border-top:1px solid var(--line);padding:20px 0 36px;color:var(--muted);font-size:13px;margin-top:28px}
+code{font-size:13px;background:#08111b;padding:2px 6px;border-radius:6px}
+</style>
+</head>
+<body>
+<script src="/assets/ticker.js" data-target="dl-ticker-top" data-max="10"></script>
+<div class="wrap">
+<header class="top">
+  <a class="brand" href="/">DreamLedger</a>
+  <nav class="nav">
+    <a href="/sandbox/calling-for.html">Sandbox calls</a>
+    <a href="/tools/free.html">Free tools</a>
+    <a href="/pulse/">Pulse</a>
+  </nav>
+</header>
+<main>
+<div class="eyebrow">Free feed · Progressive transparency</div>
+<h1>Ticker</h1>
+<p class="lede">Generic and silo-tagged signals. Every item keeps its status label. Filter by silo. Machine-readable feed at <code>/data/ticker.json</code>.</p>
+
+<nav class="filters" aria-label="Silo filters">
+  <a href="/ticker.html" id="f-all">All</a>
+  <a href="/ticker.html?silo=sandbox" id="f-sandbox">Sandbox</a>
+  <a href="/ticker.html?silo=oracle" id="f-oracle">Oracle</a>
+  <a href="/ticker.html?silo=mtg" id="f-mtg">MTG</a>
+  <a href="/ticker.html?silo=b2b" id="f-b2b">B2B</a>
+  <a href="/ticker.html?silo=agent" id="f-agent">Agent</a>
+  <a href="/ticker.html?silo=phinhaven" id="f-phinhaven">PhinHaven</a>
+  <a href="/ticker.html?silo=general" id="f-general">General</a>
+</nav>
+
+<section class="panel">
+  <div id="dl-ticker-list" class="dl-ticker" data-mode="list"></div>
+</section>
+
+<p class="muted">Embed on any page: <code>&lt;script src="/assets/ticker.js" data-silo="sandbox" data-max="6"&gt;&lt;/script&gt;</code>. Sandbox calls also appear at <a href="/sandbox/calling-for.html">sandbox/calling-for</a>. Premium tiers may add filters and alerts later — not a better truth verdict.</p>
+</main>
+<footer>
+DreamLedger free ticker · <a href="/data/ticker.json">JSON feed</a> · <a href="/trust/">Evidence standard</a>
+</footer>
+</div>
+<script src="/assets/ticker.js" data-target="dl-ticker-list" data-mode="list" data-max="20"></script>
+<script>
+(function(){
+  const s=new URLSearchParams(location.search).get('silo')||'all';
+  const el=document.getElementById('f-'+(s==='all'?'all':s));
+  if(el) el.classList.add('on');
+  if(s!=='all'){
+    const box=document.getElementById('dl-ticker-list');
+    fetch('/data/ticker.json',{cache:'no-store'}).then(r=>r.json()).then(data=>{
+      let items=Array.isArray(data.items)?data.items:[];
+      const needle=s.toLowerCase();
+      items=items.filter(it=>Array.isArray(it.silos)&&it.silos.map(x=>String(x).toLowerCase()).includes(needle));
+      const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+      if(!items.length){box.innerHTML='<p class="muted">No items for this silo.</p>';return;}
+      box.innerHTML='<ul class="dl-ticker-list">'+items.map(it=>{
+        const href=it.url||'#';
+        const silos=(it.silos||[]).map(x=>'<span class="dl-ticker-silo">'+esc(x)+'</span>').join('');
+        return '<li><span class="dl-ticker-status">'+esc(it.status||'UNVERIFIED')+'</span>'+silos+
+          '<a href="'+esc(href)+'">'+esc(it.headline||'')+'</a>'+
+          '<div style="color:#b4c0cf;font-size:12px;margin-top:4px">'+esc(it.source||'')+(it.observed_at?' · '+esc(it.observed_at):'')+'</div></li>';
+      }).join('')+'</ul>';
+    }).catch(()=>{});
+  }
+})();
+</script>
+</body>
+</html>

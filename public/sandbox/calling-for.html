@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b1220">
+<title>Sandbox calling for · DreamLedger</title>
+<meta name="description" content="Public sandbox silo call board. Open requests for free magnets, wiring, and agent surfaces. Machine-readable JSON. Not job offers or revenue claims.">
+<link rel="canonical" href="https://dreamledger.org/sandbox/calling-for.html">
+<style>
+:root{color-scheme:dark;--bg:#0b1220;--panel:#111d2e;--line:#2a3b51;--ink:#f4f7fb;--muted:#b4c0cf;--mint:#a9f2d0}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at 70% 0%,#1b3450 0,transparent 40%),var(--bg);color:var(--ink);font:16px/1.6 system-ui,sans-serif}
+.wrap{width:min(800px,calc(100% - 32px));margin:auto}
+.top{padding:18px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.brand{font-weight:850;color:var(--ink);text-decoration:none}
+.nav a{color:var(--muted);text-decoration:none;font-size:14px;margin-left:12px}
+.eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:850;color:var(--mint);margin-top:28px}
+h1{font-size:clamp(30px,6vw,44px);letter-spacing:-.04em;margin:10px 0 12px}
+.lede{color:var(--muted);max-width:54ch}
+.card{border:1px solid var(--line);border-radius:16px;background:var(--panel);padding:18px;margin:14px 0}
+.card h2{font-size:1.1rem;margin:0 0 8px}
+.card p{color:var(--muted);font-size:14px;margin:0 0 10px}
+.pill{display:inline-block;font-size:10px;font-weight:850;letter-spacing:.08em;border:1px solid #52647a;border-radius:999px;padding:2px 8px;margin:0 6px 6px 0;color:var(--muted)}
+.pill.open{border-color:var(--mint);color:var(--mint)}
+.pill.done{opacity:.7}
+ul.accept{margin:8px 0 0 1.1em;color:var(--muted);font-size:14px}
+a{color:var(--mint)}
+footer{border-top:1px solid var(--line);padding:20px 0 36px;color:var(--muted);font-size:13px;margin-top:28px}
+code{font-size:13px;background:#08111b;padding:2px 6px;border-radius:6px}
+.note{font-size:14px;color:var(--muted);border:1px solid var(--line);border-radius:12px;padding:14px;margin:20px 0;background:#0b1522}
+</style>
+</head>
+<body>
+<script src="/assets/ticker.js" data-silo="sandbox" data-max="6"></script>
+<div class="wrap">
+<header class="top">
+  <a class="brand" href="/">DreamLedger</a>
+  <nav class="nav">
+    <a href="/ticker.html?silo=sandbox">Sandbox ticker</a>
+    <a href="/tools/free.html">Free tools</a>
+    <a href="/data/sandbox-calls.json">JSON</a>
+  </nav>
+</header>
+<main>
+<div class="eyebrow">Sandbox silo · Public call board</div>
+<h1>Calling for</h1>
+<p class="lede">Open requests from the sandbox silo (tools, free magnets, NZ/B2B evidence surfaces). Visible to humans and agents. Not a job board, not verified demand, not revenue.</p>
+
+<div class="note">
+Machine-readable: <code>/data/sandbox-calls.json</code> · Ticker tag: <code>sandbox</code> · Rule: payment never improves a truth verdict.
+</div>
+
+<div id="board"><p class="lede">Loading calls…</p></div>
+</main>
+<footer>
+Sandbox silo · <a href="/ticker.html">Full ticker</a> · <a href="/tools/free.html">Free magnets</a> · <a href="/trust/">Evidence standard</a>
+</footer>
+</div>
+<script>
+(function(){
+const board=document.getElementById('board');
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+fetch('/data/sandbox-calls.json',{cache:'no-store'})
+  .then(r=>{if(!r.ok)throw new Error();return r.json();})
+  .then(data=>{
+    const calls=Array.isArray(data.calls)?data.calls:[];
+    if(!calls.length){board.innerHTML='<p>No public calls listed.</p>';return;}
+    calls.sort((a,b)=>(a.status==='OPEN'?0:1)-(b.status==='OPEN'?0:1));
+    board.innerHTML=calls.map(c=>{
+      const id=esc(c.id||'');
+      const st=String(c.status||'OPEN').toUpperCase();
+      const pri=esc(c.priority||'');
+      const accept=(Array.isArray(c.acceptance)?c.acceptance:[]).map(x=>'<li>'+esc(x)+'</li>').join('');
+      const links=(Array.isArray(c.links)?c.links:[]).map(u=>'<a href="'+esc(u)+'"'+(String(u).startsWith('http')?' target="_blank" rel="noopener noreferrer"':'')+'>'+esc(u)+'</a>').join(' · ');
+      const silos=(Array.isArray(c.silos)?c.silos:[]).map(s=>'<span class="pill">'+esc(s)+'</span>').join('');
+      return '<article class="card" id="'+id+'">'+'
+        <div><span class="pill '+(st==='OPEN'?'open':'done')+'">'+esc(st)+'</span>'+
+        (pri?'<span class="pill">'+pri+'</span>':'')+silos+'</div>'+
+        '<h2>'+esc(c.title||'Untitled call')+'</h2>'+
+        '<p>'+esc(c.summary||'')+'</p>'+
+        (accept?'<p style="color:var(--ink);font-size:13px;font-weight:700;margin:0">Acceptance</p><ul class="accept">'+accept+'</ul>':'')+
+        (links?'<p style="margin-top:12px;font-size:13px">'+links+'</p>':'')+
+        '<p style="margin-top:10px;font-size:12px;color:var(--muted)">Opened '+esc(c.opened_at||'?')+(c.closed_at?' · Closed '+esc(c.closed_at):'')+' · id '+id+'</p>'+
+        '</article>';
+    }).join('');
+  })
+  .catch(()=>{board.innerHTML='<p>Call board feed unavailable. No claims inferred.</p>';});
+})();
+</script>
+</body>
+</html>
