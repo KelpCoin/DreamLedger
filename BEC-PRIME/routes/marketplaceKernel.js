@@ -232,9 +232,43 @@ async function handle(req,res,requestPath) {
     const rows=await rpc('marketplace_public_listings',{p_query:q,p_category:category,p_listing_type:type,p_limit:Math.min(Math.max(Number(u.searchParams.get('limit')||24),1),100),p_offset:Math.max(Number(u.searchParams.get('offset')||0),0)});
     return send(res,200,{schema:'DREAMLEDGER/MARKETPLACE-LISTINGS/v1',listings:Array.isArray(rows)?rows:[]});
   }
+  if(req.method==='POST'&&requestPath==='/api/marketplace/v1/party-applications') {
+    if(!rateAllowed(req)) return send(res,429,{error:'Rate limit reached; retry after one minute.'});
+    const b=await readBody(req);
+    if(safeText(b.website_honeypot,200)) return send(res,202,{state:'REJECTED_SPAM'});
+    const partyType=safeText(b.party_type,20), displayName=safeText(b.display_name,160), email=safeText(b.contact_email,254).toLowerCase(), country=safeText(b.country_code,2).toUpperCase();
+    if(!['business','human'].includes(partyType)||displayName.length<2||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||!/^[A-Z]{2}$/.test(country)) return send(res,400,{error:'party_type, display_name, valid contact_email and ISO country_code are required'});
+    const key=safeText(req.headers['idempotency-key']||b.idempotency_key,160)||crypto.randomUUID();
+    const profile={website:safeText(b.business_website,500),requested_role:partyType==='business'?'buyer_and_supplier':'buyer'};
+    if(STORE==='local') {
+      const old=readLocal(10000).find(e=>e.idempotency_key===key);
+      if(old) return send(res,200,{application_id:old.subject_id,status:'pending',duplicate:true});
+      const id=crypto.randomUUID();
+      appendLocal({event_id:crypto.randomUUID(),idempotency_key:key,event_type:'PARTY_APPLICATION_SUBMITTED',subject_type:'marketplace_party',subject_id:id,actor_type:'human',actor_id:null,economic_state:'OBSERVED',payload:{id,party_type:partyType,display_name:displayName,contact_email:email,country_code:country,public_profile:profile,application_notes:safeText(b.application_notes,2000),status:'pending',trust_state:'UNVERIFIED'}});
+      return send(res,202,{application_id:id,status:'pending',trust_state:'UNVERIFIED',message:'Application encrypted in the local journal; no account credentials or transaction authority were issued.'});
+    }
+    const result=await rpc('marketplace_apply_party',{p_idempotency_key:key,p_party_type:partyType,p_display_name:displayName,p_country_code:country,p_contact_email:email,p_public_profile:profile,p_application_notes:safeText(b.application_notes,2000)});
+    return send(res,result?.duplicate?200:202,{application_id:result.party_id,status:result.status,trust_state:result.trust_state,duplicate:result.duplicate,message:result.message});
+  }
+  const approvePartyMatch=requestPath.match(/^\/api\/marketplace\/v1\/admin\/parties\/([0-9a-f-]{36})\/approve$/i);
+  if(req.method==='POST'&&approvePartyMatch) {
+    const admin=String(process.env.MARKETPLACE_ADMIN_TOKEN||'');
+    if(!admin||String(req.headers.authorization||'')!=='Bearer '+admin) return send(res,401,{error:'Marketplace admin authorization required'});
+    if(STORE!=='supabase') return send(res,503,{error:'Party approval requires Supabase mode; local applications remain pending.'});
+    if(!uuid(approvePartyMatch[1])) return send(res,400,{error:'Invalid party id'});
+    const b=await readBody(req);
+    if(b.email_verified!==true||b.authority_confirmed!==true||safeText(b.reviewed_by,160).length<3) return send(res,400,{error:'email_verified, authority_confirmed and reviewed_by are required'});
+    const key=safeText(req.headers['idempotency-key']||b.idempotency_key,160)||('party-approved:'+approvePartyMatch[1]);
+    const result=await rpc('marketplace_approve_party',{p_idempotency_key:key,p_party_id:approvePartyMatch[1],p_reviewed_by:safeText(b.reviewed_by,160),p_email_verified:true,p_authority_confirmed:true});
+    return send(res,200,result);
+  }
   if(req.method==='POST'&&requestPath==='/api/marketplace/v1/rfqs') {
     if(!rateAllowed(req)) return send(res,429,{error:'Rate limit reached; retry after one minute.'});
     const b=await readBody(req);
+    const hasAuthorization=String(req.headers.authorization||'').startsWith('Bearer ');
+    const buyer=hasAuthorization?await buyerIdentity(req):null;
+    if(hasAuthorization&&!buyer) return send(res,401,{error:'Invalid registered buyer credential'});
+    if(buyer&&!hasScope(buyer,'submit_rfq')) return send(res,403,{error:'Buyer credential lacks submit_rfq scope'});
     if(safeText(b.website,200)) return send(res,202,{state:'REJECTED_SPAM'}); // honeypot
     const title=safeText(b.title,180), problem=safeText(b.problem,5000), category=safeText(b.category,80).toLowerCase();
     if(title.length<4||problem.length<10||category.length<2) return send(res,400,{error:'title (4+ chars), problem (10+ chars), and category are required'});
@@ -248,10 +282,10 @@ async function handle(req,res,requestPath) {
       const existing=readLocal(10000).find(e=>e.idempotency_key===key);
       if(existing) return send(res,200,{duplicate:true,rfq_id:existing.subject_id,state:existing.economic_state});
       const rfqId=crypto.randomUUID();
-      const event=appendLocal({event_id:crypto.randomUUID(),idempotency_key:key,event_type:'RFQ_SUBMITTED',subject_type:'rfq',subject_id:rfqId,actor_type:'human',actor_id:null,economic_state:'OBSERVED',payload:{id:rfqId,title,problem_statement:problem,category,budget_min_minor:min,budget_max_minor:max,currency,region:b.region||{},constraints:b.constraints||{},status:'open',authorization_state:'UNAUTHORIZED'}});
+      const event=appendLocal({event_id:crypto.randomUUID(),idempotency_key:key,event_type:'RFQ_SUBMITTED',subject_type:'rfq',subject_id:rfqId,actor_type:'human',actor_id:null,economic_state:'OBSERVED',payload:{id:rfqId,title,problem_statement:problem,category,budget_min_minor:min,budget_max_minor:max,currency,region:b.region||{},constraints:b.constraints||{},buyer_party_id:buyer?.party_id||null,status:'open',authorization_state:buyer?'AUTHORIZED':'UNAUTHORIZED'}});
       return send(res,201,{rfq_id:rfqId,state:'OBSERVED',event_hash:event.event_hash,message:'RFQ recorded; it has not been matched to suppliers and no response is guaranteed.'});
     }
-    const result=await rpc('marketplace_create_public_rfq',{p_idempotency_key:key,p_title:title,p_problem:problem,p_category:category,p_budget_min_minor:min,p_budget_max_minor:max,p_currency:currency,p_needed_by:b.needed_by||null,p_region:b.region||{},p_constraints:b.constraints||{},p_source_ref:safeText(b.source_ref,500)});
+    const result=await rpc('marketplace_create_public_rfq',{p_idempotency_key:key,p_title:title,p_problem:problem,p_category:category,p_budget_min_minor:min,p_budget_max_minor:max,p_currency:currency,p_needed_by:b.needed_by||null,p_region:b.region||{},p_constraints:b.constraints||{},p_source_ref:safeText(b.source_ref,500),p_buyer_party_id:buyer?.party_id||null});
     return send(res,result?.duplicate?200:201,result);
   }
   if(req.method==='POST'&&requestPath==='/api/marketplace/v1/agent-intents') {
