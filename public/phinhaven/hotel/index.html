@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>PhinHaven Hotel · Stage 0 TEST</title>
+  <meta name="description" content="Local Stage 0 hotel+chat. TEST only — not production Supabase truth.">
+  <style>
+    :root { --bg:#0b0b0b; --fg:#eee; --muted:#999; --accent:#d8b56b; --card:#141414; --border:#333; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--fg); font:15px/1.45 system-ui,sans-serif; }
+    .wrap { max-width:960px; margin:0 auto; padding:20px; }
+    .banner { background:#3a2a00; color:var(--accent); border:1px solid var(--accent); border-radius:10px; padding:10px 14px; margin-bottom:16px; font-size:0.9rem; }
+    h1 { font-size:1.4rem; margin:0 0 8px; }
+    a { color:var(--accent); }
+    .grid { display:grid; grid-template-columns:220px 1fr 180px; gap:12px; min-height:420px; }
+    @media (max-width:800px) { .grid { grid-template-columns:1fr; } }
+    .panel { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:12px; display:flex; flex-direction:column; }
+    .panel h2 { margin:0 0 10px; font-size:0.85rem; color:var(--accent); text-transform:uppercase; letter-spacing:0.08em; }
+    .room { padding:8px 10px; border-radius:8px; cursor:pointer; border:1px solid transparent; margin-bottom:4px; }
+    .room:hover { border-color:var(--border); }
+    .room.active { border-color:var(--accent); background:#1c180e; }
+    .msgs { flex:1; overflow:auto; max-height:360px; }
+    .msg { margin:0 0 8px; }
+    .msg .who { color:var(--accent); font-weight:600; font-size:0.85rem; }
+    .msg .when { color:var(--muted); font-size:0.75rem; margin-left:6px; }
+    .presence li { list-style:none; margin:4px 0; color:var(--muted); }
+    ul.presence { margin:0; padding:0; }
+    form.row { display:flex; gap:8px; margin-top:10px; }
+    input, button { font:inherit; padding:8px 10px; border-radius:8px; border:1px solid var(--border); background:#0e0e0e; color:var(--fg); }
+    button { background:var(--accent); color:#111; border-color:var(--accent); font-weight:700; cursor:pointer; }
+    input { flex:1; }
+    .namebar { display:flex; gap:8px; margin-bottom:14px; align-items:center; flex-wrap:wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="banner">
+      <strong>TEST / local only.</strong> This page uses browser localStorage so two tabs on this machine can chat.
+      It is <em>not</em> production Supabase truth. See migration
+      <code>supabase/migrations/20261013_phinhaven_stage0_hotel_chat.sql</code>.
+    </div>
+    <h1>PhinHaven · Hotel (Stage 0)</h1>
+    <p style="color:var(--muted); margin-top:0">
+      <a href="/phinhaven.html">Public page</a> ·
+      <a href="/phinhaven/ROADMAP.md">Roadmap</a> ·
+      <a href="/phinhaven/AGENT_HANDOFF.md">Agent handoff</a>
+    </p>
+
+    <div class="namebar">
+      <label>Display name <input id="name" maxlength="32" placeholder="Guest"></label>
+      <button type="button" id="saveName">Save name</button>
+      <span id="whoami" style="color:var(--muted)"></span>
+    </div>
+
+    <div class="grid">
+      <div class="panel">
+        <h2>Rooms</h2>
+        <div id="rooms"></div>
+      </div>
+      <div class="panel">
+        <h2 id="roomTitle">Lobby</h2>
+        <div class="msgs" id="msgs"></div>
+        <form class="row" id="chatForm">
+          <input id="body" maxlength="500" placeholder="Say something…" autocomplete="off">
+          <button type="submit">Send</button>
+        </form>
+      </div>
+      <div class="panel">
+        <h2>Here now</h2>
+        <ul class="presence" id="presence"></ul>
+      </div>
+    </div>
+  </div>
+  <script>
+    const ROOMS = [
+      { slug: 'lobby', title: 'Lobby', kind: 'lobby' },
+      ...Array.from({ length: 8 }, (_, i) => ({
+        slug: 'room-' + String(i + 1).padStart(2, '0'),
+        title: 'Room ' + String(i + 1).padStart(2, '0'),
+        kind: 'hotel'
+      }))
+    ];
+    const KEY = 'phinhaven_stage0_v1';
+
+    function load() {
+      try { return JSON.parse(localStorage.getItem(KEY)) || defaultState(); }
+      catch { return defaultState(); }
+    }
+    function defaultState() {
+      return { guests: {}, messages: {}, presence: {} };
+    }
+    function save(s) { localStorage.setItem(KEY, JSON.stringify(s)); }
+
+    function guestId() {
+      let id = sessionStorage.getItem('ph_guest_id');
+      if (!id) {
+        id = crypto.randomUUID();
+        sessionStorage.setItem('ph_guest_id', id);
+      }
+      return id;
+    }
+
+    function ensureGuest(state) {
+      const id = guestId();
+      if (!state.guests[id]) {
+        state.guests[id] = {
+          id,
+          display_name: 'Guest-' + id.slice(0, 6),
+          room: 'lobby',
+          last_seen: Date.now()
+        };
+        save(state);
+      }
+      return state.guests[id];
+    }
+
+    function render() {
+      const state = load();
+      const me = ensureGuest(state);
+      document.getElementById('name').value = me.display_name;
+      document.getElementById('whoami').textContent = 'session ' + me.id.slice(0, 8);
+
+      const roomsEl = document.getElementById('rooms');
+      roomsEl.innerHTML = '';
+      ROOMS.forEach(r => {
+        const div = document.createElement('div');
+        div.className = 'room' + (me.room === r.slug ? ' active' : '');
+        div.textContent = r.title;
+        div.onclick = () => {
+          me.room = r.slug;
+          me.last_seen = Date.now();
+          state.guests[me.id] = me;
+          state.presence[me.id] = { room: r.slug, at: Date.now() };
+          save(state);
+          render();
+        };
+        roomsEl.appendChild(div);
+      });
+
+      const room = ROOMS.find(r => r.slug === me.room) || ROOMS[0];
+      document.getElementById('roomTitle').textContent = room.title;
+
+      const msgs = (state.messages[me.room] || []).slice(-50);
+      const msgsEl = document.getElementById('msgs');
+      msgsEl.innerHTML = msgs.map(m => {
+        const g = state.guests[m.guest_id] || { display_name: '?' };
+        const t = new Date(m.at).toLocaleTimeString();
+        return `<div class="msg"><span class="who">${escapeHtml(g.display_name)}</span><span class="when">${t}</span><div>${escapeHtml(m.body)}</div></div>`;
+      }).join('') || '<p style="color:var(--muted)">No messages yet.</p>';
+      msgsEl.scrollTop = msgsEl.scrollHeight;
+
+      const now = Date.now();
+      const here = Object.values(state.guests).filter(g =>
+        g.room === me.room && now - (g.last_seen || 0) < 120000
+      );
+      document.getElementById('presence').innerHTML = here.map(g =>
+        `<li>${escapeHtml(g.display_name)}${g.id === me.id ? ' (you)' : ''}</li>`
+      ).join('') || '<li>Empty</li>';
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+
+    document.getElementById('saveName').onclick = () => {
+      const state = load();
+      const me = ensureGuest(state);
+      const n = document.getElementById('name').value.trim().slice(0, 32);
+      if (n) me.display_name = n;
+      me.last_seen = Date.now();
+      state.guests[me.id] = me;
+      save(state);
+      render();
+    };
+
+    document.getElementById('chatForm').onsubmit = (e) => {
+      e.preventDefault();
+      const state = load();
+      const me = ensureGuest(state);
+      const body = document.getElementById('body').value.trim().slice(0, 500);
+      if (!body) return;
+      if (!state.messages[me.room]) state.messages[me.room] = [];
+      state.messages[me.room].push({ guest_id: me.id, body, at: Date.now() });
+      me.last_seen = Date.now();
+      state.guests[me.id] = me;
+      save(state);
+      document.getElementById('body').value = '';
+      render();
+    };
+
+    // Cross-tab sync
+    window.addEventListener('storage', (e) => {
+      if (e.key === KEY) render();
+    });
+    setInterval(() => {
+      const state = load();
+      const me = ensureGuest(state);
+      me.last_seen = Date.now();
+      state.guests[me.id] = me;
+      save(state);
+      render();
+    }, 5000);
+
+    render();
+  </script>
+</body>
+</html>
