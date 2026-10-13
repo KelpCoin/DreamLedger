@@ -84,6 +84,7 @@ jobs:
           echo "path=$manifest" >> "$GITHUB_OUTPUT"
           echo "MANIFEST_PATH=$manifest" >> "$GITHUB_ENV"
       - name: Compile silo, TCG swarm, registry, fees and directory
+        if: github.event_name != 'pull_request'
         run: node BEC-PRIME/compiler/SiloFactory.js --manifest "$MANIFEST_PATH"
       - name: Verify generated files and Gauntlets
         run: |
