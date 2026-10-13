@@ -242,7 +242,7 @@ def parse_public_request_search(raw):
             continue
         signal = {
             "source": "PUBLIC_BUYER_REQUEST",
-            "title": title or body[:180],
+            "title": title,
             "url": url,
             "published_at": published_at,
             "publisher": "Hacker News public search API",
