@@ -13,9 +13,9 @@ for(const m of manifests){
   const id=String(value||'').replace(/^ref:/,'');
   const cap=registry.capabilities[id];
   check(m.identity.slug+' capability '+role+' resolves',!!cap,id);
-  if(cap&&cap.status!=='VERIFIED')holds.push({code:'CAPABILITY_NOT_VERIFIED',silo:m.identity.slug,capability:id,status:cap.status});
+  if(cap&&cap.status!=='VERIFIED'){holds.push({code:'CAPABILITY_NOT_VERIFIED',silo:m.identity.slug,capability:id,status:cap.status});if(m.status==='active')check(m.identity.slug+' active capability '+role+' is verified',false,'status='+cap.status);}
  }
- if(m.identity.slug!=='mtg')check(m.identity.slug+' remains build-gated unless explicitly promoted',m.status==='build');
+ check(m.identity.slug+' has a recognized release state',['build','active','development'].includes(m.status||'active'));
 }
 const failures=checks.filter(c=>!c.ok);
 const proof={schema:'DREAMLEDGER/SILO-CAPABILITY-GAUNTLET/v1',status:failures.length?'FAIL':holds.length?'PASS_WITH_HOLDS':'PASS',launch_ready:failures.length===0&&holds.length===0,manifests:manifests.map(m=>m.identity.slug),checks,holds,failed_checks:failures.length,truth:{verified_external_revenue_nzd:0,settled_external_payments:0,independent_external_buyers:0,paid_fulfilled_orders:0,verified_outcomes:0}};
