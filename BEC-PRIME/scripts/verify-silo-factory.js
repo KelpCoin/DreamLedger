@@ -10,7 +10,8 @@ for(const [rel,content] of Object.entries(out)){
  assert(fs.existsSync(p),'missing generated file '+rel);
  assert.strictEqual(fs.readFileSync(p,'utf8'),content,'generated file drift '+rel);
 }
-const m=JSON.parse(fs.readFileSync(path.join(ROOT,'runtime/cube/silo-manifests/music-media.json'),'utf8'));
+const m=JSON.parse(fs.readFileSync(path.join(ROOT,'silos/music-media/silo.json'),'utf8'));
+assert.strictEqual(m.identity.slug,'music-media');
 assert.strictEqual(m.silo_key,'MUSIC_MEDIA');
 assert.strictEqual(m.platform_fee_bps,500);
 assert.strictEqual(m.status,'build');
