@@ -22,12 +22,17 @@ function copyTree(src,dst){
 }
 
 if(!fs.existsSync(SOURCE)) throw new Error('BEC-PRIME compiled website missing. Run npm run compile first.');
-const avatarFile=path.join(DEST,'avatar.html');
-const avatarSource=fs.existsSync(avatarFile)?fs.readFileSync(avatarFile):null;
+const canonicalPublicFiles=['avatar.html','billboard.html'];
+const canonicalSnapshots=new Map(canonicalPublicFiles.map(rel=>{
+  const file=path.join(DEST,rel);
+  return [rel,fs.existsSync(file)?fs.readFileSync(file):null];
+}));
 copyTree(SOURCE,DEST);
-// Keep the reviewed DreamMeez studio as the canonical public avatar surface.
-// The compiled legacy tree contains an old redirect page and must not overwrite it.
-if(avatarSource) fs.writeFileSync(avatarFile,avatarSource);
+// Preserve the reviewed public storefront versions. The compiled legacy tree
+// can overwrite both with older surfaces (including a stale billboard checkout).
+for(const [rel,bytes] of canonicalSnapshots){
+  if(bytes) fs.writeFileSync(path.join(DEST,rel),bytes);
+}
 
 function copyStage0File(rel){
   const from=path.join(__dirname,'..',rel);
