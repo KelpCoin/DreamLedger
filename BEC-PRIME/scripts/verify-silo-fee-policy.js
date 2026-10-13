@@ -8,7 +8,9 @@ for (const [silo, bps] of Object.entries(expected)) {
   assert.strictEqual(policy.assert(silo, bps).platform_fee_bps, bps, silo + ' assertion failed');
   assert.throws(() => policy.assert(silo, bps === 0 ? 500 : 0), /SILO_FEE_POLICY_VIOLATION/);
 }
-assert.strictEqual(policy.resolve('MTG').platform_fee_bps, 0);\nassert.strictEqual(policy.resolve('MUSIC_MEDIA').silo, 'MUSIC_MEDIA');\nassert.strictEqual(policy.resolve('MUSIC_MEDIA').platform_fee_bps, 500);
+assert.strictEqual(policy.resolve('MTG').platform_fee_bps, 0);
+assert.strictEqual(policy.resolve('MUSIC_MEDIA').silo, 'MUSIC_MEDIA');
+assert.strictEqual(policy.resolve('MUSIC_MEDIA').platform_fee_bps, 500);\nassert.strictEqual(policy.resolve('MUSIC_MEDIA').silo, 'MUSIC_MEDIA');\nassert.strictEqual(policy.resolve('MUSIC_MEDIA').platform_fee_bps, 500);
 assert.strictEqual(policy.resolve('AMPLISSA').platform_fee_bps, 500);
 console.log('PASS: BECK silo fee policy verified.');
 console.log('MTG=0 bps; MUSIC_MEDIA=500 bps; AMPLISSA=500 bps; BBW_SSBBW=500 bps; default=500 bps.');
