@@ -108,8 +108,8 @@ begin
     if auction.reserve_price_minor is not null and bid.amount_minor<auction.reserve_price_minor then update public.marketplace_auctions set status='ended',updated_at=now() where id=auction.id; update public.marketplace_bids set status='outbid' where id=bid.id; result_state:='reserve_not_met';
     else
       terms:=jsonb_build_object('auction_id',auction.id,'listing_id',listing.id,'title',listing.title,'amount_minor',bid.amount_minor,'currency',auction.currency,'bid_id',bid.id);
-      insert into public.marketplace_agreements(offer_id,buyer_party_id,seller_party_id,version,terms,terms_hash,buyer_accepted_at,seller_accepted_at,human_authorization,status)
-      values((select id from public.marketplace_offers where id=gen_random_uuid()),bid.bidder_party_id,auction.seller_party_id,1,terms,encode(digest(convert_to(terms::text,'UTF8'),'sha256'),'hex'),now(),now(),jsonb_build_object('confirmed',true,'authorized_by',bid.bidder_party_id::text,'source','human_authorized_auction_bid'),'accepted')
+      insert into public.marketplace_agreements(offer_id,auction_id,buyer_party_id,seller_party_id,version,terms,terms_hash,buyer_accepted_at,seller_accepted_at,human_authorization,status)
+      values(null,auction.id,bid.bidder_party_id,auction.seller_party_id,1,terms,encode(digest(convert_to(terms::text,'UTF8'),'sha256'),'hex'),now(),now(),jsonb_build_object('confirmed',true,'authorized_by',bid.bidder_party_id::text,'source','human_authorized_auction_bid'),'accepted')
       returning * into agreement;
       insert into public.marketplace_orders(agreement_id,buyer_party_id,seller_party_id,amount_minor,currency,payment_state,fulfillment_state,idempotency_key,state)
       values(agreement.id,bid.bidder_party_id,auction.seller_party_id,bid.amount_minor,auction.currency,'UNPAID','NOT_STARTED','auction-win:'||auction.id::text,'CREATED') returning * into ord;
@@ -125,6 +125,7 @@ end; $$;
 
 -- The winning auction order's agreement references the auction terms rather than a supplier offer.
 alter table public.marketplace_agreements alter column offer_id drop not null;
+alter table public.marketplace_agreements add column if not exists auction_id uuid references public.marketplace_auctions(id);
 
 revoke all on function public.marketplace_schedule_auction(text,uuid,uuid,jsonb) from public,anon,authenticated;
 revoke all on function public.marketplace_public_auctions(integer) from public,anon,authenticated;
