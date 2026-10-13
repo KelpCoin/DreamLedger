@@ -203,6 +203,18 @@ async function handle(req,res,requestPath) {
     const result=await rpc('marketplace_place_bid',{p_idempotency_key:key,p_auction_id:bidMatch[1],p_bidder_party_id:buyer.party_id,p_amount_minor:amount,p_currency:safeText(b.currency||'NZD',3).toUpperCase(),p_authorization:{confirmed:true,authorized_by:safeText(b.authorized_by,160)}});
     return send(res,result?.duplicate?200:201,result);
   }
+  const buyNowMatch=requestPath.match(/^\/api\/marketplace\/v1\/auctions\/([0-9a-f-]{36})\/buy-now$/i);
+  if(req.method==='POST'&&buyNowMatch) {
+    const buyer=await buyerIdentity(req); if(!buyer) return send(res,401,{error:'Registered buyer credential required'});
+    if(!hasScope(buyer,'buy_now')) return send(res,403,{error:'Buyer credential lacks buy_now scope'});
+    if(STORE!=='supabase') return send(res,503,{error:'Auction buy-now requires the transactional Supabase backend.'});
+    if(!uuid(buyNowMatch[1])) return send(res,400,{error:'Invalid auction id'});
+    const b=await readBody(req);
+    if(b.confirmed!==true||safeText(b.authorized_by,160).length<3) return send(res,400,{error:'Explicit human buy-now confirmation is required'});
+    const key=safeText(req.headers['idempotency-key']||b.idempotency_key,160)||crypto.randomUUID();
+    const result=await rpc('marketplace_buy_now',{p_idempotency_key:key,p_auction_id:buyNowMatch[1],p_buyer_party_id:buyer.party_id,p_authorization:{confirmed:true,authorized_by:safeText(b.authorized_by,160)}});
+    return send(res,result?.duplicate?200:201,result);
+  }
   const closeAuctionMatch=requestPath.match(/^\/api\/marketplace\/v1\/admin\/auctions\/([0-9a-f-]{36})\/close$/i);
   if(req.method==='POST'&&closeAuctionMatch) {
     const admin=String(process.env.MARKETPLACE_ADMIN_TOKEN||'');
