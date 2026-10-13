@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b1220">
+<title>Free NZBN Lookup · Truth Oracle | DreamLedger</title>
+<meta name="description" content="Check a New Zealand Business Number (NZBN) with DreamLedger. Free, no login, no email capture. Results can be turned into a Truth Oracle claim-check record.">
+<link rel="canonical" href="https://dreamledger.org/tools/nzbn.html">
+<style>
+:root{color-scheme:dark;--bg:#0b1220;--panel:#111d2e;--line:#2a3b51;--ink:#f4f7fb;--muted:#b4c0cf;--mint:#a9f2d0;--blue:#9ec9ff;--bad:#ffb6ad}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at 78% 0%,#1b3450 0,transparent 38%),var(--bg);color:var(--ink);font:16px/1.6 system-ui,-apple-system,sans-serif}
+.wrap{width:min(760px,calc(100% - 32px));margin:auto}
+.top{padding:20px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.brand{font-weight:850;color:var(--ink);text-decoration:none}
+.nav a{color:var(--muted);text-decoration:none;font-size:14px;margin-left:14px}
+.nav a:hover{color:var(--mint)}
+.eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:850;color:var(--mint)}
+main{padding:42px 0 56px}
+h1{font-size:clamp(36px,8vw,58px);letter-spacing:-.055em;line-height:1.02;margin:12px 0 16px}
+h2{font-size:1.25rem;margin:0 0 12px}
+h3{font-size:1.05rem;margin:18px 0 8px}
+.lede{color:var(--muted);font-size:18px}
+.panel{border:1px solid var(--line);border-radius:18px;background:var(--panel);padding:22px;margin-top:26px}
+label{display:block;font-weight:750;margin:12px 0 7px}
+input{width:100%;font:inherit;color:var(--ink);background:#09111c;border:1px solid #52647a;border-radius:10px;padding:14px;margin-bottom:4px}
+button{font:inherit;font-weight:850;border:0;border-radius:10px;padding:12px 16px;background:var(--mint);color:#08130e;cursor:pointer;margin:8px 8px 0 0}
+button.secondary{background:#20344a;color:var(--ink);border:1px solid #52647a}
+button:disabled{opacity:.55;cursor:wait}
+.hint,.muted{color:var(--muted);font-size:14px}
+.result{margin-top:18px;border-top:1px solid var(--line);padding-top:18px}
+.status{display:inline-block;border:1px solid #52647a;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:850;letter-spacing:.04em}
+.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:16px 0}
+.field{padding:12px;background:#0b1522;border:1px solid var(--line);border-radius:10px;overflow-wrap:anywhere}
+.field b{display:block;color:var(--muted);font-size:12px;margin-bottom:4px}
+.packet{white-space:pre-wrap;overflow-wrap:anywhere;background:#08111b;border:1px solid var(--line);padding:14px;border-radius:10px;font:12px/1.5 ui-monospace,monospace;max-height:340px;overflow:auto}
+a{color:var(--mint)}
+footer{border-top:1px solid var(--line);padding:20px 0 30px;color:var(--muted);font-size:14px}
+.error{color:var(--bad)}
+.ok{color:var(--mint)}
+details{margin-top:16px}
+summary{cursor:pointer;font-weight:750}
+.checklist{padding-left:20px}
+.checklist li{margin:7px 0;overflow-wrap:anywhere}
+.claim-box{margin-top:18px;padding:16px;border:1px dashed var(--line);border-radius:12px;background:#0b1522}
+.claim-box pre{white-space:pre-wrap;font:13px/1.5 ui-monospace,monospace;color:var(--muted);margin:10px 0 0}
+.links-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px;align-items:center}
+@media(max-width:520px){.fields{grid-template-columns:1fr}.panel{padding:16px}main{padding-top:30px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <a class="brand" href="/">DreamLedger</a>
+  <nav class="nav" aria-label="Related tools">
+    <a href="/truth-oracle.html">Truth Oracle</a>
+    <a href="/quote-comparison/">Quote comparison</a>
+    <a href="https://www.nzbn.govt.nz/" target="_blank" rel="noopener noreferrer">Official NZBN</a>
+  </nav>
+</header>
+<main>
+<div class="eyebrow">Free public tool · No account required · Truth Oracle linked</div>
+<h1>NZBN lookup</h1>
+<p class="lede">Check a New Zealand Business Number against the verification service. Review returned checks and cryptographic evidence, then turn the result into a Truth Oracle claim-check record if you need a durable evidence trail.</p>
+
+<section class="panel" aria-labelledby="lookup-heading">
+<h2 id="lookup-heading">Check a business</h2>
+<form id="lookup-form">
+<label for="nzbn">New Zealand Business Number (NZBN)</label>
+<input id="nzbn" name="nzbn" inputmode="numeric" autocomplete="off" maxlength="15" pattern="[0-9 ]{13,15}" placeholder="e.g. 9429038949149" required aria-describedby="nzbn-hint">
+<p id="nzbn-hint" class="hint">Enter all 13 digits. Spaces are allowed and removed before submission.</p>
+<label for="business-name">Business name (optional)</label>
+<input id="business-name" name="name" autocomplete="organization" maxlength="200" placeholder="Compare against the returned legal/trading name">
+<button id="check-button" type="submit">Verify NZBN</button>
+</form>
+<div id="result" class="result" role="status" aria-live="polite" hidden></div>
+</section>
+
+<p class="muted">This is an informational cross-check, not legal, financial, solvency, identity, or transaction-safety advice. A missing field is <strong>unknown</strong>, not a pass. GST is reported only when the verification service supplies it. A successful lookup records what the service returned; it does not prove the business is safe to deal with.</p>
+<p class="links-row">
+  <a href="https://www.nzbn.govt.nz/" target="_blank" rel="noopener noreferrer">Open the official NZBN register ↗</a>
+  <a href="/truth-oracle.html">Open Truth Oracle claim template ↗</a>
+</p>
+</main>
+<footer>
+DreamLedger evidence uses a canonical response payload, SHA-256 hash, and Ed25519 signature where the service returns them. Offline verification on this page checks the signature against the published public key. A valid signature proves integrity of that payload, not the truth of every underlying register field.
+ · <a href="/marketplace.html">DreamLedger services</a>
+ · <a href="/trust/">Evidence standard</a>
+</footer>
+</div>
+<script>
+(function(){
+const form=document.getElementById('lookup-form');
+const input=document.getElementById('nzbn');
+const nameInput=document.getElementById('business-name');
+const button=document.getElementById('check-button');
+const result=document.getElementById('result');
+const endpoint='https://wbwgroygjeyukkspnqiy.supabase.co/functions/v1/verify-nzbn';
+const publicKeyUrl='https://wbwgroygjeyukkspnqiy.supabase.co/functions/v1/fossil-public-key';
+let latest=null;
+let latestNzbn=null;
+
+function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function pretty(v){if(v===null||v===undefined||v==='')return 'Not returned';if(typeof v==='boolean')return v?'Yes':'No';if(typeof v==='object')return JSON.stringify(v,null,2);return String(v);}
+function field(label,value){return '<div class="field"><b>'+esc(label)+'</b>'+esc(pretty(value))+'</div>';}
+function hexBytes(hex){if(typeof hex!=='string'||!/^(?:[0-9a-f]{2})+$/i.test(hex))throw new Error('Expected an even-length hexadecimal value.');const a=new Uint8Array(hex.length/2);for(let i=0;i<a.length;i++)a[i]=parseInt(hex.slice(i*2,i*2+2),16);return a;}
+function bytesHex(a){return Array.from(new Uint8Array(a),b=>b.toString(16).padStart(2,'0')).join('');}
+
+function buildClaimRecord(data,nzbn){
+  const name=data.entity_name??data.entityName??null;
+  const status=data.entity_status??data.entityStatus??data.verdict??data.status??null;
+  const type=data.entity_type??data.entityType??null;
+  const checkedAt=data.checked_at??data.checkedAt??new Date().toISOString();
+  const hash=data.fossil_hash??data.hash??null;
+  const checks=Array.isArray(data.checks)?data.checks:[];
+  const checkLines=checks.map(c=>`  - ${c.name||'Unnamed'}: ${c.pass===true?'PASS':c.pass===false?'FAIL':'UNKNOWN'} (observed: ${pretty(c.observed)}; expected: ${pretty(c.expected)})`).join('\n');
+  const suppliedName=nameInput.value.trim();
+  const nameNote=suppliedName?`User-supplied name for comparison: "${suppliedName}".`:'No user-supplied name provided for comparison.';
+  return `CLAIM: The NZBN ${nzbn} corresponds to the entity details returned by the DreamLedger NZBN verification service (entity name, status, type, and any structured checks).
+ORIGINAL SOURCE / URL: DreamLedger NZBN verification endpoint (proxy to NZBN register data) · Official register: https://www.nzbn.govt.nz/
+SOURCE DATE: ${checkedAt}
+EXACT SUPPORTING PASSAGE:
+  NZBN: ${nzbn}
+  Entity name: ${pretty(name)}
+  Entity status: ${pretty(status)}
+  Entity type: ${pretty(type)}
+  Verdict / service status: ${pretty(data.verdict??data.status)}
+  Evidence status: ${pretty(data.evidence_status??data.evidenceStatus)}
+  SHA-256 (if returned): ${pretty(hash)}
+${checkLines?('Structured checks:\n'+checkLines):'  (No structured checks list returned)'}
+  ${nameNote}
+CONTRADICTING EVIDENCE: None identified from this single service response alone. Cross-check against the official NZBN register and any independent documents before relying on the data for a decision.
+MISSING INFORMATION: Fields the service did not return remain unknown. GST, solvency, directors, beneficial ownership, trading history, and transaction safety are not established by this lookup unless explicitly returned and independently confirmed. Service configuration or network failure can also produce incomplete results.
+CURRENT ASSESSMENT: ${data.verdict||status?'SUPPORTED (for fields explicitly returned by the service) / LIMITED':'UNVERIFIED / UNKNOWN'}
+NEXT CHECK: Confirm the same NZBN and entity name on https://www.nzbn.govt.nz/ ; re-run this tool after any register change; retain the SHA-256 and signature if present for integrity.
+LIMITATION: A successful or signed service response proves only what that payload contains and (when signature verifies) that the payload was not altered after signing. It does not prove the business is solvent, legitimate for a particular transaction, or free of risk. Payment never improves the truth verdict.`;
+}
+
+function showError(status,data){
+  const missing=Array.isArray(data?.missing)?data.missing.join(', '):null;
+  const isConfig=status===503||(data&&(data.error==='SERVICE_NOT_CONFIGURED'||missing));
+  let extra='';
+  if(isConfig){
+    extra='<p class="muted">The backend verification function is not fully configured (missing API credentials or signing key). No NZBN status has been inferred from this failure. Use the official NZBN register until the service is restored.</p>';
+  }
+  result.innerHTML='<span class="status error">SERVICE RESPONSE '+esc(status)+'</span><p>The service did not return a successful verification. No registration, GST, or identity status has been inferred.</p>'+extra+'<details open><summary>Raw response body</summary><pre class="packet">'+esc(JSON.stringify(data,null,2))+'</pre></details><p class="links-row"><a href="https://www.nzbn.govt.nz/" target="_blank" rel="noopener noreferrer">Check on the official NZBN register ↗</a> <a href="/truth-oracle.html">Record the gap in Truth Oracle ↗</a></p>';
+}
+
+function render(data,nzbn){
+  latest=data;
+  latestNzbn=nzbn;
+  const checks=Array.isArray(data.checks)?data.checks:[];
+  const checkHtml=checks.length
+    ?'<h3>Checks returned by service</h3><ul class="checklist">'+checks.map(c=>'<li><strong>'+esc(c.name||'Unnamed check')+'</strong>: <span class="'+(c.pass===true?'ok':c.pass===false?'error':'')+'">'+esc(c.pass===true?'PASS':c.pass===false?'FAIL':'UNKNOWN')+'</span> · observed '+esc(pretty(c.observed))+' · expected '+esc(pretty(c.expected))+'</li>').join('')+'</ul>'
+    :'<p class="muted">The service did not return a structured checks list.</p>';
+  const canonical=data.canonical_payload??data.canonicalPayload??null;
+  const hash=data.fossil_hash??data.hash??null;
+  const sig=data.fossil_signature??data.signature??null;
+  const pub=data.public_key??null;
+  const name=data.entity_name??data.entityName??null;
+  const status=data.entity_status??data.entityStatus??null;
+  const type=data.entity_type??data.entityType??null;
+  const evidence='<h3>Evidence fields</h3><div class="fields">'+field('Entity name',name)+field('Entity status',status)+field('Entity type',type)+field('Verdict',data.verdict??data.status)+field('NZBN checked',nzbn)+field('Checked at',data.checked_at??data.checkedAt)+field('GST check',checks.find(c=>String(c.name).toLowerCase().includes('gst'))?.pass===true?'Passed':checks.find(c=>String(c.name).toLowerCase().includes('gst'))?.pass===false?'Not confirmed':'Not returned')+field('Evidence status',data.evidence_status??data.evidenceStatus)+field('Payment status',data.payment_status??data.paymentStatus)+'</div>';
+  const proof='<h3>Cryptographic fields</h3><ul class="checklist"><li>SHA-256 hash: '+esc(hash??'Not returned')+'</li><li>Ed25519 signature: '+esc(sig??'Not returned')+'</li><li>Public key: '+esc(pub?JSON.stringify(pub):'Not returned')+'</li><li>Public key endpoint: <a href="'+publicKeyUrl+'" target="_blank" rel="noopener noreferrer">fossil-public-key</a></li></ul>';
+  const claim=buildClaimRecord(data,nzbn);
+  result.innerHTML=
+    '<span class="status">'+esc(String(data.verdict??'RESULT RETURNED').toUpperCase())+'</span>'+
+    evidence+checkHtml+proof+
+    '<div class="links-row">'+
+      '<button type="button" id="copy-json">Copy result JSON</button>'+
+      '<button type="button" class="secondary" id="share-link">Copy share link</button>'+
+      '<button type="button" class="secondary" id="verify-signature">Verify signature offline</button>'+
+      '<button type="button" class="secondary" id="make-claim">Create Truth Oracle claim record</button>'+
+    '</div>'+
+    '<p id="verify-status" class="muted" aria-live="polite"></p>'+
+    '<div id="claim-panel" class="claim-box" hidden>'+
+      '<strong>Truth Oracle claim-check record</strong>'+
+      '<p class="muted" style="margin:6px 0 0">Copy this into your notes or the <a href="/truth-oracle.html#record">Truth Oracle template</a>. A record is not proof by itself.</p>'+
+      '<pre id="claim-text"></pre>'+
+      '<button type="button" id="copy-claim">Copy claim record</button>'+
+    '</div>'+
+    '<details><summary>Canonical payload</summary><pre class="packet">'+esc(pretty(canonical))+'</pre></details>'+
+    '<details><summary>Full raw response JSON</summary><pre class="packet">'+esc(JSON.stringify(data,null,2))+'</pre></details>';
+
+  document.getElementById('copy-json').addEventListener('click',async()=>{
+    try{await navigator.clipboard.writeText(JSON.stringify(data,null,2));document.getElementById('verify-status').textContent='Result JSON copied.';}
+    catch(e){document.getElementById('verify-status').textContent='Clipboard access was blocked by this browser.';}
+  });
+  document.getElementById('share-link').addEventListener('click',async()=>{
+    const u=new URL(location.href);u.searchParams.set('nzbn',nzbn);
+    try{await navigator.clipboard.writeText(u.toString());document.getElementById('verify-status').textContent='Share link copied. Opening it does not automatically submit a lookup.';}
+    catch(e){document.getElementById('verify-status').textContent='Share link: '+u.toString();}
+  });
+  document.getElementById('verify-signature').addEventListener('click',verifyOffline);
+  document.getElementById('make-claim').addEventListener('click',()=>{
+    const panel=document.getElementById('claim-panel');
+    const pre=document.getElementById('claim-text');
+    pre.textContent=claim;
+    panel.hidden=false;
+    document.getElementById('verify-status').textContent='Claim record generated below. Review and copy if useful.';
+  });
+  document.getElementById('copy-claim').addEventListener('click',async()=>{
+    try{await navigator.clipboard.writeText(claim);document.getElementById('verify-status').textContent='Truth Oracle claim record copied.';}
+    catch(e){document.getElementById('verify-status').textContent='Clipboard access was blocked by this browser.';}
+  });
+}
+
+async function verifyOffline(){
+  const s=document.getElementById('verify-status');
+  s.textContent='Fetching public key and checking the returned signature…';
+  try{
+    if(!latest)throw new Error('No result is loaded.');
+    const payload=latest.canonical_payload??latest.canonicalPayload;
+    const hash=latest.fossil_hash??latest.hash;
+    const sig=latest.fossil_signature??latest.signature;
+    if(typeof payload!=='string'||typeof hash!=='string'||typeof sig!=='string')throw new Error('The response does not contain all required evidence fields.');
+    if(!/^[0-9a-f]{64}$/i.test(hash))throw new Error('The SHA-256 hash is not 64 hexadecimal characters.');
+    if(!/^[0-9a-f]{128}$/i.test(sig))throw new Error('The Ed25519 signature is not 128 hexadecimal characters.');
+    const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(payload));
+    const actual=bytesHex(digest);
+    if(actual.toLowerCase()!==hash.toLowerCase())throw new Error('Payload hash mismatch. The payload does not match the published SHA-256 hash.');
+    const r=await fetch(publicKeyUrl,{method:'GET',headers:{Accept:'application/json'},cache:'no-store'});
+    const raw=await r.text();
+    let key;try{key=JSON.parse(raw);}catch{throw new Error('Public-key endpoint returned non-JSON text: '+raw.slice(0,240));}
+    if(!r.ok)throw new Error('Public-key endpoint HTTP '+r.status+': '+JSON.stringify(key));
+    const jwk=key.public_key??key.publicKey??key;
+    const imported=await crypto.subtle.importKey('jwk',jwk,{name:'Ed25519'},false,['verify']);
+    const valid=await crypto.subtle.verify({name:'Ed25519'},imported,hexBytes(sig),digest);
+    if(!valid)throw new Error('Ed25519 signature did not verify against the published key.');
+    s.textContent='PASS: SHA-256 payload hash matches and the Ed25519 signature verifies against the published public key.';
+  }catch(e){s.textContent='NOT VERIFIED: '+(e?.message||String(e));}
+}
+
+form.addEventListener('submit',async e=>{
+  e.preventDefault();
+  const nzbn=input.value.replace(/\s+/g,'');
+  const name=nameInput.value.trim();
+  if(!/^\d{13}$/.test(nzbn)){result.hidden=false;result.innerHTML='<p class="error">Enter a valid 13-digit NZBN.</p>';return;}
+  button.disabled=true;button.textContent='Checking…';
+  result.hidden=false;result.innerHTML='<p>Contacting the verification service…</p>';
+  try{
+    const response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({nzbn,...(name?{name}:{})})});
+    const raw=await response.text();
+    let data;try{data=JSON.parse(raw);}catch{data={raw_response:raw};}
+    if(!response.ok){showError(response.status,data);return;}
+    render(data,nzbn);
+  }catch(err){
+    result.innerHTML='<p class="error">Could not reach the verification service from this browser. No business status was verified.</p><p class="muted">'+esc(err?.message||String(err))+'</p><p class="muted">If this persists, the service may be unavailable or blocked by browser CORS policy. Use the <a href="https://www.nzbn.govt.nz/" target="_blank" rel="noopener noreferrer">official NZBN register</a> and record the gap in <a href="/truth-oracle.html">Truth Oracle</a>.</p>';
+  }finally{
+    button.disabled=false;button.textContent='Verify NZBN';
+  }
+});
+
+const params=new URLSearchParams(location.search);
+const shared=params.get('nzbn');
+if(shared&&/^\d{13}$/.test(shared)){
+  input.value=shared;
+  document.getElementById('lookup-heading').insertAdjacentHTML('afterend','<p class="hint">A shared NZBN is prefilled. Press Verify NZBN to run a fresh check.</p>');
+}
+})();
+</script>
+</body>
+</html>
