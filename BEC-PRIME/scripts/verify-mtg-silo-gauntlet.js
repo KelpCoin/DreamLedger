@@ -28,7 +28,7 @@ check('MTG master reads canonical per-silo manifest',page.includes("const slug=d
 check('root/public MTG manifest copies match',read('silos/mtg/silo.json')===read('public/silos/mtg/silo.json'));
 check('MTG master has no hardcoded external Payment Link',!page.includes('buy.stripe.com/'));
 const masterManifest=json('silos/mtg/silo.json');
-check('MTG master manifest binds the canonical diagnostic route',masterManifest.identity.slug==='mtg'&&masterManifest.surface.featured_offers.some(o=>o.cta&&o.cta.href==='/mtg/diagnostic.html')&&!page.includes('8x228r1nfg0l3M32csdwc2I'));
+check('unverified diagnostic is not discoverable on public MTG surface',masterManifest.identity.slug==='mtg'&&!(masterManifest.surface.featured_offers||[]).some(o=>o.title==='Commander diagnostic')&&!json('public/catalog.json').products.some(o=>o.sku==='CMD-DIAG-29'||o.id==='COMMANDER-DECK-DIAGNOSTIC-001')&&!json('public/data/mtg-catalog.json').products.some(o=>o.sku==='CMD-DIAG-29'||o.id==='COMMANDER-DECK-DIAGNOSTIC-001'));
 check('canonical diagnostic route remains configured',product.silo==='mtg'&&product.checkout.url==='/mtg/diagnostic.html');
 check('singles autocomplete and preview use safe DOM APIs',!singles.includes('suggest.innerHTML=names.map')&&!singles.includes('art.innerHTML')&&singles.includes('label.textContent=name')&&singles.includes('suggest.replaceChildren()'));
 check('Quintorius listing includes the decklist grid and trust anchors',detail.includes('data-mtg-deck="/data/decklists/quintorius.json"')&&detail.includes('<b>See the cards</b>')&&detail.includes('<b>Clear terms</b>')&&detail.includes('<b>Safe deal</b>'));
