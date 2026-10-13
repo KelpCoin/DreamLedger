@@ -43,3 +43,7 @@ test('normalizes empty wrapped RPC claims as idle rather than phantom leases', (
 test('does not disguise a malformed non-empty claim as idle', () => {
   assert.deepEqual(normalizeClaimed({ lease_token: 'present-but-no-id' }), { lease_token: 'present-but-no-id' });
 });
+
+test('normalizes a Postgres null composite claim row as idle', () => {
+  assert.equal(normalizeClaimed({ id:null, type:null, status:null, payload:null, lease_token:null }), null);
+});
