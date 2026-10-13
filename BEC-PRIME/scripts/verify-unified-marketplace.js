@@ -28,7 +28,15 @@ check('STRIPE_SIGNATURE_VALIDATION',route.includes('timingSafeEqual')&&route.inc
 check('IDEMPOTENT_WEBHOOK_INBOX',sql.includes('primary key(provider,event_id)')&&sql.includes('on conflict(provider,event_id) do nothing'));
 check('LEDGER_HASH_CHAIN',sql.includes('previous_hash')&&sql.includes('event_hash')&&sql.includes('digest('));
 check('RLS_ENABLED',sql.includes('alter table public.marketplace_orders enable row level security')&&sql.includes('alter table public.marketplace_ledger_events enable row level security'));
+check('LOCAL_LEDGER_ENCRYPTED',route.includes('aes-256-gcm')&&route.includes('MARKETPLACE_LOCAL_ENCRYPTION_KEY'));
+check('LOCAL_LEDGER_CHAIN_VERIFIED',route.includes('decodeLocalLine')&&route.includes('envelopeHash'));
+check('DYNAMIC_CREDENTIALS_HASHED',sql.includes('marketplace_api_credentials')&&sql.includes('token_hash text not null unique'));
+check('CREDENTIAL_SCOPE_GATES',route.includes("lacks submit_listing scope")&&route.includes("lacks checkout scope")&&route.includes("lacks agent_intent scope"));
+check('CONNECT_ONBOARDING_GATED',route.includes('MARKETPLACE_ENABLE_CONNECT_ONBOARDING')&&route.includes('account_links'));
+check('CONNECT_DESTINATION_CHARGE',route.includes('payment_intent_data[transfer_data][destination]')&&route.includes('payment_intent_data[application_fee_amount]'));
 check('CHECKOUT_FAILS_CLOSED',route.includes('CHECKOUT_HELD'));
+check('CUBE_SEED_MIGRATION',migrations.some(x=>x.includes('003_seed_cube_b2b_hypotheses'))&&sql.includes('marketplace_cube_hypotheses'));
+check('LEDGER_APPEND_SERIALIZED',sql.includes('pg_advisory_xact_lock(777771)'));
 check('PAGE_USES_REAL_API',page.includes('/api/marketplace/v1/listings')&&page.includes('/api/marketplace/v1/rfqs'));
 check('PAGE_NO_FAKE_SUPPLIERS',page.includes('No placeholder listings have been fabricated.'));
 check('AGENT_MANIFEST_HAS_A2A',manifest?.endpoints?.agent_intents==='https://dreamledger.org/api/marketplace/v1/agent-intents');
