@@ -39,6 +39,18 @@ services:
           type: pserv
           name: dreamledger-engine
           envVarKey: SUPABASE_SERVICE_ROLE_KEY
+      - key: STRIPE_SECRET_KEY
+        fromService:
+          type: pserv
+          name: dreamledger-engine
+          envVarKey: STRIPE_SECRET_KEY
+      - key: DREAMLEDGER_TOLL_KEY_SECRET
+        fromService:
+          type: pserv
+          name: dreamledger-engine
+          envVarKey: DREAMLEDGER_TOLL_KEY_SECRET
+      - key: TOLL_CHECKOUT_ENABLED
+        value: "false"
       - key: DREAMLEDGER_AGENT_BRIDGE_TOKEN
         fromService:
           type: pserv
@@ -103,6 +115,8 @@ services:
         sync: false
       - key: STRIPE_SECRET_KEY
         sync: false
+      - key: DREAMLEDGER_TOLL_KEY_SECRET
+        sync: false
       - key: STRIPE_WEBHOOK_SECRET
         sync: false
       - key: RESEND_API_KEY
@@ -112,5 +126,5 @@ services:
       - key: DEPLOYMENT_CHANNEL
         value: dreamledger-production
 
-# Storefront bridge worker consumes the existing engine credentials via fromService.
-# No secret value is generated or exposed by this file.
+# Storefront receives the existing engine credentials via fromService. Toll checkout stays disabled by default.
+# Secret values remain operator-managed and are never committed to source.
