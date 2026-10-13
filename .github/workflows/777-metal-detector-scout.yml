@@ -1,0 +1,62 @@
+name: 777 Metal-Detector Scout
+on:
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: 777-metal-detector-scout
+  cancel-in-progress: false
+
+jobs:
+  harvest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL || 'https://wbwgroygjeyukkspnqiy.supabase.co' }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+      SCOUT_X402_FEED_URL: ${{ vars.SCOUT_X402_FEED_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: Validate scout without network writes
+        run: |
+          python3 -m py_compile ops/demand/777-metal-detector-scout.py
+          SCOUT_DRY_RUN=1 python3 ops/demand/777-metal-detector-scout.py
+      - name: Harvest and stage raw discoveries
+        run: python3 ops/demand/777-metal-detector-scout.py | tee scout-run.json
+      - name: Emit truthful run summary
+        if: always()
+        run: |
+          if [ -f scout-run.json ]; then
+            python3 - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path("scout-run.json")
+          try:
+              x=json.loads(p.read_text())
+          except Exception:
+              print("SCOUT_RESULT=NO_VALID_RUN_RECEIPT")
+              raise SystemExit(0)
+          print("SCOUT_STATUS="+str(x.get("status","UNKNOWN")))
+          print("SCOUT_HARVESTED="+str(x.get("harvested_count",0)))
+          print("SCOUT_SOURCE_ERRORS="+str(x.get("error_count",0)))
+          print("REVENUE_EFFECT=NONE")
+          print("ECONOMIC_LEDGER_WRITTEN=false")
+          PY
+          else
+            echo "SCOUT_RESULT=NO_RUN_RECEIPT"
+          fi
+      - name: Upload scout run evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: 777-metal-detector-scout-${{ github.run_id }}
+          path: scout-run.json
+          if-no-files-found: warn
+          retention-days: 30
