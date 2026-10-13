@@ -127,14 +127,9 @@ function localStatus() {
 function publicListing(row) {
   return {id:row.id,title:row.title,description:row.description,category:row.category,listing_type:row.listing_type,price_minor:row.price_minor,currency:row.currency,pricing_model:row.pricing_model,quantity:row.quantity,unit:row.unit,location:row.location||{},attributes:row.attributes||{},created_at:row.created_at};
 }
-function agentIdentity(req) {
-  const header=String(req.headers.authorization||'');
-  if(!header.startsWith('Bearer ')) return null;
-  const token=header.slice(7);
-  let configured={};
-  try { configured=JSON.parse(process.env.A2A_AGENT_KEYS_JSON||'{}'); } catch { return null; }
-  const hash=crypto.createHash('sha256').update(token).digest('hex');
-  return configured[hash]||null;
+async function agentIdentity(req) {
+  const x=await credentialMap('A2A_AGENT_KEYS_JSON',req,'agent');
+  return x&&x.agent_uri&&x.principal_party_id?x:null;
 }
 async function status(req,res) {
   if(STORE==='local') return send(res,200,{schema:'DREAMLEDGER/MARKETPLACE-STATUS/v1',...localStatus(),economic_truth:'No revenue is inferred from ledger rows; settlement, fulfillment, delivery and independent evidence must reconcile.'});
@@ -143,15 +138,23 @@ async function status(req,res) {
   if(configured) { try { await rpc('marketplace_public_listings',{p_query:'__healthcheck_no_match__',p_category:null,p_listing_type:null,p_limit:1,p_offset:0}); backend='available'; } catch(err) { return send(res,503,{schema:'DREAMLEDGER/MARKETPLACE-STATUS/v1',mode:'supabase',status:'unavailable',configured,error_code:err.statusCode||503,message:'Supabase RPC preflight failed; no fallback or split-brain write attempted.'}); } }
   return send(res,configured?200:503,{schema:'DREAMLEDGER/MARKETPLACE-STATUS/v1',mode:'supabase',status:backend,configured,economic_truth:'No revenue is inferred from ledger rows; settlement, fulfillment, delivery and independent evidence must reconcile.'});
 }
-function credentialMap(envName, req) {
+async function credentialMap(envName, req, credentialType) {
   const header=String(req.headers.authorization||'');
   if(!header.startsWith('Bearer ')) return null;
-  let configured={}; try { configured=JSON.parse(process.env[envName]||'{}'); } catch { return null; }
-  const hash=crypto.createHash('sha256').update(header.slice(7)).digest('hex');
-  return configured[hash]||null;
+  const token=header.slice(7), hash=crypto.createHash('sha256').update(token).digest('hex');
+  let configured={}; try { configured=JSON.parse(process.env[envName]||'{}'); } catch {}
+  if(configured[hash]) return configured[hash];
+  if(STORE!=='supabase'||!BASE||!SERVICE_KEY) return null;
+  try {
+    const rows=await rest('marketplace_api_credentials?select=id,credential_type,party_id,scopes,agent_uri,principal_party_id,expires_at&token_hash=eq.'+hash+'&credential_type=eq.'+encodeURIComponent(credentialType)+'&status=eq.active');
+    const item=Array.isArray(rows)?rows[0]:null;
+    if(!item||(item.expires_at&&Date.parse(item.expires_at)<=Date.now())) return null;
+    return {...item,credential_id:item.id};
+  } catch { return null; }
 }
-function supplierIdentity(req){const x=credentialMap('MARKETPLACE_SUPPLIER_KEYS_JSON',req);return x&&x.party_id?x:null;}
-function buyerIdentity(req){const x=credentialMap('MARKETPLACE_BUYER_KEYS_JSON',req);return x&&x.party_id?x:null;}
+function hasScope(identity,scope){return !Array.isArray(identity?.scopes)||identity.scopes.includes(scope);}
+async function supplierIdentity(req){const x=await credentialMap('MARKETPLACE_SUPPLIER_KEYS_JSON',req,'supplier');return x&&x.party_id?x:null;}
+async function buyerIdentity(req){const x=await credentialMap('MARKETPLACE_BUYER_KEYS_JSON',req,'buyer');return x&&x.party_id?x:null;}
 async function rest(resource, options={}) {
   if(!BASE||!SERVICE_KEY) throw Object.assign(new Error('Supabase marketplace backend is not configured'),{statusCode:503});
   const response=await fetch(BASE+'/rest/v1/'+resource,{...options,headers:{apikey:SERVICE_KEY,Authorization:'Bearer '+SERVICE_KEY,'Content-Type':'application/json',Prefer:'return=representation',...(options.headers||{})}});
@@ -202,7 +205,7 @@ async function handle(req,res,requestPath) {
   }
   if(req.method==='POST'&&requestPath==='/api/marketplace/v1/agent-intents') {
     if(!rateAllowed(req)) return send(res,429,{error:'Rate limit reached; retry after one minute.'});
-    const agent=agentIdentity(req);
+    const agent=await agentIdentity(req);
     if(!agent||!agent.agent_uri||!agent.principal_party_id) return send(res,401,{error:'Valid registered A2A agent credential required'});
     const b=await readBody(req), action=safeText(b.action,100), amount=Number(b.amount_minor||0), currency=safeText(b.currency||'NZD',3).toUpperCase();
     if(!action||!b.request||typeof b.request!=='object'||!Number.isSafeInteger(amount)||amount<0||!/^[A-Z]{3}$/.test(currency)) return send(res,400,{error:'action, object request, non-negative integer amount_minor, and ISO currency required'});
@@ -216,7 +219,7 @@ async function handle(req,res,requestPath) {
     return send(res,202,result);
   }
   if(req.method==='POST'&&requestPath==='/api/marketplace/v1/listings') {
-    const supplier=supplierIdentity(req); if(!supplier) return send(res,401,{error:'Registered supplier credential required'});
+    const supplier=await supplierIdentity(req); if(!supplier) return send(res,401,{error:'Registered supplier credential required'});
     const b=await readBody(req), key=safeText(req.headers['idempotency-key']||b.idempotency_key,160)||crypto.randomUUID();
     const payload={title:safeText(b.title,180),description:safeText(b.description,12000),category:safeText(b.category,80).toLowerCase(),listing_type:safeText(b.listing_type||'goods',40),pricing_model:safeText(b.pricing_model||'fixed',40),price_minor:b.price_minor==null?null:Number(b.price_minor),currency:safeText(b.currency||'NZD',3).toUpperCase(),quantity:b.quantity==null?null:Number(b.quantity),unit:safeText(b.unit,40),location:b.location||{},attributes:b.attributes||{},seller_party_id:supplier.party_id};
     if(STORE==='local') {
@@ -315,7 +318,7 @@ async function handle(req,res,requestPath) {
   }
   const acceptMatch=requestPath.match(/^\/api\/marketplace\/v1\/offers\/([0-9a-f-]{36})\/accept$/i);
   if(req.method==='POST'&&acceptMatch) {
-    const buyer=buyerIdentity(req); if(!buyer) return send(res,401,{error:'Registered buyer credential required'});
+    const buyer=await buyerIdentity(req); if(!buyer) return send(res,401,{error:'Registered buyer credential required'});
     if(!uuid(acceptMatch[1])) return send(res,400,{error:'Invalid offer id'});
     const b=await readBody(req); if(b.confirmed!==true||safeText(b.authorized_by,160).length<3) return send(res,400,{error:'Explicit human confirmation and authorized_by are required'});
     const key=safeText(req.headers['idempotency-key']||b.idempotency_key,160)||crypto.randomUUID();
