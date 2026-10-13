@@ -77,13 +77,24 @@ function candidateFromModel(modelOutput, source) {
   };
 }
 
-async function postJson(url, body, timeoutMs = 15000) {
+function localGpuConfig() {
+  const endpoint = String(process.env.LM_STUDIO_URL || '').trim();
+  const apiKey = String(process.env.LM_STUDIO_API_KEY || '').trim();
+  if (!endpoint || !apiKey) return null;
+  try {
+    const parsed = new URL(endpoint);
+    if (parsed.protocol !== 'https:') return null;
+  } catch { return null; }
+  return { url: endpoint, headers: { Authorization: 'Bearer ' + apiKey } };
+}
+
+async function postJson(url, body, timeoutMs = 15000, extraHeaders = {}) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
     const r = await fetch(url, {
       method: 'POST',
-      headers: { 'content-type': 'application/json', 'accept': 'application/json' },
+      headers: { 'content-type': 'application/json', 'accept': 'application/json', ...extraHeaders },
       body: JSON.stringify(body),
       signal: controller.signal
     });
@@ -113,6 +124,7 @@ async function main() {
   const source = readInput();
   const attempts = [];
   const skipModels = process.env.DREAMLEDGER_777_SKIP_MODELS === 'true';
+  const localGpu = localGpuConfig();
   let selected = null;
   let candidate;
   let model_claim = 'NONE';
@@ -120,15 +132,15 @@ async function main() {
 
   // Optional local-GPU acceleration is opt-in and only attempted when model
   // execution is explicitly enabled and a reachable LM Studio endpoint exists.
-  if (!skipModels && preferLocalGpu && process.env.LM_STUDIO_URL) {
+  if (!skipModels && preferLocalGpu && localGpu) {
     selected = await attempt('0:OPT_IN_LOCAL_GPU', async () => {
-      const r = await postJson(process.env.LM_STUDIO_URL, {
+      const r = await postJson(localGpu.url, {
         model: process.env.LM_STUDIO_MODEL || 'configured-local-model',
         messages: [{
           role: 'system',
           content: 'Produce one bounded DreamLedger economic candidate. Use only existing offers. Never invent buyers, payments, or proof. Require independent settlement and fulfillment evidence.'
         }, { role: 'user', content: JSON.stringify(source) }]
-      });
+      }, 15000, localGpu.headers);
       const c = candidateFromModel(r.choices?.[0]?.message?.content || r.output || r, source);
       return { local_gpu: r, candidate: c };
     }, attempts);
@@ -180,15 +192,15 @@ async function main() {
     if (selected) { candidate = selected.output.candidate; model_claim = 'CONFIGURED_FALLBACK'; }
   }
 
-  if (!skipModels && !selected && process.env.LM_STUDIO_URL) {
+  if (!skipModels && !selected && localGpu) {
     selected = await attempt('4:LM_STUDIO_OPENAI_COMPATIBLE', async () => {
-      const r = await postJson(process.env.LM_STUDIO_URL, {
+      const r = await postJson(localGpu.url, {
         model: process.env.LM_STUDIO_MODEL || 'configured-local-model',
         messages: [{
           role: 'system',
           content: 'Produce one bounded DreamLedger economic candidate. Prioritize Truth Oracle, DreamMeez, Billboard, and Agent Bridge/GPU. Quote Comparison NZ$49 is a subordinate tier, never the default. Existing offers only. No buyer/payment/proof claims.'
         }, { role: 'user', content: JSON.stringify(source) }]
-      });
+      }, 15000, localGpu.headers);
       const c = candidateFromModel(r.choices?.[0]?.message?.content || r.output || r, source);
       return { lm_studio: r, candidate: c };
     }, attempts);
@@ -222,6 +234,7 @@ async function main() {
     model_execution_allowed: !skipModels,
     local_gpu_preferred: preferLocalGpu,
     local_gpu_endpoint_configured: Boolean(process.env.LM_STUDIO_URL),
+    local_gpu_authenticated_https_ready: Boolean(localGpu),
     fallback_attempts: attempts,
     candidate_hash: sha(JSON.stringify(candidate)),
     gauntlet_status: gauntlet.status || 'UNKNOWN',
