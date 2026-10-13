@@ -342,7 +342,11 @@ for signal in signals:
 
 if "--local" in os.sys.argv:
     # Local mode is a sensor/qualification input only. It never writes the public site.
-    print(json.dumps({"schema":"DREAMLEDGER/777/PRIVATE-SIGNAL-BATCH/v1","generated_at":now.isoformat(),"signals":deduped[:50],"source_errors":source_errors}, ensure_ascii=False))
+    source_counts = {}
+    for item in deduped:
+        source_name = str(item.get("source") or "UNKNOWN")
+        source_counts[source_name] = source_counts.get(source_name, 0) + 1
+    print(json.dumps({"schema":"DREAMLEDGER/777/PRIVATE-SIGNAL-BATCH/v1","generated_at":now.isoformat(),"signals":deduped[:200],"source_counts":source_counts,"source_errors":source_errors}, ensure_ascii=False))
     raise SystemExit(0)
 
 if deduped is not None:  # Empty discovery batches must reach the bounded fallback path.
