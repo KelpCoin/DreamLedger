@@ -24,7 +24,10 @@ function compile(checkOnly=false){
  if(Number(registry.silos.MTG.platform_fee_bps)!==0)throw Error('MTG fee invariant broken');
  for(const [k,v] of Object.entries(registry.silos))if(k!=='MTG'&&Number(v.platform_fee_bps)!==500)throw Error('Non-MTG fee invariant broken: '+k);
  for(const [k,v] of Object.entries(policy.rules))if(k!=='dreamledger-mtg'&&Number(v.platform_fee_bps)!==500)throw Error('Fee policy invariant broken: '+k);
- const outputs={[rp]:JSON.stringify(registry,null,2)+'\n',[fp]:JSON.stringify(policy,null,2)+'\n'};
+ const names={MTG:'Magic: The Gathering',MUSIC_MEDIA:music.name,AMPLISSA:'Amplissa',BBW_SSBBW:'Creator Marketplace',DREAMMEEZ:'DreamMeez',OTHER:'Other'};
+ for(const s of tcg.silos||[])names['TCG_'+String(s.slug).toUpperCase()]=s.name;
+ const directory={schema:'dreamledger/silo-directory/v1',updated:'2026-10-14',silos:Object.entries(registry.silos).filter(([k,v])=>v.status==='active'&&Array.isArray(v.public_prefixes)&&v.public_prefixes.length).map(([k,v])=>({key:k,name:names[k]||k,route:v.public_prefixes[0].replace(/\\/$/,'')+'/',status:v.status}))};
+ const outputs={[rp]:JSON.stringify(registry,null,2)+'\n',[fp]:JSON.stringify(policy,null,2)+'\n','data/silo-directory.json':JSON.stringify(directory,null,2)+'\n','public/data/silo-directory.json':JSON.stringify(directory,null,2)+'\n'};
  const drift=[];
  for(const [rel,body] of Object.entries(outputs)){
   const dest=path.join(root,rel);
