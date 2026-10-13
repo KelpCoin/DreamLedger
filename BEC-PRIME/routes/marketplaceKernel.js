@@ -39,6 +39,21 @@ async function readBody(req) {
   for await (const chunk of req) { raw+=chunk; if(Buffer.byteLength(raw)>MAX_BODY) throw Object.assign(new Error('Request too large'),{statusCode:413}); }
   try { return raw ? JSON.parse(raw) : {}; } catch { throw Object.assign(new Error('JSON body required'),{statusCode:400}); }
 }
+async function stripePost(endpoint,params,idempotencyKey) {
+  const secret=String(process.env.STRIPE_SECRET_KEY||'');
+  if(!secret) throw Object.assign(new Error('Stripe is not configured'),{statusCode:503});
+  const form=new URLSearchParams();
+  for(const [key,value] of Object.entries(params)) if(value!==undefined&&value!==null) form.set(key,String(value));
+  const abort=new AbortController(); const timer=setTimeout(()=>abort.abort(),10000);
+  try {
+    const response=await fetch('https://api.stripe.com/v1/'+endpoint,{method:'POST',headers:{Authorization:'Bearer '+secret,'Content-Type':'application/x-www-form-urlencoded','Idempotency-Key':idempotencyKey},body:form,signal:abort.signal});
+    const raw=await response.text(); let data; try{data=raw?JSON.parse(raw):{};}catch{data={message:raw.slice(0,500)};}
+    if(!response.ok) throw Object.assign(new Error(data?.error?.message||'Stripe request failed'),{statusCode:502});
+    return data;
+  } catch(err) { if(err.name==='AbortError') throw Object.assign(new Error('Stripe request timed out; retry with the same order id'),{statusCode:503}); throw err; }
+  finally { clearTimeout(timer); }
+}
+
 async function rpc(name,args) {
   if(!BASE||!SERVICE_KEY) throw Object.assign(new Error('Supabase marketplace backend is not configured'),{statusCode:503});
   const abort=new AbortController(); const timer=setTimeout(()=>abort.abort(),3500);
@@ -295,9 +310,33 @@ async function handle(req,res,requestPath) {
   const checkoutMatch=requestPath.match(/^\/api\/marketplace\/v1\/orders\/([0-9a-f-]{36})\/checkout$/i);
   if(req.method==='POST'&&checkoutMatch) {
     const buyer=buyerIdentity(req); if(!buyer) return send(res,401,{error:'Registered buyer credential required'});
-    // Fail closed until seller payout/Connect, refund, tax and reconciliation are verified.
-    if(process.env.MARKETPLACE_ENABLE_CHECKOUT!=='true'||process.env.MARKETPLACE_PAYOUT_MODEL!=='stripe_connect_verified') return send(res,503,{error:'CHECKOUT_HELD: seller payout/Connect, refunds and reconciliation gates are not verified. No charge was created.'});
-    return send(res,503,{error:'CHECKOUT_HELD: the verified seller settlement adapter is not yet implemented. No charge was created.'});
+    if(!uuid(checkoutMatch[1])) return send(res,400,{error:'Invalid order id'});
+    if(STORE!=='supabase') return send(res,503,{error:'CHECKOUT_HELD: local ledger mode cannot prove external settlement. No charge was created.'});
+    if(process.env.MARKETPLACE_ENABLE_CHECKOUT!=='true'||process.env.MARKETPLACE_PAYOUT_MODEL!=='stripe_connect_verified') return send(res,503,{error:'CHECKOUT_HELD: marketplace checkout remains disabled until Connect, refunds, tax and reconciliation are explicitly approved. No charge was created.'});
+    const key=safeText(req.headers['idempotency-key'],160)||('checkout-prepared:'+checkoutMatch[1]);
+    const prepared=await rpc('marketplace_prepare_checkout',{p_order_id:checkoutMatch[1],p_buyer_party_id:buyer.party_id,p_idempotency_key:key});
+    if(prepared?.already_settled) return send(res,409,{error:'Order is already settled',order_id:prepared.order_id});
+    if(!prepared?.seller_stripe_account_id||!Number.isSafeInteger(Number(prepared.amount_minor))||Number(prepared.amount_minor)<1) return send(res,503,{error:'Seller settlement configuration or order amount is incomplete; no charge was created.'});
+    const base=(process.env.PUBLIC_BASE_URL||'https://dreamledger.org').replace(/\/$/,'');
+    const fee=Math.floor(Number(prepared.amount_minor)*Number(prepared.application_fee_bps||500)/10000);
+    const session=await stripePost('checkout/sessions',{
+      mode:'payment',
+      'line_items[0][price_data][currency]':String(prepared.currency||'NZD').toLowerCase(),
+      'line_items[0][price_data][unit_amount]':Number(prepared.amount_minor),
+      'line_items[0][price_data][product_data][name]':'DreamLedger marketplace order '+checkoutMatch[1].slice(0,8),
+      'line_items[0][quantity]':1,
+      success_url:base+'/marketplace.html?payment=return&session_id={CHECKOUT_SESSION_ID}',
+      cancel_url:base+'/marketplace.html?payment=cancelled&order_id='+encodeURIComponent(checkoutMatch[1]),
+      client_reference_id:checkoutMatch[1],
+      'metadata[marketplace_order_id]':checkoutMatch[1],
+      'metadata[dreamledger_sku]':'MARKETPLACE-ORDER',
+      'payment_intent_data[metadata][marketplace_order_id]':checkoutMatch[1],
+      'payment_intent_data[transfer_data][destination]':prepared.seller_stripe_account_id,
+      'payment_intent_data[application_fee_amount]':fee
+    },'marketplace-checkout:'+checkoutMatch[1]);
+    if(!session.id||!session.url) throw Object.assign(new Error('Stripe did not return a usable Checkout Session'),{statusCode:502});
+    await rpc('marketplace_attach_checkout_session',{p_order_id:checkoutMatch[1],p_session_id:session.id,p_idempotency_key:'checkout-session:'+checkoutMatch[1]});
+    return send(res,200,{order_id:checkoutMatch[1],checkout_url:session.url,session_id:session.id,amount_minor:prepared.amount_minor,currency:prepared.currency,platform_fee_minor:fee,payment_state:'PENDING',message:'Checkout created. Revenue is not counted until the signed Stripe event confirms settlement and fulfillment evidence reconciles.'});
   }
   const deliveryMatch=requestPath.match(/^\/api\/marketplace\/v1\/orders\/([0-9a-f-]{36})\/delivery$/i);
   if(req.method==='POST'&&deliveryMatch) {
