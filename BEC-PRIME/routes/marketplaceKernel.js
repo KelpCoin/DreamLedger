@@ -363,12 +363,24 @@ async function handle(req,res,requestPath) {
       if(old) return send(res,200,{listing_id:publishMatch[1],state:'published',duplicate:true});
       const submitted=readLocal(10000).find(e=>e.event_type==='LISTING_SUBMITTED'&&e.subject_id===publishMatch[1]);
       if(!submitted) return send(res,404,{error:'Pending local listing not found'});
+      if(submitted.payload?.pricing_model==='auction') return send(res,503,{error:'Timed auctions require the transactional Supabase backend; listing remains unpublished.'});
       appendLocal({event_id:crypto.randomUUID(),idempotency_key:'listing-published:'+publishMatch[1],event_type:'LISTING_PUBLISHED',subject_type:'listing',subject_id:publishMatch[1],actor_type:'human',actor_id:gate.reviewed_by,economic_state:'OBSERVED',payload:{...submitted.payload,status:'published',publication_gate:gate}});
       return send(res,200,{listing_id:publishMatch[1],state:'published',message:'Listing published after explicit review; not evidence of buyer demand or revenue.'});
     }
+    const pendingListings=await rest('marketplace_listings?select=id,pricing_model&id=eq.'+encodeURIComponent(publishMatch[1])+'&status=eq.pending_review');
+    const pendingListing=Array.isArray(pendingListings)?pendingListings[0]:null;
+    if(!pendingListing) return send(res,409,{error:'Listing is not pending review'});
+    const auctions=await rest('marketplace_auctions?select=id,starts_at,ends_at,status&listing_id=eq.'+encodeURIComponent(publishMatch[1])+'&status=eq.pending_review');
+    const auction=Array.isArray(auctions)?auctions[0]:null;
+    if(pendingListing.pricing_model==='auction'&&!auction) return send(res,409,{error:'Auction listing requires a reviewed auction schedule before publication'});
+    if(auction&&Date.parse(auction.ends_at)<=Date.now()) return send(res,409,{error:'Auction end time has passed; listing remains unpublished'});
     const rows=await rest('marketplace_listings?id=eq.'+encodeURIComponent(publishMatch[1])+'&status=eq.pending_review',{method:'PATCH',body:JSON.stringify({status:'published',publication_gate:gate,updated_at:new Date().toISOString()})});
     if(!Array.isArray(rows)||!rows.length) return send(res,409,{error:'Listing is not pending review or could not be published'});
-    await rpc('marketplace_append_ledger_event',{p_idempotency_key:'listing-published:'+publishMatch[1],p_event_type:'LISTING_PUBLISHED',p_subject_type:'listing',p_subject_id:publishMatch[1],p_actor_type:'human',p_actor_id:safeText(b.reviewed_by,160),p_economic_state:'OBSERVED',p_payload:{publication_gate:rows[0].publication_gate}});
+    if(auction) {
+      const auctionStatus=Date.parse(auction.starts_at)>Date.now()?'scheduled':'live';
+      await rest('marketplace_auctions?id=eq.'+encodeURIComponent(auction.id)+'&status=eq.pending_review',{method:'PATCH',body:JSON.stringify({status:auctionStatus,updated_at:new Date().toISOString()})});
+    }
+    await rpc('marketplace_append_ledger_event',{p_idempotency_key:'listing-published:'+publishMatch[1],p_event_type:'LISTING_PUBLISHED',p_subject_type:'listing',p_subject_id:publishMatch[1],p_actor_type:'human',p_actor_id:safeText(b.reviewed_by,160),p_economic_state:'OBSERVED',p_payload:{publication_gate:rows[0].publication_gate,auction_id:auction?.id||null}});
     return send(res,200,{listing_id:publishMatch[1],state:'published',message:'Listing published after explicit review; not evidence of buyer demand or revenue.'});
   }
   const offerMatch=requestPath.match(/^\/api\/marketplace\/v1\/rfqs\/([0-9a-f-]{36})\/offers$/i);
