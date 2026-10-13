@@ -17,7 +17,9 @@ A source outage is recorded per source; it does not silently mean there was no d
 ## Security and truth
 - GitHub Actions uses the existing server-side Supabase secret `SUPABASE_SECRET_KEY`; it is never passed to a model or Windows worker by this workflow.
 - All scout tables have RLS enabled and deny `anon` and `authenticated` access until purpose-built policies exist.
-- Scout findings never enter `economic_ledger`. No zero-dollar placeholder, fake settlement, or `PENDING_SIGN` is created.
+- Scout findings never enter `economic_ledger`. No zero-dollar placeholder, fake settlement, or `PENDING_SIGN` is created. Raw payloads are retained even when discarded; evidence hash/signature/canonical payload fields are for the discovery packet only, and a signature is valid only when produced and verified by the repository's actual signing implementation.
+- Scoring rubric: Reuse 0–30 + Revenue 0–40 + Leverage 0–20 + Novelty 0–10 − Cost penalty 0–10; positive maximum 100. The score is a prioritization aid, not judge reliability or buyer proof.
+- Durable retries require a verified queue implementation, bounded worker, visibility timeout/retry and DLQ. `waitUntil()` is not a durable queue. Local LM Studio cannot be reached through Edge Function `localhost`; the PC worker must use a secured bridge/tunnel or outbound polling and must never receive the Supabase service-role key.
 - Repeated identical source payloads are idempotently upserted by source + SHA-256; first-seen evidence remains and last-seen is refreshed.
 - Revenue stays whatever the authoritative payment/settlement pipeline proves. Harvest counts are not buyers, orders, conversions, or revenue.
 
