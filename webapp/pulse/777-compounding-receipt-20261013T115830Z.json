@@ -1,0 +1,17 @@
+{
+  "artifact_count": 6,
+  "economic_revenue_claim": false,
+  "new_website_artifacts": [
+    "public/pulse/2026-10-13-private-commercial-agents-are-hiring-humans-for-50-in-usdc-the-product-docs-still-want-a-human-approving-it-forkast-new-d0752e8c2d515326.html",
+    "public/pulse/index.html",
+    "pulse/2026-10-13-private-commercial-agents-are-hiring-humans-for-50-in-usdc-the-product-docs-still-want-a-human-approving-it-forkast-new-d0752e8c2d515326.html",
+    "pulse/index.html",
+    "webapp/pulse/2026-10-13-private-commercial-agents-are-hiring-humans-for-50-in-usdc-the-product-docs-still-want-a-human-approving-it-forkast-new-d0752e8c2d515326.html",
+    "webapp/pulse/index.html"
+  ],
+  "observed_at": "2026-10-13T11:58:30.497590+00:00",
+  "rule": "VERIFIED_REVENUE_OR_DURABLE_PUBLIC_HTML",
+  "schema": "dreamledger.777.compounding-receipt.v1",
+  "truth_status": "UNVERIFIED",
+  "verified_revenue_nzd": 0.0
+}

@@ -129,7 +129,7 @@
       "message": "Proof and verification are explicit"
     }
   ],
-  "checked_at": "2026-10-13T11:13:28.255Z",
+  "checked_at": "2026-10-13T11:58:30.200Z",
   "candidate_hash": "21f30b6099f107fbc0301b49d3a953f0c19d9525d63c6a7625265cbb82a1697c",
   "candidate_offer_id": "TRUTH-ORACLE-DISTRIBUTION-001",
   "public_execution": "BLOCKED_UNTIL_HUMAN_APPROVAL"
