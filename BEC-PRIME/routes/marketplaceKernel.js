@@ -306,6 +306,21 @@ async function handle(req,res,requestPath) {
     if(!item) return send(res,502,{error:'Evidence was not persisted'});
     return send(res,201,{evidence_id:item.id,verdict:'UNVERIFIED',message:'Evidence registered. It has not been independently verified.'});
   }
+  if(req.method==='GET'&&requestPath==='/api/marketplace/v1/admin/cube-hypotheses') {
+    const admin=String(process.env.MARKETPLACE_ADMIN_TOKEN||'');
+    if(!admin||String(req.headers.authorization||'')!=='Bearer '+admin) return send(res,401,{error:'Marketplace admin authorization required'});
+    let hypotheses=[];
+    if(STORE==='local') {
+      const file=path.join(ROOT,'..','data','777','cube-b2b-sales-hypotheses.v1.json');
+      try { const registry=JSON.parse(fs.readFileSync(file,'utf8')); hypotheses=registry.hypotheses||[]; }
+      catch { return send(res,503,{error:'CUBE hypothesis registry is unavailable'}); }
+    } else {
+      const rows=await rest('marketplace_cube_hypotheses?select=id,buyer_segment,problem_statement,offer_hypothesis,price_hypothesis,candidate_silo,priority,state,source_evidence_ids,kill_reason,created_at,updated_at&order=priority.asc,created_at.asc&limit=200');
+      hypotheses=Array.isArray(rows)?rows:[];
+    }
+    const counts=hypotheses.reduce((acc,h)=>{const k=String(h.state||h.status||'UNKNOWN');acc[k]=(acc[k]||0)+1;return acc;},{});
+    return send(res,200,{schema:'DREAMLEDGER/CUBE-SALES-HYPOTHESES/v1',count:hypotheses.length,counts,hypotheses,truth_boundary:'Candidates remain unvalidated until attributable external evidence passes the qualification gate.'});
+  }
   if(req.method==='POST'&&requestPath==='/api/marketplace/v1/admin/credentials') {
     const admin=String(process.env.MARKETPLACE_ADMIN_TOKEN||'');
     if(!admin||String(req.headers.authorization||'')!=='Bearer '+admin) return send(res,401,{error:'Marketplace admin authorization required'});
