@@ -36,7 +36,7 @@ on:
       - "index.html"
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   # GitHub retains only one pending run per concurrency group; later pushes otherwise replace queued cycles.
@@ -96,50 +96,20 @@ jobs:
         run: python -m unittest discover -s tests -p 'test_777_compounding_gate_import.py'
       - name: Enforce compounding output
         run: python scripts/777_compounding_gate.py
-      - name: Commit new pulse if changed
-        run: |
-          if [[ "$GITHUB_REF" != "refs/heads/main" ]]; then
-            echo "PUBLISH_SKIPPED_NON_MAIN_REF=$GITHUB_REF"
-            exit 0
-          fi
-          git config user.name "DreamLedger 777"
-          git config user.email "777@dreamledger.org"
-          git add -f agent-bridge-catalog.json webapp/pulse/* webapp/index.html webapp/phinhaven/index.html public/pulse/*
-          if git diff --cached --quiet; then
-            echo "No new economic signal."
-            exit 0
-          fi
-          git commit -m "777: publish new economic pulse"
-          for attempt in 1 2 3 4 5; do
-            git fetch origin main
-            if ! git rebase origin/main; then
-              git rebase --abort || true
-              candidate_files="$(git diff-tree --no-commit-id --name-only -r HEAD -- 'webapp/pulse/*.html')"
-              all_candidates_present=true
-              if [[ -z "$candidate_files" ]]; then all_candidates_present=false; fi
-              while IFS= read -r candidate; do
-                [[ -z "$candidate" ]] && continue
-                if ! git cat-file -e "origin/main:$candidate" 2>/dev/null; then
-                  all_candidates_present=false
-                fi
-              done <<< "$candidate_files"
-              if [[ "$all_candidates_present" == "true" ]]; then
-                echo "DUPLICATE_ARTIFACT_ALREADY_PUBLISHED"
-                exit 0
-              fi
-              echo "Rebase failed on attempt $attempt"
-              sleep 2
-              continue
-            fi
-            if git push origin HEAD:main; then
-              echo "PUSH_OK attempt=$attempt"
-              exit 0
-            fi
-            echo "PUSH_RETRY attempt=$attempt"
-            sleep 2
-          done
-          echo "PUSH_FAILED_AFTER_RETRIES"
-          exit 1
+      - name: Preserve generated pulse as a reviewable artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: 777-economic-pulse-${{ github.run_id }}
+          path: |
+            agent-bridge-catalog.json
+            webapp/pulse/
+            webapp/index.html
+            webapp/phinhaven/index.html
+            public/pulse/
+            pulse/
+          if-no-files-found: warn
+          retention-days: 14
 
 # 777 execution directive: money first; if no settlement, produce one new durable, non-duplicate public artifact.
 # Agent Bridge lane: test existing monetization rail against existing paid offers; no new SKU.

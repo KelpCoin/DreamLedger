@@ -12,7 +12,7 @@ on:
       - '.github/workflows/cloud-demand-intent-sentinels.yml'
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: cloud-demand-intent-sentinels
@@ -54,19 +54,3 @@ jobs:
           if-no-files-found: error
           retention-days: 60
 
-      - name: Commit reports to main
-        if: github.ref == 'refs/heads/main'
-        shell: bash
-        run: |
-          set -euo pipefail
-          git config user.name "dreamledger-cloud-sentinel"
-          git config user.email "sentinel@users.noreply.github.com"
-          git add AGENT_BUS/sentinel-reports/ ops/demand/latest-cloud.json || true
-          if git diff --staged --quiet; then
-            echo "No sentinel file changes"
-            exit 0
-          fi
-          git commit -m "sentinel: cloud demand+intent report ${{ github.run_id }}
-
-Automated probe only. verified_external_revenue_nzd unchanged. Not a payment."
-          git push origin HEAD:main
