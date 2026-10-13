@@ -117,5 +117,13 @@
       "unapproved publication"
     ]
   },
-  "description": "A Magic: The Gathering marketplace for real card listings and decks. Listings, checkout, and delivery remain evidence-gated."
+  "description": "A Magic: The Gathering marketplace for real card listings and decks. Listings, checkout, and delivery remain evidence-gated.",
+  "cross_silo_forbidden_terms": [
+    "Amplissa",
+    "adult content",
+    "18+ content",
+    "BBW content",
+    "OnlyFans",
+    "Pornhub"
+  ]
 }
