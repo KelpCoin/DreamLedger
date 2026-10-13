@@ -5,6 +5,7 @@ on:
     paths:
       - 'silos/*/silo.json'
       - 'runtime/cube/templates/**'
+      - 'runtime/cube/capability-registry.json'
       - 'BEC-PRIME/compiler/**'
       - 'BEC-PRIME/scripts/verify-*.js'
       - 'public/data/tcg-swarm.json'
@@ -29,6 +30,7 @@ on:
     paths:
       - 'silos/*/silo.json'
       - 'runtime/cube/templates/**'
+      - 'runtime/cube/capability-registry.json'
       - 'BEC-PRIME/compiler/**'
       - 'BEC-PRIME/scripts/verify-*.js'
       - 'public/data/tcg-swarm.json'
