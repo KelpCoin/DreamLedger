@@ -3,6 +3,11 @@ on:
   schedule:
     - cron: "17 */6 * * *"
   workflow_dispatch:
+  pull_request:
+    paths:
+      - "ops/demand/777-metal-detector-scout.py"
+      - "tests/test_777_metal_detector_scout.py"
+      - ".github/workflows/777-metal-detector-scout.yml"
 
 permissions:
   contents: read
@@ -12,7 +17,17 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  validate:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
   harvest:
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 8
     env:
