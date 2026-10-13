@@ -5,10 +5,11 @@
   "status": "BUILD_NO_PUBLISHED_LISTINGS",
   "updated": "2026-10-14",
   "products": [],
-  "publication_requirements": [
-    "Rights verified",
-    "Price and availability explicit",
-    "Checkout only after Stripe link parity",
-    "Fulfilment evidence required"
-  ]
+  "_meta": {
+    "generated_from": "silos/music-media/silo.json",
+    "verified_supply_required": true,
+    "populated_by": null,
+    "status": "BUILD_NO_PUBLISHED_LISTINGS",
+    "source_master": "public/mtg/index.html"
+  }
 }
