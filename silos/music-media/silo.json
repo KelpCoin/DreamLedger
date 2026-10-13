@@ -13,7 +13,8 @@
     "list_route": "/music-media/list",
     "catalog_path": "/data/music-media-catalog.json",
     "canonical_path": "/music-media/",
-    "currency": "NZD"
+    "currency": "NZD",
+    "platform_fee_bps": 500
   },
   "description": "A focused marketplace for independent music releases, film, physical media and creator editions. Rights, checkout and delivery status stay visible.",
   "capabilities": {
@@ -150,5 +151,15 @@
       "unverified economic claim",
       "unapproved publication"
     ]
-  }
+  },
+  "cross_silo_forbidden_domains": [
+    "amplissa.com"
+  ],
+  "cross_silo_forbidden_terms": [
+    "MTG",
+    "Magic: The Gathering",
+    "Commander",
+    "adult content",
+    "18+ content"
+  ]
 }
