@@ -133,7 +133,9 @@ async function runBootstrap({ mode = 'public-only', env = process.env, fetchImpl
   };
   const publicOk = report.public_surfaces.every(x => x.status === 'PASS');
   const commerceOk = mode === 'commerce' && report.supabase.status === 'PASS' && report.stripe.status === 'PASS';
-  report.status = publicOk && commerceOk ? 'INFRASTRUCTURE_PROBES_PASS_TRANSACTION_UNVERIFIED' : 'BLOCKED_OR_UNVERIFIED';
+  report.status = mode === 'public-only'
+    ? (publicOk ? 'PUBLIC_SURFACES_PASS_COMMERCE_UNVERIFIED' : 'BLOCKED_OR_UNVERIFIED')
+    : (publicOk && commerceOk ? 'INFRASTRUCTURE_PROBES_PASS_TRANSACTION_UNVERIFIED' : 'BLOCKED_OR_UNVERIFIED');
   fs.mkdirSync(path.dirname(reportPath), { recursive: true });
   fs.writeFileSync(reportPath, JSON.stringify(report, null, 2) + '\n', { encoding: 'utf8', mode: 0o600 });
   console.log(JSON.stringify({
