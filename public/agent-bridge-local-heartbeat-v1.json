@@ -1,0 +1,84 @@
+{
+  "contract_id": "agent-bridge-local-heartbeat-v1",
+  "title": "Agent Bridge Local Heartbeat",
+  "version": "1.0.0",
+  "status": "draft",
+  "description": "Outbound signal from a local machine advertising optional amplification capacity (LM Studio + tri-LLM). Cloud remains source of truth. Heartbeat never authorises payments, fulfilment, or multiplayer claims.",
+  "architecture": {
+    "primary": "cloud",
+    "local": "optional accelerator when machine is on and models are loaded",
+    "fail_closed": true
+  },
+  "endpoint": {
+    "method": "POST",
+    "path": "/api/toll/v1/local-heartbeat",
+    "auth": {
+      "type": "bearer",
+      "header": "Authorization",
+      "scheme": "Bearer <LOCAL_HEARTBEAT_TOKEN>",
+      "notes": "Shared secret stored only in local env and cloud secrets. Never in git or browser."
+    },
+    "content_type": "application/json"
+  },
+  "request_body": {
+    "type": "object",
+    "required": ["ts", "lm_studio"],
+    "properties": {
+      "host": { "type": "string", "description": "Hostname or stable machine identifier" },
+      "ts": { "type": "string", "format": "date-time", "description": "UTC ISO-8601 timestamp of the signal" },
+      "lm_studio": { "type": "boolean", "description": "True if LM Studio is reachable on the local machine" },
+      "tri_llm": { "type": "boolean", "description": "True if the configured tri-LLM stack is loaded and ready" },
+      "capacity": {
+        "type": "string",
+        "enum": ["available", "busy", "offline"],
+        "description": "Current local capacity signal"
+      },
+      "models": {
+        "type": "array",
+        "items": { "type": "string" },
+        "description": "Optional list of loaded model identifiers"
+      },
+      "meta": {
+        "type": "object",
+        "additionalProperties": true,
+        "description": "Optional non-sensitive diagnostic fields"
+      }
+    }
+  },
+  "response": {
+    "200": {
+      "description": "Heartbeat accepted and recorded with short TTL",
+      "body": {
+        "status": "ACCEPTED",
+        "received_at": "ISO-8601",
+        "ttl_seconds": 300
+      }
+    },
+    "401": { "description": "Missing or invalid token" },
+    "429": { "description": "Rate limited" }
+  },
+  "semantics": {
+    "proves": [
+      "A machine possessing the shared token was able to reach the endpoint at the stated time",
+      "The sender reported LM Studio and tri-LLM status"
+    ],
+    "does_not_prove": [
+      "Any commercial payment or revenue",
+      "Successful fulfilment of any product",
+      "Multiplayer or persistent presence",
+      "Correctness of any model output",
+      "That the local machine is still online after the TTL expires"
+    ]
+  },
+  "rate_guidance": "Recommended interval 30–60 seconds while local stack is active. Cloud may enforce a minimum interval.",
+  "security": [
+    "Token must be high-entropy and rotated if exposed",
+    "Endpoint must reject requests without valid Bearer token",
+    "No secrets, personal data, or raw model prompts in the payload",
+    "Heartbeat records are operational, not commercial evidence"
+  ],
+  "related": {
+    "paid_event_receipts": "/api/toll/v1/bridge-events",
+    "manifest": "/api/toll/v1/manifest"
+  }
+}
