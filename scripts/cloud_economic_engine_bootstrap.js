@@ -91,7 +91,13 @@ async function probeStripe(env = process.env, fetchImpl = fetch) {
     const webhooks = webhookResponse.payload.data || [], links = linksResponse.payload.data || [];
     const canonical = webhooks.find(item => String(item.url || '').includes(CANONICAL_REVENUE_FUNCTION));
     const commander = links.find(item => item.id === COMMANDER_LINK_ID);
-    const canonicalState = !canonical ? 'MISSING' : canonical.disabled_reason ? 'DISABLED' : 'ENABLED';
+    const canonicalState = !canonical
+      ? 'MISSING'
+      : (canonical.status === 'disabled' || canonical.disabled_reason)
+        ? 'DISABLED'
+        : canonical.status === 'enabled'
+          ? 'ENABLED'
+          : 'UNVERIFIED';
     const commanderState = !commander ? 'MISSING_OR_INACTIVE' : 'ACTIVE';
     return {
       status: canonicalState === 'ENABLED' && commanderState === 'ACTIVE' && mode === 'LIVE' ? 'PASS' : 'BLOCKED',
@@ -136,6 +142,11 @@ async function runBootstrap({ mode = 'public-only', env = process.env, fetchImpl
   report.status = mode === 'public-only'
     ? (publicOk ? 'PUBLIC_SURFACES_PASS_COMMERCE_UNVERIFIED' : 'BLOCKED_OR_UNVERIFIED')
     : (publicOk && commerceOk ? 'INFRASTRUCTURE_PROBES_PASS_TRANSACTION_UNVERIFIED' : 'BLOCKED_OR_UNVERIFIED');
+  report.next_actions = [];
+  if (!publicOk) report.next_actions.push('Repair failed public cloud health probes before enabling economic actions.');
+  if (mode !== 'commerce' || report.supabase.status !== 'PASS') report.next_actions.push('Recover and verify Supabase persistence with read-only probes before enabling settlement or fulfillment.');
+  if (mode !== 'commerce' || report.stripe.status !== 'PASS') report.next_actions.push('Verify the canonical live Stripe webhook and the existing paid offer mapping; do not toggle endpoints from this bootstrap.');
+  report.next_actions.push('Run an authorized independent-buyer transaction and verify settlement, order, fulfillment, delivery evidence, and reconciliation before claiming revenue.');
   fs.mkdirSync(path.dirname(reportPath), { recursive: true });
   fs.writeFileSync(reportPath, JSON.stringify(report, null, 2) + '\n', { encoding: 'utf8', mode: 0o600 });
   console.log(JSON.stringify({
