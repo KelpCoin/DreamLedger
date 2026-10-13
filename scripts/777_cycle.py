@@ -182,6 +182,12 @@ def parse_private_rss(raw):
 
 
 PUBLIC_REQUEST_SEARCHES = [
+    # Broad retrieval increases recall; the source-literal classifier below still gates publication.
+    "invoice automation",
+    "PDF extraction",
+    "quote comparison",
+    "webhook debugging",
+    "document processing API",
     '"looking for" manual invoice',
     '"need help with" invoice manual',
     '"anyone recommend" PDF extraction failing',
