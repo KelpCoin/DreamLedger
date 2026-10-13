@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b1220">
+<title>Free Claim Check · Truth Oracle | DreamLedger</title>
+<meta name="description" content="Free browser-only claim-check worksheet. Record a commercial claim, source, contradictions, and unknowns. No account. No upload. Part of DreamLedger Truth Oracle free tier.">
+<link rel="canonical" href="https://dreamledger.org/tools/claim-check.html">
+<style>
+:root{color-scheme:dark;--bg:#0b1220;--panel:#111d2e;--line:#2a3b51;--ink:#f4f7fb;--muted:#b4c0cf;--mint:#a9f2d0;--bad:#ffb6ad}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at 78% 0%,#1b3450 0,transparent 38%),var(--bg);color:var(--ink);font:16px/1.6 system-ui,-apple-system,sans-serif}
+.wrap{width:min(720px,calc(100% - 32px));margin:auto}
+.top{padding:20px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.brand{font-weight:850;color:var(--ink);text-decoration:none}
+.nav a{color:var(--muted);text-decoration:none;font-size:14px;margin-left:12px}
+.nav a:hover{color:var(--mint)}
+.eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:850;color:var(--mint);margin-top:28px}
+h1{font-size:clamp(32px,7vw,48px);letter-spacing:-.04em;line-height:1.05;margin:10px 0 14px}
+.lede{color:var(--muted);font-size:17px}
+.panel{border:1px solid var(--line);border-radius:16px;background:var(--panel);padding:20px;margin:22px 0}
+label{display:block;font-weight:700;margin:14px 0 6px;font-size:14px}
+input,textarea,select{width:100%;font:inherit;color:var(--ink);background:#09111c;border:1px solid #52647a;border-radius:10px;padding:12px}
+textarea{min-height:88px;resize:vertical}
+button{font:inherit;font-weight:850;border:0;border-radius:10px;padding:12px 16px;background:var(--mint);color:#08130e;cursor:pointer;margin:8px 8px 0 0}
+button.secondary{background:#20344a;color:var(--ink);border:1px solid #52647a}
+.muted{color:var(--muted);font-size:14px}
+.out{white-space:pre-wrap;background:#08111b;border:1px solid var(--line);border-radius:12px;padding:14px;font:13px/1.5 ui-monospace,monospace;max-height:420px;overflow:auto}
+a{color:var(--mint)}
+footer{border-top:1px solid var(--line);padding:20px 0 36px;color:var(--muted);font-size:13px;margin-top:28px}
+.pill{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.06em;border:1px solid #52647a;border-radius:999px;padding:3px 10px;margin-right:6px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <a class="brand" href="/">DreamLedger</a>
+  <nav class="nav">
+    <a href="/truth-oracle.html">Truth Oracle</a>
+    <a href="/tools/free.html">Free tools</a>
+    <a href="/tools/nzbn.html">NZBN</a>
+  </nav>
+</header>
+<main>
+<div class="eyebrow">Truth Oracle · Free magnet · No account · No upload</div>
+<h1>Claim check</h1>
+<p class="lede">Fill in one commercial claim. Get a structured record you can copy, share, or keep. Everything stays in this browser tab. Paid Truth Oracle tiers can add convenience later — never a different truth verdict.</p>
+<p><span class="pill">FREE</span><span class="pill">BROWSER ONLY</span><span class="pill">AGENT-FRIENDLY</span></p>
+
+<section class="panel">
+<label for="claim">CLAIM</label>
+<textarea id="claim" placeholder="e.g. Supplier X delivers in 5 business days under DDP Auckland"></textarea>
+
+<label for="source">ORIGINAL SOURCE / URL</label>
+<input id="source" type="text" placeholder="https://… or document name + version">
+
+<label for="sourceDate">SOURCE DATE</label>
+<input id="sourceDate" type="text" placeholder="YYYY-MM-DD or 'unknown'">
+
+<label for="passage">EXACT SUPPORTING PASSAGE</label>
+<textarea id="passage" placeholder="Quote the words that support the claim. Do not paraphrase if you can avoid it."></textarea>
+
+<label for="contradict">CONTRADICTING EVIDENCE</label>
+<textarea id="contradict" placeholder="Corrections, exclusions, conflicting numbers, or 'none identified yet'"></textarea>
+
+<label for="missing">MISSING INFORMATION</label>
+<textarea id="missing" placeholder="What is not established? Scope, price, freight, GST, warranty, identity…"></textarea>
+
+<label for="assessment">CURRENT ASSESSMENT</label>
+<select id="assessment">
+  <option value="UNVERIFIED">UNVERIFIED</option>
+  <option value="SUPPORTED">SUPPORTED</option>
+  <option value="CONTRADICTED">CONTRADICTED</option>
+  <option value="STALE">STALE</option>
+  <option value="UNKNOWN">UNKNOWN</option>
+</select>
+
+<label for="next">NEXT CHECK</label>
+<input id="next" type="text" placeholder="e.g. Confirm on official terms page; re-check after 30 days">
+
+<label for="limit">LIMITATION</label>
+<textarea id="limit" placeholder="What this evidence does not establish."></textarea>
+
+<button type="button" id="build">Build claim record</button>
+<button type="button" class="secondary" id="copy">Copy record</button>
+<button type="button" class="secondary" id="clear">Clear</button>
+<p id="status" class="muted" aria-live="polite"></p>
+</section>
+
+<section class="panel">
+<h2 style="margin:0 0 10px;font-size:1.1rem">Your claim record</h2>
+<pre class="out" id="out">Fill the form and press Build claim record.</pre>
+</section>
+
+<p class="muted">A record is not proof. This tool does not fetch sources, invent missing facts, or change an assessment based on payment. Prefer the original document. For NZ business identity cross-checks see <a href="/tools/nzbn.html">NZBN lookup</a>. For quote structure see <a href="/quote-comparison/">supplier quote comparison</a>.</p>
+</main>
+<footer>
+DreamLedger Truth Oracle free tier · <a href="/truth-oracle.html">Truth Oracle home</a> · <a href="/trust/">Evidence standard</a> · <a href="/tools/free.html">All free tools</a>
+</footer>
+</div>
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+function build(){
+  const lines=[
+    'CLAIM: '+($('claim').value.trim()||'(not supplied)'),
+    'ORIGINAL SOURCE / URL: '+($('source').value.trim()||'(not supplied)'),
+    'SOURCE DATE: '+($('sourceDate').value.trim()||'(not supplied)'),
+    'EXACT SUPPORTING PASSAGE:',
+    $('passage').value.trim()||'(not supplied)',
+    'CONTRADICTING EVIDENCE: '+($('contradict').value.trim()||'(none identified yet)'),
+    'MISSING INFORMATION: '+($('missing').value.trim()||'(not listed)'),
+    'CURRENT ASSESSMENT: '+$('assessment').value,
+    'NEXT CHECK: '+($('next').value.trim()||'(not set)'),
+    'LIMITATION: '+($('limit').value.trim()||'(not stated)'),
+    '',
+    'Generated with DreamLedger free Claim Check · https://dreamledger.org/tools/claim-check.html',
+    'A record is not proof. Payment does not change the truth verdict.'
+  ];
+  $('out').textContent=lines.join('\n');
+  $('status').textContent='Record built. Copy if useful.';
+}
+$('build').addEventListener('click',build);
+$('copy').addEventListener('click',async()=>{
+  try{
+    await navigator.clipboard.writeText($('out').textContent);
+    $('status').textContent='Claim record copied.';
+  }catch(e){
+    $('status').textContent='Clipboard blocked — select the text and copy manually.';
+  }
+});
+$('clear').addEventListener('click',()=>{
+  ['claim','source','sourceDate','passage','contradict','missing','next','limit'].forEach(id=>$(id).value='');
+  $('assessment').value='UNVERIFIED';
+  $('out').textContent='Fill the form and press Build claim record.';
+  $('status').textContent='Cleared. Nothing was uploaded.';
+});
+const p=new URLSearchParams(location.search);
+if(p.get('claim')) $('claim').value=p.get('claim');
+if(p.get('source')) $('source').value=p.get('source');
+if(p.get('assessment')){
+  const a=p.get('assessment').toUpperCase();
+  if(['UNVERIFIED','SUPPORTED','CONTRADICTED','STALE','UNKNOWN'].includes(a)) $('assessment').value=a;
+}
+})();
+</script>
+</body>
+</html>
