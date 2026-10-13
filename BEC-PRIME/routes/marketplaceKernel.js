@@ -207,6 +207,7 @@ async function handle(req,res,requestPath) {
     if(!rateAllowed(req)) return send(res,429,{error:'Rate limit reached; retry after one minute.'});
     const agent=await agentIdentity(req);
     if(!agent||!agent.agent_uri||!agent.principal_party_id) return send(res,401,{error:'Valid registered A2A agent credential required'});
+    if(!hasScope(agent,'agent_intent')) return send(res,403,{error:'Agent credential lacks agent_intent scope'});
     const b=await readBody(req), action=safeText(b.action,100), amount=Number(b.amount_minor||0), currency=safeText(b.currency||'NZD',3).toUpperCase();
     if(!action||!b.request||typeof b.request!=='object'||!Number.isSafeInteger(amount)||amount<0||!/^[A-Z]{3}$/.test(currency)) return send(res,400,{error:'action, object request, non-negative integer amount_minor, and ISO currency required'});
     const key=safeText(req.headers['idempotency-key']||b.idempotency_key,160)||crypto.randomUUID();
@@ -220,6 +221,7 @@ async function handle(req,res,requestPath) {
   }
   if(req.method==='POST'&&requestPath==='/api/marketplace/v1/listings') {
     const supplier=await supplierIdentity(req); if(!supplier) return send(res,401,{error:'Registered supplier credential required'});
+    if(!hasScope(supplier,'submit_listing')) return send(res,403,{error:'Supplier credential lacks submit_listing scope'});
     const b=await readBody(req), key=safeText(req.headers['idempotency-key']||b.idempotency_key,160)||crypto.randomUUID();
     const payload={title:safeText(b.title,180),description:safeText(b.description,12000),category:safeText(b.category,80).toLowerCase(),listing_type:safeText(b.listing_type||'goods',40),pricing_model:safeText(b.pricing_model||'fixed',40),price_minor:b.price_minor==null?null:Number(b.price_minor),currency:safeText(b.currency||'NZD',3).toUpperCase(),quantity:b.quantity==null?null:Number(b.quantity),unit:safeText(b.unit,40),location:b.location||{},attributes:b.attributes||{},seller_party_id:supplier.party_id};
     if(STORE==='local') {
@@ -234,6 +236,7 @@ async function handle(req,res,requestPath) {
   }
   if(req.method==='POST'&&requestPath==='/api/marketplace/v1/evidence') {
     const supplier=await supplierIdentity(req); if(!supplier) return send(res,401,{error:'Registered supplier credential required'});
+    if(!hasScope(supplier,'submit_evidence')) return send(res,403,{error:'Supplier credential lacks submit_evidence scope'});
     const b=await readBody(req);
     const evidenceType=safeText(b.evidence_type,80), sourceUri=safeText(b.source_uri,1000), contentHash=safeText(b.content_hash,128);
     if(!evidenceType||!contentHash) return send(res,400,{error:'evidence_type and content_hash are required'});
@@ -251,6 +254,39 @@ async function handle(req,res,requestPath) {
     const item=Array.isArray(rows)?rows[0]:null;
     if(!item) return send(res,502,{error:'Evidence was not persisted'});
     return send(res,201,{evidence_id:item.id,verdict:'UNVERIFIED',message:'Evidence registered. It has not been independently verified.'});
+  }
+  if(req.method==='POST'&&requestPath==='/api/marketplace/v1/admin/credentials') {
+    const admin=String(process.env.MARKETPLACE_ADMIN_TOKEN||'');
+    if(!admin||String(req.headers.authorization||'')!=='Bearer '+admin) return send(res,401,{error:'Marketplace admin authorization required'});
+    if(STORE!=='supabase') return send(res,503,{error:'Dynamic credentials require the selected Supabase ledger; configure env-based hashes for local mode.'});
+    const b=await readBody(req), role=safeText(b.credential_type,20), partyId=safeText(b.party_id,36), createdBy=safeText(b.created_by,160);
+    if(!uuid(partyId)||!['buyer','supplier','agent'].includes(role)||createdBy.length<3) return send(res,400,{error:'party_id, credential_type buyer|supplier|agent, and created_by are required'});
+    const scopes=Array.isArray(b.scopes)?[...new Set(b.scopes.map(x=>safeText(x,80)).filter(Boolean))]:[];
+    if(!scopes.length) return send(res,400,{error:'At least one explicit credential scope is required'});
+    const parties=await rest('marketplace_parties?select=id,status,party_type&id=eq.'+encodeURIComponent(partyId));
+    if(!Array.isArray(parties)||!parties[0]||parties[0].status!=='active') return send(res,404,{error:'Active marketplace party not found'});
+    let agentUri=null, principalPartyId=null;
+    if(role==='agent') {
+      agentUri=safeText(b.agent_uri,1000); principalPartyId=safeText(b.principal_party_id,36);
+      if(!agentUri||!uuid(principalPartyId)) return send(res,400,{error:'agent_uri and principal_party_id are required for agent credentials'});
+      const principals=await rest('marketplace_agent_principals?select=id,party_id,principal_party_id,agent_uri,status&party_id=eq.'+encodeURIComponent(partyId)+'&principal_party_id=eq.'+encodeURIComponent(principalPartyId)+'&agent_uri=eq.'+encodeURIComponent(agentUri)+'&status=eq.active');
+      if(!Array.isArray(principals)||!principals.length) return send(res,403,{error:'An active registered agent principal must exist before issuing credentials'});
+    }
+    const token='dlm_'+crypto.randomBytes(32).toString('hex'), tokenHash=crypto.createHash('sha256').update(token).digest('hex');
+    const expiresAt=b.expires_at?new Date(b.expires_at).toISOString():null;
+    const rows=await rest('marketplace_api_credentials',{method:'POST',body:JSON.stringify({token_hash:tokenHash,credential_type:role,party_id:partyId,scopes,agent_uri:agentUri,principal_party_id:principalPartyId,expires_at:expiresAt,created_by:createdBy,status:'active'})});
+    const credential=Array.isArray(rows)?rows[0]:null;
+    if(!credential) return send(res,502,{error:'Credential was not persisted'});
+    return send(res,201,{credential_id:credential.id,credential_type:role,party_id:partyId,scopes,expires_at:credential.expires_at,token,warning:'Copy this token now. It is not stored in plaintext and cannot be retrieved later.'});
+  }
+  const revokeCredentialMatch=requestPath.match(/^\/api\/marketplace\/v1\/admin\/credentials\/([0-9a-f-]{36})\/revoke$/i);
+  if(req.method==='POST'&&revokeCredentialMatch) {
+    const admin=String(process.env.MARKETPLACE_ADMIN_TOKEN||'');
+    if(!admin||String(req.headers.authorization||'')!=='Bearer '+admin) return send(res,401,{error:'Marketplace admin authorization required'});
+    if(STORE!=='supabase') return send(res,503,{error:'Dynamic credential revocation requires Supabase mode.'});
+    if(!uuid(revokeCredentialMatch[1])) return send(res,400,{error:'Invalid credential id'});
+    const rows=await rest('marketplace_api_credentials?id=eq.'+encodeURIComponent(revokeCredentialMatch[1])+'&status=eq.active',{method:'PATCH',body:JSON.stringify({status:'revoked',revoked_at:new Date().toISOString()})});
+    return Array.isArray(rows)&&rows.length?send(res,200,{credential_id:revokeCredentialMatch[1],status:'revoked'}):send(res,404,{error:'Active credential not found'});
   }
   const connectMatch=requestPath.match(/^\/api\/marketplace\/v1\/admin\/parties\/([0-9a-f-]{36})\/connect-onboarding$/i);
   if(req.method==='POST'&&connectMatch) {
@@ -300,6 +336,7 @@ async function handle(req,res,requestPath) {
   const offerMatch=requestPath.match(/^\/api\/marketplace\/v1\/rfqs\/([0-9a-f-]{36})\/offers$/i);
   if(req.method==='POST'&&offerMatch) {
     const supplier=await supplierIdentity(req); if(!supplier) return send(res,401,{error:'Registered supplier credential required'});
+    if(!hasScope(supplier,'submit_offer')) return send(res,403,{error:'Supplier credential lacks submit_offer scope'});
     if(!uuid(offerMatch[1])) return send(res,400,{error:'Invalid RFQ id'});
     const b=await readBody(req), key=safeText(req.headers['idempotency-key']||b.idempotency_key,160)||crypto.randomUUID();
     const amount=Number(b.amount_minor);
@@ -319,6 +356,7 @@ async function handle(req,res,requestPath) {
   const acceptMatch=requestPath.match(/^\/api\/marketplace\/v1\/offers\/([0-9a-f-]{36})\/accept$/i);
   if(req.method==='POST'&&acceptMatch) {
     const buyer=await buyerIdentity(req); if(!buyer) return send(res,401,{error:'Registered buyer credential required'});
+    if(!hasScope(buyer,'accept_offer')) return send(res,403,{error:'Buyer credential lacks accept_offer scope'});
     if(!uuid(acceptMatch[1])) return send(res,400,{error:'Invalid offer id'});
     const b=await readBody(req); if(b.confirmed!==true||safeText(b.authorized_by,160).length<3) return send(res,400,{error:'Explicit human confirmation and authorized_by are required'});
     const key=safeText(req.headers['idempotency-key']||b.idempotency_key,160)||crypto.randomUUID();
@@ -337,6 +375,7 @@ async function handle(req,res,requestPath) {
   const checkoutMatch=requestPath.match(/^\/api\/marketplace\/v1\/orders\/([0-9a-f-]{36})\/checkout$/i);
   if(req.method==='POST'&&checkoutMatch) {
     const buyer=await buyerIdentity(req); if(!buyer) return send(res,401,{error:'Registered buyer credential required'});
+    if(!hasScope(buyer,'checkout')) return send(res,403,{error:'Buyer credential lacks checkout scope'});
     if(!uuid(checkoutMatch[1])) return send(res,400,{error:'Invalid order id'});
     if(STORE!=='supabase') return send(res,503,{error:'CHECKOUT_HELD: local ledger mode cannot prove external settlement. No charge was created.'});
     if(process.env.MARKETPLACE_ENABLE_CHECKOUT!=='true'||process.env.MARKETPLACE_PAYOUT_MODEL!=='stripe_connect_verified') return send(res,503,{error:'CHECKOUT_HELD: marketplace checkout remains disabled until Connect, refunds, tax and reconciliation are explicitly approved. No charge was created.'});
@@ -368,6 +407,7 @@ async function handle(req,res,requestPath) {
   const deliveryMatch=requestPath.match(/^\/api\/marketplace\/v1\/orders\/([0-9a-f-]{36})\/delivery$/i);
   if(req.method==='POST'&&deliveryMatch) {
     const supplier=await supplierIdentity(req); if(!supplier) return send(res,401,{error:'Registered supplier credential required'});
+    if(!hasScope(supplier,'submit_delivery')) return send(res,403,{error:'Supplier credential lacks submit_delivery scope'});
     if(!uuid(deliveryMatch[1])) return send(res,400,{error:'Invalid order id'});
     const b=await readBody(req), ids=Array.isArray(b.evidence_ids)?b.evidence_ids.filter(uuid):[];
     if(!ids.length) return send(res,400,{error:'At least one registered evidence UUID is required'});
@@ -380,6 +420,7 @@ async function handle(req,res,requestPath) {
   const acceptDeliveryMatch=requestPath.match(/^\/api\/marketplace\/v1\/orders\/([0-9a-f-]{36})\/acceptance$/i);
   if(req.method==='POST'&&acceptDeliveryMatch) {
     const buyer=await buyerIdentity(req); if(!buyer) return send(res,401,{error:'Registered buyer credential required'});
+    if(!hasScope(buyer,'accept_delivery')) return send(res,403,{error:'Buyer credential lacks accept_delivery scope'});
     if(!uuid(acceptDeliveryMatch[1])) return send(res,400,{error:'Invalid order id'});
     const b=await readBody(req); if(typeof b.accept!=='boolean') return send(res,400,{error:'accept boolean required'});
     const key=safeText(req.headers['idempotency-key']||b.idempotency_key,160)||crypto.randomUUID();
