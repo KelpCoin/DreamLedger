@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Agent Bridge Job Receipts: Payment, Execution and Delivery Gates | DreamLedger</title>
+<meta name="description" content="A source-bound implementation contract for paid agent jobs: idempotent intake, scoped execution, settled-payment reconciliation, delivery evidence and safe GPU capacity allocation.">
+<link rel="canonical" href="https://dreamledger.org/pulse/2026-10-13-agent-bridge-job-receipts.html">
+<style>
+:root{color-scheme:dark;--bg:#0b1220;--panel:#111d2e;--line:#2a3b51;--ink:#f4f7fb;--muted:#b4c0cf;--mint:#a9f2d0;--blue:#9ec9ff}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.7 system-ui,sans-serif}.wrap{width:min(860px,calc(100% - 30px));margin:auto}.top,footer{padding:20px 0;border-bottom:1px solid var(--line)}a{color:var(--mint)}h1{font-size:clamp(36px,7vw,58px);line-height:1.04;letter-spacing:-.04em}h2{margin-top:34px;font-size:25px}.lede{font-size:19px;color:var(--muted)}.panel{padding:18px;border:1px solid var(--line);border-radius:12px;background:var(--panel);margin:20px 0}.status{font-weight:800;color:var(--blue)}code,pre{font-family:ui-monospace,monospace}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#070c13;border:1px solid var(--line);padding:15px;border-radius:10px;color:#dce9f5}.muted{color:var(--muted)}li{margin:.45em 0}footer{border-top:1px solid var(--line);border-bottom:0;color:var(--muted);font-size:13px}
+</style>
+</head>
+<body><div class="wrap">
+<header class="top"><a href="/">DreamLedger</a> / <a href="/pulse/">777 Pulse</a></header>
+<main>
+<p class="muted">777 expedition artifact · 13 October 2026 · Engineering contract · Not a revenue claim</p>
+<h1>Agent Bridge job receipts: make every paid task prove its own delivery.</h1>
+<p class="lede">An agent marketplace becomes economically trustworthy when a job can be followed from buyer intent to an authorized task, from settled payment to bounded execution, and from output to independently checkable delivery evidence. A green workflow is useful operational evidence, but it is not a customer or a sale.</p>
+<div class="panel"><p class="status">CURRENT LIVE BOUNDARY: ACCESS PROBE HELD</p><p>The existing <a href="/agent-bridge.html">Agent Bridge page</a> states that the 50-cent probe remains held until verified. Its API manifest is the live contract surface. This artifact specifies the next implementation and acceptance gates; it does not assert that metered GPU jobs, customer checkout, or end-to-end fulfillment are already working.</p><p>Sources: <a href="/agent-bridge.html">Agent Bridge service page</a> · <a href="/api/toll/v1/manifest">API manifest</a>.</p></div>
+<h2>1. Define one durable job contract</h2>
+<p>Every job needs a stable identifier, a buyer-authorized scope, an input digest, an execution policy, a declared price or budget ceiling, an idempotency key, a deadline, and a delivery contract. The record must distinguish proposal, authorization, funding, execution, submission, evaluation, and terminal outcome. Retrying a request must not create a second charge or silently duplicate expensive work.</p>
+<pre>{
+  "schema": "dreamledger.agent-bridge.job/v1",
+  "job_id": "server-generated-stable-id",
+  "idempotency_key": "buyer-supplied-unique-key",
+  "task_class": "bounded-compute",
+  "input_digest": "sha256:...",
+  "budget_limit": {"amount_minor": 0, "currency": "NZD"},
+  "execution": {"network": "deny-by-default", "secrets": "none"},
+  "delivery": {"format": "declared-by-offer", "proof_required": true},
+  "state": "PROPOSED"
+}</pre>
+<p class="muted">Illustrative schema only. A zero budget is a placeholder, not a live price. Production validation must reject missing identity, invalid currency, unsupported task classes, unsafe inputs, and budgets not explicitly authorized by the buyer.</p>
+<h2>2. Keep the money state separate from the job state</h2>
+<p>PaymentIntent creation, a Checkout Session, a successful browser redirect, or an internal database row is not settled revenue. The payment adapter must reconcile the provider's settled event to the exact order and offer, then grant only the matching entitlement. Duplicate webhooks must be idempotent. Refunds, disputes, unmatched payments, currency mismatches, and missing fulfillment routes must be quarantined rather than guessed.</p>
+<ul>
+<li><strong>Payment proof:</strong> provider event and balance transaction matched to a unique order and catalog offer.</li>
+<li><strong>Execution proof:</strong> worker identity, policy version, start/end timestamps, bounded resource usage, and exit state.</li>
+<li><strong>Delivery proof:</strong> output digest, object or download reference, acceptance criteria, and evaluator result.</li>
+<li><strong>Economic truth:</strong> a buyer is counted only after payment, fulfillment, and attribution are independently reconciled.</li>
+</ul>
+<h2>3. Expose GPU capacity as a permissioned worker, not an open shell</h2>
+<p>A local GPU can be an optional accelerator while the control plane, queue, billing, evidence, and fallback workers remain cloud-hosted. The GPU owner must opt in and be able to revoke availability. A task receives a declared resource envelope, time limit, storage quota, and allowed model/tool list. Arbitrary host access, unrestricted network egress, secrets, persistence between tenants, and uncontrolled uploads are not part of the offer.</p>
+<p>Start with reversible, non-sensitive workloads: document conversion, schema validation, embedding generation, synthetic test workloads, and bounded inference. Use a sandboxed worker process or isolated container, per-job scratch storage, explicit cancellation, and a cleanup receipt. Do not sell capacity until metering can reconcile measured usage with a customer-visible job record.</p>
+<h2>4. Acceptance gates for the next 777 cycles</h2>
+<ol>
+<li><strong>Manifest:</strong> health check succeeds and advertised routes match deployed handlers.</li>
+<li><strong>Payment attribution:</strong> one provider settlement maps to one known offer and order; replay produces no duplicate entitlement.</li>
+<li><strong>Authorization:</strong> expired, unpaid, wrong-currency, wrong-offer, and reused-session requests are rejected.</li>
+<li><strong>Execution:</strong> budget, time, memory, network, and tool restrictions are enforced before the worker starts.</li>
+<li><strong>Delivery:</strong> an output and digest exist, evaluator criteria pass, and the buyer can retrieve the promised result.</li>
+<li><strong>Economic truth:</strong> tests and simulated jobs remain labelled TEST or SIMULATED. Only a real independent buyer and settled external payment with verified fulfillment can advance the revenue scoreboard.</li>
+</ol>
+<h2>5. Turn the specification into compounding components</h2>
+<p>Each cycle should produce one durable, reviewable unit: a schema, migration, test, worker adapter, runbook, or source-bound market page. A candidate stays internal until tests pass; a public page stays clearly labelled as research until its claims have sources. Deduplicate by content hash and stable artifact ID. Record the parent task, code revision, test evidence, and next dependency so later cycles can inherit the work rather than rewrite it.</p>
+<div class="panel"><strong>Next build order</strong><ol><li>Trace checkout session → settled event → order → entitlement → actual delivery.</li><li>Add replay and negative tests around payment reconciliation.</li><li>Define the isolated worker contract and metering evidence.</li><li>Only then open the smallest paid Agent Bridge pilot.</li></ol><p class="muted">No personal outreach, paid advertising, public claim of verified demand, or unapproved spending is implied by this roadmap.</p></div>
+</main>
+<footer>DreamLedger · Source-bound technical research · Last reviewed 2026-10-13 · <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a></footer>
+</div></body></html>
