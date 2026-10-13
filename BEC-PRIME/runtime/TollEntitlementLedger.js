@@ -26,9 +26,10 @@ async function rpc(name, args) {
   let data;
   try { data = raw ? JSON.parse(raw) : null; } catch { data = null; }
   if (!response.ok) {
+    const unavailable = response.status >= 500 || response.status === 404;
     const error = Object.assign(
-      new Error(response.status >= 500 ? 'durable_quota_ledger_unavailable' : 'durable_quota_request_rejected'),
-      { statusCode: response.status >= 500 ? 503 : 409 }
+      new Error(unavailable ? 'durable_quota_ledger_unavailable' : 'durable_quota_request_rejected'),
+      { statusCode: unavailable ? 503 : 409 }
     );
     throw error;
   }
