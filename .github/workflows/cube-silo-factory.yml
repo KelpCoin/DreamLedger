@@ -1,0 +1,102 @@
+name: CUBE Silo Factory
+on:
+  push:
+    branches-ignore: [main]
+    paths:
+      - 'runtime/cube/silo-manifests/*.json'
+      - 'runtime/cube/templates/silo-index.html'
+      - 'BEC-PRIME/compiler/SiloCloneCompiler.js'
+      - 'BEC-PRIME/compiler/SiloRegistryCompiler.js'
+      - 'public/data/tcg-swarm.json'
+      - 'docs/BECK-EMPIRE-SILO-REGISTRY.json'
+      - 'docs/BECK-SILO-FEE-POLICY.json'
+      - '.github/workflows/cube-silo-factory.yml'
+  pull_request:
+    paths:
+      - 'runtime/cube/silo-manifests/*.json'
+      - 'runtime/cube/templates/silo-index.html'
+      - 'BEC-PRIME/compiler/SiloCloneCompiler.js'
+      - 'BEC-PRIME/compiler/SiloRegistryCompiler.js'
+      - 'public/data/tcg-swarm.json'
+      - 'docs/BECK-EMPIRE-SILO-REGISTRY.json'
+      - 'docs/BECK-SILO-FEE-POLICY.json'
+      - '.github/workflows/cube-silo-factory.yml'
+  workflow_dispatch:
+    inputs:
+      manifest_path:
+        description: 'Path to the silo manifest to compile'
+        required: false
+        default: 'runtime/cube/silo-manifests/music-media.json'
+permissions:
+  contents: write
+  actions: write
+jobs:
+  compile-and-gauntlet:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Select manifest
+        id: manifest
+        shell: bash
+        run: |
+          manifest="${{ github.event.inputs.manifest_path }}"
+          if [ -z "$manifest" ] && [ "$GITHUB_EVENT_NAME" = "push" ]; then
+            manifest=$(git diff --name-only "${{ github.event.before }}" "${{ github.sha }}" | grep '^runtime/cube/silo-manifests/.*\.json$' | head -n 1 || true)
+          fi
+          if [ -z "$manifest" ] && [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+            manifest=$(git diff --name-only "origin/${GITHUB_BASE_REF}...HEAD" | grep '^runtime/cube/silo-manifests/.*\.json$' | head -n 1 || true)
+          fi
+          if [ -z "$manifest" ]; then manifest='runtime/cube/silo-manifests/music-media.json'; fi
+          test -f "$manifest"
+          echo "path=$manifest" >> "$GITHUB_OUTPUT"
+          echo "MANIFEST_PATH=$manifest" >> "$GITHUB_ENV"
+      - name: Compile generated silo files and policy
+        run: |
+          node BEC-PRIME/compiler/SiloCloneCompiler.js --manifest "$MANIFEST_PATH"
+          node BEC-PRIME/compiler/SiloRegistryCompiler.js --manifest "$MANIFEST_PATH"
+      - name: Verify generated artifacts and fee policy
+        run: |
+          node BEC-PRIME/compiler/SiloCloneCompiler.js --check --manifest "$MANIFEST_PATH"
+          node BEC-PRIME/compiler/SiloRegistryCompiler.js --check --manifest "$MANIFEST_PATH"
+          node BEC-PRIME/scripts/verify-silo-factory.js
+          node BEC-PRIME/scripts/verify-music-media-silo.js
+          node BEC-PRIME/scripts/verify-mtg-silo-gauntlet.js
+          node BEC-PRIME/scripts/verify-tcg-swarm-gauntlet.js
+          node BEC-PRIME/scripts/verify-silo-fee-policy.js
+      - name: Commit generated files to the working branch
+        id: commit
+        shell: bash
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ] || [ "$GITHUB_REF_NAME" = "main" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git add --all
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git config user.name "DreamLedger CUBE Silo Factory"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "CUBE: compile silo manifest and registry"
+          git push origin "HEAD:$GITHUB_REF_NAME"
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+      - name: Re-verify the generated commit
+        if: steps.commit.outputs.changed == 'true'
+        uses: actions/github-script@v7
+        env:
+          MANIFEST_PATH: ${{ steps.manifest.outputs.path }}
+        with:
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'cube-silo-factory.yml',
+              ref: context.ref.replace('refs/heads/', ''),
+              inputs: { manifest_path: process.env.MANIFEST_PATH }
+            });
