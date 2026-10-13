@@ -3,227 +3,90 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>PhinHaven | DreamLedger</title>
-  <meta name="description" content="PhinHaven starts as a shared chat and hotel. It grows in public into a persistent PvE world with territory, farming, and real progression.">
+  <title>PhinHaven | Coming soon · Stage 0 | DreamLedger</title>
+  <meta name="description" content="PhinHaven starts as a shared chat and hotel. Stage 0 is in progress. No finished-MMO claim. Built in public.">
   <style>
-    :root {
-      --bg: #090909;
-      --fg: #eee;
-      --muted: #aaa;
-      --accent: #d8b56b;
-      --border: #333;
-      --card: #121212;
-    }
+    :root { --bg:#090909; --fg:#eee; --muted:#aaa; --accent:#d8b56b; --border:#333; --card:#121212; }
     * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--fg);
-      font: 16px/1.55 system-ui, -apple-system, Segoe UI, sans-serif;
-    }
-    a { color: var(--accent); }
-    .wrap { max-width: 820px; margin: 0 auto; padding: 48px 20px 80px; }
-    .k {
-      color: var(--accent);
-      text-transform: uppercase;
-      letter-spacing: 0.14em;
-      font-weight: 800;
-      font-size: 0.78rem;
-    }
-    h1 { font-size: 2.2rem; margin: 8px 0 12px; letter-spacing: 0.02em; }
-    h2 { font-size: 1.15rem; margin: 36px 0 12px; color: var(--accent); }
-    p { color: var(--muted); margin: 0 0 14px; }
-    .lead { color: var(--fg); font-size: 1.05rem; }
-    .box {
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 20px 22px;
-      margin: 20px 0;
-      background: var(--card);
-    }
-    .status {
-      display: inline-block;
-      border: 1px solid var(--accent);
-      color: var(--accent);
-      border-radius: 999px;
-      padding: 4px 12px;
-      font-size: 0.8rem;
-      font-weight: 700;
-      letter-spacing: 0.04em;
-      margin-bottom: 16px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.92rem;
-      margin: 12px 0 8px;
-    }
-    th, td {
-      text-align: left;
-      padding: 10px 8px;
-      border-bottom: 1px solid var(--border);
-      vertical-align: top;
-    }
-    th { color: var(--accent); font-weight: 700; }
-    td:first-child { white-space: nowrap; color: var(--fg); font-weight: 600; }
-    .live { color: #7dcea0; }
-    .next { color: var(--accent); }
-    .planned { color: var(--muted); }
-    ul { color: var(--muted); padding-left: 1.2rem; }
-    li { margin: 6px 0; }
-    .cta {
-      display: inline-block;
-      margin: 8px 10px 0 0;
-      padding: 10px 16px;
-      border-radius: 10px;
-      border: 1px solid var(--accent);
-      color: #111;
-      background: var(--accent);
-      text-decoration: none;
-      font-weight: 700;
-    }
-    .cta.secondary {
-      background: transparent;
-      color: var(--accent);
-    }
-    footer {
-      margin-top: 48px;
-      padding-top: 20px;
-      border-top: 1px solid var(--border);
-      color: var(--muted);
-      font-size: 0.88rem;
-    }
+    body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.55 system-ui,-apple-system,Segoe UI,sans-serif; }
+    a { color:var(--accent); }
+    .wrap { max-width:820px; margin:0 auto; padding:48px 20px 80px; }
+    .k { color:var(--accent); text-transform:uppercase; letter-spacing:0.14em; font-weight:800; font-size:0.78rem; }
+    h1 { font-size:2.2rem; margin:8px 0 12px; letter-spacing:0.02em; }
+    h2 { font-size:1.15rem; margin:36px 0 12px; color:var(--accent); }
+    p { color:var(--muted); margin:0 0 14px; }
+    .lead { color:var(--fg); font-size:1.05rem; }
+    .box { border:1px solid var(--border); border-radius:14px; padding:20px 22px; margin:20px 0; background:var(--card); }
+    .status { display:inline-block; border:1px solid var(--accent); color:var(--accent); border-radius:999px; padding:4px 12px; font-size:0.8rem; font-weight:700; letter-spacing:0.04em; margin-bottom:16px; }
+    table { width:100%; border-collapse:collapse; font-size:0.92rem; margin:12px 0 8px; }
+    th, td { text-align:left; padding:10px 8px; border-bottom:1px solid var(--border); vertical-align:top; }
+    th { color:var(--accent); font-weight:700; }
+    td:first-child { white-space:nowrap; color:var(--fg); font-weight:600; }
+    .live { color:#7dcea0; } .next { color:var(--accent); } .planned { color:var(--muted); }
+    ul { color:var(--muted); padding-left:1.2rem; } li { margin:6px 0; }
+    .cta { display:inline-block; margin:8px 10px 0 0; padding:10px 16px; border-radius:10px; border:1px solid var(--accent); color:#111; background:var(--accent); text-decoration:none; font-weight:700; }
+    .cta.secondary { background:transparent; color:var(--accent); }
+    .cta.disabled { opacity:0.55; pointer-events:none; cursor:not-allowed; }
+    footer { margin-top:48px; padding-top:20px; border-top:1px solid var(--border); color:var(--muted); font-size:0.88rem; }
   </style>
 </head>
 <body>
   <main class="wrap">
     <div class="k">DreamLedger · game surface</div>
     <h1>PHINHAVEN</h1>
-    <p class="lead">
-      A shared world that begins as a chat room and a hotel — and slowly becomes something much bigger.
-    </p>
+    <p class="lead">A shared world that begins as a chat room and a hotel — and slowly becomes something much bigger.</p>
 
-    <div class="status">STAGE 0 · LIVE INTENT · CHAT + HOTEL</div>
+    <div class="status">STAGE 0 · COMING SOON · NOT LIVE MULTIPLAYER</div>
 
     <div class="box">
       <p class="lead" style="margin-bottom:10px">
-        Right now you can claim a room, hang out, and talk.<br>
+        Stage 0 is a shared chat and hotel space.<br>
         Over time it gains territory, farming, crafting, and real progression.<br>
         Everything is built in public. Early players help decide what comes next.
       </p>
-      <p style="margin:0">
-        No combat power for sale. No PvP. No claim of a finished MMO.
-      </p>
+      <p style="margin:0">No combat power for sale. No PvP. No claim of a finished MMO. A page is not a shipped game.</p>
     </div>
 
     <p>
-      <a class="cta" href="/phinhaven/hotel/">Enter hotel (TEST · local)</a>
-      <a class="cta secondary" href="/phinhaven/shallows/">Shallows slice</a>
+      <span class="cta disabled">Hotel · Coming soon</span>
+      <span class="cta secondary disabled">Shallows · Coming soon</span>
       <a class="cta secondary" href="/">DreamLedger home</a>
+      <a class="cta secondary" href="/truth-oracle.html">Truth Oracle</a>
     </p>
-    <p style="font-size:0.9rem">Hotel UI is browser localStorage until Supabase Stage 0 migration is applied and wired. It is not multi-device production presence.</p>
+    <p style="font-size:0.9rem">Hotel and Shallows routes are not yet served on production. Local TEST builds exist in the repository. Multiplayer requires a verified Supabase Stage 0 migration and two-session proof before any live claim.</p>
 
-    <h2>What it is today</h2>
+    <h2>What exists today</h2>
     <ul>
       <li>Public roadmap and honest Stage 0 framing</li>
-      <li>TEST hotel/chat (same browser / tabs)</li>
+      <li>TEST hotel/chat prototype (localStorage, same browser / tabs only)</li>
       <li>Shallows vertical-slice scaffold (Godot + browser)</li>
-      <li>SQL migration ready for rooms, presence, messages (not claimed applied)</li>
+      <li>SQL migration drafted for rooms, presence, messages — apply not proven</li>
     </ul>
-    <p>No combat. No economy. No pressure. Just a room and the people in it — while the rest is still being built.</p>
 
-    <h2>Where it’s going</h2>
+    <h2>Where it is going</h2>
     <div class="box">
       <table>
-        <thead>
-          <tr>
-            <th>Stage</th>
-            <th>Name</th>
-            <th>What players get</th>
-            <th>Status</th>
-          </tr>
-        </thead>
+        <thead><tr><th>Stage</th><th>Name</th><th>What players get</th><th>Status</th></tr></thead>
         <tbody>
-          <tr>
-            <td>0</td>
-            <td>Chat + Hotel</td>
-            <td>Claim a room, talk, exist</td>
-            <td class="live">Live intent</td>
-          </tr>
-          <tr>
-            <td>1</td>
-            <td>Shared Spaces</td>
-            <td>Furniture, basic persistence, room memory</td>
-            <td class="next">Next</td>
-          </tr>
-          <tr>
-            <td>2</td>
-            <td>Territory</td>
-            <td>Guilds claim land — all PvE contests</td>
-            <td class="planned">Planned</td>
-          </tr>
-          <tr>
-            <td>3</td>
-            <td>Gathering</td>
-            <td>Chop, mine, fish, simple crafting</td>
-            <td class="planned">Planned</td>
-          </tr>
-          <tr>
-            <td>4</td>
-            <td>Farming</td>
-            <td>Crops, animals, seasons</td>
-            <td class="planned">Planned</td>
-          </tr>
-          <tr>
-            <td>5</td>
-            <td>Life Sim</td>
-            <td>NPCs, relationships, festivals</td>
-            <td class="planned">Planned</td>
-          </tr>
-          <tr>
-            <td>6</td>
-            <td>Combat &amp; Dungeons</td>
-            <td>Real fights, gear, progression</td>
-            <td class="planned">Planned</td>
-          </tr>
-          <tr>
-            <td>7</td>
-            <td>Long-term</td>
-            <td>Persistent PvE world, strong community tools</td>
-            <td class="planned">Vision</td>
-          </tr>
+          <tr><td>0</td><td>Chat + Hotel</td><td>Claim a room, talk, exist</td><td class="next">In progress</td></tr>
+          <tr><td>1</td><td>Shared Spaces</td><td>Furniture, basic persistence</td><td class="planned">Next</td></tr>
+          <tr><td>2</td><td>Territory</td><td>Guilds claim land — all PvE</td><td class="planned">Planned</td></tr>
+          <tr><td>3</td><td>Gathering</td><td>Chop, mine, fish, simple crafting</td><td class="planned">Planned</td></tr>
+          <tr><td>4</td><td>Farming</td><td>Crops, animals, seasons</td><td class="planned">Planned</td></tr>
+          <tr><td>5</td><td>Life Sim</td><td>NPCs, relationships, festivals</td><td class="planned">Planned</td></tr>
+          <tr><td>6</td><td>Combat & Dungeons</td><td>Real fights, gear, progression</td><td class="planned">Planned</td></tr>
+          <tr><td>7</td><td>Long-term</td><td>Persistent PvE world</td><td class="planned">Vision</td></tr>
         </tbody>
       </table>
-      <p style="margin:12px 0 0">
-        Target feel: better than Faldon, around Diablo 2 depth, heavy community focus.
-        All player conflict stays PvE — guilds fight the world and the systems, not each other.
-      </p>
+      <p style="margin:12px 0 0">Target feel: community-first PvE. All player conflict stays against the world and systems, not each other.</p>
     </div>
 
     <h2>How we build it</h2>
     <ul>
-      <li>Everything starts small and slightly embarrassing on purpose.</li>
-      <li>We ship the next useful piece, then the next.</li>
+      <li>Start small and ship the next useful piece.</li>
       <li>Roadmap is public and will change based on who actually plays.</li>
       <li>No pay-to-win combat. No surprise PvP.</li>
-    </ul>
-
-    <h2>Current rules (Stage 0)</h2>
-    <ul>
-      <li>Be decent.</li>
-      <li>Don’t grief rooms that aren’t yours.</li>
-      <li>Feedback is welcome. Demands are not.</li>
-    </ul>
-
-    <h2>Design docs (for agents &amp; builders)</h2>
-    <ul>
-      <li><a href="/phinhaven/README.md">phinhaven/README.md</a> — index</li>
-      <li><a href="/phinhaven/ROADMAP.md">ROADMAP.md</a> — stages 0–7</li>
-      <li><a href="/phinhaven/PVE_GUILD_TERRITORY.md">PVE_GUILD_TERRITORY.md</a> — pure PvE guild land</li>
-      <li><a href="/phinhaven/STAGE0_HOTEL_CHAT.md">STAGE0_HOTEL_CHAT.md</a> — schema intent</li>
-      <li><a href="/phinhaven/AGENT_HANDOFF.md">AGENT_HANDOFF.md</a> — next jobs for agents</li>
-      <li><a href="/PHINHAVEN_START_HERE.md">PHINHAVEN_START_HERE.md</a> — operator status</li>
-      <li><a href="/PHINHAVEN_MASTER_OPERATING_CONTRACT.md">MASTER_OPERATING_CONTRACT</a> — authority &amp; commercial gates</li>
+      <li>Claims require evidence.</li>
     </ul>
 
     <footer>
