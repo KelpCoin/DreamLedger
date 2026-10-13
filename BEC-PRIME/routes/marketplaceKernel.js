@@ -395,11 +395,14 @@ async function handle(req,res,requestPath) {
 async function handleStripeWebhook(raw, signature) {
   let event;
   try { event=JSON.parse(raw); } catch { throw Object.assign(new Error('Invalid Stripe event JSON'),{statusCode:400}); }
-  if(!['checkout.session.completed','checkout.session.async_payment_succeeded'].includes(String(event.type||''))) return {handled:false};
-  const session=event.data?.object||{};
-  const orderId=String(session.metadata?.marketplace_order_id||'');
-  if(!orderId) return {handled:false};
-  if(!uuid(orderId)) throw Object.assign(new Error('Invalid marketplace order metadata'),{statusCode:400});
+  const type=String(event.type||''), object=event.data?.object||{};
+  const orderId=String(object.metadata?.marketplace_order_id||'');
+  const partyId=String(object.metadata?.marketplace_party_id||'');
+  const isCheckout=['checkout.session.completed','checkout.session.async_payment_succeeded'].includes(type)&&Boolean(orderId);
+  const isConnectUpdate=type==='account.updated'&&Boolean(partyId);
+  if(!isCheckout&&!isConnectUpdate) return {handled:false};
+  if(isCheckout&&!uuid(orderId)) throw Object.assign(new Error('Invalid marketplace order metadata'),{statusCode:400});
+  if(isConnectUpdate&&!uuid(partyId)) throw Object.assign(new Error('Invalid marketplace party metadata'),{statusCode:400});
   const secret=process.env.STRIPE_WEBHOOK_SECRET||process.env.STRIPE_WEBHOOK_SIGNING_SECRET||'';
   if(!secret) throw Object.assign(new Error('Marketplace Stripe webhook secret is not configured'),{statusCode:503});
   const parts=String(signature||'').split(',');
@@ -409,10 +412,20 @@ async function handleStripeWebhook(raw, signature) {
   const expected=crypto.createHmac('sha256',secret).update(timestamp+'.'+raw,'utf8').digest('hex');
   const valid=signatures.some(s=>{const a=Buffer.from(s),b=Buffer.from(expected);return a.length===b.length&&crypto.timingSafeEqual(a,b);});
   if(!valid) throw Object.assign(new Error('Invalid Stripe signature'),{statusCode:400});
+  if(STORE!=='supabase') throw Object.assign(new Error('Signed Stripe events require the selected Supabase ledger backend; local mode is not permitted to claim external settlement'),{statusCode:503});
+  if(isConnectUpdate) {
+    const accountId=String(object.id||'');
+    if(!/^acct_[A-Za-z0-9]+$/.test(accountId)) throw Object.assign(new Error('Invalid Stripe connected account id'),{statusCode:400});
+    const patch={stripe_account_id:accountId,stripe_charges_enabled:object.charges_enabled===true,stripe_payouts_enabled:object.payouts_enabled===true,stripe_details_submitted:object.details_submitted===true,updated_at:new Date().toISOString()};
+    const rows=await rest('marketplace_parties?id=eq.'+encodeURIComponent(partyId),{method:'PATCH',body:JSON.stringify(patch)});
+    if(!Array.isArray(rows)||!rows.length) return {handled:true,matched:false,state:'UNMATCHED',event_id:event.id};
+    await rpc('marketplace_append_ledger_event',{p_idempotency_key:'connect-account-updated:'+String(event.id),p_event_type:'CONNECT_ACCOUNT_STATUS_UPDATED',p_subject_type:'marketplace_party',p_subject_id:partyId,p_actor_type:'stripe',p_actor_id:String(event.id),p_economic_state:'OBSERVED',p_payload:{stripe_account_id:accountId,charges_enabled:patch.stripe_charges_enabled,payouts_enabled:patch.stripe_payouts_enabled,details_submitted:patch.stripe_details_submitted}});
+    return {handled:true,matched:true,connect_status:{charges_enabled:patch.stripe_charges_enabled,payouts_enabled:patch.stripe_payouts_enabled,details_submitted:patch.stripe_details_submitted}};
+  }
+  const session=object;
   if(session.payment_status!=='paid') return {handled:true,settled:false,reason:'payment_not_settled'};
   if(!event.id||!session.id||!Number.isSafeInteger(Number(session.amount_total))||!session.currency) throw Object.assign(new Error('Stripe session missing settlement fields'),{statusCode:400});
-  if(STORE!=='supabase') throw Object.assign(new Error('External payment settlement is disabled in local ledger mode; manual reconciliation required'),{statusCode:503});
-  const payload={event_id:event.id,event_type:event.type,session_id:session.id,payment_status:session.payment_status,amount_total:session.amount_total,currency:session.currency,metadata:session.metadata};
+  const payload={event_id:event.id,event_type:type,session_id:session.id,payment_status:session.payment_status,amount_total:session.amount_total,currency:session.currency,metadata:session.metadata};
   const payloadHash=crypto.createHash('sha256').update(JSON.stringify(payload)).digest('hex');
   const result=await rpc('marketplace_settle_checkout',{p_provider:'stripe',p_event_id:String(event.id),p_order_id:orderId,p_session_id:String(session.id),p_amount_minor:Number(session.amount_total),p_currency:String(session.currency).toUpperCase(),p_payload_hash:payloadHash,p_payload:payload});
   return {handled:true,...(result||{})};
