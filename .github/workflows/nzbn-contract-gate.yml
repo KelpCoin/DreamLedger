@@ -1,0 +1,27 @@
+name: NZBN verification contract gate
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 3 * * 1"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nzbn-contract-gate
+  cancel-in-progress: false
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Probe production contract and secret canaries
+        env:
+          VERIFY_NZBN_URL: https://wbwgroygjeyukkspnqiy.supabase.co/functions/v1/verify-nzbn
+        run: node scripts/test-verify-nzbn.mjs
