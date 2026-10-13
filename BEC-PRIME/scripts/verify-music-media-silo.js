@@ -10,6 +10,7 @@ check('root/public shell copies match',read('music-media/index.html')===read('pu
 check('root/public catalogue copies match',read('data/music-media-catalog.json')===read('public/data/music-media-catalog.json'));
 check('root/public legacy aliases match',read('music-media.html')===read('public/music-media.html'));
 check('generated page differs from master only by slug',read('public/music-media/index.html')===read('public/mtg/index.html').replace('data-silo="mtg"','data-silo="music-media"'));
+check('public manifest mirrors canonical Music & Media manifest',read('public/silos/music-media/silo.json')===JSON.stringify(m,null,2)+'\\n');
 check('registry declares Music & Media build-only at 500 bps',reg.silos.MUSIC_MEDIA?.id==='dreamledger-music-media'&&reg.silos.MUSIC_MEDIA?.status==='build'&&reg.silos.MUSIC_MEDIA?.platform_fee_bps===500);
 check('fee policy declares Music & Media at 500 bps',fees.rules['dreamledger-music-media']?.platform_fee_bps===500);
 check('build-gated catalogue has no published inventory',m.status==='active'||!c.products.some(p=>p.status==='published'));
