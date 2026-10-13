@@ -141,8 +141,10 @@ function setPreview(card){
   const img=card&&(card.image_uris&&card.image_uris.normal||card.card_faces&&card.card_faces[0].image_uris&&card.card_faces[0].image_uris.normal);
   document.getElementById('image_url').value=img||'';
   const art=document.getElementById('art');
-  if(img){art.innerHTML='<img src="'+img+'" alt="">';}
-  else{art.innerHTML='<div class="ph">No image</div>';}
+  art.replaceChildren();
+  if(typeof img==='string'&&img.startsWith('https://cards.scryfall.io/')){
+    const image=document.createElement('img');image.src=img;image.alt=card.name||'';image.loading='lazy';art.append(image);
+  }else{const placeholder=document.createElement('div');placeholder.className='ph';placeholder.textContent='No image';art.append(placeholder);}
   document.getElementById('pname').textContent=card?card.name:'—';
   updateMeta();
 }
@@ -159,13 +161,17 @@ function updateMeta(){
   document.getElementById(id).addEventListener('change',updateMeta);
 });
 async function search(term){
-  if(term.trim().length<2){suggest.classList.remove('open');suggest.innerHTML='';return;}
+  if(term.trim().length<2){suggest.classList.remove('open');suggest.replaceChildren();return;}
   try{
     const r=await fetch('https://api.scryfall.com/cards/autocomplete?q='+encodeURIComponent(term));
     const d=await r.json();
     const names=(d.data||[]).slice(0,8);
     if(!names.length){suggest.classList.remove('open');return;}
-    suggest.innerHTML=names.map(n=>'<button type="button" data-name="'+String(n).replace(/"/g,'"')+'"><span>'+n+'</span></button>').join('');
+    suggest.replaceChildren();
+    names.forEach(name=>{
+      const btn=document.createElement('button');btn.type='button';btn.dataset.name=name;
+      const label=document.createElement('span');label.textContent=name;btn.append(label);suggest.append(btn);
+    });
     suggest.classList.add('open');
     suggest.querySelectorAll('button').forEach(btn=>{
       btn.onclick=async()=>{
