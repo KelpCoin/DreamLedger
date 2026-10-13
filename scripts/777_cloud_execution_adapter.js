@@ -25,7 +25,8 @@ const crypto = require('crypto');
 const { run: runGauntlet } = require('../BEC-PRIME/gauntlet/CandidateGauntlet');
 
 const ROOT = path.join(__dirname, '..');
-const OUT_DIR = path.join(ROOT, 'webapp', 'pulse');
+const PULSE_DIR = path.join(ROOT, 'webapp', 'pulse');
+const OUT_DIR = path.resolve(ROOT, process.env.DREAMLEDGER_777_OUTPUT_DIR || 'artifacts/777/internal');
 const RECEIPT = path.join(OUT_DIR, '777-cloud-execution-receipt.json');
 
 function sha(value) {
@@ -40,14 +41,14 @@ function readInput() {
   const supplied = process.env.DREAMLEDGER_777_INPUT;
   if (supplied && fs.existsSync(supplied)) return JSON.parse(fs.readFileSync(supplied, 'utf8'));
 
-  const latest = fs.readdirSync(OUT_DIR, { withFileTypes: true })
+  const latest = fs.readdirSync(PULSE_DIR, { withFileTypes: true })
     .filter(x => x.isFile() && /private-commercial-.*\.html$/.test(x.name))
     .map(x => x.name)
     .sort()
     .pop();
 
   return latest
-    ? { source_file: path.join(OUT_DIR, latest), objective: 'find one bounded monetizable decision' }
+    ? { source_file: path.join(PULSE_DIR, latest), objective: 'find one bounded monetizable decision' }
     : { objective: 'find one bounded monetizable decision' };
 }
 
@@ -111,11 +112,12 @@ async function main() {
   fs.mkdirSync(OUT_DIR, { recursive: true });
   const source = readInput();
   const attempts = [];
+  const skipModels = process.env.DREAMLEDGER_777_SKIP_MODELS === 'true';
   let selected = null;
   let candidate;
   let model_claim = 'NONE';
 
-  if (process.env.CLOUD_ELOHIM_URL && process.env.CLOUD_GAUNTLET_URL) {
+  if (!skipModels && process.env.CLOUD_ELOHIM_URL && process.env.CLOUD_GAUNTLET_URL) {
     selected = await attempt('1:CLOUD_ELOHIM_PLUS_CLOUD_GAUNTLET', async () => {
       const elo = await postJson(process.env.CLOUD_ELOHIM_URL, {
         role: 'ELOHIM',
@@ -135,7 +137,7 @@ async function main() {
     if (selected) { candidate = selected.output.candidate; model_claim = 'CLOUD_ELOHIM+CLOUD_GAUNTLET'; }
   }
 
-  if (!selected && process.env.VERCEL_AI_GATEWAY_URL) {
+  if (!skipModels && !selected && process.env.VERCEL_AI_GATEWAY_URL) {
     selected = await attempt('2:VERCEL_AI_GATEWAY', async () => {
       const r = await postJson(process.env.VERCEL_AI_GATEWAY_URL, {
         model: process.env.VERCEL_AI_MODEL || 'configured-model',
@@ -150,7 +152,7 @@ async function main() {
     if (selected) { candidate = selected.output.candidate; model_claim = 'VERCEL_AI_GATEWAY'; }
   }
 
-  if (!selected && process.env.ELOHIM_FALLBACK_URL && process.env.GAUNTLET_FALLBACK_URL) {
+  if (!skipModels && !selected && process.env.ELOHIM_FALLBACK_URL && process.env.GAUNTLET_FALLBACK_URL) {
     selected = await attempt('3:CONFIGURED_ELOHIM_GAUNTLET_FALLBACK', async () => {
       const elo = await postJson(process.env.ELOHIM_FALLBACK_URL, { source, max_decisions: 5 });
       const c = candidateFromModel(elo.decisions?.[0] || elo, source);
@@ -160,7 +162,7 @@ async function main() {
     if (selected) { candidate = selected.output.candidate; model_claim = 'CONFIGURED_FALLBACK'; }
   }
 
-  if (!selected && process.env.LM_STUDIO_URL) {
+  if (!skipModels && !selected && process.env.LM_STUDIO_URL) {
     selected = await attempt('4:LM_STUDIO_OPENAI_COMPATIBLE', async () => {
       const r = await postJson(process.env.LM_STUDIO_URL, {
         model: process.env.LM_STUDIO_MODEL || 'configured-local-model',
