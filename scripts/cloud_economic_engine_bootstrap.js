@@ -167,7 +167,9 @@ async function runBootstrap({ mode = 'public-only', env = process.env, fetchImpl
 
 if (require.main === module) {
   const mode = process.argv.includes('--commerce') ? 'commerce' : 'public-only';
-  runBootstrap({ mode }).catch(error => {
+  runBootstrap({ mode }).then(report => {
+    if (report.status === 'BLOCKED_OR_UNVERIFIED') process.exitCode = 2;
+  }).catch(error => {
     console.error('CLOUD_BOOTSTRAP_FAILED=' + String(error.message || error).slice(0, 200));
     process.exitCode = 1;
   });
