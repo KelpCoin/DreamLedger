@@ -25,9 +25,15 @@ Deno.serve(async(req)=>{
     if(lookupError) return Response.json({error:"fulfillment lookup failed"},{status:500});
     if(!fulfillment) return Response.json({error:"fulfillment not found yet; webhook settlement may still be processing"},{status:409});
     const {error}=await db.rpc("marketplace_submit_diagnostic_input",{p_fulfillment_id:fulfillment.fulfillment_id,p_customer_email:email,p_decklist:decklist});
-    if(error) return Response.json({error:error.message},{status:409});
+    if(error) {
+      console.error("marketplace-diagnostic-input: submission RPC failed", { code: error.code || "UNKNOWN" });
+      return Response.json({error:"decklist submission failed; please retry"},{status:409});
+    }
     const accept=req.headers.get("accept")||"";
-    if(accept.includes("text/html")) return new Response("<h1>Decklist received</h1><p>Your diagnostic is queued for analysis. You can refresh the checkout delivery page for status.</p>",{headers:{"content-type":"text/html; charset=utf-8"}});
+    if(accept.includes("text/html")) return new Response("<h1>Decklist received</h1><p>Your diagnostic is queued for analysis. You can refresh the checkout delivery page for status.</p>",{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-store, private","referrer-policy":"no-referrer","x-content-type-options":"nosniff","content-security-policy":"default-src 'none'; base-uri 'none'; frame-ancestors 'none'"}});
     return Response.json({ok:true,fulfillment_id:fulfillment.fulfillment_id,status:"queued"});
-  }catch(error){return Response.json({error:String(error?.message||error)},{status:500});}
+  }catch(error){
+    console.error("marketplace-diagnostic-input: unhandled failure", { name: String(error?.name || "Error") });
+    return Response.json({error:"submission failed; please retry"},{status:500});
+  }
 });
