@@ -116,8 +116,26 @@ async function main() {
   let selected = null;
   let candidate;
   let model_claim = 'NONE';
+  const preferLocalGpu = process.env.DREAMLEDGER_777_PREFER_LOCAL_GPU === 'true';
 
-  if (!skipModels && process.env.CLOUD_ELOHIM_URL && process.env.CLOUD_GAUNTLET_URL) {
+  // Optional local-GPU acceleration is opt-in and only attempted when model
+  // execution is explicitly enabled and a reachable LM Studio endpoint exists.
+  if (!skipModels && preferLocalGpu && process.env.LM_STUDIO_URL) {
+    selected = await attempt('0:OPT_IN_LOCAL_GPU', async () => {
+      const r = await postJson(process.env.LM_STUDIO_URL, {
+        model: process.env.LM_STUDIO_MODEL || 'configured-local-model',
+        messages: [{
+          role: 'system',
+          content: 'Produce one bounded DreamLedger economic candidate. Use only existing offers. Never invent buyers, payments, or proof. Require independent settlement and fulfillment evidence.'
+        }, { role: 'user', content: JSON.stringify(source) }]
+      });
+      const c = candidateFromModel(r.choices?.[0]?.message?.content || r.output || r, source);
+      return { local_gpu: r, candidate: c };
+    }, attempts);
+    if (selected) { candidate = selected.output.candidate; model_claim = 'OPT_IN_LOCAL_GPU'; }
+  }
+
+  if (!skipModels && !selected && process.env.CLOUD_ELOHIM_URL && process.env.CLOUD_GAUNTLET_URL) {
     selected = await attempt('1:CLOUD_ELOHIM_PLUS_CLOUD_GAUNTLET', async () => {
       const elo = await postJson(process.env.CLOUD_ELOHIM_URL, {
         role: 'ELOHIM',
@@ -201,6 +219,9 @@ async function main() {
     schema_version: 'DREAMLEDGER/777/CLOUD-EXECUTION/v1',
     generated_at_utc: now(),
     selected_path: model_claim,
+    model_execution_allowed: !skipModels,
+    local_gpu_preferred: preferLocalGpu,
+    local_gpu_endpoint_configured: Boolean(process.env.LM_STUDIO_URL),
     fallback_attempts: attempts,
     candidate_hash: sha(JSON.stringify(candidate)),
     gauntlet_status: gauntlet.status || 'UNKNOWN',
