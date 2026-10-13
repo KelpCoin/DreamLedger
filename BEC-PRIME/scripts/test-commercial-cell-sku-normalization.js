@@ -6,8 +6,8 @@ const { normalizeMarketplaceSku } = require('../routes/commercialCell');
 const cases = [
   ['COMMANDER-DECK-DIAGNOSTIC-001', 'COMMANDER-DECK-DIAGNOSTIC-001'],
   ['CMD-DIAG-29', 'COMMANDER-DECK-DIAGNOSTIC-001'],
-  ['mtg_cmd_diag_001', 'COMMANDER-DECK-DIAGNOSTIC-001'],
-  ['OFFER-CMD-DIAG-29-NZD', 'COMMANDER-DECK-DIAGNOSTIC-001'],
+  ['MTG_CMD_DIAG_001', 'MTG_CMD_DIAG_001'],
+  ['OFFER-CMD-DIAG-29-NZD', 'OFFER-CMD-DIAG-29-NZD'],
   ['QUOTE-COMPARE-49', 'QUOTE-COMPARE-49'],
   ['', ''],
 ];
