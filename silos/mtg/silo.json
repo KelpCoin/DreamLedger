@@ -84,12 +84,11 @@
   },
   "listing_fields": "ref:MTG-LISTING-TEMPLATE",
   "clone_steps": [
-    "copy silo manifest and replace identity/surface fields only",
-    "copy data/_catalog-empty.template.json to the clone catalogue",
-    "copy public/mtg/index.html unchanged except data-silo slug",
-    "compile registry and fee policy from the same manifest",
-    "run CUBE clone verifier and Gauntlet",
-    "keep candidate hidden until explicit publish approval"
+    "Create one canonical manifest at silos/SLUG/silo.json from this master contract; change identity, surface copy, listing fields, and explicitly approved capabilities only.",
+    "Run the CUBE silo compiler to generate the storefront route, catalogue, aliases, registry, fee policy, and active-only directory.",
+    "Run factory parity, capability-reference, and relevant MTG/TCG/Music Gauntlets.",
+    "Review generated diffs and keep unapproved candidates hidden.",
+    "Promote only through the authorized release gate after rights, settlement, fulfilment, and delivery evidence are verified."
   ],
   "do_not_copy": [
     "inventory",
