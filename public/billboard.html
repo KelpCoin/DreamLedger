@@ -1,2 +1,104 @@
 <!doctype html>
-<!-- see commit: billboard monetization unlock -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="The Internet Billboard: finite digital real estate. Founding 100x100 tile NZ$50. Permanent until 3000.">
+<title>The Internet Billboard | Permanent Until 3000</title>
+<style>
+:root{--bg:#070707;--panel:#101010;--line:#2b2b2b;--ink:#f6f1e7;--muted:#918c82;--gold:#f4c95d;--max:1240px}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(circle at 78% -12%,#473716 0,#100f0c 25%,#070707 50%),#070707;color:var(--ink);font:15px/1.5 system-ui,sans-serif}a{color:inherit;text-decoration:none}.wrap{max-width:var(--max);margin:auto;padding:0 18px}.nav{min-height:64px;border-bottom:1px solid #222;display:flex;align-items:center;justify-content:space-between;gap:12px;position:sticky;top:0;z-index:30;background:#070707f2;backdrop-filter:blur(18px)}.brand{font-weight:1000;letter-spacing:-.07em;font-size:1.05rem}.brand span,.gold{color:var(--gold)}.nav-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;border:1px solid #3b3b3b;border-radius:13px;padding:10px 16px;background:#151515;color:#fff;font-weight:900;cursor:pointer}.btn.gold{background:var(--gold);color:#090909;border-color:var(--gold)}main{padding:46px 0 120px}.hero{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:28px;align-items:end}@media(max-width:800px){.hero{grid-template-columns:1fr}}.kicker{text-transform:uppercase;letter-spacing:.2em;color:var(--gold);font-size:.64rem;font-weight:1000}.hero h1{font-size:clamp(2.8rem,8vw,5.5rem);line-height:.85;letter-spacing:-.08em;margin:14px 0 18px}.hero p{max-width:640px;color:#b9b3a8;font-size:1.05rem}.hero-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:22px}.stats{border:1px solid var(--line);background:linear-gradient(145deg,#171717,#0b0b0b);border-radius:24px;padding:20px}.stat{padding:12px 0;border-bottom:1px solid #292929}.stat:last-child{border-bottom:0}.stat b{display:block;font-size:2rem;letter-spacing:-.06em}.stat span{color:#777;font-size:.68rem;text-transform:uppercase;letter-spacing:.08em}.truth{margin-top:12px;color:#777;font-size:.75rem}.section{margin-top:48px}.panel{border:1px solid var(--line);border-radius:20px;padding:22px;background:#101010;margin-bottom:16px}.panel h2{margin:0 0 12px;font-size:1.3rem}.step{display:flex;gap:12px;margin:10px 0;color:#b9b3a8}.step b{color:var(--gold)}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:600px){.form-grid{grid-template-columns:1fr}}.form-grid .full{grid-column:1/-1}label{display:block;font-size:12px;font-weight:700;color:#918c82;margin-bottom:4px}input,select{width:100%;padding:11px;border-radius:10px;border:1px solid #3b3b3b;background:#0a0a0a;color:#fff;font:inherit}.notice{font-size:12px;color:#918c82;margin-top:10px}.status{margin-top:12px;font-size:13px;color:#58d6a0}.fine{font-size:12px;color:#666;margin-top:14px}
+#sticky-buy{position:fixed;left:12px;right:12px;bottom:12px;z-index:50;max-width:440px;margin-left:auto;background:#121212;border:1px solid #3b3b3b;border-radius:16px;padding:12px 14px;display:flex;align-items:center;gap:12px;box-shadow:0 16px 48px #000a}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="nav">
+  <a class="brand" href="/">DREAM<span>LEDGER</span> · Billboard</a>
+  <div class="nav-actions">
+    <a class="btn" href="/">Home</a>
+    <a class="btn gold" href="https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w?client_reference_id=DREAMLEDGER-BILLBOARD-FOUNDING-001&utm_source=dreamledger&utm_medium=billboard_nav&utm_campaign=founding">Buy · NZ$50</a>
+  </div>
+</header>
+<main>
+<section class="hero">
+  <div>
+    <div class="kicker">Finite digital real estate</div>
+    <h1>YOUR IDEA.<br><span class="gold">ON THE BOARD.</span></h1>
+    <p>Founding 100×100 tiles are <strong class="gold">NZ$50</strong> — permanent placement until 3000. Early tiles are the land-grab before inventory tightens. Human review before publish.</p>
+    <div class="hero-actions">
+      <a class="btn gold" href="https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w?client_reference_id=DREAMLEDGER-BILLBOARD-FOUNDING-001&utm_source=dreamledger&utm_medium=billboard_hero&utm_campaign=founding">Buy founding tile · NZ$50</a>
+      <a class="btn" href="#claim">Add your title & link</a>
+    </div>
+  </div>
+  <aside class="stats">
+    <div class="stat"><b>1,000,000</b><span>pixels in this canvas</span></div>
+    <div class="stat"><b id="remaining">100</b><span>founding units (target)</span></div>
+    <div class="stat"><b>NZ$50</b><span>founding 100×100 tile</span></div>
+    <div class="truth">Stripe checkout live for Founding tiles. Review before publish. A page is not a sale until settlement.</div>
+  </aside>
+</section>
+
+<section class="section" id="claim">
+  <div class="panel">
+    <h2>How it works</h2>
+    <div class="step"><b>1</b><span>Choose the standard Founding 100×100 footprint (NZ$50).</span></div>
+    <div class="step"><b>2</b><span>Add a title and destination URL (optional before pay).</span></div>
+    <div class="step"><b>3</b><span>Pay securely via Stripe.</span></div>
+    <div class="step"><b>4</b><span>We review and place your tile on the board.</span></div>
+    <p class="fine">This is an online board, not a promise of views or sales. Your link goes where you choose.</p>
+  </div>
+  <div class="panel">
+    <h2>Claim a Founding tile</h2>
+    <form id="form">
+      <div class="form-grid">
+        <div class="full"><label>Billboard title</label><input id="title" maxlength="80" placeholder="Your brand, project or name"></div>
+        <div><label>Name or company</label><input id="owner" maxlength="80" placeholder="Optional"></div>
+        <div><label>Email</label><input id="email" type="email" maxlength="160" placeholder="you@example.com"></div>
+        <div class="full"><label>Destination URL</label><input id="link" type="url" maxlength="500" placeholder="https://example.com"></div>
+      </div>
+      <p class="notice">Illegal, hateful, fraudulent or malicious content will not be published. Payment does not bypass review.</p>
+      <button class="btn gold" style="width:100%;margin-top:15px" type="submit">Pay NZ$50 · Founding tile</button>
+      <div id="status" class="status">Opens Stripe for DREAMLEDGER-BILLBOARD-FOUNDING-001.</div>
+    </form>
+  </div>
+</section>
+
+<section class="section">
+  <div class="panel">
+    <h2>Why this is the land-grab</h2>
+    <p style="color:#b9b3a8;margin:0">Founding inventory is finite. Later prices and formats can rise. Early buyers lock permanent placement at the opening rate. Same board powers the DreamLedger attention graph for humans and agents.</p>
+    <div class="hero-actions" style="margin-top:16px">
+      <a class="btn gold" href="https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w?client_reference_id=DREAMLEDGER-BILLBOARD-FOUNDING-001&utm_source=dreamledger&utm_medium=billboard_mid&utm_campaign=founding">Secure your tile · NZ$50</a>
+      <a class="btn" href="/">Back to DreamLedger</a>
+    </div>
+  </div>
+</section>
+</main>
+</div>
+
+<div id="sticky-buy">
+  <div style="flex:1;font-size:13px;font-weight:700">Founding tile · NZ$50 · permanent to 3000</div>
+  <a class="btn gold" style="min-height:44px;white-space:nowrap" href="https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w?client_reference_id=DREAMLEDGER-BILLBOARD-FOUNDING-001&utm_source=dreamledger&utm_medium=billboard_sticky&utm_campaign=founding">Buy now</a>
+</div>
+
+<script>
+(function(){
+const STRIPE='https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w?client_reference_id=DREAMLEDGER-BILLBOARD-FOUNDING-001&utm_source=dreamledger&utm_medium=billboard_form&utm_campaign=founding';
+const form=document.getElementById('form');
+const status=document.getElementById('status');
+form.addEventListener('submit',function(e){
+  e.preventDefault();
+  try{
+    const title=(document.getElementById('title').value||'').trim();
+    const dest=(document.getElementById('link').value||'').trim();
+    if(title) sessionStorage.setItem('dl_billboard_title', title);
+    if(dest) sessionStorage.setItem('dl_billboard_dest', dest);
+  }catch(_){}
+  status.textContent='Opening secure Stripe checkout…';
+  window.location.assign(STRIPE);
+});
+})();
+</script>
+</body>
+</html>
