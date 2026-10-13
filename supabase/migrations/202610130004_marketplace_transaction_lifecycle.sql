@@ -57,6 +57,7 @@ begin
   if not found then raise exception 'active buyer party required'; end if;
   select * into offer from public.marketplace_offers where id=p_offer_id and status='submitted' and (validity_until is null or validity_until>now()) for update;
   if not found then raise exception 'offer is unavailable'; end if;
+  if offer.buyer_party_id is null or offer.buyer_party_id<>buyer.id then raise exception 'offer is not assigned to this buyer'; end if;
   terms:=jsonb_build_object('offer_id',offer.id,'title',offer.title,'scope',offer.scope,'amount_minor',offer.amount_minor,'currency',offer.currency,'delivery_terms',offer.delivery_terms,'validity_until',offer.validity_until);
   th:=encode(digest(convert_to(terms::text,'UTF8'),'sha256'),'hex');
   insert into public.marketplace_agreements(offer_id,buyer_party_id,seller_party_id,version,terms,terms_hash,buyer_accepted_at,seller_accepted_at,human_authorization,status)
