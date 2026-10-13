@@ -25,6 +25,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.x"
+      - name: Validate scout without network writes
+        run: |
+          python3 -m py_compile ops/demand/777-metal-detector-scout.py
+          python3 tests/test_777_metal_detector_scout.py
+          SCOUT_DRY_RUN=1 python3 ops/demand/777-metal-detector-scout.py
 
   harvest:
     if: github.event_name != 'pull_request'
