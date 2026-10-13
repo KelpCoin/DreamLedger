@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Agent Bridge First-Dollar Gate | DreamLedger 777</title>
+<meta name="description" content="A source-bound acceptance map for turning DreamLedger Agent Bridge into a safely metered, paid service. Current execution and revenue claims remain evidence-gated.">
+<link rel="canonical" href="https://dreamledger.org/pulse/2026-10-13-agent-bridge-first-dollar-gate.html">
+<style>
+:root{color-scheme:dark;--bg:#0b1220;--panel:#111d2e;--line:#2a3b51;--ink:#f4f7fb;--muted:#b4c0cf;--mint:#a9f2d0;--amber:#f3d59b}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.7 system-ui,sans-serif}.wrap{width:min(900px,calc(100% - 32px));margin:auto}.nav{padding:22px 0;border-bottom:1px solid #ffffff1a}.nav a,a{color:var(--mint)}main{padding:42px 0 70px}h1{font-size:clamp(36px,7vw,60px);line-height:1.02;letter-spacing:-.05em;margin:.4em 0}h2{line-height:1.2;margin-top:1.7em}.lede,p,li{color:var(--muted)}.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px;margin:18px 0}.status{border-left:4px solid var(--amber)}table{width:100%;border-collapse:collapse}td,th{text-align:left;vertical-align:top;padding:10px;border-bottom:1px solid var(--line)}th{color:var(--ink)}code{overflow-wrap:anywhere;color:var(--mint)}
+</style>
+</head>
+<body>
+<header class="wrap nav"><a href="/">DreamLedger</a> / <a href="/pulse/">Economic signals</a> / 777 component receipt</header>
+<main class="wrap">
+<p>777 EXPEDITION · 13 OCTOBER 2026 · SOURCE-BOUND ACCEPTANCE MAP</p>
+<h1>Agent Bridge: first-dollar gate</h1>
+<p class="lede">The reusable component is the acceptance path, not another checkout button. It connects a buyer-authorized request to a bounded service, attributable settlement, entitlement, delivery receipt and reconciliation.</p>
+<section class="panel status">
+<strong>Current verdict: NOT VERIFIED FOR PAID EXECUTION.</strong>
+<p>The repository contains an Agent Bridge worker contract and runtime adapter. The latest retrieved economic artifact still reports zero verified economic outcomes. A green workflow or a published offer does not prove that a customer can pay and receive the promised result.</p>
+</section>
+<h2>Observed evidence</h2>
+<ul>
+<li>The latest retrieved <a href="https://github.com/KelpCoin/DreamLedger/commit/3697fee38497575e4511efe3bd4747b420946629">777 fossil commit</a> refreshed the timestamp and integrity hash of the canonical economic artifact. Its outcome status remained <code>UNCHANGED</code>.</li>
+<li>The retrieved economic artifact enumerates 14 seeds and 686 candidate combinations, but all 14 source records are <code>UNCLASSIFIED_INCOMPLETE_SOURCE</code>; there are zero verified economic outcomes.</li>
+<li>The production bridge health gate failed its <code>/version</code> identity assertion. The live response did not satisfy the gate's expected storefront service identity. This is a production parity failure, not evidence that the 777 economic search itself failed.</li>
+<li>The approved-offer reconciliation job failed before reconciliation because its server-side payment configuration was unavailable. Therefore current offer status cannot be treated as newly reconciled live commerce.</li>
+<li>The existing bridge worker depends on a configured proxy and durable database calls for job claim, lease renewal, completion, failure and idempotent receipts. Live enforcement remains unverified until a real end-to-end check passes.</li>
+</ul>
+<h2>Acceptance sequence</h2>
+<table><thead><tr><th>Gate</th><th>Pass condition</th><th>Fail closed when</th></tr></thead><tbody>
+<tr><td>1. Route identity</td><td>Production version, manifest, catalog, SKU and handler resolve to the same deployed service and commit.</td><td>Missing route, stale commit, mismatched service or stale catalog.</td></tr>
+<tr><td>2. Buyer and payment</td><td>Independent buyer action; correct SKU, currency and amount; signed provider event; settled payment attributed to one order.</td><td>Checkout session only, unmatched payment, unsigned event or missing order join.</td></tr>
+<tr><td>3. Entitlement and limits</td><td>Idempotent entitlement/key, atomic quota, budget and expiry enforcement; replay and concurrency tests pass.</td><td>Duplicate side effects, missing authorization, over-quota execution or database failure.</td></tr>
+<tr><td>4. Execution and delivery</td><td>Scoped request completes; output has a version and checksum; buyer can retrieve it; a receipt links request, payment, order and output.</td><td>Worker timeout, unbounded execution, inaccessible output or missing evidence join.</td></tr>
+<tr><td>5. Reconciliation</td><td>Settlement, refunds, disputes, fulfillment and variable costs reconcile; contribution margin is measured.</td><td>Missing provider record, refund path, fulfillment proof or cost data.</td></tr>
+</tbody></table>
+<h2>Decomposable 777 work graph</h2>
+<ol>
+<li><strong>Parity probe:</strong> reconcile production service identity, deployed commit, manifest, route registry and approved SKU without changing live payment state.</li>
+<li><strong>First paid toll:</strong> prove the existing offer route end-to-end. Do not add another SKU, make a self-purchase or incur a test charge.</li>
+<li><strong>Worker contract:</strong> test claim/lease/heartbeat/complete/fail, expiry, retry, idempotency, budget, dependency and permission boundaries.</li>
+<li><strong>Free B2B discovery:</strong> expose only verified capabilities and route each request to one matching existing offer. Meter only successful bounded work.</li>
+<li><strong>Reusable goods:</strong> version templates, stencils, word banks, schemas and adapters with provenance, license, tests and fulfillment receipts.</li>
+<li><strong>GPU and DOOH:</strong> remain gated until owner opt-in, isolation, resource caps, cancellation, verified inventory rights, proof-of-play and settlement are demonstrated.</li>
+</ol>
+<section class="panel"><strong>Economic truth</strong><p>Verified external revenue remains NZ$0.00 in the retrieved evidence. This page records a build gate, not a sale, buyer, live GPU rental or completed delivery. Promotion requires independent settlement plus attributable fulfillment and delivery evidence.</p></section>
+<p>Source components: <a href="https://github.com/KelpCoin/DreamLedger/blob/main/BEC-PRIME/data/777/777-LATEST.json">777 economic artifact</a> · <a href="https://github.com/KelpCoin/DreamLedger/blob/main/BEC-PRIME/runtime/AgentBridgeFencedAdapter.js">fenced worker adapter</a> · <a href="https://github.com/KelpCoin/DreamLedger/blob/main/BEC-PRIME/scripts/Verify-AgentBridge-Live.js">live verification contract</a> · <a href="https://github.com/KelpCoin/DreamLedger/blob/main/AGENT_BUS/BRIDGE/ROUND_TRIP_COMPOUNDING_ARTIFACT_CONTRACT.md">round-trip artifact contract</a>.</p>
+</main></body></html>
