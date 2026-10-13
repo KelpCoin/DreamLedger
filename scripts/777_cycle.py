@@ -8,6 +8,7 @@ import urllib.request
 import urllib.parse
 import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
+from qualified_buyer_intent import classify_signal, derive_explicit_request_fields
 from html.parser import HTMLParser
 from pathlib import Path
 
@@ -179,6 +180,99 @@ def parse_private_rss(raw):
         })
     return rows
 
+
+PUBLIC_REQUEST_SEARCHES = [
+    # Broad retrieval increases recall; the source-literal classifier below still gates publication.
+    "invoice automation",
+    "PDF extraction",
+    "quote comparison",
+    "webhook debugging",
+    "document processing API",
+    '"looking for" manual invoice',
+    '"need help with" invoice manual',
+    '"anyone recommend" PDF extraction failing',
+    '"does anyone know" webhook error',
+    '"looking for" data extraction "takes too long"',
+    '"looking to hire" automation manual',
+    '"pay someone to" API broken',
+    '"alternative to" invoice "not working"',
+    '"any recommendations for" quote manual',
+    '"looking for" OCR invoice',
+]
+
+
+def hacker_news_search_url(query, since_epoch):
+    params = urllib.parse.urlencode({
+        "query": query,
+        "tags": "(story,comment)",
+        "hitsPerPage": "25",
+        "numericFilters": f"created_at_i>{since_epoch}",
+    })
+    return "https://hn.algolia.com/api/v1/search_by_date?" + params
+
+
+def parse_public_request_search(raw):
+    try:
+        payload = json.loads(raw)
+    except (TypeError, ValueError):
+        return []
+    now = datetime.now(timezone.utc)
+    rows = []
+    for hit in payload.get("hits", []):
+        object_id = str(hit.get("objectID") or "").strip()
+        title = (hit.get("title") or hit.get("story_title") or "").strip()
+        body = (hit.get("comment_text") or hit.get("story_text") or "").strip()
+        author = (hit.get("author") or "").strip()
+        url = ("https://news.ycombinator.com/item?id=" + object_id) if object_id else (hit.get("url") or hit.get("story_url") or "").strip()
+        if not title:
+            # Never turn an entire public comment into a public-page title.
+            title = "Hacker News public discussion " + (object_id or "source")
+        published_at = (hit.get("created_at") or "").strip()
+        if not author or not url or not published_at:
+            continue
+        if not url.startswith(("https://", "http://")):
+            continue
+        try:
+            published = datetime.fromisoformat(published_at.replace("Z", "+00:00"))
+            if published.tzinfo is None:
+                published = published.replace(tzinfo=timezone.utc)
+            if (now - published.astimezone(timezone.utc)).total_seconds() > 7 * 86400:
+                continue
+        except (TypeError, ValueError, OverflowError):
+            continue
+        signal = {
+            "source": "PUBLIC_BUYER_REQUEST",
+            "title": title,
+            "url": url,
+            "published_at": published_at,
+            "publisher": "Hacker News public search API",
+            "author": author,
+            "text": body,
+            "value_status": "UNKNOWN",
+            "qualified_offer": "TRUTH-ORACLE-FREEMIUM",
+            "truth_status": "UNVERIFIED",
+        }
+        signal.update(derive_explicit_request_fields(signal))
+        verdict = classify_signal(signal)
+        signal["qualification_status"] = verdict["status"]
+        signal["qualification_reason"] = verdict["reason"]
+        rows.append(signal)
+    return rows
+
+
+def fetch_public_request_search(query, since_epoch):
+    source_url = hacker_news_search_url(query, since_epoch)
+    req = urllib.request.Request(
+        source_url,
+        headers={
+            "User-Agent": "DreamLedger-777/2.0 (+https://dreamledger.org)",
+            "Accept": "application/json",
+        },
+    )
+    with urllib.request.urlopen(req, timeout=20) as response:
+        return response.read().decode("utf-8", "replace")
+
+
 def absolute(href):
     if href.startswith("http"):
         return href
@@ -237,6 +331,15 @@ for query in PRIVATE_SEARCHES:
     except Exception as exc:
         source_errors.append(f"PRIVATE_RSS:{type(exc).__name__}")
 
+# Public HN story/comment search is a source adapter, not identity verification.
+# Only literal author/problem/request evidence can qualify; source failures stay UNKNOWN.
+since_epoch = int(now.timestamp()) - 7 * 86400
+for query in PUBLIC_REQUEST_SEARCHES:
+    try:
+        signals.extend(parse_public_request_search(fetch_public_request_search(query, since_epoch)))
+    except Exception as exc:
+        source_errors.append(f"HN_REQUEST_SEARCH:{type(exc).__name__}")
+
 # Stable de-duplication, then prefer the newest discovery with a named publisher.
 seen = set()
 deduped = []
@@ -249,7 +352,11 @@ for signal in signals:
 
 if "--local" in os.sys.argv:
     # Local mode is a sensor/qualification input only. It never writes the public site.
-    print(json.dumps({"schema":"DREAMLEDGER/777/PRIVATE-SIGNAL-BATCH/v1","generated_at":now.isoformat(),"signals":deduped[:50],"source_errors":source_errors}, ensure_ascii=False))
+    source_counts = {}
+    for item in deduped:
+        source_name = str(item.get("source") or "UNKNOWN")
+        source_counts[source_name] = source_counts.get(source_name, 0) + 1
+    print(json.dumps({"schema":"DREAMLEDGER/777/PRIVATE-SIGNAL-BATCH/v1","generated_at":now.isoformat(),"signals":deduped[:500],"source_counts":source_counts,"source_errors":source_errors}, ensure_ascii=False))
     raise SystemExit(0)
 
 if deduped is not None:  # Empty discovery batches must reach the bounded fallback path.
@@ -304,9 +411,12 @@ if deduped is not None:  # Empty discovery batches must reach the bounded fallba
         title = item["title"].lower()
         freshness = 0
         try:
-            freshness = datetime.strptime(item["published_at"], "%a, %d %b %Y %H:%M:%S %Z").timestamp()
+            freshness = datetime.fromisoformat(item["published_at"].replace("Z", "+00:00")).timestamp()
         except Exception:
-            pass
+            try:
+                freshness = datetime.strptime(item["published_at"], "%a, %d %b %Y %H:%M:%S %Z").timestamp()
+            except Exception:
+                pass
         pain = sum(
             term in title
             for term in ("api", "automation", "invoice", "receipt", "quote", "pricing",
@@ -316,157 +426,54 @@ if deduped is not None:  # Empty discovery batches must reach the bounded fallba
         )
         return (pain, freshness)
 
-    fresh = [item for item in deduped if not is_duplicate_signal(item)]
+    for item in deduped:
+        verdict = classify_signal(item)
+        item["qualification_status"] = verdict["status"]
+        item["qualification_reason"] = verdict["reason"]
+
+    fresh = [
+        item for item in deduped
+        if item.get("qualification_status") == "QUALIFIED_BUYER_INTENT"
+        and not is_duplicate_signal(item)
+    ]
     if not fresh:
-        # No-new-signal is not an engine failure. Return a useful, provenance-bound
-        # fallback component from the existing Agent Bridge catalogue instead.
-        catalog_path = Path("agent-bridge-catalog.json")
-        try:
-            catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
-            services = catalog.get("services", [])
-        except Exception as exc:
-            raise SystemExit(f"NO_NEW_PRIVATE_COMMERCIAL_SIGNAL_AND_NO_CATALOG_FALLBACK: {type(exc).__name__}")
-        if not services:
-            raise SystemExit("NO_NEW_PRIVATE_COMMERCIAL_SIGNAL_AND_EMPTY_CATALOG")
-        fingerprint = hashlib.sha256(json.dumps(services, sort_keys=True).encode()).hexdigest()[:12]
-        fallback = PULSE / f"agent-bridge-capability-map-{fingerprint}.html"
-        public_fallback = PUBLIC_PULSE / fallback.name
-        public_index = PUBLIC_PULSE / "index.html"
-        index_link = '<li><a href="/pulse/' + fallback.name + '">Agent Bridge capability map (catalogue candidates; settlement unverified)</a></li>'
-        if fallback.exists():
-            # If the catalogue fallback already exists, advance one bounded work item instead
-            # of treating a no-signal cycle as an engine failure or publishing a duplicate.
-            if not public_fallback.exists():
-                PUBLIC_PULSE.mkdir(parents=True, exist_ok=True)
-                public_fallback.write_text(fallback.read_text(encoding="utf-8"), encoding="utf-8")
-                if public_index.exists():
-                    public_index_text = public_index.read_text(encoding="utf-8", errors="ignore")
-                    if fallback.name not in public_index_text:
-                        if "</ul>" in public_index_text:
-                            public_index_text = public_index_text.replace("</ul>", index_link + "</ul>", 1)
-                        else:
-                            public_index_text = public_index_text.replace("</main>", "<ul>" + index_link + "</ul></main>", 1)
-                        public_index.write_text(public_index_text, encoding="utf-8")
-                print("777_FALLBACK_PUBLIC_COPY=" + public_fallback.as_posix())
-                raise SystemExit(0)
-
-            components = [
-                ("01-toll-road-acceptance", "First-dollar toll-road acceptance", "Trace one existing low-cost offer from manifest through checkout, independently settled payment, scoped entitlement, successful probe and reconciled receipt.", "Exact SKU, amount and currency match; unpaid access denied; webhook replay is idempotent; entitlement issued once; delivery receipt reconciles; positive contribution margin."),
-                ("02-b2b-capability-schema", "Free B2B capability schema", "Define a portable listing with owner, buyer job, inputs, outputs, limits, freshness, provenance and evidence state. Keep discovery free.", "Schema validates sample listings; search and filters work; a qualified buyer action is measurable; unknown availability is not represented as live."),
-                ("03-a2a-metering-contract", "Low-cost A2A metering contract", "Specify scoped caller credentials, versioned capability, budget, quota, expiry, idempotency and a usage receipt.", "Unauthorized calls fail; concurrent quota use cannot overspend; retries do not double-charge; expiry, revocation and refunds are tested; cost per successful call is measured."),
-                ("04-reusable-stencil-kit", "Reusable commerce stencil kit", "Package one reusable template or adapter with sample data, license, version, setup steps and validation checklist.", "A clean checkout can reproduce the sample output; automated tests pass; provenance and support limits are explicit; delivery is repeatable."),
-                ("05-dooh-inventory-contract", "Digital-out-of-home inventory contract", "Define placement, format, geography, availability, rate basis, booking state and proof-of-play fields without inventing supply.", "Publisher rights and inventory are evidenced; a test campaign produces proof-of-play; campaign delivery and advertiser settlement reconcile."),
-                ("06-opt-in-gpu-job-contract", "Opt-in GPU job contract", "Start with offline benchmark data and a queued-job schema for model, inputs, resource budget, timeout, output hash and owner consent.", "No remote execution without explicit opt-in; isolation blocks host files and secrets; resource/network caps and kill switch work; positive unit economics are demonstrated."),
-                ("07-marketplace-interoperability", "Marketplace interoperability schema", "Define portable product, offer, order, refund, fulfillment and evidence objects plus one import/export adapter.", "Round-trip tests preserve IDs, currency, permissions, provenance, refunds and delivery status; no claim of replacing incumbent platforms without adoption evidence."),
-                ("08-marketplace-listing-schema-validation", "Canonical marketplace listing schema integration", "Wire the committed marketplace-listing-v1.schema.json into the existing Agent Bridge catalogue and listing acceptance path. Add fixtures for provenance, licence, version, checksum, price units, lifecycle states and budget limits.", "Schema validates valid fixtures and rejects malformed or unsafe listings; catalogue sync preserves unknown truth as unverified; CI runs the checks; no new daemon or database is introduced.")
-            ]
-            existing_names = {p.name for root in (PULSE, PUBLIC_PULSE) for p in root.glob("777-component-*.html")}
-            for task_id, title, purpose, acceptance in components:
-                filename = "777-component-" + task_id + ".html"
-                if filename in existing_names:
-                    continue
-                safe_title = html.escape(title)
-                page_html = (
-                    "<!doctype html><html lang='en-NZ'><head><meta charset='utf-8'>"
-                    "<meta name='viewport' content='width=device-width,initial-scale=1'>"
-                    "<title>" + safe_title + " | DreamLedger</title>"
-                    "<meta name='description' content='A bounded, evidence-gated 777 implementation component.'>"
-                    "<link rel='canonical' href='https://dreamledger.org/pulse/" + filename + "'>"
-                    "<style>body{max-width:850px;margin:32px auto;padding:0 20px;font:16px/1.7 system-ui;color:#17221d}a{color:#17694d}.panel{border:1px solid #d5ddd5;border-radius:14px;padding:18px;margin:18px 0;background:#fbfcf8}code{overflow-wrap:anywhere}</style>"
-                    "</head><body><main><p><a href='/'>DreamLedger</a> / <a href='/pulse/'>777 Observatory</a></p>"
-                    "<p><strong>777 bounded implementation component</strong></p><h1>" + safe_title + "</h1>"
-                    "<p>" + html.escape(purpose) + "</p><section class='panel'><h2>Acceptance evidence</h2><p>" + html.escape(acceptance) + "</p></section>"
-                    "<section class='panel'><h2>Operating boundary</h2><p>This is a build specification, not proof that the component is deployed, a buyer exists, or revenue has occurred. Label missing evidence UNVERIFIED. Keep tests and internal events separate from external economic outcomes.</p></section>"
-                    "<p><a href='https://github.com/KelpCoin/DreamLedger/issues/643'>Decomposable marketplace work queue</a> · <a href='/trust/'>Trust and evidence</a></p></main></body></html>\n"
-                )
-                for root in (PULSE, PUBLIC_PULSE):
-                    root.mkdir(parents=True, exist_ok=True)
-                    target_page = root / filename
-                    if not target_page.exists():
-                        target_page.write_text(page_html, encoding="utf-8")
-                    index_path = root / "index.html"
-                    if index_path.exists():
-                        index_text = index_path.read_text(encoding="utf-8", errors="ignore")
-                        if filename not in index_text:
-                            item = '<article><h2><a href="/pulse/' + filename + '">' + safe_title + '</a></h2><p>Bounded implementation component; acceptance proof required before promotion.</p></article>'
-                            index_text = index_text.replace("</main>", item + "</main>", 1)
-                            index_path.write_text(index_text, encoding="utf-8")
-                print("777_COMPONENT_ARTIFACT=" + filename)
-                print("777_COMPONENT_TRUTH=UNVERIFIED")
-                raise SystemExit(0)
-
-            # The bounded component queue is exhausted. Emit a run-scoped internal receipt;
-            # the gate may accept only this explicit no-op for the current GitHub run.
-            noop = PULSE / "777-noop-receipt.json"
-            noop.write_text(json.dumps({
-                "schema": "dreamledger.777.noop-receipt.v1",
-                "run_id": os.environ.get("GITHUB_RUN_ID"),
-                "observed_at": datetime.now(timezone.utc).isoformat(),
-                "outcome": "NO_NEW_SIGNAL_NO_NEW_COMPONENT",
-                "truth_status": "UNVERIFIED",
-                "verified_revenue_nzd": 0,
-                "reason": "No admissible new source signal and all bounded fallback components already exist; no duplicate public page emitted."
-            }, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-            print("777_NOOP_RECEIPT=" + noop.as_posix())
-            raise SystemExit(0)
-        rows = []
-        for service in sorted(services, key=lambda item: (float(item.get("price_nzd") or 0), item.get("id", ""))):
-            rows.append(
-                "<tr><td><code>{}</code></td><td>{}</td><td>NZD {:.2f} candidate price</td>"
-                "<td><code>{}</code></td><td>{}</td></tr>".format(
-                    html.escape(str(service.get("id", "UNKNOWN"))),
-                    html.escape(str(service.get("description", "No description supplied"))),
-                    float(service.get("price_nzd") or 0),
-                    html.escape(str(service.get("route", "not specified"))),
-                    "configured" if service.get("checkout_configured") else "not configured"
-                )
-            )
-        fallback.write_text(
-            "<!doctype html><html lang='en'><head><meta charset='utf-8'>"
-            "<meta name='viewport' content='width=device-width,initial-scale=1'>"
-            "<title>DreamLedger Agent Bridge Capability Map</title>"
-            "<meta name='description' content='A transparent, source-linked inventory of Agent Bridge service candidates and their verification state.'>"
-            "<link rel='canonical' href='https://dreamledger.org/pulse/" + fallback.name + "'>"
-            "<style>body{max-width:1100px;margin:32px auto;padding:0 20px;font:16px/1.6 system-ui}table{border-collapse:collapse;width:100%;font-size:14px}th,td{text-align:left;border-bottom:1px solid #8885;padding:9px;vertical-align:top}code{overflow-wrap:anywhere}.notice{padding:14px;border:1px solid #8888;border-radius:10px}</style>"
-            "</head><body><main><p><a href='/'>DreamLedger</a> / <a href='/pulse/'>777 Observatory</a></p>"
-            "<h1>Agent Bridge capability map</h1>"
-            "<p>This component was generated by the 777 fallback because the current discovery batch contained no admissible new private-sector signal. It turns the existing catalogue into a reviewable integration map.</p>"
-            "<div class='notice'><strong>Important verification boundary:</strong> catalogue entries are candidates, not proof that routes are reachable, that a payment settles, or that fulfillment works. All rows must be independently tested before being represented as live products. Candidate prices are not a quote or a promise of availability.</div>"
-            "<p>Catalogue schema: " + html.escape(str(catalog.get("schema", "unknown"))) +
-            " · Listed services: " + str(len(services)) +
-            " · Catalogue manifest status: " + html.escape(str(catalog.get("manifest_status", "unknown"))) + "</p>"
-            "<table><thead><tr><th>Service ID</th><th>Purpose</th><th>Candidate price</th><th>Route</th><th>Checkout config</th></tr></thead><tbody>"
-            + "".join(rows) + "</tbody></table>"
-            "<h2>Commercial acceptance gate</h2><ol><li>Probe the route with a harmless, bounded request.</li>"
-            "<li>Verify the exact product, currency, and amount at checkout.</li>"
-            "<li>Observe a real independent settled payment with matching metadata.</li>"
-            "<li>Prove idempotent fulfillment and deliver the promised output.</li>"
-            "<li>Attach the evidence receipt to the service record before changing its status.</li></ol>"
-            "<p>Current catalogue data marks settlement and fulfillment unverified. This page therefore makes no revenue claim.</p>"
-            "<p>Source: <a href='https://github.com/KelpCoin/DreamLedger/blob/main/agent-bridge-catalog.json'>DreamLedger Agent Bridge catalogue</a>.</p>"
-            "</main></body></html>\n",
-            encoding="utf-8"
-        )
-        pulse_index = PULSE / "index.html"
-        index_link = '<li><a href="/pulse/' + fallback.name + '">Agent Bridge capability map (catalogue candidates; settlement unverified)</a></li>'
-        if pulse_index.exists():
-            index_text = pulse_index.read_text(encoding="utf-8", errors="ignore")
-            if fallback.name not in index_text:
-                if "</ul>" in index_text:
-                    index_text = index_text.replace("</ul>", index_link + "</ul>", 1)
-                else:
-                    index_text = index_text.replace("</main>", "<ul>" + index_link + "</ul></main>", 1)
-                pulse_index.write_text(index_text, encoding="utf-8")
-        else:
-            pulse_index.write_text(
-                "<!doctype html><html lang='en'><head><meta charset='utf-8'><title>777 Observatory</title></head>"
-                "<body><main><h1>777 Observatory</h1><p>Evidence-bound artifacts. Published components are not proof of revenue.</p><ul>"
-                + index_link + "</ul></main></body></html>\n", encoding="utf-8"
-            )
-        print("777_FALLBACK_ARTIFACT=" + fallback.as_posix())
-        print("777_FALLBACK_SERVICES=" + str(len(services)))
+        run_id = re.sub(r"[^A-Za-z0-9_.-]", "-", os.environ.get("GITHUB_RUN_ID") or now.strftime("%Y%m%dT%H%M%SZ"))
+        receipt = {
+            "schema": "DREAMLEDGER/777/NOOP-RECEIPT/v2",
+            "run_id": run_id,
+            "generated_at": now.isoformat(),
+            "status": "NOOP_INTERNAL_ONLY",
+            "demand_status": "UNKNOWN" if source_errors else ("QUALIFIED_INTENT_ALREADY_PROCESSED" if any(item.get("qualification_status") == "QUALIFIED_BUYER_INTENT" for item in deduped) else "NO_QUALIFIED_INTENT_OBSERVED"),
+            "discovery_signals_count": len(deduped),
+            "qualified_buyer_intent_count": sum(1 for item in deduped if item.get("qualification_status") == "QUALIFIED_BUYER_INTENT"),
+            "source_errors": source_errors,
+            "public_artifacts_created": 0,
+            "reason": "No new source-backed qualified buyer-intent signal remains after idempotent duplicate filtering. Discovery is not purchase intent.",
+            "verified_external_revenue_nzd": 0,
+            "settled_external_payments": 0,
+            "independent_external_buyers": 0,
+            "paid_fulfilled_orders": 0,
+            "verified_economic_outcomes": 0,
+        }
+        receipt_dir = Path("artifacts/777/receipts")
+        receipt_dir.mkdir(parents=True, exist_ok=True)
+        receipt_path = receipt_dir / f"{run_id}-no-qualified-buyer-intent.json"
+        receipt_path.write_text(json.dumps(receipt, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        output_path = os.environ.get("GITHUB_OUTPUT")
+        if output_path:
+            with open(output_path, "a", encoding="utf-8") as output:
+                output.write("publish=false\n")
+        print("777_NOOP_RECEIPT=" + receipt_path.as_posix())
+        print("DISCOVERY_SIGNALS=" + str(len(deduped)))
+        print("QUALIFIED_BUYER_INTENT=0")
+        print("PUBLIC_ARTIFACTS_CREATED=0")
         print("TRUTH=UNVERIFIED")
         raise SystemExit(0)
+
+    output_path = os.environ.get("GITHUB_OUTPUT")
+    if output_path:
+        with open(output_path, "a", encoding="utf-8") as output:
+            output.write("publish=true\n")
     signal = max(fresh, key=candidate_key)
     key_material = json.dumps(signal, sort_keys=True)
     key = hashlib.sha256(key_material.encode()).hexdigest()[:16]
@@ -476,30 +483,32 @@ if deduped is not None:  # Empty discovery batches must reach the bounded fallba
     if not target.exists():
         title = html.escape(signal["title"])
         source_url = html.escape(signal["url"], quote=True)
+        publisher = html.escape(str(signal.get("publisher") or signal.get("source") or "Public source"))
+        published_at = html.escape(str(signal.get("published_at") or "UNKNOWN"))
+        discovery_source = html.escape(str(signal.get("source") or "PUBLIC_SOURCE"))
         body = f"""<!doctype html>
-<html lang="en-NZ"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>777 Private Commercial Signal: {title}</title>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>777 Source-Qualified Demand Signal: {title}</title>
 <meta name="robots" content="noindex,follow">
-<meta name="description" content="Source-bound private-sector commercial signal observed through a public news discovery feed.">
+<meta name="description" content="A source-backed public request signal. Not proof of a verified buyer or transaction.">
 </head><body><main>
-<p><a href="/">DreamLedger</a> / 777 Private Commercial</p>
+<p><a href="/">DreamLedger</a> / 777 Source-Qualified Demand</p>
 <h1>{title}</h1>
-<p><strong>Observed:</strong> {now.isoformat()} · <strong>Publisher:</strong> {html.escape(signal["publisher"])}</p>
+<p><strong>Observed:</strong> {now.isoformat()} · <strong>Publisher:</strong> {publisher}</p>
 <section><h2>Primary observation</h2>
 <ul>
-<li>Publisher: {html.escape(signal["publisher"])}</li>
-<li>Published: {html.escape(signal["published_at"])}</li>
-<li>Discovery source: Google News RSS</li>
+<li>Publisher: {publisher}</li>
+<li>Published: {published_at}</li>
+<li>Discovery source: {discovery_source}</li>
 </ul>
 <p><a href="{source_url}" rel="noopener noreferrer">Open the publisher source</a></p>
 </section>
-<section><h2>Commercial response surface</h2>
-<p>This is a private-sector commercial signal, not proof of buyer intent. The linked publisher source must be corroborated before an economic action is considered. If the counterparty already has supplier quotations, the existing automated quote-comparison service can normalize 2–5 quotes into an evidence-backed decision packet.</p>
-<p><a href="https://dreamledger.org/quote-comparison/">Use the free quote-comparison input for Truth Oracle</a>. Quote submissions are observations, not verified market prices or transactions. Raw files and supplier identities remain private unless the user explicitly authorizes disclosure.</p>
-<p><strong>Machine route:</strong> <a href="https://dreamledger-silo-gateway.onrender.com/api/toll/v1/manifest">Inspect the Agent/API toll manifest</a>. This link does not imply route availability, a price, entitlement, or successful settlement.</p>
+<section><h2>Evidence-first next step</h2>
+<p>This page records a public-source request with attributable source evidence. It is not identity verification, a confirmed buyer, a transaction, or revenue.</p>
+<p><a href="https://dreamledger.org/truth-oracle.html">Use the free Truth Oracle evidence workspace</a>. Structure source-linked claims and uncertainty before taking an economic action.</p>
 </section>
 <section><h2>Truth boundary</h2>
-<p>Status: UNVERIFIED. No buyer, payment, fulfillment, or verified economic outcome is inferred from this observation.</p>
+<p>Status: UNVERIFIED. No settled payment, fulfillment, or verified economic outcome is inferred from this observation.</p>
 </section>
 </main></body></html>"""
         target.write_text(body, encoding="utf-8")

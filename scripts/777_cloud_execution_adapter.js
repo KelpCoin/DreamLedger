@@ -12,7 +12,7 @@
  * 1. CLOUD_ELOHIM_URL + CLOUD_GAUNTLET_URL
  * 2. VERCEL_AI_GATEWAY_URL (OpenAI-compatible JSON endpoint)
  * 3. ELOHIM_FALLBACK_URL + GAUNTLET_FALLBACK_URL
- * 4. LM_STUDIO_URL (local OpenAI-compatible endpoint)
+ * 4. LM_STUDIO_URL (authenticated HTTPS LM Studio relay; optional GPU lane)
  * 5. Existing deterministic CandidateGauntlet + FactoryFactory, with no model claim
  *
  * No path may spend, contact a buyer, publish externally, mutate credentials,
@@ -25,7 +25,8 @@ const crypto = require('crypto');
 const { run: runGauntlet } = require('../BEC-PRIME/gauntlet/CandidateGauntlet');
 
 const ROOT = path.join(__dirname, '..');
-const OUT_DIR = path.join(ROOT, 'webapp', 'pulse');
+const PULSE_DIR = path.join(ROOT, 'webapp', 'pulse');
+const OUT_DIR = path.resolve(ROOT, process.env.DREAMLEDGER_777_OUTPUT_DIR || 'artifacts/777/internal');
 const RECEIPT = path.join(OUT_DIR, '777-cloud-execution-receipt.json');
 
 function sha(value) {
@@ -40,14 +41,14 @@ function readInput() {
   const supplied = process.env.DREAMLEDGER_777_INPUT;
   if (supplied && fs.existsSync(supplied)) return JSON.parse(fs.readFileSync(supplied, 'utf8'));
 
-  const latest = fs.readdirSync(OUT_DIR, { withFileTypes: true })
+  const latest = fs.readdirSync(PULSE_DIR, { withFileTypes: true })
     .filter(x => x.isFile() && /private-commercial-.*\.html$/.test(x.name))
     .map(x => x.name)
     .sort()
     .pop();
 
   return latest
-    ? { source_file: path.join(OUT_DIR, latest), objective: 'find one bounded monetizable decision' }
+    ? { source_file: path.join(PULSE_DIR, latest), objective: 'find one bounded monetizable decision' }
     : { objective: 'find one bounded monetizable decision' };
 }
 
@@ -76,13 +77,24 @@ function candidateFromModel(modelOutput, source) {
   };
 }
 
-async function postJson(url, body, timeoutMs = 15000) {
+function localGpuConfig() {
+  const endpoint = String(process.env.LM_STUDIO_URL || '').trim();
+  const apiKey = String(process.env.LM_STUDIO_API_KEY || '').trim();
+  if (!endpoint || !apiKey) return null;
+  try {
+    const parsed = new URL(endpoint);
+    if (parsed.protocol !== 'https:') return null;
+  } catch { return null; }
+  return { url: endpoint, headers: { Authorization: 'Bearer ' + apiKey } };
+}
+
+async function postJson(url, body, timeoutMs = 15000, extraHeaders = {}) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
     const r = await fetch(url, {
       method: 'POST',
-      headers: { 'content-type': 'application/json', 'accept': 'application/json' },
+      headers: { 'content-type': 'application/json', 'accept': 'application/json', ...extraHeaders },
       body: JSON.stringify(body),
       signal: controller.signal
     });
@@ -111,11 +123,31 @@ async function main() {
   fs.mkdirSync(OUT_DIR, { recursive: true });
   const source = readInput();
   const attempts = [];
+  const skipModels = process.env.DREAMLEDGER_777_SKIP_MODELS === 'true';
+  const localGpu = localGpuConfig();
   let selected = null;
   let candidate;
   let model_claim = 'NONE';
+  const preferLocalGpu = process.env.DREAMLEDGER_777_PREFER_LOCAL_GPU === 'true';
 
-  if (process.env.CLOUD_ELOHIM_URL && process.env.CLOUD_GAUNTLET_URL) {
+  // Optional local-GPU acceleration is opt-in and only attempted when model
+  // execution is explicitly enabled and a reachable LM Studio endpoint exists.
+  if (!skipModels && preferLocalGpu && localGpu) {
+    selected = await attempt('0:OPT_IN_LOCAL_GPU', async () => {
+      const r = await postJson(localGpu.url, {
+        model: process.env.LM_STUDIO_MODEL || 'configured-local-model',
+        messages: [{
+          role: 'system',
+          content: 'Produce one bounded DreamLedger economic candidate. Use only existing offers. Never invent buyers, payments, or proof. Require independent settlement and fulfillment evidence.'
+        }, { role: 'user', content: JSON.stringify(source) }]
+      }, 15000, localGpu.headers);
+      const c = candidateFromModel(r.choices?.[0]?.message?.content || r.output || r, source);
+      return { local_gpu: r, candidate: c };
+    }, attempts);
+    if (selected) { candidate = selected.output.candidate; model_claim = 'OPT_IN_LOCAL_GPU'; }
+  }
+
+  if (!skipModels && !selected && process.env.CLOUD_ELOHIM_URL && process.env.CLOUD_GAUNTLET_URL) {
     selected = await attempt('1:CLOUD_ELOHIM_PLUS_CLOUD_GAUNTLET', async () => {
       const elo = await postJson(process.env.CLOUD_ELOHIM_URL, {
         role: 'ELOHIM',
@@ -135,7 +167,7 @@ async function main() {
     if (selected) { candidate = selected.output.candidate; model_claim = 'CLOUD_ELOHIM+CLOUD_GAUNTLET'; }
   }
 
-  if (!selected && process.env.VERCEL_AI_GATEWAY_URL) {
+  if (!skipModels && !selected && process.env.VERCEL_AI_GATEWAY_URL) {
     selected = await attempt('2:VERCEL_AI_GATEWAY', async () => {
       const r = await postJson(process.env.VERCEL_AI_GATEWAY_URL, {
         model: process.env.VERCEL_AI_MODEL || 'configured-model',
@@ -150,7 +182,7 @@ async function main() {
     if (selected) { candidate = selected.output.candidate; model_claim = 'VERCEL_AI_GATEWAY'; }
   }
 
-  if (!selected && process.env.ELOHIM_FALLBACK_URL && process.env.GAUNTLET_FALLBACK_URL) {
+  if (!skipModels && !selected && process.env.ELOHIM_FALLBACK_URL && process.env.GAUNTLET_FALLBACK_URL) {
     selected = await attempt('3:CONFIGURED_ELOHIM_GAUNTLET_FALLBACK', async () => {
       const elo = await postJson(process.env.ELOHIM_FALLBACK_URL, { source, max_decisions: 5 });
       const c = candidateFromModel(elo.decisions?.[0] || elo, source);
@@ -160,15 +192,15 @@ async function main() {
     if (selected) { candidate = selected.output.candidate; model_claim = 'CONFIGURED_FALLBACK'; }
   }
 
-  if (!selected && process.env.LM_STUDIO_URL) {
+  if (!skipModels && !selected && localGpu) {
     selected = await attempt('4:LM_STUDIO_OPENAI_COMPATIBLE', async () => {
-      const r = await postJson(process.env.LM_STUDIO_URL, {
+      const r = await postJson(localGpu.url, {
         model: process.env.LM_STUDIO_MODEL || 'configured-local-model',
         messages: [{
           role: 'system',
           content: 'Produce one bounded DreamLedger economic candidate. Prioritize Truth Oracle, DreamMeez, Billboard, and Agent Bridge/GPU. Quote Comparison NZ$49 is a subordinate tier, never the default. Existing offers only. No buyer/payment/proof claims.'
         }, { role: 'user', content: JSON.stringify(source) }]
-      });
+      }, 15000, localGpu.headers);
       const c = candidateFromModel(r.choices?.[0]?.message?.content || r.output || r, source);
       return { lm_studio: r, candidate: c };
     }, attempts);
@@ -199,6 +231,10 @@ async function main() {
     schema_version: 'DREAMLEDGER/777/CLOUD-EXECUTION/v1',
     generated_at_utc: now(),
     selected_path: model_claim,
+    model_execution_allowed: !skipModels,
+    local_gpu_preferred: preferLocalGpu,
+    local_gpu_endpoint_configured: Boolean(process.env.LM_STUDIO_URL),
+    local_gpu_authenticated_https_configured: Boolean(localGpu),
     fallback_attempts: attempts,
     candidate_hash: sha(JSON.stringify(candidate)),
     gauntlet_status: gauntlet.status || 'UNKNOWN',
