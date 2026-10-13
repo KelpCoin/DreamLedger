@@ -297,4 +297,27 @@ async function handle(req,res,requestPath) {
   }
   return send(res,404,{error:'Marketplace endpoint not found'});
 }
-module.exports={handle};
+async function handleStripeWebhook(raw, signature) {
+  const secret=process.env.STRIPE_WEBHOOK_SECRET||process.env.STRIPE_WEBHOOK_SIGNING_SECRET||'';
+  if(!secret) throw Object.assign(new Error('Marketplace Stripe webhook secret is not configured'),{statusCode:503});
+  const parts=String(signature||'').split(',');
+  const timestamp=(parts.find(x=>x.startsWith('t='))||'').slice(2);
+  const signatures=parts.filter(x=>x.startsWith('v1=')).map(x=>x.slice(3));
+  if(!timestamp||!signatures.length||Math.abs(Date.now()/1000-Number(timestamp))>300) throw Object.assign(new Error('Invalid or expired Stripe signature'),{statusCode:400});
+  const expected=crypto.createHmac('sha256',secret).update(timestamp+'.'+raw,'utf8').digest('hex');
+  const valid=signatures.some(s=>{const a=Buffer.from(s),b=Buffer.from(expected);return a.length===b.length&&crypto.timingSafeEqual(a,b);});
+  if(!valid) throw Object.assign(new Error('Invalid Stripe signature'),{statusCode:400});
+  let event; try{event=JSON.parse(raw);}catch{throw Object.assign(new Error('Invalid Stripe event JSON'),{statusCode:400});}
+  if(!['checkout.session.completed','checkout.session.async_payment_succeeded'].includes(String(event.type||''))) return {handled:false};
+  const session=event.data?.object||{};
+  const orderId=String(session.metadata?.marketplace_order_id||'');
+  if(!orderId) return {handled:false};
+  if(!uuid(orderId)) throw Object.assign(new Error('Invalid marketplace order metadata'),{statusCode:400});
+  if(session.payment_status!=='paid') return {handled:true,settled:false,reason:'payment_not_settled'};
+  if(STORE!=='supabase') throw Object.assign(new Error('External payment settlement is disabled in local ledger mode; manual reconciliation required'),{statusCode:503});
+  const payload={event_id:event.id,event_type:event.type,session_id:session.id,payment_status:session.payment_status,amount_total:session.amount_total,currency:session.currency,metadata:session.metadata};
+  const payloadHash=crypto.createHash('sha256').update(JSON.stringify(payload)).digest('hex');
+  const result=await rpc('marketplace_settle_checkout',{p_provider:'stripe',p_event_id:String(event.id||''),p_order_id:orderId,p_session_id:String(session.id||''),p_amount_minor:Number(session.amount_total),p_currency:String(session.currency||'').toUpperCase(),p_payload_hash:payloadHash,p_payload:payload});
+  return {handled:true,...(result||{})};
+}
+module.exports={handle,handleStripeWebhook};
