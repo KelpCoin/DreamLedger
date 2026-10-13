@@ -4,6 +4,10 @@ on:
     paths:
       - 'mtg/**'
       - 'public/mtg/**'
+      - 'public/mtg-list.html'
+      - 'public/assets/mtg-deck-grid.js'
+      - 'public/assets/mtg-deck-grid.css'
+      - 'public/data/decklists/quintorius.json'
       - 'data/mtg-catalog.json'
       - 'public/data/mtg-catalog.json'
       - 'public/catalog.json'
@@ -16,6 +20,10 @@ on:
     paths:
       - 'mtg/**'
       - 'public/mtg/**'
+      - 'public/mtg-list.html'
+      - 'public/assets/mtg-deck-grid.js'
+      - 'public/assets/mtg-deck-grid.css'
+      - 'public/data/decklists/quintorius.json'
       - 'data/mtg-catalog.json'
       - 'public/data/mtg-catalog.json'
       - 'public/catalog.json'
