@@ -1,7 +1,11 @@
 'use strict';
 
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
 const { normalizeMarketplaceSku } = require('../routes/commercialCell');
+const commercialCellSource = fs.readFileSync(path.resolve(__dirname, '../routes/commercialCell.js'), 'utf8');
+assert.match(commercialCellSource, /const sku = normalizeMarketplaceSku\(/);
 
 const cases = [
   ['COMMANDER-DECK-DIAGNOSTIC-001', 'COMMANDER-DECK-DIAGNOSTIC-001'],
