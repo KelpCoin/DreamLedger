@@ -9,10 +9,10 @@ const workflow = fs.readFileSync(path.resolve(__dirname, '../.github/workflows/7
 
 assert.match(adapter, /DREAMLEDGER_777_OUTPUT_DIR \|\| 'artifacts\/777\/internal'/);
 assert.match(adapter, /DREAMLEDGER_777_SKIP_MODELS === 'true'/);
-assert.match(adapter, /if \(!skipModels && process\.env\.CLOUD_ELOHIM_URL/);
-assert.match(adapter, /if \(!skipModels && process\.env\.VERCEL_AI_GATEWAY_URL/);
-assert.match(adapter, /if \(!skipModels && process\.env\.ELOHIM_FALLBACK_URL/);
-assert.match(adapter, /if \(!skipModels && process\.env\.LM_STUDIO_URL/);
+assert.match(adapter, /if \(!skipModels && !selected && process\.env\.CLOUD_ELOHIM_URL/);
+assert.match(adapter, /if \(!skipModels && !selected && process\.env\.VERCEL_AI_GATEWAY_URL/);
+assert.match(adapter, /if \(!skipModels && !selected && process\.env\.ELOHIM_FALLBACK_URL/);
+assert.match(adapter, /if \(!skipModels && !selected && process\.env\.LM_STUDIO_URL/);
 assert.match(adapter, /if \(!skipModels && preferLocalGpu && process\.env\.LM_STUDIO_URL/);
 assert.match(adapter, /model_execution_allowed: !skipModels/);
 assert.match(adapter, /fs\.readdirSync\(PULSE_DIR/);
