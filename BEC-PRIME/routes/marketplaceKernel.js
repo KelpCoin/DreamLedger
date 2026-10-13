@@ -249,6 +249,30 @@ async function handle(req,res,requestPath) {
     if(!item) return send(res,502,{error:'Evidence was not persisted'});
     return send(res,201,{evidence_id:item.id,verdict:'UNVERIFIED',message:'Evidence registered. It has not been independently verified.'});
   }
+  const connectMatch=requestPath.match(/^\/api\/marketplace\/v1\/admin\/parties\/([0-9a-f-]{36})\/connect-onboarding$/i);
+  if(req.method==='POST'&&connectMatch) {
+    const admin=String(process.env.MARKETPLACE_ADMIN_TOKEN||'');
+    if(!admin||String(req.headers.authorization||'')!=='Bearer '+admin) return send(res,401,{error:'Marketplace admin authorization required'});
+    if(process.env.MARKETPLACE_ENABLE_CONNECT_ONBOARDING!=='true') return send(res,503,{error:'Connect onboarding is disabled until explicitly enabled by an operator.'});
+    if(!uuid(connectMatch[1])) return send(res,400,{error:'Invalid marketplace party id'});
+    const b=await readBody(req), email=safeText(b.email,254);
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return send(res,400,{error:'Valid seller email is required for Stripe-hosted onboarding'});
+    const parties=await rest('marketplace_parties?select=id,display_name,country_code,stripe_account_id,status&id=eq.'+encodeURIComponent(connectMatch[1]));
+    const party=Array.isArray(parties)?parties[0]:null;
+    if(!party||party.status!=='active') return send(res,404,{error:'Active marketplace party not found'});
+    const country=String(party.country_code||b.country_code||'').toUpperCase();
+    if(!/^[A-Z]{2}$/.test(country)) return send(res,400,{error:'Seller country_code must be set to a valid ISO alpha-2 code'});
+    let accountId=party.stripe_account_id;
+    if(!accountId) {
+      const account=await stripePost('accounts',{type:'express',country,email,'capabilities[card_payments][requested]':'true','capabilities[transfers][requested]':'true','business_profile[name]':safeText(party.display_name,160),'metadata[marketplace_party_id]':party.id},'marketplace-connect-account:'+party.id);
+      if(!account.id) throw Object.assign(new Error('Stripe did not return a connected account id'),{statusCode:502});
+      accountId=account.id;
+      await rest('marketplace_parties?id=eq.'+encodeURIComponent(party.id),{method:'PATCH',body:JSON.stringify({stripe_account_id:accountId,stripe_charges_enabled:false,stripe_payouts_enabled:false,stripe_details_submitted:false,updated_at:new Date().toISOString()})});
+    }
+    const base=(process.env.PUBLIC_BASE_URL||'https://dreamledger.org').replace(/\/$/,'');
+    const link=await stripePost('account_links',{account:accountId,refresh_url:base+'/marketplace.html?connect=refresh',return_url:base+'/marketplace.html?connect=return',type:'account_onboarding',collection_options[fields]:'eventually_due'},'marketplace-connect-link:'+party.id+':'+Math.floor(Date.now()/60000));
+    return send(res,200,{party_id:party.id,connected_account_id:accountId,onboarding_url:link.url,expires_at:link.expires_at,charges_enabled:false,payouts_enabled:false,message:'Seller must complete Stripe-hosted onboarding. Checkout remains unavailable until signed account.updated evidence confirms charges, payouts and details submitted.'});
+  }
   const publishMatch=requestPath.match(/^\/api\/marketplace\/v1\/admin\/listings\/([0-9a-f-]{36})\/publish$/i);
   if(req.method==='POST'&&publishMatch) {
     const admin=String(process.env.MARKETPLACE_ADMIN_TOKEN||'');
