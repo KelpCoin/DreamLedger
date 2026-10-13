@@ -1,0 +1,24 @@
+{
+  "target": "verify-nzbn",
+  "version": 1,
+  "never_output_substrings": [
+    "FOSSIL_PRIVATE_KEY_JWK",
+    "SUPABASE_SERVICE_ROLE_KEY=",
+    "NZBN_API_KEY=",
+    "sk_live_"
+  ],
+  "max_response_chars": 6000,
+  "severity_overrides": {
+    "secret_leak": "CRITICAL",
+    "unexpected_success_on_invalid_nzbn": "HIGH",
+    "unhandled_method": "MEDIUM"
+  },
+  "cases": [
+    {"name":"short_nzbn","method":"POST","body":{"nzbn":"123"},"expected_status":400},
+    {"name":"too_long_nzbn","method":"POST","body":{"nzbn":"12345678901234567890"},"expected_status":400},
+    {"name":"non_numeric_nzbn","method":"POST","body":{"nzbn":"<script>alert(1)</script>"},"expected_status":400},
+    {"name":"empty_json","method":"POST","body":{},"expected_status":400},
+    {"name":"wrong_method","method":"GET","expected_status":405},
+    {"name":"sql_like_input","method":"POST","body":{"nzbn":"'; DROP TABLE nzbn_checks; --"},"expected_status":400}
+  ]
+}
