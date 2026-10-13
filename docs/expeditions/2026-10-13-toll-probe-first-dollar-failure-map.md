@@ -81,3 +81,21 @@ For any paid API, agent call, or digital deliverable, require:
 `OFFER_IDENTITY → AUTHORIZED_SCOPE → CHECKOUT → SETTLED_PAYMENT → IDEMPOTENT_ORDER → ENTITLEMENT/QUOTA → BOUNDED_EXECUTION → DELIVERY_RECEIPT → REFUND/RECONCILIATION`
 
 Every transition needs an observable artifact and negative tests. Unknown is not pass. No duplicate toll system or replacement SKU should be built while this existing path remains unresolved.
+
+
+## Additional production runtime finding: Commerce Sentinel
+
+Run [38370928040](https://github.com/KelpCoin/DreamLedger/actions/runs/38370928040) failed its public-surface check. Its captured responses were:
+
+| Route | HTTP | Interpretation |
+|---|---:|---|
+| /healthz | 200 | Health route responds, not commerce proof |
+| /api/offers | 200 | Offers endpoint responds |
+| /billboard | 200 | Billboard page responds |
+| /login | 200 | Login page responds |
+| /dreammeez | 404 | The current main route map explicitly maps /avatar to avatar.html, not /dreammeez. The sentinel's expected path is stale or missing an alias. |
+| /api/dreamiez/cosmetics | 404 | No matching API route was found in the inspected public/server.js route map; cosmetic API remains unavailable on that entrypoint unless another deployed router owns it. |
+
+The job stopped on the HTTP-code assertion before it reached the Billboard offer contract assertions. Therefore this run proves a DreamMeez route/API mismatch, but it does **not** prove whether the Billboard offer itself passed or failed its checkout contract.
+
+Next bounded action: on a branch, align the sentinel with the intended canonical avatar route and independently decide whether the cosmetics API should exist on the public server or remain unavailable until the Supabase function and webhook entitlement contract are deployed and tested. Do not push main or trigger Render while build capacity is exhausted.
