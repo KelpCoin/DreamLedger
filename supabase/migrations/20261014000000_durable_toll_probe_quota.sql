@@ -8,7 +8,7 @@ create table if not exists public.toll_entitlements (
   calls_granted integer not null check (calls_granted = 1),
   calls_remaining integer not null check (calls_remaining between 0 and calls_granted),
   expires_at timestamptz not null,
-  status text not null default 'active' check (status in ('active','revoked','expired')),
+  status text not null default 'active' check (status in ('active','revoked','expired','exhausted')),
   livemode boolean not null check (livemode is true),
   amount_minor integer not null check (amount_minor = 50),
   currency text not null check (currency = 'nzd'),
@@ -150,7 +150,7 @@ begin
   v_remaining := v_row.calls_remaining - p_units;
   update public.toll_entitlements
   set calls_remaining = v_remaining,
-      status = case when v_remaining = 0 then 'expired' else status end,
+      status = case when v_remaining = 0 then 'exhausted' else status end,
       updated_at = now()
   where key_id = p_key_id;
 
