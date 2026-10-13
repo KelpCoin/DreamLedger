@@ -3,8 +3,8 @@ const assert=require('assert');
 const fs=require('fs');
 const path=require('path');
 const ROOT=path.resolve(__dirname,'..','..');
-const {buildOutputs}=require('../compiler/SiloCloneCompiler');
-const out=buildOutputs();
+const {build}=require('../compiler/SiloCloneCompiler');
+const out=build();
 for(const [rel,content] of Object.entries(out.files)){
  const p=path.join(ROOT,rel);
  assert(fs.existsSync(p),'missing generated file '+rel);
