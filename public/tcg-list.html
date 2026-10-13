@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sell a TCG single | DreamLedger NZ</title>
+<meta name="description" content="List a trading card single free in New Zealand. Any major TCG.">
+<style>
+:root{color-scheme:dark;--bg:#07080c;--surface:#11141c;--ink:#f3f0e8;--muted:#9aa0b0;--line:#2a3040;--gold:#d8b56b}
+*{box-sizing:border-box}body{margin:0;font:15px/1.5 system-ui,sans-serif;background:var(--bg);color:var(--ink)}
+.wrap{max-width:520px;margin:auto;padding:28px 16px 80px}a{color:var(--gold)}
+h1{font-size:1.8rem;letter-spacing:-.03em;margin:10px 0}
+label{display:block;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:14px 0 6px}
+input,select,textarea{width:100%;padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit}
+.btn{display:flex;align-items:center;justify-content:center;min-height:50px;margin-top:18px;border-radius:14px;background:var(--gold);color:#14120c;font-weight:800;border:0;width:100%;cursor:pointer}
+.badge{font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);border:1px solid rgba(216,181,107,.35);padding:5px 10px;border-radius:999px}
+.note{font-size:12px;color:var(--muted);margin-top:14px}.status{margin-top:10px;font-size:13px;color:#6bcf9a}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <span class="badge">Singles · 0% fee · NZ</span>
+  <h1>Sell a single</h1>
+  <p style="color:var(--muted)">Works for every TCG silo in the swarm. Magic sellers can also use <a href="/mtg-list">Scryfall search</a>.</p>
+  <form id="f">
+    <label>Game</label>
+    <select id="game" name="game">
+      <option value="pokemon">Pokémon</option>
+      <option value="onepiece">One Piece</option>
+      <option value="yugioh">Yu-Gi-Oh!</option>
+      <option value="lorcana">Lorcana</option>
+      <option value="riftbound">Riftbound</option>
+      <option value="gundam">Gundam</option>
+      <option value="digimon">Digimon</option>
+      <option value="mtg">Magic</option>
+    </select>
+    <label>Card name</label>
+    <input id="card_name" required placeholder="Exact card name">
+    <label>Condition</label>
+    <select id="condition"><option>NM</option><option>LP</option><option>MP</option><option>HP</option><option>DMG</option></select>
+    <label>Price (NZD)</label>
+    <input id="price" type="number" min="0.5" step="0.5" required placeholder="5">
+    <label>City / region</label>
+    <input id="city" required placeholder="Auckland">
+    <label>Meetup or post</label>
+    <input id="logistics" placeholder="Tracked post +$6">
+    <label>Notes</label>
+    <textarea id="notes" rows="3"></textarea>
+    <button class="btn" type="submit">Save draft</button>
+    <p id="status" class="status"></p>
+    <p class="note"><a href="/register">Free account to publish</a> · <a href="/tcg/">All TCG markets</a></p>
+  </form>
+</main>
+<script>
+(function(){
+  const params=new URLSearchParams(location.search);
+  if(params.get('game')) document.getElementById('game').value=params.get('game');
+  document.getElementById('f').onsubmit=function(e){
+    e.preventDefault();
+    const data={type:'single',game:document.getElementById('game').value,card_name:document.getElementById('card_name').value,condition:document.getElementById('condition').value,price_nzd:Number(document.getElementById('price').value),city:document.getElementById('city').value,logistics:document.getElementById('logistics').value,notes:document.getElementById('notes').value,created_at:new Date().toISOString()};
+    try{
+      localStorage.setItem('dreamledger_tcg_draft_listing',JSON.stringify(data));
+      const bag=JSON.parse(localStorage.getItem('dreamledger_tcg_singles_bag')||'[]');
+      bag.unshift(data);
+      localStorage.setItem('dreamledger_tcg_singles_bag',JSON.stringify(bag.slice(0,80)));
+      document.getElementById('status').textContent='Draft saved. Create a free account to publish.';
+    }catch(err){document.getElementById('status').textContent='Could not save.';}
+  };
+})();
+</script>
+</body>
+</html>
