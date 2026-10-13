@@ -12,7 +12,9 @@
     "accent_bright": "#e8c87a",
     "list_route": "/mtg-list",
     "catalog_path": "/data/mtg-catalog.json",
-    "canonical_path": "/mtg/"
+    "canonical_path": "/mtg/",
+    "currency": "NZD",
+    "platform_fee_bps": 0
   },
   "capabilities": {
     "payment": "ref:stripe-checkout-standard",
@@ -114,5 +116,6 @@
       "unverified economic claims",
       "unapproved publication"
     ]
-  }
+  },
+  "description": "A Magic: The Gathering marketplace for real card listings and decks. Listings, checkout, and delivery remain evidence-gated."
 }
