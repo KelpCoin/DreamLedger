@@ -91,7 +91,7 @@ jobs:
             manifest=$(git diff --name-only "${{ github.event.before }}" "${{ github.sha }}" | grep '^silos/.*/silo\.json | head -n 1 || true)
           fi
           if [ -z "$manifest" ] && [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
-            manifest=$(git diff --name-only "origin/${GITHUB_BASE_REF}...HEAD" | grep '^runtime/cube/silo-manifests/.*\.json$' | head -n 1 || true)
+            manifest=$(git diff --name-only "origin/${GITHUB_BASE_REF}...HEAD" | grep '^silos/.*\.json$' | head -n 1 || true)
           fi
           if [ -z "$manifest" ]; then manifest='silos/music-media/silo.json'; fi
           test -f "$manifest"
