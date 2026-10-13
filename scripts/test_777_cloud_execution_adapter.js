@@ -18,7 +18,7 @@ assert.match(adapter, /if \(!skipModels && preferLocalGpu && localGpu/);
 assert.match(adapter, /function localGpuConfig\(\)/);
 assert.match(adapter, /if \(!endpoint \|\| !apiKey\) return null/);
 assert.match(adapter, /parsed\.protocol !== 'https:'/);
-assert.match(adapter, /local_gpu_authenticated_https_ready: Boolean\(localGpu\)/);
+assert.match(adapter, /local_gpu_authenticated_https_configured: Boolean\(localGpu\)/);
 assert.match(adapter, /model_execution_allowed: !skipModels/);
 assert.match(adapter, /fs\.readdirSync\(PULSE_DIR/);
 assert.match(workflow, /DREAMLEDGER_777_OUTPUT_DIR: artifacts\/777\/internal/);
