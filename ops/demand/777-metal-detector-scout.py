@@ -153,8 +153,9 @@ def main() -> int:
                     "last_seen_at": utc_now(),
                     "last_run_id": run_id,
                 }
-                # Stable idempotency: repeated source/hash updates last-seen and count,
-                # but the original raw evidence is never deleted.
+                # Stable idempotency: repeated source/hash refreshes last-seen while preserving
+                # first-seen and raw evidence. occurrence_count is not used as a claim until an
+                # atomic increment RPC is added; this upsert intentionally does not fake it.
                 query = "scout_findings?on_conflict=source,payload_sha256"
                 supabase_request(base, key, query, "POST", row,
                     "resolution=merge-duplicates,return=minimal")
