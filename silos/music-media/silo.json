@@ -20,7 +20,7 @@
     "evidence": "ref:evidence-ed25519",
     "gauntlet": "ref:gauntlet-five-judges",
     "recovery": "ref:local-heartbeat-v1",
-    "community": "ref:community-bridge",
+    "community": "ref:community-bridge-patreon-discord",
     "listing": "ref:media-listing-v1"
   },
   "inventory_policy": {
