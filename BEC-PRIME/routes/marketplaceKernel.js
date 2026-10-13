@@ -270,7 +270,7 @@ async function handle(req,res,requestPath) {
       await rest('marketplace_parties?id=eq.'+encodeURIComponent(party.id),{method:'PATCH',body:JSON.stringify({stripe_account_id:accountId,stripe_charges_enabled:false,stripe_payouts_enabled:false,stripe_details_submitted:false,updated_at:new Date().toISOString()})});
     }
     const base=(process.env.PUBLIC_BASE_URL||'https://dreamledger.org').replace(/\/$/,'');
-    const link=await stripePost('account_links',{account:accountId,refresh_url:base+'/marketplace.html?connect=refresh',return_url:base+'/marketplace.html?connect=return',type:'account_onboarding',collection_options[fields]:'eventually_due'},'marketplace-connect-link:'+party.id+':'+Math.floor(Date.now()/60000));
+    const link=await stripePost('account_links',{account:accountId,refresh_url:base+'/marketplace.html?connect=refresh',return_url:base+'/marketplace.html?connect=return',type:'account_onboarding','collection_options[fields]':'eventually_due'},'marketplace-connect-link:'+party.id+':'+Math.floor(Date.now()/60000));
     return send(res,200,{party_id:party.id,connected_account_id:accountId,onboarding_url:link.url,expires_at:link.expires_at,charges_enabled:false,payouts_enabled:false,message:'Seller must complete Stripe-hosted onboarding. Checkout remains unavailable until signed account.updated evidence confirms charges, payouts and details submitted.'});
   }
   const publishMatch=requestPath.match(/^\/api\/marketplace\/v1\/admin\/listings\/([0-9a-f-]{36})\/publish$/i);
