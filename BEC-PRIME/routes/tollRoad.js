@@ -9,6 +9,7 @@ const AgentBridgeEventLedger=require('../runtime/AgentBridgeEventLedger');
 const RoadFactory=require('../runtime/TollRoadFactory');
 const STRIPE_SECRET_KEY=String(process.env.STRIPE_LIVE_SECRET_KEY||process.env.STRIPE_SECRET_KEY||'');
 const PUBLIC_BASE=String(process.env.PUBLIC_BASE_URL||'https://dreamledger.org').replace(/\/$/,'');
+const TOLL_CHECKOUT_ENABLED = String(process.env.TOLL_CHECKOUT_ENABLED || 'false').trim().toLowerCase() === 'true';
 
 const SCOPES = {
   gauntlet: { priceKey: 'gauntletPriceNzd', product: 'DreamLedger Automated Gauntlet Access', calls: 100000 },
@@ -90,6 +91,7 @@ function verifyPassportToken(token){
 }
 
 async function createCheckout(scope, roadId=null, attribution={}){
+  if(!TOLL_CHECKOUT_ENABLED)throw Object.assign(new Error('Toll checkout is disabled until payment-to-delivery acceptance passes'),{statusCode:503});
   if(scope==='road'){
     if(!RoadFactory.getRoad(roadId))throw Object.assign(new Error('Unknown toll road'),{statusCode:404});
     throw Object.assign(new Error('Road checkout disabled until durable per-key quota accounting is available'),{statusCode:503});

@@ -6,6 +6,7 @@ const assert = require('node:assert/strict');
 process.env.DREAMLEDGER_TOLL_KEY_SECRET = 'unit-test-toll-secret';
 process.env.STRIPE_SECRET_KEY = 'mocked_stripe_secret_for_unit_tests';
 process.env.PUBLIC_BASE_URL = 'https://dreamledger.org';
+process.env.TOLL_CHECKOUT_ENABLED = 'true';
 
 let stripeSession = null;
 let checkoutForm = null;
@@ -77,6 +78,26 @@ async function invoke(handler, req, path) {
   await handler(req, res, path);
   return res;
 }
+
+test('toll checkout fails closed unless explicitly enabled', async (t) => {
+  const originalFlag = process.env.TOLL_CHECKOUT_ENABLED;
+  process.env.TOLL_CHECKOUT_ENABLED = 'false';
+  checkoutForm = null;
+  stripeSession = null;
+  const routePath = require.resolve('../routes/tollRoad');
+  delete require.cache[routePath];
+  const routes = require('../routes/tollRoad');
+  const response = await invoke(
+    routes.handle,
+    fakeRequest('GET', '/api/toll/v1/checkout/toll-probe'),
+    '/api/toll/v1/checkout/toll-probe'
+  );
+  assert.equal(response.statusCode, 503);
+  assert.match(response.body.error, /disabled until payment-to-delivery acceptance passes/);
+  assert.equal(checkoutForm, null, 'must not contact Stripe while the gate is closed');
+  process.env.TOLL_CHECKOUT_ENABLED = originalFlag || 'true';
+  delete require.cache[routePath];
+});
 
 test('campaign attribution reaches Stripe and one paid probe returns a stable receipt', async (t) => {
   t.after(() => { global.fetch = originalFetch; });
