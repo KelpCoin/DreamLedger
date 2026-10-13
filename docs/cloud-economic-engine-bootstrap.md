@@ -20,7 +20,7 @@ The workflow uses existing \`SUPABASE_URL\`, \`SUPABASE_SERVICE_ROLE_KEY\`, and 
 
 ## Local GPU
 
-The cloud cycle does not depend on the PC. Model calls remain disabled unless the GitHub Actions variable `DREAMLEDGER_777_MODEL_CALLS_APPROVED=true` is explicitly set. Local-GPU preference additionally requires `DREAMLEDGER_777_LOCAL_GPU_RELAY_APPROVED=true`, an HTTPS `LM_STUDIO_URL`, and the existing `LM_STUDIO_API_KEY` secret. The key is sent only as a Bearer header and never written to artifacts. The endpoint is not considered ready until it is securely reachable from the cloud runner; no public unauthenticated GPU tunnel should be created. None of these opt-ins was enabled by this change.
+The cloud cycle does not depend on the PC. Model calls remain disabled unless the GitHub Actions variable `DREAMLEDGER_777_MODEL_CALLS_APPROVED=true` is explicitly set. Local-GPU preference additionally requires `DREAMLEDGER_777_LOCAL_GPU_RELAY_APPROVED=true`, an HTTPS `LM_STUDIO_URL`, and a configured `LM_STUDIO_API_KEY` secret. The key is sent only as a Bearer header and never written to artifacts. The endpoint is not considered ready until it is securely reachable from the cloud runner; no public unauthenticated GPU tunnel should be created. None of these opt-ins was enabled by this change.
 
 ## Economic truth
 
