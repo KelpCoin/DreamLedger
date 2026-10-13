@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Agent Bridge Route-Parity Gate | DreamLedger</title>
+  <meta name="description" content="A reusable acceptance stencil for reconciling Agent Bridge route configuration from manifest through settlement, entitlement, execution and delivery evidence.">
+  <link rel="canonical" href="https://dreamledger.org/pulse/777-component-09-agent-bridge-route-parity-gate.html">
+</head>
+<body style="margin:0;background:#f7f5ef;color:#191a17;font:16px/1.65 system-ui,sans-serif">
+<main style="max-width:900px;margin:auto;padding:32px 22px 70px">
+  <p><a href="/">DreamLedger</a> / <a href="/pulse/">Research and components</a> / Agent Bridge</p>
+  <p style="font-size:.82rem;letter-spacing:.08em;text-transform:uppercase;color:#6b6254">777 reusable component · v1 · specification only</p>
+  <h1 style="font-size:clamp(2.4rem,6vw,4.2rem);line-height:1.02;letter-spacing:-.05em">Agent Bridge route-parity gate</h1>
+  <p style="font-size:1.12rem;max-width:760px">A route is not sellable because a catalogue says it exists. The manifest, deployed handler, checkout configuration, signed settlement, entitlement, quota, executed work, delivery receipt and reconciliation must describe the same transaction.</p>
+  <p style="padding:14px 16px;border-left:4px solid #9a6c28;background:#eee9df"><strong>Current state: HELD / NOT END-TO-END VERIFIED.</strong> This page is an acceptance specification, not a live verifier and not a claim that Agent Bridge checkout is available. Verified external revenue remains NZ$0.00 on the current evidence snapshot.</p>
+
+  <h2>One route, one evidence chain</h2>
+  <ol>
+    <li><strong>Canonical intent:</strong> a route ID, SKU, currency, price, call quota, permission scope and fulfilment contract are defined in the approved manifest.</li>
+    <li><strong>Runtime parity:</strong> the deployed handler exists and its route ID, environment configuration and enabled/held state match the manifest.</li>
+    <li><strong>Checkout attribution:</strong> checkout carries stable offer and idempotency identifiers; a created session is not a payment.</li>
+    <li><strong>Settlement:</strong> a signature-verified external event confirms paid status, exact amount, currency and offer. Unpaid, refunded, replayed or mismatched events grant no entitlement.</li>
+    <li><strong>Entitlement and quota:</strong> the settled order grants one idempotent, scoped entitlement with durable quota accounting. Duplicate events return the original receipt.</li>
+    <li><strong>Bounded execution:</strong> the authorized job runs within declared time, token, call, retry, concurrency and spend limits. It cannot silently acquire host access or public-publishing authority.</li>
+    <li><strong>Delivery:</strong> a receipt identifies the requested work, output hash, status, timestamps and evidence references.</li>
+    <li><strong>Reconciliation:</strong> settlement, order, entitlement, usage, fulfilment, refunds and delivery evidence reconcile to the same transaction ID.</li>
+  </ol>
+
+  <h2>Fail-closed acceptance matrix</h2>
+  <table style="width:100%;border-collapse:collapse">
+    <thead><tr><th style="text-align:left;border-bottom:1px solid #b9b3a8;padding:8px">Observed condition</th><th style="text-align:left;border-bottom:1px solid #b9b3a8;padding:8px">Required verdict</th></tr></thead>
+    <tbody>
+      <tr><td style="padding:8px;border-bottom:1px solid #ded9d0">Manifest says enabled but deployed handler returns 503 or is missing</td><td style="padding:8px;border-bottom:1px solid #ded9d0"><strong>CONTRADICTED / HOLD</strong></td></tr>
+      <tr><td style="padding:8px;border-bottom:1px solid #ded9d0">Planned price exists but executable price, currency or checkout route is absent</td><td style="padding:8px;border-bottom:1px solid #ded9d0"><strong>INCOMPLETE / HOLD</strong></td></tr>
+      <tr><td style="padding:8px;border-bottom:1px solid #ded9d0">Catalogue is stale or cannot be normalized against the canonical manifest</td><td style="padding:8px;border-bottom:1px solid #ded9d0"><strong>STALE / HOLD</strong></td></tr>
+      <tr><td style="padding:8px;border-bottom:1px solid #ded9d0">Checkout session exists but settlement is unpaid, unsigned, wrong-currency or mismatched</td><td style="padding:8px;border-bottom:1px solid #ded9d0"><strong>UNVERIFIED / NO ENTITLEMENT</strong></td></tr>
+      <tr><td style="padding:8px;border-bottom:1px solid #ded9d0">Webhook is replayed or duplicated</td><td style="padding:8px;border-bottom:1px solid #ded9d0"><strong>IDEMPOTENT NO-OP</strong></td></tr>
+      <tr><td style="padding:8px;border-bottom:1px solid #ded9d0">Payment settled but execution or delivery fails</td><td style="padding:8px;border-bottom:1px solid #ded9d0"><strong>PAID / UNFULFILLED</strong></td></tr>
+      <tr><td style="padding:8px;border-bottom:1px solid #ded9d0">Delivery exists but settlement or reconciliation is missing</td><td style="padding:8px;border-bottom:1px solid #ded9d0"><strong>UNVERIFIED</strong></td></tr>
+      <tr><td style="padding:8px">All identifiers and external evidence reconcile, including refunds and usage</td><td style="padding:8px"><strong>ELIGIBLE FOR REVIEW</strong>, never auto-verified by this page</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Regression suite before opening checkout</h2>
+  <ul>
+    <li>Missing Stripe or toll-key configuration returns a bounded 503 without creating a Stripe session.</li>
+    <li>Checkout-disabled default stays disabled unless the operator explicitly enables it after acceptance.</li>
+    <li>Unknown route, SKU, currency, amount or manifest version fails closed.</li>
+    <li>Signed success, unsigned event, wrong amount, wrong currency, unpaid session, refund, duplicate event and out-of-order event each have deterministic tests.</li>
+    <li>Quota is durable across restarts; concurrent duplicate redemption cannot over-issue calls.</li>
+    <li>Worker timeout, retry exhaustion, cancellation, dependency failure and delivery failure produce explicit receipts without overstating completion.</li>
+    <li>A complete receipt can be traced back to the same settled order and reconciled without using internal rows as proof of payment.</li>
+  </ul>
+
+  <h2>Current source evidence</h2>
+  <ul>
+    <li><a href="https://github.com/KelpCoin/DreamLedger/blob/main/BEC-PRIME/routes/tollRoad.js">Toll route implementation</a> currently defaults <code>TOLL_CHECKOUT_ENABLED</code> to false and rejects checkout until the payment-to-delivery acceptance passes.</li>
+    <li><a href="https://github.com/KelpCoin/DreamLedger/blob/main/webapp/agentic-commerce/agent-bridge-long-task-v1.schema.json">Bounded long-task schema</a> defines task budget, permissions, approval gates and acceptance criteria. Schema validation alone does not prove live worker enforcement.</li>
+    <li><a href="https://github.com/KelpCoin/DreamLedger/commit/a9a7319d8b2f1879884680fa015f1dc7abb054ff">Configuration change</a> adds Render secret references and a disabled-by-default checkout flag; it does not reveal secret values or prove that the live service has them configured.</li>
+    <li><a href="https://dreamledger.org/pulse/2026-10-13-agent-bridge-first-dollar-gate.html">First-dollar acceptance map</a> covers the broader existing payment-to-delivery path.</li>
+  </ul>
+
+  <h2>Promotion rule</h2>
+  <p>Keep free B2B discovery open where it is safe. Keep cheap A2A checkout held until the complete route passes. Expose optional GPU work only through an opt-in isolated worker with tenant separation, hard resource caps, cost metering and a kill switch. Treat DOOH as permissioned inventory until booking authority and proof-of-play are verified.</p>
+  <p><strong>Truth boundary:</strong> a passing test proves the tested contract, not demand or revenue. Verified external revenue remains NZ$0.00 until an independent buyer, attributable settled payment, fulfilled output, delivery evidence and reconciliation agree.</p>
+</main>
+</body>
+</html>
