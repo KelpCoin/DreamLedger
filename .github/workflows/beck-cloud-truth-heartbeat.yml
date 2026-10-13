@@ -1,0 +1,136 @@
+name: BECK Cloud Truth Heartbeat
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: beck-cloud-truth-heartbeat
+  cancel-in-progress: false
+
+jobs:
+  heartbeat:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      BASE_URL: https://dreamledger.org
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_KEY: ${{ secrets.SUPABASE_SECRET_KEY || secrets.SUPABASE_SERVICE_ROLE_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - name: Probe cloud runtime and write immutable evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p proof/beck
+          now="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          sha="$(git rev-parse HEAD)"
+          health_code="$(curl -sS -o /tmp/health.json -w '%{http_code}' --max-time 20 "$BASE_URL/healthz" || true)"
+          version_code="$(curl -sS -o /tmp/version.json -w '%{http_code}' --max-time 20 "$BASE_URL/version" || true)"
+          health_ok=false
+          version_ok=false
+          [ "$health_code" = "200" ] && health_ok=true
+          [ "$version_code" = "200" ] && version_ok=true
+          live_sha=""
+          if [ "$version_ok" = true ]; then
+            live_sha="$(node -e 'const x=require("/tmp/version.json");process.stdout.write(String(x.commit||x.sha||x.version_sha||x.git_sha||""))' 2>/dev/null || true)"
+          fi
+          deploy_match=false
+          [ -n "$live_sha" ] && [ "$live_sha" = "$sha" ] && deploy_match=true
+          overall=false
+          [ "$health_ok" = true ] && [ "$version_ok" = true ] && overall=true
+          mkdir -p proof/beck
+          export NOW="$now" EXPECTED_SHA="$sha" HEALTH_CODE="$health_code" VERSION_CODE="$version_code" LIVE_SHA="$live_sha" HEALTH_OK="$health_ok" VERSION_OK="$version_ok" DEPLOY_MATCH="$deploy_match" OVERALL="$overall"
+          node <<'NODE'
+          const fs=require('fs');
+          const p={
+            schema:'BECK-CLOUD-HEARTBEAT/v1',
+            proof_type:'CLOUD_RUNTIME_HEARTBEAT',
+            agent_id:'cloud-beck',
+            observed_at_utc:process.env.NOW,
+            github_sha:process.env.EXPECTED_SHA,
+            production:{
+              base_url:process.env.BASE_URL,
+              health_http:Number(process.env.HEALTH_CODE),
+              version_http:Number(process.env.VERSION_CODE),
+              live_sha:process.env.LIVE_SHA||null,
+              health_ok:process.env.HEALTH_OK==='true',
+              version_ok:process.env.VERSION_OK==='true',
+              deployment_matches_main:process.env.DEPLOY_MATCH==='true'
+            },
+            status:process.env.OVERALL==='true'?'CLOUD_ENDPOINTS_RESPOND':'CLOUD_DEGRADED',
+            local_accelerator:{status:'NOT_CONNECTED',note:'Local heartbeat requires authenticated ingestion; absence is not treated as local health.'},
+            revenue:{claimed_nzd:0,status:'NOT_ASSERTED_BY_HEARTBEAT'},
+            side_effects:{public_posts:false,checkout_attempts:false,deploy_triggered:false}
+          };
+          fs.writeFileSync('proof/beck/latest-cloud-heartbeat.json',JSON.stringify(p,null,2)+'\n');
+          console.log(JSON.stringify(p,null,2));
+          NODE
+
+      - name: Persist hash-linked heartbeat in Supabase
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$SUPABASE_URL"
+          test -n "$SUPABASE_KEY"
+          base="${SUPABASE_URL%/}"
+          agent='cloud-beck'
+          previous='GENESIS'
+          seq=1
+          code="$(curl -sS --max-time 20 -o /tmp/previous.json -w '%{http_code}' \
+            -H "apikey: $SUPABASE_KEY" -H "Authorization: Bearer $SUPABASE_KEY" \
+            "$base/rest/v1/cortex_heartbeat?select=seq,current_hash&agent_id=eq.cloud-beck&order=seq.desc&limit=1" || true)"
+          if [ "$code" = "200" ]; then
+            read -r seq previous < <(node -e 'const x=require("/tmp/previous.json");if(x.length){console.log(Number(x[0].seq)+1,x[0].current_hash||"GENESIS")}else console.log(1,"GENESIS")')
+          else
+            echo "Supabase heartbeat read failed: HTTP $code"
+            cat /tmp/previous.json || true
+            exit 1
+          fi
+          export HB_SEQ="$seq" HB_PREVIOUS="$previous" HB_AGENT="$agent"
+          node <<'NODE'
+          const fs=require('fs'),crypto=require('crypto');
+          const p=JSON.parse(fs.readFileSync('proof/beck/latest-cloud-heartbeat.json','utf8'));
+          const canonical={
+            agent_id:process.env.HB_AGENT,
+            heartbeat_id:'cloud-beck-'+p.observed_at_utc.replace(/[^0-9A-Za-z]/g,'')+'-'+process.env.GITHUB_RUN_ID,
+            ts:p.observed_at_utc,
+            seq:Number(process.env.HB_SEQ),
+            probes:p,
+            policy:{source:'github-actions',workflow:'beck-cloud-truth-heartbeat',main_sha:process.env.GITHUB_SHA,public_actions_allowed:false,financial_actions_allowed:false},
+            escalation:{status:p.status,local_accelerator:p.local_accelerator.status},
+            autonomy_level:'A1_SCHEDULED',
+            previous_hash:process.env.HB_PREVIOUS
+          };
+          const hash=crypto.createHash('sha256').update(JSON.stringify(canonical)).digest('hex');
+          canonical.current_hash=hash;
+          fs.writeFileSync('proof/beck/latest-cloud-heartbeat-row.json',JSON.stringify(canonical,null,2)+'\n');
+          NODE
+          insert_code="$(curl -sS --max-time 30 -o /tmp/insert.json -w '%{http_code}' \
+            -X POST "$base/rest/v1/cortex_heartbeat" \
+            -H "apikey: $SUPABASE_KEY" -H "Authorization: Bearer $SUPABASE_KEY" \
+            -H 'Content-Type: application/json' -H 'Prefer: return=representation' \
+            --data-binary @proof/beck/latest-cloud-heartbeat-row.json || true)"
+          if [ "$insert_code" != "201" ] && [ "$insert_code" != "200" ]; then
+            echo "Supabase heartbeat insert failed: HTTP $insert_code"
+            cat /tmp/insert.json || true
+            exit 1
+          fi
+          node -e 'const fs=require("fs");const p=JSON.parse(fs.readFileSync("proof/beck/latest-cloud-heartbeat-row.json","utf8"));const out={schema:"BECK-CLOUD-PERSISTENCE/v1",persisted:true,agent_id:p.agent_id,seq:p.seq,heartbeat_id:p.heartbeat_id,current_hash:p.current_hash,previous_hash:p.previous_hash};fs.writeFileSync("proof/beck/latest-cloud-persistence.json",JSON.stringify(out,null,2)+"\n");console.log(JSON.stringify(out,null,2))'
+
+      - name: Upload cloud proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: beck-cloud-heartbeat-${{ github.run_id }}
+          path: proof/beck
+          if-no-files-found: error
+          retention-days: 90
