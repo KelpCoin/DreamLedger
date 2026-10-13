@@ -30,11 +30,22 @@ check('singles autocomplete and preview use safe DOM APIs',!singles.includes('su
 check('Quintorius listing includes the decklist grid and trust anchors',detail.includes('data-mtg-deck="/data/decklists/quintorius.json"')&&detail.includes('<b>See the cards</b>')&&detail.includes('<b>Clear terms</b>')&&detail.includes('<b>Safe deal</b>'));
 check('Quintorius decklist has commander and mainboard data',decklist.boards&&Array.isArray(decklist.boards.commander)&&Array.isArray(decklist.boards.main)&&decklist.boards.main.length>0);
 check('deck-grid renderer uses DOM nodes for dynamic card data',deckGrid.includes('document.createElement')&&deckGrid.includes('textContent')&&!deckGrid.includes("innerHTML = '<img"));
-if(approvedOffer&&publicOffer&&publicOffer.checkout_url!==approvedOffer.payment_link_url){
- if(publicOffer.checkout_available===false&&!publicOffer.checkout_url&&listing&&listing.checkout_available===false&&!listing.checkout_url){
-  hold('STRIPE_LINK_PARITY','Public catalogue had a different Payment Link than the approved offer. Direct public checkout is disabled; the canonical diagnostic route remains the only checkout path until live Stripe read-back confirms the mapping.');
- }else check('public checkout matches approved offer or is safely held',false,'Mismatched direct Payment Link remains purchasable.');
-}else check('public checkout matches approved offer',!!approvedOffer&&!!publicOffer);
+const productPaymentLink=product.commercial_truth?.payment_link;
+const approvedLink=approvedOffer?.payment_link_url;
+const productLinkMatches=!!approvedLink&&productPaymentLink===approvedLink;
+if(productLinkMatches)check('canonical product Payment Link matches approved offer',true);
+else{
+ const safelyHeld=publicOffer?.checkout_available===false&&!publicOffer?.checkout_url&&listing?.checkout_available===false&&!listing?.checkout_url;
+ if(safelyHeld)hold('STRIPE_LINK_PARITY','Canonical product Payment Link does not match the approved offer, but public direct checkout is disabled. Reconcile before release.');
+ else check('canonical product Payment Link matches approved offer',false,'Mismatch or missing canonical offer remains purchasable.');
+}
+if(publicOffer?.checkout_available===true){
+ check('enabled public checkout URL matches approved offer',productLinkMatches&&publicOffer.checkout_url===approvedLink);
+}else if(publicOffer?.checkout_available===false&&!publicOffer.checkout_url){
+ hold('PUBLIC_CHECKOUT_HELD','Direct public checkout is disabled. The canonical diagnostic route remains gated pending end-to-end settlement and fulfillment proof.');
+}else if(publicOffer){
+ check('disabled public checkout has no direct URL',publicOffer.checkout_available===false&&!publicOffer.checkout_url);
+}else check('public offer exists for payment mapping',false);
 check('no payment falsely recorded',product.evidence?.status==='awaiting_first_payment'&&!product.evidence?.transaction_id);
 if(product.evidence?.status==='awaiting_first_payment')hold('NO_VERIFIED_TRANSACTION','No settled-and-fulfilled diagnostic order is recorded; economic promotion remains blocked.');
 if(singles.includes("localStorage.setItem('dreamledger_mtg_draft_listing'"))hold('SINGLES_DRAFT_ONLY','The new singles form stores drafts in browser localStorage. Backend listing publication, seller verification, and fulfilment are not proven by this page.');
