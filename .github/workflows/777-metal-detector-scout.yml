@@ -1,8 +1,12 @@
 name: 777 Metal-Detector Scout
 on:
-  schedule:
-    - cron: "17 */6 * * *"
   workflow_dispatch:
+    inputs:
+      enable_harvest:
+        description: "Enable live writes only after scout schema is verified and explicitly approved"
+        required: true
+        type: boolean
+        default: false
   pull_request:
     paths:
       - "ops/demand/777-metal-detector-scout.py"
@@ -32,7 +36,7 @@ jobs:
           SCOUT_DRY_RUN=1 python3 ops/demand/777-metal-detector-scout.py
 
   harvest:
-    if: github.event_name != 'pull_request'
+    if: github.event_name == 'workflow_dispatch' && inputs.enable_harvest == true
     runs-on: ubuntu-latest
     timeout-minutes: 8
     env:
