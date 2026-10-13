@@ -1,33 +1,50 @@
 'use strict';
 const fs=require('fs'),path=require('path');
 const ROOT=path.resolve(__dirname,'../..');
-const read=p=>fs.readFileSync(path.join(ROOT,p),'utf8');
-const json=p=>JSON.parse(read(p));
 const DEFAULT='silos/music-media/silo.json';
-function compile(manifestPath=DEFAULT,checkOnly=false){
- const master=json('silos/mtg/silo.json'),candidate=json(manifestPath);
- const manifests=[master,candidate],rp='docs/BECK-EMPIRE-SILO-REGISTRY.json',fp='docs/BECK-SILO-FEE-POLICY.json';
- const registry=json(rp),policy=json(fp);
+const MASTER='silos/mtg/silo.json';
+const TCG='public/data/tcg-swarm.json';
+const read=p=>JSON.parse(fs.readFileSync(path.join(ROOT,p),'utf8'));
+const args=process.argv.slice(2),mi=args.indexOf('--manifest');
+const requestedPath=mi>=0?args[mi+1]:DEFAULT;
+function compile(checkOnly=false){
+ const master=read(MASTER),candidate=read(requestedPath),tcg=read(TCG);
+ const registry=read('docs/BECK-EMPIRE-SILO-REGISTRY.json');
+ const policy=read('docs/BECK-SILO-FEE-POLICY.json');
+ registry.silos=registry.silos||{};policy.rules=policy.rules||{};
  function upsert(m){
-  const i=m.identity||{},slug=i.slug,key=slug==='mtg'?'MTG':String(m.silo_key||slug.toUpperCase().replace(/-/g,'_')),id='dreamledger-'+slug,fee=slug==='mtg'?0:500;
-  if(!slug||i.canonical_path!=='/'+slug+'/'||i.catalog_path!=='/data/'+slug+'-catalog.json')throw Error('Invalid manifest identity '+slug);
-  if(registry.silos[key]&&registry.silos[key].id!==id)throw Error('Duplicate silo key '+key);
-  const collision=Object.entries(registry.silos).find(([k,v])=>k!==key&&v.id===id);if(collision)throw Error('Duplicate silo id '+id);
-  registry.silos[key]={...(registry.silos[key]||{}),id,public_domains:['dreamledger.org'],public_prefixes:['/'+slug],platform_fee_bps:fee,status:slug==='mtg'?'active':(m.status||'build'),first_dollar_priority:slug==='mtg'?1:(m.first_dollar_priority||99),cross_silo_forbidden_domains:m.cross_silo_forbidden_domains||[],cross_silo_forbidden_terms:m.cross_silo_forbidden_terms||[]};
-  policy.rules[id]={silo:key,domain:'dreamledger.org/'+slug,platform_fee_bps:fee,label:fee===0?'0% forever':'5% flat'};
+  const i=m.identity||{},slug=i.slug,key=m.silo_key||(slug==='mtg'?'MTG':String(slug).toUpperCase());
+  if(!slug||!i.canonical_path||i.catalog_path!=='/data/'+slug+'-catalog.json')throw Error('Invalid silo identity/catalogue '+slug);
+  const fee=key==='MTG'?0:500;
+  if(m.platform_fee_bps!==fee)throw Error('MTG=0 bps; every non-MTG silo=500 bps');
+  const id='dreamledger-'+slug,route=i.canonical_path.endsWith('/')?i.canonical_path.slice(0,-1):i.canonical_path;
+  const previous=registry.silos[key];
+  if(previous&&previous.id!==id)throw Error('Silo key collision '+key);
+  registry.silos[key]={...(previous||{}),id,public_domains:['dreamledger.org'],public_prefixes:[route],platform_fee_bps:fee,status:key==='MTG'?'active':(m.status||'build'),first_dollar_priority:key==='MTG'?1:(m.first_dollar_priority||99),cross_silo_forbidden_domains:m.cross_silo_forbidden_domains||['amplissa.com'],cross_silo_forbidden_terms:m.cross_silo_forbidden_terms||[]};
+  policy.rules[id]={...(policy.rules[id]||{}),silo:key,domain:'dreamledger.org'+route,platform_fee_bps:fee,label:fee===0?'0% forever':'5% flat'};
  }
- for(const m of manifests)upsert(m);
- for(const k of Object.keys(registry.silos))if(k.startsWith('TCG_'))delete registry.silos[k];
- for(const k of Object.keys(policy.rules))if(/^dreamledger-(pokemon|onepiece|yugioh|lorcana|riftbound|gundam|digimon)$/.test(k))delete policy.rules[k];
- if(registry.silos.MTG?.platform_fee_bps!==0)throw Error('MTG must remain 0 bps');
- for(const [k,v] of Object.entries(registry.silos))if(k!=='MTG'&&Number(v.platform_fee_bps)!==500)throw Error('Non-MTG fee invariant failed: '+k);
- for(const [k,v] of Object.entries(policy.rules))if(k!=='dreamledger-mtg'&&Number(v.platform_fee_bps)!==500)throw Error('Fee policy invariant failed: '+k);
- const directory={schema:'dreamledger/silo-directory/v1',updated:'2026-10-14',silos:Object.entries(registry.silos).filter(([k,v])=>v.status==='active'&&Array.isArray(v.public_prefixes)&&v.public_prefixes.length).map(([k,v])=>({key:k,name:k==='MTG'?'Magic: The Gathering':k,route:v.public_prefixes[0].endsWith('/')?v.public_prefixes[0]:v.public_prefixes[0]+'/',status:v.status}))};
- const outputs={[rp]:JSON.stringify(registry,null,2)+'\n',[fp]:JSON.stringify(policy,null,2)+'\n','data/silo-directory.json':JSON.stringify(directory,null,2)+'\n','public/data/silo-directory.json':JSON.stringify(directory,null,2)+'\n'};
+ upsert(master);upsert(candidate);
+ const clones=(tcg.silos||[]).filter(s=>s.status==='clone'&&s.slug!=='mtg');
+ const cloneKeys=new Set(clones.map(s=>'TCG_'+s.slug.toUpperCase()));
+ for(const key of Object.keys(registry.silos))if(key.startsWith('TCG_')&&!cloneKeys.has(key))delete registry.silos[key];
+ const cloneIds=new Set(clones.map(s=>'dreamledger-'+s.slug));
+ for(const key of Object.keys(policy.rules))if(key.startsWith('dreamledger-')&&key!=='dreamledger-mtg'&&key!=='dreamledger-music-media'&&!cloneIds.has(key)&&['dreamledger-pokemon','dreamledger-onepiece','dreamledger-yugioh','dreamledger-lorcana','dreamledger-riftbound','dreamledger-gundam','dreamledger-digimon'].includes(key))delete policy.rules[key];
+ for(const s of clones){
+  if(!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(s.slug)||s.route!=='/'+s.slug+'/')throw Error('Invalid TCG route '+s.slug);
+  const key='TCG_'+s.slug.toUpperCase(),id='dreamledger-'+s.slug,route='/'+s.slug;
+  registry.silos[key]={...(registry.silos[key]||{}),id,public_domains:['dreamledger.org'],public_prefixes:[route],platform_fee_bps:500,status:'build',first_dollar_priority:99,cross_silo_forbidden_domains:['amplissa.com'],cross_silo_forbidden_terms:['MTG','Magic: The Gathering','Commander','adult content','18+ content']};
+  policy.rules[id]={...(policy.rules[id]||{}),silo:key,domain:'dreamledger.org'+route,platform_fee_bps:500,label:'5% flat'};
+ }
+ for(const [key,value] of Object.entries(registry.silos)){const fee=Number(value.platform_fee_bps);if(key==='MTG'?fee!==0:fee!==500)throw Error('Registry fee invariant violation '+key);}
+ for(const [key,value] of Object.entries(policy.rules)){const fee=Number(value.platform_fee_bps);if(key==='dreamledger-mtg'?fee!==0:fee!==500)throw Error('Policy fee invariant violation '+key);}
+ const names={MTG:master.identity.display_name,[candidate.silo_key||candidate.identity.slug.toUpperCase()]:candidate.identity.display_name};
+ for(const s of tcg.silos||[])names['TCG_'+s.slug.toUpperCase()]=s.name;
+ const directory={schema:'dreamledger/silo-directory/v1',updated:'2026-10-14',silos:Object.entries(registry.silos).filter(([k,v])=>v.status==='active'&&Array.isArray(v.public_prefixes)&&v.public_prefixes.length).map(([k,v])=>({key:k,name:names[k]||k,route:v.public_prefixes[0].endsWith('/')?v.public_prefixes[0]:v.public_prefixes[0]+'/',status:v.status}))};
+ const outputs={'docs/BECK-EMPIRE-SILO-REGISTRY.json':JSON.stringify(registry,null,2)+'\n','docs/BECK-SILO-FEE-POLICY.json':JSON.stringify(policy,null,2)+'\n','data/silo-directory.json':JSON.stringify(directory,null,2)+'\n','public/data/silo-directory.json':JSON.stringify(directory,null,2)+'\n'};
  const drift=[];
- for(const [rel,body] of Object.entries(outputs)){if(checkOnly){if(!fs.existsSync(path.join(ROOT,rel))||read(rel)!==body)drift.push(rel);}else{fs.mkdirSync(path.dirname(path.join(ROOT,rel)),{recursive:true});fs.writeFileSync(path.join(ROOT,rel),body,'utf8');}}
- const proof={schema:'DREAMLEDGER/SILO-REGISTRY-COMPILER/v1',status:drift.length?'FAIL':checkOnly?'PASS':'GENERATED',manifests:manifests.map(m=>m.identity.slug),registered_silos:Object.keys(registry.silos).length,active_silos:directory.silos.map(s=>s.key),generated_files:Object.keys(outputs),drift};
+ for(const [rel,body] of Object.entries(outputs)){const dest=path.join(ROOT,rel);if(checkOnly){if(!fs.existsSync(dest)||fs.readFileSync(dest,'utf8')!==body)drift.push(rel);}else{fs.mkdirSync(path.dirname(dest),{recursive:true});fs.writeFileSync(dest,body,'utf8');}}
+ const proof={schema:'DREAMLEDGER/CUBE-SILO-REGISTRY/v1',status:drift.length?'FAIL':checkOnly?'PASS':'GENERATED',manifests:[MASTER,requestedPath,TCG],tcg_clones:clones.map(s=>s.slug),files:Object.keys(outputs),drift};
  console.log(JSON.stringify(proof,null,2));if(drift.length)process.exitCode=1;return proof;
 }
-if(require.main===module){const args=process.argv.slice(2),idx=args.indexOf('--manifest');compile(idx<0?DEFAULT:args[idx+1],args.includes('--check'));}
+if(require.main===module)compile(args.includes('--check'));
 module.exports={compile};
