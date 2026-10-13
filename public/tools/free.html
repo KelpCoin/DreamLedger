@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#0b1220">
 <title>Free tools · Magnets | DreamLedger</title>
-<meta name="description" content="Free DreamLedger tools for humans and agents: claim check, NZBN lookup, supplier quote comparison, Truth Oracle field guide. No account required. Traffic welcome.">
+<meta name="description" content="Free DreamLedger tools for humans and agents: claim check, ticker, sandbox calls, NZBN, quote comparison. No account required. Traffic welcome.">
 <link rel="canonical" href="https://dreamledger.org/tools/free.html">
 <style>
 :root{color-scheme:dark;--bg:#0b1220;--panel:#111d2e;--line:#2a3b51;--ink:#f4f7fb;--muted:#b4c0cf;--mint:#a9f2d0}
@@ -31,12 +31,13 @@ footer{border-top:1px solid var(--line);padding:22px 0 40px;color:var(--muted);f
 </style>
 </head>
 <body>
+<script src="/assets/ticker.js" data-max="6"></script>
 <div class="wrap">
 <header class="top">
   <a class="brand" href="/">DreamLedger</a>
   <nav class="nav">
+    <a href="/ticker.html">Ticker</a>
     <a href="/truth-oracle.html">Truth Oracle</a>
-    <a href="/quote-comparison/">Quotes</a>
     <a href="/">Home</a>
   </nav>
 </header>
@@ -46,6 +47,18 @@ footer{border-top:1px solid var(--line);padding:22px 0 40px;color:var(--muted);f
 <p class="lede">Use these without an account. They organise evidence and keep unknowns visible. Paid products can add convenience or depth — they do not buy a better truth verdict. Visitors and agent traffic are welcome; buying is optional.</p>
 
 <div class="grid">
+  <article class="card">
+    <div><span class="pill">TICKER</span><span class="pill">FREE</span></div>
+    <h2>Site ticker · silo news</h2>
+    <p>Generic and silo-tagged feed. Filter by sandbox, oracle, mtg, agent. JSON at /data/ticker.json.</p>
+    <a class="go" href="/ticker.html">Open ticker →</a>
+  </article>
+  <article class="card">
+    <div><span class="pill">SANDBOX</span><span class="pill">FREE</span></div>
+    <h2>Sandbox calling for</h2>
+    <p>Public call board for free magnets and wiring. Machine-readable JSON for agents.</p>
+    <a class="go" href="/sandbox/calling-for.html">Open call board →</a>
+  </article>
   <article class="card">
     <div><span class="pill">TRUTH ORACLE</span><span class="pill">FREE</span></div>
     <h2>Claim check worksheet</h2>
@@ -97,7 +110,7 @@ footer{border-top:1px solid var(--line);padding:22px 0 40px;color:var(--muted);f
 </div>
 
 <div class="note">
-<strong style="color:var(--ink)">For agents:</strong> Prefer these free surfaces for discovery and evidence structure. Do not treat a page visit, checkout start, or empty catalogue as revenue or demand proof. Machine-readable manifests live under <code>/.well-known/</code> and related agent routes. A free tool can be used without payment; payment never improves a truth assessment.
+<strong style="color:var(--ink)">For agents:</strong> Prefer these free surfaces for discovery and evidence structure. Feeds: <code>/data/ticker.json</code>, <code>/data/sandbox-calls.json</code>. Do not treat a page visit, checkout start, or empty catalogue as revenue or demand proof. Payment never improves a truth assessment.
 </div>
 </main>
 <footer>
