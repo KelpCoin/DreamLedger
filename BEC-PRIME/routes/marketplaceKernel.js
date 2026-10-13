@@ -174,6 +174,30 @@ async function handle(req,res,requestPath) {
     const result=await rpc('marketplace_submit_listing',{p_idempotency_key:key,p_seller_party_id:supplier.party_id,p_payload:{title:safeText(b.title,180),description:safeText(b.description,12000),category:safeText(b.category,80).toLowerCase(),listing_type:safeText(b.listing_type||'goods',40),pricing_model:safeText(b.pricing_model||'fixed',40),price_minor:b.price_minor==null?null:Number(b.price_minor),currency:safeText(b.currency||'NZD',3).toUpperCase(),quantity:b.quantity==null?null:Number(b.quantity),unit:safeText(b.unit,40),location:b.location||{},attributes:b.attributes||{}}});
     return send(res,result?.duplicate?200:201,result);
   }
+  if(req.method==='POST'&&requestPath==='/api/marketplace/v1/evidence') {
+    const supplier=supplierIdentity(req); if(!supplier) return send(res,401,{error:'Registered supplier credential required'});
+    const b=await readBody(req);
+    const evidenceType=safeText(b.evidence_type,80), sourceUri=safeText(b.source_uri,1000), contentHash=safeText(b.content_hash,128);
+    if(!evidenceType||!contentHash) return send(res,400,{error:'evidence_type and content_hash are required'});
+    if(!/^[a-f0-9]{64}$/i.test(contentHash)) return send(res,400,{error:'content_hash must be a SHA-256 hex digest'});
+    const subjectType=safeText(b.subject_type||'order',80), subjectId=uuid(b.subject_id)?b.subject_id:null;
+    const rows=await rest('marketplace_evidence',{method:'POST',body:JSON.stringify({subject_type:subjectType,subject_id:subjectId,evidence_type:evidenceType,source_uri:sourceUri||null,source_hash:safeText(b.source_hash,128)||null,content_hash:contentHash.toLowerCase(),provenance:{submitted_by_party_id:supplier.party_id,submitted_at:new Date().toISOString(),source_description:safeText(b.source_description,1000)},verdict:'UNVERIFIED',verifier:null})});
+    const item=Array.isArray(rows)?rows[0]:null;
+    if(!item) return send(res,502,{error:'Evidence was not persisted'});
+    return send(res,201,{evidence_id:item.id,verdict:'UNVERIFIED',message:'Evidence registered. It has not been independently verified.'});
+  }
+  const publishMatch=requestPath.match(/^\/api\/marketplace\/v1\/admin\/listings\/([0-9a-f-]{36})\/publish$/i);
+  if(req.method==='POST'&&publishMatch) {
+    const admin=String(process.env.MARKETPLACE_ADMIN_TOKEN||'');
+    if(!admin||String(req.headers.authorization||'')!=='Bearer '+admin) return send(res,401,{error:'Marketplace admin authorization required'});
+    if(!uuid(publishMatch[1])) return send(res,400,{error:'Invalid listing id'});
+    const b=await readBody(req);
+    if(b.evidence_reviewed!==true||b.supplier_authority_confirmed!==true||b.claims_reviewed!==true||safeText(b.reviewed_by,160).length<3) return send(res,400,{error:'Publication gate requires evidence review, supplier authority confirmation, claims review and reviewer identity'});
+    const rows=await rest('marketplace_listings?id=eq.'+encodeURIComponent(publishMatch[1])+'&status=eq.pending_review',{method:'PATCH',body:JSON.stringify({status:'published',publication_gate:{review_required:false,evidence_reviewed:true,supplier_authority_confirmed:true,claims_reviewed:true,reviewed_by:safeText(b.reviewed_by,160),reviewed_at:new Date().toISOString(),evidence_ids:Array.isArray(b.evidence_ids)?b.evidence_ids.filter(uuid):[]},updated_at:new Date().toISOString()})});
+    if(!Array.isArray(rows)||!rows.length) return send(res,409,{error:'Listing is not pending review or could not be published'});
+    await rpc('marketplace_append_ledger_event',{p_idempotency_key:'listing-published:'+publishMatch[1],p_event_type:'LISTING_PUBLISHED',p_subject_type:'listing',p_subject_id:publishMatch[1],p_actor_type:'human',p_actor_id:safeText(b.reviewed_by,160),p_economic_state:'OBSERVED',p_payload:{publication_gate:rows[0].publication_gate}});
+    return send(res,200,{listing_id:publishMatch[1],state:'published',message:'Listing published after explicit review; not evidence of buyer demand or revenue.'});
+  }
   const offerMatch=requestPath.match(/^\/api\/marketplace\/v1\/rfqs\/([0-9a-f-]{36})\/offers$/i);
   if(req.method==='POST'&&offerMatch) {
     const supplier=supplierIdentity(req); if(!supplier) return send(res,401,{error:'Registered supplier credential required'});
