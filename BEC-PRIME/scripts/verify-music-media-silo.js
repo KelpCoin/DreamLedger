@@ -1,60 +1,16 @@
 'use strict';
-
-const fs = require('fs');
-const path = require('path');
-
-const ROOT = path.resolve(__dirname, '..', '..');
-const read = p => fs.readFileSync(path.join(ROOT, p), 'utf8');
-const readJson = p => JSON.parse(read(p));
-const checks = [];
-function check(name, ok, detail = '') {
-  checks.push({ name, ok: Boolean(ok), detail });
-}
-
-const rootPage = 'music-media/index.html';
-const publicPage = 'public/music-media/index.html';
-const rootCatalog = 'data/music-media-catalog.json';
-const publicCatalog = 'public/data/music-media-catalog.json';
-const rootAlias = 'music-media.html';
-const publicAlias = 'public/music-media.html';
-
-for (const p of [rootPage, publicPage, rootCatalog, publicCatalog, rootAlias, publicAlias,
-  'docs/BECK-EMPIRE-SILO-REGISTRY.json', 'docs/BECK-SILO-FEE-POLICY.json']) {
-  check('required file exists: ' + p, fs.existsSync(path.join(ROOT, p)));
-}
-check('storefront copies match', read(rootPage) === read(publicPage));
-check('catalogue copies match', read(rootCatalog) === read(publicCatalog));
-check('legacy aliases match', read(rootAlias) === read(publicAlias));
-
-const catalogue = readJson(rootCatalog);
-const registry = readJson('docs/BECK-EMPIRE-SILO-REGISTRY.json');
-const fees = readJson('docs/BECK-SILO-FEE-POLICY.json');
-const silo = registry.silos && registry.silos.MUSIC_MEDIA;
-const fee = fees.rules && fees.rules['dreamledger-music-media'];
-
-check('catalogue schema is correct', catalogue.schema === 'dreamledger/music-media-catalogue/v1');
-check('catalogue is isolated to music-media', catalogue.silo === 'music-media');
-check('catalogue products is an array', Array.isArray(catalogue.products));
-check('registry declares canonical route', Boolean(silo && silo.id === 'dreamledger-music-media' && (silo.public_prefixes || []).includes('/music-media')));
-check('non-MTG platform fee is 500 bps', Boolean(silo && silo.platform_fee_bps === 500 && fee && fee.platform_fee_bps === 500));
-check('page reads the silo-specific catalogue', read(rootPage).includes('fetch(config.catalogue_path') && read(rootPage).includes('"catalogue_path":"/data/music-media-catalog.json"'));
-
-const products = Array.isArray(catalogue.products) ? catalogue.products : [];
-for (const p of products) {
-  check('listing is explicitly assigned to this silo: ' + (p.id || p.title || 'unknown'), p.silo === 'music-media');
-  if (p.checkout_available === true) {
-    check('checkout URL is a Stripe Payment Link: ' + (p.id || p.title || 'unknown'),
-      typeof p.checkout_url === 'string' && /^https:\/\/buy\.stripe\.com\/[A-Za-z0-9]+$/.test(p.checkout_url));
-    check('checkout has verified rights and delivery: ' + (p.id || p.title || 'unknown'),
-      p.rights_status === 'verified' && p.delivery_status === 'verified');
-  }
-}
-
-const failures = checks.filter(c => !c.ok);
-console.log(JSON.stringify({
-  schema: 'DREAMLEDGER/MUSIC-MEDIA-VERIFICATION/v1',
-  status: failures.length ? 'FAIL' : 'PASS',
-  checks,
-  failed_checks: failures.length
-}, null, 2));
-if (failures.length) process.exit(1);
+const fs=require('fs'),path=require('path');
+const ROOT=path.resolve(__dirname,'../..'),read=p=>fs.readFileSync(path.join(ROOT,p),'utf8'),json=p=>JSON.parse(read(p));
+const checks=[];const check=(name,ok)=>checks.push({name,ok:!!ok});
+for(const p of ['music-media/index.html','public/music-media/index.html','data/music-media-catalog.json','public/data/music-media-catalog.json','music-media.html','public/music-media.html','silos/music-media/silo.json','docs/BECK-EMPIRE-SILO-REGISTRY.json','docs/BECK-SILO-FEE-POLICY.json'])check('required file: '+p,fs.existsSync(path.join(ROOT,p)));
+const m=json('silos/music-media/silo.json'),c=json('data/music-media-catalog.json'),reg=json('docs/BECK-EMPIRE-SILO-REGISTRY.json'),fees=json('docs/BECK-SILO-FEE-POLICY.json');
+check('Music & Media manifest follows canonical clone schema',m.$schema==='dreamledger/silo-clone/v1'&&m.identity.slug==='music-media');
+check('Music & Media catalogue is isolated and empty',c.silo==='music-media'&&Array.isArray(c.products)&&c.products.length===0&&c.status==='BUILD_NO_PUBLISHED_LISTINGS');
+check('root/public shell copies match',read('music-media/index.html')===read('public/music-media/index.html'));
+check('root/public catalogue copies match',read('data/music-media-catalog.json')===read('public/data/music-media-catalog.json'));
+check('root/public legacy aliases match',read('music-media.html')===read('public/music-media.html'));
+check('generated page differs from master only by slug',read('public/music-media/index.html')===read('public/mtg/index.html').replace('data-silo="mtg"','data-silo="music-media"'));
+check('registry declares Music & Media build-only at 500 bps',reg.silos.MUSIC_MEDIA?.id==='dreamledger-music-media'&&reg.silos.MUSIC_MEDIA?.status==='build'&&reg.silos.MUSIC_MEDIA?.platform_fee_bps===500);
+check('fee policy declares Music & Media at 500 bps',fees.rules['dreamledger-music-media']?.platform_fee_bps===500);
+check('no fake inventory or checkout in catalogue',c.products.length===0&&!JSON.stringify(c).includes('buy.stripe.com'));
+const failed=checks.filter(c=>!c.ok);console.log(JSON.stringify({schema:'DREAMLEDGER/MUSIC-MEDIA-GAUNTLET/v1',verdict:failed.length?'FAIL':'PASS_WITH_HOLDS',checks,failed_checks:failed.length,holds:[{code:'CAPABILITY_READINESS',detail:'The shell and empty catalogue can be cloned, but unresolved payment/fulfilment/community capabilities still block activation.'}]},null,2));if(failed.length)process.exit(1);
