@@ -34,8 +34,8 @@ jobs:
           from pathlib import Path
           data=json.loads(Path('version.json').read_text())
           # API runtime identity is 'dreamledger'; Render's resource name is 'dreamledger-storefront'.
-          assert data.get('service') == 'dreamledger', data
-          assert data.get('commit')
+          assert data.get('service') == 'dreamledger-storefront', data
+          assert data.get('commit') and data.get('commit') != 'unknown', data
           print('PRODUCTION_VERSION=PASS')
           print('commit='+str(data['commit']))
           PY
