@@ -57,6 +57,8 @@ jobs:
         run: |
           git fetch origin main
           git reset --hard origin/main
+      - name: Test qualified buyer-intent evidence gate
+        run: python -m unittest discover -s scripts -p 'test_qualified_buyer_intent.py'
       - name: Test Agent Bridge manifest normalization
         run: python -m unittest tests.test_sync_agent_bridge_catalog
       - name: Validate bounded Agent Bridge long-task contract
@@ -70,12 +72,15 @@ jobs:
       - name: Generate external demand transition
         run: python scripts/external_demand_transition.py
       - name: Generate economic pulse
+        id: pulse
         env:
           CTA_URL: ${{ vars.DREAMLEDGER_CTA_URL }}
         run: python scripts/777_cycle.py
       - name: Publish source-bound pulse notes to canonical site route
+        if: steps.pulse.outputs.publish == 'true'
         run: python scripts/publish_777_pulse_to_site.py
       - name: Run cloud Elohim / Gauntlet execution adapter
+        if: steps.pulse.outputs.publish == 'true'
         env:
           CLOUD_ELOHIM_URL: ${{ vars.CLOUD_ELOHIM_URL }}
           CLOUD_GAUNTLET_URL: ${{ vars.CLOUD_GAUNTLET_URL }}
@@ -88,15 +93,19 @@ jobs:
           QUOTE_COMPARE_CHECKOUT: ${{ vars.QUOTE_COMPARE_CHECKOUT }}
         run: node scripts/777_cloud_execution_adapter.js
       - name: Stage public artifact candidates for compounding gate
+        if: steps.pulse.outputs.publish == 'true'
         run: |
           # Some generated public pulse paths may match repository ignore rules.
           # Stage HTML candidates before the gate so it evaluates the exact files the commit step can publish.
           git add -f agent-bridge-catalog.json webapp/pulse/*.html webapp/index.html webapp/phinhaven/index.html public/pulse/*.html pulse/*.html
       - name: Regression test compounding gate environment binding
+        if: steps.pulse.outputs.publish == 'true'
         run: python -m unittest discover -s tests -p 'test_777_compounding_gate_import.py'
       - name: Enforce compounding output
+        if: steps.pulse.outputs.publish == 'true'
         run: python scripts/777_compounding_gate.py
       - name: Commit new pulse if changed
+        if: steps.pulse.outputs.publish == 'true'
         run: |
           if [[ "$GITHUB_REF" != "refs/heads/main" ]]; then
             echo "PUBLISH_SKIPPED_NON_MAIN_REF=$GITHUB_REF"
@@ -171,3 +180,12 @@ jobs:
 # User-requested expedition nonce: 2026-10-12T00:45+13:00; run one fresh money-first cycle and inspect the generated artifacts before claiming results.
 
 # 777 first-money surface coverage: monitor the guarded toll probe server, buyer page, and route implementation.
+
+      - name: Retain internal qualification receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: 777-qualification-receipt-\${{ github.run_id }}
+          path: artifacts/777/receipts/*.json
+          if-no-files-found: ignore
+          retention-days: 30
