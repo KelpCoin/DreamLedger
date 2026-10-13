@@ -30,3 +30,16 @@ test('builds PostgREST query with exactly one separator and encoded values', () 
   assert.match(path, /worker_id=eq\.render-worker/);
   assert.match(path, /limit=1/);
 });
+
+test('normalizes empty wrapped RPC claims as idle rather than phantom leases', () => {
+  assert.equal(normalizeClaimed(null), null);
+  assert.equal(normalizeClaimed([]), null);
+  assert.equal(normalizeClaimed({ claim_job: null }), null);
+  assert.equal(normalizeClaimed({ data: null }), null);
+  assert.equal(normalizeClaimed({ result: [] }), null);
+  assert.equal(normalizeClaimed({ status: 'NO_JOB' }), null);
+});
+
+test('does not disguise a malformed non-empty claim as idle', () => {
+  assert.deepEqual(normalizeClaimed({ lease_token: 'present-but-no-id' }), { lease_token: 'present-but-no-id' });
+});
