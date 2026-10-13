@@ -12,7 +12,7 @@ async function main() {
   const mockFetch = async (url, options = {}) => {
     methods.push(String(options.method || 'GET'));
     if (String(url).includes('/webhook_endpoints')) return new Response(JSON.stringify({ data: [
-      { id: 'we_disabled', url: 'https://example.supabase.co/functions/v1/stripe-revenue-41104f355d6878cdd6d1f9dc', disabled_reason: 'endpoint_disabled', enabled_events: ['checkout.session.completed'] }
+      { id: 'we_disabled', url: 'https://example.supabase.co/functions/v1/stripe-revenue-41104f355d6878cdd6d1f9dc', status: 'disabled', disabled_reason: null, enabled_events: ['checkout.session.completed'] }
     ]}), { status: 200, headers: { 'content-type': 'application/json' } });
     if (String(url).includes('/payment_links')) return new Response(JSON.stringify({ data: [
       { id: 'plink_1UKS00EGgEAnUFF9kUjraaL5', active: true, url: 'https://buy.stripe.com/example' }
