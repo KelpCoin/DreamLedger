@@ -370,19 +370,25 @@ async function handle(req,res,requestPath) {
     if(!uuid(publishMatch[1])) return send(res,400,{error:'Invalid listing id'});
     const b=await readBody(req);
     if(b.evidence_reviewed!==true||b.supplier_authority_confirmed!==true||b.claims_reviewed!==true||safeText(b.reviewed_by,160).length<3) return send(res,400,{error:'Publication gate requires evidence review, supplier authority confirmation, claims review and reviewer identity'});
-    const gate={review_required:false,evidence_reviewed:true,supplier_authority_confirmed:true,claims_reviewed:true,reviewed_by:safeText(b.reviewed_by,160),reviewed_at:new Date().toISOString(),evidence_ids:Array.isArray(b.evidence_ids)?b.evidence_ids.filter(uuid):[]};
+    const evidenceIds=Array.isArray(b.evidence_ids)?[...new Set(b.evidence_ids.filter(uuid))]:[];
+    if(!evidenceIds.length) return send(res,400,{error:'At least one registered evidence UUID tied to this listing is required for publication'});
+    const gate={review_required:false,evidence_reviewed:true,supplier_authority_confirmed:true,claims_reviewed:true,reviewed_by:safeText(b.reviewed_by,160),reviewed_at:new Date().toISOString(),evidence_ids:evidenceIds};
     if(STORE==='local') {
       const old=readLocal(10000).find(e=>e.idempotency_key==='listing-published:'+publishMatch[1]);
       if(old) return send(res,200,{listing_id:publishMatch[1],state:'published',duplicate:true});
       const submitted=readLocal(10000).find(e=>e.event_type==='LISTING_SUBMITTED'&&e.subject_id===publishMatch[1]);
       if(!submitted) return send(res,404,{error:'Pending local listing not found'});
       if(submitted.payload?.pricing_model==='auction') return send(res,503,{error:'Timed auctions require the transactional Supabase backend; listing remains unpublished.'});
+      const registeredEvidence=readLocal(10000).filter(e=>e.event_type==='EVIDENCE_REGISTERED'&&e.payload?.subject_type==='listing'&&e.payload?.subject_id===publishMatch[1]).map(e=>e.subject_id);
+      if(evidenceIds.some(id=>!registeredEvidence.includes(id))) return send(res,400,{error:'Every publication evidence ID must be registered against this listing'});
       appendLocal({event_id:crypto.randomUUID(),idempotency_key:'listing-published:'+publishMatch[1],event_type:'LISTING_PUBLISHED',subject_type:'listing',subject_id:publishMatch[1],actor_type:'human',actor_id:gate.reviewed_by,economic_state:'OBSERVED',payload:{...submitted.payload,status:'published',publication_gate:gate}});
       return send(res,200,{listing_id:publishMatch[1],state:'published',message:'Listing published after explicit review; not evidence of buyer demand or revenue.'});
     }
     const pendingListings=await rest('marketplace_listings?select=id,pricing_model&id=eq.'+encodeURIComponent(publishMatch[1])+'&status=eq.pending_review');
     const pendingListing=Array.isArray(pendingListings)?pendingListings[0]:null;
     if(!pendingListing) return send(res,409,{error:'Listing is not pending review'});
+    const evidenceRows=await rest('marketplace_evidence?select=id,subject_type,subject_id,verdict&id=in.('+evidenceIds.join(',')+')&subject_type=eq.listing&subject_id=eq.'+encodeURIComponent(publishMatch[1]));
+    if(!Array.isArray(evidenceRows)||evidenceRows.length!==evidenceIds.length) return send(res,400,{error:'Publication evidence must exist and be linked to this listing'});
     const auctions=await rest('marketplace_auctions?select=id,starts_at,ends_at,status&listing_id=eq.'+encodeURIComponent(publishMatch[1])+'&status=eq.pending_review');
     const auction=Array.isArray(auctions)?auctions[0]:null;
     if(pendingListing.pricing_model==='auction'&&!auction) return send(res,409,{error:'Auction listing requires a reviewed auction schedule before publication'});
