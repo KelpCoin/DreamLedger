@@ -46,6 +46,16 @@ async function rpc(name, args) {
 
 function clean(v) { return String(v || '').trim().slice(0, 500); }
 
+function normalizeMarketplaceSku(value) {
+  const sku = clean(value).toUpperCase();
+  const aliases = new Set([
+    'CMD-DIAG-29',
+    'MTG_CMD_DIAG_001',
+    'OFFER-CMD-DIAG-29-NZD'
+  ]);
+  return aliases.has(sku) ? 'COMMANDER-DECK-DIAGNOSTIC-001' : sku;
+}
+
 function verify(raw, signature) {
   stripeProof.verifyStripeSignature(raw, signature || '', STRIPE_WEBHOOK_SECRET);
 }
@@ -90,7 +100,12 @@ async function reconcileFunds(sessionId) {
 }
 
 async function settleSession(session, event) {
-  const sku = clean(session.metadata?.dreamledger_sku || session.metadata?.sku || session.metadata?.product_sku).toUpperCase();
+  const sku = normalizeMarketplaceSku(
+    session.metadata?.dreamledger_sku ||
+    session.metadata?.sku_id ||
+    session.metadata?.sku ||
+    session.metadata?.product_sku
+  );
   const offerId = clean(session.metadata?.offer_id);
   const silo = clean(session.metadata?.silo || 'dreamledger');
   const listingId = clean(session.metadata?.marketplace_listing_id || session.metadata?.listing_id);
@@ -289,4 +304,4 @@ async function handle(req,res,path) {
   return false;
 }
 
-module.exports={handle};
+module.exports={handle,normalizeMarketplaceSku};
