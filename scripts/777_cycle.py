@@ -464,30 +464,32 @@ if deduped is not None:  # Empty discovery batches must reach the bounded fallba
     if not target.exists():
         title = html.escape(signal["title"])
         source_url = html.escape(signal["url"], quote=True)
+        publisher = html.escape(str(signal.get("publisher") or signal.get("source") or "Public source"))
+        published_at = html.escape(str(signal.get("published_at") or "UNKNOWN"))
+        discovery_source = html.escape(str(signal.get("source") or "PUBLIC_SOURCE"))
         body = f"""<!doctype html>
-<html lang="en-NZ"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>777 Private Commercial Signal: {title}</title>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>777 Source-Qualified Demand Signal: {title}</title>
 <meta name="robots" content="noindex,follow">
-<meta name="description" content="Source-bound private-sector commercial signal observed through a public news discovery feed.">
+<meta name="description" content="A source-backed public request signal. Not proof of a verified buyer or transaction.">
 </head><body><main>
-<p><a href="/">DreamLedger</a> / 777 Private Commercial</p>
+<p><a href="/">DreamLedger</a> / 777 Source-Qualified Demand</p>
 <h1>{title}</h1>
-<p><strong>Observed:</strong> {now.isoformat()} · <strong>Publisher:</strong> {html.escape(signal["publisher"])}</p>
+<p><strong>Observed:</strong> {now.isoformat()} · <strong>Publisher:</strong> {publisher}</p>
 <section><h2>Primary observation</h2>
 <ul>
-<li>Publisher: {html.escape(signal["publisher"])}</li>
-<li>Published: {html.escape(signal["published_at"])}</li>
-<li>Discovery source: Google News RSS</li>
+<li>Publisher: {publisher}</li>
+<li>Published: {published_at}</li>
+<li>Discovery source: {discovery_source}</li>
 </ul>
 <p><a href="{source_url}" rel="noopener noreferrer">Open the publisher source</a></p>
 </section>
-<section><h2>Commercial response surface</h2>
-<p>This is a private-sector commercial signal, not proof of buyer intent. The linked publisher source must be corroborated before an economic action is considered. If the counterparty already has supplier quotations, the existing automated quote-comparison service can normalize 2–5 quotes into an evidence-backed decision packet.</p>
-<p><a href="https://dreamledger.org/quote-comparison/">Use the free quote-comparison input for Truth Oracle</a>. Quote submissions are observations, not verified market prices or transactions. Raw files and supplier identities remain private unless the user explicitly authorizes disclosure.</p>
-<p><strong>Machine route:</strong> <a href="https://dreamledger-silo-gateway.onrender.com/api/toll/v1/manifest">Inspect the Agent/API toll manifest</a>. This link does not imply route availability, a price, entitlement, or successful settlement.</p>
+<section><h2>Evidence-first next step</h2>
+<p>This page records a public-source request with attributable source evidence. It is not identity verification, a confirmed buyer, a transaction, or revenue.</p>
+<p><a href="https://dreamledger.org/truth-oracle.html">Use the free Truth Oracle evidence workspace</a>. Structure source-linked claims and uncertainty before taking an economic action.</p>
 </section>
 <section><h2>Truth boundary</h2>
-<p>Status: UNVERIFIED. No buyer, payment, fulfillment, or verified economic outcome is inferred from this observation.</p>
+<p>Status: UNVERIFIED. No settled payment, fulfillment, or verified economic outcome is inferred from this observation.</p>
 </section>
 </main></body></html>"""
         target.write_text(body, encoding="utf-8")
