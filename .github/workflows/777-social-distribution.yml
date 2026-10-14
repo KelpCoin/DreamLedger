@@ -6,7 +6,7 @@ on:
     paths:
       - ".github/777/social-trigger.json"
   schedule:
-    - cron: "17 9,21 * * *"
+    - cron: "17 9 * * *"
   workflow_dispatch:
     inputs:
       dry_run:
@@ -43,7 +43,7 @@ jobs:
           import json, os, hashlib, datetime, re, urllib.parse
           cell=re.sub(r"[^A-Za-z0-9._-]", "-", os.environ["CELL_ID"])[:80] or "CMD-DIAG-29-QR-001"
           cell_tag=hashlib.sha256(cell.encode("utf-8")).hexdigest()[:8]
-          params={"utm_source":"777","utm_medium":"social","utm_campaign":"cmd29","utm_content":cell_tag}
+          params={"utm_source":"777","utm_medium":"social","utm_campaign":"QR-SOCIAL-001","utm_content":cell_tag,"placement":"SOCIAL-001","experiment_id":"QR-SOCIAL-001","offer_id":"CMD-DIAG-29"}
           target="https://dreamledger.org/go?"+urllib.parse.urlencode(params)
           qr_image="https://dreamledger.org/qr/campaigns/SOCIAL-001.svg"
           variants=[
