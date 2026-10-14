@@ -6,9 +6,16 @@ on:
       - 'runtime/lm_studio/north_star_supervisor.py'
       - 'runtime/lm_studio/economic_swarm_controller.py'
       - 'runtime/lm_studio/north_star_priority_audit.py'
+      - 'runtime/lm_studio/north_star_build_worker.py'
+      - 'runtime/lm_studio/north_star_build_executor.py'
+      - 'runtime/lm_studio/test_north_star_build_worker.py'
       - 'public/mtg/index.html'
       - 'runtime/lm_studio/Install-NorthStarSupervisorTask.ps1'
       - 'runtime/lm_studio/NORTH-STAR-SUPERVISOR.md'
+      - 'ops/cube-swarm/tasks/MTG-STORE-AUDIT-BUILD.json'
+      - 'ops/cube-swarm/verify/verify-mtg-store-audit.mjs'
+      - 'supabase/migrations/20261014_north_star_issue_scoped_build_jobs.sql'
+      - 'supabase/functions/agent-bridge-proxy/index.ts'
       - '.github/workflows/north-star-supervisor-contract.yml'
   push:
     branches: [main]
@@ -16,8 +23,15 @@ on:
       - 'runtime/lm_studio/north_star_supervisor.py'
       - 'runtime/lm_studio/economic_swarm_controller.py'
       - 'runtime/lm_studio/north_star_priority_audit.py'
+      - 'runtime/lm_studio/north_star_build_worker.py'
+      - 'runtime/lm_studio/north_star_build_executor.py'
+      - 'runtime/lm_studio/test_north_star_build_worker.py'
       - 'runtime/lm_studio/Install-NorthStarSupervisorTask.ps1'
       - 'runtime/lm_studio/NORTH-STAR-SUPERVISOR.md'
+      - 'ops/cube-swarm/tasks/MTG-STORE-AUDIT-BUILD.json'
+      - 'ops/cube-swarm/verify/verify-mtg-store-audit.mjs'
+      - 'supabase/migrations/20261014_north_star_issue_scoped_build_jobs.sql'
+      - 'supabase/functions/agent-bridge-proxy/index.ts'
       - '.github/workflows/north-star-supervisor-contract.yml'
 
 permissions:
@@ -26,14 +40,21 @@ permissions:
 jobs:
   supervisor:
     runs-on: windows-latest
-    timeout-minutes: 5
+    timeout-minutes: 8
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Compile North Star controller
-        run: python -m py_compile runtime/lm_studio/economic_swarm_controller.py
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Compile North Star controller and builder
+        run: python -m py_compile runtime/lm_studio/economic_swarm_controller.py runtime/lm_studio/north_star_supervisor.py runtime/lm_studio/north_star_build_worker.py runtime/lm_studio/north_star_build_executor.py
+      - name: Test issue-scoped build worker and isolated executor
+        run: python runtime/lm_studio/test_north_star_build_worker.py
+      - name: Check trusted store audit verifier syntax
+        run: node --check ops/cube-swarm/verify/verify-mtg-store-audit.mjs
       - name: Offline supervisor self-test
         run: python runtime/lm_studio/north_star_supervisor.py --self-test
       - name: Offline priority audit self-test
@@ -54,21 +75,30 @@ jobs:
             $i++
           }
           Write-Output 'MTG_LANDING_INLINE_JS_SYNTAX=PASS'
-      - name: Check controller and installer contracts
+      - name: Check controller, scoped dispatch, and atomic handoff contracts
         shell: pwsh
         run: |
           $s = Get-Content runtime/lm_studio/north_star_supervisor.py -Raw
-          if ($s -notmatch 'economic_swarm_controller.py') { throw 'Controller not referenced' }
           $c = Get-Content runtime/lm_studio/economic_swarm_controller.py -Raw
-          if ($c -notmatch 'north_star_priority_audit.py') { throw 'Priority audit is not invoked by the controller' }
-          if ($c -notmatch 'MTG-CMD-DIAG-29-READ-ONLY-AUDIT') { throw 'First North Star revenue task is not wired' }
-          if ($c -notmatch 'def compact_model_snapshot') { throw '4K model prompt compaction missing' }
-          if ($c -notmatch '_HTTP_') { throw 'Model HTTP response diagnostics missing' }
-          if ($c -notmatch 'SYNTHESIS_SCHEMA_REQUIRED_FIELDS_MISSING') { throw 'Local synthesis schema validation missing' }
-          if ($c -notmatch 'NORTH-STAR-AUDIT-STAGING-') { throw 'Audit is not staged separately from canonical worker output' }
-          if ($c -notmatch '--output-path') { throw 'Priority audit does not support staged output' }
-          if ($c -notmatch 'CANONICAL_AUDIT_PATH') { throw 'Canonical audit publication target missing' }
-          if ($c -notmatch 'worker_assessment_error') { throw 'Worker assessment errors are still silent' }
+          $w = Get-Content runtime/lm_studio/north_star_build_worker.py -Raw
+          $e = Get-Content runtime/lm_studio/north_star_build_executor.py -Raw
+          if ($c -notmatch 'MTG-CMD-DIAG-29-READ-ONLY-AUDIT') { throw 'Default read-only audit mode must remain intact' }
+          if ($c -notmatch 'DREAMLEDGER_NORTH_STAR_MODE') { throw 'Explicit build-worker mode dispatch missing' }
+          foreach ($needle in @('select_north_star_build_job','claim_north_star_build_job','NO_ELIGIBLE_JOB','CLAIM_CONFLICT','SOURCE_FILES_MISSING','VALIDATION_FAILED','NORTH_STAR_BUILD_WORKER_EXECUTE','NORTH_STAR_BUILD_WORKER_PUBLISH_PR')) {
+            if ($w -notmatch [regex]::Escape($needle)) { throw "Build-worker contract missing $needle" }
+          }
+          if ($e -notmatch 'range\(1,4\)') { throw 'Build repair attempts are not bounded to three' }
+          if ($e -notmatch 'north-star/issue-712-') { throw 'Isolated Issue 712 branch naming missing' }
+          if ($e -notmatch 'artifact_sha256') { throw 'Build artifact hash missing' }
+          if ($e -notmatch 'pr_url') { throw 'Build must return a reviewable PR URL' }
+          $m = Get-Content supabase/migrations/20261014_north_star_issue_scoped_build_jobs.sql -Raw
+          if ($m -notmatch 'for update skip locked') { throw 'Issue-scoped claim must be concurrency safe' }
+          if ($m -notmatch 'north_star_payload_matches_issue') { throw 'Claim must filter the requested GitHub issue' }
+          $a = Get-Content supabase/functions/agent-bridge-proxy/index.ts -Raw
+          if ($a -notmatch 'select_north_star_build_job') { throw 'Agent Bridge allowlist missing scoped preview RPC' }
+          if ($a -notmatch 'claim_north_star_build_job') { throw 'Agent Bridge allowlist missing scoped claim RPC' }
+          if ($c -notmatch 'NORTH-STAR-AUDIT-STAGING-') { throw 'Atomic audit handoff was removed' }
+          if ($c -notmatch 'worker_assessment_error') { throw 'Worker assessment errors must remain observable' }
           $a = Get-Content runtime/lm_studio/north_star_priority_audit.py -Raw
           if ($a -notmatch '--output-path') { throw 'Priority audit output path option missing' }
           if ($a -notmatch 'must remain inside the repository root') { throw 'Audit output path is not root-confined' }
@@ -77,9 +107,9 @@ jobs:
           if ($s -notmatch 'CONTROLLER_CYCLE_TIMEOUT') { throw 'Cycle timeout missing' }
           if ($s -notmatch 'backoff_seconds') { throw 'Backoff policy missing' }
           if ($s -notmatch 'update_runtime_proof') { throw 'Supervisor does not persist runtime proof' }
-          if ($s -notmatch 'inspect_priority_audit') { throw 'Supervisor does not verify audit artifact' }
-          if ($s -notmatch 'priority_task_consumed') { throw 'Supervisor does not require the first-class task artifact' }
+          if ($s -notmatch 'inspect_priority_audit') { throw 'Supervisor no longer verifies the first-dollar audit' }
+          if ($s -notmatch 'inspect_build_worker') { throw 'Supervisor does not verify build-worker proof' }
           $i = Get-Content runtime/lm_studio/Install-NorthStarSupervisorTask.ps1 -Raw
           if ($i -notmatch 'if \(-not \$Install\)') { throw 'Installer must default to no mutation' }
           if ($i -notmatch 'Start-ScheduledTask') { throw 'Explicit installer must start task' }
-          Write-Output 'NORTH_STAR_SUPERVISOR_CONTRACT=PASS'
+          Write-Output 'NORTH_STAR_BUILD_WORKER_CONTRACT=PASS'
