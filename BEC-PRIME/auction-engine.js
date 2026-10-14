@@ -68,13 +68,11 @@ function placeBid(auctionId, bidderId, amount) {
 }
 function refreshExpired(state) {
   const t = now(); let changed = false;
-  const rotations = [2, 6, 12];
-  state.auctions.forEach((a, index) => {
-    if (Number(a.ends_at) <= t) {
-      const hours = rotations[index % rotations.length];
-      a.starts_at = t;
-      a.ends_at = t + hours * 60 * 60 * 1000;
-      a.status = 'live';
+  state.auctions.forEach((a) => {
+    if (Number(a.ends_at) <= t && !['ended', 'fulfilled', 'cancelled', 'disputed', 'unpaid'].includes(String(a.status || '').toLowerCase())) {
+      // Expiry is terminal. Never recycle an old lot into a new auction automatically:
+      // a new auction requires a new seller-authorized record and fresh supply confirmation.
+      a.status = 'ended';
       changed = true;
     }
   });
