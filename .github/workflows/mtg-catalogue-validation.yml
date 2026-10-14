@@ -42,8 +42,28 @@ jobs:
           }
           const html = fs.readFileSync('mtg/index.html', 'utf8');
           if (!html.includes('/public/catalog.json')) throw new Error('Root preview catalogue must use tracked public catalogue data');
+          const manifest = JSON.parse(fs.readFileSync('public/silos/mtg/silo.json', 'utf8'));
+          if (manifest.catalog !== '/data/mtg-catalog.json') throw new Error('MTG manifest must point at the canonical silo catalogue path');
+          const siloCatalogPath = 'public' + manifest.catalog;
+          if (!fs.existsSync(siloCatalogPath)) throw new Error('Manifest catalogue file is missing: ' + siloCatalogPath);
+          const siloCatalog = JSON.parse(fs.readFileSync(siloCatalogPath, 'utf8'));
+          if (!Array.isArray(siloCatalog.products)) throw new Error('MTG silo catalogue has no products[]');
+          const diagnostic = siloCatalog.products.find(x => x && x.id === 'COMMANDER-DECK-DIAGNOSTIC-001' && x.sku === 'CMD-DIAG-29');
+          const canonicalPaymentLink = 'https://buy.stripe.com/eVqeVdc1T01n1DV3gwdwc30';
+          const oldPaymentLink = 'https://buy.stripe.com/8x228r1nfg0l3M32csdwc2I';
+          if (!diagnostic || Number(diagnostic.price) !== 29 || diagnostic.checkout_available !== true || diagnostic.checkout_url !== canonicalPaymentLink) {
+            throw new Error('MTG silo diagnostic price / checkout contract does not match the canonical $29 offer');
+          }
+          if (siloCatalog.products.some(x => x && x.checkout_url === oldPaymentLink)) throw new Error('Legacy diagnostic Payment Link remains in the silo catalogue');
           const liveHtml = fs.readFileSync('public/mtg/index.html', 'utf8');
-          if (!liveHtml.includes("get('/catalog.json')")) throw new Error('Live public MTG page must load the tracked catalogue.json');
+          if (!liveHtml.includes("const MANIFEST='/silos/mtg/silo.json'") || !liveHtml.includes("fetch(catalogUrl,{cache:'no-store'})")) {
+            throw new Error('Live MTG surface must load its catalogue through the silo manifest');
+          }
+          const publicCatalog = JSON.parse(fs.readFileSync('public/catalog.json', 'utf8'));
+          const publicDiagnostic = (publicCatalog.products || []).find(x => x && x.id === 'COMMANDER-DECK-DIAGNOSTIC-001' && x.sku === 'CMD-DIAG-29');
+          if (!publicDiagnostic || publicDiagnostic.checkout_url !== canonicalPaymentLink || Number(publicDiagnostic.price) !== 29) {
+            throw new Error('Public catalogue does not match the canonical $29 diagnostic offer');
+          }
           for (const page of ['public/mtg/quintorius-field-historian.html', 'public/mtg/dwynen-gilt-leaf-daen.html']) {
             if (!fs.existsSync(page)) throw new Error('Missing deployed public route: ' + page);
           }
