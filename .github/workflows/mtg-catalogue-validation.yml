@@ -25,7 +25,6 @@ jobs:
         run: |
           node <<'NODE'
           const fs = require('fs');
-          const path = require('path');
           const catalog = JSON.parse(fs.readFileSync('public/catalog.json', 'utf8'));
           const required = [
             ['EDH_0001', null],
@@ -44,10 +43,7 @@ jobs:
           const html = fs.readFileSync('mtg/index.html', 'utf8');
           if (!html.includes('/public/catalog.json')) throw new Error('Root preview catalogue must use tracked public catalogue data');
           const liveHtml = fs.readFileSync('public/mtg/index.html', 'utf8');
-          if (!liveHtml.includes("const MANIFEST='/silos/mtg/silo.json'")) throw new Error('Live public MTG page must load its tracked silo manifest');
-          const manifest = JSON.parse(fs.readFileSync('public/silos/mtg/silo.json', 'utf8'));
-          if (manifest.slug !== 'mtg' || typeof manifest.catalog !== 'string' || !manifest.catalog.startsWith('/data/')) throw new Error('MTG manifest catalogue path is invalid');
-          if (!fs.existsSync(path.join('public', manifest.catalog.replace(/^\\/+/, '')))) throw new Error('MTG manifest catalogue file is missing: ' + manifest.catalog);
+          if (!liveHtml.includes("get('/catalog.json')")) throw new Error('Live public MTG page must load the tracked catalogue.json');
           for (const page of ['public/mtg/quintorius-field-historian.html', 'public/mtg/dwynen-gilt-leaf-daen.html']) {
             if (!fs.existsSync(page)) throw new Error('Missing deployed public route: ' + page);
           }
