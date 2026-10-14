@@ -13,6 +13,8 @@ on:
     branches: [main]
     paths:
       - 'runtime/lm_studio/north_star_supervisor.py'
+      - 'runtime/lm_studio/economic_swarm_controller.py'
+      - 'runtime/lm_studio/north_star_priority_audit.py'
       - 'runtime/lm_studio/Install-NorthStarSupervisorTask.ps1'
       - 'runtime/lm_studio/NORTH-STAR-SUPERVISOR.md'
       - '.github/workflows/north-star-supervisor-contract.yml'
