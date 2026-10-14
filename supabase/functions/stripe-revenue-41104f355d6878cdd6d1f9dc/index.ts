@@ -1,11 +1,18 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { createMarketplaceSellerTransfers } from "./shared/marketplace-transfers.ts";
+import { firstNonBlank } from "../_shared/nonblank-env.mjs";
 const FUNCTION_NAME="stripe-revenue-41104f355d6878cdd6d1f9dc";
 const SUPABASE_URL=Deno.env.get("SUPABASE_URL")||"";
 const SERVICE_ROLE_KEY=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")||"";
-const STRIPE_WEBHOOK_SIGNING_SECRET=Deno.env.get("STRIPE_WEBHOOK_SIGNING_SECRET")||"";
-const STRIPE_API_KEY=Deno.env.get("STRIPE_API_KEY")||Deno.env.get("STRIPE_SECRET_KEY")||"";
+const STRIPE_WEBHOOK_SIGNING_SECRET = firstNonBlank(
+  Deno.env.get("STRIPE_WEBHOOK_SIGNING_SECRET"),
+  Deno.env.get("STRIPE_WEBHOOK_SECRET")
+) ?? "";
+const STRIPE_API_KEY = firstNonBlank(
+  Deno.env.get("STRIPE_API_KEY"),
+  Deno.env.get("STRIPE_SECRET_KEY")
+) ?? "";
 const supabase=SUPABASE_URL&&SERVICE_ROLE_KEY?createClient(SUPABASE_URL,SERVICE_ROLE_KEY):null;
 Deno.serve(async(req)=>{
  if(req.method==="GET")return Response.json({service:FUNCTION_NAME,status:"healthy",configured:Boolean(SUPABASE_URL&&SERVICE_ROLE_KEY&&STRIPE_API_KEY&&STRIPE_WEBHOOK_SIGNING_SECRET)});
