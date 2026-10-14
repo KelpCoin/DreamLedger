@@ -67,5 +67,36 @@ check('no external mutation is authorized by these contracts', () => {
   assert.ok(media.hard_gates.some(x => /Do not publish/i.test(x)));
 });
 
+
+const seedsA = readJson('ops/cube-swarm/opportunity-seeds.v1.json');
+const seedsB = readJson('ops/cube-swarm/opportunity-seeds.501-1000.json');
+const seedSet = [...seedsA.candidates, ...seedsB.candidates];
+check('1,000 hypothesis seeds are contiguous and uniquely identified', () => {
+  assert.equal(seedsA.count, 500);
+  assert.equal(seedsB.count, 500);
+  assert.equal(seedSet.length, 1000);
+  assert.deepEqual(seedSet.map(x => x.ordinal), Array.from({length: 1000}, (_, i) => i + 1));
+  assert.equal(new Set(seedSet.map(x => x.candidate_id)).size, 1000);
+});
+check('both seed ranges inherit human-review and manual-fulfillment gates', () => {
+  for (const data of [seedsA, seedsB]) {
+    assert.equal(data.human_and_economic_controls.applies_to_every_candidate, true);
+    assert.equal(data.human_and_economic_controls.human_review_required, true);
+    assert.equal(data.human_and_economic_controls.manual_fulfillment_required, true);
+    assert.equal(data.human_and_economic_controls.settlement_must_be_independently_verified, true);
+  }
+});
+check('no hypothesis is represented as a sale or verified profit', () => {
+  for (const item of seedSet) {
+    assert.equal(item.lifecycle, 'HYPOTHESIS_ONLY');
+    assert.equal(item.evidence_status, 'UNVERIFIED');
+    assert.equal(item.independent_buyer_verified, false);
+    assert.equal(item.settled_payment_verified, false);
+    assert.equal(item.fulfillment_verified, false);
+    assert.equal(item.verified_revenue_nzd, 0);
+    assert.equal(item.estimated_profit_nzd, null);
+  }
+});
+
 if (fail.length) process.exitCode = 1;
 else console.log('CUBE_MARKET_UNIVERSE_CONTRACT=PASS');
