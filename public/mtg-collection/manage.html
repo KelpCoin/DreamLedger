@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Manage MTG collection | DreamLedger</title>
+<style>
+:root{color-scheme:dark;--bg:#090b10;--panel:#141923;--line:#2a3342;--ink:#f2f4f8;--muted:#9ba8b8;--gold:#e5bd68;--good:#94e0ba;--bad:#ff9d9d}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,sans-serif}.wrap{max-width:1000px;margin:auto;padding:20px 16px 64px}a{color:var(--gold)}h1{font-size:clamp(2rem,6vw,3rem);line-height:1.05;letter-spacing:-.04em;margin:20px 0 8px}h2{font-size:1.2rem;margin:0 0 8px}.muted{color:var(--muted)}.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;margin:16px 0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:12px}.item{border:1px solid var(--line);border-radius:13px;padding:14px;background:#10141c}.item h3{margin:0 0 7px;font-size:1rem}.meta{font-size:12px;color:var(--muted);margin:4px 0 12px}.row{display:grid;grid-template-columns:1fr;gap:5px;margin:10px 0}.field label{display:block;font-size:12px;color:var(--muted);font-weight:700;margin:0 0 5px}input,textarea,select{width:100%;min-height:43px;border-radius:9px;border:1px solid var(--line);background:#090d14;color:var(--ink);padding:10px 11px;font:inherit}textarea{min-height:88px;resize:vertical}.checks{display:flex;gap:10px;align-items:center;margin:12px 0}.checks input{width:18px;min-height:18px}.checks label{font-size:14px}.btn{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:10px;background:var(--gold);color:#16120a;font-weight:850;padding:11px 15px;min-height:43px;cursor:pointer}.btn:disabled{opacity:.45;cursor:default}.btn.secondary{background:transparent;color:var(--ink);border:1px solid var(--line)}.status{min-height:22px;font-size:13px;color:var(--muted)}.ok{color:var(--good)}.error{color:var(--bad)}.profile-link{overflow-wrap:anywhere;padding:10px;border:1px solid var(--line);border-radius:9px;background:#090d14}nav{display:flex;gap:14px;flex-wrap:wrap;font-size:13px}
+</style>
+</head>
+<body><main class="wrap">
+<nav><a href="/mtg/">← MTG marketplace</a><a href="/collection-import/">Import CSV</a><a href="/mtg-search">Search listings</a></nav>
+<h1>Your collection, your rules.</h1>
+<p class="muted">Imported cards start private. Publishing a profile does not publish every card. Each card must be deliberately marked public, and visibility is separate from whether you want to trade or sell it.</p>
+<div id="authStatus" class="status">Checking account…</div>
+<section class="panel">
+<h2>Collection profile</h2>
+<div class="row field"><label for="displayName">Public display name</label><input id="displayName" maxlength="80" placeholder="e.g. The Lantern Binder"></div>
+<div class="row field"><label for="slug">Share link slug (3 to 40 letters, numbers or hyphens)</label><input id="slug" maxlength="40" pattern="[a-z0-9][a-z0-9-]{1,38}[a-z0-9]" placeholder="lantern-binder" autocomplete="off"></div>
+<div class="row field"><label for="bio">Short profile note</label><textarea id="bio" maxlength="500" placeholder="What you collect or what trades you are interested in. Do not put addresses or private contact details here."></textarea></div>
+<div class="checks"><input id="publicProfile" type="checkbox"><label for="publicProfile">Make the profile page public</label></div>
+<p class="muted">Private profile is the default. A public profile reveals only cards you individually set to Public, using a server allow-list that excludes account IDs and internal metadata.</p>
+<button id="saveProfile" class="btn" type="button">Save profile settings</button>
+<div id="profileStatus" class="status" aria-live="polite"></div>
+<div id="shareBox" hidden>
+<p class="muted">Your shareable collection link</p>
+<div id="shareLink" class="profile-link"></div>
+<button id="copyLink" type="button" class="btn secondary" style="margin-top:10px">Copy link</button>
+</div>
+</section>
+<section class="panel">
+<h2>Card visibility and availability</h2>
+<p class="muted">Public visibility means the card can appear on your public collection page. “Wants to sell” is not a live marketplace listing. Create a separate listing to accept an actual offer.</p>
+<div id="cardsStatus" class="status">Load your collection after signing in.</div>
+<div id="cards" class="grid"></div>
+<button id="loadMore" type="button" class="btn secondary" hidden>Load more cards</button>
+</section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+'use strict';
+const SUPABASE_URL='https://wbwgroygjeyukkspnqiy.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY='sb_publishable_O5JRD67KaU3SA9dFq-JIuQ_Pzs8pedj';
+const client=supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+const $=id=>document.getElementById(id);
+const slugPattern=/^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$/;
+let user=null, offset=0, total=0, profile=null, loading=false;
+const PAGE_SIZE=50;
+function setStatus(id,message,kind=''){const node=$(id);node.textContent=message;node.className='status '+kind;}
+function el(tag,text,className){const node=document.createElement(tag);if(text!==undefined)node.textContent=String(text);if(className)node.className=className;return node;}
+function option(select,value,label){const item=document.createElement('option');item.value=value;item.textContent=label;select.appendChild(item);}
+async function init(){
+ try{
+  const {data,error}=await client.auth.getUser();if(error)throw error;user=data.user;
+  if(!user){setStatus('authStatus','Sign in to manage your collection.');const link=el('a','Open account sign-in');link.href='/login?next=%2Fmtg-collection%2Fmanage.html';$('authStatus').append(' ',link);$('saveProfile').disabled=true;return;}
+  setStatus('authStatus','Signed in. Private records remain owner-only.','ok');
+  const {data:p,error:pe}=await client.from('mtg_collection_profiles').select('owner_id,slug,display_name,bio,is_public').eq('owner_id',user.id).maybeSingle();
+  if(pe)throw pe;
+  profile=p||null;
+  $('displayName').value=profile?.display_name||String(user.user_metadata?.display_name||user.user_metadata?.full_name||'MTG Collector').slice(0,80);
+  $('slug').value=profile?.slug||('collector-'+user.id.replace(/-/g,'').slice(0,8));
+  $('bio').value=profile?.bio||'';
+  $('publicProfile').checked=profile?.is_public===true;
+  updateShare();
+  await loadCards(true);
+ }catch(error){setStatus('authStatus','Could not load collection. '+String(error.message||error),'error');setStatus('cardsStatus','The required collection migration must be deployed before this page can save visibility settings.','error');}
+}
+function updateShare(){
+ const show=Boolean(profile?.is_public&&profile?.slug);
+ $('shareBox').hidden=!show;
+ if(show){const url='https://dreamledger.org/mtg-collection/?slug='+encodeURIComponent(profile.slug);$('shareLink').textContent=url;}
+}
+$('saveProfile').addEventListener('click',async()=>{
+ if(!user)return;
+ const display_name=$('displayName').value.trim(),slug=$('slug').value.trim().toLowerCase(),bio=$('bio').value.trim(),is_public=$('publicProfile').checked;
+ if(display_name.length<1||display_name.length>80){setStatus('profileStatus','Display name must be 1 to 80 characters.','error');return;}
+ if(!slugPattern.test(slug)){setStatus('profileStatus','Use 3 to 40 lowercase letters, numbers or hyphens. Start and end with a letter or number.','error');return;}
+ $('saveProfile').disabled=true;
+ try{
+  const {data,error}=await client.from('mtg_collection_profiles').upsert({owner_id:user.id,slug,display_name,bio,is_public,updated_at:new Date().toISOString()},{onConflict:'owner_id'}).select('owner_id,slug,display_name,bio,is_public').single();
+  if(error)throw error;profile=data;updateShare();setStatus('profileStatus',is_public?'Profile saved and public. Only cards individually marked Public appear.':'Profile saved as private.','ok');
+ }catch(error){setStatus('profileStatus','Could not save profile. '+String(error.message||error),'error');}
+ finally{$('saveProfile').disabled=false;}
+});
+$('copyLink').addEventListener('click',async()=>{
+ const url=$('shareLink').textContent;
+ try{await navigator.clipboard.writeText(url);setStatus('profileStatus','Collection link copied.','ok');}
+ catch{setStatus('profileStatus','Copy is unavailable in this browser. Select the link text and copy it.','error');}
+});
+async function loadCards(reset=false){
+ if(!user||loading)return;
+ loading=true;$('loadMore').disabled=true;
+ if(reset){offset=0;$('cards').replaceChildren();}
+ setStatus('cardsStatus','Loading your private collection…');
+ try{
+  const from=offset,to=offset+PAGE_SIZE-1;
+  const {data,error,count}=await client.from('mtg_collection_inventory')
+   .select('id,card_name,set_code,collector_number,printing_id,quantity,condition,language,finish,price_nzd,status,visibility,availability',{count:'exact'})
+   .eq('owner_id',user.id).order('card_name',{ascending:true}).range(from,to);
+  if(error)throw error;
+  total=count||0;
+  for(const row of data||[])renderRow(row);
+  offset+=data?.length||0;
+  setStatus('cardsStatus',offset+' of '+total+' inventory rows loaded. Imported cards are private until changed here.');
+  $('loadMore').hidden=offset>=total;
+ }catch(error){setStatus('cardsStatus','Could not load cards. '+String(error.message||error),'error');}
+ finally{loading=false;$('loadMore').disabled=false;}
+}
+function renderRow(row){
+ const card=el('article',undefined,'item');
+ card.appendChild(el('h3',row.card_name));
+ const printing=[row.set_code,row.collector_number?'#'+row.collector_number:''].filter(Boolean).join(' · ');
+ card.appendChild(el('div',[printing,row.condition,row.finish,row.quantity+' copies'].filter(Boolean).join(' · ')||'Printing details incomplete','meta'));
+ const rowId=String(row.id);
+ const vis=el('div',undefined,'row field'),visLabel=el('label','Visibility');vis.appendChild(visLabel);
+ const visSelect=document.createElement('select');
+ option(visSelect,'private','Private');option(visSelect,'public','Public');visSelect.value=row.visibility||'private';visLabel.htmlFor='vis-'+rowId;visSelect.id='vis-'+rowId;vis.appendChild(visSelect);
+ const av=el('div',undefined,'row field'),avLabel=el('label','Availability');av.appendChild(avLabel);
+ const avSelect=document.createElement('select');
+ option(avSelect,'not_for_trade','Collection only');option(avSelect,'tradeable','Open to trade');option(avSelect,'for_sale','Wants to sell (not a live listing)');option(avSelect,'wanted','Wanted');avSelect.value=row.availability||'not_for_trade';avLabel.htmlFor='av-'+rowId;avSelect.id='av-'+rowId;av.appendChild(avSelect);
+ const status=el('div',undefined,'status');
+ const save=el('button','Save card settings','btn');save.type='button';
+ save.addEventListener('click',async()=>{
+  save.disabled=true;status.className='status';status.textContent='Saving…';
+  try{
+   const {data,error}=await client.from('mtg_collection_inventory')
+    .update({visibility:visSelect.value,availability:avSelect.value,updated_at:new Date().toISOString()})
+    .eq('id',row.id).eq('owner_id',user.id).select('id').maybeSingle();
+   if(error)throw error;if(!data)throw new Error('No row changed. Refresh the page and try again.');
+   status.className='status ok';status.textContent='Saved. This card is '+(visSelect.value==='public'?'marked public':'private')+'.';
+  }catch(error){status.className='status error';status.textContent=String(error.message||error);}
+  finally{save.disabled=false;}
+ });
+ card.append(vis,av,save,status);$('cards').appendChild(card);
+}
+$('loadMore').addEventListener('click',()=>loadCards(false));
+init();
+</script>
+</body></html>

@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="A Magic: The Gathering collection shared by its owner on DreamLedger.">
+<meta name="theme-color" content="#090b10">
+<title>MTG collection | DreamLedger</title>
+<style>
+:root{color-scheme:dark;--bg:#090b10;--panel:#141923;--line:#2a3342;--ink:#f2f4f8;--muted:#9ba8b8;--gold:#e5bd68;--good:#94e0ba}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 15% 0,#292216 0,#090b10 38%);color:var(--ink);font:15px/1.5 system-ui,sans-serif}.wrap{max-width:1120px;margin:auto;padding:20px 16px 70px}a{color:var(--gold);text-decoration:none}nav{display:flex;gap:14px;flex-wrap:wrap;font-size:13px}.hero{padding:34px 0 20px}.kicker{font-size:11px;color:var(--gold);font-weight:850;letter-spacing:.16em;text-transform:uppercase}.hero h1{font-size:clamp(2.4rem,7vw,4.5rem);letter-spacing:-.055em;line-height:.98;margin:10px 0}.bio{max-width:750px;color:var(--muted);white-space:pre-wrap}.note{padding:13px 15px;border:1px solid var(--line);border-radius:12px;color:var(--muted);font-size:12px;margin:15px 0}.status{color:var(--muted);margin:14px 0;min-height:22px}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px}.card{overflow:hidden;border:1px solid var(--line);border-radius:14px;background:var(--panel);display:flex;flex-direction:column;min-width:0}.art{aspect-ratio:5/7;background:radial-gradient(circle at 20% 10%,#53442c,#1a2330 55%,#0b1018);display:grid;place-items:center;overflow:hidden;color:var(--gold);font-weight:900;text-align:center;padding:10px}.art img{display:block;width:100%;height:100%;object-fit:contain;background:#080b10}.art.placeholder{font-size:13px;letter-spacing:.04em}.body{padding:12px;display:flex;flex-direction:column;gap:6px;flex:1}.body h2{font-size:14px;line-height:1.3;margin:0}.meta{font-size:11px;color:var(--muted)}.badge{display:inline-flex;align-self:flex-start;border:1px solid #e5bd6855;border-radius:999px;padding:3px 7px;font-size:10px;color:var(--gold);font-weight:800}.price{color:var(--good);font-weight:850}.actions{display:flex;gap:8px;align-items:center;justify-content:space-between;margin-top:20px}.btn{border:1px solid var(--line);border-radius:10px;background:#10151d;color:var(--ink);font:inherit;font-size:13px;font-weight:800;padding:10px 14px;min-height:42px;cursor:pointer}.btn:disabled{opacity:.4}.empty{padding:30px;text-align:center;border:1px dashed var(--line);border-radius:14px;color:var(--muted)}footer{margin-top:30px;border-top:1px solid var(--line);padding-top:18px;color:var(--muted);font-size:11px}
+</style>
+</head>
+<body><main class="wrap">
+<nav><a href="/mtg/">← DreamLedger MTG</a><a href="/mtg-search">Search listings</a><a href="/mtg-marketplace">Offers and trades</a></nav>
+<section class="hero">
+<div class="kicker">Owner-shared collection</div>
+<h1 id="title">Loading collection…</h1>
+<p id="bio" class="bio"></p>
+</section>
+<div class="note">Only cards the owner deliberately marked Public appear here. Public does not mean for sale or trade. Card art is retrieved for shared exact printings when identifiers are available; Magic card art belongs to its respective rights holders.</div>
+<p id="status" class="status" aria-live="polite">Loading public collection…</p>
+<section id="grid" class="grid"></section>
+<div class="actions"><button id="prev" class="btn" disabled>Previous</button><span id="pageLabel" class="meta"></span><button id="next" class="btn" disabled>Next</button></div>
+<footer>DreamLedger is an independent community tool and is not affiliated with or endorsed by Wizards of the Coast or Scryfall. A public collection is owner-provided information, not independently verified proof of card ownership.</footer>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+'use strict';
+const SUPABASE_URL='https://wbwgroygjeyukkspnqiy.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY='sb_publishable_O5JRD67KaU3SA9dFq-JIuQ_Pzs8pedj';
+const client=supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+const PAGE_SIZE=24;
+const $=id=>document.getElementById(id);
+let slug=new URLSearchParams(location.search).get('slug')||'';
+let offset=0,total=0,loading=false;
+function el(tag,text,klass){const n=document.createElement(tag);if(text!==undefined)n.textContent=String(text);if(klass)n.className=klass;return n;}
+function artUrl(card){
+ if(card.printing_id&&/^[0-9a-f]{8}-[0-9a-f-]{27,36}$/i.test(card.printing_id))return 'https://api.scryfall.com/cards/'+encodeURIComponent(card.printing_id)+'?format=image&version=normal';
+ if(card.set_code&&card.collector_number)return 'https://api.scryfall.com/cards/'+encodeURIComponent(card.set_code)+'/'+encodeURIComponent(card.collector_number)+'?format=image&version=normal';
+ return '';
+}
+function availabilityLabel(a){return ({not_for_trade:'Collection only',tradeable:'Open to trade',for_sale:'Wants to sell',wanted:'Wanted'})[a]||'Collection';}
+function makeCard(card){
+ const tile=el('article',undefined,'card');
+ const art=el('div',card.card_name,'art placeholder');const src=artUrl(card);
+ if(src){const img=document.createElement('img');img.src=src;img.alt='Card image: '+card.card_name;img.loading='lazy';img.referrerPolicy='no-referrer';img.onerror=()=>{img.remove();art.classList.add('placeholder');art.textContent=card.card_name;};art.classList.remove('placeholder');art.replaceChildren(img);}
+ const body=el('div',undefined,'body');body.appendChild(el('h2',card.card_name));
+ const printing=[card.set_code,card.collector_number?'#'+card.collector_number:'',card.language].filter(Boolean).join(' · ');
+ if(printing)body.appendChild(el('div',printing,'meta'));
+ const conditions=[card.condition,card.finish,Number(card.quantity||1)+' cop'+(Number(card.quantity||1)===1?'y':'ies')].filter(Boolean).join(' · ');
+ if(conditions)body.appendChild(el('div',conditions,'meta'));
+ body.appendChild(el('span',availabilityLabel(card.availability),'badge'));
+ if(card.availability==='for_sale'&&card.price_nzd!==null&&card.price_nzd!==undefined)body.appendChild(el('div','NZ$'+Number(card.price_nzd).toFixed(2),'price'));
+ if(card.availability==='for_sale')body.appendChild(el('div','A separate active listing is required to make an offer.','meta'));
+ tile.append(art,body);return tile;
+}
+async function load(){
+ if(loading)return;loading=true;$('prev').disabled=true;$('next').disabled=true;
+ try{
+  if(!/^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$/.test(slug))throw new Error('This collection link is not valid.');
+  const {data,error}=await client.rpc('get_public_mtg_collection',{p_slug:slug,p_limit:PAGE_SIZE,p_offset:offset});
+  if(error)throw error;
+  if(!data||!data.profile)throw new Error('This collection is private, does not exist, or has no public profile.');
+  $('title').textContent=data.profile.display_name||'MTG Collector';
+  $('bio').textContent=data.profile.bio||'';
+  total=Number(data.total_count||0);
+  const cards=Array.isArray(data.cards)?data.cards:[];
+  $('grid').replaceChildren(...cards.map(makeCard));
+  $('status').textContent=total+' publicly shared card entr'+(total===1?'y':'ies')+'. Only owner-marked public records are shown.';
+  if(!cards.length)$('grid').appendChild(el('div','No cards have been marked Public yet.','empty'));
+  $('pageLabel').textContent=total?'Showing '+(offset+1)+'–'+(offset+cards.length)+' of '+total:'No public cards';
+  $('prev').disabled=offset===0;
+  $('next').disabled=offset+cards.length>=total||cards.length===0;
+ }catch(e){
+  $('title').textContent='Collection unavailable';$('bio').textContent='';$('grid').replaceChildren();
+  $('status').textContent=String(e.message||e)+'. The collection schema may not be deployed yet.';
+  $('pageLabel').textContent='';$('prev').disabled=true;$('next').disabled=true;
+ }finally{loading=false;}
+}
+$('prev').addEventListener('click',()=>{offset=Math.max(0,offset-PAGE_SIZE);load();});
+$('next').addEventListener('click',()=>{offset+=PAGE_SIZE;load();});
+load();
+</script>
+</body></html>

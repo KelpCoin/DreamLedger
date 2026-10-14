@@ -2,6 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const { canonicalQrFulfillment, customerQrHtml } = require('./canonicalQrFulfillment');
 
 const ROOT = path.join(__dirname, '..');
 const DATA = path.resolve(process.env.MTG_DIAGNOSTIC_DATA_DIR || path.join(ROOT, 'data', 'mtg-diagnostics'));
@@ -53,6 +54,9 @@ function makeReport(intake,cards,scry){
   const cuts=cards.filter(c=>c.qty===1).slice(-5).map(c=>c.name);
   const adds=[]; if(totals.ramp<7)adds.push('Add 2-3 efficient mana/ramp pieces appropriate to the commander colours.');if(totals.draw<6)adds.push('Add 2-3 repeatable or efficient card-advantage effects.');if(totals.removal<7)adds.push('Add 2-3 flexible interaction pieces.');if(!adds.length)adds.push('Prioritise upgrades that directly advance the commander strategy rather than generic power increases.');
   const report={schema:'DREAMLEDGER-MTG-DIAGNOSTIC/v1',status:'FULFILLED',product_id:PRODUCT_ID,offer_id:OFFER_ID,transaction_id:intake.transaction_id||null,commander,strategy:intake.strategy||null,budget:intake.budget||null,deck_count:count,unique_cards:unique,scryfall_matches:scry.length,summary:'Automated first-pass Commander deck diagnostic generated from the buyer-supplied decklist.',metrics:totals,three_biggest_issues:issues.slice(0,3),five_cut_candidates:cuts,five_add_priorities:adds.slice(0,5),play_pattern:'Review the listed structural weaknesses first, then retest the deck against its stated win condition.',method:'Deterministic structural analysis plus Scryfall card identity enrichment. This is not a rules-engine simulation.',generated_at:new Date().toISOString()};
+  report.customer_referral_qr=canonicalQrFulfillment({productId:PRODUCT_ID,orderId:intake.transaction_id||intake.intake_id,channel:'mtg-diagnostic-fulfillment',campaign:'buyer-referral'});
+  report.delivery_notes=['Automated first-pass diagnostic; not a rules-engine simulation.','Canonical DreamLedger QR is included for optional customer sharing. QR scans are not revenue evidence.'];
+  report.customer_referral_qr_html=customerQrHtml({productId:PRODUCT_ID,orderId:intake.transaction_id||intake.intake_id,channel:'mtg-diagnostic-fulfillment',campaign:'buyer-referral'});
   report.report_hash=crypto.createHash('sha256').update(JSON.stringify(report)).digest('hex');return report;
 }
 async function createIntake(input){

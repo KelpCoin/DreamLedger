@@ -1,0 +1,127 @@
+name: MTG master silo contract
+
+on:
+  pull_request:
+    paths:
+      - "public/silos/mtg/**"
+      - "public/data/mtg-catalog.json"
+      - "public/catalog.json"
+      - "public/mtg/index.html"
+      - "public/mtg-search.html"
+      - "public/mtg-search/**"
+      - "public/collection-import/**"
+      - "collection-import/**"
+      - "mtg-search.html"
+      - "BEC-PRIME/auction-engine.js"
+      - "BEC-PRIME/auction-engine.test.js"
+      - "BEC-PRIME/scripts/verify-mtg-master-silo-contract.js"
+      - "BEC-PRIME/distribution/QR-CampaignPlanner.js"
+      - "BEC-PRIME/distribution/QR-CampaignPlanner.test.js"
+      - "BEC-PRIME/lib/canonicalQrFulfillment.js"
+      - "BEC-PRIME/lib/canonicalQrFulfillment.test.js"
+      - "BEC-PRIME/lib/revenueLedger.js"
+      - "BEC-PRIME/lib/revenueLedger.test.js"
+      - "BEC-PRIME/lib/mtgDiagnosticFulfillment.js"
+      - "BEC-PRIME/lib/billboardAutoFulfillment.js"
+      - "BEC-PRIME/routes/distributionDoorway.js"
+      - "BEC-PRIME/distribution/QRAssetCompiler.js"
+      - "BEC-PRIME/distribution/QR-DISTRIBUTION-MATRIX.json"
+      - "BEC-PRIME/fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json"
+      - "public/assets/qr-canonical.svg"
+      - "public/assets/qr-fulfillment-widget.js"
+      - "public/success.html"
+      - "public/thanks-diagnostic.html"
+      - "public/discord/starter-kit-success.html"
+      - "BEC-PRIME/lib/marketplaceOrderBridge.js"
+      - "BEC-PRIME/routes/marketplaceForwardWebhook.js"
+      - ".github/workflows/777-social-distribution.yml"
+      - "public/qr/**"
+      - "supabase/migrations/**"
+      - "supabase/functions/commerce-supervisor/**"
+      - "docs/operations/CLOUD-SUPERVISOR-SCHEDULING.md"
+      - "BEC-PRIME/scripts/verify-cloud-supervisor-scheduler-contract.js"
+      - "ops/distribution/QR_CANONICAL_DISTRIBUTION.md"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/mtg-master-silo-contract.yml"
+  push:
+    branches: [main]
+    paths:
+      - "public/silos/mtg/**"
+      - "public/data/mtg-catalog.json"
+      - "public/catalog.json"
+      - "public/mtg/index.html"
+      - "public/mtg-search.html"
+      - "public/mtg-search/**"
+      - "public/collection-import/**"
+      - "collection-import/**"
+      - "mtg-search.html"
+      - "BEC-PRIME/auction-engine.js"
+      - "BEC-PRIME/auction-engine.test.js"
+      - "BEC-PRIME/scripts/verify-mtg-master-silo-contract.js"
+      - "BEC-PRIME/distribution/QR-CampaignPlanner.js"
+      - "BEC-PRIME/distribution/QR-CampaignPlanner.test.js"
+      - "BEC-PRIME/lib/canonicalQrFulfillment.js"
+      - "BEC-PRIME/lib/canonicalQrFulfillment.test.js"
+      - "BEC-PRIME/lib/revenueLedger.js"
+      - "BEC-PRIME/lib/revenueLedger.test.js"
+      - "BEC-PRIME/lib/mtgDiagnosticFulfillment.js"
+      - "BEC-PRIME/lib/billboardAutoFulfillment.js"
+      - "BEC-PRIME/routes/distributionDoorway.js"
+      - "BEC-PRIME/distribution/QRAssetCompiler.js"
+      - "BEC-PRIME/distribution/QR-DISTRIBUTION-MATRIX.json"
+      - "BEC-PRIME/fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json"
+      - "public/assets/qr-canonical.svg"
+      - "public/qr/**"
+      - "supabase/migrations/**"
+      - "docs/operations/CLOUD-SUPERVISOR-SCHEDULING.md"
+      - "BEC-PRIME/scripts/verify-cloud-supervisor-scheduler-contract.js"
+      - "ops/distribution/QR_CANONICAL_DISTRIBUTION.md"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/mtg-master-silo-contract.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Install dependencies
+        working-directory: BEC-PRIME
+        run: npm ci --ignore-scripts
+      - name: Check cloud supervisor TypeScript
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Type-check versioned cloud supervisor
+        run: deno check supabase/functions/commerce-supervisor/index.ts
+      - name: Validate master silo contract
+        run: node BEC-PRIME/scripts/verify-mtg-master-silo-contract.js
+      - name: Validate cloud supervisor schedule source
+        run: node BEC-PRIME/scripts/verify-cloud-supervisor-scheduler-contract.js
+      - name: Verify auction expiry and approval gates
+        run: node --test BEC-PRIME/auction-engine.test.js
+      - name: Generate canonical scannable QR assets
+        run: node BEC-PRIME/distribution/QRAssetCompiler.js
+      - name: Generate tracked QR campaign artifacts
+        run: node BEC-PRIME/distribution/QR-CampaignPlanner.js
+      - name: Verify QR fulfillment and campaign legal gates
+        run: node --test BEC-PRIME/distribution/QR-CampaignPlanner.test.js BEC-PRIME/lib/canonicalQrFulfillment.test.js BEC-PRIME/lib/revenueLedger.test.js
+      - name: Upload QR campaign plan and generated codes
+        uses: actions/upload-artifact@v4
+        with:
+          name: dreamledger-qr-campaign-plan-${{ github.run_id }}
+          path: |
+            BEC-PRIME/distribution/generated/QR-CAMPAIGN-PLAN.json
+            public/qr/campaigns/*.svg
+            public/assets/qr-canonical.svg
+            public/assets/qr-canonical.png
+            BEC-PRIME/distribution/assets/QR-CANONICAL-001.json
+          if-no-files-found: error
+          retention-days: 30

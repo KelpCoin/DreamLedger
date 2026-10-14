@@ -1,7 +1,7 @@
 {
   "schema": "BEC-PRIME/PRODUCT-FULFILLMENT-REGISTRY/v2",
   "policy": "A product is checkoutable only when this registry contains ready=true, operator_required=false, and a verified zero-human fulfillment contract. Products without that contract must not be sold.",
-  "updated": "2026-09-04",
+  "updated": "2026-10-14",
   "entries": {
     "BILLBOARD-SMALL": {
       "ready": true,
@@ -158,5 +158,23 @@
       "implementation": "supabase/functions/quote-intake + workers/economic/economic_fulfillment_worker.py",
       "status": "AUTOMATED_ZERO_HUMAN"
     }
+  },
+  "buyer_facing_distribution": {
+    "canonical_qr_asset_id": "QR-CANONICAL-001",
+    "canonical_url": "https://dreamledger.org/go?src=qr-canonical",
+    "image_path": "/assets/qr-canonical.svg",
+    "fulfillment_insert_path": "/qr/fulfillment-insert.html",
+    "digital_delivery_rule": "Attach canonicalQrFulfillment metadata to customer-facing artifact and render the QR panel in the delivery page.",
+    "physical_delivery_rule": "Generate the printable insert for each fulfilled physical order. The seller/fulfiller must include it in the package; generating an insert alone does not prove it was packed or delivered.",
+    "tracked_campaign_rule": "Use placement-specific QR variants only for approved campaign placements. Never replace the canonical buyer insert with an unapproved third-party destination.",
+    "privacy_rule": "QRs contain no buyer email, address, payment ID or other personal data.",
+    "truth_rule": "A scan, click or referral is not a buyer, payment, revenue, fulfilment or delivery proof.",
+    "current_coverage_status": "CENTRAL_FULFILLMENT_QR_METADATA_AND_OUTBOX_WIRED_PARTIAL_RENDER_AND_PHYSICAL_CONFIRMATION",
+    "missing_gates": [
+      "Render the QR image in every product-specific digital delivery surface, not merely metadata",
+      "Confirm physical order packing includes the generated insert",
+      "Persist evidence that the QR insert was included in the delivered package",
+      "Verify the live deployed assets and delivery pages"
+    ]
   }
 }

@@ -2,10 +2,11 @@ name: 777 Social Distribution
 
 on:
   push:
+    branches: [main]
     paths:
       - ".github/777/social-trigger.json"
   schedule:
-    - cron: "17 9,21 * * *"
+    - cron: "17 9 * * *"
   workflow_dispatch:
     inputs:
       dry_run:
@@ -33,30 +34,38 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build attributable distribution packet
+      - name: Build attributable QR distribution packet
         env:
           CELL_ID: ${{ inputs.cell_id || 'CMD-DIAG-29-QR-001' }}
         run: |
           set -euo pipefail
           python3 - <<'PY'
-          import json, os, hashlib, datetime
-          cell=os.environ["CELL_ID"]
-          target="https://dreamledger.org/go?utm_source=777&utm_medium=social&utm_campaign=cmd_diag_29&utm_content="+cell
+          import json, os, hashlib, datetime, re, urllib.parse
+          cell=re.sub(r"[^A-Za-z0-9._-]", "-", os.environ["CELL_ID"])[:80] or "CMD-DIAG-29-QR-001"
+          cell_tag=hashlib.sha256(cell.encode("utf-8")).hexdigest()[:8]
+          params={"utm_source":"777","utm_medium":"social","utm_campaign":"QR-SOCIAL-001","utm_content":cell_tag,"placement":"SOCIAL-001","experiment_id":"QR-SOCIAL-001","offer_id":"CMD-DIAG-29"}
+          target="https://dreamledger.org/go?"+urllib.parse.urlencode(params)
+          qr_image="https://dreamledger.org/qr/campaigns/SOCIAL-001.svg"
           variants=[
-            "Commander deck stuck in the middle? A NZ$29 diagnostic checks curve, ramp, draw, interaction, commander synergy and weak slots, then gives economical upgrade directions. "+target,
-            "Bought cards, changed the deck, still not sure what is actually weak? DreamLedger does a NZ$29 structured Commander Diagnostic with measurements and upgrade priorities. "+target,
-            "Deck advice gets noisy fast. The DreamLedger NZ$29 Commander Diagnostic turns a decklist into a bounded report on curve, ramp, draw, interaction, synergy and upgrade priorities. "+target,
-            "If your Commander deck dies in the details, the details are what we measure. NZ$29 for a structured diagnostic and economical upgrade path. "+target,
-            "One decklist. One structured pass. Curve, ramp, draw, interaction, commander synergy, weak slots and economical upgrades for NZ$29. "+target
+            "Commander deck getting stuck? Get a structured curve, ramp, draw, interaction and upgrade review for NZ$29.",
+            "One decklist. A structured Commander pass: curve, ramp, draw, interaction and budget-friendly upgrades. NZ$29.",
+            "Not sure what to cut or upgrade? Get a first-pass Commander diagnostic for NZ$29. Not a rules-engine simulation."
           ]
-          text=variants[datetime.datetime.now(datetime.timezone.utc).timetuple().tm_yday % len(variants)]
-          packet={"schema":"DREAMLEDGER/777-DISTRIBUTION-PACKET/v1","cell_id":cell,
-                  "offer_id":"CMD-DIAG-29","surface_family":"SOCIAL","target_url":target,
-                  "message":text,"authorization":"STANDING_EXTERNAL_ACTION_ENVELOPE",
-                  "external_revenue_status":"UNVERIFIED"}
+          day=datetime.datetime.now(datetime.timezone.utc).timetuple().tm_yday
+          message=variants[day % len(variants)]+" "+target+" QR image: "+qr_image
+          if len(message)>280:
+            raise SystemExit("Distribution copy exceeds 280 characters; refusing to publish.")
+          packet={"schema":"DREAMLEDGER/777-DISTRIBUTION-PACKET/v2","cell_id":cell,"cell_tag":cell_tag,
+                  "offer_id":"CMD-DIAG-29","surface_family":"OWNED_SOCIAL",
+                  "target_url":target,"qr_asset_id":"SOCIAL-001","qr_image_url":qr_image,
+                  "message":message,"authorization":"USER_STANDING_POLICY_OWNED_ACCOUNTS_ONLY",
+                  "external_revenue_status":"UNVERIFIED",
+                  "policy":{"owned_accounts_only":True,"third_party_communities":False,
+                            "unsolicited_dms":False,"unsolicited_email":False,"paid_spend":False}}
           packet["packet_sha256"]=hashlib.sha256(json.dumps(packet,sort_keys=True).encode()).hexdigest()
           os.makedirs("operator-proof",exist_ok=True)
-          json.dump(packet,open("operator-proof/777-distribution-packet.json","w"),indent=2)
+          with open("operator-proof/777-distribution-packet.json","w",encoding="utf-8") as f: json.dump(packet,f,indent=2)
+          print(json.dumps({"packet":"PREPARED","message_length":len(message),"qr_image_url":qr_image,"publication_scope":"OWNED_ACCOUNTS_ONLY"},indent=2))
           PY
 
       - name: Publish to Tumblr when credentials are configured
@@ -66,12 +75,14 @@ jobs:
           TUMBLR_TOKEN: ${{ secrets.TUMBLR_TOKEN }}
           TUMBLR_TOKEN_SECRET: ${{ secrets.TUMBLR_TOKEN_SECRET }}
           TUMBLR_BLOG: ${{ secrets.TUMBLR_BLOG }}
+          QR_IMAGE_URL: https://dreamledger.org/qr/campaigns/SOCIAL-001.svg
           EVENT_NAME: ${{ github.event_name }}
           DRY_RUN: ${{ inputs.dry_run }}
         run: |
           set -euo pipefail
           if [ "$DRY_RUN" = "true" ] && [ "$EVENT_NAME" = "workflow_dispatch" ]; then echo "TUMBLR=DRY_RUN"; exit 0; fi
           if [ -z "$TUMBLR_CONSUMER_KEY" ] || [ -z "$TUMBLR_CONSUMER_SECRET" ] || [ -z "$TUMBLR_TOKEN" ] || [ -z "$TUMBLR_TOKEN_SECRET" ] || [ -z "$TUMBLR_BLOG" ]; then echo "TUMBLR=SKIPPED_CREDENTIALS_NOT_CONFIGURED"; exit 0; fi
+          if ! curl -fsSL --max-time 15 "$QR_IMAGE_URL" -o /tmp/dreamledger-social-qr.svg; then echo "TUMBLR=SKIPPED_QR_ASSET_NOT_LIVE"; exit 0; fi
           python3 - <<'PY'
           import json, os, time, hmac, hashlib, urllib.parse, urllib.request, secrets, base64
           p=json.load(open("operator-proof/777-distribution-packet.json"))
@@ -93,12 +104,14 @@ jobs:
       - name: Publish to X when credentials are configured
         env:
           X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
+          QR_IMAGE_URL: https://dreamledger.org/qr/campaigns/SOCIAL-001.svg
           EVENT_NAME: ${{ github.event_name }}
           DRY_RUN: ${{ inputs.dry_run }}
         run: |
           set -euo pipefail
           if [ "$DRY_RUN" = "true" ] && [ "$EVENT_NAME" = "workflow_dispatch" ]; then echo "X=DRY_RUN"; exit 0; fi
           if [ -z "$X_ACCESS_TOKEN" ]; then echo "X=SKIPPED_CREDENTIALS_NOT_CONFIGURED"; exit 0; fi
+          if ! curl -fsSL --max-time 15 "$QR_IMAGE_URL" -o /tmp/dreamledger-social-qr.svg; then echo "X=SKIPPED_QR_ASSET_NOT_LIVE"; exit 0; fi
           python3 - <<'PY'
           import json, os, urllib.request
           p=json.load(open("operator-proof/777-distribution-packet.json"))
