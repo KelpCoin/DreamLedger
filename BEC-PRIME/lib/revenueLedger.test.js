@@ -35,7 +35,7 @@ test('every central fulfillment prepares the canonical QR and an idempotent outb
   assert.equal(rowsAfterFirst[0].status, 'QR_ARTIFACT_PREPARED_NOT_ATTACHED');
   assert.ok(rowsAfterFirst[0].customer_referral_qr_html.includes('qr-canonical.svg'));
   assert.ok(rowsAfterFirst[0].customer_referral_qr_printable_html.includes('window.print()'));
-  assert.match(rowsAfterFirst[0].truth_note, /not proof/i);
+  assert.match(rowsAfterFirst[0].truth_note, /does not prove/i);
 
   const second = ledger.createFulfillment(input);
   assert.equal(second.created, false);
