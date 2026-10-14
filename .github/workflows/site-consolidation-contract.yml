@@ -5,6 +5,7 @@ on:
       - "index.html"
       - "public/index.html"
       - "public/dreamledger.css"
+      - "dreamledger.css"
       - "public/marketplace.html"
       - "public/truth-oracle.html"
       - "public/mtg/**"
