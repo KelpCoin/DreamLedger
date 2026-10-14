@@ -44,6 +44,18 @@ Object.assign(PUBLIC_FILES,{"/777-distribution.html":"777-distribution.html","/a
 Object.assign(PUBLIC_FILES,{"/b2b-marketplace.html":"b2b.html","/auctions.html":"marketplace.html","/auto_parts.html":"marketplace.html","/boardgames.html":"marketplace.html","/cameras.html":"marketplace.html","/collectibles.html":"marketplace.html","/computers.html":"marketplace.html","/furniture.html":"marketplace.html","/home_appliances.html":"marketplace.html","/musical_instruments.html":"marketplace.html","/outdoor.html":"marketplace.html","/phones.html":"marketplace.html","/vinyl.html":"marketplace.html","/nz-secondhand/":"marketplace.html","/nz-secondhand/index.html":"marketplace.html","/digital-products/":"shop.html","/digital-products/index.html":"shop.html","/activity.html":"trust.html","/tools.html":"home.html","/start.html":"shop.html","/free.html":"home.html","/offers.html":"shop.html","/hosted-decision-analysis.html":"c2.html","/growth.html":"demand-services.html","/marketplace/order":"marketplace.html","/marketplace/sell":"marketplace.html","/silos/evergreen.html":"shop.html","/silos/construction-subcontractor-quotes.html":"quote-comparison/construction/index.html","/silos/event-vendor-quotes.html":"quote-comparison/hospitality/index.html","/silos/fleet-repair-quotes.html":"quote-comparison/operations/index.html","/silos/freight-quotes.html":"quote-comparison/import/index.html","/silos/it-hardware-quotes.html":"quote-comparison/operations/index.html","/silos/manufacturing-supplier-quotes.html":"quote-comparison/manufacturing/index.html","/silos/marketing-agency-quotes.html":"quote-comparison/operations/index.html","/silos/professional-services-quotes.html":"quote-comparison/operations/index.html","/silos/saas-vendor-quotes.html":"quote-comparison/operations/index.html","/silos/supplier-price-list-comparison.html":"quote-comparison/wholesale/index.html"});
 Object.assign(PUBLIC_FILES,{"/rivet/":"b2b.html","/rivet/index.html":"b2b.html","/dreamledger-billboard.html":"billboard.html","/quote-comparison/ecommerce.html":"quote-comparison/ecommerce/index.html","/tools/":"tools/index.html","/tools/index.html":"tools/index.html","/sandbox-tools.html":"tools/index.html","/pulse/2026-10-09-private-commercial-ai-agents-can-pay-for-your-shopping-who-gets-your-money-back-cryptonews-net-3914c4d85d182093.html":"pulse/index.html","/pulse/2026-10-09-private-commercial-api-tax-slows-ai-agents-saasrise-d3958748bb03e4d3.html":"pulse/index.html","/pulse/2026-10-09-private-commercial-introducing-strands-box-ai-agent-sandboxes-powered-by-dogwood-amazon-web-services-aws-ebd0f33212ab2024.html":"pulse/index.html","/pulse/2026-10-09-private-commercial-openai-launches-decisions-api-with-up-to-10x-faster-responses-propakistani-185784e8881b102a.html":"pulse/index.html","/pulse/2026-10-09-private-commercial-payrails-launches-a-hybrid-merchant-of-record-product-the-paypers-dcb5d940220c205a.html":"pulse/index.html","/pulse/2026-10-09-private-commercial-secure-ai-agent-credentials-13-step-mcp-setup-2026-https-tech-insider-org-e63b27eb35707850.html":"pulse/index.html","/pulse/2026-10-09-private-commercial-top-6-best-dropshipping-automation-platforms-for-scaling-your-ecommerce-business-techbullion-f58bc31213ababb7.html":"pulse/index.html"});
 Object.assign(PUBLIC_FILES,{"/discord-starter-kit.html":"products/discord-webhook-starter-kit-001/index.html","/tools/nz-seller-profit/":"tools/seller-profit/index.html","/tools/nz-seller-profit/index.html":"tools/seller-profit/index.html"});
+Object.assign(PUBLIC_FILES,{
+  "/silos/mtg/silo.json":"silos/mtg/silo.json",
+  "/data/mtg-catalog.json":"data/mtg-catalog.json",
+  "/data/decklists/quintorius.json":"data/decklists/quintorius.json",
+  "/data/_catalog-empty.template.json":"data/_catalog-empty.template.json",
+  "/assets/mtg-deck-grid.js":"assets/mtg-deck-grid.js",
+  "/assets/mtg-deck-grid.css":"assets/mtg-deck-grid.css",
+  "/mtg-list":"mtg-list.html",
+  "/mtg-list/":"mtg-list.html",
+  "/mtg-list.html":"mtg-list.html",
+  "/mtg/quintorius-field-historian.html":"mtg/quintorius-field-historian.html"
+});
 const MIME={'.html':'text/html; charset=utf-8','.js':'application/javascript; charset=utf-8','.json':'application/json; charset=utf-8','.txt':'text/plain; charset=utf-8','.xml':'application/xml; charset=utf-8','.css':'text/css; charset=utf-8','.png':'image/png','.svg':'image/svg+xml','.ico':'image/x-icon'};
 function send(res,s,b,t){if(res.writableEnded)return;res.statusCode=s;if(t)res.setHeader('Content-Type',t);res.end(b)}
 function headers(res){
@@ -97,7 +109,6 @@ http.createServer(async (req,res)=>{
   headers(res);
   const u=new URL(req.url||'/','http://localhost');
   const p=u.pathname;
-  // FightEdge is served directly from PUBLIC_FILES via /fightedge and /fightedge/.
   if(req.method==='GET'&&p==='/healthz'){
     return send(res,200,JSON.stringify({ok:true,service:'dreamledger-storefront'}),'application/json; charset=utf-8');
   }
@@ -144,75 +155,15 @@ http.createServer(async (req,res)=>{
       const catalogue=JSON.parse(fs.readFileSync(path.join(ROOT,'catalog.json'),'utf8'));
       const product=(Array.isArray(catalogue.products)?catalogue.products:[]).find(x=>x&&x.id===productId&&x.status==='published'&&x.checkout_available===true&&typeof x.checkout_url==='string');
       if(!product) return send(res,404,'Not Found','text/plain; charset=utf-8');
-      res.statusCode=302;res.setHeader('Location',product.checkout_url);return res.end();
-    }catch(error){return send(res,500,'Catalog unavailable','text/plain; charset=utf-8');}
+      res.statusCode=302;
+      res.setHeader('Location',product.checkout_url);
+      return res.end();
+    }catch(e){ return send(res,500,'Catalog error','text/plain; charset=utf-8'); }
   }
-  if(p.startsWith('/api/toll/v1/')){
-    // Keep the existing toll implementation in the existing storefront process.
-    // The separate dreamledger-engine service declared by the old Blueprint is not provisioned.
-    // Publish only the two approved first-money scopes; other catalogued scopes remain quarantined.
-    if(p==='/api/toll/v1/manifest' && req.method==='GET'){
-      const attributionUrl=new URL(req.url,'https://dreamledger.org');
-      const ref=String(attributionUrl.searchParams.get('ref')||'');
-      const campaign=String(attributionUrl.searchParams.get('c')||'');
-      const validAttribution=value=>/^[A-Za-z0-9_-]{1,64}$/.test(value);
-      const manifest={
-        schema:'dreamledger/toll-road/v2',
-        service:'DreamLedger',
-        currency:'NZD',
-        status:'HELD_NOT_END_TO_END_VERIFIED',
-        checkout_enabled:false,
-        first_payment_proof:'NOT_PROVEN',
-        entitlement_redemption:'NOT_PROVEN',
-        revenue_nzd:0,
-        hold_reason:'Durable per-key quota accounting and settlement-to-key redemption are not end-to-end verified.',
-        attribution:{referrer_id:validAttribution(ref)?ref:'organic',campaign_id:validAttribution(campaign)?campaign:'direct'},
-        offers:[
-          {id:'TOLL-PROBE-50C',scope:'toll-probe',planned_price_nzd:0.50,price_nzd:null,calls_included:1,checkout_route:null,execution_route:null,status:'HELD_NOT_END_TO_END_VERIFIED'},
-          {id:'AGENT-BRIDGE-EVENTS-100',scope:'bridge-events',planned_price_nzd:19.00,price_nzd:null,calls_included:100,checkout_route:null,execution_route:null,status:'HELD_UNTIL_PROBE_VERIFIED'}
-        ]
-      };
-      return send(res,200,JSON.stringify(manifest),'application/json; charset=utf-8');
-    }
-    if(p==='/api/toll/v1/checkout/toll-probe'){
-      return send(res,503,JSON.stringify({
-        error:'checkout_held_not_end_to_end_verified',
-        reason:'Paid API access remains closed until settlement, durable quota accounting, scoped credential issuance and redemption are independently verified.'
-      }),'application/json; charset=utf-8');
-    }
-    const allowedTollPaths=[
-      '/api/toll/v1/checkout/toll-probe',
-      '/api/toll/v1/redeem/toll-probe',
-      '/api/toll/v1/probe',
-    ];
-    if(!allowedTollPaths.includes(p))return send(res,404,JSON.stringify({error:'toll_route_not_published'}),'application/json; charset=utf-8');
-    try{
-      const handled=await tollRoad.handle(req,res,p);
-      if(handled)return;
-      return send(res,404,JSON.stringify({error:'toll_route_not_found'}),'application/json; charset=utf-8');
-    }catch(error){
-      return send(res,Number(error&&error.statusCode)||500,JSON.stringify({error:'toll_request_failed',detail:String(error&&error.message||'unknown error')}),'application/json; charset=utf-8');
-    }
-  }
-  if(req.method==='GET' && /^\/swarm\/\d{1,6}$/.test(p)) return proxySwarm(req,res,p);
-  if(req.method==='GET' && /^\/api\/swarm-100k\/\d{1,6}$/.test(p)) return proxySwarm(req,res,p);
-  if(req.method==='GET' && p==='/api/swarm-100k/summary') return proxySwarm(req,res,p);
-  if(p.startsWith('/api/commercial/') || p==='/api/webhooks/stripe'){
-    try{
-      const handled=await commercialCell.handle(req,res,p);
-      if(handled)return;
-    }catch(error){
-      return send(res,error.statusCode||500,JSON.stringify({error:String(error&&error.message||error)}),'application/json; charset=utf-8');
-    }
-  }
-  if(req.method!=='GET') return send(res,405,'Method Not Allowed','text/plain; charset=utf-8');
-  if(/^\/(?:server\.js|package(?:-lock)?\.json|Sync-BECPrimeStorefront\.js|(?:discordCommerce|agentbridge|webhook-proxy|hypothesisCommerce|brand|qrSurface)-preload\.js|PRODUCTION-DEPLOY-TRIGGER-[^/]+|WORKLOG-[^/]+|\.economic-rail-repair[^/]*|mtg-conversion-note\.txt|launch-story\.txt|silos\/cube-http-proof\.txt|rivet\/README\.md|\.env(?:\..*)?)$/i.test(p))return send(res,404,'Not Found','text/plain; charset=utf-8');
-  if(['/cube.json','/economic-loops.json','/ecosystem.json','/data/economic-pulse.json','/observatory/commerce-graph/commerce-offer.v1.schema.json',"/777-distribution.html","/a2a-marketplace.html","/agent-bridge.html","/cube-marketplace.html","/evidence-ledger.html","/evidence.html","/ledger.html","/production-verification.html","/money-500000.html","/silo-template.html","/silos/","/silos/index.html","/toll-road.html","/toll-booths.html","/marketplace-forward.html","/marketplace-pro.html","/free.html","/offers.html","/hosted-decision-analysis.html","/growth.html","/cortex.html","/index-black-gold-v1.html","/marketplace/order/","/marketplace/order/index.html","/marketplace/sell/","/marketplace/sell/index.html","/economicMechanismLibrary.json","/evergreen-silo-factory.json","/silo-clone-manifest.json","/bridge-tolls.json","/commerce-roads.json","/compute.json","/ledger.json","/proof.schema.json","/money-playbook.json","/dream-ledger-manifest.json","/dreamledger-sitemap.xml","/data/economic-events-manifest.json","/data/procurement-opportunities.json","/news.json","/platform.json","/api/agent-commerce/toll-probe.json","/b2b/catalog.openapi.json","/catalog.openapi.json","/marketplace/agent-card.json","/marketplace/agent.json","/toll-road.json"].includes(p))res.setHeader('X-Robots-Tag','noindex, nofollow');
-  if(["/b2b-marketplace.html","/auctions.html","/auto_parts.html","/boardgames.html","/cameras.html","/collectibles.html","/computers.html","/furniture.html","/home_appliances.html","/musical_instruments.html","/outdoor.html","/phones.html","/vinyl.html","/nz-secondhand/","/nz-secondhand/index.html","/digital-products/","/digital-products/index.html","/activity.html","/tools.html","/start.html","/free.html","/offers.html","/hosted-decision-analysis.html","/growth.html","/marketplace/order","/marketplace/sell","/silos/evergreen.html","/silos/construction-subcontractor-quotes.html","/silos/event-vendor-quotes.html","/silos/fleet-repair-quotes.html","/silos/freight-quotes.html","/silos/it-hardware-quotes.html","/silos/manufacturing-supplier-quotes.html","/silos/marketing-agency-quotes.html","/silos/professional-services-quotes.html","/silos/saas-vendor-quotes.html","/silos/supplier-price-list-comparison.html"].includes(p))res.setHeader('X-Robots-Tag','noindex, follow');
-  if(["/rivet/","/rivet/index.html","/dreamledger-billboard.html","/quote-comparison/ecommerce.html","/tools/","/tools/index.html","/sandbox-tools.html","/pulse/2026-10-09-private-commercial-ai-agents-can-pay-for-your-shopping-who-gets-your-money-back-cryptonews-net-3914c4d85d182093.html","/pulse/2026-10-09-private-commercial-api-tax-slows-ai-agents-saasrise-d3958748bb03e4d3.html","/pulse/2026-10-09-private-commercial-introducing-strands-box-ai-agent-sandboxes-powered-by-dogwood-amazon-web-services-aws-ebd0f33212ab2024.html","/pulse/2026-10-09-private-commercial-openai-launches-decisions-api-with-up-to-10x-faster-responses-propakistani-185784e8881b102a.html","/pulse/2026-10-09-private-commercial-payrails-launches-a-hybrid-merchant-of-record-product-the-paypers-dcb5d940220c205a.html","/pulse/2026-10-09-private-commercial-secure-ai-agent-credentials-13-step-mcp-setup-2026-https-tech-insider-org-e63b27eb35707850.html","/pulse/2026-10-09-private-commercial-top-6-best-dropshipping-automation-platforms-for-scaling-your-ecommerce-business-techbullion-f58bc31213ababb7.html"].includes(p))res.setHeader('X-Robots-Tag','noindex, follow');
-  if(["/discord-starter-kit.html","/tools/nz-seller-profit/","/tools/nz-seller-profit/index.html"].includes(p))res.setHeader('X-Robots-Tag','noindex, follow');
-  // Retired standalone offer: legacy route redirects to the sole Truth Oracle evidence-review surface.
-  if(req.method==='GET' && p==='/agent-delivery-proof-audit.html'){res.statusCode=301;res.setHeader('Location','/truth-oracle.html');return res.end();}
+  if(p.startsWith('/api/toll')||p.startsWith('/toll/')) return proxyTollToEngine(req,res,p);
+  if(p.startsWith('/swarm/')||p.startsWith('/api/swarm')) return proxySwarm(req,res,p);
+  if(req.method!=='GET'&&req.method!=='HEAD') return send(res,405,'Method Not Allowed','text/plain; charset=utf-8');
+  if(['/cube.json','/economic-loops.json','/ecosystem.json','/data/economic-pulse.json','/observatory/commerce-graph/commerce-offer.v1.schema.json'].includes(p))res.setHeader('X-Robots-Tag','noindex, follow');
   const file=PUBLIC_FILES[p];
   if(file) return serveFile(res,file);
   if(p.indexOf('..')!==-1) return send(res,403,'Forbidden','text/plain; charset=utf-8');
