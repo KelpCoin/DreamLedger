@@ -30,7 +30,7 @@ for (const path of [
 
 assert.match(marketplace, /Paid comparison and report fulfillment remain held/, "marketplace must clearly label paid fulfillment status");
 assert.match(marketplace, /VERIFIED_EXTERNAL_REVENUE = NZ\$0\.00/, "marketplace must preserve the verified revenue baseline");
-assert.match(truthOracle, /structured paid-report workflow is not advertised as live/, "Truth Oracle must not imply unverified paid delivery");
+assert.match(truthOracle, /structured paid-report and delivery workflow is not advertised as live/, "Truth Oracle must not imply unverified paid delivery");
 console.log("SITE_CONSOLIDATION_CONTRACT PASS");
 console.log("Canonical homepage parity: PASS");
 console.log("Shared visual system on core routes: PASS");
