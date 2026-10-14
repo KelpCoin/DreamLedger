@@ -21,20 +21,27 @@ on:
       - "public/quote-comparison/**"
       - "public/trust/**"
       - "vercel.json"
+      - "scripts/build-vercel-site.js"
       - "scripts/site-consolidation-contract.js"
       - ".github/workflows/site-consolidation-contract.yml"
   push:
     branches: [main]
     paths:
       - "index.html"
-      - "public/index.html"
       - "public/dreamledger.css"
+      - "dreamledger.css"
+      - "marketplace.html"
+      - "truth-oracle.html"
+      - "mtg/**"
+      - "trust/**"
+      - "quote-comparison/**"
       - "public/marketplace.html"
       - "public/truth-oracle.html"
       - "public/mtg/**"
       - "public/quote-comparison/**"
       - "public/trust/**"
       - "vercel.json"
+      - "scripts/build-vercel-site.js"
       - "scripts/site-consolidation-contract.js"
       - ".github/workflows/site-consolidation-contract.yml"
 permissions:
