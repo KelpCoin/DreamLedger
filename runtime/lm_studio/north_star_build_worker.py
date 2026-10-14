@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Issue-scoped North Star queue adapter. Defaults to non-mutating preview."""
-import hashlib, json, os, re, urllib.error, urllib.request
+import hashlib, json, os, re, shutil, subprocess, urllib.error, urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -160,6 +160,13 @@ def run_cycle(root,bridge=None,execute=None,executor=None):
     if job_issue(candidate)!=712: return result("HOLD","JOB_SCOPE_MISMATCH",job_id=candidate.get("id") or candidate.get("job_id"))
     jid=candidate.get("id") or candidate.get("job_id")
     if not enabled: return result("DRY_RUN_READY","EXECUTION_DISABLED_NO_LEASE_TAKEN",task_issue=712,job_id=jid,source_files=sources,claim_performed=False)
+    if os.environ.get("NORTH_STAR_BUILD_WORKER_PUBLISH_PR","").lower() not in {"1","true","yes"}:
+        return result("HOLD","PR_PUBLISH_NOT_ENABLED_NO_LEASE_TAKEN",job_id=jid,claim_performed=False)
+    if not shutil.which("gh"):
+        return result("HOLD","GH_CLI_NOT_AVAILABLE_NO_LEASE_TAKEN",job_id=jid,claim_performed=False)
+    auth=subprocess.run(["gh","auth","status"],capture_output=True,text=True,timeout=15,shell=False)
+    if auth.returncode:
+        return result("HOLD","GH_AUTH_NOT_AVAILABLE_NO_LEASE_TAKEN",job_id=jid,claim_performed=False)
     try: claimed=client.claim(712,worker)
     except Exception as e: return result("HOLD","CLAIM_FAILED",error=str(e)[:500],job_id=jid,claim_performed=False)
     if claimed is None or str(claimed.get("id") or claimed.get("job_id"))!=str(jid):
