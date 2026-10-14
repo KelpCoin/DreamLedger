@@ -13,6 +13,7 @@ import os
 import re
 import subprocess
 import sys
+import shutil
 import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
@@ -231,6 +232,43 @@ def load_task(root: Path) -> dict:
         return {"task_id": "MTG-CMD-DIAG-29-READ-ONLY-AUDIT", "task_load_error": type(exc).__name__, "inputs": {"starting_sources": []}}
 
 
+def check_inline_javascript(html_text: str) -> dict:
+    blocks = re.findall(r"<script\b(?![^>]*\bsrc=)[^>]*>(.*?)</script\s*>", html_text, re.IGNORECASE | re.DOTALL)
+    if not blocks:
+        return {"status": "NOT_VERIFIED", "reason": "NO_INLINE_SCRIPT_FOUND", "script_count": 0}
+    node = shutil.which("node")
+    if not node:
+        return {"status": "NOT_VERIFIED", "reason": "NODE_NOT_FOUND", "script_count": len(blocks)}
+    failures = []
+    for index, source in enumerate(blocks, start=1):
+        temp_name = None
+        try:
+            with tempfile.NamedTemporaryFile("w", encoding="utf-8", suffix=".js", delete=False) as tmp:
+                tmp.write(source)
+                temp_name = tmp.name
+            proc = subprocess.run([node, "--check", temp_name], capture_output=True, text=True, timeout=10, check=False)
+            if proc.returncode != 0:
+                failures.append({
+                    "script_index": index,
+                    "returncode": proc.returncode,
+                    "diagnostic": redact((proc.stderr or proc.stdout or "node --check failed")[-1200:]),
+                })
+        except Exception as exc:
+            return {"status": "NOT_VERIFIED", "reason": type(exc).__name__, "script_count": len(blocks)}
+        finally:
+            if temp_name:
+                try:
+                    os.unlink(temp_name)
+                except OSError:
+                    pass
+    return {
+        "status": "FAIL" if failures else "PASS",
+        "reason": "INLINE_SCRIPT_SYNTAX_ERROR" if failures else "ALL_INLINE_SCRIPTS_PARSE",
+        "script_count": len(blocks),
+        "failures": failures,
+    }
+
+
 def facts_from_sources(root: Path, sources: list[dict]) -> dict:
     catalog_entry = None
     page_text = ""
@@ -270,6 +308,7 @@ def facts_from_sources(root: Path, sources: list[dict]) -> dict:
 
     landing_price_present = bool(re.search(r"Commander\s+diagnostic[^\n]{0,100}NZ\$29", page_text, re.IGNORECASE))
     landing_checkout_present = "buy.stripe.com/" in page_text
+    inline_js_syntax = check_inline_javascript(page_text)
     route_checkout_markers = bool(re.search(r"checkout|checkout\.sessions|session_id", route_text, re.IGNORECASE))
     route_webhook_markers = bool(re.search(r"webhook|checkout\.session\.completed|stripe-signature", route_text, re.IGNORECASE))
     fulfillment_markers = bool(re.search(r"report|fulfill|artifact|delivery", fulfillment_text, re.IGNORECASE))
@@ -280,6 +319,14 @@ def facts_from_sources(root: Path, sources: list[dict]) -> dict:
             "status": "PASS" if presence.get("public/mtg/index.html") and landing_price_present and landing_checkout_present else "BLOCKED",
             "evidence_refs": ["public/mtg/index.html"],
             "finding": "Source contains the Commander diagnostic NZ$29 label and a Stripe Checkout link." if presence.get("public/mtg/index.html") and landing_price_present and landing_checkout_present else "The source, NZ$29 label, or Stripe Checkout URL was not found.",
+            "runtime_deploy_verified": False,
+        },
+        {
+            "id": "PUBLIC_LANDING_JS_SYNTAX",
+            "status": "PASS" if inline_js_syntax.get("status") == "PASS" else "BLOCKED" if inline_js_syntax.get("status") == "FAIL" else "NOT_VERIFIED",
+            "evidence_refs": ["public/mtg/index.html"],
+            "syntax_check": inline_js_syntax,
+            "finding": "Every inline JavaScript block in the MTG landing page parses successfully." if inline_js_syntax.get("status") == "PASS" else "MTG landing page has an inline JavaScript syntax error; repair before relying on product rendering." if inline_js_syntax.get("status") == "FAIL" else "Inline JavaScript syntax could not be verified in this environment.",
             "runtime_deploy_verified": False,
         },
         {
@@ -320,7 +367,7 @@ def facts_from_sources(root: Path, sources: list[dict]) -> dict:
             "runtime_deploy_verified": False,
         },
     ]
-    return {"catalog_entry": catalog_entry, "checks": checks, "landing_price_present": landing_price_present, "landing_checkout_present": landing_checkout_present}
+    return {"catalog_entry": catalog_entry, "checks": checks, "landing_price_present": landing_price_present, "landing_checkout_present": landing_checkout_present, "inline_js_syntax": inline_js_syntax}
 
 
 def build_report() -> dict:
@@ -393,6 +440,9 @@ def self_test() -> int:
     assert classify_probe_status(503, "STRIPE_CONFIG_MISSING") == "STRIPE_CONFIG_MISSING"
     assert classify_probe_status(500, "STRIPE_SESSION_LOOKUP_FAILED") == "SESSION_LOOKUP_FAILED_KEY_VALIDITY_NOT_CONFIRMED"
     assert classify_probe_status(None) == "NOT_VERIFIED_NETWORK_OR_REQUEST_FAILURE"
+    assert check_inline_javascript("<script>const x = 1;</script>")["status"] in {"PASS", "NOT_VERIFIED"}
+    syntax_result = check_inline_javascript("<script>const x = ;</script>")
+    assert syntax_result["status"] in {"FAIL", "NOT_VERIFIED"}
     assert "sk_live_dontprint" not in redact("key=sk_live_dontprint")
     assert "[REDACTED_STRIPE_KEY]" in redact("sk_live_dontprint")
     with tempfile.TemporaryDirectory() as tmp:
