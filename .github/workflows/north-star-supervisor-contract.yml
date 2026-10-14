@@ -4,6 +4,8 @@ on:
   pull_request:
     paths:
       - 'runtime/lm_studio/north_star_supervisor.py'
+      - 'runtime/lm_studio/economic_swarm_controller.py'
+      - 'runtime/lm_studio/north_star_priority_audit.py'
       - 'runtime/lm_studio/Install-NorthStarSupervisorTask.ps1'
       - 'runtime/lm_studio/NORTH-STAR-SUPERVISOR.md'
       - '.github/workflows/north-star-supervisor-contract.yml'
@@ -29,11 +31,16 @@ jobs:
           python-version: '3.12'
       - name: Offline supervisor self-test
         run: python runtime/lm_studio/north_star_supervisor.py --self-test
+      - name: Offline priority audit self-test
+        run: python runtime/lm_studio/north_star_priority_audit.py --self-test
       - name: Check controller and installer contracts
         shell: pwsh
         run: |
           $s = Get-Content runtime/lm_studio/north_star_supervisor.py -Raw
           if ($s -notmatch 'economic_swarm_controller.py') { throw 'Controller not referenced' }
+          $c = Get-Content runtime/lm_studio/economic_swarm_controller.py -Raw
+          if ($c -notmatch 'north_star_priority_audit.py') { throw 'Priority audit is not invoked by the controller' }
+          if ($c -notmatch 'MTG-CMD-DIAG-29-READ-ONLY-AUDIT') { throw 'First North Star revenue task is not wired' }
           if ($s -notmatch 'external_action_performed') { throw 'External action state not logged' }
           if ($s -notmatch 'SUPERVISOR_ALREADY_RUNNING') { throw 'Single-instance lock missing' }
           if ($s -notmatch 'CONTROLLER_CYCLE_TIMEOUT') { throw 'Cycle timeout missing' }
