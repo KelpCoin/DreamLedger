@@ -23,6 +23,9 @@ const run = JSON.parse(fs.readFileSync(path.join(dir, 'FACTORY-FACTORY-RUN.json'
 const money = JSON.parse(fs.readFileSync(path.join(dir, 'MONEY-CELLS.json'), 'utf8'));
 const cycle = JSON.parse(fs.readFileSync(path.join(dir, 'FACTORY-FACTORY-CYCLE.json'), 'utf8'));
 const orchestrator = JSON.parse(fs.readFileSync(path.join(dir, 'orchestrator/latest.json'), 'utf8'));
+const seedBankPath = path.join(root, '..', 'ops', 'cube-swarm', 'silo-definitions', 'ASYMMETRIC-LEVERAGE-1000.json');
+const seedBank = JSON.parse(fs.readFileSync(seedBankPath, 'utf8'));
+const seedOpportunityIds = new Set((seedBank.candidates || []).map(candidate => 'LANE-MANIFEST:' + candidate.silo_id));
 
 if (!Array.isArray(run.cells)) throw new Error('Factory run has no cells array');
 if (!Array.isArray(money.cells)) throw new Error('Money-cells artifact has no cells array');
@@ -35,7 +38,7 @@ if (cycle.external_action !== 'NOT_PERFORMED') throw new Error('Cycle crossed ex
 if (orchestrator.selected_count !== run.cells.length) throw new Error('Orchestrator is not consuming FactoryFactory cells');
 if (orchestrator.acquisition_packet_count !== orchestrator.selected_count) throw new Error('Acquisition packets do not cover selected cells');
 const seededCells = money.cells.filter(cell =>
-  String(cell.opportunity_id || '').startsWith('LANE-MANIFEST:') &&
+  seedOpportunityIds.has(cell.opportunity_id) &&
   Array.isArray(cell.candidate_qualification?.source_hashes) &&
   cell.candidate_qualification.source_hashes.length === 8
 );
@@ -46,6 +49,7 @@ for (const cell of seededCells) {
   if (!cell.candidate_qualification.fit_review_required && cell.state !== 'READY_FOR_AUTHORIZED_ACQUISITION') throw new Error('Non-review candidate state mismatch: ' + cell.opportunity_id);
 }
 const seededPackets = Object.values(orchestrator.acquisition_packets || {}).filter(packet =>
+  seedOpportunityIds.has(packet.opportunity_id) &&
   Array.isArray(packet.candidate_qualification?.source_hashes) &&
   packet.candidate_qualification.source_hashes.length === 8
 );
