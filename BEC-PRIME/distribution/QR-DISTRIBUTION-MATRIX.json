@@ -152,6 +152,15 @@
       "approval_required": false
     },
     {
+      "id": "SOCIAL-001",
+      "family": "owned_social",
+      "placement": "DreamLedger-owned social campaign shareable QR",
+      "source": "dreamledger",
+      "medium": "social-qr",
+      "approval_required": false,
+      "standing_policy": "OWNER_AUTHORIZED_OWNED_CHANNELS_ONLY"
+    },
+    {
       "id": "REF-001",
       "family": "referral",
       "placement": "buyer referral card",
