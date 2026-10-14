@@ -373,6 +373,8 @@ def build_report() -> dict:
             "Static source and payment links do not prove deployment, buyer demand, payment settlement, or successful fulfillment.",
         ],
         "external_action_performed": False,
+        "external_commercial_action_performed": False,
+        "read_only_remote_probe_performed": bool(probe.get("checked_at_utc")),
         "database_write_performed": False,
         "payment_verified": False,
         "fulfillment_verified": False,
