@@ -45,6 +45,18 @@ for (const p of catalogue.products) {
     knownBlockers.push({ sku: p.sku || p.id, issue: 'checkout_mode_disabled' });
   }
 }
+const publicById = new Map(publicCatalogue.products.map((p) => [p?.id, p]).filter(([id]) => id));
+for (const p of catalogue.products) {
+  const publicProduct = publicById.get(p?.id);
+  if (publicProduct && Number(publicProduct.price) !== Number(p.price)) {
+    knownBlockers.push({
+      sku: p.sku || p.id,
+      issue: 'price_mismatch_between_mtg_and_public_catalogue',
+      mtg_catalogue_price: p.price,
+      public_catalogue_price: publicProduct.price
+    });
+  }
+}
 const diagnostic = publicCatalogue.products.find((p) => p?.id === 'COMMANDER-DECK-DIAGNOSTIC-001');
 const knownLegacyLink = 'https://buy.stripe.com/8x228r1nfg0l3M32csdwc2I';
 if (diagnostic?.checkout_url === knownLegacyLink) {
