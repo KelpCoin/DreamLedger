@@ -82,7 +82,7 @@
       <a class="silo-btn silo-btn-gold" href="https://buy.stripe.com/eVqeVdc1T01n1DV3gwdwc30">Buy diagnostic</a>
     </div>
   </section>
-  <p class="clone-meta" id="cloneMeta">Master silo · driven by /silos/mtg/silo.json · clone = new manifest + empty catalog · gauntlet before activation</p>
+  <p class="clone-meta" id="cloneMeta">Magic marketplace · catalogue shown from current inventory · checkout and delivery are available only when their routes are verified.</p>
 </main>
 <footer class="silo-footer silo-wrap">
   <a href="/">Home</a>
@@ -123,7 +123,7 @@ async function applyManifest(){
       ).join('');
     }
     document.getElementById('cloneMeta').textContent=
-      'Master silo · '+MANIFEST+' · inventory_policy='+(m.inventory_policy||'')+' · clone via cube → gauntlet';
+      'Magic marketplace · '+MANIFEST+' · inventory_policy='+(m.inventory_policy||'')+' · offers appear only when supply and checkout are verified';
     return m;
   }catch(e){return null;}
 }
