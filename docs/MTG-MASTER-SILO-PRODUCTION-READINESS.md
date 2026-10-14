@@ -102,7 +102,7 @@ A green schema check is not a production-readiness certification. Production rea
 
 The canonical doorway is `https://dreamledger.org/go?src=qr-canonical`. The master QR is generated from source rather than designed as a placeholder, and its SVG/PNG hashes are emitted by `BEC-PRIME/distribution/QRAssetCompiler.js`. A reusable helper and printable insert exist at `BEC-PRIME/lib/canonicalQrFulfillment.js` and `public/qr/fulfillment-insert.html`.
 
-Current wiring includes QR metadata in the paid Commander diagnostic report, a QR panel in the diagnostic delivery page, and QR metadata in Billboard's automatic fulfillment record. The generic printable insert is available for physical shipments. This is **partial coverage**, not proof every product currently includes the QR: all product-specific fulfillment handlers, packing steps, and live deployed pages still require end-to-end verification.
+Current wiring includes QR metadata in the central `revenueLedger.createFulfillment` record, an idempotent `fulfillment-qr-outbox.jsonl` entry, the paid Commander diagnostic report, a QR panel in the diagnostic delivery page, and Billboard's automatic fulfillment record. The generic printable insert is available for physical shipments. This is **partial coverage**, not proof every product currently includes the visible QR: all product-specific digital rendering, physical packing steps, delivery evidence and live deployed pages still require end-to-end verification.
 
 `BEC-PRIME/distribution/QR-CampaignPlanner.js` generates a placement-specific tracked QR and campaign plan for the 20-entry distribution matrix. The campaign packet separates:
 - first-party web and fulfillment assets, which can be generated automatically;
