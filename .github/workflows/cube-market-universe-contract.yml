@@ -1,0 +1,35 @@
+name: Cube market universe contract
+
+on:
+  pull_request:
+    paths:
+      - 'ops/cube-swarm/market-universe.contract.json'
+      - 'catalog/silos/media-music/implementation-contract.json'
+      - 'public/media-music/index.html'
+      - 'public/surfaces.json'
+      - 'ops/cube-swarm/verify-market-universe.js'
+      - '.github/workflows/cube-market-universe-contract.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'ops/cube-swarm/market-universe.contract.json'
+      - 'catalog/silos/media-music/implementation-contract.json'
+      - 'public/media-music/index.html'
+      - 'public/surfaces.json'
+      - 'ops/cube-swarm/verify-market-universe.js'
+      - '.github/workflows/cube-market-universe-contract.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Verify market and silo truth contracts
+        run: node ops/cube-swarm/verify-market-universe.js
