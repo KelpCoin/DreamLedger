@@ -53,8 +53,10 @@ jobs:
           npm run compile:opportunities
           npm run compile:factory-factory
           node BEC-PRIME/factory/FactoryFactory.js
+          node BEC-PRIME/factory/FactoryFactoryOrchestrator.js
           node BEC-PRIME/factory/UniversalFactoryCompiler.js
           npm run compile:factory-approval
+          node BEC-PRIME/scripts/Verify-FactoryFactoryAssembly.js
 
       - name: Reconcile approved live offers
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.acquisition == true }}
