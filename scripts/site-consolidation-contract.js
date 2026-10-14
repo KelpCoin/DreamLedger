@@ -5,6 +5,7 @@ const read = (path) => fs.readFileSync(path, "utf8");
 const root = read("index.html");
 const published = read("public/index.html");
 const css = read("public/dreamledger.css");
+const rootCss = read("dreamledger.css");
 const marketplace = read("public/marketplace.html");
 const truthOracle = read("public/truth-oracle.html");
 const vercel = read("vercel.json");
@@ -20,6 +21,7 @@ assert.match(root, /Paid automated report delivery is not advertised as live/, "
 assert.match(root, /VERIFIED EXTERNAL REVENUE: NZ\$0\.00/, "homepage must preserve the verified revenue baseline");
 assert.match(css, /--dl-bg:/, "shared stylesheet must define canonical color tokens");
 assert.match(css, /font-family:Inter/, "shared stylesheet must define canonical typography");
+assert.equal(rootCss, css, "Render root stylesheet and public stylesheet must be identical");
 
 for (const path of [
   "public/marketplace.html",
