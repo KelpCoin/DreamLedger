@@ -73,7 +73,9 @@ def load_contract(root, issue=712):
     if not rel: raise ValueError("NO_CONTRACT_FOR_ALLOWED_ISSUE")
     path=safe_path(root,rel)
     if not path.is_file(): raise FileNotFoundError(rel)
-    c=json.loads(path.read_text(encoding="utf-8"))
+    raw_contract=path.read_bytes()
+    c=json.loads(raw_contract.decode("utf-8"))
+    c["_loaded_contract_source"]={"path":rel,"bytes":len(raw_contract),"sha256":sha(raw_contract)}
     if c.get("schema_version")!="dreamledger/bounded-build-task/v1": raise ValueError("TASK_CONTRACT_SCHEMA_INVALID")
     if parse_issue(c.get("github_issue"))!=issue: raise ValueError("TASK_CONTRACT_ISSUE_MISMATCH")
     if not c.get("source_refs") or not c.get("writable_paths"): raise ValueError("TASK_CONTRACT_PATHS_MISSING")
@@ -148,6 +150,8 @@ def run_cycle(root,bridge=None,execute=None,executor=None):
     try:
         contract=load_contract(root,712)
         sources,_=gather_sources(root,contract)
+        if isinstance(contract.get("_loaded_contract_source"),dict):
+            sources.append(contract["_loaded_contract_source"])
     except FileNotFoundError as e: return result("HOLD","SOURCE_FILES_MISSING",missing=str(e))
     except Exception as e: return result("HOLD","TASK_CONTRACT_INVALID",error=(type(e).__name__+":"+str(e))[:500])
     client=bridge or BridgeClient()
