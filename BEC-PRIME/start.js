@@ -51,7 +51,7 @@ const PORT = Number(process.env.PORT || 3000);
 const QR_REDIRECTS = Object.freeze({
   '/q/overpaying': 'https://dreamledger.org/overpaying?utm_source=qr&utm_medium=print&utm_campaign=power_verify',
   '/q/billboard': 'https://buy.stripe.com/aFa14naXP15r1DVdVadwc2B',
-  '/q/cmd-diag': 'https://dreamledger.org/mtg/diagnostic.html'
+  '/q/cmd-diag': 'https://buy.stripe.com/8x228r1nfg0l3M32csdwc2I'
 });
 const DEPLOY_COMMIT = process.env.RENDER_GIT_COMMIT || process.env.RENDER_GIT_COMMIT_SHA || process.env.GITHUB_SHA || process.env.GIT_COMMIT || 'unknown';
 const DEPLOY_ENV = process.env.RENDER_ENV || process.env.NODE_ENV || 'production';
