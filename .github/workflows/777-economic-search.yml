@@ -111,6 +111,9 @@ jobs:
       - name: Test local LM Studio economic worker contract
         run: node --test BEC-PRIME/scripts/economic-local-worker.test.js
 
+      - name: Test BECK degraded-runtime safety contract
+        run: node --test BEC-PRIME/scripts/beck-runtime-degraded-contract.test.js
+
       - name: Refresh public demand radar
         if: needs.preflight.outputs.database_ready == 'true'
         continue-on-error: true
@@ -161,6 +164,7 @@ jobs:
 
       - name: Bridge 777 acceptance into commerce substrate
         if: needs.preflight.outputs.database_ready == 'true'
+        continue-on-error: true
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL || 'https://wbwgroygjeyukkspnqiy.supabase.co' }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
@@ -199,6 +203,7 @@ jobs:
 
       - name: Run economic activation from 777 handoff
         if: needs.preflight.outputs.database_ready == 'true'
+        continue-on-error: true
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL || 'https://wbwgroygjeyukkspnqiy.supabase.co' }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
