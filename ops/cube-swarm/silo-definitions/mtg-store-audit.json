@@ -1,0 +1,126 @@
+{
+  "schema_version": "dreamledger/cube-swarm-silo-definition/v1",
+  "silo_id": "mtg-store-audit",
+  "name": "MTG Store Audit",
+  "category": "magic-the-gathering",
+  "lifecycle": "CANDIDATE",
+  "offer_hypothesis": {
+    "hypothesis_only": true,
+    "buyer": "Independent MTG online stores and card-shop operators",
+    "demand_hypothesis": "Stores may pay for a bounded audit that finds catalog-data, price-parity, listing-quality, and buyer-friction defects.",
+    "not_validated": [
+      "buyer demand",
+      "willingness to pay",
+      "conversion",
+      "unit economics",
+      "retention"
+    ]
+  },
+  "commercial_contract": {
+    "sku": "MTG-STORE-AUDIT-299",
+    "currency": "NZD",
+    "amount_minor": 29900,
+    "checkout_status": "NOT_CONFIGURED_NO_CHECKOUT",
+    "billing_interval": null,
+    "pricing_model": "ONE_TIME",
+    "fulfillment_input": "/silos/mtg-store-audit/input/",
+    "fulfillment_api": "/api/silos/mtg-store-audit/input",
+    "evidence_required": [
+      "independent_external_buyer",
+      "stripe_livemode_settled_payment",
+      "canonical_sku_price_currency_and_mode_match",
+      "correct_order_attribution",
+      "fulfillment_artifact_sha256",
+      "delivery_confirmed",
+      "independent_provider_evidence"
+    ]
+  },
+  "candidate_catalog_entry": {
+    "id": "MTG-STORE-AUDIT-299",
+    "sku": "MTG-STORE-AUDIT-299",
+    "name": "MTG Store Audit",
+    "description": "A bounded review of one declared store catalogue and checkout journey, with prioritized findings and a source-backed correction plan.",
+    "price": 299,
+    "currency": "nzd",
+    "status": "draft",
+    "checkout_available": false,
+    "checkout_url": null,
+    "category": "magic-the-gathering",
+    "availability": "not_available",
+    "commercial_validation_status": "UNVALIDATED",
+    "billing_interval": null
+  },
+  "fulfillment_contract": {
+    "buyer_input": "store URL or exported catalogue plus operator-provided checkout details",
+    "deliverable": "store-audit report JSON and human-readable summary with source refs and SHA-256",
+    "service_boundary": "Only the stated input, deliverable, and scope are included. Unsupported inputs, unverified source facts, or out-of-scope work must be surfaced for review.",
+    "delivery_proof": [
+      "artifact_sha256",
+      "order_to_artifact_attribution",
+      "delivery_receipt",
+      "fulfillment_timestamp_utc"
+    ]
+  },
+  "carousel_card": {
+    "title": "MTG Store Audit",
+    "description": "A bounded review of one declared store catalogue and checkout journey, with prioritized findings and a source-backed correction plan.",
+    "cta_label": "Candidate offer - not available",
+    "cta_action": "none",
+    "cta_target": null,
+    "visible": false,
+    "position": 99
+  },
+  "isolation": {
+    "compute": "SHARED_WORKER",
+    "database_strategy": "DEDICATED_D1_PER_SILO",
+    "database_name": null,
+    "database_id": null,
+    "r2_bucket": "marketplace-fulfillment",
+    "r2_prefix": "silos/mtg-store-audit/",
+    "cross_silo_customer_data": false
+  },
+  "routes": [
+    "/silos/mtg-store-audit/",
+    "/silos/mtg-store-audit/input/",
+    "/api/silos/mtg-store-audit/input"
+  ],
+  "implementation_contract": {
+    "status": "SPECIFIED_NOT_IMPLEMENTED",
+    "public_catalog_entry": "SPECIFIED_IN_CANDIDATE_ONLY_NOT_ADDED_TO_PUBLIC_CATALOG",
+    "library_path": "BEC-PRIME/lib/mtg-store-auditFulfillment.js",
+    "route_handler_path": "BEC-PRIME/routes/mtg-store-audit.js",
+    "supabase_function_path": "supabase/functions/silo-mtg-store-audit/index.ts",
+    "supabase_function_status": "NOT_DEPLOYED",
+    "task_contract_path": "ops/cube-swarm/tasks/MTG-STORE-AUDIT-299-CANDIDATE-BUILD.json",
+    "task_contract_status": "CANDIDATE_TASK_NOT_WIRED_TO_CURRENT_NORTH_STAR_SELECTOR",
+    "evidence_model": "Reuse canonical settlement and fulfillment proof fields; do not create a silo-specific revenue truth schema.",
+    "source_contract_paths": [
+      "ops/cube-swarm/silo-definitions/mtg-commander.json",
+      "public/catalog.json",
+      "BEC-PRIME/lib/mtgDiagnosticFulfillment.js",
+      "BEC-PRIME/routes/mtgDiagnostic.js",
+      "BEC-PRIME/factory/FactoryFactoryCompiler.js",
+      "BEC-PRIME/factory/UniversalFactoryCompiler.js"
+    ],
+    "source_criteria": [
+      "Hash each required source file and record its observed status.",
+      "Do not claim a shared implementation exists at a proposed path until the file is present and tested.",
+      "Catalogue contract must remain draft with checkout disabled until Gate 1 and fulfilment tests pass.",
+      "Settlement must be verified from live provider evidence, with correct SKU, amount, currency, mode, and attribution.",
+      "Fulfillment must generate a retrievable artifact, SHA-256, and delivery receipt.",
+      "Reject self-purchases, simulations, test-mode payments, missing proofs, and duplicate attribution."
+    ]
+  },
+  "provisioning": {
+    "mode": "DRY_RUN_ONLY",
+    "deploy_allowed": false,
+    "reason": "Candidate specification only. No checkout URL, deployed per-silo function, completed fulfillment test, or external demand evidence has been established. Current shared Stripe Gate 1 is reported as HTTP 503 STRIPE_CONFIG_MISSING."
+  },
+  "economics": {
+    "advertised_price_nzd": 299,
+    "estimated_margin_nzd": null,
+    "unit_economics_status": "UNVALIDATED",
+    "spend_allowed_without_authorization": false,
+    "truth_boundary": "Revenue remains unverified until the canonical ledger independently records a settled external transaction and verified fulfillment."
+  }
+}
