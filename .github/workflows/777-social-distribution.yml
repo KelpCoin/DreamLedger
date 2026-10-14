@@ -42,7 +42,8 @@ jobs:
           python3 - <<'PY'
           import json, os, hashlib, datetime, re, urllib.parse
           cell=re.sub(r"[^A-Za-z0-9._-]", "-", os.environ["CELL_ID"])[:80] or "CMD-DIAG-29-QR-001"
-          cell_tag=hashlib.sha256(cell.encode("utf-8")).hexdigest()[:8]\n          params={"utm_source":"777","utm_medium":"social","utm_campaign":"cmd29","utm_content":cell_tag}
+          cell_tag=hashlib.sha256(cell.encode("utf-8")).hexdigest()[:8]
+          params={"utm_source":"777","utm_medium":"social","utm_campaign":"cmd29","utm_content":cell_tag}
           target="https://dreamledger.org/go?"+urllib.parse.urlencode(params)
           qr_image="https://dreamledger.org/qr/campaigns/SOCIAL-001.svg"
           variants=[
@@ -54,7 +55,7 @@ jobs:
           message=variants[day % len(variants)]+" "+target+" QR image: "+qr_image
           if len(message)>280:
             raise SystemExit("Distribution copy exceeds 280 characters; refusing to publish.")
-          packet={"schema":"DREAMLEDGER/777-DISTRIBUTION-PACKET/v2","cell_id":cell,
+          packet={"schema":"DREAMLEDGER/777-DISTRIBUTION-PACKET/v2","cell_id":cell,"cell_tag":cell_tag,
                   "offer_id":"CMD-DIAG-29","surface_family":"OWNED_SOCIAL",
                   "target_url":target,"qr_asset_id":"SOCIAL-001","qr_image_url":qr_image,
                   "message":message,"authorization":"USER_STANDING_POLICY_OWNED_ACCOUNTS_ONLY",
