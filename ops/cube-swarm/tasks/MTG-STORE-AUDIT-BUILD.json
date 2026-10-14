@@ -26,7 +26,8 @@
   ],
   "writable_paths": [
     "public/silos/mtg-store-audit/index.html",
-    "BEC-PRIME/lib/mtgStoreAudit.js"
+    "BEC-PRIME/lib/mtgStoreAudit.js",
+    "public/silos/mtg-store-audit/mtgStoreAudit.js"
   ],
   "test_paths": [
     "BEC-PRIME/lib/mtgStoreAudit.test.js"
@@ -69,5 +70,5 @@
     "Malformed input fails visibly and never becomes a successful audit.",
     "All fixed tests pass and outputs receive SHA256 hashes."
   ],
-  "status": "CONTRACT_READY_NOT_QUEUED"
+  "status": "PRODUCT_FILES_DRAFTED_WORKER_NOT_YET_WIRED"
 }
