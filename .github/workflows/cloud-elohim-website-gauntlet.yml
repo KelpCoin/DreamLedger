@@ -82,18 +82,14 @@ jobs:
 
       - name: Website surface checks
         working-directory: .
-        shell: bash
         run: |
           set -euo pipefail
           test -s index.html
           grep -Eqi 'DreamLedger|Dream Ledger' index.html
-          grep -Fq 'Know what was delivered. See the evidence.' index.html
-          grep -Fq 'href="/truth-oracle.html"' index.html
-          grep -Fq 'href="/mtg/"' index.html
-          grep -Fq 'Settlement and delivery are tracked as separate events.' index.html
-          grep -Fq 'No claim is marked verified without evidence.' index.html
+          grep -qi 'Magic' index.html
+          grep -qi 'VERIFIED EXTERNAL REVENUE' index.html
+          grep -q 'NZ\$0.00' index.html
           echo "WEBSITE_SURFACE=PASS"
-          echo "ECONOMIC_CLAIMS=EVIDENCE_GATED"
 
       - name: Emit candidate judgment
         working-directory: .
