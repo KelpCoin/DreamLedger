@@ -13,13 +13,15 @@ function check(id, ok, detail) {
   if (!ok) failures.push(id);
 }
 
-let manifest, contract, catalogue, publicCatalogue, searchPage;
+let manifest, contract, catalogue, publicCatalogue, searchPage, publicSearchPage, collectionImportPage;
 try {
   manifest = readJson('public/silos/mtg/silo.json');
   contract = readJson('public/silos/mtg/marketplace-contract.json');
   catalogue = readJson('public/data/mtg-catalog.json');
   publicCatalogue = readJson('public/catalog.json');
   searchPage = fs.readFileSync(path.join(root, 'mtg-search.html'), 'utf8');
+  publicSearchPage = fs.readFileSync(path.join(root, 'public/mtg-search.html'), 'utf8');
+  collectionImportPage = fs.readFileSync(path.join(root, 'public/collection-import/index.html'), 'utf8');
 } catch (error) {
   console.error(JSON.stringify({ status: 'FAIL', error: error.message }, null, 2));
   process.exit(1);
@@ -37,6 +39,8 @@ check('privacy-boundaries', ['private records are not returned by public APIs, s
 check('catalogue-silo-identity', catalogue.silo === 'mtg' && Array.isArray(catalogue.products), 'MTG catalogue has correct silo identity and products array.');
 check('public-catalogue-shape', publicCatalogue.schema === 'dreamledger/public-catalogue/v1' && Array.isArray(publicCatalogue.products), 'Public commerce catalogue shape remains valid.');
 check('search-uses-live-inventory', searchPage.includes("fetch('/api/mtg/marketplace/listings'") && !searchPage.includes('var SEED=') && !searchPage.includes('Sol Ring'), 'Public search uses the live listings API and contains no synthetic sample inventory.');
+check('public-search-mirrors-live-inventory', publicSearchPage.includes("fetch('/api/mtg/marketplace/listings'") && !publicSearchPage.includes('var SEED=') && !publicSearchPage.includes('Sol Ring'), 'The Render public-root search page also uses live inventory only.');
+check('collection-import-route-exists', collectionImportPage.includes('/functions/v1/mtg-collection-import') && collectionImportPage.includes('remain private') && !collectionImportPage.includes('100,000-card ready'), 'Public collection import route exists and does not promise unsupported capacity or public publishing.');
 
 const knownBlockers = [];
 for (const p of catalogue.products) {
