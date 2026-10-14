@@ -1,13 +1,12 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "git": {"deploymentEnabled": false},
-  "buildCommand": "node -e \"const fs=require('fs');fs.mkdirSync('public',{recursive:true});fs.copyFileSync('index.html','public/index.html')\"",
-  "outputDirectory": "public",
+  "buildCommand": "node scripts/build-vercel-site.js",
+  "outputDirectory": "dist",
   "functions": {
-    "api/**/*.ts": {"maxDuration":30,"memory":1024}
+    "api/**/*.ts": { "maxDuration": 30, "memory": 1024 }
   },
   "regions": ["syd1"],
   "rewrites": [
-    {"source":"/","destination":"/index.html"}
+    { "source": "/", "destination": "/index.html" }
   ]
 }
