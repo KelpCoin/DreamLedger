@@ -64,6 +64,9 @@ jobs:
           if ($s -notmatch 'SUPERVISOR_ALREADY_RUNNING') { throw 'Single-instance lock missing' }
           if ($s -notmatch 'CONTROLLER_CYCLE_TIMEOUT') { throw 'Cycle timeout missing' }
           if ($s -notmatch 'backoff_seconds') { throw 'Backoff policy missing' }
+          if ($s -notmatch 'update_runtime_proof') { throw 'Supervisor does not persist runtime proof' }
+          if ($s -notmatch 'inspect_priority_audit') { throw 'Supervisor does not verify audit artifact' }
+          if ($s -notmatch 'priority_task_consumed') { throw 'Supervisor does not require the first-class task artifact' }
           $i = Get-Content runtime/lm_studio/Install-NorthStarSupervisorTask.ps1 -Raw
           if ($i -notmatch 'if \(-not \$Install\)') { throw 'Installer must default to no mutation' }
           if ($i -notmatch 'Start-ScheduledTask') { throw 'Explicit installer must start task' }
