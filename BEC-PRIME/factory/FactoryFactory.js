@@ -41,6 +41,9 @@ function selectFactories(queue, limit = 12) {
 
 function buildMoneyCell(x) {
   const price = Number(x.proposition?.price_nzd || 0);
+  const fitScore = Number(x.asymmetric_leverage_score ?? x.provenance?.fit_score ?? 0);
+  const fitReviewRequired = x.fit_review_required === true || x.provenance?.fit_review_required === true;
+  const provenance = x.provenance && typeof x.provenance === 'object' ? x.provenance : {};
   const channels = Array.isArray(x.execution?.acquisition_surface)
     ? x.execution.acquisition_surface.filter(Boolean)
     : [];
