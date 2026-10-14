@@ -101,7 +101,7 @@ def attach_worker_assessment(audit, decision, stage_hashes):
         tmp=path+".tmp"
         with open(tmp,"w",encoding="utf-8") as f:
             json.dump(report,f,indent=2,ensure_ascii=False)
-            f.write("\\n")
+            f.write("\n")
         os.replace(tmp,path)
         return True
     except Exception:
