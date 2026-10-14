@@ -59,8 +59,7 @@ jobs:
           $diagnostic = $catalog.products | Where-Object { $_.id -eq 'COMMANDER-DECK-DIAGNOSTIC-001' -and $_.sku -eq 'CMD-DIAG-29' } | Select-Object -First 1
           $canonicalLink = 'https://buy.stripe.com/eVqeVdc1T01n1DV3gwdwc30'
           $legacyLink = 'https://buy.stripe.com/8x228r1nfg0l3M32csdwc2I'
-          if (!$diagnostic -or $diagnostic.price -ne 29 -or $diagnostic.currency -notmatch '^(?i)nzd
- -or $diagnostic.checkout_url -ne $canonicalLink -or $diagnostic.checkout_available -ne $true) { throw 'Canonical $29 diagnostic catalogue contract mismatch' }
+          if (!$diagnostic -or $diagnostic.price -ne 29 -or ([string]$diagnostic.currency).ToUpperInvariant() -ne 'NZD' -or $diagnostic.checkout_url -ne $canonicalLink -or $diagnostic.checkout_available -ne $true) { throw 'Canonical $29 diagnostic catalogue contract mismatch' }
           $mtgHtml = Get-Content public/mtg/index.html -Raw
           if ($mtgHtml -notmatch 'Commander diagnostic' -or $mtgHtml -notmatch [regex]::Escape($canonicalLink) -or $mtgHtml.Contains($legacyLink)) { throw 'Public MTG diagnostic CTA does not match canonical checkout contract' }
           Write-Host '[PASS] DreamLedger storefront, current MTG diagnostic link, and fulfillment surfaces present'
