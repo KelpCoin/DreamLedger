@@ -89,7 +89,14 @@ function compile(bank, sources) {
 
   for (const item of bank.candidates) {
     const domain = refs.domains.get(item.domain_id);
-    const mechanism = refs.mechanisms.get(item.mechanism_id);
+    const mechanism = { ...refs.mechanisms.get(item.mechanism_id) };
+    if (!mechanism.deliverable) {
+      mechanism.deliverable = mechanism.name + ' for ' + domain.name + ': normalized output, source refs, exception list, uncertainty flags, and handoff artifact.';
+    }
+    if (!mechanism.method) {
+      mechanism.method = 'Apply ' + mechanism.name + ' to a bounded, operator-supplied dataset relevant to ' + domain.name +
+        '. Treat the stated friction as a hypothesis, cite source material, and leave unknown or contradictory facts unresolved.';
+    }
     const slug = item.silo_id;
     const price = Number(mechanism.price_nzd_hypothesis);
     const model = mechanism.pricing_model;
