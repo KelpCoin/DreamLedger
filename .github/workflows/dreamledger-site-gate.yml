@@ -41,7 +41,6 @@ jobs:
           grep -q "p.startsWith('/buy/')" public/server.js
           node - <<'NODE'
           const fs=require('fs');
-          const fs=require('fs');
           const c=JSON.parse(fs.readFileSync('public/catalog.json','utf8'));
           const b=c.products.find(x=>x.id==='DREAMLEDGER-BILLBOARD-FOUNDING-001');
           if(!b || b.checkout_available!==false || b.checkout_url!==null || b.availability!=='review_required') throw new Error('Billboard catalog must fail closed');
