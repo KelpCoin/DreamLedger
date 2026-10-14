@@ -20,6 +20,7 @@ function safe(value, fallback, max = 80) {
   return out || fallback;
 }
 function chooseOffer(item) {
+  if (/^SOCIAL-/.test(item.id)) return 'CMD-DIAG-29';
   if (/^PACK-|^REF-/.test(item.id)) return 'MARKETPLACE-DISCOVERY';
   if (/^LGS-|^CLUB-|^EVENT-|^CREATOR-|^COMMUNITY-/.test(item.id)) return 'MTG-COLLECTOR-MARKETPLACE';
   if (/^PARTNER-/.test(item.id)) return 'MTG-COLLECTOR-MARKETPLACE';
@@ -38,6 +39,12 @@ function destinationFor(item, offerId) {
   return BASE + '?' + q.toString();
 }
 function policyFor(item) {
+  if (item.id === 'SOCIAL-001' && item.standing_policy === 'OWNER_AUTHORIZED_OWNED_CHANNELS_ONLY') return {
+    status: 'OWNED_SOCIAL_ASSET_READY',
+    action: 'generate_shareable_qr_for_configured_owned_social_accounts',
+    may_publish_without_operator: true,
+    reason: 'Standing authorization is limited to configured DreamLedger-owned accounts. No third-party community posts, direct messages, unsolicited email, or paid spend are authorized.'
+  };
   if (/^PACK-/.test(item.id)) return {
     status: 'FULFILLMENT_INSERT_READY',
     action: 'generate_insert_for_completed_order',
