@@ -19,6 +19,8 @@ on:
       - "BEC-PRIME/distribution/QR-CampaignPlanner.test.js"
       - "BEC-PRIME/lib/canonicalQrFulfillment.js"
       - "BEC-PRIME/lib/canonicalQrFulfillment.test.js"
+      - "BEC-PRIME/lib/revenueLedger.js"
+      - "BEC-PRIME/lib/revenueLedger.test.js"
       - "BEC-PRIME/lib/mtgDiagnosticFulfillment.js"
       - "BEC-PRIME/lib/billboardAutoFulfillment.js"
       - "BEC-PRIME/routes/distributionDoorway.js"
@@ -53,6 +55,8 @@ on:
       - "BEC-PRIME/distribution/QR-CampaignPlanner.test.js"
       - "BEC-PRIME/lib/canonicalQrFulfillment.js"
       - "BEC-PRIME/lib/canonicalQrFulfillment.test.js"
+      - "BEC-PRIME/lib/revenueLedger.js"
+      - "BEC-PRIME/lib/revenueLedger.test.js"
       - "BEC-PRIME/lib/mtgDiagnosticFulfillment.js"
       - "BEC-PRIME/lib/billboardAutoFulfillment.js"
       - "BEC-PRIME/routes/distributionDoorway.js"
@@ -93,7 +97,7 @@ jobs:
       - name: Generate tracked QR campaign artifacts
         run: node BEC-PRIME/distribution/QR-CampaignPlanner.js
       - name: Verify QR fulfillment and campaign legal gates
-        run: node --test BEC-PRIME/distribution/QR-CampaignPlanner.test.js BEC-PRIME/lib/canonicalQrFulfillment.test.js
+        run: node --test BEC-PRIME/distribution/QR-CampaignPlanner.test.js BEC-PRIME/lib/canonicalQrFulfillment.test.js BEC-PRIME/lib/revenueLedger.test.js
       - name: Upload QR campaign plan and generated codes
         uses: actions/upload-artifact@v4
         with:
