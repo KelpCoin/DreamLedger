@@ -124,6 +124,7 @@ http.createServer(async (req,res)=>{
   headers(res);
   const u=new URL(req.url||'/','http://localhost');
   const p=u.pathname;
+  if(req.method==='GET'&&p==='/q/cmd-diag'){res.statusCode=302;res.setHeader('Location','/mtg/diagnostic.html');res.setHeader('Cache-Control','no-store');return res.end();}
   if(req.method==='GET'&&(p==='/mtg/diagnostic.html'||p==='/mtg/diagnostic-success.html'))return proxyMtgDiagnosticToEngine(req,res);
   if(p==='/api/mtg/diagnostic/intake')return req.method==='POST'?proxyMtgDiagnosticToEngine(req,res):send(res,405,JSON.stringify({error:'POST_required'}),'application/json; charset=utf-8');
   if(p==='/api/mtg/diagnostic/report')return req.method==='GET'?proxyMtgDiagnosticToEngine(req,res):send(res,405,JSON.stringify({error:'GET_required'}),'application/json; charset=utf-8');
