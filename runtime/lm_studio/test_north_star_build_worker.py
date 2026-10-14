@@ -127,10 +127,11 @@ if(a!==b || !a.includes('SAFE_MODULE') || !p.includes('noindex,nofollow')) proce
         temp,root,fake=self.setup_repo(True)
         try:
             out=build(root,{"source_refs":["src.txt"],"writable_paths":["BEC-PRIME/lib/mtgStoreAudit.js","public/silos/mtg-store-audit/index.html"],
-                "base_branch":"main","limits":{"timeout_seconds":15}},job(),model_fn=fake)
+                "base_branch":"main","limits":{"timeout_seconds":15}},job(),model_fn=fake,publish_fn=lambda root,branch,issue,proof_hash:"https://github.com/KelpCoin/DreamLedger/pull/999")
             self.assertEqual(out["status"],"BUILD_READY")
             self.assertEqual(out["validation"]["exit_code"],0)
-            self.assertTrue(out["artifact_sha256"].startswith("sha256:")==False) 
+            self.assertEqual(len(out["artifact_sha256"]),64)
+            self.assertEqual(out["pr_url"],"https://github.com/KelpCoin/DreamLedger/pull/999") 
             self.assertTrue(Path(out["artifact_path"]).is_file())
             self.assertTrue(out["branch"].startswith("north-star/issue-712-"))
             self.assertFalse(out["external_action_performed"])
@@ -140,7 +141,7 @@ if(a!==b || !a.includes('SAFE_MODULE') || !p.includes('noindex,nofollow')) proce
         temp,root,fake=self.setup_repo(False)
         try:
             out=build(root,{"source_refs":["src.txt"],"writable_paths":["BEC-PRIME/lib/mtgStoreAudit.js","public/silos/mtg-store-audit/index.html"],
-                "base_branch":"main","limits":{"timeout_seconds":15}},job(),model_fn=fake)
+                "base_branch":"main","limits":{"timeout_seconds":15}},job(),model_fn=fake,publish_fn=lambda root,branch,issue,proof_hash:"https://github.com/KelpCoin/DreamLedger/pull/999")
             self.assertEqual(out["status"],"HOLD")
             self.assertEqual(out["reason"],"VALIDATION_FAILED")
             self.assertTrue(Path(out["artifact_path"]).is_file())
