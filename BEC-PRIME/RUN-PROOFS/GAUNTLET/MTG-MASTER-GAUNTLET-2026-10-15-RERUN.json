@@ -1,0 +1,49 @@
+{
+  "schema": "dreamledger/gauntlet-scorecard/v1",
+  "subject": "mtg_master_silo",
+  "ran_at": "2026-10-14T22:20:00Z",
+  "verdict": "PASS_SHELL_ONLY_REJECT_PUBLIC_ACTIVATION",
+  "clone_executed": false,
+  "clone_recommendation": {
+    "shell_clone": true,
+    "public_activation": false,
+    "reason": "Repo now contains Sync-BECPrimeStorefront.js with explicit MTG preserve list, but live deploy has not yet run the new sync. Live surface still 404s critical master paths and /mtg/ still loads /api/products."
+  },
+  "live_checks": {
+    "https://dreamledger.org/silos/mtg/silo.json": 404,
+    "https://dreamledger.org/data/mtg-catalog.json": 404,
+    "https://dreamledger.org/assets/mtg-deck-grid.js": 404,
+    "https://dreamledger.org/data/decklists/quintorius.json": 404,
+    "https://dreamledger.org/mtg/": 200
+  },
+  "live_page_analysis": {
+    "/mtg/": "Still legacy. Loads /api/products (and falls back to /api/catalog). Not manifest-driven."
+  },
+  "blockers": [
+    "Live /silos/mtg/silo.json → 404",
+    "Live /data/mtg-catalog.json → 404",
+    "Live /assets/mtg-deck-grid.js → 404",
+    "Live /data/decklists/quintorius.json → 404",
+    "Live /mtg/ still loads /api/products — not the clone-ready master",
+    "New Sync-BECPrimeStorefront.js exists on main but is not yet wired into deploy/prestart and has not been executed on the live surface"
+  ],
+  "repo_pass": [
+    "BEC-PRIME/scripts/Sync-BECPrimeStorefront.js (committed efebe90)",
+    "PRESERVE list includes silos/mtg/silo.json, data/mtg-catalog.json, assets/mtg-deck-grid.js, data/decklists, mtg/",
+    "Previous shell assets still present on main under public/"
+  ],
+  "next_actions": [
+    "Wire node BEC-PRIME/scripts/Sync-BECPrimeStorefront.js into the actual deploy/prestart path",
+    "Redeploy storefront",
+    "Confirm live 200 for silo.json, catalog, grid JS, decklists",
+    "Re-run this gauntlet",
+    "Only then: cube-compile a target slug with empty catalog + explicit publish approval"
+  ],
+  "policy": {
+    "cube": "assemble solid candidate",
+    "swarm": "bounded variants only",
+    "gauntlet": "accept or reject",
+    "human": "build or refine after gate"
+  },
+  "notes": "No clone performed. No inventory invented. Green repo state is not treated as live readiness."
+}
