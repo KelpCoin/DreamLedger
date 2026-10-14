@@ -26,10 +26,15 @@ test('every central fulfillment prepares the canonical QR and an idempotent outb
   assert.equal(first.fulfillment.customer_referral_qr.asset_id, 'QR-CANONICAL-001');
   assert.equal(first.fulfillment.customer_referral_qr.canonical_url, 'https://dreamledger.org/go?src=qr-canonical');
   assert.equal(first.fulfillment.customer_referral_qr.product_id, 'TEST-SKU-001');
+  assert.ok(first.fulfillment.customer_referral_qr_html.includes('qr-canonical.svg'));
+  assert.ok(first.fulfillment.customer_referral_qr_printable_html.includes('window.print()'));
+  assert.equal(first.fulfillment.fulfillment_insert_url, 'https://dreamledger.org/qr/fulfillment-insert.html');
   assert.equal(fs.existsSync(outboxPath), true);
   const rowsAfterFirst = fs.readFileSync(outboxPath, 'utf8').trim().split(/\r?\n/).map(JSON.parse);
   assert.equal(rowsAfterFirst.length, 1);
   assert.equal(rowsAfterFirst[0].status, 'QR_ARTIFACT_PREPARED_NOT_ATTACHED');
+  assert.ok(rowsAfterFirst[0].customer_referral_qr_html.includes('qr-canonical.svg'));
+  assert.ok(rowsAfterFirst[0].customer_referral_qr_printable_html.includes('window.print()'));
   assert.match(rowsAfterFirst[0].truth_note, /not proof/i);
 
   const second = ledger.createFulfillment(input);
