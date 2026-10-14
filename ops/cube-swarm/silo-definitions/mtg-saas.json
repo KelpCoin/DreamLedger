@@ -53,12 +53,14 @@
     "library_module_path": "BEC-PRIME/lib/mtgSaaSSubscription.js",
     "route_module_path": "BEC-PRIME/routes/revenueLadderOffer.js",
     "route_module_status": "SHARED_ROUTE_REQUIRED",
-    "supabase_function_slug": null,
-    "supabase_function_status": "NOT_SELECTED",
+    "supabase_function_slug": "revenue-ladder-fulfillment",
+    "supabase_function_status": "PLANNED_NOT_DEPLOYED",
     "shared_sku_dispatch_required": true,
     "source_parity_required": true,
     "production_publish_allowed": false,
-    "output_contract": "A recurring MTG inventory/pricing/condition toolkit with explicit usage limits, account entitlement, cancellation and data-handling terms."
+    "output_contract": "A recurring MTG inventory/pricing/condition toolkit with explicit usage limits, account entitlement, cancellation and data-handling terms.",
+    "supabase_function_path": "supabase/functions/revenue-ladder-fulfillment/index.ts",
+    "function_source_parity_required": true
   },
   "source_evidence": {
     "price_source": "User-provided offer ladder dated 2026-10-14; this records target pricing, not demand or willingness-to-pay evidence.",
