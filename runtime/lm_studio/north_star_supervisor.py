@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Safe process supervisor for bounded North Star LM Studio cycles."""
 from __future__ import annotations
-import argparse, json, os, signal, subprocess, sys, time
+import argparse, json, os, signal, subprocess, sys, time, hashlib
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -16,6 +16,97 @@ DEFAULT_MAX_BACKOFF = 1800
 
 def utc_now() -> str:
     return datetime.now(timezone.utc).isoformat()
+
+def runtime_proof_paths() -> tuple[Path, Path]:
+    browneye_root = Path(os.environ.get("BROWNEYE_ROOT", r"D:\\BrownEyeCortex"))
+    if not browneye_root.is_dir():
+        browneye_root = REPO_ROOT
+    proof_dir = browneye_root / "LAKE" / "FIGURE8" / "proof" / "NORTH-STAR-SUPERVISOR"
+    return proof_dir, proof_dir / "NORTH-STAR-BOOTSTRAP-LATEST.json"
+
+def inspect_priority_audit(result: dict[str, Any]) -> dict[str, Any]:
+    raw_path = result.get("priority_audit_path")
+    out: dict[str, Any] = {
+        "priority_audit_path": raw_path if isinstance(raw_path, str) else None,
+        "priority_audit_exists": False,
+        "priority_audit_valid_json": False,
+        "priority_audit_source_hashed": False,
+        "priority_task_consumed": False,
+        "priority_audit_status": result.get("priority_audit_status", "UNAVAILABLE"),
+        "worker_assessment_saved": result.get("worker_assessment_saved") is True,
+    }
+    if not isinstance(raw_path, str) or not raw_path.strip():
+        return out
+    try:
+        target = Path(raw_path).resolve()
+        target.relative_to(REPO_ROOT)
+        if not target.is_file():
+            return out
+        out["priority_audit_exists"] = True
+        data = json.loads(target.read_text(encoding="utf-8"))
+        out["priority_audit_valid_json"] = (
+            isinstance(data, dict)
+            and data.get("schema") == "dreamledger/mtg-checkout-audit/v1"
+            and data.get("task_id") == "MTG-CMD-DIAG-29-READ-ONLY-AUDIT"
+            and isinstance(data.get("source_evidence"), list)
+            and isinstance(data.get("blockers"), list)
+            and data.get("external_action_performed") is False
+            and data.get("payment_verified") is False
+            and data.get("fulfillment_verified") is False
+            and data.get("verified_revenue_nzd") == 0
+        )
+        hash_ref = data.get("task_contract_sha256")
+        source_evidence = data.get("source_evidence", [])
+        hashed_sources = [
+            item for item in source_evidence
+            if isinstance(item, dict)
+            and isinstance(item.get("sha256"), str)
+            and len(item["sha256"]) == 64
+        ]
+        out["priority_audit_source_hashed"] = (
+            isinstance(hash_ref, str)
+            and hash_ref.startswith("sha256:")
+            and len(hash_ref) == 71
+            and len(hashed_sources) >= 1
+        )
+        out["priority_audit_status"] = data.get("status", out["priority_audit_status"])
+        out["priority_task_consumed"] = bool(
+            out["priority_audit_valid_json"]
+            and out["priority_audit_source_hashed"]
+            and out["worker_assessment_saved"]
+        )
+    except (OSError, ValueError, json.JSONDecodeError):
+        return out
+    except Exception:
+        return out
+    return out
+
+def update_runtime_proof(state: str, **fields: Any) -> None:
+    try:
+        proof_dir, proof_path = runtime_proof_paths()
+        proof_dir.mkdir(parents=True, exist_ok=True)
+        try:
+            current = json.loads(proof_path.read_text(encoding="utf-8"))
+            if not isinstance(current, dict):
+                current = {}
+        except Exception:
+            current = {}
+        current.setdefault("schema", "dreamledger/north-star-bootstrap-proof/v1")
+        current.setdefault("verified_revenue_nzd", 0)
+        current.setdefault("external_action_performed", False)
+        current.setdefault("supabase_write_performed", False)
+        current.setdefault("public_action_performed", False)
+        current["supervisor_runtime_state"] = state
+        current["supervisor_process_confirmed"] = True
+        current["supervisor_pid"] = os.getpid()
+        current["supervisor_last_event_utc"] = utc_now()
+        current.update(fields)
+        tmp = proof_path.with_suffix(".tmp")
+        tmp.write_text(json.dumps(current, indent=2, ensure_ascii=False) + "\\n", encoding="utf-8")
+        os.replace(tmp, proof_path)
+    except Exception:
+        # Proof-file failure must never crash or stop the bounded worker.
+        pass
 
 def backoff_seconds(failures: int, maximum: int = DEFAULT_MAX_BACKOFF) -> int:
     if failures <= 0:
@@ -190,6 +281,16 @@ def main() -> int:
     failures = 0
     cycle_number = 0
     event(log_path,"SUPERVISOR_STARTED",repo_root=str(REPO_ROOT),controller=str(CONTROLLER),python=sys.executable,interval_seconds=args.interval_seconds,cycle_timeout_seconds=args.cycle_timeout_seconds,log_dir=str(log_dir),external_action_performed=False,truth_write_performed=False)
+    update_runtime_proof(
+        "SUPERVISOR_RUNNING_FIRST_CYCLE_PENDING",
+        continuous_execution="CONTINUOUS_EXECUTION_NOT_ESTABLISHED",
+        supervisor_log_path=str(log_path),
+        supervisor_interval_seconds=args.interval_seconds,
+        verified_revenue_nzd=0,
+        external_action_performed=False,
+        supabase_write_performed=False,
+        public_action_performed=False,
+    )
     try:
         while not STOP_REQUESTED:
             cycle_number += 1
@@ -201,12 +302,56 @@ def main() -> int:
                 result = {"status":"BLOCKED","reason":"SUPERVISOR_CYCLE_EXCEPTION","error":str(exc)}
             if result.get("status") == "CYCLE_COMPLETE" and result.get("supervisor_state") == "CYCLE_COMPLETE":
                 failures = 0
-                event(log_path,"CYCLE_COMPLETE",cycle_number=cycle_number,result=result,failure_count=0)
+                audit_evidence = inspect_priority_audit(result)
+                event(log_path,"CYCLE_COMPLETE",cycle_number=cycle_number,result=result,failure_count=0,**audit_evidence)
+                previous_count = 0
+                try:
+                    proof_dir, proof_path = runtime_proof_paths()
+                    existing_proof = json.loads(proof_path.read_text(encoding="utf-8"))
+                    previous_count = int(existing_proof.get("successful_cycle_count", 0))
+                except Exception:
+                    previous_count = 0
+                successful_count = previous_count + 1
+                if audit_evidence.get("priority_task_consumed"):
+                    if successful_count >= 2:
+                        continuity = "MULTIPLE_CYCLES_OBSERVED_NOT_PERMANENTLY_GUARANTEED"
+                    else:
+                        continuity = "FIRST_CYCLE_COMPLETE_CONTINUITY_NOT_YET_PROVEN"
+                    runtime_state = "NORTH_STAR_CYCLE_COMPLETE"
+                else:
+                    continuity = "CONTINUOUS_EXECUTION_NOT_ESTABLISHED"
+                    runtime_state = "CYCLE_RAN_BUT_PRIORITY_AUDIT_NOT_VERIFIED"
+                update_runtime_proof(
+                    runtime_state,
+                    **audit_evidence,
+                    first_cycle_complete=bool(audit_evidence.get("priority_task_consumed")),
+                    successful_cycle_count=successful_count,
+                    continuous_execution=continuity,
+                    last_cycle_state="CYCLE_COMPLETE",
+                    last_cycle_timestamp_utc=utc_now(),
+                    last_cycle_reason=None,
+                    verified_revenue_nzd=0,
+                    external_action_performed=False,
+                    supabase_write_performed=False,
+                    public_action_performed=False,
+                )
                 delay = max(0,args.interval_seconds-int(time.monotonic()-started))
             else:
                 failures += 1
                 delay = backoff_seconds(failures,args.max_backoff_seconds)
                 event(log_path,"CYCLE_BLOCKED",cycle_number=cycle_number,result=result,failure_count=failures,retry_in_seconds=delay)
+                update_runtime_proof(
+                    "NORTH_STAR_CYCLE_BLOCKED",
+                    last_cycle_state="CYCLE_BLOCKED",
+                    last_cycle_timestamp_utc=utc_now(),
+                    last_cycle_reason=result.get("reason", result.get("status", "UNKNOWN")),
+                    supervisor_failure_count=failures,
+                    continuous_execution="CONTINUOUS_EXECUTION_NOT_ESTABLISHED",
+                    verified_revenue_nzd=0,
+                    external_action_performed=False,
+                    supabase_write_performed=False,
+                    public_action_performed=False,
+                )
             if args.once or STOP_REQUESTED:
                 break
             deadline = time.monotonic()+delay
@@ -216,6 +361,12 @@ def main() -> int:
         request_stop()
     finally:
         event(log_path,"SUPERVISOR_STOPPED",clean=True)
+        update_runtime_proof(
+            "SUPERVISOR_STOPPED",
+            supervisor_process_confirmed=False,
+            last_supervisor_stop_utc=utc_now(),
+            continuous_execution="CONTINUOUS_EXECUTION_NOT_ESTABLISHED",
+        )
         release_lock(lock)
     return 0
 
