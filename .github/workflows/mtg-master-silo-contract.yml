@@ -84,6 +84,8 @@ jobs:
         run: node BEC-PRIME/scripts/verify-mtg-master-silo-contract.js
       - name: Verify auction expiry and approval gates
         run: node --test BEC-PRIME/auction-engine.test.js
+      - name: Generate canonical scannable QR assets
+        run: node BEC-PRIME/distribution/QRAssetCompiler.js
       - name: Generate tracked QR campaign artifacts
         run: node BEC-PRIME/distribution/QR-CampaignPlanner.js
       - name: Verify QR fulfillment and campaign legal gates
@@ -95,5 +97,8 @@ jobs:
           path: |
             BEC-PRIME/distribution/generated/QR-CAMPAIGN-PLAN.json
             public/qr/campaigns/*.svg
+            public/assets/qr-canonical.svg
+            public/assets/qr-canonical.png
+            BEC-PRIME/distribution/assets/QR-CANONICAL-001.json
           if-no-files-found: error
           retention-days: 30
