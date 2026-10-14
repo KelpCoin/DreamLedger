@@ -34,6 +34,13 @@ test('QR campaign planning generates first-party tracked codes without distribut
   const protectedRows = plan.placements.filter(x => x.status === 'PERMISSION_REQUIRED');
   assert.ok(protectedRows.length > 0, 'third-party channels must remain permission-gated');
   assert.ok(protectedRows.every(x => x.approval_required));
+  const social = plan.placements.find(x => x.placement_id === 'SOCIAL-001');
+  assert.ok(social, 'owned social campaign needs a tracked QR asset');
+  assert.equal(social.offer_id, 'CMD-DIAG-29');
+  assert.equal(social.status, 'OWNED_SOCIAL_ASSET_READY');
+  assert.equal(social.approval_required, false);
+  assert.equal(new URL(social.tracked_url).searchParams.get('offer_id'), 'CMD-DIAG-29');
+  assert.match(social.qr_asset, /^\/qr\/campaigns\/SOCIAL-001\.svg$/);
   const packaging = plan.placements.filter(x => x.status === 'FULFILLMENT_INSERT_READY');
   assert.ok(packaging.length > 0, 'order packaging should receive the canonical QR');
 });
