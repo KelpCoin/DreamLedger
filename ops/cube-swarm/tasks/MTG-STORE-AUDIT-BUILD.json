@@ -13,6 +13,7 @@
   },
   "objective": "Build a source-backed MTG Store Audit that checks supplied store/catalog snapshots, emits a report, and never infers sales or revenue.",
   "source_refs": [
+    "ops/cube-swarm/tasks/MTG-STORE-AUDIT-BUILD.json",
     "public/catalog.json",
     "public/silo-template.html",
     "ops/cube-swarm/silo-definitions/mtg-commander.json",
@@ -45,7 +46,8 @@
       "fixed_test_execution",
       "artifact_hashing",
       "local_branch_commit",
-      "append_build_evidence"
+      "append_build_evidence",
+      "github_branch_push_and_pull_request_creation_if_opted_in"
     ],
     "forbidden_effects": [
       "checkout_creation",
