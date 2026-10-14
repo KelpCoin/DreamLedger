@@ -11,6 +11,7 @@ const EVENT_FILE = path.join(DATA_ROOT, 'ledger-events.jsonl');
 const JOURNAL_FILE = path.join(DATA_ROOT, 'journal-entries.jsonl');
 const LINE_FILE = path.join(DATA_ROOT, 'ledger-entries.jsonl');
 const FULFILLMENT_FILE = path.join(DATA_ROOT, 'fulfillment.jsonl');
+const FULFILLMENT_QR_FILE = path.join(DATA_ROOT, 'fulfillment-qr-outbox.jsonl');
 
 const ACCOUNTS = Object.freeze({
   STRIPE_CLEARING: { code: '1001', type: 'asset', name: 'Stripe Clearing' },
@@ -146,11 +147,33 @@ function recordFulfillment({ eventId, transactionId, amountMinor, currency, fulf
   return { duplicate: false, event_id: eventId, journal_id: journal.journal.journal_id };
 }
 
+function prepareCustomerQr(fulfillment) {
+  const qr = fulfillment.customer_referral_qr || canonicalQrFulfillment({
+    productId: fulfillment.product_id,
+    orderId: fulfillment.fulfillment_id,
+    channel: 'commerce-ledger-fulfillment',
+    campaign: 'buyer-referral'
+  });
+  const rows = readLines(FULFILLMENT_QR_FILE);
+  if (!rows.some(row => row.fulfillment_id === fulfillment.fulfillment_id)) {
+    appendUnique(FULFILLMENT_QR_FILE, 'fulfillment_id', {
+      fulfillment_id: fulfillment.fulfillment_id,
+      transaction_id: fulfillment.transaction_id,
+      product_id: fulfillment.product_id || null,
+      customer_referral_qr: qr,
+      status: 'QR_ARTIFACT_PREPARED_NOT_ATTACHED',
+      created_at: new Date().toISOString(),
+      truth_note: 'Preparation is not proof the QR was printed, attached, sent or delivered.'
+    });
+  }
+  return { ...fulfillment, customer_referral_qr: qr };
+}
+
 function createFulfillment({ transactionId, productId, offerId, silo, amountMinor, currency, customerEmail }) {
   ensure();
   const fulfillmentId = `FUL-${transactionId}`;
   const existing = readLines(FULFILLMENT_FILE).find(item => item.fulfillment_id === fulfillmentId);
-  if (existing) return { created: false, fulfillment: existing };
+  if (existing) return { created: false, fulfillment: prepareCustomerQr(existing) };
   const qr = canonicalQrFulfillment({ productId, orderId: fulfillmentId, channel: 'commerce-ledger-fulfillment', campaign: 'buyer-referral' });
   const fulfillment = {
     fulfillment_id: fulfillmentId,
@@ -166,8 +189,9 @@ function createFulfillment({ transactionId, productId, offerId, silo, amountMino
     customer_referral_qr: qr,
     created_at: new Date().toISOString()
   };
-  fs.appendFileSync(FULFILLMENT_FILE, JSON.stringify(fulfillment) + '\n', 'utf8');
-  return { created: true, fulfillment };
+  const prepared = prepareCustomerQr(fulfillment);
+  fs.appendFileSync(FULFILLMENT_FILE, JSON.stringify(prepared) + '\n', 'utf8');
+  return { created: true, fulfillment: prepared };
 }
 
 function health() {
