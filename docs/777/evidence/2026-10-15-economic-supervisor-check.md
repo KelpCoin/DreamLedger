@@ -70,6 +70,19 @@ The run showed these environment entries blank: `STRIPE_SECRET_KEY`, `SUPABASE_U
 
 The existing Render gateway and DreamLedger1 services both had recent deployment failures with event type `pipeline_minutes_exhausted` (including 2026-10-14T11:58:29Z). That blocks deploying a gateway correction through those Render services until the deployment-capacity issue is resolved without unapproved spend. The source code on GitHub is not evidence that the latest source is running in production.
 
+## Canonical offer contradiction and stale-deploy risk
+
+A source read-back of `public/server.js` at main commit `b5a0b86995875f7f016a07f253819a549d9eec99` shows that its GET manifest hard-codes:
+
+- `TOLL-PROBE-50C`: `planned_price_nzd: 0.50`, but `price_nzd: null`, `checkout_route: null`, `execution_route: null`, `status: HELD_NOT_END_TO_END_VERIFIED`.
+- `AGENT-BRIDGE-EVENTS-100`: `price_nzd: null`, `checkout_route: null`, `execution_route: null`, `status: HELD_UNTIL_PROBE_VERIFIED`.
+
+Source: [public/server.js lines 150–175](https://github.com/KelpCoin/DreamLedger/blob/main/public/server.js#L150-L175).
+
+That conflicts with the stronger wording in issue #490 that the live Stripe rail is active. A documentation statement is not proof of a functioning buyer path. The gateway's current source redirects toll paths to `PUBLIC_BASE` (default `https://dreamledger.org`), while Render logs show mixed 307 and 503 responses. The latest Render deployments for both the public gateway and DreamLedger1 failed with `pipeline_minutes_exhausted`, so the current GitHub source cannot be assumed to be the deployed runtime.
+
+**Decision:** keep the TOLL-PROBE-50C offer held. Do not flip the manifest to READY, hand a buyer an unverified checkout, or change live Stripe settings. First restore a reliable deployment path without unapproved spending, then reconcile the deployed manifest, checkout, settlement, entitlement, authenticated probe, and receipt end to end.
+
 ## Verification and remaining transition
 
 - **Read-back/static patch assertions:** PASS. Both successful result-return expressions were found once and updated.
