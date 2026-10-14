@@ -6,8 +6,9 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - "index.html"
-      - "billboard.html"
+      - "public/home.html"
+      - "public/billboard.html"
+      - "public/catalog.json"
       - ".github/workflows/figure-eight-heartbeat.yml"
 
 permissions:
@@ -19,7 +20,7 @@ concurrency:
 
 jobs:
   heartbeat:
-    name: Billboard offer and checkout probe
+    name: Billboard offer, catalogue policy, and production parity
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -28,7 +29,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Probe Billboard offer, live route, and Stripe checkout
+      - name: Probe offer, live routes, catalogue policy, and Stripe link
         id: probe
         shell: bash
         run: |
@@ -36,63 +37,74 @@ jobs:
           mkdir -p heartbeat-report
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
-          const offerFile = 'billboard.html';
-          const homeFile = 'index.html';
-          const stripeUrl = 'https://buy.stripe.com/9B66oH2rj3dz82jcR6dwc2x';
+          const offerFile = 'public/billboard.html';
+          const homeFile = 'public/home.html';
+          const catalogFile = 'public/catalog.json';
+          const stripeBase = 'https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w';
           const routeUrl = 'https://dreamledger.org/billboard.html';
           const report = {
+            schema: 'DREAMLEDGER-FIGURE-EIGHT-FIRST-DOLLAR/v2',
             generated_at: new Date().toISOString(),
             revision: process.env.GITHUB_SHA || 'unknown',
-            offer: 'DreamLedger 3000 Founding Billboard',
+            offer: 'DreamLedger Founding Billboard 100x100',
             price: 'NZD 50',
             checks: [],
             economic_status: 'UNVERIFIED',
+            settled_payment_seen: false,
+            fulfillment_verified: false,
             overall: 'FAIL',
-            note: 'A reachable checkout is not a settled payment. Revenue remains unverified until independently evidenced settlement and fulfillment exist.'
+            next_action: 'Resolve every failed/blocked gate; do not infer revenue from a checkout URL or an open session.'
           };
           const add = (name, status, detail) => report.checks.push({name, status, detail});
           try {
-            if (!fs.existsSync(offerFile)) throw new Error('Billboard source missing');
-            const offerHtml = fs.readFileSync(offerFile, 'utf8');
-            if (!offerHtml.includes('DreamLedger 3000') ||
-                !offerHtml.includes('NZ$50') ||
-                !offerHtml.includes(stripeUrl) ||
-                !offerHtml.includes('Human review applies.')) {
-              throw new Error('Billboard title, NZ$50 price, canonical Stripe URL, or human-review disclosure missing');
+            const html = fs.readFileSync(offerFile, 'utf8');
+            if (!html.includes('NZ$50') || !html.includes(stripeBase) || !html.includes('Human review before publish.')) {
+              throw new Error('Source must show NZ$50, the configured Stripe URL, and the human-review disclosure');
             }
-            add('offer_source', 'PASS', 'Billboard source contains the NZ$50 offer, canonical Stripe URL, and human-review disclosure');
+            add('offer_source', 'PASS', 'Source contains the price, checkout destination, and review disclosure');
           } catch (e) { add('offer_source', 'FAIL', e.message); }
           try {
-            if (!fs.existsSync(homeFile)) throw new Error('Homepage source missing');
-            const home = fs.readFileSync(homeFile, 'utf8');
-            if (!home.includes('href="/billboard.html"') || !home.includes('Billboard')) {
-              throw new Error('Repository homepage does not link to the Billboard page');
+            const html = fs.readFileSync(homeFile, 'utf8');
+            if (!/billboard/i.test(html) || !/NZ\$50/i.test(html) || !/href=["'][^"']*billboard/i.test(html)) {
+              throw new Error('Served homepage source lacks a Billboard link at the NZ$50 offer');
             }
-            add('homepage_source_cta', 'PASS', 'Repository homepage links to the Billboard offer');
+            add('homepage_source_cta', 'PASS', 'Served homepage source links to the offer');
           } catch (e) { add('homepage_source_cta', 'FAIL', e.message); }
+          try {
+            const catalog = JSON.parse(fs.readFileSync(catalogFile, 'utf8'));
+            const product = (catalog.products || []).find(x => x.id === 'DREAMLEDGER-BILLBOARD-FOUNDING-001');
+            if (!product) throw new Error('Canonical catalogue product missing');
+            if (product.price !== 50 || String(product.currency).toLowerCase() !== 'nzd') {
+              throw new Error('Catalogue price/currency differs from the public offer');
+            }
+            if (product.checkout_available !== true || product.checkout_url !== stripeBase) {
+              add('catalogue_checkout_policy', 'BLOCKED', 'Catalogue currently holds checkout or points elsewhere; public page exposes a direct link. Repair secure intake and durable inventory reservation before opening this offer.');
+            } else {
+              add('catalogue_checkout_policy', 'PASS', 'Catalogue policy agrees with the advertised checkout');
+            }
+          } catch (e) { add('catalogue_checkout_policy', 'FAIL', e.message); }
           try {
             const response = await fetch('https://dreamledger.org/', {redirect:'follow', signal:AbortSignal.timeout(12000)});
             const body = await response.text();
             if (response.status < 200 || response.status >= 400) throw new Error('HTTP ' + response.status);
-            if (!body.includes('/billboard.html') || !body.includes('Billboard')) {
-              throw new Error('Live homepage is missing the Billboard link or label');
+            if (!/billboard/i.test(body) || !/NZ\$50/i.test(body) || !/href=["'][^"']*billboard/i.test(body)) {
+              throw new Error('Live homepage does not expose the expected Billboard CTA');
             }
-            add('production_homepage', 'PASS', 'HTTP ' + response.status + '; live homepage links to Billboard');
+            add('production_homepage', 'PASS', 'HTTP ' + response.status + '; CTA found');
           } catch (e) { add('production_homepage', 'FAIL', String(e.message || e)); }
           try {
             const response = await fetch(routeUrl, {redirect:'follow', signal:AbortSignal.timeout(12000)});
             const body = await response.text();
             if (response.status < 200 || response.status >= 400) throw new Error('HTTP ' + response.status);
-            if (!body.includes('DreamLedger 3000') || !body.includes('NZ$50') ||
-                !body.includes(stripeUrl) || !body.includes('Human review applies.')) {
-              throw new Error('Live Billboard page is missing the expected offer, Stripe URL, or review disclosure');
+            if (!body.includes('NZ$50') || !/billboard/i.test(body) || !body.includes('Human review')) {
+              throw new Error('Live Billboard route is not in parity with the current offer and review disclosure');
             }
-            add('production_offer', 'PASS', 'HTTP ' + response.status + '; live NZ$50 Billboard offer and Stripe destination found');
+            add('production_offer', 'PASS', 'HTTP ' + response.status + '; public route contains offer and human-review terms');
           } catch (e) { add('production_offer', 'FAIL', String(e.message || e)); }
           try {
-            const response = await fetch(stripeUrl, {redirect:'manual', signal:AbortSignal.timeout(12000)});
+            const response = await fetch(stripeBase, {redirect:'manual', signal:AbortSignal.timeout(12000)});
             if (response.status < 200 || response.status >= 400) throw new Error('Stripe returned HTTP ' + response.status);
-            add('stripe_link_reachability', 'PASS', 'Stripe Payment Link responded with HTTP ' + response.status + '; no payment or settlement inferred');
+            add('stripe_link_reachability', 'PASS', 'Stripe URL responds HTTP ' + response.status + '; this is not payment evidence');
           } catch (e) { add('stripe_link_reachability', 'FAIL', String(e.message || e)); }
           report.overall = report.checks.every(c => c.status === 'PASS') ? 'PASS' : 'FAIL';
           fs.writeFileSync('heartbeat-report/figure-eight-heartbeat.json', JSON.stringify(report, null, 2) + '\n');
@@ -103,7 +115,7 @@ jobs:
             '- Offer: ' + report.offer + ' (' + report.price + ')\n' +
             '- Operational result: **' + report.overall + '**\n' +
             '- Economic result: **UNVERIFIED**\n\n' +
-            report.note + '\n\n' +
+            report.next_action + '\n\n' +
             report.checks.map(c => '- [' + c.status + '] ' + c.name + ': ' + c.detail).join('\n') + '\n');
           console.log(JSON.stringify(report, null, 2));
           if (report.overall !== 'PASS') process.exitCode = 1;
@@ -121,6 +133,6 @@ jobs:
           if-no-files-found: warn
           retention-days: 30
 
-      - name: Fail if any required check failed
+      - name: Fail if any required check failed or is blocked
         if: steps.probe.outputs.result != '0'
         run: exit 1
