@@ -25,7 +25,11 @@ function evidenceRank(x) {
   const channel = Array.isArray(x?.execution?.acquisition_surface) && x.execution.acquisition_surface.length ? 2 : 0;
   const cost = Number(x?.economics?.test_cost_nzd || 0) === 0 ? 2 : 0;
   const truth = Array.isArray(x?.truth?.verification_required) ? 2 : 0;
-  return buyer + offer + price + channel + cost + truth;
+  const leverage = Number(x?.asymmetric_leverage_score ?? x?.provenance?.fit_score ?? 0);
+  const leveragePriority = Number.isFinite(leverage) ? Math.max(0, Math.min(4, leverage / 24)) : 0;
+  const needsReview = x?.fit_review_required === true || x?.provenance?.fit_review_required === true;
+  const reviewPenalty = needsReview ? 4 : 0;
+  return buyer + offer + price + channel + cost + truth + leveragePriority - reviewPenalty;
 }
 
 function selectFactories(queue, limit = 12) {
