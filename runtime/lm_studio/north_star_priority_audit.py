@@ -86,7 +86,8 @@ def get_probe_cache() -> dict:
         value = json.loads(PROBE_CACHE.read_text(encoding="utf-8"))
         checked = datetime.fromisoformat(str(value.get("checked_at_utc", "")).replace("Z", "+00:00"))
         age = (datetime.now(timezone.utc) - checked.astimezone(timezone.utc)).total_seconds()
-        if age >= 0 and age < PROBE_INTERVAL_SECONDS:
+        ttl = 300 if value.get("branch_classification") == "STRIPE_CONFIG_MISSING" else PROBE_INTERVAL_SECONDS
+        if age >= 0 and age < ttl:
             value["reused_cached_result"] = True
             return value
     except Exception:
