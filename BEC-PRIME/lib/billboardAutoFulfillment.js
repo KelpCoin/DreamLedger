@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const revenueLedger = require('./revenueLedger');
-const { canonicalQrFulfillment } = require('./canonicalQrFulfillment');
+const { canonicalQrFulfillment, customerQrHtml } = require('./canonicalQrFulfillment');
 
 const ROOT = process.env.BILLBOARD_DATA_DIR || '/var/data/billboard';
 const BASE = (process.env.PUBLIC_BASE_URL || 'https://dreamledger.org').replace(/\/$/, '');
@@ -94,9 +94,9 @@ async function fulfill(session, eventId) {
   revenueLedger.recordPayment({ eventId: eventId || 'billboard:' + session.id + ':payment', transactionId: session.id, amountMinor: Number(session.amount_total), currency: 'nzd', productId: FOUNDING.sku, offerId, silo: 'dreamledger' });
   revenueLedger.recordFulfillment({ eventId: session.id + ':fulfillment', transactionId: session.id, amountMinor: Number(session.amount_total), currency: 'NZD', fulfillmentId: fulfillment.fulfillment.fulfillment_id, productId: FOUNDING.sku, offerId, silo: 'dreamledger' });
 
-  const ad = { id, market, sku: FOUNDING.sku, status: 'PUBLISHED', payment_status: 'paid', human_review: 'AUTO_PASS', fulfillment_recorded: true, fulfillment_id: fulfillment.fulfillment.fulfillment_id, transaction_id: session.id, amount_total_minor: Number(session.amount_total), size: 'small', size_label: 'Founding Tile', w: 100, h: 100, x: p.x, y: p.y, title: altText, name: session.customer_details?.name || '', email: session.customer_details?.email || '', link: destinationUrl, source_image_url: imageUrl, mime: image.type, ext, created_at: new Date().toISOString(), paid_at: new Date().toISOString(), fulfilled_at: new Date().toISOString(), published_at: new Date().toISOString(), scarcity_bucket: 'FOUNDING_100', delivery_url: BASE + '/billboard/media/' + id, proof_url: BASE + '/api/billboard/order/' + market.toLowerCase() + '/' + id, customer_referral_qr: canonicalQrFulfillment({ productId: FOUNDING.sku, orderId: fulfillment.fulfillment.fulfillment_id, channel: 'billboard-fulfillment', campaign: 'buyer-referral' }) };
+  const ad = { id, market, sku: FOUNDING.sku, status: 'PUBLISHED', payment_status: 'paid', human_review: 'AUTO_PASS', fulfillment_recorded: true, fulfillment_id: fulfillment.fulfillment.fulfillment_id, transaction_id: session.id, amount_total_minor: Number(session.amount_total), size: 'small', size_label: 'Founding Tile', w: 100, h: 100, x: p.x, y: p.y, title: altText, name: session.customer_details?.name || '', email: session.customer_details?.email || '', link: destinationUrl, source_image_url: imageUrl, mime: image.type, ext, created_at: new Date().toISOString(), paid_at: new Date().toISOString(), fulfilled_at: new Date().toISOString(), published_at: new Date().toISOString(), scarcity_bucket: 'FOUNDING_100', delivery_url: BASE + '/billboard/media/' + id, proof_url: BASE + '/api/billboard/order/' + market.toLowerCase() + '/' + id, customer_referral_qr: canonicalQrFulfillment({ productId: FOUNDING.sku, orderId: fulfillment.fulfillment.fulfillment_id, channel: 'billboard-fulfillment', campaign: 'buyer-referral' }), customer_referral_qr_html: customerQrHtml({ productId: FOUNDING.sku, orderId: fulfillment.fulfillment.fulfillment_id, channel: 'billboard-fulfillment', campaign: 'buyer-referral' }), fulfillment_insert_url: BASE + '/qr/fulfillment-insert.html' };
   state.ads.push(ad);
   save(market, state);
-  return { handled: true, idempotent: false, ad_id: id, market, position: p, founding_positions_remaining: remaining(state), delivery_url: ad.delivery_url, fulfillment_id: ad.fulfillment_id };
+  return { handled: true, idempotent: false, ad_id: id, market, position: p, founding_positions_remaining: remaining(state), delivery_url: ad.delivery_url, fulfillment_id: ad.fulfillment_id, customer_referral_qr: ad.customer_referral_qr, customer_referral_qr_html: ad.customer_referral_qr_html, fulfillment_insert_url: ad.fulfillment_insert_url };
 }
 module.exports = { fulfill };
