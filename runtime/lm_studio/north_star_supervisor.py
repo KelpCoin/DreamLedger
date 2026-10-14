@@ -114,7 +114,7 @@ def run_cycle(log_dir: Path, timeout_seconds: int) -> dict[str, Any]:
     stdout_path = log_dir / f"cycle-{stamp}.stdout.json"
     stderr_path = log_dir / f"cycle-{stamp}.stderr.log"
     env = os.environ.copy()
-    env.setdefault("DREAMLEDGER_ROOT",str(REPO_ROOT))
+    env["DREAMLEDGER_ROOT"] = str(REPO_ROOT)
     env.setdefault("LM_STUDIO_BASE_URL","http://127.0.0.1:1234")
     command = [sys.executable,"-u",str(CONTROLLER),"--once"]
     with stdout_path.open("w",encoding="utf-8") as out, stderr_path.open("w",encoding="utf-8") as err:
