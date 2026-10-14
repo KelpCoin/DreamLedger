@@ -1,8 +1,9 @@
 #!/usr/bin/env node
-'use strict';
-const fs = require('fs');
-const path = require('path');
-const crypto = require('crypto');
+import fs from 'node:fs';
+import path from 'node:path';
+import crypto from 'node:crypto';
+import { fileURLToPath } from 'node:url';
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const ROOT = path.resolve(__dirname, '../..');
 const BANK_PATH = path.join(__dirname, 'silo-definitions', 'ASYMMETRIC-LEVERAGE-1000.json');
@@ -350,5 +351,5 @@ function main() {
     verified_revenue_nzd: 0
   }, null, 2));
 }
-if (require.main === module) main();
-module.exports = { compile, readSources, validateBank };
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) main();
+export { compile, readSources, validateBank };
