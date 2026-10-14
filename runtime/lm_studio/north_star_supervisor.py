@@ -18,7 +18,7 @@ def utc_now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 def runtime_proof_paths() -> tuple[Path, Path]:
-    browneye_root = Path(os.environ.get("BROWNEYE_ROOT", r"D:\\BrownEyeCortex"))
+    browneye_root = Path(os.environ.get("BROWNEYE_ROOT", r"D:\BrownEyeCortex"))
     if not browneye_root.is_dir():
         browneye_root = REPO_ROOT
     proof_dir = browneye_root / "LAKE" / "FIGURE8" / "proof" / "NORTH-STAR-SUPERVISOR"
@@ -102,7 +102,7 @@ def update_runtime_proof(state: str, **fields: Any) -> None:
         current["supervisor_last_event_utc"] = utc_now()
         current.update(fields)
         tmp = proof_path.with_suffix(".tmp")
-        tmp.write_text(json.dumps(current, indent=2, ensure_ascii=False) + "\\n", encoding="utf-8")
+        tmp.write_text(json.dumps(current, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
         os.replace(tmp, proof_path)
     except Exception:
         # Proof-file failure must never crash or stop the bounded worker.
