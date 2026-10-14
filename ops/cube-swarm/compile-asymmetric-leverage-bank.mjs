@@ -271,6 +271,16 @@ function compile(bank, sources) {
       silo_id: slug,
       substrate_type: domain.category,
       demand_family: 'operator_workflow_friction',
+      buyer_class: domain.buyer,
+      demand_hypothesis: domain.buyer + ' may pay for ' + mechanism.name.toLowerCase() + ' if it measurably reduces this workflow friction: ' + domain.problem + '. Demand is unvalidated.',
+      fit_score: item.fit_score,
+      fit_review_required: item.fit_review_required,
+      acquisition_surfaces: domain.channels,
+      validation_test: 'Internal fixture first; any external demand test requires separate approval.',
+      market_demand_proven: false,
+      seed_id: item.seed_id,
+      source_refs: bank.source_refs,
+      source_hashes: evidence.map(x => ({ path: x.path, sha256: x.sha256 })),
       transformation: {
         name,
         id: mechanism.id,
@@ -280,7 +290,8 @@ function compile(bank, sources) {
       commercial_boundary: { price_nzd: price, currency: 'NZD', pricing_model: model, status: 'HYPOTHESIS_ONLY' },
       buyer_output: {
         format: 'source-backed candidate deliverable',
-        contains: ['source refs', 'source SHA-256 values', 'missing-evidence flags', 'implementation plan', 'tests', 'kill criteria']
+        buyer_class: domain.buyer,
+        contains: evidence.map(x => 'source_sha256:' + x.path + ':' + x.sha256).concat(['fit_score:' + item.fit_score, 'fit_review_required:' + item.fit_review_required, 'market_demand_unvalidated', 'implementation plan', 'tests', 'kill criteria'])
       },
       commerce_path: {
         checkout: 'NOT_CONFIGURED_NO_CHECKOUT',
