@@ -27,7 +27,12 @@
     "per_offer_edge_functions": false,
     "shared_sku_dispatch_required": true,
     "require_human_approval_for_credentials_payment_publication_deployment": true,
-    "catalogue_candidates_must_remain_gated": true
+    "catalogue_candidates_must_remain_gated": true,
+    "shared_function_slug": "revenue-ladder-fulfillment",
+    "shared_function_path": "supabase/functions/revenue-ladder-fulfillment/index.ts",
+    "shared_function_status": "PLANNED_NOT_DEPLOYED",
+    "function_source_parity_required": true,
+    "deployment_requires_separate_human_approval": true
   },
   "offers": [
     {
@@ -42,7 +47,10 @@
       "public_route_path": "public/silos/commander-deck-diagnostic/index.html",
       "library_module_path": "BEC-PRIME/lib/mtgDiagnosticFulfillment.js",
       "shared_route_path": "BEC-PRIME/routes/revenueLadderOffer.js",
-      "fulfillment": "Shared SKU-dispatched fulfillment; implementation source parity must be inspected before selection or deployment."
+      "fulfillment": "Shared SKU-dispatched fulfillment; implementation source parity must be inspected before selection or deployment.",
+      "supabase_function_slug": "marketplace-diagnostic-delivery",
+      "supabase_function_path": null,
+      "supabase_function_status": "DEPLOYMENT_REPORTED_SOURCE_PARITY_UNVERIFIED"
     },
     {
       "order": 2,
@@ -56,7 +64,10 @@
       "public_route_path": "public/silos/mtg-store-audit/index.html",
       "library_module_path": "BEC-PRIME/lib/mtgStoreAudit.js",
       "shared_route_path": "BEC-PRIME/routes/revenueLadderOffer.js",
-      "fulfillment": "Shared SKU-dispatched fulfillment; implementation source parity must be inspected before selection or deployment."
+      "fulfillment": "Shared SKU-dispatched fulfillment; implementation source parity must be inspected before selection or deployment.",
+      "supabase_function_slug": "revenue-ladder-fulfillment",
+      "supabase_function_path": "supabase/functions/revenue-ladder-fulfillment/index.ts",
+      "supabase_function_status": "PLANNED_NOT_DEPLOYED"
     },
     {
       "order": 3,
@@ -70,7 +81,10 @@
       "public_route_path": "public/silos/commander-optimization/index.html",
       "library_module_path": "BEC-PRIME/lib/commanderOptimization.js",
       "shared_route_path": "BEC-PRIME/routes/revenueLadderOffer.js",
-      "fulfillment": "Shared SKU-dispatched fulfillment; implementation source parity must be inspected before selection or deployment."
+      "fulfillment": "Shared SKU-dispatched fulfillment; implementation source parity must be inspected before selection or deployment.",
+      "supabase_function_slug": "revenue-ladder-fulfillment",
+      "supabase_function_path": "supabase/functions/revenue-ladder-fulfillment/index.ts",
+      "supabase_function_status": "PLANNED_NOT_DEPLOYED"
     },
     {
       "order": 4,
@@ -84,7 +98,10 @@
       "public_route_path": "public/silos/bec-prime-system/index.html",
       "library_module_path": "BEC-PRIME/lib/becPrimeSystemOffer.js",
       "shared_route_path": "BEC-PRIME/routes/revenueLadderOffer.js",
-      "fulfillment": "Shared SKU-dispatched fulfillment; implementation source parity must be inspected before selection or deployment."
+      "fulfillment": "Shared SKU-dispatched fulfillment; implementation source parity must be inspected before selection or deployment.",
+      "supabase_function_slug": "revenue-ladder-fulfillment",
+      "supabase_function_path": "supabase/functions/revenue-ladder-fulfillment/index.ts",
+      "supabase_function_status": "PLANNED_NOT_DEPLOYED"
     },
     {
       "order": 5,
@@ -98,7 +115,10 @@
       "public_route_path": "public/silos/deck-listing-engine/index.html",
       "library_module_path": "BEC-PRIME/lib/deckListingEngine.js",
       "shared_route_path": "BEC-PRIME/routes/revenueLadderOffer.js",
-      "fulfillment": "Shared SKU-dispatched fulfillment; implementation source parity must be inspected before selection or deployment."
+      "fulfillment": "Shared SKU-dispatched fulfillment; implementation source parity must be inspected before selection or deployment.",
+      "supabase_function_slug": "revenue-ladder-fulfillment",
+      "supabase_function_path": "supabase/functions/revenue-ladder-fulfillment/index.ts",
+      "supabase_function_status": "PLANNED_NOT_DEPLOYED"
     },
     {
       "order": 6,
@@ -112,7 +132,10 @@
       "public_route_path": "public/silos/card-condition-grading/index.html",
       "library_module_path": "BEC-PRIME/lib/cardConditionGrading.js",
       "shared_route_path": "BEC-PRIME/routes/revenueLadderOffer.js",
-      "fulfillment": "Shared SKU-dispatched fulfillment; implementation source parity must be inspected before selection or deployment."
+      "fulfillment": "Shared SKU-dispatched fulfillment; implementation source parity must be inspected before selection or deployment.",
+      "supabase_function_slug": "revenue-ladder-fulfillment",
+      "supabase_function_path": "supabase/functions/revenue-ladder-fulfillment/index.ts",
+      "supabase_function_status": "PLANNED_NOT_DEPLOYED"
     },
     {
       "order": 7,
@@ -126,7 +149,10 @@
       "public_route_path": "public/silos/inventory-sync/index.html",
       "library_module_path": "BEC-PRIME/lib/mtgInventorySync.js",
       "shared_route_path": "BEC-PRIME/routes/revenueLadderOffer.js",
-      "fulfillment": "Shared SKU-dispatched fulfillment; implementation source parity must be inspected before selection or deployment."
+      "fulfillment": "Shared SKU-dispatched fulfillment; implementation source parity must be inspected before selection or deployment.",
+      "supabase_function_slug": "revenue-ladder-fulfillment",
+      "supabase_function_path": "supabase/functions/revenue-ladder-fulfillment/index.ts",
+      "supabase_function_status": "PLANNED_NOT_DEPLOYED"
     },
     {
       "order": 8,
@@ -140,7 +166,10 @@
       "public_route_path": "public/silos/bulk-price-engine/index.html",
       "library_module_path": "BEC-PRIME/lib/mtgBulkPriceEngine.js",
       "shared_route_path": "BEC-PRIME/routes/revenueLadderOffer.js",
-      "fulfillment": "Shared SKU-dispatched fulfillment; implementation source parity must be inspected before selection or deployment."
+      "fulfillment": "Shared SKU-dispatched fulfillment; implementation source parity must be inspected before selection or deployment.",
+      "supabase_function_slug": "revenue-ladder-fulfillment",
+      "supabase_function_path": "supabase/functions/revenue-ladder-fulfillment/index.ts",
+      "supabase_function_status": "PLANNED_NOT_DEPLOYED"
     },
     {
       "order": 9,
@@ -155,7 +184,10 @@
       "public_route_path": "public/silos/mtg-saas/index.html",
       "library_module_path": "BEC-PRIME/lib/mtgSaaSSubscription.js",
       "shared_route_path": "BEC-PRIME/routes/revenueLadderOffer.js",
-      "fulfillment": "Shared SKU-dispatched fulfillment; implementation source parity must be inspected before selection or deployment."
+      "fulfillment": "Shared SKU-dispatched fulfillment; implementation source parity must be inspected before selection or deployment.",
+      "supabase_function_slug": "revenue-ladder-fulfillment",
+      "supabase_function_path": "supabase/functions/revenue-ladder-fulfillment/index.ts",
+      "supabase_function_status": "PLANNED_NOT_DEPLOYED"
     },
     {
       "order": 10,
@@ -169,7 +201,10 @@
       "public_route_path": "public/silos/mtg-agency-setup/index.html",
       "library_module_path": "BEC-PRIME/lib/mtgAgencySetup.js",
       "shared_route_path": "BEC-PRIME/routes/revenueLadderOffer.js",
-      "fulfillment": "Shared SKU-dispatched fulfillment; implementation source parity must be inspected before selection or deployment."
+      "fulfillment": "Shared SKU-dispatched fulfillment; implementation source parity must be inspected before selection or deployment.",
+      "supabase_function_slug": "revenue-ladder-fulfillment",
+      "supabase_function_path": "supabase/functions/revenue-ladder-fulfillment/index.ts",
+      "supabase_function_status": "PLANNED_NOT_DEPLOYED"
     }
   ],
   "dependencies": [
