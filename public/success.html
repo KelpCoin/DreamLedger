@@ -26,17 +26,19 @@ p{color:var(--muted);font-size:15px;margin-bottom:12px}
 </div></header>
 <main>
   <div class="card">
-    <div class="ok">Payment received</div>
+    <div class="ok">Checkout return</div>
     <h1>Thank you</h1>
-    <p>Stripe has confirmed checkout. A sale only becomes a completed delivery after any product-specific next step below.</p>
+    <p>This is the return from checkout. The session shown below helps match the order, but payment and delivery are verified by the product-specific fulfillment path, not by this URL alone.</p>
     <div class="session" id="session">Looking up session…</div>
     <div class="actions">
       <a class="btn btn-dark btn-block" id="diag" href="/diagnostic-input.html">Commander diagnostic — submit decklist</a>
       <a class="btn btn-line btn-block" href="/">Back to shop</a>
     </div>
+    <div data-dreamledger-qr></div>
     <p style="margin-top:18px;font-size:13px">Billboard and digital downloads: we will follow the fulfilment path for that product. Keep your receipt email.</p>
   </div>
 </main>
+<script src="/assets/qr-fulfillment-widget.js" defer></script>
 <script>
 (function(){
   var q=new URLSearchParams(location.search);
