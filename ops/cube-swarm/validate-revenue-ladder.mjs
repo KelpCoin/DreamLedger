@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 'use strict';
-const fs = require('node:fs');
-const path = require('node:path');
+import fs from 'node:fs';
+import path from 'node:path';
 const root = process.cwd();
 const read = p => JSON.parse(fs.readFileSync(path.join(root,p),'utf8'));
 const fail = message => { console.error('FAIL '+message); process.exitCode=1; };
