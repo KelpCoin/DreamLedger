@@ -20,10 +20,10 @@
     "storefront_shell": "implemented_unverified",
     "catalogue": "partial_blockers_known",
     "card_detail_grid": "partial_unverified",
-    "collection_profiles": "planned",
-    "collection_csv_import_export": "planned",
-    "per_card_visibility_and_availability": "planned",
-    "wanted_lists": "planned",
+    "collection_profiles": "schema_and_management_ui_in_branch_not_deployed",
+    "collection_csv_import_export": "private_csv_import_exists_export_not_implemented",
+    "per_card_visibility_and_availability": "schema_and_owner_controls_in_branch_not_deployed",
+    "wanted_lists": "per_card_wanted_status_supported_matching_not_implemented",
     "collection_matching": "planned",
     "fixed_price_listings": "partial_message_based",
     "offers_and_counteroffers": "planned",
@@ -85,7 +85,8 @@
       ],
       "require_preview": true,
       "raw_file_upload_default": false
-    }
+    },
+    "publication_rule": "Profile and each card are private by default. Public collections return only explicitly shared cards through get_public_mtg_collection; the public RPC must never expose owner_id, fingerprints, internal metadata or private items."
   },
   "listing": {
     "separate_from_collection_record": true,
