@@ -207,6 +207,7 @@ def decide(e,models):
         decision["estimated_value_nzd"]=0
         decision["blockers"].append("UNSUPPORTED_VALUE_RESET_TO_ZERO")
     decision["human_gate"]=True
+    decision["estimated_value_nzd"]=0
     return {"decision":decision,"stage_hashes":{
         "scout":"sha256:"+hashlib.sha256(scout.encode()).hexdigest(),
         "critic":"sha256:"+hashlib.sha256(critic.encode()).hexdigest(),
@@ -237,7 +238,7 @@ def cycle():
     # 777 remains held unless the synthesis model makes a source-backed BUILD decision.
     seven=run_777() if d.get("decision")=="BUILD" and d.get("evidence_refs") else {"status":"HELD","reason":"NO_AUTONOMOUS_BUILD_WITHOUT_SOURCE_BACKED_BUILD_DECISION"}
     timestamp=datetime.now(timezone.utc).isoformat()
-    out={"status":"CYCLE_COMPLETE","mode":"NORTH_STAR_THREE_MODEL","models":MODELS,"seven_seven_seven":seven,"decision":d,"stage_hashes":outcome["stage_hashes"],"timestamp_utc":timestamp,"external_action_performed":False,"economic_truth":snap["economic_truth"],"hypothesis_cells_only":True,"priority_task_id":"MTG-CMD-DIAG-29-READ-ONLY-AUDIT","priority_audit_path":priority_audit.get("artifact_path"),"priority_audit_status":priority_audit.get("status","UNAVAILABLE"),"worker_assessment_saved":audit_assessment_saved}
+    out={"status":"CYCLE_COMPLETE","mode":"NORTH_STAR_THREE_MODEL","models":MODELS,"seven_seven_seven":seven,"decision":d,"stage_hashes":outcome["stage_hashes"],"timestamp_utc":timestamp,"external_action_performed":False,"economic_truth":snap["economic_truth"],"hypothesis_cells_only":True,"priority_task_id":"MTG-CMD-DIAG-29-READ-ONLY-AUDIT","priority_audit_path":priority_audit.get("artifact_path"),"priority_audit_status":priority_audit.get("status","UNAVAILABLE"),"worker_assessment_saved":audit_assessment_saved,"read_only_remote_probe_performed":bool(priority_audit.get("gate1_probe",{}).get("checked_at_utc")),"external_commercial_action_performed":False}
     trace({"schema":"DREAMLEDGER/777/CUBE-SWARM-TRACE/v2","timestamp_utc":timestamp,"models":MODELS,"hypothesis_cell_count":len(snap.get("hypothesis_cells",[])),"decision":d,"stage_hashes":outcome["stage_hashes"],"economic_truth":snap["economic_truth"],"external_action_performed":False,"rule":"inference and internal compilation are not revenue"})
     fn=os.path.join(LOG,"north-star-"+datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")+".json")
     with open(fn,"w",encoding="utf-8") as f: json.dump(out,f,indent=2)
