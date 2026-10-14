@@ -33,6 +33,23 @@ Every 15 minutes, Postgres Cron reads the Vault secret and sends an authenticate
 
 This scheduling layer is not itself proof that the underlying reconciliation is correct. Job run status, the function response/logs, table readback, and end-to-end order evidence must all be checked.
 
+## Versioned supervisor implementation
+
+The repository now includes the source intended for the next Edge Function release at `supabase/functions/commerce-supervisor/index.ts`. It tightens the previous deployed implementation in four ways:
+
+- checks both the bearer token and `apikey` against the service-role secret, because `verify_jwt: true` by itself can accept an ordinary signed-in user's JWT;
+- reads data in explicit pages and fails visibly at the configured bound instead of silently treating PostgREST's default response limit as a complete result;
+- picks the strongest observed state once per SKU (`FULFILLED` supersedes `PAID`) instead of emitting two transitions from the same original state in a single tick;
+- uses `apply_commerce_supervisor_transition` so the state update and its audit-event insert commit or roll back together, with optimistic concurrency protection.
+
+The paired migration `20261014191000_commerce_supervisor_atomic_transition.sql` grants that RPC only to `service_role`. Apply the atomic-transition migration **before** deploying supervisor source v2. Do not deploy the v2 function in isolation: it intentionally fails closed if the RPC is missing.
+
+## Live status at this execution pass
+
+The database project reports `ACTIVE_HEALTHY`, PostgreSQL 17.6.1.127. However, read-only SQL/catalog inspection timed out during this pass, so the Vault secret and installed Cron job could not be confirmed by live read-back. The query window checked in Supabase's function logs returned no matching `commerce-supervisor` entries for 2026-10-14 08:00–08:50 UTC. That absence is not proof the function never ran, but it is not positive heartbeat evidence either.
+
+Accordingly, source validation is not labelled runtime readiness. Do not treat a queued GitHub workflow, an Edge Function listed as ACTIVE, or a prepared migration as proof that the 15-minute cloud tick is operating. The live sequence still required is: apply atomic-transition migration, confirm or create the Vault key through the dashboard, apply the Cron schedule migration, deploy v2 with JWT verification enabled, and verify an actual successful run plus state/event read-back. If Supabase's database connection continues timing out, leave the scheduler un-certified rather than guessing.
+
 ## Verify after the migration is applied
 
 Run these read-only queries in the Supabase SQL editor:
