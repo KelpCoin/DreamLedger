@@ -60,27 +60,51 @@ def local_private_signals():
 
 PRIORITY_AUDIT_SCRIPT=os.path.join(ROOT,"runtime","lm_studio","north_star_priority_audit.py")
 
+CANONICAL_AUDIT_PATH=os.path.join(ROOT,"LAKE","FIGURE8","evidence","MTG-CMD-DIAG-29-CHECKOUT-AUDIT.json")
+
 def run_priority_audit():
     if not os.path.isfile(PRIORITY_AUDIT_SCRIPT):
         return {"status":"BLOCKED_PRIORITY_AUDIT_SCRIPT_MISSING","task_id":"MTG-CMD-DIAG-29-READ-ONLY-AUDIT","external_action_performed":False}
+    staging_path=None
     try:
-        p=subprocess.run([sys.executable,PRIORITY_AUDIT_SCRIPT,"--json"],cwd=ROOT,capture_output=True,text=True,timeout=60)
+        staging_dir=os.path.join(ROOT,"runtime","lm_studio","state")
+        os.makedirs(staging_dir,exist_ok=True)
+        staging_path=os.path.join(staging_dir,f"NORTH-STAR-AUDIT-STAGING-{os.getpid()}-{time.time_ns()}.json")
+        p=subprocess.run(
+            [sys.executable,PRIORITY_AUDIT_SCRIPT,"--json","--output-path",staging_path],
+            cwd=ROOT,capture_output=True,text=True,timeout=60
+        )
         value=json.loads(p.stdout) if p.stdout.strip() else {}
         if not isinstance(value,dict):
+            if os.path.exists(staging_path): os.remove(staging_path)
             return {"status":"BLOCKED_PRIORITY_AUDIT_INVALID_OUTPUT","external_action_performed":False}
         if p.returncode != 0:
             value["controller_observed_returncode"]=p.returncode
             value.setdefault("status","BLOCKED_PRIORITY_AUDIT_FAILED")
+            value.pop("artifact_path",None)
+            if os.path.exists(staging_path): os.remove(staging_path)
+            return value
+        value["artifact_path"]=staging_path
         return value
     except Exception as ex:
+        if staging_path and os.path.exists(staging_path):
+            try: os.remove(staging_path)
+            except OSError: pass
         return {"status":"BLOCKED_PRIORITY_AUDIT_EXCEPTION","error_type":type(ex).__name__,"external_action_performed":False}
 
 def attach_worker_assessment(audit, decision, stage_hashes):
     path=audit.get("artifact_path") if isinstance(audit,dict) else None
     if not isinstance(path,str) or not path:
+        if isinstance(audit,dict):
+            audit["worker_assessment_error"]="NO_STAGED_AUDIT_ARTIFACT"
         return False
+    tmp=None
     try:
-        with open(path,encoding="utf-8") as f:
+        root_real=os.path.realpath(ROOT)
+        stage_real=os.path.realpath(path)
+        if os.path.commonpath([root_real,stage_real]) != root_real or stage_real == os.path.realpath(CANONICAL_AUDIT_PATH):
+            raise ValueError("STAGING_PATH_OUTSIDE_ALLOWED_ROOT")
+        with open(stage_real,encoding="utf-8") as f:
             report=json.load(f)
         report["worker_assessment"]={
             "decision":decision.get("decision","HOLD"),
@@ -98,13 +122,26 @@ def attach_worker_assessment(audit, decision, stage_hashes):
         report["fulfillment_verified"]=False
         report["verified_revenue_nzd"]=0
         report["external_action_performed"]=False
-        tmp=path+".tmp"
+        os.makedirs(os.path.dirname(CANONICAL_AUDIT_PATH),exist_ok=True)
+        tmp=CANONICAL_AUDIT_PATH+f".tmp-{os.getpid()}-{time.time_ns()}"
         with open(tmp,"w",encoding="utf-8") as f:
             json.dump(report,f,indent=2,ensure_ascii=False)
             f.write("\n")
-        os.replace(tmp,path)
+        os.replace(tmp,CANONICAL_AUDIT_PATH)
+        audit["artifact_path"]=CANONICAL_AUDIT_PATH
+        audit["status"]=report["status"]
+        audit["worker_assessment_saved"]=True
+        try:
+            os.remove(stage_real)
+        except OSError:
+            pass
         return True
-    except Exception:
+    except Exception as ex:
+        if tmp and os.path.exists(tmp):
+            try: os.remove(tmp)
+            except OSError: pass
+        audit["worker_assessment_saved"]=False
+        audit["worker_assessment_error"]=f"{type(ex).__name__}: {str(ex)[:300]}"
         return False
 
 def snapshot():
@@ -350,6 +387,10 @@ def cycle():
     try:
         outcome=decide(snap,MODELS)
     except Exception as ex:
+        staged=(snap.get("priority_task_audit") or {}).get("artifact_path")
+        if isinstance(staged,str) and os.path.isfile(staged) and os.path.realpath(staged) != os.path.realpath(CANONICAL_AUDIT_PATH):
+            try: os.remove(staged)
+            except OSError: pass
         return {"status":"BLOCKED","reason":"THREE_MODEL_DECISION_FAILED","models":MODELS,"error":str(ex)}
     d=outcome["decision"]
     priority_audit=snap.get("priority_task_audit",{})
@@ -357,7 +398,7 @@ def cycle():
     # 777 remains held unless the synthesis model makes a source-backed BUILD decision.
     seven=run_777() if d.get("decision")=="BUILD" and d.get("evidence_refs") else {"status":"HELD","reason":"NO_AUTONOMOUS_BUILD_WITHOUT_SOURCE_BACKED_BUILD_DECISION"}
     timestamp=datetime.now(timezone.utc).isoformat()
-    out={"status":"CYCLE_COMPLETE","mode":"NORTH_STAR_THREE_MODEL","models":MODELS,"seven_seven_seven":seven,"decision":d,"stage_hashes":outcome["stage_hashes"],"timestamp_utc":timestamp,"external_action_performed":False,"economic_truth":snap["economic_truth"],"hypothesis_cells_only":True,"priority_task_id":"MTG-CMD-DIAG-29-READ-ONLY-AUDIT","priority_audit_path":priority_audit.get("artifact_path"),"priority_audit_status":priority_audit.get("status","UNAVAILABLE"),"worker_assessment_saved":audit_assessment_saved,"read_only_remote_probe_performed":bool(priority_audit.get("gate1_probe",{}).get("checked_at_utc")),"external_commercial_action_performed":False}
+    out={"status":"CYCLE_COMPLETE","mode":"NORTH_STAR_THREE_MODEL","models":MODELS,"seven_seven_seven":seven,"decision":d,"stage_hashes":outcome["stage_hashes"],"timestamp_utc":timestamp,"external_action_performed":False,"economic_truth":snap["economic_truth"],"hypothesis_cells_only":True,"priority_task_id":"MTG-CMD-DIAG-29-READ-ONLY-AUDIT","priority_audit_path":priority_audit.get("artifact_path"),"priority_audit_status":priority_audit.get("status","UNAVAILABLE"),"worker_assessment_saved":audit_assessment_saved,"worker_assessment_error":priority_audit.get("worker_assessment_error"),"read_only_remote_probe_performed":bool(priority_audit.get("gate1_probe",{}).get("checked_at_utc")),"external_commercial_action_performed":False}
     trace({"schema":"DREAMLEDGER/777/CUBE-SWARM-TRACE/v2","timestamp_utc":timestamp,"models":MODELS,"hypothesis_cell_count":len(snap.get("hypothesis_cells",[])),"decision":d,"stage_hashes":outcome["stage_hashes"],"economic_truth":snap["economic_truth"],"external_action_performed":False,"rule":"inference and internal compilation are not revenue"})
     fn=os.path.join(LOG,"north-star-"+datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")+".json")
     with open(fn,"w",encoding="utf-8") as f: json.dump(out,f,indent=2)
