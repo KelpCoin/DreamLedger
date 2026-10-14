@@ -37,6 +37,7 @@ on:
       - ".github/workflows/777-social-distribution.yml"
       - "public/qr/**"
       - "supabase/migrations/**"
+      - "supabase/functions/commerce-supervisor/**"
       - "docs/operations/CLOUD-SUPERVISOR-SCHEDULING.md"
       - "BEC-PRIME/scripts/verify-cloud-supervisor-scheduler-contract.js"
       - "ops/distribution/QR_CANONICAL_DISTRIBUTION.md"
