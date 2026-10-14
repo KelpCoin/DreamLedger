@@ -146,6 +146,80 @@ def snapshot():
         e["opportunities_status"]="UNAVAILABLE_NO_SUPABASE_READ_CREDENTIALS"
     return e
 
+def compact_model_snapshot(e, max_chars=5200):
+    """Keep the 4K-context scout inside budget while preserving audit facts and hashes."""
+    audit=e.get("priority_task_audit",{}) if isinstance(e,dict) else {}
+    if not isinstance(audit,dict):
+        audit={}
+    facts=audit.get("static_facts",{}) if isinstance(audit.get("static_facts"),dict) else {}
+    gate=audit.get("gate1_probe",{}) if isinstance(audit.get("gate1_probe"),dict) else {}
+    probe_keys=("checked_at_utc","http_status","status_code","branch_classification",
+                "response_error_code","error_type","meaning","interpretation")
+    compact_probe={k:gate[k] for k in probe_keys if k in gate}
+    checks=[]
+    for item in facts.get("checks",[])[:8] if isinstance(facts.get("checks"),list) else []:
+        if isinstance(item,dict):
+            checks.append({"id":item.get("id"),"status":item.get("status"),
+                           "finding":str(item.get("finding",""))[:150]})
+    sources=[]
+    for item in audit.get("source_evidence",[])[:10] if isinstance(audit.get("source_evidence"),list) else []:
+        if isinstance(item,dict):
+            sources.append({"path":item.get("path"),"status":item.get("status"),
+                            "sha256":item.get("sha256"),"bytes":item.get("bytes")})
+    blockers=[]
+    for item in audit.get("blockers",[])[:8] if isinstance(audit.get("blockers"),list) else []:
+        if isinstance(item,dict):
+            blockers.append({"id":item.get("id"),"evidence":str(item.get("evidence",""))[:120]})
+        else:
+            blockers.append(str(item)[:120])
+    cells=[]
+    for item in e.get("hypothesis_cells",[])[:3] if isinstance(e.get("hypothesis_cells"),list) else []:
+        if isinstance(item,dict):
+            cells.append({k:item.get(k) for k in ("cell_id","lane_id","transformation_id","status") if k in item})
+    compact={
+        "timestamp_utc":e.get("timestamp_utc"),
+        "economic_truth":e.get("economic_truth",{"verified_external_revenue_nzd":0}),
+        "priority_rule":e.get("priority_rule"),
+        "constraints":e.get("constraints",[])[:5],
+        "hypothesis_cells":cells,
+        "priority_task_audit":{
+            "task_id":audit.get("task_id"),
+            "status":audit.get("status"),
+            "source_commit":audit.get("source_commit"),
+            "gate1_probe":compact_probe,
+            "blockers":blockers,
+            "source_evidence":sources,
+            "static_facts":{
+                "catalog_entry":facts.get("catalog_entry"),
+                "landing_price_present":facts.get("landing_price_present"),
+                "landing_checkout_present":facts.get("landing_checkout_present"),
+                "inline_js_syntax":(facts.get("inline_js_syntax") or {}).get("status") if isinstance(facts.get("inline_js_syntax"),dict) else facts.get("inline_js_syntax"),
+                "checks":checks
+            }
+        },
+        "local_private_signals":{
+            "status":(e.get("local_private_signals") or {}).get("status","UNKNOWN")
+        } if isinstance(e.get("local_private_signals"),dict) else {"status":"UNKNOWN"},
+        "opportunities":[
+            {k:x.get(k) for k in ("opportunity_id","source","subject","status","expected_value_nzd","expected_cost_nzd","authority_lane")}
+            for x in (e.get("opportunities",[])[:4] if isinstance(e.get("opportunities"),list) else [])
+            if isinstance(x,dict)
+        ],
+        "opportunities_status":e.get("opportunities_status")
+    }
+    raw=json.dumps(compact,separators=(",",":"),ensure_ascii=False)
+    if len(raw)<=max_chars:
+        return raw
+    # If a deployment has unusually long labels/findings, strip lower-priority
+    # fields deterministically instead of truncating JSON into invalid syntax.
+    compact["opportunities"]=[]
+    compact["constraints"]=compact["constraints"][:3]
+    compact["priority_task_audit"]["source_evidence"]=sources[:6]
+    compact["priority_task_audit"]["static_facts"]["checks"]=[
+        {"id":x.get("id"),"status":x.get("status")} for x in checks[:6]
+    ]
+    return json.dumps(compact,separators=(",",":"),ensure_ascii=False)
+
 DECISION_SCHEMA={"type":"json_schema","json_schema":{"name":"economic_swarm_decision","strict":True,"schema":{
     "type":"object",
     "properties":{
@@ -164,16 +238,51 @@ DECISION_SCHEMA={"type":"json_schema","json_schema":{"name":"economic_swarm_deci
 }}}
 
 def call_model(stage,model,messages,response_format=None):
-    body={"model":model,"messages":messages,"temperature":0.1,"stream":False}
-    if response_format is not None: body["response_format"]=response_format
-    req=urllib.request.Request(BASE+"/v1/chat/completions",data=json.dumps(body).encode(),headers={"Content-Type":"application/json"},method="POST")
-    with urllib.request.urlopen(req,timeout=120) as x: data=json.loads(x.read().decode())
+    body={"model":model,"messages":messages,"temperature":0.1,"stream":False,
+          "max_tokens":{"scout":256,"critic":256,"synthesis":384}.get(stage,256)}
+    if response_format is not None:
+        body["response_format"]=response_format
+
+    def post(payload):
+        req=urllib.request.Request(BASE+"/v1/chat/completions",data=json.dumps(payload).encode(),
+                                   headers={"Content-Type":"application/json"},method="POST")
+        try:
+            with urllib.request.urlopen(req,timeout=120) as response:
+                return json.loads(response.read().decode())
+        except urllib.error.HTTPError as ex:
+            # Local inference error bodies are diagnostic evidence. Do not discard
+            # them: generic HTTP 400 loops otherwise hide context/schema failures.
+            try:
+                detail=ex.read(1800).decode("utf-8","replace")
+            except Exception:
+                detail=""
+            detail=" ".join(detail.split())[:1200]
+            raise RuntimeError(f"{stage.upper()}_HTTP_{ex.code}: {detail}") from None
+
+    try:
+        data=post(body)
+    except RuntimeError as ex:
+        message=str(ex).lower()
+        schema_rejection=(response_format is not None and "_http_400:" in message and
+                          any(term in message for term in ("response_format","json_schema","schema","grammar","structured output")))
+        if not schema_rejection:
+            raise
+        # Fallback only for explicit structured-output compatibility errors.
+        # JSON is still parsed and schema-checked locally by decide().
+        fallback=dict(body)
+        fallback["response_format"]={"type":"json_object"}
+        try:
+            data=post(fallback)
+        except Exception as fallback_error:
+            raise RuntimeError(f"{ex}; JSON_OBJECT_FALLBACK_FAILED: {fallback_error}") from None
+
     content=data.get("choices",[{}])[0].get("message",{}).get("content")
-    if not isinstance(content,str) or not content.strip(): raise ValueError(stage.upper()+"_EMPTY_RESPONSE")
+    if not isinstance(content,str) or not content.strip():
+        raise ValueError(stage.upper()+"_EMPTY_RESPONSE")
     return content.strip()
 
 def decide(e,models):
-    task=json.dumps(e,separators=(",",":"),ensure_ascii=False)
+    task=compact_model_snapshot(e)
     scout=call_model("scout",models["scout"],[
         {"role":"system","content":"You are SCOUT for DreamLedger's North Star economic research loop. The primary task is the supplied MTG Commander checkout-to-delivery audit in priority_task_audit. Examine the provided source evidence and prioritize the smallest reversible repair that advances a real paid order. Separate source facts from inference, and cite supplied repository paths only. Do not claim deployment, buyer demand, a valid Stripe key, settlement, fulfillment, profit, or revenue unless the snapshot proves it. Never recommend outreach, spending, public posting, credential changes, production mutation, or checkout creation."},
         {"role":"user","content":"Identify the strongest source-backed opportunity and one bounded internal artifact that could reduce uncertainty. Return concise findings with evidence references and explicit unknowns. Snapshot:\n"+task}
@@ -186,7 +295,17 @@ def decide(e,models):
         {"role":"system","content":"You are the DreamLedger North Star SYNTHESIS/JUDGE preparation role for the current MTG Commander checkout-to-delivery audit. Resolve scout and critic into exactly the required JSON decision schema. Use only evidence references present in the snapshot, especially priority_task_audit source paths. Prefer the shortest verified step that removes a blocker to a future independent paid order. Do not contact buyers, spend, publish, change credentials, mutate production, or create checkout. Keep estimated_value_nzd at 0; human_gate must be true. If anything important is unverified, choose HOLD or QUALIFY and name the exact missing evidence. Do not claim Gauntlet/Elohim approval."},
         {"role":"user","content":"SNAPSHOT:\n"+task+"\n\nSCOUT:\n"+scout+"\n\nCRITIC:\n"+critic+"\n\nReturn the required JSON object only."}
     ],DECISION_SCHEMA)
-    decision=json.loads(synthesis_raw)
+    try:
+        decision=json.loads(synthesis_raw)
+    except Exception as ex:
+        raise ValueError("SYNTHESIS_JSON_INVALID: "+type(ex).__name__) from None
+    required={"decision","opportunity_id","confidence","evidence_refs","blockers","next_action","human_gate","estimated_value_nzd","expiry"}
+    if not isinstance(decision,dict) or not required.issubset(decision):
+        raise ValueError("SYNTHESIS_SCHEMA_REQUIRED_FIELDS_MISSING")
+    if decision.get("decision") not in {"QUALIFY","BUILD","HOLD","REJECT"}:
+        raise ValueError("SYNTHESIS_SCHEMA_DECISION_INVALID")
+    if not isinstance(decision.get("evidence_refs"),list) or not isinstance(decision.get("blockers"),list):
+        raise ValueError("SYNTHESIS_SCHEMA_ARRAY_FIELDS_INVALID")
     allowed_refs=set()
     def walk(value):
         if isinstance(value,dict):
