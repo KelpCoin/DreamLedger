@@ -76,9 +76,6 @@ jobs:
             - No revenue is claimed by this PR.
 
             Review the actual diff and all checks before merging.
-          labels: |
-            cloud-builder
-            gauntlet-required
 
       - name: Upload cloud builder evidence
         if: always()
