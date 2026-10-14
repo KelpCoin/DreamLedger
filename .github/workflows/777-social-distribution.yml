@@ -42,7 +42,7 @@ jobs:
           python3 - <<'PY'
           import json, os, hashlib, datetime, re, urllib.parse
           cell=re.sub(r"[^A-Za-z0-9._-]", "-", os.environ["CELL_ID"])[:80] or "CMD-DIAG-29-QR-001"
-          params={"utm_source":"777","utm_medium":"social","utm_campaign":"cmd_diag_29","utm_content":cell}
+          cell_tag=hashlib.sha256(cell.encode("utf-8")).hexdigest()[:8]\n          params={"utm_source":"777","utm_medium":"social","utm_campaign":"cmd29","utm_content":cell_tag}
           target="https://dreamledger.org/go?"+urllib.parse.urlencode(params)
           qr_image="https://dreamledger.org/qr/campaigns/SOCIAL-001.svg"
           variants=[
