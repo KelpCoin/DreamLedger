@@ -86,7 +86,7 @@ def update_runtime_proof(state: str, **fields: Any) -> None:
         proof_dir, proof_path = runtime_proof_paths()
         proof_dir.mkdir(parents=True, exist_ok=True)
         try:
-            current = json.loads(proof_path.read_text(encoding="utf-8"))
+            current = json.loads(proof_path.read_text(encoding="utf-8-sig"))
             if not isinstance(current, dict):
                 current = {}
         except Exception:
