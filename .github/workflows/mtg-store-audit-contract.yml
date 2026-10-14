@@ -1,0 +1,27 @@
+name: MTG Store Audit Contract
+on:
+  pull_request:
+    paths:
+      - 'BEC-PRIME/lib/mtgStoreAudit.js'
+      - 'BEC-PRIME/lib/mtgStoreAudit.test.js'
+      - 'public/silos/mtg-store-audit/**'
+      - 'ops/cube-swarm/tasks/MTG-STORE-AUDIT-BUILD.json'
+      - '.github/workflows/mtg-store-audit-contract.yml'
+permissions:
+  contents: read
+jobs:
+  audit-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Check module syntax
+        run: node --check BEC-PRIME/lib/mtgStoreAudit.js
+      - name: Run deterministic acceptance tests
+        run: node --test BEC-PRIME/lib/mtgStoreAudit.test.js
+      - name: Ensure browser module is source-identical
+        run: cmp BEC-PRIME/lib/mtgStoreAudit.js public/silos/mtg-store-audit/mtgStoreAudit.js
+      - name: Keep offer gated in public catalog
+        run: node -e "const c=require('./public/catalog.json'); const p=c.products.find(x=>x.id==='MTG-STORE-AUDIT-299'); if(!p||p.status!=='gated'||p.checkout_available!==false||p.checkout_url!==null) process.exit(1); console.log('PASS: store audit offer remains gated')"

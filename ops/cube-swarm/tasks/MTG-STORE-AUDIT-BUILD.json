@@ -1,0 +1,74 @@
+{
+  "schema_version": "dreamledger/bounded-build-task/v1",
+  "task_id": "BUILD-ISSUE-712-MTG-STORE-AUDIT",
+  "github_issue": "https://github.com/KelpCoin/DreamLedger/issues/712",
+  "queue_contract": {
+    "source": "Agent Bridge signed lease from public.jobs",
+    "eligible_payload_fields": [
+      "task_issue",
+      "task_id",
+      "objective",
+      "source_refs",
+      "acceptance_criteria"
+    ],
+    "required_task_issue": 712,
+    "if_mismatch": "HOLD_JOB_SCOPE_MISMATCH",
+    "do_not_create_parallel_queue": true,
+    "no_live_queue_claim_performed_by_authoring_session": true
+  },
+  "objective": "Build the NZ$299 source-backed MTG store audit from supplied snapshots, then run deterministic tests and emit source/output hashes.",
+  "source_refs": [
+    "public/catalog.json",
+    "public/silo-clone-manifest.json",
+    "public/silo-template.html",
+    "BEC-PRIME/lib/mtgDiagnosticFulfillment.js",
+    "BEC-PRIME/routes/mtgDiagnostic.js"
+  ],
+  "writable_paths": [
+    "public/silos/mtg-store-audit/index.html",
+    "BEC-PRIME/lib/mtgStoreAudit.js",
+    "public/silos/mtg-store-audit/mtgStoreAudit.js"
+  ],
+  "test_paths": [
+    "BEC-PRIME/lib/mtgStoreAudit.test.js"
+  ],
+  "fixed_test_command": [
+    "node",
+    "--test",
+    "BEC-PRIME/lib/mtgStoreAudit.test.js"
+  ],
+  "limits": {
+    "max_attempts": 3,
+    "timeout_seconds": 300,
+    "max_output_bytes": 250000,
+    "parallel_jobs": 1
+  },
+  "authorization": {
+    "internal_file_build_allowed": true,
+    "allowed_effects": [
+      "isolated_worktree_write",
+      "local_test_execution",
+      "artifact_hashing"
+    ],
+    "forbidden_effects": [
+      "checkout_creation",
+      "credential_read_or_change",
+      "database_write",
+      "buyer_contact",
+      "public_publish",
+      "git_push",
+      "merge",
+      "deployment",
+      "spend"
+    ],
+    "human_gate": true
+  },
+  "acceptance_criteria": [
+    "All findings have a stable identifier, severity, detail, and a source reference when a source was supplied.",
+    "Catalogue duplicates and invalid or missing prices/currency/checkout data are detected conservatively.",
+    "No remote crawling, no claims of traffic, buyer intent, sale, conversion, profit or revenue.",
+    "Malformed input fails visibly and never becomes a successful audit.",
+    "All fixed tests pass and outputs receive SHA256 hashes."
+  ],
+  "status": "PRODUCT_FILES_DRAFTED_WORKER_NOT_YET_WIRED"
+}
