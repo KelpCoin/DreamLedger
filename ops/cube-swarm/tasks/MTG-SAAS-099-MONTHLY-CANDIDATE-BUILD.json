@@ -1,0 +1,77 @@
+{
+  "schema_version": "dreamledger/cube-swarm-task-contract/v1",
+  "task_id": "MTG-SAAS-099-MONTHLY-CANDIDATE-BUILD",
+  "worker_preference": "multi_model_diverse",
+  "lifecycle": "CANDIDATE_INTERNAL_BUILD",
+  "runtime_consumption_status": "NOT_WIRED_TO_CURRENT_NORTH_STAR_SELECTOR",
+  "task": "Build an internal SaaS candidate specification and entitlement test harness, not a live subscription product.",
+  "inputs": {
+    "starting_sources": [
+      "ops/cube-swarm/silo-definitions/mtg-commander.json",
+      "public/catalog.json",
+      "BEC-PRIME/lib/mtgDiagnosticFulfillment.js",
+      "BEC-PRIME/routes/mtgDiagnostic.js",
+      "BEC-PRIME/factory/FactoryFactoryCompiler.js",
+      "BEC-PRIME/factory/UniversalFactoryCompiler.js",
+      "ops/cube-swarm/silo-definitions/mtg-saas.json"
+    ],
+    "target_silo_id": "mtg-saas",
+    "status": "UNVERIFIED_HYPOTHESIS_ONLY",
+    "does_not_prove": [
+      "buyer demand",
+      "willingness to pay",
+      "production readiness",
+      "settlement",
+      "fulfillment",
+      "profitability",
+      "revenue"
+    ]
+  },
+  "required_artifact": {
+    "path": "ops/cube-swarm/build-plans/mtg-saas-BUILD-PLAN.json",
+    "format": "JSON",
+    "required_fields": [
+      "source_evidence",
+      "source_sha256",
+      "implementation_plan",
+      "tests",
+      "blockers",
+      "decision",
+      "human_gate"
+    ]
+  },
+  "success_criteria": [
+    "Define subscription lifecycle, entitlements, cancellation, failed-payment handling, and audit log events.",
+    "Do not create a live recurring price, checkout, public signup, or deployed entitlement service.",
+    "Flag retention and recurring willingness-to-pay as unvalidated."
+  ],
+  "required_source_evidence": {
+    "hash_algorithm": "SHA-256",
+    "minimum_source_entries": 5,
+    "each_entry_must_include": [
+      "path",
+      "status",
+      "sha256"
+    ],
+    "no_claim_without_source_reference": true
+  },
+  "guardrails": {
+    "external_action_performed": false,
+    "external_commercial_action_performed": false,
+    "production_mutation_performed": false,
+    "database_write_performed": false,
+    "payment_verified": false,
+    "fulfillment_verified": false,
+    "checkout_creation_allowed": false,
+    "deployment_allowed": false,
+    "public_publication_allowed": false,
+    "verified_revenue_nzd": 0
+  },
+  "next_gates": [
+    "human review of generated implementation",
+    "shared Stripe Gate 1 read-only probe passes",
+    "checkout SKU, price, currency, mode, and attribution contract validated",
+    "fulfillment and delivery tests pass",
+    "separate approval before deployment or public availability"
+  ]
+}
