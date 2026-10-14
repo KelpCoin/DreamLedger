@@ -8,7 +8,9 @@ const TollRuntime=require('../BEC-PRIME/runtime/TollRoad');
 const PORT=Number(process.env.PORT||10000);
 const COMMIT=process.env.RENDER_GIT_COMMIT||process.env.RENDER_GIT_COMMIT_SHA||process.env.GITHUB_SHA||'unknown';
 const ROOT=__dirname;
-const ENGINE_INTERNAL_URL=String(process.env.ENGINE_INTERNAL_URL||'').replace(/\/$/,'');
+const ENGINE_INTERNAL_URL_RAW=String(process.env.ENGINE_INTERNAL_URL||'').replace(/\/$/,'');
+// Render hostport bindings are "host:port" values; fetch needs an explicit scheme.
+const ENGINE_INTERNAL_URL=ENGINE_INTERNAL_URL_RAW?(/^https?:\/\//i.test(ENGINE_INTERNAL_URL_RAW)?ENGINE_INTERNAL_URL_RAW:'http://'+ENGINE_INTERNAL_URL_RAW):'';
 const ENGINE_INTERNAL_API_KEY=String(process.env.ENGINE_INTERNAL_API_KEY||'');
 const PUBLIC_FILES={
   '/':'home.html','/index.html':'home.html','/status':'status.html','/status/':'status.html','/status.html':'status.html',
