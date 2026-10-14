@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       acquisition:
@@ -38,8 +41,15 @@ jobs:
       - name: Install dependencies
         run: npm install --no-audit --no-fund
 
-      - name: Compile opportunities and Factory-Factory
+      - name: Validate asymmetric-leverage seed bank
+        run: node ops/cube-swarm/compile-asymmetric-leverage-bank.mjs --self-test
+
+      - name: Compile 1,000 source-backed candidate silos into Cube Swarm
+        env:
+          FACTORY_FACTORY_BATCH: '2000'
+          UNIVERSAL_FACTORY_BATCH: '2000'
         run: |
+          node ops/cube-swarm/compile-asymmetric-leverage-bank.mjs
           npm run compile:opportunities
           npm run compile:factory-factory
           node BEC-PRIME/factory/FactoryFactory.js
@@ -47,6 +57,7 @@ jobs:
           npm run compile:factory-approval
 
       - name: Reconcile approved live offers
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.acquisition == true }}
         env:
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
           STRIPE_LIVE_ENABLED: 'true'
@@ -62,6 +73,10 @@ jobs:
           path: |
             BEC-PRIME/data/factory-factory/**
             BEC-PRIME/data/x402-factory/**
+            ops/cube-swarm/silo-definitions/generated/**
+            ops/cube-swarm/tasks/generated/**
+            runtime/cube/manifests/cube-seed-*.json
+            runtime/cube/seed-bank/**
             proof/commerce/latest-approved-offer-reconciliation.json
           if-no-files-found: warn
           retention-days: 14
@@ -75,7 +90,7 @@ jobs:
           echo "REVENUE=TRUTH_ORACLE_ONLY"
 
   authorized-acquisition:
-    if: ${{ (github.event_name == 'workflow_dispatch' && inputs.acquisition == true) || github.event_name == 'schedule' }}
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.acquisition == true }}
     needs: compile-and-stage
     runs-on: ubuntu-latest
     timeout-minutes: 5
