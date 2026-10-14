@@ -47,11 +47,32 @@ def collect_failures(token, repo):
 
 def read_context():
     pieces = []
-    for rel in ["runtime/777/777-inversion-guardrails.md", "docs/figure-eight-bootstrap-review.md", "BEC-PRIME/architecture/FIGURE-EIGHT.md", "BEC-PRIME/config/economic-supervisor.json", "package.json"]:
+    docs = [
+        ("runtime/777/777-inversion-guardrails.md", 4200),
+        ("docs/figure-eight-bootstrap-review.md", 3000),
+        ("BEC-PRIME/architecture/FIGURE-EIGHT.md", 2300),
+        ("BEC-PRIME/config/economic-supervisor.json", 1800),
+        ("package.json", 2400),
+    ]
+    for rel, limit in docs:
         path = ROOT / rel
         if path.is_file():
             try:
-                pieces.append("\n--- FILE: " + rel + " ---\n" + path.read_text(encoding="utf-8", errors="replace")[:6500])
+                pieces.append("\n--- FILE: " + rel + " ---\n" + path.read_text(encoding="utf-8", errors="replace")[:limit])
+            except OSError:
+                pass
+    sources = [
+        ("BEC-PRIME/compiler/EconomicOpportunityCompiler.js", 2600),
+        ("BEC-PRIME/scripts/777-public-market-radar.py", 2200),
+        ("ops/demand/ingest-public-feeds.py", 2200),
+        ("ops/cube/resolve-mechanisms.py", 2200),
+        ("BEC-PRIME/scripts/Verify-FactoryFactoryCycle.js", 1800),
+    ]
+    for rel, limit in sources:
+        path = ROOT / rel
+        if path.is_file():
+            try:
+                pieces.append("\n--- SOURCE EXCERPT: " + rel + " ---\n" + path.read_text(encoding="utf-8", errors="replace")[:limit])
             except OSError:
                 pass
     inventory = []
@@ -61,12 +82,12 @@ def read_context():
             for path in sorted(folder.rglob("*")):
                 if path.is_file() and not any(part in {".git", "node_modules", "__pycache__"} for part in path.parts):
                     inventory.append(path.relative_to(ROOT).as_posix())
-    pieces.append("\n--- ALLOWLISTED FILE INVENTORY ---\n" + "\n".join(inventory[:500]))
+    pieces.append("\n--- ALLOWLISTED FILE INVENTORY ---\n" + "\n".join(inventory[:220]))
     return "\n".join(pieces)[:MAX_CONTEXT_CHARS]
 
 def api_patch(api_key, failures, context, repo):
     prompt = f"""You are the engineering worker inside DreamLedger's existing cloud Figure Eight.
-Build incrementally; do not invent architecture or revenue. Goal: demand-first invoice/quote discrepancy detection and a reliable cloud build/repair loop.
+Build incrementally; do not invent architecture or revenue. Goal: demand-first invoice/quote discrepancy detection and a reliable cloud build/repair loop. Invert supply-first agent building: prioritize real buyer problems and a complete paid delivery path over more listings or agents. Treat the user's competitor pricing and market-size claims as hypotheses, not proof of DreamLedger demand. The decisive experiment is a real invoice pair, an accurate discrepancy report, a legitimate independent buyer, a working payment path, and independently evidenced delivery. Prioritize conversion blockers over cosmetic infrastructure. Use the existing 70/20/10 hunt/convert/infra allocation doctrine where relevant.
 Return JSON only with keys summary, rationale, patch. Patch must be a unified git diff string. If no safe, useful, testable patch can be made, return an empty patch.
 Constraints: at most {MAX_CHANGED_FILES} files and {MAX_PATCH_CHARS} characters. Only modify/create files under docs/, tests/, ops/demand/, ops/cube/, BEC-PRIME/compiler/, BEC-PRIME/scripts/, runtime/777/. Never change workflows, package manifests, deployment, credentials, auth, database migrations, Stripe/payment/commerce, offer catalog, fulfillment, evidence ledger, or production configuration. Prefer a small executable improvement with tests over prose or a new framework. No dependencies or network calls. Never claim buyers, revenue, live execution, or market facts not evidenced here. Do not use synthetic invoices as evidence of real demand. Output standard unified diff applicable with git apply, including diff --git headers.
 Repository: {repo}
