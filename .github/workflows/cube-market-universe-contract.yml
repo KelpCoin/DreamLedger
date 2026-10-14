@@ -4,6 +4,8 @@ on:
   pull_request:
     paths:
       - 'ops/cube-swarm/market-universe.contract.json'
+      - 'ops/cube-swarm/opportunity-seeds.v1.json'
+      - 'ops/cube-swarm/opportunity-seeds.501-1000.json'
       - 'catalog/silos/media-music/implementation-contract.json'
       - 'public/media-music/index.html'
       - 'public/surfaces.json'
