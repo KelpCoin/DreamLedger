@@ -96,7 +96,7 @@ class BuildTests(unittest.TestCase):
           "source_refs":["src.txt"],"writable_paths":["BEC-PRIME/lib/mtgStoreAudit.js","public/silos/mtg-store-audit/index.html"],
           "base_branch":"main","limits":{"timeout_seconds":15},"authorization":{"internal_file_build_allowed":True}}
         (root/"ops/cube-swarm/tasks/MTG-STORE-AUDIT-BUILD.json").write_text(json.dumps(contract),encoding="utf-8")
-        verifier="""const fs=require('node:fs');
+        verifier="""import fs from 'node:fs';
 const a=fs.readFileSync('BEC-PRIME/lib/mtgStoreAudit.js','utf8');
 const b=fs.readFileSync('public/silos/mtg-store-audit/mtgStoreAudit.js','utf8');
 const p=fs.readFileSync('public/silos/mtg-store-audit/index.html','utf8');
