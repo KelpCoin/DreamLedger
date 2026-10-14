@@ -1,16 +1,13 @@
 'use strict';
 // Storefront server — public/ is Render rootDir. Whitelist + safe file fallback.
 const http=require('http'),fs=require('fs'),path=require('path'),{URL}=require('url');
-const {Readable}=require('stream');
 const commercialCell=require('../BEC-PRIME/routes/commercialCell');
 const tollRoad=require('../BEC-PRIME/routes/tollRoad');
 const TollRuntime=require('../BEC-PRIME/runtime/TollRoad');
 const PORT=Number(process.env.PORT||10000);
 const COMMIT=process.env.RENDER_GIT_COMMIT||process.env.RENDER_GIT_COMMIT_SHA||process.env.GITHUB_SHA||'unknown';
 const ROOT=__dirname;
-const ENGINE_INTERNAL_URL_RAW=String(process.env.ENGINE_INTERNAL_URL||'').replace(/\/$/,'');
-// Render hostport bindings are "host:port" values; fetch needs an explicit scheme.
-const ENGINE_INTERNAL_URL=ENGINE_INTERNAL_URL_RAW?(/^https?:\/\//i.test(ENGINE_INTERNAL_URL_RAW)?ENGINE_INTERNAL_URL_RAW:'http://'+ENGINE_INTERNAL_URL_RAW):'';
+const ENGINE_INTERNAL_URL=String(process.env.ENGINE_INTERNAL_URL||'').replace(/\/$/,'');
 const ENGINE_INTERNAL_API_KEY=String(process.env.ENGINE_INTERNAL_API_KEY||'');
 const PUBLIC_FILES={
   '/':'home.html','/index.html':'home.html','/status':'status.html','/status/':'status.html','/status.html':'status.html',
@@ -86,32 +83,6 @@ async function proxyTollToEngine(req,res,p){
   }
 }
 
-function replayRequest(req,rawBody){
-  const replay=Readable.from([rawBody]);
-  replay.method=req.method;replay.url=req.url;replay.headers=req.headers;
-  replay.httpVersion=req.httpVersion;replay.socket=req.socket;
-  return replay;
-}
-async function readRequestBody(req,maxBytes){
-  const chunks=[];let size=0;
-  for await(const chunk of req){size+=chunk.length;if(size>maxBytes)throw Object.assign(new Error('request_too_large'),{statusCode:413});chunks.push(Buffer.from(chunk));}
-  return Buffer.concat(chunks);
-}
-async function proxyMtgDiagnosticToEngine(req,res,rawBody){
-  if(!ENGINE_INTERNAL_URL||!ENGINE_INTERNAL_API_KEY)return send(res,503,JSON.stringify({error:'diagnostic_engine_unavailable'}),'application/json; charset=utf-8');
-  let body=rawBody;
-  if(body===undefined&&!['GET','HEAD'].includes(req.method)){try{body=await readRequestBody(req,100*1024);}catch(error){return send(res,Number(error.statusCode)||400,JSON.stringify({error:error.message==='request_too_large'?'request_too_large':'invalid_request'}),'application/json; charset=utf-8');}}
-  try{
-    const headers={'x-api-key':ENGINE_INTERNAL_API_KEY,'accept':req.headers.accept||'*/*'};
-    for(const name of ['content-type','idempotency-key','stripe-signature'])if(req.headers[name])headers[name]=req.headers[name];
-    const upstream=await fetch(ENGINE_INTERNAL_URL+(req.url||'/'),{method:req.method,headers,body:body&&body.length?body:undefined,redirect:'manual'});
-    const responseBody=Buffer.from(await upstream.arrayBuffer());res.statusCode=upstream.status;
-    for(const name of ['content-type','cache-control','location','retry-after']){const value=upstream.headers.get(name);if(value)res.setHeader(name,value);}
-    if(!res.hasHeader('Cache-Control'))res.setHeader('Cache-Control','no-store');
-    return res.end(responseBody);
-  }catch(error){console.error(JSON.stringify({mtg_diagnostic_proxy_failed:true,path:String(req.url||'').split('?')[0],error:String(error&&error.message||error).slice(0,300)}));return send(res,502,JSON.stringify({error:'diagnostic_engine_unavailable'}),'application/json; charset=utf-8');}
-}
-
 function serveFile(res,file){
   const safe=path.normalize(path.join(ROOT,file));
   if(!safe.startsWith(ROOT+path.sep) && safe!==ROOT) return send(res,403,'Forbidden','text/plain; charset=utf-8');
@@ -126,16 +97,6 @@ http.createServer(async (req,res)=>{
   headers(res);
   const u=new URL(req.url||'/','http://localhost');
   const p=u.pathname;
-  if(req.method==='GET'&&p==='/q/cmd-diag'){res.statusCode=302;res.setHeader('Location','/mtg/diagnostic.html');res.setHeader('Cache-Control','no-store');return res.end();}
-  if(req.method==='GET'&&(p==='/mtg/diagnostic.html'||p==='/mtg/diagnostic-success.html'))return proxyMtgDiagnosticToEngine(req,res);
-  if(p==='/api/mtg/diagnostic/intake')return req.method==='POST'?proxyMtgDiagnosticToEngine(req,res):send(res,405,JSON.stringify({error:'POST_required'}),'application/json; charset=utf-8');
-  if(p==='/api/mtg/diagnostic/report')return req.method==='GET'?proxyMtgDiagnosticToEngine(req,res):send(res,405,JSON.stringify({error:'GET_required'}),'application/json; charset=utf-8');
-  if(p==='/api/webhooks/stripe'&&req.method==='POST'){
-    let raw;try{raw=await readRequestBody(req,5*1024*1024);}catch(error){return send(res,Number(error.statusCode)||400,JSON.stringify({error:error.message==='request_too_large'?'request_too_large':'invalid_webhook'}),'application/json; charset=utf-8');}
-    let commanderDiagnostic=false;try{const event=JSON.parse(raw.toString('utf8'));commanderDiagnostic=event&&event.data&&event.data.object&&event.data.object.metadata&&event.data.object.metadata.product_id==='COMMANDER-DECK-DIAGNOSTIC-001';}catch{}
-    if(commanderDiagnostic)return proxyMtgDiagnosticToEngine(req,res,raw);
-    req=replayRequest(req,raw);
-  }
   // FightEdge is served directly from PUBLIC_FILES via /fightedge and /fightedge/.
   if(req.method==='GET'&&p==='/healthz'){
     return send(res,200,JSON.stringify({ok:true,service:'dreamledger-storefront'}),'application/json; charset=utf-8');
@@ -239,7 +200,7 @@ http.createServer(async (req,res)=>{
   if(p.startsWith('/api/commercial/') || p==='/api/webhooks/stripe'){
     try{
       const handled=await commercialCell.handle(req,res,p);
-      if(handled||res.writableEnded)return;
+      if(handled)return;
     }catch(error){
       return send(res,error.statusCode||500,JSON.stringify({error:String(error&&error.message||error)}),'application/json; charset=utf-8');
     }
