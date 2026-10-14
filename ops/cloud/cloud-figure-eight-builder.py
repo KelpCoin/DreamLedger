@@ -6,7 +6,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 REPORT_DIR = ROOT / "proof" / "cloud-builder"
 REPORT_PATH = REPORT_DIR / "latest.json"
 MAX_CONTEXT_CHARS, MAX_PATCH_CHARS, MAX_CHANGED_FILES = 26000, 24000, 5
-MODEL = os.environ.get("CLOUD_BUILDER_MODEL", "gpt-4.1-mini")
+MODEL = os.environ.get("CLOUD_BUILDER_MODEL") or "gpt-4.1-mini"
 PROTECTED = (".github/", "supabase/", "ops/commerce/", "ops/decision/", "BEC-PRIME/fulfillment/", "BEC-PRIME/catalog/offers/", "BEC-PRIME/config/", "BEC-PRIME/data/", "BEC-PRIME/proxy/", "BEC-PRIME/runtime/", "BEC-PRIME/evidence/")
 ALLOWED_PREFIXES = ("docs/", "tests/", "ops/demand/", "ops/cube/", "BEC-PRIME/compiler/", "BEC-PRIME/scripts/", "runtime/777/")
 
