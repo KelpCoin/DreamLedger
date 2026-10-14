@@ -43,7 +43,7 @@ jobs:
           const html = fs.readFileSync('mtg/index.html', 'utf8');
           if (!html.includes('/public/catalog.json')) throw new Error('Root preview catalogue must use tracked public catalogue data');
           const liveHtml = fs.readFileSync('public/mtg/index.html', 'utf8');
-          if (!liveHtml.includes("get('/catalog.json')")) throw new Error('Live public MTG page must load the tracked catalogue.json');
+          if (!liveHtml.includes("const MANIFEST='/silos/mtg/silo.json'") || !liveHtml.includes('fetch(MANIFEST') || !liveHtml.includes('m.catalog')) throw new Error('Live public MTG page must load its canonical silo manifest and manifest-owned catalogue');
           for (const page of ['public/mtg/quintorius-field-historian.html', 'public/mtg/dwynen-gilt-leaf-daen.html']) {
             if (!fs.existsSync(page)) throw new Error('Missing deployed public route: ' + page);
           }
