@@ -81,6 +81,57 @@ def inspect_priority_audit(result: dict[str, Any]) -> dict[str, Any]:
         return out
     return out
 
+
+def inspect_build_worker(result: dict[str, Any]) -> dict[str, Any]:
+    worker = result.get("build_worker_result") if isinstance(result.get("build_worker_result"), dict) else {}
+    raw_path = worker.get("artifact_path")
+    out: dict[str, Any] = {
+        "build_worker_path": raw_path if isinstance(raw_path, str) else None,
+        "build_worker_artifact_exists": False,
+        "build_worker_artifact_hash_valid": False,
+        "build_worker_validation_pass": False,
+        "build_worker_consumed": False,
+        "priority_task_consumed": False,
+        "build_worker_status": worker.get("status", "UNAVAILABLE"),
+    }
+    if not isinstance(raw_path, str) or not raw_path.strip():
+        return out
+    try:
+        target = Path(raw_path).resolve()
+        target.relative_to(REPO_ROOT)
+        if not target.is_file():
+            return out
+        out["build_worker_artifact_exists"] = True
+        data = json.loads(target.read_text(encoding="utf-8"))
+        supplied = data.get("artifact_sha256")
+        unhashed = dict(data)
+        unhashed.pop("artifact_sha256", None)
+        canonical = json.dumps(unhashed, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+        expected = hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+        out["build_worker_artifact_hash_valid"] = (
+            isinstance(supplied, str) and len(supplied) == 64 and supplied == expected
+        )
+        validation = data.get("validation", {})
+        out["build_worker_validation_pass"] = (
+            isinstance(validation, dict) and validation.get("exit_code") == 0
+        )
+        out["build_worker_consumed"] = bool(
+            result.get("mode") == "NORTH_STAR_BUILD_WORKER"
+            and worker.get("status") == "BUILD_READY"
+            and data.get("schema") == "dreamledger/north-star-build-worker/v1"
+            and data.get("task_issue") == 712
+            and data.get("external_action_performed") is False
+            and data.get("verified_revenue_nzd") == 0
+            and isinstance(data.get("source_files"), list) and len(data["source_files"]) > 0
+            and isinstance(data.get("output_files"), list) and len(data["output_files"]) > 0
+            and isinstance(data.get("stage_hashes"), dict) and len(data["stage_hashes"]) >= 3
+            and bool(data.get("branch")) and bool(data.get("commit_sha"))
+            and out["build_worker_artifact_hash_valid"] and out["build_worker_validation_pass"]
+        )
+    except Exception:
+        return out
+    return out
+
 def update_runtime_proof(state: str, **fields: Any) -> None:
     try:
         proof_dir, proof_path = runtime_proof_paths()
@@ -302,8 +353,9 @@ def main() -> int:
                 result = {"status":"BLOCKED","reason":"SUPERVISOR_CYCLE_EXCEPTION","error":str(exc)}
             if result.get("status") == "CYCLE_COMPLETE" and result.get("supervisor_state") == "CYCLE_COMPLETE":
                 failures = 0
-                audit_evidence = inspect_priority_audit(result)
+                audit_evidence = inspect_build_worker(result) if result.get("mode") == "NORTH_STAR_BUILD_WORKER" else inspect_priority_audit(result)
                 event(log_path,"CYCLE_COMPLETE",cycle_number=cycle_number,result=result,failure_count=0,**audit_evidence)
+                task_consumed = bool(audit_evidence.get("priority_task_consumed") or audit_evidence.get("build_worker_consumed"))
                 previous_count = 0
                 try:
                     proof_dir, proof_path = runtime_proof_paths()
@@ -312,19 +364,19 @@ def main() -> int:
                 except Exception:
                     previous_count = 0
                 successful_count = previous_count + 1
-                if audit_evidence.get("priority_task_consumed"):
+                if task_consumed:
                     if successful_count >= 2:
                         continuity = "MULTIPLE_CYCLES_OBSERVED_NOT_PERMANENTLY_GUARANTEED"
                     else:
                         continuity = "FIRST_CYCLE_COMPLETE_CONTINUITY_NOT_YET_PROVEN"
-                    runtime_state = "NORTH_STAR_CYCLE_COMPLETE"
+                    runtime_state = "NORTH_STAR_BUILD_WORKER_BUILD_READY" if audit_evidence.get("build_worker_consumed") else "NORTH_STAR_CYCLE_COMPLETE"
                 else:
                     continuity = "CONTINUOUS_EXECUTION_NOT_ESTABLISHED"
-                    runtime_state = "CYCLE_RAN_BUT_PRIORITY_AUDIT_NOT_VERIFIED"
+                    runtime_state = "BUILD_WORKER_DRY_RUN_OR_ARTIFACT_UNVERIFIED" if result.get("mode") == "NORTH_STAR_BUILD_WORKER" else "CYCLE_RAN_BUT_PRIORITY_AUDIT_NOT_VERIFIED"
                 update_runtime_proof(
                     runtime_state,
                     **audit_evidence,
-                    first_cycle_complete=bool(audit_evidence.get("priority_task_consumed")),
+                    first_cycle_complete=task_consumed,
                     successful_cycle_count=successful_count,
                     continuous_execution=continuity,
                     last_cycle_state="CYCLE_COMPLETE",
