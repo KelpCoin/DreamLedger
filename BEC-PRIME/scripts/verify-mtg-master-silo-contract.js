@@ -13,12 +13,13 @@ function check(id, ok, detail) {
   if (!ok) failures.push(id);
 }
 
-let manifest, contract, catalogue, publicCatalogue;
+let manifest, contract, catalogue, publicCatalogue, searchPage;
 try {
   manifest = readJson('public/silos/mtg/silo.json');
   contract = readJson('public/silos/mtg/marketplace-contract.json');
   catalogue = readJson('public/data/mtg-catalog.json');
   publicCatalogue = readJson('public/catalog.json');
+  searchPage = fs.readFileSync(path.join(root, 'mtg-search.html'), 'utf8');
 } catch (error) {
   console.error(JSON.stringify({ status: 'FAIL', error: error.message }, null, 2));
   process.exit(1);
@@ -35,6 +36,7 @@ check('auction-safety-gates', ['server time is authoritative', 'seller cannot bi
 check('privacy-boundaries', ['private records are not returned by public APIs, search, counts, autocomplete, or matching', 'only explicitly tradeable or for_sale records may enter matching results'].every((x) => contract.collection_record?.privacy_rules?.includes(x)), 'Private and unavailable cards must not leak through search or matching.');
 check('catalogue-silo-identity', catalogue.silo === 'mtg' && Array.isArray(catalogue.products), 'MTG catalogue has correct silo identity and products array.');
 check('public-catalogue-shape', publicCatalogue.schema === 'dreamledger/public-catalogue/v1' && Array.isArray(publicCatalogue.products), 'Public commerce catalogue shape remains valid.');
+check('search-uses-live-inventory', searchPage.includes("fetch('/api/mtg/marketplace/listings'") && !searchPage.includes('var SEED=') && !searchPage.includes('Sol Ring'), 'Public search uses the live listings API and contains no synthetic sample inventory.');
 
 const knownBlockers = [];
 for (const p of catalogue.products) {
