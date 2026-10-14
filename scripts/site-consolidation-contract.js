@@ -14,6 +14,8 @@ assert.match(vercel, /copyFileSync\('index\.html','public\/index\.html'\)/, "bui
 assert.match(root, /href="\/dreamledger\.css"/, "homepage must load shared design tokens");
 assert.match(root, /href="\/truth-oracle\.html"/, "homepage must expose Truth Oracle");
 assert.match(root, /href="\/mtg\/"/, "homepage must expose the MTG silo");
+assert.match(root, /href="\\/privacy\\.html"/, "homepage privacy link must resolve to the published page");
+assert.match(root, /href="\\/terms\\.html"/, "homepage terms link must resolve to the published page");
 assert.match(root, /Paid automated report delivery is not advertised as live/, "homepage must not overstate paid fulfillment");
 assert.match(css, /--dl-bg:/, "shared stylesheet must define canonical color tokens");
 assert.match(css, /font-family:Inter/, "shared stylesheet must define canonical typography");
@@ -24,6 +26,10 @@ for (const path of [
   "public/mtg/index.html",
   "public/quote-comparison/index.html",
   "public/trust/index.html"
+  "public/privacy.html",
+  "public/terms.html",
+  "public/security.html",
+  "public/about.html"
 ]) {
   assert.match(read(path), /href="\/dreamledger\.css"/, path + " must use shared design tokens");
 }
