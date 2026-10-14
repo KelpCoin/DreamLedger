@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Bounded cloud Figure Eight builder. Never merges, deploys, or touches payment secrets."""
 from __future__ import annotations
-import datetime as dt, json, os, pathlib, re, subprocess, sys, urllib.request
+import datetime as dt, io, json, os, pathlib, re, subprocess, sys, urllib.request, zipfile
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 REPORT_DIR = ROOT / "proof" / "cloud-builder"
 REPORT_PATH = REPORT_DIR / "latest.json"
@@ -29,7 +29,12 @@ def gh_get(url, token):
     with urllib.request.urlopen(req, timeout=20) as response:
         return json.loads(response.read().decode("utf-8"))
 
-def collect_failures(token, repo):
+def gh_bytes(url, token):
+    req = urllib.request.Request(url, headers={"Authorization": "Bearer " + token, "Accept": "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28", "User-Agent": "DreamLedger-Cloud-Figure-Eight"})
+    with urllib.request.urlopen(req, timeout=25) as response:
+        return response.read(8000000)
+
+def collect_failures(token, repo, include_logs=False):
     if not token or not repo:
         return [{"status": "UNAVAILABLE", "detail": "GitHub token or repository context missing"}]
     try:
@@ -38,8 +43,38 @@ def collect_failures(token, repo):
         for run in runs.get("workflow_runs", []):
             if run.get("conclusion") != "failure":
                 continue
-            failures.append({"name": run.get("name"), "workflow": run.get("path"), "branch": run.get("head_branch"), "sha": (run.get("head_sha") or "")[:12], "updated_at": run.get("updated_at"), "url": run.get("html_url"), "event": run.get("event")})
-            if len(failures) >= 12:
+            item = {"name": run.get("name"), "workflow": run.get("path"), "branch": run.get("head_branch"), "sha": (run.get("head_sha") or "")[:12], "updated_at": run.get("updated_at"), "url": run.get("html_url"), "event": run.get("event")}
+            if include_logs:
+                try:
+                    jobs = gh_get(run.get("url", "") + "/jobs?per_page=30", token)
+                    signals = []
+                    for job in jobs.get("jobs", []):
+                        if job.get("conclusion") != "failure":
+                            continue
+                        try:
+                            archive = gh_bytes("https://api.github.com/repos/" + repo + "/actions/jobs/" + str(job["id"]) + "/logs", token)
+                            with zipfile.ZipFile(io.BytesIO(archive)) as bundle:
+                                for name in bundle.namelist():
+                                    raw = bundle.read(name).decode("utf-8", errors="replace")
+                                    for line in raw.splitlines():
+                                        if re.search(r"\b(error|failed|failure|exception|missing required|not found|blocked|denied|timed out)\b", line, re.I):
+                                            clean = re.sub(r"(?i)(authorization:\s*bearer\s+)\S+", r"\1[REDACTED]", line)
+                                            clean = re.sub(r"\b(sk_live_|sk_test_|ghp_|github_pat_)[A-Za-z0-9_-]+", r"\1[REDACTED]", clean)
+                                            clean = re.sub(r"\b[A-Z0-9_]*(?:SECRET|TOKEN|PASSWORD|API_KEY)[A-Z0-9_]*\s*[:=]\s*\S+", "[REDACTED_ENV]", clean, flags=re.I)
+                                            signals.append({"job": job.get("name"), "line": clean[-260:]})
+                                            if len(signals) >= 12:
+                                                break
+                                    if len(signals) >= 12:
+                                        break
+                        except Exception as log_exc:
+                            signals.append({"job": job.get("name"), "line": "Failure logs unavailable: " + type(log_exc).__name__})
+                        if len(signals) >= 12:
+                            break
+                    item["failure_signals"] = signals
+                except Exception as job_exc:
+                    item["failure_signals"] = [{"line": "Failed-job inventory unavailable: " + type(job_exc).__name__}]
+            failures.append(item)
+            if len(failures) >= 8:
                 break
         return failures
     except Exception as exc:
@@ -158,9 +193,9 @@ def validate_candidate(paths):
 
 def main():
     token, repo = os.environ.get("GITHUB_TOKEN", ""), os.environ.get("GITHUB_REPOSITORY", "")
-    failures = collect_failures(token, repo)
-    report = {"schema": "dreamledger/cloud-figure-eight-builder/v1", "mode": "HUNT_ONLY", "repository": repo, "failures_seen": failures, "candidate_ready": False, "verified_external_revenue_nzd": 0, "human_gate": "REQUIRED_FOR_SECRET_CONFIGURATION_AND_ANY_PRODUCTION_FINANCIAL_CHANGE", "safety": {"merge": "NEVER", "deploy": "NEVER", "payment_or_external_contact": "NEVER", "changed_files_max": MAX_CHANGED_FILES, "patch_chars_max": MAX_PATCH_CHARS, "protected_paths": list(PROTECTED)}}
     enabled, api_key = os.environ.get("CLOUD_BUILDER_ENABLED", "").lower() == "true", os.environ.get("OPENAI_API_KEY", "")
+    failures = collect_failures(token, repo, include_logs=enabled and bool(api_key))
+    report = {"schema": "dreamledger/cloud-figure-eight-builder/v1", "mode": "HUNT_ONLY", "repository": repo, "failures_seen": failures, "candidate_ready": False, "verified_external_revenue_nzd": 0, "human_gate": "REQUIRED_FOR_SECRET_CONFIGURATION_AND_ANY_PRODUCTION_FINANCIAL_CHANGE", "safety": {"merge": "NEVER", "deploy": "NEVER", "payment_or_external_contact": "NEVER", "changed_files_max": MAX_CHANGED_FILES, "patch_chars_max": MAX_PATCH_CHARS, "protected_paths": list(PROTECTED)}}
     if not enabled or not api_key:
         report["next_action"] = "Set CLOUD_BUILDER_ENABLED=true and OPENAI_API_KEY as protected Actions settings to enable bounded model-assisted PR generation. Otherwise this run only inventories failed workflows."
         write_report(report)
