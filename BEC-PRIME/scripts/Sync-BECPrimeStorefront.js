@@ -35,7 +35,6 @@ const PRESERVE = [
   'assets/mtg-deck-grid.js',
   'data/decklists',
   'mtg',
-  'mtg/index.html',
 ];
 
 function ensureDir(p) {
@@ -121,24 +120,32 @@ function main() {
 
   // 5. Report MTG master status (truth only)
   const required = [
+    'mtg/index.html',
     'silos/mtg/silo.json',
     'data/mtg-catalog.json',
+    'data/_catalog-empty.template.json',
     'assets/mtg-deck-grid.js',
+    'data/decklists',
   ];
   let ok = true;
   for (const rel of required) {
     const full = path.join(TARGET, rel);
     const exists = fs.existsSync(full);
-    console.log(`  ${exists ? 'OK' : 'MISSING'}  public/${rel}`);
-    if (!exists) ok = false;
+    const isDecklistDir = rel === 'data/decklists';
+    const hasDecklist = isDecklistDir && exists && fs.statSync(full).isDirectory()
+      && fs.readdirSync(full, { withFileTypes: true }).some(entry => entry.isFile() || entry.isDirectory());
+    const valid = exists && (!isDecklistDir || hasDecklist);
+    console.log(`  ${valid ? 'OK' : 'MISSING/EMPTY'}  public/${rel}`);
+    if (!valid) ok = false;
   }
 
   if (!ok) {
-    console.warn('[Sync-BECPrimeStorefront] MTG master incomplete after sync — gauntlet will REJECT activation');
-  } else {
-    console.log('[Sync-BECPrimeStorefront] MTG master paths present');
+    console.error('[Sync-BECPrimeStorefront] MTG master incomplete after sync — failing prestart; gauntlet must REJECT activation');
+    process.exitCode = 1;
+    return;
   }
 
+  console.log('[Sync-BECPrimeStorefront] MTG master paths present');
   console.log('[Sync-BECPrimeStorefront] done');
 }
 
