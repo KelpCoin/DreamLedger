@@ -18,7 +18,11 @@ async function main() {
   assert.equal(d.assertCheckoutSessionContract(validCheckout,'intake-test'),true);
   assert.throws(() => d.assertCheckoutSessionContract({...validCheckout,amount_total:40000},'intake-test'), /amount_must_equal_NZD_29/);
   assert.throws(() => d.assertCheckoutSessionContract({...validCheckout,livemode:false},'intake-test'), /live_mode_required/);
+  assert.throws(() => d.assertCheckoutSessionContract({...validCheckout,currency:'usd'},'intake-test'), /currency_must_be_NZD/);
+  assert.throws(() => d.assertCheckoutSessionContract({...validCheckout,metadata:{...validCheckout.metadata,product_id:'OTHER'}},'intake-test'), /product_id_mismatch/);
+  assert.throws(() => d.assertCheckoutSessionContract({...validCheckout,metadata:{...validCheckout.metadata,offer_id:'OTHER'}},'intake-test'), /offer_id_mismatch/);
   assert.throws(() => d.assertCheckoutSessionContract({...validCheckout,metadata:{...validCheckout.metadata,sku:'OTHER'}},'intake-test'), /sku_mismatch/);
+  assert.throws(() => d.assertCheckoutSessionContract({...validCheckout,metadata:{...validCheckout.metadata,intake_id:'OTHER'}},'intake-test'), /intake_id_mismatch/);
   assert.strictEqual(parsed.length,35);
   const metrics = d.classify([
     {name:'Sol Ring',qty:1},
