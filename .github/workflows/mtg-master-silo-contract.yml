@@ -95,6 +95,12 @@ jobs:
       - name: Install dependencies
         working-directory: BEC-PRIME
         run: npm ci --ignore-scripts
+      - name: Check cloud supervisor TypeScript
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Type-check versioned cloud supervisor
+        run: deno check supabase/functions/commerce-supervisor/index.ts
       - name: Validate master silo contract
         run: node BEC-PRIME/scripts/verify-mtg-master-silo-contract.js
       - name: Validate cloud supervisor schedule source
