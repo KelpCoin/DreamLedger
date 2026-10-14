@@ -42,3 +42,15 @@ h1,h2,h3{font-family:Inter,ui-sans-serif,system-ui,sans-serif;letter-spacing:-.0
 input,textarea,select,button{font:inherit}
 @media(max-width:760px){.site-shell,.wrap{width:min(var(--dl-width),calc(100% - 28px))}.site-header{padding:16px 0}.site-nav{gap:14px}.product-grid{grid-template-columns:1fr}.proof-strip{grid-template-columns:1fr;gap:12px}.process-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.status-panel{align-items:flex-start;flex-direction:column;padding:20px!important}.hero{padding-top:48px}.section{padding:46px 0}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+/* Shared component overrides for legacy product pages and silos. */
+.silo-body{background:radial-gradient(ellipse at 78% 0%,#172e46 0,transparent 38%),var(--dl-bg)!important;color:var(--dl-ink)!important;font-family:Inter,ui-sans-serif,system-ui,sans-serif!important}
+.silo-hdr{background:rgba(11,18,32,.92)!important;border-color:var(--dl-line)!important}
+.silo-hdr-inner,.silo-wrap{max-width:var(--dl-width)!important}
+.silo-nav a{color:var(--dl-muted)!important}.silo-nav .silo-cta{background:var(--dl-mint)!important;color:#07140e!important;border-color:var(--dl-mint)!important}
+.panel,.step,.tool,.quote-card,.result-card{background:var(--dl-panel)!important;border-color:var(--dl-line)!important;color:var(--dl-ink)!important}
+.nav{border-color:var(--dl-line)!important}.nav a{color:var(--dl-muted)!important}
+label,.field-label{color:var(--dl-muted)!important}
+input,textarea,select{background:#080e14!important;border-color:var(--dl-line)!important;color:var(--dl-ink)!important}
+footer,.foot{border-color:var(--dl-line)!important;color:var(--dl-soft)!important}
+.links a{color:var(--dl-mint)!important}
