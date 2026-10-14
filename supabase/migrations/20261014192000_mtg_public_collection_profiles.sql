@@ -75,27 +75,32 @@ as $function$
       'bio', p.bio
     ),
     'cards', coalesce((
-      select jsonb_agg(
-        jsonb_build_object(
-          'card_name', i.card_name,
-          'set_code', i.set_code,
-          'collector_number', i.collector_number,
-          'printing_id', i.printing_id,
-          'quantity', i.quantity,
-          'condition', i.condition,
-          'language', i.language,
-          'finish', i.finish,
-          'availability', i.availability,
-          'price_nzd', case when i.availability = 'for_sale' then i.price_nzd else null end
-        )
+      select jsonb_agg(page.card order by page.card_name, page.set_code, page.collector_number)
+      from (
+        select
+          i.card_name,
+          i.set_code,
+          i.collector_number,
+          jsonb_build_object(
+            'card_name', i.card_name,
+            'set_code', i.set_code,
+            'collector_number', i.collector_number,
+            'printing_id', i.printing_id,
+            'quantity', i.quantity,
+            'condition', i.condition,
+            'language', i.language,
+            'finish', i.finish,
+            'availability', i.availability,
+            'price_nzd', case when i.availability = 'for_sale' then i.price_nzd else null end
+          ) as card
+        from public.mtg_collection_inventory i
+        where i.owner_id = p.owner_id
+          and i.visibility = 'public'
+          and i.status not in ('sold', 'quarantined')
         order by i.card_name, i.set_code, i.collector_number
-      )
-      from public.mtg_collection_inventory i
-      where i.owner_id = p.owner_id
-        and i.visibility = 'public'
-        and i.status not in ('sold', 'quarantined')
-      offset greatest(coalesce(p_offset, 0), 0)
-      limit least(greatest(coalesce(p_limit, 60), 1), 100)
+        offset greatest(coalesce(p_offset, 0), 0)
+        limit least(greatest(coalesce(p_limit, 60), 1), 100)
+      ) page
     ), '[]'::jsonb),
     'offset', greatest(coalesce(p_offset, 0), 0),
     'limit', least(greatest(coalesce(p_limit, 60), 1), 100),
