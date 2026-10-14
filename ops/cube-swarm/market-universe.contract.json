@@ -1,0 +1,187 @@
+{
+  "schema": "dreamledger/cube-market-universe/v1",
+  "status": "DRAFT_INTERNAL",
+  "north_star": "Find source-backed, repeatable online business opportunities and reuse proven commerce, fulfillment, and proof capabilities across isolated silos.",
+  "universe_targets": {
+    "business_observations": 500000,
+    "meaning": "Long-range ingestion target, not current coverage or a claim that 500000 businesses have been found or ranked.",
+    "profitability_claim_policy": "A business may be called profitable only when a traceable source supports a stated period, currency, scope, and profit measure. Revenue, traffic, valuation, funding, reviews, and job postings are not profit.",
+    "candidate_hypotheses": "The operator-supplied 500-item idea backlog is a hypothesis set, not verified demand, a list of businesses, or a revenue forecast."
+  },
+  "pipeline": [
+    {
+      "stage": "OBSERVE",
+      "require": [
+        "source_url",
+        "observed_at_utc",
+        "record_hash",
+        "source_type"
+      ],
+      "rule": "Keep the source text or an allowed extract, timestamp, and content hash. No synthetic observations."
+    },
+    {
+      "stage": "NORMALIZE",
+      "require": [
+        "stable_record_id",
+        "canonical_url_or_public_identifier",
+        "entity_or_problem",
+        "country_or_scope"
+      ],
+      "rule": "Deduplicate and preserve original source identity. Do not infer missing financial fields."
+    },
+    {
+      "stage": "ECONOMIC_EVIDENCE",
+      "require": [
+        "evidence_refs",
+        "evidence_classes",
+        "freshness_state"
+      ],
+      "rule": "Separate observed buyer intent, paid demand, public revenue, disclosed profit, repeat purchase, and mere attention."
+    },
+    {
+      "stage": "GAUNTLET",
+      "dimensions": [
+        "evidence_strength",
+        "buyer_specificity",
+        "economic_value_support",
+        "repeatability",
+        "gross_margin_support",
+        "existing_capability_fit",
+        "fulfillment_and_proof"
+      ],
+      "rule": "Score only against evidence. Missing evidence lowers confidence or blocks admission; it never becomes PASS."
+    },
+    {
+      "stage": "CUBE",
+      "require": [
+        "candidate_id",
+        "source_refs",
+        "owner_silo",
+        "required_capabilities",
+        "blockers",
+        "next_bounded_artifact"
+      ],
+      "rule": "Create hypothesis cells separately from observed opportunity records. Never label a generated cell as a buyer, business observation, or revenue."
+    },
+    {
+      "stage": "BUILD_AND_VERIFY",
+      "require": [
+        "reproducible_test",
+        "artifact_hash",
+        "verification_result",
+        "limitations"
+      ],
+      "rule": "Reuse the MTG master and existing commerce spine. Failed mechanisms stay small and are quarantined."
+    },
+    {
+      "stage": "HUMAN_GATE",
+      "rule": "Publishing, outreach, checkout activation, purchases, credential changes, and irreversible production changes remain blocked until separately authorized."
+    },
+    {
+      "stage": "ECONOMIC_PROMOTION",
+      "require": [
+        "independent_buyer_evidence",
+        "settled_stripe_charge",
+        "canonical_sku_and_amount_match",
+        "fulfillment_artifact",
+        "delivery_evidence"
+      ],
+      "rule": "Only a real settled external payment plus verified fulfillment can promote a commercial result. Internal scores and payment links are not revenue."
+    }
+  ],
+  "source_policy": {
+    "default_mode": "GET_ONLY_OBSERVE_ONLY",
+    "allowed_source_families": [
+      "public company filings and audited annual reports",
+      "publicly disclosed financial statements",
+      "official public procurement and tender notices",
+      "public software issue trackers and feature requests",
+      "public job descriptions and contract requests",
+      "public marketplaces where access and reuse are permitted",
+      "public pricing pages and service catalogues",
+      "public creator and developer marketplaces with documented terms"
+    ],
+    "rules": {
+      "respect_terms_rate_limits_and_robots": true,
+      "no_private_credentials": true,
+      "no_unauthorized_scraping": true,
+      "no_outreach": true,
+      "no_bidding": true,
+      "no_spending": true,
+      "no_external_publication": true,
+      "no_synthetic_buyers": true,
+      "no_synthetic_revenue": true,
+      "no_inferred_profit_without_source": true,
+      "no_synthetic_observations": true
+    }
+  },
+  "priority_model": {
+    "score_type": "EVIDENCE_BACKED_PRIORITY_NOT_PROFIT_FORECAST",
+    "dimensions": {
+      "observable_buyer_demand": 25,
+      "financial_evidence_quality": 20,
+      "existing_capability_reuse": 15,
+      "repeatability_or_recurring_need": 15,
+      "fulfillment_cost_and_margin_evidence": 10,
+      "distribution_accessibility_without_outreach": 10,
+      "time_to_testable_artifact": 5
+    },
+    "hard_stops": [
+      "No attributable source",
+      "Profit claim without a cited profit measure and period",
+      "Checkout and fulfillment do not match",
+      "Material rights, privacy, or safety issue unresolved",
+      "Required action crosses a forbidden mutation boundary"
+    ],
+    "unknown_value": "UNVERIFIED",
+    "unknown_authority": "BLOCKED"
+  },
+  "initial_execution_order": [
+    {
+      "id": "MTG-COMMANDER-CHECKOUT-FULFILLMENT",
+      "priority_reason": "Existing MTG master silo and a high operator-provided candidate score make this the first bounded product audit. The score is not proof of demand.",
+      "first_artifact": "checkout_fulfillment_audit.json",
+      "allowed_actions": [
+        "read source files",
+        "read current Stripe product and price metadata",
+        "validate local contracts",
+        "write internal audit artifact on a branch"
+      ],
+      "forbidden_actions": [
+        "create checkout",
+        "publish offer",
+        "contact buyers",
+        "spend money",
+        "change secrets"
+      ],
+      "success_condition": "A deterministic report identifies exact checkout, canonical SKU, settlement verification, input intake, fulfillment output, and proof gaps with source references."
+    },
+    {
+      "id": "MTG-MASTER-CLONE-CONTRACT",
+      "priority_reason": "Reuse the existing MTG stencil rather than cloning code and commerce logic per niche.",
+      "first_artifact": "silo_contract.json",
+      "success_condition": "Shared UI template, isolated inventory, explicit capability contract, and fail-closed activation gates are testable."
+    },
+    {
+      "id": "MEDIA-MUSIC-CAPABILITY-GATES",
+      "priority_reason": "Existing route and registry exist, but forum, real-time chat, free listings, and paid promotion must be evidenced individually.",
+      "first_artifact": "implementation-contract.json",
+      "success_condition": "No feature is labelled active without a verified backend, authorization boundary, persistence, and user-facing test."
+    },
+    {
+      "id": "PUBLIC-UNIVERSE-INGESTION",
+      "priority_reason": "Grow from permitted public source observations instead of fabricating a 500000-business list.",
+      "first_artifact": "source-backed observation batch with freshness, deduplication, and evidence hashes",
+      "success_condition": "Each record resolves to an allowed source and remains explicitly unverified until evidence clears admission."
+    }
+  ],
+  "truth_invariants": {
+    "verified_external_revenue_nzd": 0,
+    "settled_external_payments": 0,
+    "independent_external_buyers": 0,
+    "paid_fulfilled_orders": 0,
+    "verified_economic_outcomes": 0,
+    "first_sale_state": "AWAITING_FIRST_REAL_BUYER",
+    "note": "These values describe the current known project baseline when this contract was authored; runtime must replace them only with independently verified evidence, never with this static file."
+  }
+}

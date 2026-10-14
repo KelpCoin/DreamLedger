@@ -1,0 +1,89 @@
+{
+  "schema": "dreamledger/silo-implementation-contract/v1",
+  "silo_id": "media-music",
+  "display_name": "Music & Media",
+  "route": "/media-music/",
+  "master_reference": "/mtg/",
+  "status": "DRAFT_IMPLEMENTATION_CONTRACT",
+  "shared_commerce_spine": "DreamLedger canonical checkout and fulfillment evidence; no separate revenue ledger",
+  "inventory_policy": "empty_until_verified_supply",
+  "isolation": {
+    "separate_inventory_namespace": true,
+    "shared_identity_provider": true,
+    "cross_silo_customer_data": false,
+    "reuse_shared_styles_and_components": true
+  },
+  "required_capabilities": {
+    "forum_threads": {
+      "required": true,
+      "current_state": "NOT_VERIFIED",
+      "acceptance": [
+        "Persistent topic threads and replies",
+        "Pagination and stable topic URLs so new posts do not bury prior discussions",
+        "Moderation, report/block controls, rate limits, and server-side authorization",
+        "RLS or equivalent access policies and automated policy tests"
+      ]
+    },
+    "realtime_chat": {
+      "required": true,
+      "current_state": "NOT_VERIFIED",
+      "acceptance": [
+        "Authenticated channel membership and private-channel authorization",
+        "Messages persist across reloads and reconnects",
+        "Realtime delivery test across two distinct authenticated sessions",
+        "Rate limits, moderation, retention policy, and RLS tests",
+        "Database and realtime service health verified at runtime"
+      ]
+    },
+    "free_listings": {
+      "required": true,
+      "current_state": "NOT_VERIFIED",
+      "acceptance": [
+        "Browse without an account",
+        "Free account required to create or edit a seller listing",
+        "Seller identity, item rights, format, territory, condition, price, and fulfillment declared",
+        "No fake inventory; seller ownership checked server-side",
+        "Listing submission and retrieval verified end to end"
+      ]
+    },
+    "paid_promotion": {
+      "required": true,
+      "current_state": "HELD_NOT_END_TO_END_VERIFIED",
+      "acceptance": [
+        "Separate promotion SKU, canonical Stripe Price ID, currency, amount, and live/test mode match",
+        "Settled payment verified from Stripe, not from a checkout URL or session alone",
+        "Unique placement reservation is committed idempotently after settlement",
+        "Promoted listing is labelled and expires at the purchased time",
+        "Moderation and rights review completed before display",
+        "Refund, duplicate webhook, cancellation, and unavailable-inventory cases tested",
+        "Placement and delivery evidence recorded with hashes"
+      ],
+      "activation_allowed": false
+    }
+  },
+  "initial_catalogue": {
+    "categories": [
+      "music releases",
+      "vinyl and physical music",
+      "instruments and recording equipment",
+      "film and video",
+      "creator editions",
+      "samples, stems, and production resources",
+      "rights-cleared digital media"
+    ],
+    "status": "NO_VERIFIED_INVENTORY_SEEDED",
+    "synthetic_products_allowed": false
+  },
+  "hard_gates": [
+    "Do not advertise feature as live until acceptance tests pass",
+    "Do not activate paid promotion while inventory reservation or settlement verification is unverified",
+    "Do not expose private user data across silos",
+    "Do not publish, purchase, contact buyers, or change production credentials as part of this implementation",
+    "No user-submitted copyrighted or unlicensed media may be used as demo inventory"
+  ],
+  "runtime_blockers": [
+    "Supabase Postgres/PostgREST connectivity has prior PGRST002 and storage exhaustion evidence; current recovery requires fresh read-only health proof",
+    "Forum/chat RLS and authorization evidence not yet established",
+    "Promotion checkout-to-reservation-to-delivery path not yet end-to-end verified"
+  ]
+}

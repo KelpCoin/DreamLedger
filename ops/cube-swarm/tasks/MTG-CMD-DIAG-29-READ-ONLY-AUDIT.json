@@ -1,0 +1,57 @@
+{
+  "schema": "dreamledger/cube-bounded-task/v1",
+  "task_id": "MTG-CMD-DIAG-29-READ-ONLY-AUDIT",
+  "state": "READY_FOR_READ_ONLY_AUDIT",
+  "north_star_priority": 1,
+  "silo": "mtg",
+  "kind": "analysis",
+  "worker_preference": "multi_model_diverse",
+  "task": "Audit the existing Commander Deck Diagnostic purchase-to-delivery path. Follow the actual page, product/SKU, Stripe Payment Link and Price IDs, checkout validation, settlement event handling, required buyer inputs, fulfillment endpoint, produced report, and delivery evidence. Write one bounded internal JSON audit artifact with a source reference for every conclusion. Mark each step PASS, FAIL, BLOCKED, or NOT_VERIFIED. Do not change production files, create a checkout session, contact a buyer, access or reveal secrets, write to Supabase, or claim a sale. Prioritize finding the smallest repair that enables a future independently paid and fulfillable order.",
+  "inputs": {
+    "candidate_priority_score": {
+      "value": 90,
+      "source": "operator-provided Elohim candidate score",
+      "status": "UNVERIFIED_SCORE_ONLY",
+      "does_not_prove": ["buyer demand", "profitability", "settlement", "fulfillment"]
+    },
+    "starting_sources": [
+      "public/mtg/index.html",
+      "public/catalog.json",
+      "BEC-PRIME/opportunities/03-mtg-diagnostic.json",
+      "ops/cube-swarm/silo-definitions/mtg-commander.json",
+      "BEC-PRIME/lib/mtgDiagnosticFulfillment.js",
+      "BEC-PRIME/routes/mtgDiagnostic.js",
+      "supabase/functions/marketplace-diagnostic-delivery/index.ts",
+      "public/webhook-proxy-preload.js"
+    ]
+  },
+  "required_artifact": {
+    "path": "LAKE/FIGURE8/evidence/MTG-CMD-DIAG-29-CHECKOUT-AUDIT.json",
+    "format": "JSON",
+    "required_fields": [
+      "schema",
+      "observed_at_utc",
+      "source_commit",
+      "candidate_id",
+      "steps",
+      "blockers",
+      "proposed_reversible_repair",
+      "tests_required",
+      "limitations",
+      "external_action_performed",
+      "payment_verified",
+      "fulfillment_verified",
+      "status"
+    ],
+    "truth_defaults": {
+      "external_action_performed": false,
+      "payment_verified": false,
+      "fulfillment_verified": false,
+      "status": "UNVERIFIED"
+    }
+  },
+  "effects": [],
+  "approval_required": true,
+  "public_action_allowed": false,
+  "forbidden_mutations": ["publish_external", "contact_buyers", "spend_money", "change_credentials", "production_mutation", "checkout_creation", "database_write"]
+}

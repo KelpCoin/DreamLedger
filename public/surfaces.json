@@ -1,7 +1,7 @@
 {
   "schema": "dreamledger/public-site-directory/v1",
   "status": "public",
-  "updated": "2026-10-10",
+  "updated": "2026-10-14",
   "purpose": "Directory of visitor-facing DreamLedger pages and tools.",
   "rules": {
     "examples_are_labelled": true,
@@ -16,17 +16,84 @@
     "INFORMATION": "About, trust, and help pages"
   },
   "pages": [
-    {"name":"Home","type":"INFORMATION","path":"/","status":"public"},
-    {"name":"Truth Oracle","type":"FREE_TOOL","path":"/truth-oracle.html","status":"public"},
-    {"name":"Truth Oracle Field Guide","type":"FREE_TOOL","path":"/truth-oracle-field-guide.html","status":"public"},
-    {"name":"Supplier Quote Comparison","type":"SERVICE","path":"/quote-comparison/","status":"public"},
-    {"name":"Products and Services","type":"SERVICE","path":"/shop.html","status":"public"},
-    {"name":"Seller Information","type":"INFORMATION","path":"/sell.html","status":"public"},
-    {"name":"Billboard","type":"SERVICE","path":"/billboard.html","status":"public"},
-    {"name":"Magic: The Gathering","type":"MARKETPLACE","path":"/mtg/","status":"public"},
-    {"name":"Research Notes","type":"RESEARCH","path":"/pulse/","status":"public"},
-    {"name":"About DreamLedger","type":"INFORMATION","path":"/about/","status":"public"},
-    {"name":"Evidence Standard","type":"INFORMATION","path":"/trust/","status":"public"},
-    {"name":"B2B Procurement","type":"SERVICE","path":"/b2b.html","status":"public"}
+    {
+      "name": "Home",
+      "type": "INFORMATION",
+      "path": "/",
+      "status": "public"
+    },
+    {
+      "name": "Truth Oracle",
+      "type": "FREE_TOOL",
+      "path": "/truth-oracle.html",
+      "status": "public"
+    },
+    {
+      "name": "Truth Oracle Field Guide",
+      "type": "FREE_TOOL",
+      "path": "/truth-oracle-field-guide.html",
+      "status": "public"
+    },
+    {
+      "name": "Supplier Quote Comparison",
+      "type": "SERVICE",
+      "path": "/quote-comparison/",
+      "status": "public"
+    },
+    {
+      "name": "Products and Services",
+      "type": "SERVICE",
+      "path": "/shop.html",
+      "status": "public"
+    },
+    {
+      "name": "Seller Information",
+      "type": "INFORMATION",
+      "path": "/sell.html",
+      "status": "public"
+    },
+    {
+      "name": "Billboard",
+      "type": "SERVICE",
+      "path": "/billboard.html",
+      "status": "public"
+    },
+    {
+      "name": "Magic: The Gathering",
+      "type": "MARKETPLACE",
+      "path": "/mtg/",
+      "status": "public"
+    },
+    {
+      "name": "Research Notes",
+      "type": "RESEARCH",
+      "path": "/pulse/",
+      "status": "public"
+    },
+    {
+      "name": "About DreamLedger",
+      "type": "INFORMATION",
+      "path": "/about/",
+      "status": "public"
+    },
+    {
+      "name": "Evidence Standard",
+      "type": "INFORMATION",
+      "path": "/trust/",
+      "status": "public"
+    },
+    {
+      "name": "B2B Procurement",
+      "type": "SERVICE",
+      "path": "/b2b.html",
+      "status": "public"
+    },
+    {
+      "name": "Music & Media",
+      "type": "MARKETPLACE",
+      "path": "/media-music/",
+      "status": "public",
+      "availability_note": "Surface exists; listings, forum, realtime chat, and paid promotion remain disabled or unverified until their contracts pass."
+    }
   ]
 }
