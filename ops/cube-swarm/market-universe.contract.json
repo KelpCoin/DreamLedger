@@ -11,17 +11,31 @@
   "pipeline": [
     {
       "stage": "OBSERVE",
-      "require": ["source_url", "observed_at_utc", "record_hash", "source_type"],
+      "require": [
+        "source_url",
+        "observed_at_utc",
+        "record_hash",
+        "source_type"
+      ],
       "rule": "Keep the source text or an allowed extract, timestamp, and content hash. No synthetic observations."
     },
     {
       "stage": "NORMALIZE",
-      "require": ["stable_record_id", "canonical_url_or_public_identifier", "entity_or_problem", "country_or_scope"],
+      "require": [
+        "stable_record_id",
+        "canonical_url_or_public_identifier",
+        "entity_or_problem",
+        "country_or_scope"
+      ],
       "rule": "Deduplicate and preserve original source identity. Do not infer missing financial fields."
     },
     {
       "stage": "ECONOMIC_EVIDENCE",
-      "require": ["evidence_refs", "evidence_classes", "freshness_state"],
+      "require": [
+        "evidence_refs",
+        "evidence_classes",
+        "freshness_state"
+      ],
       "rule": "Separate observed buyer intent, paid demand, public revenue, disclosed profit, repeat purchase, and mere attention."
     },
     {
@@ -39,12 +53,24 @@
     },
     {
       "stage": "CUBE",
-      "require": ["candidate_id", "source_refs", "owner_silo", "required_capabilities", "blockers", "next_bounded_artifact"],
+      "require": [
+        "candidate_id",
+        "source_refs",
+        "owner_silo",
+        "required_capabilities",
+        "blockers",
+        "next_bounded_artifact"
+      ],
       "rule": "Create hypothesis cells separately from observed opportunity records. Never label a generated cell as a buyer, business observation, or revenue."
     },
     {
       "stage": "BUILD_AND_VERIFY",
-      "require": ["reproducible_test", "artifact_hash", "verification_result", "limitations"],
+      "require": [
+        "reproducible_test",
+        "artifact_hash",
+        "verification_result",
+        "limitations"
+      ],
       "rule": "Reuse the MTG master and existing commerce spine. Failed mechanisms stay small and are quarantined."
     },
     {
@@ -53,7 +79,13 @@
     },
     {
       "stage": "ECONOMIC_PROMOTION",
-      "require": ["independent_buyer_evidence", "settled_stripe_charge", "canonical_sku_and_amount_match", "fulfillment_artifact", "delivery_evidence"],
+      "require": [
+        "independent_buyer_evidence",
+        "settled_stripe_charge",
+        "canonical_sku_and_amount_match",
+        "fulfillment_artifact",
+        "delivery_evidence"
+      ],
       "rule": "Only a real settled external payment plus verified fulfillment can promote a commercial result. Internal scores and payment links are not revenue."
     }
   ],
@@ -79,7 +111,8 @@
       "no_external_publication": true,
       "no_synthetic_buyers": true,
       "no_synthetic_revenue": true,
-      "no_inferred_profit_without_source": true
+      "no_inferred_profit_without_source": true,
+      "no_synthetic_observations": true
     }
   },
   "priority_model": {
@@ -108,8 +141,19 @@
       "id": "MTG-COMMANDER-CHECKOUT-FULFILLMENT",
       "priority_reason": "Existing MTG master silo and a high operator-provided candidate score make this the first bounded product audit. The score is not proof of demand.",
       "first_artifact": "checkout_fulfillment_audit.json",
-      "allowed_actions": ["read source files", "read current Stripe product and price metadata", "validate local contracts", "write internal audit artifact on a branch"],
-      "forbidden_actions": ["create checkout", "publish offer", "contact buyers", "spend money", "change secrets"],
+      "allowed_actions": [
+        "read source files",
+        "read current Stripe product and price metadata",
+        "validate local contracts",
+        "write internal audit artifact on a branch"
+      ],
+      "forbidden_actions": [
+        "create checkout",
+        "publish offer",
+        "contact buyers",
+        "spend money",
+        "change secrets"
+      ],
       "success_condition": "A deterministic report identifies exact checkout, canonical SKU, settlement verification, input intake, fulfillment output, and proof gaps with source references."
     },
     {
