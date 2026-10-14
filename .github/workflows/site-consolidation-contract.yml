@@ -1,0 +1,40 @@
+name: Site Consolidation Contract
+on:
+  pull_request:
+    paths:
+      - "index.html"
+      - "public/index.html"
+      - "public/dreamledger.css"
+      - "public/marketplace.html"
+      - "public/truth-oracle.html"
+      - "public/mtg/**"
+      - "public/quote-comparison/**"
+      - "public/trust/**"
+      - "vercel.json"
+      - "scripts/site-consolidation-contract.js"
+      - ".github/workflows/site-consolidation-contract.yml"
+  push:
+    branches: [main]
+    paths:
+      - "index.html"
+      - "public/index.html"
+      - "public/dreamledger.css"
+      - "public/marketplace.html"
+      - "public/truth-oracle.html"
+      - "public/mtg/**"
+      - "public/quote-comparison/**"
+      - "public/trust/**"
+      - "vercel.json"
+      - "scripts/site-consolidation-contract.js"
+      - ".github/workflows/site-consolidation-contract.yml"
+permissions:
+  contents: read
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: node scripts/site-consolidation-contract.js
