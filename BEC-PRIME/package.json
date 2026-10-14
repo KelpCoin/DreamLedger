@@ -30,7 +30,7 @@
     "compile:products": "node compiler/ProductCompiler.js",
     "compile:offers": "node compiler/OfferCompiler.js",
     "compile:qr": "node compiler/QRCompiler.js",
-    "compile:distribution": "node distribution/DECK-CampaignCompiler.js && node distribution/QRAssetCompiler.js && node distribution/BECK-Executor.js prepare",
+    "compile:distribution": "node distribution/DECK-CampaignCompiler.js && node distribution/QRAssetCompiler.js && node distribution/QR-CampaignPlanner.js && node distribution/BECK-Executor.js prepare",
     "prepare:distribution": "node distribution/DECK-CampaignCompiler.js && node distribution/QRAssetCompiler.js && node distribution/BECK-Executor.js prepare",
     "approve:distribution": "node distribution/BECK-Executor.js approve",
     "execute:distribution": "node distribution/BECK-Executor.js execute",
