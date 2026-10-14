@@ -58,7 +58,14 @@ function buildMoneyCell(x) {
     experiment_id: x.experiment_id,
     opportunity_id: x.opportunity_id,
     silo: x.silo,
-    state: 'READY_FOR_AUTHORIZED_ACQUISITION',
+    state: fitReviewRequired ? 'FIT_REVIEW_REQUIRED' : 'READY_FOR_AUTHORIZED_ACQUISITION',
+    candidate_qualification: {
+      asymmetric_leverage_score: Number.isFinite(fitScore) ? fitScore : null,
+      fit_review_required: fitReviewRequired,
+      market_demand_proven: provenance.market_demand_proven === true,
+      source_refs: Array.isArray(provenance.source_refs) ? provenance.source_refs : [],
+      source_hashes: Array.isArray(provenance.source_hashes) ? provenance.source_hashes : []
+    },
     demand: {
       buyer: x.demand?.buyer || null,
       hypothesis: x.demand?.hypothesis || null,
