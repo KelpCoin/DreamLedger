@@ -1,0 +1,260 @@
+{
+  "schema": "dreamledger/mtg-marketplace-contract/v1",
+  "silo": "mtg",
+  "template_role": "master_template_candidate",
+  "readiness": "BLOCKED_UNVERIFIED",
+  "canonical_routes": {
+    "storefront": "/mtg/",
+    "listing": "/mtg-list"
+  },
+  "doctrine": {
+    "browse_free": true,
+    "basic_listing_fee_nzd": 0,
+    "platform_success_fee_percent": 0,
+    "inventory_default": "empty_until_verified_supply",
+    "collection_visibility_default": "private",
+    "payment_truth": "settled_payment_plus_attribution_fulfillment_and_delivery_evidence",
+    "activation_requires_human_gate": true
+  },
+  "capability_status": {
+    "storefront_shell": "implemented_unverified",
+    "catalogue": "partial_blockers_known",
+    "card_detail_grid": "partial_unverified",
+    "collection_profiles": "planned",
+    "collection_csv_import_export": "planned",
+    "per_card_visibility_and_availability": "planned",
+    "wanted_lists": "planned",
+    "collection_matching": "planned",
+    "fixed_price_listings": "partial_message_based",
+    "offers_and_counteroffers": "planned",
+    "multi_card_trades": "planned",
+    "free_auctions": "planned",
+    "featured_listings": "planned",
+    "sponsored_billboards": "held",
+    "avatar_cosmetics": "planned",
+    "seller_reputation_and_disputes": "planned",
+    "verified_fulfillment": "unverified"
+  },
+  "collection_record": {
+    "required": [
+      "owner_id",
+      "printing_id",
+      "quantity",
+      "visibility",
+      "availability",
+      "created_at",
+      "updated_at"
+    ],
+    "printing_identity_priority": [
+      "scryfall_id",
+      "set_code+collector_number+language+finish"
+    ],
+    "visibility_values": [
+      "private",
+      "public"
+    ],
+    "availability_values": [
+      "not_for_trade",
+      "tradeable",
+      "for_sale",
+      "wanted"
+    ],
+    "privacy_rules": [
+      "private records are not returned by public APIs, search, counts, autocomplete, or matching",
+      "public visibility never implies tradeability or sale availability",
+      "only explicitly tradeable or for_sale records may enter matching results",
+      "imports do not establish independently verified ownership",
+      "export is available to the owner and never includes other users' private records"
+    ],
+    "import_policy": {
+      "initial_format": "CSV",
+      "processing": "client_side_preview_before_commit",
+      "modes": [
+        "merge_idempotently",
+        "replace_after_explicit_confirmation"
+      ],
+      "preserve": [
+        "printing_id",
+        "set_code",
+        "collector_number",
+        "quantity",
+        "finish",
+        "language",
+        "condition",
+        "foil"
+      ],
+      "require_preview": true,
+      "raw_file_upload_default": false
+    }
+  },
+  "listing": {
+    "separate_from_collection_record": true,
+    "required": [
+      "listing_id",
+      "seller_id",
+      "item_refs",
+      "status",
+      "terms",
+      "created_at",
+      "updated_at"
+    ],
+    "status_values": [
+      "draft",
+      "active",
+      "reserved",
+      "pending_payment",
+      "sold",
+      "withdrawn",
+      "expired",
+      "disputed"
+    ],
+    "term_fields": [
+      "price",
+      "currency",
+      "condition",
+      "language",
+      "finish",
+      "quantity",
+      "shipping_or_meetup",
+      "description"
+    ],
+    "invariants": [
+      "a collection item can be listed only by its owner",
+      "not_for_trade records cannot be listed for trade",
+      "active listings must have accurate supply and explicit terms",
+      "sold or reserved quantity cannot exceed available quantity",
+      "listing creation does not constitute a sale or revenue"
+    ]
+  },
+  "offers_and_trades": {
+    "status_values": [
+      "proposed",
+      "countered",
+      "accepted",
+      "declined",
+      "cancelled",
+      "expired",
+      "completed",
+      "disputed"
+    ],
+    "invariants": [
+      "both parties explicitly accept final terms",
+      "all mutations are authenticated, authorized, idempotent and auditable",
+      "multi-card trade acceptance reserves all items atomically",
+      "private and not_for_trade records are never exposed by a proposal"
+    ]
+  },
+  "auction": {
+    "status_values": [
+      "draft",
+      "scheduled",
+      "live",
+      "ended",
+      "awaiting_payment",
+      "paid",
+      "fulfilled",
+      "cancelled",
+      "disputed",
+      "unpaid"
+    ],
+    "basic_listing_fee_nzd": 0,
+    "platform_bid_fee_nzd": 0,
+    "required_terms": [
+      "starts_at",
+      "ends_at",
+      "currency",
+      "minimum_bid",
+      "bid_increment",
+      "shipping_or_meetup",
+      "payment_deadline",
+      "nonpayment_policy"
+    ],
+    "invariants": [
+      "server time is authoritative",
+      "bidder must be authenticated and eligible",
+      "seller cannot bid on own auction",
+      "bid history is append-only",
+      "bid ordering and auction closing are race-safe and idempotent",
+      "winner is not marked paid until settlement is verified",
+      "no public auction launch before abuse reporting and nonpayment handling exist"
+    ]
+  },
+  "monetization": {
+    "optional_only": true,
+    "products": [
+      {
+        "id": "featured_listing",
+        "status": "planned",
+        "rule": "clearly labelled sponsored placement; never guaranteed views or sales"
+      },
+      {
+        "id": "billboard",
+        "status": "held",
+        "rule": "require reserved inventory, moderation, expiry and verified payment attribution"
+      },
+      {
+        "id": "avatar_cosmetics",
+        "status": "planned",
+        "rule": "grant entitlement only after verified settlement"
+      },
+      {
+        "id": "shop_theme",
+        "status": "planned",
+        "rule": "cosmetic only; does not alter trust or verification state"
+      }
+    ]
+  },
+  "evidence": {
+    "event_names": [
+      "collection_imported",
+      "collection_shared",
+      "wanted_match_created",
+      "listing_created",
+      "offer_accepted",
+      "auction_bid_placed",
+      "auction_ended",
+      "payment_settled",
+      "order_fulfilled",
+      "delivery_evidence_recorded"
+    ],
+    "no_revenue_until": [
+      "independent_external_payment",
+      "correct_sku_attribution",
+      "settled_payment",
+      "fulfillment",
+      "delivery_evidence"
+    ],
+    "forbidden_shortcuts": [
+      "checkout_start_as_revenue",
+      "bid_as_revenue",
+      "self_purchase_as_validation",
+      "synthetic_inventory",
+      "simulated_settlement"
+    ]
+  },
+  "clone_rules": {
+    "clone_shell_only": true,
+    "new_catalogue_must_start_empty": true,
+    "never_copy": [
+      "inventory",
+      "collection_records",
+      "users",
+      "orders",
+      "bids",
+      "payment_links",
+      "analytics_ids",
+      "promotion_inventory",
+      "secrets",
+      "evidence_artifacts"
+    ],
+    "required_isolation": [
+      "catalogue",
+      "identity",
+      "customer_data",
+      "checkout",
+      "analytics",
+      "promotion"
+    ],
+    "deploy_and_distribution_require_human_approval": true
+  }
+}
