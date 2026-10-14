@@ -61,7 +61,24 @@ def verify(tree,timeout):
         stdout,stderr,code=str(e.stdout or ""),str(e.stderr or "")+" BUILD_CHECK_TIMEOUT",124
     return {"command":cmd,"exit_code":code,"stdout_tail":stdout,"stderr_tail":stderr,"seconds":round(time.monotonic()-start,2),"stdout_sha256":shat(stdout),"stderr_sha256":shat(stderr)}
 
-def build(root,contract,job,model_fn=ask):
+def publish_pr(root,branch,issue,proof_hash):
+    if os.environ.get("NORTH_STAR_BUILD_WORKER_PUBLISH_PR","").lower() not in {"1","true","yes"}:
+        raise RuntimeError("PR_PUBLISH_NOT_ENABLED")
+    if not shutil.which("gh"): raise RuntimeError("GH_CLI_NOT_AVAILABLE")
+    auth=subprocess.run(["gh","auth","status"],cwd=str(root),capture_output=True,text=True,timeout=20,shell=False)
+    if auth.returncode: raise RuntimeError("GH_AUTH_NOT_AVAILABLE")
+    push=subprocess.run(["git","-C",str(root),"push","-u","origin",branch],capture_output=True,text=True,timeout=120,check=False,shell=False)
+    if push.returncode: raise RuntimeError("GIT_PUSH_FAILED:"+" ".join((push.stderr or "").split())[:300])
+    body="North Star bounded build for Issue #"+str(issue)+".\nBuild core SHA256: "+proof_hash+"\nFixed verifier passed. No checkout activation or deployment. Human review required."
+    p=subprocess.run(["gh","pr","create","--title","Build MTG Store Audit for Issue #712","--body",body,"--base","main","--head",branch],
+                     cwd=str(root),capture_output=True,text=True,timeout=60,check=False,shell=False)
+    if p.returncode: raise RuntimeError("GH_PR_CREATE_FAILED:"+" ".join((p.stderr or "").split())[:300])
+    match=re.search(r"https://github\.com/[^\s]+/pull/[0-9]+",p.stdout)
+    if not match: raise RuntimeError("GH_PR_URL_NOT_RETURNED")
+    return match.group(0)
+
+
+def build(root,contract,job,model_fn=ask,publish_fn=publish_pr):
     root=Path(root).resolve(); tree=None; branch=None; sources_meta=[]; stages={}; outputs=[]; test={"exit_code":1,"stderr_tail":"NOT_RUN"}
     try:
         tree,branch=worktree(root,job,contract.get("base_branch","main"))
@@ -95,18 +112,20 @@ def build(root,contract,job,model_fn=ask):
         proof={"schema":"dreamledger/north-star-build-worker/v1","task_issue":712,"job_id":job.get("id") or job.get("job_id"),
           "source_files":sources_meta,"output_files":outputs,"stage_hashes":stages,"validation":test,"branch":branch,
           "commit_sha":commit,"human_gate":True,"external_action_performed":False,"verified_revenue_nzd":0,"release_state":"NOT_RELEASED"}
-        proof["artifact_sha256"]=shat(json.dumps(proof,sort_keys=True,separators=(",",":")))
+        core_hash=shat(json.dumps(proof,sort_keys=True,separators=(",",":"),ensure_ascii=False))
+        proof["pr_url"]=publish_fn(root,branch,712,core_hash)
+        proof["artifact_sha256"]=shat(json.dumps(proof,sort_keys=True,separators=(",",":"),ensure_ascii=False))
         p=root/"runtime"/"lm_studio"/"runs"/("north-star-build-712-"+str(int(time.time()))+".json")
         p.parent.mkdir(parents=True,exist_ok=True); p.write_text(json.dumps(proof,indent=2)+"\n",encoding="utf-8")
         return result("BUILD_READY","TESTS_PASSED_ISOLATED_BRANCH_ONLY",job_id=proof["job_id"],source_files=sources_meta,
           output_files=outputs,stage_hashes=stages,validation=test,branch=branch,commit_sha=commit,pr_url=None,
-          artifact_path=str(p),artifact_sha256=proof["artifact_sha256"],worktree=str(tree))
+          artifact_path=str(p),artifact_sha256=proof["artifact_sha256"],worktree=str(tree),pr_url=proof["pr_url"])
     except Exception as e:
         proof={"schema":"dreamledger/north-star-build-worker/v1","task_issue":712,"job_id":job.get("id") or job.get("job_id"),
           "source_files":sources_meta,"output_files":outputs,"stage_hashes":stages,"validation":test,"branch":branch,
           "worktree":str(tree) if tree else None,"error":(type(e).__name__+":"+str(e))[:1000],
           "human_gate":True,"external_action_performed":False,"verified_revenue_nzd":0}
-        proof["artifact_sha256"]=shat(json.dumps(proof,sort_keys=True,separators=(",",":")))
+        proof["artifact_sha256"]=shat(json.dumps(proof,sort_keys=True,separators=(",",":"),ensure_ascii=False))
         p=root/"runtime"/"lm_studio"/"runs"/("north-star-build-712-failure-"+str(int(time.time()))+".json")
         p.parent.mkdir(parents=True,exist_ok=True); p.write_text(json.dumps(proof,indent=2)+"\n",encoding="utf-8")
         return result("HOLD","VALIDATION_FAILED" if "VALIDATION_FAILED" in str(e) else "BUILD_EXECUTION_FAILED",
