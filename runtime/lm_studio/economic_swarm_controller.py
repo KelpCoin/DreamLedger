@@ -57,6 +57,56 @@ def local_private_signals():
     except Exception as ex:
         return {"status":"ERROR","error":str(ex)}
 
+
+PRIORITY_AUDIT_SCRIPT=os.path.join(ROOT,"runtime","lm_studio","north_star_priority_audit.py")
+
+def run_priority_audit():
+    if not os.path.isfile(PRIORITY_AUDIT_SCRIPT):
+        return {"status":"BLOCKED_PRIORITY_AUDIT_SCRIPT_MISSING","task_id":"MTG-CMD-DIAG-29-READ-ONLY-AUDIT","external_action_performed":False}
+    try:
+        p=subprocess.run([sys.executable,PRIORITY_AUDIT_SCRIPT,"--json"],cwd=ROOT,capture_output=True,text=True,timeout=60)
+        value=json.loads(p.stdout) if p.stdout.strip() else {}
+        if not isinstance(value,dict):
+            return {"status":"BLOCKED_PRIORITY_AUDIT_INVALID_OUTPUT","external_action_performed":False}
+        if p.returncode != 0:
+            value["controller_observed_returncode"]=p.returncode
+            value.setdefault("status","BLOCKED_PRIORITY_AUDIT_FAILED")
+        return value
+    except Exception as ex:
+        return {"status":"BLOCKED_PRIORITY_AUDIT_EXCEPTION","error_type":type(ex).__name__,"external_action_performed":False}
+
+def attach_worker_assessment(audit, decision, stage_hashes):
+    path=audit.get("artifact_path") if isinstance(audit,dict) else None
+    if not isinstance(path,str) or not path:
+        return False
+    try:
+        with open(path,encoding="utf-8") as f:
+            report=json.load(f)
+        report["worker_assessment"]={
+            "decision":decision.get("decision","HOLD"),
+            "confidence":decision.get("confidence",0),
+            "evidence_refs":decision.get("evidence_refs",[]),
+            "blockers":decision.get("blockers",[]),
+            "next_action":decision.get("next_action","Review the source evidence bundle."),
+            "human_gate":True,
+            "estimated_value_nzd":0,
+            "stage_hashes":stage_hashes,
+            "assessed_at_utc":datetime.now(timezone.utc).isoformat()
+        }
+        report["status"]="BLOCKED_GATE1_CONFIG_MISSING" if report.get("gate1_probe",{}).get("branch_classification")=="STRIPE_CONFIG_MISSING" else "AUDIT_INCOMPLETE_REQUIRES_REVIEW"
+        report["payment_verified"]=False
+        report["fulfillment_verified"]=False
+        report["verified_revenue_nzd"]=0
+        report["external_action_performed"]=False
+        tmp=path+".tmp"
+        with open(tmp,"w",encoding="utf-8") as f:
+            json.dump(report,f,indent=2,ensure_ascii=False)
+            f.write("\\n")
+        os.replace(tmp,path)
+        return True
+    except Exception:
+        return False
+
 def snapshot():
     sub=load_substrate(); pop=population(sub)
     e={
@@ -73,6 +123,7 @@ def snapshot():
             "do not prioritize by candidate score alone; require external demand and fulfilment evidence"
         ]
     }
+    e["priority_task_audit"]=run_priority_audit()
     e["local_private_signals"]=local_private_signals()
     if os.path.exists(PATH_777):
         try:
@@ -124,15 +175,15 @@ def call_model(stage,model,messages,response_format=None):
 def decide(e,models):
     task=json.dumps(e,separators=(",",":"),ensure_ascii=False)
     scout=call_model("scout",models["scout"],[
-        {"role":"system","content":"You are SCOUT for DreamLedger's North Star economic research loop. Examine only supplied evidence. Separate observed facts, source-backed demand, commercial hypotheses and unknowns. Prefer scalable, repeatable B2B/A2A problems and reuse existing DreamLedger capabilities. Do not claim profits, market size, buyers, payment, revenue or execution without evidence. Do not recommend outreach, spending, public posting or production mutation."},
+        {"role":"system","content":"You are SCOUT for DreamLedger's North Star economic research loop. The primary task is the supplied MTG Commander checkout-to-delivery audit in priority_task_audit. Examine the provided source evidence and prioritize the smallest reversible repair that advances a real paid order. Separate source facts from inference, and cite supplied repository paths only. Do not claim deployment, buyer demand, a valid Stripe key, settlement, fulfillment, profit, or revenue unless the snapshot proves it. Never recommend outreach, spending, public posting, credential changes, production mutation, or checkout creation."},
         {"role":"user","content":"Identify the strongest source-backed opportunity and one bounded internal artifact that could reduce uncertainty. Return concise findings with evidence references and explicit unknowns. Snapshot:\n"+task}
     ])
     critic=call_model("critic",models["critic"],[
-        {"role":"system","content":"You are CRITIC. Adversarially review the scout. Reject unsupported profit estimates, invented buyer intent, stale or untraceable evidence, and any proposal that crosses no-outreach/no-spend/no-publication boundaries. State what evidence is missing. Do not execute anything."},
+        {"role":"system","content":"You are CRITIC. Adversarially review the scout's MTG checkout-to-delivery audit. Compare every claim against the supplied source excerpts, hashes, static checks, and Gate 1 probe status. Reject unsupported claims about deployment, key validity, buyer intent, payment settlement, fulfillment, profits, or revenue. Name the missing proof and one smallest reversible internal repair. Do not execute external actions."},
         {"role":"user","content":"Snapshot:\n"+task+"\n\nSCOUT FINDINGS:\n"+scout}
     ])
     synthesis_raw=call_model("synthesis",models["synthesis"],[
-        {"role":"system","content":"You are the DreamLedger North Star SYNTHESIS/JUDGE preparation role. Resolve scout and critic into exactly the required JSON decision schema. Use only evidence refs present in the snapshot. Treat model scores and candidate ideas as hypotheses, never as demand or revenue. Prefer the shortest source-backed route to a real buyer but do not contact buyers, spend, publish or create checkout. If evidence is insufficient, choose HOLD or QUALIFY, set human_gate=true, list specific blockers, and set estimated_value_nzd to 0 unless verified source evidence explicitly supports a value. Do not claim the Gauntlet or Elohim independently approved this."},
+        {"role":"system","content":"You are the DreamLedger North Star SYNTHESIS/JUDGE preparation role for the current MTG Commander checkout-to-delivery audit. Resolve scout and critic into exactly the required JSON decision schema. Use only evidence references present in the snapshot, especially priority_task_audit source paths. Prefer the shortest verified step that removes a blocker to a future independent paid order. Do not contact buyers, spend, publish, change credentials, mutate production, or create checkout. Keep estimated_value_nzd at 0; human_gate must be true. If anything important is unverified, choose HOLD or QUALIFY and name the exact missing evidence. Do not claim Gauntlet/Elohim approval."},
         {"role":"user","content":"SNAPSHOT:\n"+task+"\n\nSCOUT:\n"+scout+"\n\nCRITIC:\n"+critic+"\n\nReturn the required JSON object only."}
     ],DECISION_SCHEMA)
     decision=json.loads(synthesis_raw)
@@ -140,7 +191,7 @@ def decide(e,models):
     def walk(value):
         if isinstance(value,dict):
             for k,v in value.items():
-                if k in {"source_url","url","evidence_ref","source_ref","opportunity_id"} and isinstance(v,str): allowed_refs.add(v)
+                if k in {"source_url","url","evidence_ref","source_ref","opportunity_id","path","source_path","relative_path","artifact_path"} and isinstance(v,str): allowed_refs.add(v)
                 walk(v)
         elif isinstance(value,list):
             for item in value: walk(item)
@@ -181,10 +232,12 @@ def cycle():
     except Exception as ex:
         return {"status":"BLOCKED","reason":"THREE_MODEL_DECISION_FAILED","models":MODELS,"error":str(ex)}
     d=outcome["decision"]
-    # 777 is the existing local internal compiler. Only invoke on BUILD and only if the decision carries snapshot-backed evidence.
+    priority_audit=snap.get("priority_task_audit",{})
+    audit_assessment_saved=attach_worker_assessment(priority_audit,d,outcome["stage_hashes"])
+    # 777 remains held unless the synthesis model makes a source-backed BUILD decision.
     seven=run_777() if d.get("decision")=="BUILD" and d.get("evidence_refs") else {"status":"HELD","reason":"NO_AUTONOMOUS_BUILD_WITHOUT_SOURCE_BACKED_BUILD_DECISION"}
     timestamp=datetime.now(timezone.utc).isoformat()
-    out={"status":"CYCLE_COMPLETE","mode":"NORTH_STAR_THREE_MODEL","models":MODELS,"seven_seven_seven":seven,"decision":d,"stage_hashes":outcome["stage_hashes"],"timestamp_utc":timestamp,"external_action_performed":False,"economic_truth":snap["economic_truth"],"hypothesis_cells_only":True}
+    out={"status":"CYCLE_COMPLETE","mode":"NORTH_STAR_THREE_MODEL","models":MODELS,"seven_seven_seven":seven,"decision":d,"stage_hashes":outcome["stage_hashes"],"timestamp_utc":timestamp,"external_action_performed":False,"economic_truth":snap["economic_truth"],"hypothesis_cells_only":True,"priority_task_id":"MTG-CMD-DIAG-29-READ-ONLY-AUDIT","priority_audit_path":priority_audit.get("artifact_path"),"priority_audit_status":priority_audit.get("status","UNAVAILABLE"),"worker_assessment_saved":audit_assessment_saved}
     trace({"schema":"DREAMLEDGER/777/CUBE-SWARM-TRACE/v2","timestamp_utc":timestamp,"models":MODELS,"hypothesis_cell_count":len(snap.get("hypothesis_cells",[])),"decision":d,"stage_hashes":outcome["stage_hashes"],"economic_truth":snap["economic_truth"],"external_action_performed":False,"rule":"inference and internal compilation are not revenue"})
     fn=os.path.join(LOG,"north-star-"+datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")+".json")
     with open(fn,"w",encoding="utf-8") as f: json.dump(out,f,indent=2)
