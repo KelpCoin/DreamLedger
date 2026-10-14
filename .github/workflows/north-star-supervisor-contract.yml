@@ -6,6 +6,7 @@ on:
       - 'runtime/lm_studio/north_star_supervisor.py'
       - 'runtime/lm_studio/economic_swarm_controller.py'
       - 'runtime/lm_studio/north_star_priority_audit.py'
+      - 'public/mtg/index.html'
       - 'runtime/lm_studio/Install-NorthStarSupervisorTask.ps1'
       - 'runtime/lm_studio/NORTH-STAR-SUPERVISOR.md'
       - '.github/workflows/north-star-supervisor-contract.yml'
@@ -35,6 +36,22 @@ jobs:
         run: python runtime/lm_studio/north_star_supervisor.py --self-test
       - name: Offline priority audit self-test
         run: python runtime/lm_studio/north_star_priority_audit.py --self-test
+      - name: Verify MTG landing inline JavaScript syntax
+        shell: pwsh
+        run: |
+          $html = Get-Content public/mtg/index.html -Raw
+          $blocks = [regex]::Matches($html, '(?is)<script\b(?![^>]*\bsrc=)[^>]*>(.*?)</script\s*>')
+          if ($blocks.Count -eq 0) { throw 'No inline script found in MTG landing page' }
+          $i = 0
+          foreach ($block in $blocks) {
+            $scriptPath = Join-Path $env:TEMP ("mtg-inline-{0}.js" -f $i)
+            Set-Content -LiteralPath $scriptPath -Value $block.Groups[1].Value -Encoding utf8
+            node --check $scriptPath
+            if ($LASTEXITCODE -ne 0) { throw ("MTG inline JavaScript syntax failed at block {0}" -f $i) }
+            Remove-Item -LiteralPath $scriptPath -Force -ErrorAction SilentlyContinue
+            $i++
+          }
+          Write-Output 'MTG_LANDING_INLINE_JS_SYNTAX=PASS'
       - name: Check controller and installer contracts
         shell: pwsh
         run: |
