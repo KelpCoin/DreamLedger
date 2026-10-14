@@ -6,6 +6,10 @@ on:
       - "public/silos/mtg/**"
       - "public/data/mtg-catalog.json"
       - "public/catalog.json"
+      - "public/mtg/index.html"
+      - "mtg-search.html"
+      - "BEC-PRIME/auction-engine.js"
+      - "BEC-PRIME/auction-engine.test.js"
       - "BEC-PRIME/scripts/verify-mtg-master-silo-contract.js"
       - ".github/workflows/mtg-master-silo-contract.yml"
   push:
@@ -14,6 +18,10 @@ on:
       - "public/silos/mtg/**"
       - "public/data/mtg-catalog.json"
       - "public/catalog.json"
+      - "public/mtg/index.html"
+      - "mtg-search.html"
+      - "BEC-PRIME/auction-engine.js"
+      - "BEC-PRIME/auction-engine.test.js"
       - "BEC-PRIME/scripts/verify-mtg-master-silo-contract.js"
       - ".github/workflows/mtg-master-silo-contract.yml"
 
@@ -30,3 +38,5 @@ jobs:
           node-version: "22"
       - name: Validate master silo contract
         run: node BEC-PRIME/scripts/verify-mtg-master-silo-contract.js
+      - name: Verify auction expiry and approval gates
+        run: node --test BEC-PRIME/auction-engine.test.js
