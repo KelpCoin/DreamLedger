@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>MTG Store Audit | DreamLedger</title>
+  <style>
+    :root{color-scheme:dark;--bg:#101820;--panel:#182632;--ink:#eef4f8;--muted:#a8bbc8;--line:#304857;--accent:#83d9bd;--warn:#ffd58a}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+    main{max-width:900px;margin:auto;padding:28px 18px 60px}header{padding:24px 0;border-bottom:1px solid var(--line)}h1{font-size:clamp(2rem,7vw,3.2rem);line-height:1.1;margin:0 0 10px}h2{font-size:1.25rem;margin-top:30px}p{color:var(--muted)}.panel{margin-top:18px;padding:20px;border:1px solid var(--line);border-radius:14px;background:var(--panel)}
+    label{display:block;font-weight:650;margin:16px 0 8px}input[type=url],input[type=file]{width:100%;padding:12px;background:#0e171e;border:1px solid var(--line);border-radius:8px;color:var(--ink)}button{border:0;border-radius:8px;padding:12px 16px;background:var(--accent);color:#10231e;font-weight:750;cursor:pointer;margin:12px 8px 0 0}button.secondary{background:transparent;border:1px solid var(--line);color:var(--ink)}button:focus-visible,input:focus-visible{outline:3px solid var(--warn);outline-offset:2px}.note{border-left:3px solid var(--warn);padding:10px 14px;background:#28251e;color:#f2dfb8}.meta{font-size:.9rem;color:var(--muted)}.finding{border-top:1px solid var(--line);padding:14px 0}.sev{font-size:.78rem;font-weight:800;letter-spacing:.04em}.sev.HIGH,.sev.BLOCKER{color:#ffb5ac}.sev.MEDIUM{color:#ffd58a}.sev.LOW,.sev.INFO{color:var(--accent)}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#0c1318;padding:14px;border-radius:8px;font-size:.86rem}
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <p class="meta">DREAMLEDGER / SOURCE-BACKED REVIEW</p>
+    <h1>MTG Store Audit</h1>
+    <p>Find catalogue inconsistencies and observable storefront friction from a supplied snapshot. Findings retain their source references and unknowns.</p>
+  </header>
+  <section class="panel">
+    <h2>Prepare an audit</h2>
+    <p>Upload a JSON snapshot of the store and catalogue. This first version does not crawl websites or send uploaded data anywhere; it audits the supplied file in this browser.</p>
+    <label for="storeUrl">Store URL (http or https)</label>
+    <input id="storeUrl" type="url" placeholder="https://example.com" autocomplete="url">
+    <label for="snapshot">Snapshot JSON</label>
+    <input id="snapshot" type="file" accept=".json,application/json">
+    <p class="meta">Expected shape: { "catalog": { "products": [] }, "pages": [] }. Each page observation may include its URL, observed timestamp, status code and explicit CTA checks.</p>
+    <button id="run">Run audit</button>
+    <button id="fixture" class="secondary">Load synthetic fixture</button>
+    <div class="note">Fixture output is illustrative only. It is not evidence about a real store, buyer demand, traffic, sales or revenue.</div>
+  </section>
+  <section id="result" class="panel" hidden aria-live="polite">
+    <h2>Audit report</h2><div id="summary"></div><div id="findings"></div><h2>Unknowns and limits</h2><ul id="unknowns"></ul>
+    <button id="download">Download report JSON</button>
+    <details><summary>View raw report</summary><pre id="raw"></pre></details>
+  </section>
+  <p class="meta">Scope: supplied evidence only. No crawl, checkout attempt, login, production write or commercial claim.</p>
+</main>
+<script src="../../BEC-PRIME/lib/mtgStoreAudit.js"></script>
+<script>
+(() => {
+  let currentReport = null;
+  const $ = id => document.getElementById(id);
+  function render(report) {
+    currentReport = report;
+    $('result').hidden = false;
+    $('summary').textContent = report.status + ' · ' + (report.finding_count ?? report.findings.length) + ' findings · ' + (report.catalogue_products_observed ?? 0) + ' catalogue records observed';
+    $('findings').replaceChildren();
+    for (const item of report.findings || []) {
+      const article = document.createElement('article'); article.className = 'finding';
+      const sev = document.createElement('div'); sev.className = 'sev ' + item.severity; sev.textContent = item.severity + ' · ' + item.id;
+      const title = document.createElement('strong'); title.textContent = item.title;
+      const detail = document.createElement('p'); detail.textContent = item.detail;
+      const source = document.createElement('p'); source.className = 'meta'; source.textContent = 'Source: ' + (item.source || 'Not supplied');
+      article.append(sev, title, detail, source); $('findings').append(article);
+    }
+    $('unknowns').replaceChildren();
+    for (const text of report.unknowns || report.limitations || []) { const li = document.createElement('li'); li.textContent = text; $('unknowns').append(li); }
+    $('raw').textContent = JSON.stringify(report, null, 2);
+  }
+  $('run').addEventListener('click', async () => {
+    const file = $('snapshot').files[0];
+    try {
+      if (!file) throw new Error('Choose a JSON snapshot first.');
+      const input = JSON.parse(await file.text());
+      input.store_url = $('storeUrl').value.trim() || input.store_url;
+      if (!input.catalog_source_url && input.store_url) input.catalog_source_url = input.store_url;
+      render(window.DreamLedgerStoreAudit.auditStore(input));
+    } catch (err) { render({ status: 'INPUT_INVALID', finding_count: 1, findings: [{ id:'INPUT-ERROR',severity:'BLOCKER',title:'Could not read the snapshot',detail:String(err.message || err),source:null }],unknowns:['No audit was run.'] }); }
+  });
+  $('fixture').addEventListener('click', () => {
+    $('storeUrl').value = 'https://synthetic.example.test';
+    render(window.DreamLedgerStoreAudit.auditStore({
+      store_url: 'https://synthetic.example.test',
+      catalog_source_url: 'https://synthetic.example.test/catalog.json',
+      observed_at_utc: new Date().toISOString(),
+      catalog: { products: [
+        { id:'fixture-1', name:'Fixture Commander Deck', sku:'FIXTURE-001', price:29, currency:'NZD', checkout_available:true, checkout_url:null },
+        { id:'fixture-2', name:'Duplicate Fixture Record', sku:'FIXTURE-001', price:39, currency:'NZD', checkout_available:false }
+      ] },
+      pages: [{ url:'https://synthetic.example.test/buy', observed_at_utc:new Date().toISOString(), status_code:503, cta_checks:[{label:'Fixture checkout',status:'BLOCKED',detail:'Synthetic fixture only: checkout response recorded as 503.'}] }]
+    }));
+  });
+  $('download').addEventListener('click', () => {
+    if (!currentReport) return;
+    const blob = new Blob([JSON.stringify(currentReport, null, 2) + '\n'], {type:'application/json'});
+    const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'dreamledger-store-audit-report.json'; a.click(); URL.revokeObjectURL(url);
+  });
+})();
+</script>
+</body>
+</html>
