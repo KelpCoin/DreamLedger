@@ -29,6 +29,7 @@ on:
       - "public/qr/**"
       - "supabase/migrations/**"
       - "docs/operations/CLOUD-SUPERVISOR-SCHEDULING.md"
+      - "BEC-PRIME/scripts/verify-cloud-supervisor-scheduler-contract.js"
       - "ops/distribution/QR_CANONICAL_DISTRIBUTION.md"
       - "package.json"
       - "package-lock.json"
@@ -62,6 +63,7 @@ on:
       - "public/qr/**"
       - "supabase/migrations/**"
       - "docs/operations/CLOUD-SUPERVISOR-SCHEDULING.md"
+      - "BEC-PRIME/scripts/verify-cloud-supervisor-scheduler-contract.js"
       - "ops/distribution/QR_CANONICAL_DISTRIBUTION.md"
       - "package.json"
       - "package-lock.json"
@@ -82,6 +84,8 @@ jobs:
         run: npm ci --ignore-scripts
       - name: Validate master silo contract
         run: node BEC-PRIME/scripts/verify-mtg-master-silo-contract.js
+      - name: Validate cloud supervisor schedule source
+        run: node BEC-PRIME/scripts/verify-cloud-supervisor-scheduler-contract.js
       - name: Verify auction expiry and approval gates
         run: node --test BEC-PRIME/auction-engine.test.js
       - name: Generate canonical scannable QR assets
