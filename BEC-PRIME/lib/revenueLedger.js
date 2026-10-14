@@ -3,6 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const { canonicalQrFulfillment } = require('./canonicalQrFulfillment');
 
 const ROOT = path.join(__dirname, '..');
 const DATA_ROOT = path.resolve(process.env.LEDGER_DATA_DIR || path.join(ROOT, 'data', 'transactions'));
@@ -150,6 +151,7 @@ function createFulfillment({ transactionId, productId, offerId, silo, amountMino
   const fulfillmentId = `FUL-${transactionId}`;
   const existing = readLines(FULFILLMENT_FILE).find(item => item.fulfillment_id === fulfillmentId);
   if (existing) return { created: false, fulfillment: existing };
+  const qr = canonicalQrFulfillment({ productId, orderId: fulfillmentId, channel: 'commerce-ledger-fulfillment', campaign: 'buyer-referral' });
   const fulfillment = {
     fulfillment_id: fulfillmentId,
     transaction_id: transactionId,
@@ -161,6 +163,7 @@ function createFulfillment({ transactionId, productId, offerId, silo, amountMino
     amount_minor: Number(amountMinor),
     currency: String(currency || 'NZD').toUpperCase(),
     customer_email: customerEmail || null,
+    customer_referral_qr: qr,
     created_at: new Date().toISOString()
   };
   fs.appendFileSync(FULFILLMENT_FILE, JSON.stringify(fulfillment) + '\n', 'utf8');
