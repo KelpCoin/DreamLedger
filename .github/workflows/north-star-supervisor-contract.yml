@@ -65,6 +65,13 @@ jobs:
           if ($c -notmatch 'def compact_model_snapshot') { throw '4K model prompt compaction missing' }
           if ($c -notmatch '_HTTP_') { throw 'Model HTTP response diagnostics missing' }
           if ($c -notmatch 'SYNTHESIS_SCHEMA_REQUIRED_FIELDS_MISSING') { throw 'Local synthesis schema validation missing' }
+          if ($c -notmatch 'NORTH-STAR-AUDIT-STAGING-') { throw 'Audit is not staged separately from canonical worker output' }
+          if ($c -notmatch '--output-path') { throw 'Priority audit does not support staged output' }
+          if ($c -notmatch 'CANONICAL_AUDIT_PATH') { throw 'Canonical audit publication target missing' }
+          if ($c -notmatch 'worker_assessment_error') { throw 'Worker assessment errors are still silent' }
+          $a = Get-Content runtime/lm_studio/north_star_priority_audit.py -Raw
+          if ($a -notmatch '--output-path') { throw 'Priority audit output path option missing' }
+          if ($a -notmatch 'must remain inside the repository root') { throw 'Audit output path is not root-confined' }
           if ($s -notmatch 'external_action_performed') { throw 'External action state not logged' }
           if ($s -notmatch 'SUPERVISOR_ALREADY_RUNNING') { throw 'Single-instance lock missing' }
           if ($s -notmatch 'CONTROLLER_CYCLE_TIMEOUT') { throw 'Cycle timeout missing' }
