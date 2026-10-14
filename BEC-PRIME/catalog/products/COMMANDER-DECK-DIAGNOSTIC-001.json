@@ -4,49 +4,29 @@
   "capability_id": "PRODUCT-COMMANDER-DECK-DIAGNOSTIC-001",
   "silo": "mtg",
   "name": "Commander Deck Diagnostic",
-  "description": "An automated first-pass Commander deck diagnostic covering structural weaknesses, upgrade priorities and a tuning plan.",
+  "description": "Held digital service. Not a physical card or deck and not currently offered for purchase.",
   "price": 29,
   "price_unit": "major",
   "currency": "nzd",
-  "inventory": 999,
+  "inventory": 0,
   "inventory_type": "digital",
-  "status": "published",
+  "status": "held",
   "checkout": {
-    "mode": "payment",
-    "url": "/mtg/diagnostic.html",
-    "success_path": "https://dreamledger.org/mtg/diagnostic-success.html?session_id={CHECKOUT_SESSION_ID}",
-    "cancel_path": "/mtg"
+    "mode": "disabled",
+    "url": null,
+    "success_path": null,
+    "cancel_path": "/mtg/"
   },
   "commercial_truth": {
-    "approval_required": false,
-    "sellable": true,
-    "reason": "Operator authorized automated MTG digital fulfillment on 2026-08-23.",
-    "payment_surface": "stripe-checkout-session",
-    "payment_link": "https://buy.stripe.com/eVqeVdc1T01n1DV3gwdwc30",
-    "payment_link_id": "plink_1UKS00EGgEAnUFF9kUjraaL5",
-    "stripe_product_id": "prod_V6iVKl9HgFpzRU",
-    "stripe_price_id": "price_1UFFY1EGgEAnUFF9Yq03zIa7"
+    "approval_required": true,
+    "sellable": false,
+    "reason": "Held until settlement, entitlement, and fulfillment are verified. No public sale is authorized.",
+    "payment_surface": null
   },
   "fulfillment": {
-    "mode": "automated",
-    "delivery_sla_hours": 1,
-    "input_url": "https://dreamledger.org/mtg/diagnostic.html",
-    "input_api": "/api/commercial/input",
-    "inputs": [
-      "email used at checkout",
-      "checkout session id",
-      "Commander decklist"
-    ],
-    "outputs": [
-      "hash-stamped diagnostic report",
-      "structural metrics",
-      "three biggest issues",
-      "cut candidates",
-      "upgrade priorities",
-      "tuning plan"
-    ],
-    "report_endpoint": "/api/mtg/diagnostic/report?session_id={CHECKOUT_SESSION_ID}",
-    "operator_required": false
+    "mode": "disabled",
+    "delivery_sla_hours": null,
+    "operator_required": true
   },
   "evidence": {
     "status": "awaiting_first_payment",
