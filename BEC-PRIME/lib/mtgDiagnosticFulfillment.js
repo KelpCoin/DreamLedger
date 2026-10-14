@@ -2,7 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
-const { canonicalQrFulfillment } = require('./canonicalQrFulfillment');
+const { canonicalQrFulfillment, customerQrHtml } = require('./canonicalQrFulfillment');
 
 const ROOT = path.join(__dirname, '..');
 const DATA = path.resolve(process.env.MTG_DIAGNOSTIC_DATA_DIR || path.join(ROOT, 'data', 'mtg-diagnostics'));
