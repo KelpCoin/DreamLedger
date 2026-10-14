@@ -56,8 +56,10 @@ async function main() {
     (product.checkout_available === true && typeof product.checkout_url === 'string' && (/^https:\/\//i.test(product.checkout_url) || /^\/(?!\/)/.test(product.checkout_url))) ||
     (product.sale_mode === 'claim_by_message' && typeof product.claim_url === 'string' && (/^https:\/\//i.test(product.claim_url) || /^\/(?!\/)/.test(product.claim_url)))
   );
+  const validProductRoute = value => typeof value === 'string' &&
+    (/^https:\/\//i.test(value) || /^\/(?!\/)/.test(value));
   const brokenCheckout = published.filter(product =>
-    product.checkout_available === true && !(typeof product.checkout_url === 'string' && /^https:\/\//i.test(product.checkout_url))
+    product.checkout_available === true && !validProductRoute(product.checkout_url)
   );
   const brokenClaim = published.filter(product =>
     product.sale_mode === 'claim_by_message' && !(typeof product.claim_url === 'string' && (/^https:\/\//i.test(product.claim_url) || /^\/(?!\/)/.test(product.claim_url)))
