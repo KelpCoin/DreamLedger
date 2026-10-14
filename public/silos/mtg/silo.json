@@ -27,7 +27,10 @@
     "gauntlet",
     "commerce-spine",
     "news-carousel",
-    "fossil"
+    "fossil",
+    "auction",
+    "compiler",
+    "qr-distribution"
   ],
   "inventory_policy": "empty_until_verified_supply",
   "payment_truth": "settled_payment_only",
