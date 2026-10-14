@@ -1,0 +1,83 @@
+{
+  "schema_version": "dreamledger/cube-swarm-silo-definition/v1",
+  "silo_id": "mtg-agency-setup",
+  "name": "MTG Agency Setup",
+  "category": "mtg-services",
+  "lifecycle": "CANDIDATE",
+  "commercial_contract": {
+    "product_id": "MTG-AGENCY-SETUP-9900",
+    "sku": "MTG-AGENCY-SETUP-9900",
+    "currency": "NZD",
+    "amount_minor": 990000,
+    "checkout_status": "NOT_CONFIGURED",
+    "fulfillment_input": "/silos/mtg-agency-setup/input",
+    "fulfillment_api": "/api/revenue-ladder/fulfill",
+    "evidence_required": [
+      "stripe_session_live_paid",
+      "canonical_sku_amount_currency_match",
+      "order_created",
+      "scope_acceptance_recorded",
+      "deployment_authorisation_recorded",
+      "handover_artifact_sha256",
+      "delivery_confirmed",
+      "truth_oracle_reconciled"
+    ]
+  },
+  "carousel_card": {
+    "title": "MTG Agency Setup",
+    "description": "A scope-bound agency instance with documented configuration, catalogue limits, acceptance evidence, training/handover, support window, and exclusions.",
+    "cta_label": "Offer in preparation",
+    "cta_action": "disabled",
+    "cta_target": null,
+    "visible": false,
+    "position": 10
+  },
+  "isolation": {
+    "compute": "SHARED_WORKER",
+    "database_strategy": "SHARED_TENANT_SCOPED",
+    "database_name": null,
+    "database_id": null,
+    "r2_bucket": "marketplace-fulfillment",
+    "r2_prefix": "silos/mtg-agency-setup/",
+    "cross_silo_customer_data": false
+  },
+  "routes": [
+    "/silos/mtg-agency-setup/",
+    "/api/revenue-ladder/mtg-agency-setup/input",
+    "/api/revenue-ladder/fulfill"
+  ],
+  "build_contract": {
+    "status": "PLANNED_NOT_BUILT",
+    "task_issue": "https://github.com/KelpCoin/DreamLedger/issues/720",
+    "public_route_path": "public/silos/mtg-agency-setup/index.html",
+    "library_module_path": "BEC-PRIME/lib/mtgAgencySetup.js",
+    "route_module_path": "BEC-PRIME/routes/revenueLadderOffer.js",
+    "route_module_status": "SHARED_ROUTE_REQUIRED",
+    "supabase_function_slug": null,
+    "supabase_function_status": "NOT_SELECTED",
+    "shared_sku_dispatch_required": true,
+    "source_parity_required": true,
+    "production_publish_allowed": false,
+    "output_contract": "A scope-bound agency instance with documented configuration, catalogue limits, acceptance evidence, training/handover, support window, and exclusions."
+  },
+  "source_evidence": {
+    "price_source": "User-provided offer ladder dated 2026-10-14; this records target pricing, not demand or willingness-to-pay evidence.",
+    "source_refs": [
+      "public/catalog.json",
+      "public/silo-clone-manifest.json",
+      "public/silo-template.html",
+      "BEC-PRIME/lib/revenueLedger.js",
+      "BEC-PRIME/lib/marketplacePolicy.js",
+      "BEC-PRIME/routes/commercialCell.js",
+      "supabase/functions/silo-factory/index.ts",
+      "supabase/functions/silo-orchestrator/index.ts"
+    ],
+    "source_hashing": "BUILD_WORKER_MUST_COMPUTE_SHA256_AT_EXECUTION",
+    "external_claims_policy": "Every material factual claim in a delivered report must cite a retrievable source; missing evidence is reported as unknown."
+  },
+  "provisioning": {
+    "mode": "DRY_RUN_ONLY",
+    "deploy_allowed": false,
+    "reason": "Candidate definition only. Do not enable checkout or production provision until source-backed deliverables, shared payment/fulfillment parity, end-to-end payment evidence, and human deployment approval are present."
+  }
+}
