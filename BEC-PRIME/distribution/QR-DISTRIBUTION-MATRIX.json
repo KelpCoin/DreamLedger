@@ -1,9 +1,9 @@
 {
   "schema": "DREAMLEDGER/QR-DISTRIBUTION-MATRIX/v1",
-  "status": "PREPARE_ONLY",
+  "status": "CAMPAIGN_GENERATION_READY_EXTERNAL_DISTRIBUTION_GATED",
   "canonical": {
     "doorway_id": "QR-CANONICAL-001",
-    "url": "https://dreamledger.org/go"
+    "url": "https://dreamledger.org/go?src=qr-canonical"
   },
   "rule": "Every placement is a separate measurable doorway. No external placement is considered executed until explicitly approved and independently evidenced.",
   "placement_families": [
@@ -191,5 +191,16 @@
       "fulfillment"
     ],
     "promotion_metric": "progression_to_checkout_and_settled_payment"
+  },
+  "automation_contract": {
+    "generate_assets_automatically": true,
+    "canonical_buyer_qr_on_fulfillment": true,
+    "placement_specific_campaign_qrs": true,
+    "owned_surface_publish_allowed_only_with_existing_release_authority": true,
+    "third_party_placement_requires_permission": true,
+    "no_unsolicited_direct_messages": true,
+    "no_scraped_email_lists": true,
+    "no_paid_spend_without_explicit_budget_approval": true,
+    "require_external_evidence_after_placement": true
   }
 }
