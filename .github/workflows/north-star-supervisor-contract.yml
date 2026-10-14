@@ -32,6 +32,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Compile North Star controller
+        run: python -m py_compile runtime/lm_studio/economic_swarm_controller.py
       - name: Offline supervisor self-test
         run: python runtime/lm_studio/north_star_supervisor.py --self-test
       - name: Offline priority audit self-test
@@ -60,6 +62,9 @@ jobs:
           $c = Get-Content runtime/lm_studio/economic_swarm_controller.py -Raw
           if ($c -notmatch 'north_star_priority_audit.py') { throw 'Priority audit is not invoked by the controller' }
           if ($c -notmatch 'MTG-CMD-DIAG-29-READ-ONLY-AUDIT') { throw 'First North Star revenue task is not wired' }
+          if ($c -notmatch 'def compact_model_snapshot') { throw '4K model prompt compaction missing' }
+          if ($c -notmatch '_HTTP_') { throw 'Model HTTP response diagnostics missing' }
+          if ($c -notmatch 'SYNTHESIS_SCHEMA_REQUIRED_FIELDS_MISSING') { throw 'Local synthesis schema validation missing' }
           if ($s -notmatch 'external_action_performed') { throw 'External action state not logged' }
           if ($s -notmatch 'SUPERVISOR_ALREADY_RUNNING') { throw 'Single-instance lock missing' }
           if ($s -notmatch 'CONTROLLER_CYCLE_TIMEOUT') { throw 'Cycle timeout missing' }
