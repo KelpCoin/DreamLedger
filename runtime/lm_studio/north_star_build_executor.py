@@ -1,5 +1,5 @@
 """Three-stage model build in an isolated Git worktree for one bounded job."""
-import json, os, re, subprocess, time, urllib.request, urllib.error
+import json, os, re, shutil, subprocess, time, urllib.request, urllib.error
 from pathlib import Path
 from north_star_build_worker import sha, shat, safe_path, gather_sources, result
 
@@ -32,7 +32,12 @@ def worktree(root,job,base):
     name="north-star/issue-712-"+jid
     path=root/"runtime"/"lm_studio"/"worktrees"/("issue-712-"+jid)
     if path.exists(): raise RuntimeError("WORKTREE_ALREADY_EXISTS")
-    git(root,["show-ref","--verify","--quiet","refs/remotes/origin/"+base])
+    path.parent.mkdir(parents=True,exist_ok=True)
+    remote_ref="refs/remotes/origin/"+base
+    if subprocess.run(["git","-C",str(root),"show-ref","--verify","--quiet",remote_ref],capture_output=True,check=False).returncode:
+        fetched=subprocess.run(["git","-C",str(root),"fetch","origin",base],capture_output=True,text=True,timeout=120,check=False)
+        if fetched.returncode or subprocess.run(["git","-C",str(root),"show-ref","--verify","--quiet",remote_ref],capture_output=True,check=False).returncode:
+            raise RuntimeError("BASE_BRANCH_MISSING:"+base)
     git(root,["worktree","add","-b",name,str(path),"origin/"+base],120)
     return path,name
 
@@ -61,7 +66,7 @@ def verify(tree,timeout):
         stdout,stderr,code=str(e.stdout or ""),str(e.stderr or "")+" BUILD_CHECK_TIMEOUT",124
     return {"command":cmd,"exit_code":code,"stdout_tail":stdout,"stderr_tail":stderr,"seconds":round(time.monotonic()-start,2),"stdout_sha256":shat(stdout),"stderr_sha256":shat(stderr)}
 
-def publish_pr(root,branch,issue,proof_hash):
+def publish_pr(root,branch,issue,proof_hash,base_branch='main'):
     if os.environ.get("NORTH_STAR_BUILD_WORKER_PUBLISH_PR","").lower() not in {"1","true","yes"}:
         raise RuntimeError("PR_PUBLISH_NOT_ENABLED")
     if not shutil.which("gh"): raise RuntimeError("GH_CLI_NOT_AVAILABLE")
@@ -70,7 +75,7 @@ def publish_pr(root,branch,issue,proof_hash):
     push=subprocess.run(["git","-C",str(root),"push","-u","origin",branch],capture_output=True,text=True,timeout=120,check=False,shell=False)
     if push.returncode: raise RuntimeError("GIT_PUSH_FAILED:"+" ".join((push.stderr or "").split())[:300])
     body="North Star bounded build for Issue #"+str(issue)+".\nBuild core SHA256: "+proof_hash+"\nFixed verifier passed. No checkout activation or deployment. Human review required."
-    p=subprocess.run(["gh","pr","create","--title","Build MTG Store Audit for Issue #712","--body",body,"--base","main","--head",branch],
+    p=subprocess.run(["gh","pr","create","--title","Build MTG Store Audit for Issue #712","--body",body,"--base",base_branch,"--head",branch],
                      cwd=str(root),capture_output=True,text=True,timeout=60,check=False,shell=False)
     if p.returncode: raise RuntimeError("GH_PR_CREATE_FAILED:"+" ".join((p.stderr or "").split())[:300])
     match=re.search(r"https://github\.com/[^\s]+/pull/[0-9]+",p.stdout)
@@ -83,6 +88,8 @@ def build(root,contract,job,model_fn=ask,publish_fn=publish_pr):
     try:
         tree,branch=worktree(root,job,contract.get("base_branch","main"))
         sources_meta,sources=gather_sources(tree,contract)
+        if isinstance(contract.get("_loaded_contract_source"),dict):
+            sources_meta.append(contract["_loaded_contract_source"])
         base=os.environ.get("LM_STUDIO_BASE_URL","http://127.0.0.1:1234")
         models={k:os.environ.get(env,default) for k,(env,default) in MODELS.items()}
         hashes=json.dumps(sources_meta); excerpts=json.dumps({k:v[:450] for k,v in sources.items()},ensure_ascii=False)[:2400]
@@ -113,12 +120,12 @@ def build(root,contract,job,model_fn=ask,publish_fn=publish_pr):
           "source_files":sources_meta,"output_files":outputs,"stage_hashes":stages,"validation":test,"branch":branch,
           "commit_sha":commit,"human_gate":True,"external_action_performed":False,"verified_revenue_nzd":0,"release_state":"NOT_RELEASED"}
         core_hash=shat(json.dumps(proof,sort_keys=True,separators=(",",":"),ensure_ascii=False))
-        proof["pr_url"]=publish_fn(root,branch,712,core_hash)
+        proof["pr_url"]=publish_fn(root,branch,712,core_hash,contract.get("base_branch","main"))
         proof["artifact_sha256"]=shat(json.dumps(proof,sort_keys=True,separators=(",",":"),ensure_ascii=False))
         p=root/"runtime"/"lm_studio"/"runs"/("north-star-build-712-"+str(int(time.time()))+".json")
         p.parent.mkdir(parents=True,exist_ok=True); p.write_text(json.dumps(proof,indent=2)+"\n",encoding="utf-8")
         return result("BUILD_READY","TESTS_PASSED_ISOLATED_BRANCH_ONLY",job_id=proof["job_id"],source_files=sources_meta,
-          output_files=outputs,stage_hashes=stages,validation=test,branch=branch,commit_sha=commit,pr_url=None,
+          output_files=outputs,stage_hashes=stages,validation=test,branch=branch,commit_sha=commit,
           artifact_path=str(p),artifact_sha256=proof["artifact_sha256"],worktree=str(tree),pr_url=proof["pr_url"])
     except Exception as e:
         proof={"schema":"dreamledger/north-star-build-worker/v1","task_issue":712,"job_id":job.get("id") or job.get("job_id"),
