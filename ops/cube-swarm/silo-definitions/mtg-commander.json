@@ -5,7 +5,7 @@
   "category": "magic-the-gathering",
   "lifecycle": "CANDIDATE",
   "commercial_contract": {
-    "sku": "COMMANDER-DECK-DIAGNOSTIC-001",
+    "sku": "CMD-DIAG-29",
     "legacy_sku": "CMD-DIAG-29",
     "currency": "NZD",
     "amount_minor": 2900,
@@ -19,7 +19,8 @@
       "decklist_accepted",
       "report_artifact_sha256",
       "delivery_confirmed"
-    ]
+    ],
+    "product_id": "COMMANDER-DECK-DIAGNOSTIC-001"
   },
   "carousel_card": {
     "title": "Commander Deck Diagnostic",
@@ -48,5 +49,38 @@
     "mode": "DRY_RUN_ONLY",
     "deploy_allowed": false,
     "reason": "Stripe checkout destination is inconsistent between the public buy page and product contract; Supabase read-only connectivity also fails. Resolve those gates before provisioning production resources."
+  },
+  "build_contract": {
+    "status": "EXISTING_IMPLEMENTATION_GATE_BLOCKED",
+    "task_issue": "https://github.com/KelpCoin/DreamLedger/issues/711",
+    "public_route_path": "public/silos/commander-deck-diagnostic/index.html",
+    "library_module_path": "BEC-PRIME/lib/mtgDiagnosticFulfillment.js",
+    "route_module_path": "BEC-PRIME/routes/mtgDiagnostic.js",
+    "supabase_function_slug": "marketplace-diagnostic-delivery",
+    "supabase_function_status": "DEPLOYMENT_REPORTED_SOURCE_PARITY_UNVERIFIED",
+    "shared_sku_dispatch_required": true,
+    "source_parity_required": true,
+    "production_publish_allowed": false,
+    "output_contract": "A source-backed first-pass diagnostic report for one submitted Commander decklist, with observed metrics, limitations, and prioritised upgrade directions."
+  },
+  "source_evidence": {
+    "price_source": "User-provided offer ladder dated 2026-10-14; this records target pricing, not demand or willingness-to-pay evidence.",
+    "source_refs": [
+      "public/catalog.json",
+      "public/silo-clone-manifest.json",
+      "public/silo-template.html",
+      "ops/cube-swarm/silo-definitions/mtg-commander.json",
+      "BEC-PRIME/lib/mtgDiagnosticFulfillment.js",
+      "BEC-PRIME/routes/mtgDiagnostic.js",
+      "BEC-PRIME/lib/revenueLedger.js",
+      "BEC-PRIME/lib/marketplacePolicy.js",
+      "BEC-PRIME/routes/commercialCell.js",
+      "supabase/functions/silo-factory/index.ts",
+      "supabase/functions/silo-orchestrator/index.ts",
+      "supabase/migrations/20260920_mtg_collection_inventory.sql",
+      "runtime/lm_studio/economic_swarm_controller.py"
+    ],
+    "source_hashing": "BUILD_WORKER_MUST_COMPUTE_SHA256_AT_EXECUTION",
+    "external_claims_policy": "Every material factual claim in a delivered report must cite a retrievable source; missing evidence is reported as unknown."
   }
 }
