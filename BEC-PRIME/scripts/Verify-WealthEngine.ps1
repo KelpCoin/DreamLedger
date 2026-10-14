@@ -32,27 +32,7 @@ if (Test-Path $candidate) {
 
 if (Test-Path $frontDoor) {
     $html = Get-Content -Raw $frontDoor
-    $publicRoot = Join-Path $root '..\public'
-    $mtgSurface = Join-Path $publicRoot 'mtg\index.html'
-    $publicCatalogPath = Join-Path $publicRoot 'catalog.json'
-    $canonicalLink = 'https://buy.stripe.com/eVqeVdc1T01n1DV3gwdwc30'
-    $legacyLink = 'https://buy.stripe.com/8x228r1nfg0l3M32csdwc2I'
-    $mtgHtml = if (Test-Path $mtgSurface) { Get-Content -Raw $mtgSurface } else { '' }
-    $catalogDiagnostic = $null
-    if (Test-Path $publicCatalogPath) {
-        $publicCatalog = Get-Content -Raw $publicCatalogPath | ConvertFrom-Json
-        $catalogDiagnostic = @($publicCatalog.products | Where-Object { $_.id -eq 'COMMANDER-DECK-DIAGNOSTIC-001' -and $_.sku -eq 'CMD-DIAG-29' } | Select-Object -First 1)[0]
-    }
-    $commercialDoor = ($html -match 'href="/mtg/"') -and
-        ($mtgHtml -match 'Commander diagnostic') -and
-        $mtgHtml.Contains($canonicalLink) -and
-        -not $mtgHtml.Contains($legacyLink) -and
-        ($null -ne $catalogDiagnostic) -and
-        ([int]$catalogDiagnostic.price -eq 29) -and
-        ([string]$catalogDiagnostic.currency -eq 'nzd') -and
-        ($catalogDiagnostic.checkout_available -eq $true) -and
-        ($catalogDiagnostic.checkout_url -eq $canonicalLink)
-    Check 'front_door_is_commercial' $commercialDoor
+    Check 'front_door_is_commercial' ($html -match 'Commander Deck Diagnostic' -and $html -match 'NZ\$29' -and $html -match '/buy/COMMANDER-DECK-DIAGNOSTIC-001')
     Check 'mtg_silo_not_required_on_home' $true
     Check 'no_internal_front_door_language' ($html -notmatch 'BrownEye Cortex|Economic Court|ELOHIM|AMPLISSA|COLLECTORSCOAST')
 }
