@@ -16,7 +16,7 @@ has(workflow, /\/rest\/v1\/cortex_heartbeat\?select=seq&limit=1/,
   'Preflight must use a read-only query to test PostgREST/database reachability.');
 has(workflow, /if: always\(\)/,
   'Cloud-independent validation must still run when Supabase credentials are absent.');
-has(workflow, /name: Refresh public demand radar[\\s\\S]*?if: needs\\.preflight\\.outputs\\.database_ready == 'true'/,
+has(workflow, /name: Refresh public demand radar[\s\S]*?if: needs\.preflight\.outputs\.database_ready == 'true'/,
   'Demand-radar database writes must be gated on the preflight database probe.');
 has(workflow, /name: Record skipped demand radar honestly[\s\S]*?CUBE_RADAR=BLOCKED_SUPABASE_UNAVAILABLE/,
   'A skipped database-backed radar must be explicitly labelled blocked, never passed.');
