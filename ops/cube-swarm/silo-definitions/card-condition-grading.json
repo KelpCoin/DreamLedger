@@ -1,0 +1,82 @@
+{
+  "schema_version": "dreamledger/cube-swarm-silo-definition/v1",
+  "silo_id": "card-condition-grading",
+  "name": "Card Condition Grading Tool",
+  "category": "mtg-tools",
+  "lifecycle": "CANDIDATE",
+  "commercial_contract": {
+    "product_id": "MTG-CONDITION-GRADING-199",
+    "sku": "MTG-CONDITION-GRADING-199",
+    "currency": "NZD",
+    "amount_minor": 19900,
+    "checkout_status": "NOT_CONFIGURED",
+    "fulfillment_input": "/silos/card-condition-grading/input",
+    "fulfillment_api": "/api/revenue-ladder/fulfill",
+    "evidence_required": [
+      "stripe_session_live_paid",
+      "canonical_sku_amount_currency_match",
+      "order_created",
+      "images_input_accepted",
+      "grading_report_sha256",
+      "delivery_confirmed",
+      "truth_oracle_reconciled"
+    ]
+  },
+  "carousel_card": {
+    "title": "Card Condition Grading Tool",
+    "description": "A conservative explainable condition estimate from supported photos and a checklist, including confidence and image limitations; not an official grade or authenticity certificate.",
+    "cta_label": "Offer in preparation",
+    "cta_action": "disabled",
+    "cta_target": null,
+    "visible": false,
+    "position": 6
+  },
+  "isolation": {
+    "compute": "SHARED_WORKER",
+    "database_strategy": "SHARED_TENANT_SCOPED",
+    "database_name": null,
+    "database_id": null,
+    "r2_bucket": "marketplace-fulfillment",
+    "r2_prefix": "silos/card-condition-grading/",
+    "cross_silo_customer_data": false
+  },
+  "routes": [
+    "/silos/card-condition-grading/",
+    "/api/revenue-ladder/card-condition-grading/input",
+    "/api/revenue-ladder/fulfill"
+  ],
+  "build_contract": {
+    "status": "PLANNED_NOT_BUILT",
+    "task_issue": "https://github.com/KelpCoin/DreamLedger/issues/716",
+    "public_route_path": "public/silos/card-condition-grading/index.html",
+    "library_module_path": "BEC-PRIME/lib/cardConditionGrading.js",
+    "route_module_path": "BEC-PRIME/routes/revenueLadderOffer.js",
+    "route_module_status": "SHARED_ROUTE_REQUIRED",
+    "supabase_function_slug": null,
+    "supabase_function_status": "NOT_SELECTED",
+    "shared_sku_dispatch_required": true,
+    "source_parity_required": true,
+    "production_publish_allowed": false,
+    "output_contract": "A conservative explainable condition estimate from supported photos and a checklist, including confidence and image limitations; not an official grade or authenticity certificate."
+  },
+  "source_evidence": {
+    "price_source": "User-provided offer ladder dated 2026-10-14; this records target pricing, not demand or willingness-to-pay evidence.",
+    "source_refs": [
+      "public/catalog.json",
+      "public/silo-clone-manifest.json",
+      "public/silo-template.html",
+      "BEC-PRIME/lib/revenueLedger.js",
+      "BEC-PRIME/lib/marketplacePolicy.js",
+      "BEC-PRIME/routes/commercialCell.js",
+      "supabase/functions/silo-factory/index.ts",
+      "supabase/functions/silo-orchestrator/index.ts"
+    ],
+    "source_hashing": "BUILD_WORKER_MUST_COMPUTE_SHA256_AT_EXECUTION",
+    "external_claims_policy": "Every material factual claim in a delivered report must cite a retrievable source; missing evidence is reported as unknown."
+  },
+  "provisioning": {
+    "mode": "DRY_RUN_ONLY",
+    "deploy_allowed": false,
+    "reason": "Candidate definition only. Do not enable checkout or production provision until source-backed deliverables, shared payment/fulfillment parity, end-to-end payment evidence, and human deployment approval are present."
+  }
+}
