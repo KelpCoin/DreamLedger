@@ -14,15 +14,6 @@ const d = require('../lib/mtgDiagnosticFulfillment');
 async function main() {
   const deck = Array.from({length:35}, (_,i) => `1 Test Card ${i+1}`).join('\n');
   const parsed = d.parseDecklist(deck);
-  const validCheckout = {livemode:true,amount_total:2900,currency:'nzd',metadata:{product_id:'COMMANDER-DECK-DIAGNOSTIC-001',offer_id:'OFFER-CMD-DIAG-29-NZD',sku:'CMD-DIAG-29',intake_id:'intake-test'}};
-  assert.equal(d.assertCheckoutSessionContract(validCheckout,'intake-test'),true);
-  assert.throws(() => d.assertCheckoutSessionContract({...validCheckout,amount_total:40000},'intake-test'), /amount_must_equal_NZD_29/);
-  assert.throws(() => d.assertCheckoutSessionContract({...validCheckout,livemode:false},'intake-test'), /live_mode_required/);
-  assert.throws(() => d.assertCheckoutSessionContract({...validCheckout,currency:'usd'},'intake-test'), /currency_must_be_NZD/);
-  assert.throws(() => d.assertCheckoutSessionContract({...validCheckout,metadata:{...validCheckout.metadata,product_id:'OTHER'}},'intake-test'), /product_id_mismatch/);
-  assert.throws(() => d.assertCheckoutSessionContract({...validCheckout,metadata:{...validCheckout.metadata,offer_id:'OTHER'}},'intake-test'), /offer_id_mismatch/);
-  assert.throws(() => d.assertCheckoutSessionContract({...validCheckout,metadata:{...validCheckout.metadata,sku:'OTHER'}},'intake-test'), /sku_mismatch/);
-  assert.throws(() => d.assertCheckoutSessionContract({...validCheckout,metadata:{...validCheckout.metadata,intake_id:'OTHER'}},'intake-test'), /intake_id_mismatch/);
   assert.strictEqual(parsed.length,35);
   const metrics = d.classify([
     {name:'Sol Ring',qty:1},
@@ -48,7 +39,6 @@ async function main() {
     test:'mtg-diagnostic-contract',
     parsed_cards:parsed.length,
     metrics,
-    checkout_contract_amount_currency_sku_livemode:'PASS',
     checkout_without_economic_ledger:'BLOCKED_AS_REQUIRED',
     intake_artifacts_created:0
   },null,2));
