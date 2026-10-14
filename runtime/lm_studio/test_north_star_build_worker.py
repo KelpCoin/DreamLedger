@@ -1,8 +1,10 @@
 import json
+import os
 import subprocess
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch, Mock
 
 import north_star_build_worker as worker
 from north_star_build_executor import build
@@ -69,7 +71,12 @@ class CycleTests(unittest.TestCase):
             configured=True
             def preview(self,issue,worker): return job()
             def claim(self,issue,worker): return None
-        try: self.assertEqual(worker.run_cycle(root,bridge=Fake(),execute=True)["reason"],"CLAIM_CONFLICT")
+        try:
+            with patch.dict(os.environ, {"NORTH_STAR_BUILD_WORKER_PUBLISH_PR":"true"}):
+                with patch("north_star_build_worker.shutil.which", return_value="gh"):
+                    with patch("north_star_build_worker.subprocess.run", return_value=Mock(returncode=0)):
+                        out=worker.run_cycle(root,bridge=Fake(),execute=True)
+            self.assertEqual(out["reason"],"CLAIM_CONFLICT")
         finally: temp.cleanup()
     def test_missing_source_holds_before_claim(self):
         temp,root=self.make_root(False)
@@ -127,7 +134,7 @@ if(a!==b || !a.includes('SAFE_MODULE') || !p.includes('noindex,nofollow')) proce
         temp,root,fake=self.setup_repo(True)
         try:
             out=build(root,{"source_refs":["src.txt"],"writable_paths":["BEC-PRIME/lib/mtgStoreAudit.js","public/silos/mtg-store-audit/index.html"],
-                "base_branch":"main","limits":{"timeout_seconds":15}},job(),model_fn=fake,publish_fn=lambda root,branch,issue,proof_hash:"https://github.com/KelpCoin/DreamLedger/pull/999")
+                "base_branch":"main","limits":{"timeout_seconds":15}},job(),model_fn=fake,publish_fn=lambda root,branch,issue,proof_hash,base_branch=None:"https://github.com/KelpCoin/DreamLedger/pull/999")
             self.assertEqual(out["status"],"BUILD_READY")
             self.assertEqual(out["validation"]["exit_code"],0)
             self.assertEqual(len(out["artifact_sha256"]),64)
