@@ -3,7 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
-const { canonicalQrFulfillment } = require('./canonicalQrFulfillment');
+const { canonicalQrFulfillment, customerQrHtml, printableInsertHtml } = require('./canonicalQrFulfillment');
 
 const ROOT = path.join(__dirname, '..');
 const DATA_ROOT = path.resolve(process.env.LEDGER_DATA_DIR || path.join(ROOT, 'data', 'transactions'));
@@ -148,12 +148,22 @@ function recordFulfillment({ eventId, transactionId, amountMinor, currency, fulf
 }
 
 function prepareCustomerQr(fulfillment) {
-  const qr = fulfillment.customer_referral_qr || canonicalQrFulfillment({
+  const context = {
     productId: fulfillment.product_id,
     orderId: fulfillment.fulfillment_id,
     channel: 'commerce-ledger-fulfillment',
     campaign: 'buyer-referral'
-  });
+  };
+  const qr = fulfillment.customer_referral_qr || canonicalQrFulfillment(context);
+  const qrHtml = customerQrHtml(context);
+  const printHtml = printableInsertHtml(context);
+  const prepared = {
+    ...fulfillment,
+    customer_referral_qr: qr,
+    customer_referral_qr_html: qrHtml,
+    customer_referral_qr_printable_html: printHtml,
+    fulfillment_insert_url: 'https://dreamledger.org/qr/fulfillment-insert.html'
+  };
   const rows = readLines(FULFILLMENT_QR_FILE);
   if (!rows.some(row => row.fulfillment_id === fulfillment.fulfillment_id)) {
     appendUnique(FULFILLMENT_QR_FILE, 'fulfillment_id', {
@@ -161,12 +171,15 @@ function prepareCustomerQr(fulfillment) {
       transaction_id: fulfillment.transaction_id,
       product_id: fulfillment.product_id || null,
       customer_referral_qr: qr,
+      customer_referral_qr_html: qrHtml,
+      customer_referral_qr_printable_html: printHtml,
+      fulfillment_insert_url: prepared.fulfillment_insert_url,
       status: 'QR_ARTIFACT_PREPARED_NOT_ATTACHED',
       created_at: new Date().toISOString(),
-      truth_note: 'Preparation is not proof the QR was printed, attached, sent or delivered.'
+      truth_note: 'QR artifacts are prepared for delivery. This record does not prove the QR was printed, attached, sent or delivered.'
     });
   }
-  return { ...fulfillment, customer_referral_qr: qr };
+  return prepared;
 }
 
 function createFulfillment({ transactionId, productId, offerId, silo, amountMinor, currency, customerEmail }) {
