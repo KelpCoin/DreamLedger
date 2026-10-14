@@ -15,6 +15,23 @@ on:
       - "BEC-PRIME/auction-engine.js"
       - "BEC-PRIME/auction-engine.test.js"
       - "BEC-PRIME/scripts/verify-mtg-master-silo-contract.js"
+      - "BEC-PRIME/distribution/QR-CampaignPlanner.js"
+      - "BEC-PRIME/distribution/QR-CampaignPlanner.test.js"
+      - "BEC-PRIME/lib/canonicalQrFulfillment.js"
+      - "BEC-PRIME/lib/canonicalQrFulfillment.test.js"
+      - "BEC-PRIME/lib/mtgDiagnosticFulfillment.js"
+      - "BEC-PRIME/lib/billboardAutoFulfillment.js"
+      - "BEC-PRIME/routes/distributionDoorway.js"
+      - "BEC-PRIME/distribution/QRAssetCompiler.js"
+      - "BEC-PRIME/distribution/QR-DISTRIBUTION-MATRIX.json"
+      - "BEC-PRIME/fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json"
+      - "public/assets/qr-canonical.svg"
+      - "public/qr/**"
+      - "supabase/migrations/**"
+      - "docs/operations/CLOUD-SUPERVISOR-SCHEDULING.md"
+      - "ops/distribution/QR_CANONICAL_DISTRIBUTION.md"
+      - "package.json"
+      - "package-lock.json"
       - ".github/workflows/mtg-master-silo-contract.yml"
   push:
     branches: [main]
@@ -44,7 +61,22 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
       - name: Validate master silo contract
         run: node BEC-PRIME/scripts/verify-mtg-master-silo-contract.js
       - name: Verify auction expiry and approval gates
         run: node --test BEC-PRIME/auction-engine.test.js
+      - name: Generate tracked QR campaign artifacts
+        run: node BEC-PRIME/distribution/QR-CampaignPlanner.js
+      - name: Verify QR fulfillment and campaign legal gates
+        run: node --test BEC-PRIME/distribution/QR-CampaignPlanner.test.js BEC-PRIME/lib/canonicalQrFulfillment.test.js
+      - name: Upload QR campaign plan and generated codes
+        uses: actions/upload-artifact@v4
+        with:
+          name: dreamledger-qr-campaign-plan-${{ github.run_id }}
+          path: |
+            BEC-PRIME/distribution/generated/QR-CAMPAIGN-PLAN.json
+            public/qr/campaigns/*.svg
+          if-no-files-found: error
+          retention-days: 30
