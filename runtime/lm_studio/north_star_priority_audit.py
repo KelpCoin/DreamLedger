@@ -370,7 +370,7 @@ def facts_from_sources(root: Path, sources: list[dict]) -> dict:
     return {"catalog_entry": catalog_entry, "checks": checks, "landing_price_present": landing_price_present, "landing_checkout_present": landing_checkout_present, "inline_js_syntax": inline_js_syntax}
 
 
-def build_report() -> dict:
+def build_report(output_path: Path | None = None) -> dict:
     root = ROOT
     task = load_task(root)
     source_paths = task.get("inputs", {}).get("starting_sources", [])
@@ -428,11 +428,12 @@ def build_report() -> dict:
         "verified_revenue_nzd": 0,
         "status": "BLOCKED_GATE1_CONFIG_MISSING" if probe.get("branch_classification") == "STRIPE_CONFIG_MISSING" else "AUDIT_INCOMPLETE_REQUIRES_REVIEW",
     }
-    AUDIT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    tmp = AUDIT_PATH.with_suffix(".tmp")
+    target_path = output_path or AUDIT_PATH
+    target_path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = target_path.with_suffix(target_path.suffix + ".tmp")
     tmp.write_text(json.dumps(audit, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-    os.replace(tmp, AUDIT_PATH)
-    audit["artifact_path"] = str(AUDIT_PATH)
+    os.replace(tmp, target_path)
+    audit["artifact_path"] = str(target_path)
     return audit
 
 
@@ -460,11 +461,18 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--json", action="store_true", help="emit the audit report as JSON")
     parser.add_argument("--self-test", action="store_true", help="run offline contract tests without network access")
+    parser.add_argument("--output-path", help="write the audit to a staged path inside the repository")
     args = parser.parse_args()
     if args.self_test:
         return self_test()
+    output_path = None
+    if args.output_path:
+        requested = Path(args.output_path).expanduser()
+        output_path = (requested if requested.is_absolute() else ROOT / requested).resolve()
+        if output_path != ROOT and ROOT not in output_path.parents:
+            parser.error("--output-path must remain inside the repository root")
     try:
-        result = build_report()
+        result = build_report(output_path)
         print(json.dumps(result, ensure_ascii=False, separators=(",", ":")) if args.json else json.dumps({
             "status": result["status"],
             "task_id": result["task_id"],
@@ -489,8 +497,11 @@ def main() -> int:
             "verified_revenue_nzd": 0,
         }
         try:
-            AUDIT_PATH.parent.mkdir(parents=True, exist_ok=True)
-            AUDIT_PATH.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
+            target_path = output_path or AUDIT_PATH
+            target_path.parent.mkdir(parents=True, exist_ok=True)
+            tmp = target_path.with_suffix(target_path.suffix + ".tmp")
+            tmp.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
+            os.replace(tmp, target_path)
         except Exception:
             pass
         print(json.dumps(result, indent=2), file=sys.stderr)
