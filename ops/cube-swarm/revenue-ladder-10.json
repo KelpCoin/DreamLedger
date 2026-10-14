@@ -1,0 +1,191 @@
+{
+  "schema": "dreamledger/revenue-ladder-10/v1",
+  "status": "PLANNING_CONTRACT_ONLY",
+  "parent_issue": "https://github.com/KelpCoin/DreamLedger/issues/709",
+  "objective": {
+    "target_nzd": 3000000,
+    "target_is_forecast": false,
+    "verified_revenue_source": "Truth Oracle evidence for independent external settled Stripe charges with fulfilled delivery",
+    "revenue_claim_policy": "Do not infer revenue from catalog status, checkout creation, run counts, model outputs, or hypothetical buyer math."
+  },
+  "sources": {
+    "existing_definition": "ops/cube-swarm/silo-definitions/mtg-commander.json",
+    "public_catalog": "public/catalog.json",
+    "reusable_surface": "public/silo-clone-manifest.json",
+    "reusable_template": "public/silo-template.html",
+    "current_runtime": "runtime/lm_studio/economic_swarm_controller.py",
+    "existing_factory": "supabase/functions/silo-factory/index.ts",
+    "existing_qualifier": "supabase/functions/silo-orchestrator/index.ts",
+    "controller_caveat": "Current three-model controller is scoped to a read-only MTG audit; issue #710 is required before claiming autonomous job execution."
+  },
+  "execution_rules": {
+    "first_revenue_gate_issue": 711,
+    "runtime_dispatch_gate_issue": 710,
+    "source_sha256_required": true,
+    "live_checkout_allowed": false,
+    "production_deployment_allowed": false,
+    "per_offer_edge_functions": false,
+    "shared_sku_dispatch_required": true,
+    "require_human_approval_for_credentials_payment_publication_deployment": true,
+    "catalogue_candidates_must_remain_gated": true
+  },
+  "offers": [
+    {
+      "order": 1,
+      "silo_id": "mtg-commander",
+      "product_id": "COMMANDER-DECK-DIAGNOSTIC-001",
+      "sku": "CMD-DIAG-29",
+      "price_nzd": 29,
+      "definition_path": "ops/cube-swarm/silo-definitions/mtg-commander.json",
+      "catalog_state": "EXISTING_UNVERIFIED",
+      "task_issue": "https://github.com/KelpCoin/DreamLedger/issues/711",
+      "public_route_path": "public/silos/commander-deck-diagnostic/index.html",
+      "library_module_path": "BEC-PRIME/lib/mtgDiagnosticFulfillment.js",
+      "shared_route_path": "BEC-PRIME/routes/revenueLadderOffer.js",
+      "fulfillment": "Shared SKU-dispatched fulfillment; implementation source parity must be inspected before selection or deployment."
+    },
+    {
+      "order": 2,
+      "silo_id": "mtg-store-audit",
+      "product_id": "MTG-STORE-AUDIT-299",
+      "sku": "MTG-STORE-AUDIT-299",
+      "price_nzd": 299,
+      "definition_path": "ops/cube-swarm/silo-definitions/mtg-store-audit.json",
+      "catalog_state": "GATED_CANDIDATE",
+      "task_issue": "https://github.com/KelpCoin/DreamLedger/issues/712",
+      "public_route_path": "public/silos/mtg-store-audit/index.html",
+      "library_module_path": "BEC-PRIME/lib/mtgStoreAudit.js",
+      "shared_route_path": "BEC-PRIME/routes/revenueLadderOffer.js",
+      "fulfillment": "Shared SKU-dispatched fulfillment; implementation source parity must be inspected before selection or deployment."
+    },
+    {
+      "order": 3,
+      "silo_id": "commander-optimization",
+      "product_id": "MTG-COMMANDER-OPTIMIZATION-999",
+      "sku": "MTG-COMMANDER-OPTIMIZATION-999",
+      "price_nzd": 999,
+      "definition_path": "ops/cube-swarm/silo-definitions/commander-optimization.json",
+      "catalog_state": "GATED_CANDIDATE",
+      "task_issue": "https://github.com/KelpCoin/DreamLedger/issues/713",
+      "public_route_path": "public/silos/commander-optimization/index.html",
+      "library_module_path": "BEC-PRIME/lib/commanderOptimization.js",
+      "shared_route_path": "BEC-PRIME/routes/revenueLadderOffer.js",
+      "fulfillment": "Shared SKU-dispatched fulfillment; implementation source parity must be inspected before selection or deployment."
+    },
+    {
+      "order": 4,
+      "silo_id": "bec-prime-system",
+      "product_id": "BEC-PRIME-SYSTEM-2900",
+      "sku": "BEC-PRIME-SYSTEM-2900",
+      "price_nzd": 2900,
+      "definition_path": "ops/cube-swarm/silo-definitions/bec-prime-system.json",
+      "catalog_state": "GATED_CANDIDATE",
+      "task_issue": "https://github.com/KelpCoin/DreamLedger/issues/714",
+      "public_route_path": "public/silos/bec-prime-system/index.html",
+      "library_module_path": "BEC-PRIME/lib/becPrimeSystemOffer.js",
+      "shared_route_path": "BEC-PRIME/routes/revenueLadderOffer.js",
+      "fulfillment": "Shared SKU-dispatched fulfillment; implementation source parity must be inspected before selection or deployment."
+    },
+    {
+      "order": 5,
+      "silo_id": "deck-listing-engine",
+      "product_id": "MTG-DECK-LISTING-ENGINE-499",
+      "sku": "MTG-DECK-LISTING-ENGINE-499",
+      "price_nzd": 499,
+      "definition_path": "ops/cube-swarm/silo-definitions/deck-listing-engine.json",
+      "catalog_state": "GATED_CANDIDATE",
+      "task_issue": "https://github.com/KelpCoin/DreamLedger/issues/715",
+      "public_route_path": "public/silos/deck-listing-engine/index.html",
+      "library_module_path": "BEC-PRIME/lib/deckListingEngine.js",
+      "shared_route_path": "BEC-PRIME/routes/revenueLadderOffer.js",
+      "fulfillment": "Shared SKU-dispatched fulfillment; implementation source parity must be inspected before selection or deployment."
+    },
+    {
+      "order": 6,
+      "silo_id": "card-condition-grading",
+      "product_id": "MTG-CONDITION-GRADING-199",
+      "sku": "MTG-CONDITION-GRADING-199",
+      "price_nzd": 199,
+      "definition_path": "ops/cube-swarm/silo-definitions/card-condition-grading.json",
+      "catalog_state": "GATED_CANDIDATE",
+      "task_issue": "https://github.com/KelpCoin/DreamLedger/issues/716",
+      "public_route_path": "public/silos/card-condition-grading/index.html",
+      "library_module_path": "BEC-PRIME/lib/cardConditionGrading.js",
+      "shared_route_path": "BEC-PRIME/routes/revenueLadderOffer.js",
+      "fulfillment": "Shared SKU-dispatched fulfillment; implementation source parity must be inspected before selection or deployment."
+    },
+    {
+      "order": 7,
+      "silo_id": "mtg-inventory-sync",
+      "product_id": "MTG-INVENTORY-SYNC-799",
+      "sku": "MTG-INVENTORY-SYNC-799",
+      "price_nzd": 799,
+      "definition_path": "ops/cube-swarm/silo-definitions/mtg-inventory-sync.json",
+      "catalog_state": "GATED_CANDIDATE",
+      "task_issue": "https://github.com/KelpCoin/DreamLedger/issues/717",
+      "public_route_path": "public/silos/inventory-sync/index.html",
+      "library_module_path": "BEC-PRIME/lib/mtgInventorySync.js",
+      "shared_route_path": "BEC-PRIME/routes/revenueLadderOffer.js",
+      "fulfillment": "Shared SKU-dispatched fulfillment; implementation source parity must be inspected before selection or deployment."
+    },
+    {
+      "order": 8,
+      "silo_id": "bulk-price-engine",
+      "product_id": "MTG-BULK-PRICE-ENGINE-1499",
+      "sku": "MTG-BULK-PRICE-ENGINE-1499",
+      "price_nzd": 1499,
+      "definition_path": "ops/cube-swarm/silo-definitions/bulk-price-engine.json",
+      "catalog_state": "GATED_CANDIDATE",
+      "task_issue": "https://github.com/KelpCoin/DreamLedger/issues/718",
+      "public_route_path": "public/silos/bulk-price-engine/index.html",
+      "library_module_path": "BEC-PRIME/lib/mtgBulkPriceEngine.js",
+      "shared_route_path": "BEC-PRIME/routes/revenueLadderOffer.js",
+      "fulfillment": "Shared SKU-dispatched fulfillment; implementation source parity must be inspected before selection or deployment."
+    },
+    {
+      "order": 9,
+      "silo_id": "mtg-saas",
+      "product_id": "MTG-SAAS-99-MONTH",
+      "sku": "MTG-SAAS-99-MONTH",
+      "price_nzd": 99,
+      "billing_interval": "month",
+      "definition_path": "ops/cube-swarm/silo-definitions/mtg-saas.json",
+      "catalog_state": "GATED_CANDIDATE",
+      "task_issue": "https://github.com/KelpCoin/DreamLedger/issues/719",
+      "public_route_path": "public/silos/mtg-saas/index.html",
+      "library_module_path": "BEC-PRIME/lib/mtgSaaSSubscription.js",
+      "shared_route_path": "BEC-PRIME/routes/revenueLadderOffer.js",
+      "fulfillment": "Shared SKU-dispatched fulfillment; implementation source parity must be inspected before selection or deployment."
+    },
+    {
+      "order": 10,
+      "silo_id": "mtg-agency-setup",
+      "product_id": "MTG-AGENCY-SETUP-9900",
+      "sku": "MTG-AGENCY-SETUP-9900",
+      "price_nzd": 9900,
+      "definition_path": "ops/cube-swarm/silo-definitions/mtg-agency-setup.json",
+      "catalog_state": "GATED_CANDIDATE",
+      "task_issue": "https://github.com/KelpCoin/DreamLedger/issues/720",
+      "public_route_path": "public/silos/mtg-agency-setup/index.html",
+      "library_module_path": "BEC-PRIME/lib/mtgAgencySetup.js",
+      "shared_route_path": "BEC-PRIME/routes/revenueLadderOffer.js",
+      "fulfillment": "Shared SKU-dispatched fulfillment; implementation source parity must be inspected before selection or deployment."
+    }
+  ],
+  "dependencies": [
+    {
+      "id": "P0",
+      "issue": 711,
+      "requirement": "Prove the existing $29 payment-to-delivery path with a real independent buyer before counting revenue."
+    },
+    {
+      "id": "RUNTIME",
+      "issue": 710,
+      "requirement": "Connect task execution to existing CUBE/public.jobs or Agent Bridge; the controller does not yet execute this manifest."
+    },
+    {
+      "id": "OFFER-BUILDS",
+      "requirement": "Static/product-module build work may proceed while payment is blocked, but checkout stays gated and deployment disallowed."
+    }
+  ]
+}
