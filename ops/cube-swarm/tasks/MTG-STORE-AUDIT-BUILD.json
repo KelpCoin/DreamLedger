@@ -13,7 +13,6 @@
   },
   "objective": "Build a source-backed MTG Store Audit that checks supplied store/catalog snapshots, emits a report, and never infers sales or revenue.",
   "source_refs": [
-    "ops/cube-swarm/tasks/MTG-STORE-AUDIT-BUILD.json",
     "public/catalog.json",
     "public/silo-template.html",
     "ops/cube-swarm/silo-definitions/mtg-commander.json",
@@ -28,7 +27,7 @@
     "public/silos/mtg-store-audit/mtgStoreAudit.js"
   ],
   "fixed_verifier": "ops/cube-swarm/verify/verify-mtg-store-audit.mjs",
-  "base_branch": "main",
+  "base_branch": "feat/issue-712-store-audit-product",
   "limits": {
     "max_attempts": 3,
     "timeout_seconds": 300,
