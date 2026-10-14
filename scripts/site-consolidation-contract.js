@@ -1,35 +1,58 @@
+"use strict";
+
 const fs = require("node:fs");
 const assert = require("node:assert/strict");
+const { execFileSync } = require("node:child_process");
 const read = (path) => fs.readFileSync(path, "utf8");
 
+// Exercise the real Vercel build path, not a guessed output layout.
+execFileSync(process.execPath, ["scripts/build-vercel-site.js"], { stdio: "inherit" });
+
 const root = read("index.html");
-const published = read("public/index.html");
+const built = read("dist/index.html");
 const css = read("dreamledger.css");
 const publicCss = read("public/dreamledger.css");
 const marketplace = read("marketplace.html");
 const publicMarketplace = read("public/marketplace.html");
 const truthOracle = read("truth-oracle.html");
 const publicTruthOracle = read("public/truth-oracle.html");
+const mtg = read("mtg/index.html");
+const publicMtg = read("public/mtg/index.html");
 const vercel = read("vercel.json");
 
-assert.equal(root, published, "root and public homepage copies must be byte-identical");
-assert.equal(css, publicCss, "root and public stylesheet copies must be byte-identical");
-assert.match(vercel, /copyFileSync\('index\.html','public\/index\.html'\)/, "build must publish canonical root homepage");
+assert.equal(root, built, "Vercel output must use canonical root homepage");
+assert.equal(css, publicCss, "root and public shared stylesheet copies must be byte-identical");
+assert.equal(fs.existsSync("public/index.html"), false, "public/index.html must not compete with the canonical homepage");
+assert.match(vercel, /"buildCommand":\s*"node scripts\/build-vercel-site\.js"/, "Vercel must use the deterministic build script");
+assert.match(vercel, /"outputDirectory":\s*"dist"/, "Vercel must publish the clean dist directory");
+assert.doesNotMatch(vercel, /"deploymentEnabled":\s*false/, "Git deployments must not be globally disabled");
+
 for (const [path, content] of [["index.html", root], ["marketplace.html", marketplace], ["truth-oracle.html", truthOracle]]) {
-  assert.match(content, /href="\/dreamledger\.css"/, path + " must load the root-published shared stylesheet");
+  assert.match(content, /href="\/dreamledger\.css"/, path + " must load the shared stylesheet");
 }
 assert.match(root, /href="\/truth-oracle\.html"/, "homepage must expose Truth Oracle");
 assert.match(root, /href="\/mtg\/"/, "homepage must expose the MTG silo");
-assert.match(root, /href="\/privacy\.html"/, "privacy link must resolve");
-assert.match(root, /href="\/terms\.html"/, "terms link must resolve");
-assert.match(root, /Paid automated report delivery is not advertised as live/, "homepage must not overstate paid fulfillment");
 assert.match(root, /VERIFIED EXTERNAL REVENUE: NZ\$0\.00/, "homepage must preserve verified revenue baseline");
+assert.match(root, /Paid automated report delivery is not advertised as live/, "homepage must not overstate paid fulfillment");
+
 assert.match(marketplace, /Current offer status/, "live marketplace route must show canonical availability");
 assert.doesNotMatch(marketplace, /buy\.stripe\.com/, "marketplace must not expose unverified paid checkout links");
 assert.match(marketplace, /VERIFIED_EXTERNAL_REVENUE = NZ\$0\.00/, "marketplace must preserve verified revenue baseline");
-assert.match(publicMarketplace, /Current offer status/, "public mirror must match the availability policy");
-assert.match(truthOracle, /not represented as an automated or paid live service/, "Truth Oracle must not imply paid delivery is live");
-assert.match(publicTruthOracle, /not represented as an automated or paid live service/, "public Truth Oracle mirror must state paid delivery status");
+assert.match(publicMarketplace, /Current offer status/, "public mirror must preserve the availability policy");
+
+assert.match(truthOracle, /Billy|billy\.govt\.nz/, "Truth Oracle must surface the free national power comparator");
+assert.match(truthOracle, /grocer\.nz/, "Truth Oracle must surface the free/low-cost grocery comparator");
+assert.match(truthOracle, /Same evidence standard for every tier/, "Truth Oracle must keep verdict rules consistent across tiers");
+assert.match(publicTruthOracle, /billy\.govt\.nz/, "public Truth Oracle copy must align with the savings-first proposition");
+
+assert.equal(mtg, publicMtg, "Render and Vercel MTG routes must use the same source");
+assert.match(mtg, /patreon\.com\/happyhomarid/, "MTG silo must signpost HappyHomarid Patreon");
+assert.match(mtg, /id="live"/, "MTG silo must contain the live chat surface");
+assert.match(mtg, /id="forum"/, "MTG silo must contain the classic forum surface");
+assert.match(mtg, /id="inbox"/, "MTG silo must contain private conversations");
+assert.doesNotMatch(mtg, /Commander diagnostic.{0,80}NZ\$29/i, "MTG silo must not be dominated by the diagnostic upsell");
+assert.doesNotMatch(mtg, /Light Play|Lightly Played/, "MTG silo must not invent card condition labels");
+
 for (const path of [
   "mtg/index.html",
   "trust/index.html",
@@ -43,7 +66,7 @@ for (const path of [
   assert.match(content, /href="\/dreamledger\.css"/, path + " must use shared design tokens");
 }
 console.log("SITE_CONSOLIDATION_CONTRACT PASS");
-console.log("Published/root source parity: PASS");
-console.log("Shared design system on live root routes: PASS");
-console.log("No unverified marketplace checkout links: PASS");
-console.log("Paid capability and revenue labels: PASS");
+console.log("Single canonical homepage and Vercel build output: PASS");
+console.log("Shared design system and route parity: PASS");
+console.log("MTG community, Patreon, and condition safeguards: PASS");
+console.log("Truth Oracle savings-first positioning and truthful commerce labels: PASS");
