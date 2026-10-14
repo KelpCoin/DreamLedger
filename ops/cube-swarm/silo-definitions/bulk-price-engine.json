@@ -1,0 +1,82 @@
+{
+  "schema_version": "dreamledger/cube-swarm-silo-definition/v1",
+  "silo_id": "bulk-price-engine",
+  "name": "Bulk Price Engine",
+  "category": "mtg-tools",
+  "lifecycle": "CANDIDATE",
+  "commercial_contract": {
+    "product_id": "MTG-BULK-PRICE-ENGINE-1499",
+    "sku": "MTG-BULK-PRICE-ENGINE-1499",
+    "currency": "NZD",
+    "amount_minor": 149900,
+    "checkout_status": "NOT_CONFIGURED",
+    "fulfillment_input": "/silos/bulk-price-engine/input",
+    "fulfillment_api": "/api/revenue-ladder/fulfill",
+    "evidence_required": [
+      "stripe_session_live_paid",
+      "canonical_sku_amount_currency_match",
+      "order_created",
+      "inventory_input_accepted",
+      "pricing_export_sha256",
+      "delivery_confirmed",
+      "truth_oracle_reconciled"
+    ]
+  },
+  "carousel_card": {
+    "title": "Bulk Price Engine",
+    "description": "A bulk price recommendation/export with source and timestamp per item, currency/condition assumptions, confidence, and dry-run comparison.",
+    "cta_label": "Offer in preparation",
+    "cta_action": "disabled",
+    "cta_target": null,
+    "visible": false,
+    "position": 8
+  },
+  "isolation": {
+    "compute": "SHARED_WORKER",
+    "database_strategy": "SHARED_TENANT_SCOPED",
+    "database_name": null,
+    "database_id": null,
+    "r2_bucket": "marketplace-fulfillment",
+    "r2_prefix": "silos/bulk-price-engine/",
+    "cross_silo_customer_data": false
+  },
+  "routes": [
+    "/silos/bulk-price-engine/",
+    "/api/revenue-ladder/bulk-price-engine/input",
+    "/api/revenue-ladder/fulfill"
+  ],
+  "build_contract": {
+    "status": "PLANNED_NOT_BUILT",
+    "task_issue": "https://github.com/KelpCoin/DreamLedger/issues/718",
+    "public_route_path": "public/silos/bulk-price-engine/index.html",
+    "library_module_path": "BEC-PRIME/lib/mtgBulkPriceEngine.js",
+    "route_module_path": "BEC-PRIME/routes/revenueLadderOffer.js",
+    "route_module_status": "SHARED_ROUTE_REQUIRED",
+    "supabase_function_slug": null,
+    "supabase_function_status": "NOT_SELECTED",
+    "shared_sku_dispatch_required": true,
+    "source_parity_required": true,
+    "production_publish_allowed": false,
+    "output_contract": "A bulk price recommendation/export with source and timestamp per item, currency/condition assumptions, confidence, and dry-run comparison."
+  },
+  "source_evidence": {
+    "price_source": "User-provided offer ladder dated 2026-10-14; this records target pricing, not demand or willingness-to-pay evidence.",
+    "source_refs": [
+      "public/catalog.json",
+      "public/silo-clone-manifest.json",
+      "public/silo-template.html",
+      "BEC-PRIME/lib/revenueLedger.js",
+      "BEC-PRIME/lib/marketplacePolicy.js",
+      "BEC-PRIME/routes/commercialCell.js",
+      "supabase/functions/silo-factory/index.ts",
+      "supabase/functions/silo-orchestrator/index.ts"
+    ],
+    "source_hashing": "BUILD_WORKER_MUST_COMPUTE_SHA256_AT_EXECUTION",
+    "external_claims_policy": "Every material factual claim in a delivered report must cite a retrievable source; missing evidence is reported as unknown."
+  },
+  "provisioning": {
+    "mode": "DRY_RUN_ONLY",
+    "deploy_allowed": false,
+    "reason": "Candidate definition only. Do not enable checkout or production provision until source-backed deliverables, shared payment/fulfillment parity, end-to-end payment evidence, and human deployment approval are present."
+  }
+}
