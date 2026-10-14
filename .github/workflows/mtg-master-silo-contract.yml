@@ -1,0 +1,32 @@
+name: MTG master silo contract
+
+on:
+  pull_request:
+    paths:
+      - "public/silos/mtg/**"
+      - "public/data/mtg-catalog.json"
+      - "public/catalog.json"
+      - "BEC-PRIME/scripts/verify-mtg-master-silo-contract.js"
+      - ".github/workflows/mtg-master-silo-contract.yml"
+  push:
+    branches: [main]
+    paths:
+      - "public/silos/mtg/**"
+      - "public/data/mtg-catalog.json"
+      - "public/catalog.json"
+      - "BEC-PRIME/scripts/verify-mtg-master-silo-contract.js"
+      - ".github/workflows/mtg-master-silo-contract.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Validate master silo contract
+        run: node BEC-PRIME/scripts/verify-mtg-master-silo-contract.js
