@@ -20,18 +20,21 @@ function read(rel) {
 const index = read('public/home.html');
 const catalogText = read('public/catalog.json');
 const catalog = JSON.parse(catalogText);
-const mtg = read('public/mtg.html');
+const mtg = read('public/mtg/index.html');
 const truthPricing = JSON.parse(read('BEC-PRIME/catalog/truth-oracle/pricing.json'));
 
 check('homepage-canonical-doors',
   ['DreamLedger', 'Truth Oracle', 'Supplier Quote Comparison Worksheet'].every((x) => index.toLowerCase().includes(x.toLowerCase())) && !/Agent Delivery Proof Audit|agent-delivery-proof-audit/i.test(index),
   'Homepage exposes Truth Oracle and supplier quote comparison; the retired audit offer is absent.');
+const canonicalDiagnosticLink = 'https://buy.stripe.com/eVqeVdc1T01n1DV3gwdwc30';
+const legacyDiagnosticLink = 'https://buy.stripe.com/8x228r1nfg0l3M32csdwc2I';
 check('diagnostic-current-public-catalog',
-  Array.isArray(catalog.products) && catalog.products.some((x) => x && x.id === 'COMMANDER-DECK-DIAGNOSTIC-001' && x.sku === 'CMD-DIAG-29' && Number(x.price) === 29 && String(x.currency || '').toUpperCase() === 'NZD' && x.status === 'published' && x.checkout_available === true && x.checkout_url === 'https://dreamledger.org/mtg/diagnostic.html'),
-  'Current Commander Deck Diagnostic CMD-DIAG-29 is published at NZD 29 in public/catalog.json.' );
+  Array.isArray(catalog.products) && catalog.products.some((x) => x && x.id === 'COMMANDER-DECK-DIAGNOSTIC-001' && x.sku === 'CMD-DIAG-29' && Number(x.price) === 29 && String(x.currency || '').toUpperCase() === 'NZD' && x.status === 'published' && x.checkout_available === true && x.checkout_url === canonicalDiagnosticLink) &&
+    !catalog.products.some((x) => x && x.checkout_url === legacyDiagnosticLink),
+  'Current Commander Deck Diagnostic CMD-DIAG-29 matches the canonical NZD 29 Stripe Payment Link in public/catalog.json.' );
 check('diagnostic-current-public-mtg',
-  /Commander Deck Diagnostic/i.test(mtg) && /29/i.test(mtg),
-  'Current Commander Deck Diagnostic remains discoverable at the canonical NZD 29 public MTG surface.');
+  /Commander diagnostic/i.test(mtg) && mtg.includes(canonicalDiagnosticLink) && !mtg.includes(legacyDiagnosticLink),
+  'The real public MTG page exposes the canonical NZD 29 diagnostic route and no retired Payment Link.');
 
 const plans = Array.isArray(truthPricing.plans) ? truthPricing.plans : [];
 const expected = { SIGNAL: 4.99, INTELLIGENCE: 7.99, DEEP_EVIDENCE: 9.99 };
@@ -46,7 +49,7 @@ check('no-fake-payment-claim',
   'Public storefront does not claim a verified first customer payment.');
 
 const secretPatterns = [/sk_live_/i, /sk_test_/i, /whsec_/i, /STRIPE_SECRET_KEY/i, /STRIPE_WEBHOOK_SECRET/i];
-for (const [name, text] of [['index.html', index], ['catalog.json', catalogText], ['mtg.html', mtg]]) {
+for (const [name, text] of [['index.html', index], ['catalog.json', catalogText], ['mtg/index.html', mtg]]) {
   check('public-secret-scan-' + name,
     !secretPatterns.some((re) => re.test(text)),
     `${name} contains no known Stripe secret material.`);

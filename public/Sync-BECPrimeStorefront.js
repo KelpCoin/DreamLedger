@@ -22,7 +22,7 @@ function copyTree(src,dst){
 }
 
 if(!fs.existsSync(SOURCE)) throw new Error('BEC-PRIME compiled website missing. Run npm run compile first.');
-const canonicalPublicFiles=['avatar.html','billboard.html'];
+const canonicalPublicFiles=['avatar.html','billboard.html','home.html','mtg/index.html','data/mtg-catalog.json'];
 const canonicalSnapshots=new Map(canonicalPublicFiles.map(rel=>{
   const file=path.join(DEST,rel);
   return [rel,fs.existsSync(file)?fs.readFileSync(file):null];
@@ -58,4 +58,25 @@ let list=fs.readFileSync(listFile,'utf8');
 list=list.replace(/Buyers never need one\.?/gi,'Buying from another player requires a free DreamLedger account.');
 list=list.replace(/buyers stay frictionless; sellers are known\.?/gi,'Marketplace participants have a persistent account identity.');
 fs.writeFileSync(listFile,list);
-console.log(JSON.stringify({status:'PASS',source:SOURCE,destination:DEST,required,account_contract:'PASS'}));
+
+const CANONICAL_DIAGNOSTIC_LINK='https://buy.stripe.com/eVqeVdc1T01n1DV3gwdwc30';
+const LEGACY_DIAGNOSTIC_LINK='https://buy.stripe.com/8x228r1nfg0l3M32csdwc2I';
+function requireDiagnosticContract(file,productKey){
+  const parsed=JSON.parse(fs.readFileSync(file,'utf8'));
+  const products=Array.isArray(parsed.products)?parsed.products:[];
+  const product=products.find(p=>p&&p.id==='COMMANDER-DECK-DIAGNOSTIC-001'&&p.sku==='CMD-DIAG-29');
+  if(!product||Number(product.price)!==29||String(product.currency||'').toLowerCase()!=='nzd'||product.checkout_url!==CANONICAL_DIAGNOSTIC_LINK){
+    throw new Error('MTG_CANONICAL_DIAGNOSTIC_CONTRACT_FAILED:'+productKey);
+  }
+  if(products.some(p=>p&&p.checkout_url===LEGACY_DIAGNOSTIC_LINK)){
+    throw new Error('MTG_LEGACY_DIAGNOSTIC_LINK_PRESENT:'+productKey);
+  }
+}
+requireDiagnosticContract(path.join(DEST,'catalog.json'),'public-catalog');
+requireDiagnosticContract(path.join(DEST,'data','mtg-catalog.json'),'mtg-silo-catalog');
+const canonicalMtgPage=fs.readFileSync(path.join(DEST,'mtg','index.html'),'utf8');
+if(!canonicalMtgPage.includes(CANONICAL_DIAGNOSTIC_LINK)||canonicalMtgPage.includes(LEGACY_DIAGNOSTIC_LINK)){
+  throw new Error('MTG_CANONICAL_DIAGNOSTIC_PAGE_CONTRACT_FAILED');
+}
+
+console.log(JSON.stringify({status:'PASS',source:SOURCE,destination:DEST,required,account_contract:'PASS',mtg_canonical_diagnostic:'PASS',preserved_public_mtg:true}));
