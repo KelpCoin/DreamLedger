@@ -1,0 +1,9 @@
+{
+  "schema": "dreamledger/silo-catalogue/v1",
+  "silo": "{{SILO_SLUG}}",
+  "currency": "NZD",
+  "shipping": "",
+  "updated": null,
+  "products": [],
+  "note": "Inventory empty until verified supply. Clone from MTG master; do not invent rows."
+}
