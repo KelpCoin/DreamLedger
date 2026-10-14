@@ -1,0 +1,72 @@
+{
+  "schema_version": "dreamledger/bounded-build-task/v1",
+  "task_id": "BUILD-ISSUE-712-MTG-STORE-AUDIT",
+  "github_issue": "https://github.com/KelpCoin/DreamLedger/issues/712",
+  "queue_contract": {
+    "source": "Existing Agent Bridge and public.jobs only",
+    "required_task_issue": 712,
+    "preview_rpc": "select_north_star_build_job",
+    "claim_rpc": "claim_north_star_build_job",
+    "claim_lease_seconds": 900,
+    "if_mismatch": "HOLD_JOB_SCOPE_MISMATCH",
+    "do_not_create_parallel_queue": true
+  },
+  "objective": "Build a source-backed MTG Store Audit that checks supplied store/catalog snapshots, emits a report, and never infers sales or revenue.",
+  "source_refs": [
+    "public/catalog.json",
+    "public/silo-template.html",
+    "ops/cube-swarm/silo-definitions/mtg-commander.json",
+    "BEC-PRIME/lib/mtgDiagnosticFulfillment.js",
+    "BEC-PRIME/routes/mtgDiagnostic.js"
+  ],
+  "writable_paths": [
+    "BEC-PRIME/lib/mtgStoreAudit.js",
+    "public/silos/mtg-store-audit/index.html"
+  ],
+  "derived_paths": [
+    "public/silos/mtg-store-audit/mtgStoreAudit.js"
+  ],
+  "fixed_verifier": "ops/cube-swarm/verify/verify-mtg-store-audit.mjs",
+  "base_branch": "main",
+  "limits": {
+    "max_attempts": 3,
+    "timeout_seconds": 300,
+    "max_source_bytes": 120000,
+    "max_file_bytes": 150000,
+    "max_parallel_jobs": 1,
+    "lease_seconds": 900
+  },
+  "authorization": {
+    "internal_file_build_allowed": true,
+    "allowed_effects": [
+      "read_existing_job",
+      "issue_scoped_queue_lease",
+      "isolated_worktree_write",
+      "fixed_test_execution",
+      "artifact_hashing",
+      "local_branch_commit",
+      "append_build_evidence"
+    ],
+    "forbidden_effects": [
+      "checkout_creation",
+      "credential_read_or_change",
+      "payment",
+      "buyer_contact",
+      "production_publish",
+      "deployment",
+      "spend",
+      "merge"
+    ],
+    "human_gate": true,
+    "verified_revenue_nzd": 0
+  },
+  "acceptance_criteria": [
+    "Only execute a queued job whose payload identifies GitHub Issue #712.",
+    "Use existing public.jobs dispatch; never create a second queue.",
+    "SHA256-hash every source before generation.",
+    "Generate only allowlisted files; derive browser bundle from library source exactly.",
+    "Run a trusted fixed verifier, capture output, and retry generation at most three times.",
+    "Persist hashes, test evidence, branch and commit identifiers.",
+    "Build success is unreleased; the offer remains checkout-gated."
+  ]
+}
