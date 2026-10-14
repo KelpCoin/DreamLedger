@@ -22,6 +22,17 @@ The current storefront and manifest are a useful shell, but the silo is **not ce
 6. **Optional monetisation.** Featured listings, clearly labelled sponsored billboards, cosmetic avatars/profile frames, shop themes and optional seller tools. No pay-to-list requirement. Never sell ranking that looks organic without a sponsored label. No paid placement may promise views, buyers, or sales.
 7. **Trust and fulfilment.** Record agreed terms, timestamps, transaction state and disputes. A completed sale is not verified revenue until independent settlement, correct attribution, fulfillment and delivery evidence are joined in the canonical ledger. A listing, bid, checkout start, webhook receipt, or self-report alone is not revenue proof.
 
+## Existing DreamLedger components inspected
+
+The repository already contains useful components; the correct move is to connect and harden these before importing another full application:
+
+- `mtg-marketplace.html` plus `BEC-PRIME/routes/mtgMarketplace.js`: current authenticated listing and buy/trade request MVP. It records requests for direct buyer/seller settlement; acceptance is not a settled sale.
+- `collection-import/index.html` plus deployed Supabase Edge Function `mtg-collection-import` (ACTIVE, version 3 at inspection): authenticated CSV import into `mtg_collection_inventory` using an owner-scoped fingerprint upsert. The UI submits chunks of 500 rows and the function accepts up to 2,000 per request. This confirms a real import path exists, not that the entire collection/profile experience is production-certified. Database RLS, duplicate semantics, printing identity, export, and privacy leakage still require tests.
+- `mtg-search.html`: previously contained eight hard-coded sample listings presented in the public search results. The branch removes those synthetic listings and reads the active listing API instead. Empty/error states no longer invent stock.
+- `BEC-PRIME/auction-engine.js` and `BEC-PRIME/data/auctions.json`: an auction engine exists, but it stores state in a local JSON file and previously recycled expired lots into new live auctions. The branch makes expiry terminal and adds regression tests. This is a safety fix, **not** a declaration that this file-backed auction engine is safe for multi-instance production. Before real public auctions, move auction state to a durable transactional store, implement atomic bid/close operations, and verify seller authorization, inventory reservation, payment and dispute handling.
+
+The MTG storefront now links to the existing search, trade marketplace, and collection import surfaces. The Commander diagnostic CTA uses the canonical Payment Link proposed by PR #724, but the configuration/settlement/fulfillment gate remains a separate blocker. Route links and repository code are not proof that the production deployment serves the branch.
+
 ## Upstream repository review
 
 Reviewed public repository metadata and READMEs on 2026-10-14. These are candidate components/pattern references, not dependencies already installed in DreamLedger.
