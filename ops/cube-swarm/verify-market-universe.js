@@ -24,7 +24,7 @@ check('profit claims require sourced financial evidence', () => {
   assert.equal(market.priority_model.score_type, 'EVIDENCE_BACKED_PRIORITY_NOT_PROFIT_FORECAST');
 });
 check('no synthetic opportunity or buyer admissions', () => {
-  assert.equal(market.source_policy.rules.no_synthetic_observations, undefined);
+  assert.equal(market.source_policy.rules.no_synthetic_observations, true);
   assert.equal(market.source_policy.rules.no_synthetic_buyers, true);
   assert.equal(market.source_policy.rules.no_synthetic_revenue, true);
   assert.equal(market.source_policy.rules.no_unauthorized_scraping, true);
