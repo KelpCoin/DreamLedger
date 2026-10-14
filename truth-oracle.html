@@ -1,31 +1,262 @@
 <!doctype html>
-<html lang="en-NZ"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Truth Oracle | Free public evidence tools | DreamLedger</title>
-<meta name="description" content="Free tools to check claims, compare evidence, spot contradictions and make uncertainty visible. No account required.">
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b0e13">
+<title>Truth Oracle | Free Everyday Savings & Evidence Tools</title>
+<meta name="description" content="Free Kiwi tools to compare grocery baskets, fuel trips, electricity plans, mobile and broadband bills. Evidence-led audits and deeper reviews live in one place.">
+<link rel="canonical" href="https://dreamledger.org/truth-oracle.html">
 <style>
-:root{color-scheme:dark;--bg:#090d12;--panel:#121a23;--line:#2c3947;--ink:#f4f7fa;--muted:#b2bfca;--mint:#a9f2d0}
-*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 80% 0,#1b3540 0,transparent 35%),var(--bg);color:var(--ink);font:16px/1.65 system-ui,sans-serif}a{color:var(--mint)}.wrap{width:min(100% - 32px,1000px);margin:auto}.nav{display:flex;justify-content:space-between;gap:18px;padding:20px 0;border-bottom:1px solid var(--line)}.nav a{color:var(--muted)}.hero{padding:55px 0 28px}.eyebrow{font-size:11px;font-weight:850;letter-spacing:.14em;text-transform:uppercase;color:var(--mint)}h1{font-size:clamp(42px,7vw,74px);letter-spacing:-.065em;line-height:.98;margin:14px 0 18px}h2{font-size:clamp(26px,4vw,38px);letter-spacing:-.04em;line-height:1.1}h3{margin:0 0 8px}.lede,.muted{color:var(--muted)}.lede{font-size:18px;max-width:760px}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}.btn{display:inline-block;padding:12px 16px;border-radius:10px;border:1px solid var(--line);font-weight:800;text-decoration:none}.primary{background:var(--mint);color:#08130e}section{padding:26px 0}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.card{padding:20px;border:1px solid var(--line);border-radius:16px;background:linear-gradient(145deg,#15212d,#101720)}.card p{font-size:14px;color:var(--muted)}.step{padding:15px;margin:10px 0;border:1px solid var(--line);border-radius:12px;background:#0e151d}.step p{margin:5px 0 0;color:var(--muted);font-size:14px}.template{white-space:pre-wrap;padding:18px;border:1px solid var(--line);border-radius:14px;background:#0e151d;color:var(--muted)}footer{border-top:1px solid var(--line);padding:25px 0 40px;color:var(--muted);font-size:12px}@media(max-width:700px){.grid{grid-template-columns:1fr}.wrap{width:min(100% - 24px,1000px)}}
-</style></head><body><div class="wrap">
-<header class="nav"><a href="/">DreamLedger</a><nav><a href="#field-guide">Free field guide</a> · <a href="#claim-record">Claim record template</a></nav></header>
+:root{color-scheme:dark;--bg:#0b0e13;--panel:#121821;--panel2:#18212c;--line:#293746;--ink:#f5f7f8;--muted:#b3c0cb;--mint:#a5f0d0;--mint2:#d3ffed;--gold:#e0bd71;--red:#f0a0a0}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(ellipse at 85% -5%,#193d43 0,transparent 33%),var(--bg);color:var(--ink);font:15px/1.62 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}a{color:var(--mint2);text-decoration:none}a:hover{text-decoration:underline}input,select,button{font:inherit}.wrap{width:min(1120px,calc(100% - 32px));margin:auto}.nav{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:18px 0;border-bottom:1px solid var(--line)}.brand{font-weight:950;letter-spacing:.06em;color:var(--ink)}.brand em{font-style:normal;color:var(--mint)}.links{display:flex;gap:14px;flex-wrap:wrap}.links a{font-size:13px;color:var(--muted)}.hero{padding:54px 0 34px;max-width:880px}.eyebrow{font-size:11px;font-weight:900;letter-spacing:.16em;text-transform:uppercase;color:var(--mint)}h1{font-size:clamp(44px,8vw,80px);line-height:.96;letter-spacing:-.065em;margin:13px 0 18px;max-width:12ch}h2{font-size:clamp(27px,4vw,39px);line-height:1.1;letter-spacing:-.045em;margin:0 0 9px}h3{font-size:17px;line-height:1.25;margin:0 0 7px}.lede{font-size:18px;color:var(--muted);max-width:780px}.hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:43px;padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:var(--panel2);color:var(--ink);font-size:13px;font-weight:850;cursor:pointer}.btn.primary{background:linear-gradient(180deg,var(--mint2),var(--mint));color:#081511;border-color:transparent}.btn.gold{background:linear-gradient(180deg,#f0d292,var(--gold));color:#17140d;border-color:transparent}.btn:disabled{opacity:.5;cursor:not-allowed}.subtle{color:var(--muted)}.section{padding:30px 0;border-top:1px solid var(--line)}.sectionhead{display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap;margin-bottom:15px}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}.card{padding:19px;border:1px solid var(--line);border-radius:16px;background:linear-gradient(150deg,var(--panel2),var(--panel));min-width:0}.card p{margin:7px 0 0;color:var(--muted);font-size:14px}.tag{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:3px 8px;font-size:10px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-bottom:8px}.tool{padding:20px;border:1px solid var(--line);border-radius:17px;background:linear-gradient(160deg,#17232b,#111821);margin-top:14px}.toolhead{display:flex;justify-content:space-between;align-items:start;gap:14px;flex-wrap:wrap;margin-bottom:15px}.toolhead p{max-width:670px;margin:5px 0;color:var(--muted);font-size:13px}.fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.field label{display:block;font-size:12px;color:var(--muted);margin:0 0 5px}.field input,.field select{width:100%;min-width:0;padding:10px 11px;background:#0b1016;color:var(--ink);border:1px solid #354352;border-radius:9px}.formrow{display:flex;gap:9px;flex-wrap:wrap;align-items:end}.result{border:1px solid #3a6655;background:#0d2119;border-radius:12px;padding:13px;margin-top:13px;color:var(--mint2);font-size:14px;white-space:pre-wrap}.result.bad{border-color:#754444;background:#221415;color:var(--red)}.tablewrap{width:100%;overflow-x:auto;margin-top:12px}.price-table{width:100%;border-collapse:collapse;min-width:700px;font-size:13px}.price-table th,.price-table td{border-bottom:1px solid #2d3944;padding:8px;text-align:left;vertical-align:middle}.price-table th{color:var(--muted);font-weight:750}.price-table input,.price-table select{width:100%;min-width:70px;padding:8px;background:#0b1016;color:var(--ink);border:1px solid #354352;border-radius:8px}.price-table .item-name{min-width:135px}.tiny{font-size:11px;color:var(--muted)}.money{font-weight:900;color:var(--mint2)}.sources{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}.source-link{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:#111821;font-size:12px;font-weight:750}.tiers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}.tier{padding:18px;border:1px solid var(--line);border-radius:15px;background:var(--panel);display:flex;flex-direction:column}.tier .price{font-size:25px;font-weight:950;letter-spacing:-.04em;margin:8px 0}.tier ul{margin:5px 0 16px 18px;padding:0;color:var(--muted);font-size:13px;flex:1}.tier li{margin:5px 0}.tier .btn{align-self:flex-start}.warning{margin-top:12px;border:1px solid #564b33;border-radius:12px;padding:12px 14px;color:#e7d8b5;background:#1a1711;font-size:12px}.footer{border-top:1px solid var(--line);margin-top:22px;padding:25px 0 40px;color:var(--muted);font-size:12px;display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
+@media(max-width:760px){.grid,.tiers{grid-template-columns:1fr 1fr}.fields{grid-template-columns:1fr 1fr}.hero{padding-top:36px}}
+@media(max-width:500px){.wrap{width:calc(100% - 22px)}.grid,.tiers,.fields{grid-template-columns:1fr}.lede{font-size:16px}.hero{padding-top:30px}.section{padding:24px 0}.tool{padding:14px}.links{gap:9px}}
+</style></head>
+<body><div class="wrap">
+<header class="nav"><a class="brand" href="/">Dream<em>Ledger</em> · TRUTH ORACLE</a><nav class="links" aria-label="Primary navigation"><a href="#savings">Everyday savings</a><a href="#free-tools">Free tools</a><a href="#paid-reviews">Paid reviews</a><a href="/trust/">Evidence standard</a></nav></header>
 <main>
-<section class="hero"><div class="eyebrow">Free public resource · No account required</div><h1>Check the evidence. Keep uncertainty visible.</h1><p class="lede">Truth Oracle helps people separate what someone claims from what the available evidence supports. Use these free resources to check sources, notice contradictions, and decide what still needs verification. The useful part stays free.</p><div class="actions"><a class="btn primary" href="#claim-record">Make a claim record</a><a class="btn" href="#field-guide">Read the field guide</a></div></section>
-<section><div class="grid"><article class="card"><div class="eyebrow">Verify</div><h3>What is supported?</h3><p>Separate direct observations from assumptions, summaries, and statements that have not been independently checked.</p></article><article class="card"><div class="eyebrow">Trace</div><h3>Where did it come from?</h3><p>Keep the original source, date, author, and exact passage supporting a claim attached to the record.</p></article><article class="card"><div class="eyebrow">Challenge</div><h3>What does not fit?</h3><p>Record contradictions, missing context, stale information, and unanswered questions rather than smoothing them away.</p></article></div></section>
-<section id="field-guide"><div class="eyebrow">Free artifact · Field guide 001</div><h2>Five checks before trusting a commercial claim</h2><p class="muted">Use this before acting on a price, supplier statement, product claim, performance promise, or business opportunity.</p>
-<div class="step"><h3>1. Find the original source.</h3><p>Prefer the source document, official terms, product page, filing, or direct statement over a repost or summary.</p></div>
-<div class="step"><h3>2. Check the date and scope.</h3><p>Confirm when the information was published, which market or version it covers, and whether the terms remain current.</p></div>
-<div class="step"><h3>3. Separate fact from interpretation.</h3><p>Quote the exact evidence. Label estimates, opinions, forecasts, and inferences separately.</p></div>
-<div class="step"><h3>4. Look for disconfirming evidence.</h3><p>Search for exclusions, corrections, counterexamples, conflicting numbers, and independent confirmation.</p></div>
-<div class="step"><h3>5. Match the evidence to the decision.</h3><p>A claim can be true but irrelevant. Check whether it answers the actual question and what happens if it is wrong.</p></div>
-<p class="muted">Educational guidance, not legal, financial, medical, or procurement advice. Verify important claims with suitable primary sources.</p><p><a href="/truth-oracle-field-guide.html">Open the standalone field guide →</a></p></section>
-<section id="claim-record"><div class="eyebrow">Reusable template</div><h2>Copy this claim-check record</h2><p class="muted">Fill it in wherever you keep notes. A record is not itself proof, and an assessment must not be upgraded without evidence.</p><div class="template">CLAIM:
-ORIGINAL SOURCE / URL:
-SOURCE DATE:
-EXACT SUPPORTING PASSAGE:
-CONTRADICTING EVIDENCE:
-MISSING INFORMATION:
-CURRENT ASSESSMENT: UNVERIFIED / SUPPORTED / CONTRADICTED / STALE / UNKNOWN
-NEXT CHECK:
-LIMITATION: What this evidence does not establish.</div></section>
-<section id="evidence-review"><div class="eyebrow">Structured evidence review</div><h2>Bring the evidence together in one Truth Oracle record.</h2><p class="muted">Truth Oracle's evidence-review workflow is designed to organize one claim or digital artifact against explicit acceptance criteria. The record can include criterion-by-criterion findings, source links, observed results, contradictions, missing evidence, limitations, a timestamp, and a SHA-256 digest when a stable artifact is available.</p><div class="step"><h3>Free foundation</h3><p>Record the claim, original sources, dates, supporting passages, contradictions, uncertainty, and the next check. A record remains unverified until suitable evidence supports its assessment.</p></div><div class="step"><h3>Structured review capability</h3><p>For bounded evidence packets, the intended report format is PASS, FAIL, or NEEDS HUMAN REVIEW for each criterion, with reasons and evidence references. Inaccessible material and unanswered questions stay explicitly unresolved.</p></div><p class="muted">This page describes the Truth Oracle workflow, not a claim that automated intake, paid entitlements, or report delivery are already deployed. A digest helps identify an artifact; it does not prove that the artifact's claims are true.</p></section>
-<section><div class="card"><h3>One standard for everyone</h3><p class="muted">Payment must never change a verdict. The public guide and claim-record template are free. Paid products, where available, may offer convenience or workflow capacity, never a better truth score.</p><p class="muted">The live registry may be empty or temporarily unavailable. No real-world claim is inferred from missing data. Truth Oracle can be wrong; sources can change.</p></div></section>
-</main><footer>DreamLedger · Free evidence tools for clearer decisions · <a href="/">Home</a> · <a href="/trust/">Evidence standard</a></footer></div></body></html>
+<section class="hero">
+<div class="eyebrow">Free for Aotearoa · Evidence before upsell</div>
+<h1>Keep more of your money.</h1>
+<p class="lede">Truth Oracle starts with everyday bills: bread, milk, fuel, power, broadband and mobile. Use free comparison tools and calculators to work out real costs, see what a special actually saves, and keep the evidence behind the decision. When a problem needs deeper analysis, audits and reviews live under the same roof.</p>
+<div class="hero-actions"><a class="btn primary" href="#savings">Find everyday savings</a><a class="btn" href="#free-tools">Open free tools</a><a class="btn" href="#paid-reviews">Explore paid reviews</a></div>
+<p class="tiny" style="margin-top:14px">No account required for the calculators below. Your entries stay in this browser until you leave or download your own report. No live supermarket or provider prices are invented.</p>
+</section>
+
+<section class="section" id="savings"><div class="sectionhead"><div><div class="eyebrow">The everyday money desk</div><h2>Start where household money leaks</h2></div></div>
+<div class="grid">
+<article class="card"><span class="tag">Food</span><h3>Bread, milk and the weekly basket</h3><p>Compare the same quantities across stores, calculate comparable basket totals, normalise by unit, and keep the date and source for each price.</p><a class="btn" href="#grocery" style="margin-top:12px">Compare a basket</a></article>
+<article class="card"><span class="tag">Fuel</span><h3>Cheaper fuel, after the detour</h3><p>Compare pump prices and subtract the extra fuel burned driving to a cheaper station. A five-cent saving may vanish with a long detour.</p><a class="btn" href="#fuel" style="margin-top:12px">Check the trip maths</a></article>
+<article class="card"><span class="tag">Electricity</span><h3>Power bills and plan changes</h3><p>Compare the daily fixed charge, usage rate, credits and discounts across a full year before changing providers.</p><a class="btn" href="#power" style="margin-top:12px">Compare power plans</a></article>
+<article class="card"><span class="tag">Phone & internet</span><h3>Look past the teaser price</h3><p>Calculate the full 12-month mobile or broadband cost, including setup, discounts that expire, router fees, credits and exit fees.</p><a class="btn" href="#communications" style="margin-top:12px">Compare 12-month cost</a></article>
+<article class="card"><span class="tag">Gas & other bills</span><h3>Make recurring costs comparable</h3><p>Use the same all-in cost method for gas, insurance, subscriptions and other bills: regular charges plus fees, minus real credits.</p><a class="btn" href="#communications" style="margin-top:12px">Use the bill calculator</a></article>
+<article class="card"><span class="tag">Evidence</span><h3>Keep a record you can challenge</h3><p>Save source links, dates, assumptions, exclusions and the evidence needed to verify a promised saving or product claim.</p><a class="btn" href="#evidence" style="margin-top:12px">Open the claim record</a></article>
+</div></section>
+
+<section class="section" id="free-tools"><div class="sectionhead"><div><div class="eyebrow">Free tools · No account</div><h2>Calculators you can use right now</h2></div><span class="tag">No signup wall</span></div>
+<div class="tool" id="grocery">
+<div class="toolhead"><div><div class="eyebrow">01 / Groceries</div><h3>Unit-price and basket comparator</h3><p>Enter the same basket quantity at each store. For different pack sizes, use the store's unit price to calculate the equivalent quantity first. Add any number of items; the total and cheapest comparable store update automatically.</p></div><a class="btn" href="https://grocer.nz/" target="_blank" rel="noopener noreferrer">Live prices at Grocer.nz ↗</a></div>
+<div class="fields">
+<div class="field"><label for="store-a">Store A</label><input id="store-a" value="Store A" maxlength="60"></div><div class="field"><label for="store-b">Store B</label><input id="store-b" value="Store B" maxlength="60"></div><div class="field"><label for="store-c">Store C</label><input id="store-c" value="Store C" maxlength="60"></div><div class="field"><label for="store-d">Store D</label><input id="store-d" value="Store D" maxlength="60"></div><div class="field"><label for="store-e">Store E</label><input id="store-e" value="Store E" maxlength="60"></div><div class="field"><label for="store-f">Store F</label><input id="store-f" value="Store F" maxlength="60"></div>
+</div>
+<div class="tablewrap"><table class="price-table"><thead><tr><th>Item</th><th>Comparable quantity</th><th>Unit</th><th>Price A (NZ$)</th><th>Price B (NZ$)</th><th>Price C (NZ$)</th><th>Price D (NZ$)</th><th>Price E (NZ$)</th><th>Price F (NZ$)</th><th>Evidence/source URL</th><th></th></tr></thead><tbody id="grocery-rows"></tbody></table></div>
+<div class="formrow" style="margin-top:12px"><button class="btn" id="add-item" type="button">+ Add item</button><button class="btn primary" id="export-basket" type="button">Download basket CSV</button></div>
+<div class="result" id="grocery-result" aria-live="polite">Add observed prices to compare your basket. Empty prices are excluded.</div>
+<p class="tiny">Free tier: compare six named stores and as many basket items as you need, attach source URLs, calculate unit values, save personal price history in this browser, and export a CSV. No account or subscription required. This worksheet does not supply a live national grocery feed; check observed prices before acting.</p>
+<div class="formrow" style="margin-top:12px"><button class="btn" id="save-basket" type="button">Save this basket locally</button><button class="btn" id="export-history" type="button">Export local price history</button></div>
+<div id="basket-history" class="tiny" aria-live="polite" style="margin-top:9px">Local history has not been saved yet.</div>
+</div>
+
+<div class="tool" id="fuel">
+<div class="toolhead"><div><div class="eyebrow">02 / Fuel</div><h3>Does the cheaper station really save?</h3><p>Use the current pump prices from your fuel app, then account for how far you need to detour.</p></div><a class="btn" href="https://www.gaspy.nz/" target="_blank" rel="noopener noreferrer">Check Gaspy prices ↗</a></div>
+<div class="fields">
+<div class="field"><label for="fuel-cheap">Cheaper station price ($/L)</label><input id="fuel-cheap" type="number" min="0" max="10" step=".001" value="" placeholder="enter your details"></div>
+<div class="field"><label for="fuel-local">Nearby station price ($/L)</label><input id="fuel-local" type="number" min="0" max="10" step=".001" value="" placeholder="enter your details"></div>
+<div class="field"><label for="fuel-litres">Litres you plan to buy</label><input id="fuel-litres" type="number" min="0" max="250" step=".1" value="" placeholder="enter your details"></div>
+<div class="field"><label for="fuel-detour">Extra round-trip distance (km)</label><input id="fuel-detour" type="number" min="0" max="1000" step=".1" value="" placeholder="enter your details"></div>
+<div class="field"><label for="fuel-economy">Vehicle fuel use (L/100 km)</label><input id="fuel-economy" type="number" min="0" max="50" step=".1" value="" placeholder="enter your details"></div>
+</div><div class="result" id="fuel-result" aria-live="polite"></div>
+<p class="tiny">Estimate only. Use pump prices, not stale sign prices, and include the entire extra drive. Does not include the value of your time or traffic.</p>
+</div>
+
+<div class="tool" id="power">
+<div class="toolhead"><div><div class="eyebrow">03 / Electricity</div><h3>Compare the whole power year</h3><p>Use your actual bill and offer details. This estimate compares a single-rate usage model with fixed charges and credits; it is not a substitute for a personalised power quotation.</p></div><div class="sources"><a class="source-link" href="https://billy.govt.nz/" target="_blank" rel="noopener noreferrer">Billy · public power comparator ↗</a><a class="source-link" href="https://www.powerswitch.org.nz/" target="_blank" rel="noopener noreferrer">Powerswitch ↗</a></div></div>
+<div class="fields">
+<div class="field"><label for="power-kwh">Average usage per month (kWh)</label><input id="power-kwh" type="number" min="0" max="10000" step="1" value="" placeholder="enter your details"></div>
+<div class="field"><label for="power-a-daily">Plan A daily charge ($/day)</label><input id="power-a-daily" type="number" min="0" max="50" step=".001" value="" placeholder="enter your details"></div>
+<div class="field"><label for="power-a-rate">Plan A energy rate (c/kWh)</label><input id="power-a-rate" type="number" min="0" max="300" step=".01" value="" placeholder="enter your details"></div>
+<div class="field"><label for="power-a-credit">Plan A annual credits/fees ($)</label><input id="power-a-credit" type="number" min="-2000" max="10000" step=".01" value="" placeholder="enter your details"></div>
+<div class="field"><label for="power-b-daily">Plan B daily charge ($/day)</label><input id="power-b-daily" type="number" min="0" max="50" step=".001" value="" placeholder="enter your details"></div>
+<div class="field"><label for="power-b-rate">Plan B energy rate (c/kWh)</label><input id="power-b-rate" type="number" min="0" max="300" step=".01" value="" placeholder="enter your details"></div>
+<div class="field"><label for="power-b-credit">Plan B annual credits/fees ($)</label><input id="power-b-credit" type="number" min="-2000" max="10000" step=".01" value="" placeholder="enter your details"></div>
+</div><div class="result" id="power-result" aria-live="polite"></div>
+<p class="tiny">Positive annual credits reduce cost; negative values add cost. Include credits only if you qualify, and check contract exit fees, time-of-use requirements, bundled services and any rate changes.</p>
+</div>
+
+<div class="tool" id="communications">
+<div class="toolhead"><div><div class="eyebrow">04 / Mobile, broadband, gas & other bills</div><h3>12-month all-in cost checker</h3><p>Compare the current bill with an alternative after temporary deals, monthly discounts, setup costs and credits expire. Use actual contract details, not just a headline monthly price.</p></div><div class="sources"><a class="source-link" href="https://www.moneyhub.co.nz/compare-mobile-plans.html" target="_blank" rel="noopener noreferrer">Mobile plan comparison ↗</a><a class="source-link" href="https://www.broadbandcompare.co.nz/" target="_blank" rel="noopener noreferrer">Broadband Compare ↗</a></div></div>
+<div class="fields">
+<div class="field"><label for="bill-a-name">Current plan / bill</label><input id="bill-a-name" maxlength="80" value="Current plan"></div><div class="field"><label for="bill-b-name">Alternative plan / bill</label><input id="bill-b-name" maxlength="80" value="Alternative plan"></div>
+<div class="field"><label for="bill-a-month">A: usual monthly charge ($)</label><input id="bill-a-month" type="number" min="0" max="50000" step=".01" value="" placeholder="enter your details"></div><div class="field"><label for="bill-b-month">B: usual monthly charge ($)</label><input id="bill-b-month" type="number" min="0" max="50000" step=".01" value="" placeholder="enter your details"></div>
+<div class="field"><label for="bill-a-discount">A: monthly promo discount ($)</label><input id="bill-a-discount" type="number" min="0" max="50000" step=".01" value="" placeholder="enter your details"></div><div class="field"><label for="bill-b-discount">B: monthly promo discount ($)</label><input id="bill-b-discount" type="number" min="0" max="50000" step=".01" value="" placeholder="enter your details"></div>
+<div class="field"><label for="bill-a-months">A: discount months (0–12)</label><input id="bill-a-months" type="number" min="0" max="12" step="1" value="" placeholder="enter your details"></div><div class="field"><label for="bill-b-months">B: discount months (0–12)</label><input id="bill-b-months" type="number" min="0" max="12" step="1" value="" placeholder="enter your details"></div>
+<div class="field"><label for="bill-a-fees">A: total setup/exit fees ($)</label><input id="bill-a-fees" type="number" min="0" max="100000" step=".01" value="" placeholder="enter your details"></div><div class="field"><label for="bill-b-fees">B: total setup/exit fees ($)</label><input id="bill-b-fees" type="number" min="0" max="100000" step=".01" value="" placeholder="enter your details"></div>
+<div class="field"><label for="bill-a-credit">A: guaranteed credits ($ total)</label><input id="bill-a-credit" type="number" min="0" max="100000" step=".01" value="" placeholder="enter your details"></div><div class="field"><label for="bill-b-credit">B: guaranteed credits ($ total)</label><input id="bill-b-credit" type="number" min="0" max="100000" step=".01" value="" placeholder="enter your details"></div>
+</div><div class="result" id="bill-result" aria-live="polite"></div>
+<p class="tiny">Use for mobile, internet, bottled/natural gas or other recurring services. Include only credits you can actually claim. An advertised discount is not a saving if other costs rise.</p>
+</div>
+</section>
+
+<section class="section" id="evidence"><div class="sectionhead"><div><div class="eyebrow">Truth Oracle standard</div><h2>A saving claim should survive a cross-examination</h2></div></div>
+<div class="grid"><article class="card"><h3>Source it</h3><p>Keep the original URL, date checked, plan name, unit rate, promotion terms and eligibility rules.</p></article><article class="card"><h3>Compare like for like</h3><p>Normalize product quantities, include ongoing prices and fees, and separate an estimate from a confirmed quote.</p></article><article class="card"><h3>Keep uncertainty visible</h3><p>If the offer is unavailable at your address, a credit is conditional, or the price is stale, record that instead of guessing.</p></article></div>
+<div class="tool"><div class="toolhead"><div><h3>Copy a free claim / bill evidence record</h3><p>This reusable template is free for households, clubs and small businesses. Use it for a bill, a price claim or any other assertion that needs evidence.</p></div><button id="copy-record" class="btn primary" type="button">Copy template</button></div>
+<pre id="record-template" style="white-space:pre-wrap;overflow-wrap:anywhere;background:#0a1016;border:1px solid var(--line);border-radius:10px;padding:13px;color:var(--muted)">CLAIM OR BILL:
+CURRENT PROVIDER / ITEM:
+ALTERNATIVE PROVIDER / ITEM:
+SOURCE URL(S):
+DATE CHECKED:
+PRICE AND UNIT:
+PROMOTION END DATE:
+SETUP / EXIT FEES:
+ELIGIBILITY / EXCLUSIONS:
+ESTIMATED 12-MONTH COST:
+WHAT COULD CHANGE THE RESULT:
+ASSESSMENT: UNVERIFIED / SUPPORTED / CONTRADICTED / STALE / UNKNOWN</pre>
+<p id="copy-status" class="tiny" aria-live="polite"></p></div>
+</section>
+
+<section class="section" id="paid-reviews"><div class="sectionhead"><div><div class="eyebrow">Same Oracle · Deeper work</div><h2>Free for everyday use. Paid when the job gets specialised.</h2></div></div>
+<p class="lede" style="font-size:16px">The savings calculators and evidence record stay free. Existing audits, verification and consulting offers are grouped here as scoped services, not scattered across unrelated product pages. Paid services do not receive a more favourable truth verdict.</p>
+<div class="tiers" style="margin-top:16px">
+<article class="tier"><span class="tag">Quick check</span><h3>Supplier Verification Check</h3><div class="price">NZ$5</div><ul><li>Entity and registry verification</li><li>Source-backed findings</li><li>Use the result as evidence, not a guarantee</li></ul><a class="btn gold" href="https://buy.stripe.com/8x28wPc1T5lH6YfdVadwc34" target="_blank" rel="noopener noreferrer">Open current offer ↗</a></article>
+<article class="tier"><span class="tag">Personal / seller</span><h3>Seller Profit Audit</h3><div class="price">NZ$29</div><ul><li>Marketplace fee and pricing comparison</li><li>Shipping, GST-threshold and operating-cost questions</li><li>Structured inputs for a more defensible decision</li></ul><a class="btn gold" href="https://buy.stripe.com/8x2bJ17LD3dzeqH8AQdwc2S" target="_blank" rel="noopener noreferrer">Open current offer ↗</a></article>
+<article class="tier"><span class="tag">Deep review</span><h3>Charity Due Diligence</h3><div class="price">NZ$99</div><ul><li>Australian charity register and source trail</li><li>Governance and financial summary</li><li>Risks and missing evidence stay visible</li></ul><a class="btn gold" href="https://buy.stripe.com/28E5kD9TLeWhgyP04kdwc2Y" target="_blank" rel="noopener noreferrer">Open current offer ↗</a></article>
+<article class="tier"><span class="tag">Growth review</span><h3>Demand Leak Finder</h3><div class="price">NZ$500</div><ul><li>Inbound demand and competitor review</li><li>Three acquisition opportunities</li><li>Conversion-path findings and proposed 30-day plan</li></ul><a class="btn gold" href="https://buy.stripe.com/9B67sLd5X01n2HZ4kAdwc3j" target="_blank" rel="noopener noreferrer">Open current offer ↗</a></article>
+<article class="tier"><span class="tag">Adversarial review</span><h3>Commercial Truth Stress-Test</h3><div class="price">NZ$999</div><ul><li>Challenge a commercial claim or workflow</li><li>Expose assumptions and failure conditions</li><li>Find the evidence needed to support the claim</li></ul><a class="btn gold" href="https://buy.stripe.com/aFa4gz3vng0lfuLg3idwc2T" target="_blank" rel="noopener noreferrer">Open current offer ↗</a></article>
+<article class="tier"><span class="tag">Implementation</span><h3>Inbound Revenue Engine</h3><div class="price">NZ$2,500</div><ul><li>One defined inbound acquisition funnel</li><li>Lead capture and measured conversion path</li><li>Scoped implementation and a review cycle</li></ul><a class="btn gold" href="https://buy.stripe.com/dRm14n1nf6pLcizdVadwc3k" target="_blank" rel="noopener noreferrer">Open current offer ↗</a></article>
+</div>
+<div class="warning">Purchase links are the current catalogue links, not proof that a payment has settled or that work has been delivered. Confirm the precise scope, intake and delivery arrangements before purchasing. Automated report generation and automated fulfilment are not claimed as live. An audit fee never buys a pass verdict.</div>
+</section>
+
+<section class="section" id="trusted-comparators"><div class="sectionhead"><div><div class="eyebrow">Use the actual market data</div><h2>Trusted free starting points</h2></div></div>
+<div class="grid">
+<article class="card"><h3>Groceries</h3><p>Grocer.nz for current supermarket prices and baskets; Consumer NZ's 2026 basket research for context and unit-price guidance.</p><div class="sources"><a href="https://grocer.nz/" target="_blank" rel="noopener noreferrer">Grocer.nz ↗</a><a href="https://www.consumer.org.nz/shopping/supermarkets/what-s-the-cheapest-supermarket" target="_blank" rel="noopener noreferrer">Consumer NZ research ↗</a></div></article>
+<article class="card"><h3>Fuel</h3><p>Gaspy surfaces crowd-reported local pump prices. Check the last-updated time and confirm the price at the pump.</p><div class="sources"><a href="https://www.gaspy.nz/" target="_blank" rel="noopener noreferrer">Gaspy ↗</a></div></article>
+<article class="card"><h3>Electricity</h3><p>Billy is the Electricity Authority's free public comparator. Powerswitch provides another established not-for-profit comparison service.</p><div class="sources"><a href="https://billy.govt.nz/" target="_blank" rel="noopener noreferrer">Billy ↗</a><a href="https://www.powerswitch.org.nz/" target="_blank" rel="noopener noreferrer">Powerswitch ↗</a></div></article>
+<article class="card"><h3>Mobile and internet</h3><p>Compare plan terms and coverage, then feed monthly charges and promotion terms into the all-in calculator above.</p><div class="sources"><a href="https://www.moneyhub.co.nz/compare-mobile-plans.html" target="_blank" rel="noopener noreferrer">MoneyHub mobile ↗</a><a href="https://www.broadbandcompare.co.nz/" target="_blank" rel="noopener noreferrer">Broadband Compare ↗</a></div></article>
+<article class="card"><h3>Other products</h3><p>PriceSpy offers product comparison, known shop prices and price history; useful for testing whether a sale is really a sale.</p><div class="sources"><a href="https://pricespy.co.nz/" target="_blank" rel="noopener noreferrer">PriceSpy NZ ↗</a></div></article>
+<article class="card"><h3>Free supplier worksheet</h3><p>Compare up to five supplier quotes, keep unknowns visible, and separate lowest sticker price from total value.</p><div class="sources"><a href="/quote-comparison/">Open DreamLedger quote comparison ↗</a></div></article>
+</div>
+</section>
+</main>
+<footer class="footer"><span>DreamLedger · Truth Oracle · Free everyday value tools</span><span><a href="/">Home</a> · <a href="/trust/">Evidence standard</a> · <a href="/privacy.html">Privacy</a> · <a href="/security.html">Security</a></span></footer>
+</div>
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const num=id=>{const v=Number($(id).value);return Number.isFinite(v)?v:0;};
+const money=v=>'NZ$'+v.toFixed(2);
+const setResult=(id,text,bad=false)=>{const el=$(id);el.textContent=text;el.classList.toggle('bad',bad);};
+let rowSeq=0;
+function addGroceryRow(name,quantity,unit){
+ const tbody=$('grocery-rows'),id=++rowSeq,tr=document.createElement('tr');
+ tr.dataset.row=String(id);
+ tr.innerHTML='<td><input class="item-name" data-key="name" aria-label="Item" maxlength="90" value="'+String(name||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;')+'"></td>'+
+ '<td><input data-key="qty" type="number" min="0" max="100000" step=".001" aria-label="Comparable quantity" value="'+(quantity||1)+'"></td>'+
+ '<td><select data-key="unit" aria-label="Unit"><option value="item">item / loaf</option><option value="L">litre</option><option value="kg">kilogram</option><option value="100g">100 grams</option></select></td>'+
+ '<td><input data-key="a" type="number" min="0" max="100000" step=".01" aria-label="Price at store A" placeholder="price"></td>'+
+ '<td><input data-key="b" type="number" min="0" max="100000" step=".01" aria-label="Price at store B" placeholder="price"></td>'+
+ '<td><input data-key="c" type="number" min="0" max="100000" step=".01" aria-label="Price at store C" placeholder="price"></td>'+
+ '<td><input data-key="d" type="number" min="0" max="100000" step=".01" aria-label="Price at store D" placeholder="price"></td>'+
+ '<td><input data-key="e" type="number" min="0" max="100000" step=".01" aria-label="Price at store E" placeholder="price"></td>'+
+ '<td><input data-key="f" type="number" min="0" max="100000" step=".01" aria-label="Price at store F" placeholder="price"></td>'+
+ '<td><input data-key="source" type="url" aria-label="Price evidence URL" placeholder="https://…"></td>'+
+ '<td><button class="btn" type="button" data-remove="'+id+'" aria-label="Remove item">×</button></td>';
+ tr.querySelector('[data-key="unit"]').value=unit||'item';
+ tr.addEventListener('input',updateGrocery);
+ tr.querySelector('[data-remove]').addEventListener('click',()=>{tr.remove();updateGrocery();});
+ tbody.append(tr);updateGrocery();
+}
+function updateGrocery(){
+ const rows=[...$('grocery-rows').querySelectorAll('tr')],stores=['a','b','c','d','e','f'];
+ const names=stores.map(k=>$('store-'+k).value.trim()||('Store '+k.toUpperCase()));
+ const details=[];
+ for(const row of rows){
+  const get=k=>row.querySelector('[data-key="'+k+'"]');
+  const name=get('name').value.trim()||'Unnamed item',qty=Number(get('qty').value),unit=get('unit').value;
+  const unitLabel=unit==='100g'?'per 100 g':unit==='kg'?'per kg':unit==='L'?'per litre':'per item';
+  const prices=stores.map(k=>get(k).value===''?null:Number(get(k).value));
+  const valid=prices.map(p=>p!==null&&Number.isFinite(p)&&p>=0&&qty>0);
+  const unitPrices=prices.map((p,i)=>valid[i]?p/qty:null);
+  const available=unitPrices.map((p,i)=>({p,i})).filter(x=>x.p!==null).sort((x,y)=>x.p-y.p);
+  const winner=available.length?names[available[0].i]:'No price entered';
+  const proof=get('source').value.trim();
+  details.push({name,qty,unit,prices,unitPrices,winner,proof,unitLabel});
+ }
+ const completeRows=details.filter(d=>d.prices.every(v=>v!==null));
+ const out=[];
+ if(completeRows.length){
+  const totals=stores.map((k,i)=>completeRows.reduce((sum,d)=>sum+d.prices[i],0));
+  const ranked=totals.map((v,i)=>({v,i})).sort((a,b)=>a.v-b.v);
+  out.push('Comparable basket ('+completeRows.length+' item(s) priced at all six stores):');
+  totals.forEach((total,i)=>out.push(names[i]+': '+money(total)));
+  out.push('Lowest comparable basket: '+names[ranked[0].i]+' at '+money(ranked[0].v)+'.');
+ } else out.push('To compare basket totals fairly, enter the same quantity at all six stores for at least one item. Incomplete rows are not counted in the total.');
+ out.push('','Cheapest observed unit price by item:',...details.map(d=>d.name+': '+d.winner+(d.unitPrices.some(v=>v!==null)?' ('+d.unitLabel+')':'')));
+ setResult('grocery-result',out.join('\n'));
+}
+$('add-item').addEventListener('click',()=>addGroceryRow('New item',1,'item'));
+$('export-basket').addEventListener('click',()=>{
+ const stores=['a','b','c','d','e','f'];
+ const escapeCsv=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
+ const data=[['Item','Reference quantity','Unit',...stores.map(k=>$('store-'+k).value+' price NZD'),'Evidence URL','Date exported']];
+ for(const tr of $('grocery-rows').querySelectorAll('tr')){
+  const v=k=>tr.querySelector('[data-key="'+k+'"]').value;
+  data.push([v('name'),v('qty'),v('unit'),...stores.map(k=>v(k)),v('source'),new Date().toISOString()]);
+ }
+ const blob=new Blob([data.map(r=>r.map(escapeCsv).join(',')).join('\r\n')],{type:'text/csv;charset=utf-8'});
+ const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='truth-oracle-grocery-comparison.csv';a.click();URL.revokeObjectURL(url);
+});
+['store-a','store-b','store-c','store-d','store-e','store-f'].forEach(id=>$(id).addEventListener('input',updateGrocery));
+[['Bread / loaf',1,'item'],['Milk',2,'L'],['Rice / pasta',1,'kg'],['Eggs / dozen',12,'item']].forEach(r=>addGroceryRow(r[0],r[1],r[2]));
+
+$('save-basket').addEventListener('click',()=>{
+ const stores=['a','b','c','d','e','f'].map(k=>({id:k,name:$('store-'+k).value.trim()}));
+ const items=[...$('grocery-rows').querySelectorAll('tr')].map(tr=>{
+  const v=k=>tr.querySelector('[data-key="'+k+'"]').value;
+  return {item:v('name'),quantity:v('qty'),unit:v('unit'),prices:stores.map(store=>({store:store.name,price:v(store.id)})),source:v('source')};
+ }).filter(item=>item.item&&item.prices.some(p=>p.price!==''));
+ const record={saved_at:new Date().toISOString(),stores:stores.map(x=>x.name),items};
+ if(!items.length){$('basket-history').textContent='Enter at least one price before saving.';return;}
+ let history=[];try{history=JSON.parse(localStorage.getItem('truth-oracle-basket-history')||'[]');if(!Array.isArray(history))history=[];}catch(_){history=[];}
+ history.unshift(record);history=history.slice(0,100);
+ try{localStorage.setItem('truth-oracle-basket-history',JSON.stringify(history));$('basket-history').textContent='Saved locally: '+items.length+' item(s), '+new Date(record.saved_at).toLocaleString()+'. '+history.length+' record(s) in this browser.';}
+ catch(_){$('basket-history').textContent='Browser storage is full or blocked. Use Download basket CSV instead.';}
+});
+$('export-history').addEventListener('click',()=>{
+ let history=[];try{history=JSON.parse(localStorage.getItem('truth-oracle-basket-history')||'[]');}catch(_){}
+ if(!history.length){$('basket-history').textContent='No local history to export yet.';return;}
+ const quote=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
+ const rows=[['Saved at','Item','Quantity','Unit','Store','Price NZD','Source URL']];
+ for(const rec of history)for(const item of rec.items)for(const price of item.prices)rows.push([rec.saved_at,item.item,item.quantity,item.unit,price.store,price.price,item.source]);
+ const blob=new Blob([rows.map(r=>r.map(quote).join(',')).join('\r\n')],{type:'text/csv;charset=utf-8'});
+ const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='truth-oracle-local-price-history.csv';a.click();URL.revokeObjectURL(url);
+});
+(function restoreHistoryLabel(){try{const h=JSON.parse(localStorage.getItem('truth-oracle-basket-history')||'[]');if(Array.isArray(h)&&h.length)$('basket-history').textContent=h.length+' locally saved basket record(s) in this browser. Data is not uploaded.';}catch(_){}})();
+function updateFuel(){
+ const ids=['fuel-cheap','fuel-local','fuel-litres','fuel-detour','fuel-economy'];
+ if(ids.some(id=>$(id).value==='')){setResult('fuel-result','Enter observed pump prices, litres, detour distance and vehicle fuel use. No current prices are pre-filled.');return;}
+ const cheap=num('fuel-cheap'),local=num('fuel-local'),litres=num('fuel-litres'),detour=num('fuel-detour'),economy=num('fuel-economy');
+ const gross=(local-cheap)*litres,extraLitres=detour*economy/100,detourCost=extraLitres*cheap,net=gross-detourCost;
+ setResult('fuel-result','Gross saving on '+litres.toFixed(1)+' L: '+money(gross)+'\nEstimated extra fuel for detour: '+extraLitres.toFixed(2)+' L ('+money(detourCost)+')\nNet estimate after detour: '+money(net)+'\n'+(net>0?'The cheaper station wins on these inputs.':net<0?'The detour costs more than the price saving.':'No net saving on these inputs.'),net<0);
+}
+['fuel-cheap','fuel-local','fuel-litres','fuel-detour','fuel-economy'].forEach(id=>$(id).addEventListener('input',updateFuel));updateFuel();
+
+function updatePower(){
+ const ids=['power-kwh','power-a-daily','power-a-rate','power-a-credit','power-b-daily','power-b-rate','power-b-credit'];
+ if(ids.some(id=>$(id).value==='')){setResult('power-result','Enter usage from your bill and each plan rate, daily charge and annual credit/fee. Blank fields are not assumed to be zero.');return;}
+ const kwh=num('power-kwh'),a=365*num('power-a-daily')+12*kwh*num('power-a-rate')/100-num('power-a-credit'),b=365*num('power-b-daily')+12*kwh*num('power-b-rate')/100-num('power-b-credit'),delta=a-b;
+ setResult('power-result','Plan A estimated annual cost: '+money(a)+'\nPlan B estimated annual cost: '+money(b)+'\nEstimated difference: '+money(Math.abs(delta))+' '+(delta>0?'less on Plan B':delta<0?'less on Plan A':'(tie)')+'.\nModel: 365 × daily charge + 12 × monthly kWh × usage rate − annual credits.',a<0||b<0);
+}
+['power-kwh','power-a-daily','power-a-rate','power-a-credit','power-b-daily','power-b-rate','power-b-credit'].forEach(id=>$(id).addEventListener('input',updatePower));updatePower();
+
+function planCost(prefix){
+ const monthly=num('bill-'+prefix+'-month'),discount=Math.min(12,num('bill-'+prefix+'-months'))*num('bill-'+prefix+'-discount');
+ return 12*monthly-discount+num('bill-'+prefix+'-fees')-num('bill-'+prefix+'-credit');
+}
+function updateBill(){
+ const ids=['bill-a-month','bill-b-month','bill-a-discount','bill-b-discount','bill-a-months','bill-b-months','bill-a-fees','bill-b-fees','bill-a-credit','bill-b-credit'];
+ if(ids.some(id=>$(id).value==='')){setResult('bill-result','Enter the actual monthly charges, promo terms, fees and credits for both plans. Use 0 explicitly where a cost or credit does not apply.');return;}
+ const a=planCost('a'),b=planCost('b'),names=[$('bill-a-name').value.trim()||'Current plan',$('bill-b-name').value.trim()||'Alternative plan'],delta=a-b;
+ setResult('bill-result',names[0]+': '+money(a)+' over 12 months\n'+names[1]+': '+money(b)+' over 12 months\nEstimated difference: '+money(Math.abs(delta))+' '+(delta>0?('less with '+names[1]):delta<0?('less with '+names[0]):'(tie)')+'.\nFormula: 12 × standard monthly charge − promo discounts that apply during the year + one-off fees − guaranteed credits.',a<0||b<0);
+}
+['bill-a-name','bill-b-name','bill-a-month','bill-b-month','bill-a-discount','bill-b-discount','bill-a-months','bill-b-months','bill-a-fees','bill-b-fees','bill-a-credit','bill-b-credit'].forEach(id=>$(id).addEventListener('input',updateBill));updateBill();
+
+$('copy-record').addEventListener('click',async()=>{
+ const text=$('record-template').textContent;
+ try{await navigator.clipboard.writeText(text);$('copy-status').textContent='Template copied.';}
+ catch(_){const area=document.createElement('textarea');area.value=text;document.body.append(area);area.select();const ok=document.execCommand('copy');area.remove();$('copy-status').textContent=ok?'Template copied.':'Select and copy the template manually.';}
+});
+})();
+</script>
+</body></html>

@@ -1,43 +1,237 @@
 <!doctype html>
 <html lang="en-NZ">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>MTG Decks for Sale | DreamLedger</title>
-<meta name="description" content="Browse real Magic: The Gathering Commander decks for sale. Decklists, seller details and clear ways to claim.">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b0d11">
+<title>Magic Marketplace & Community | DreamLedger</title>
+<meta name="description" content="A community-first Magic marketplace: free listings, live chat, private buyer-seller messages, and a classic threaded forum.">
+<link rel="canonical" href="https://dreamledger.org/mtg/">
 <style>
-:root{color-scheme:dark;--bg:#080a0d;--panel:#10151b;--line:#27313a;--ink:#f5f3eb;--muted:#b3bdc7;--gold:#d8b56b;--green:#8fd3a2;--max:1180px}
-*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 15% 0,#2b2418 0,#080a0d 40%);color:var(--ink);font:15px/1.55 system-ui,sans-serif}.wrap{max-width:var(--max);margin:auto;padding:0 16px 70px}.nav{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:18px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}.brand{font-weight:950;letter-spacing:.08em}.brand b{color:var(--gold)}nav{display:flex;gap:12px;flex-wrap:wrap}a{color:var(--muted);text-decoration:none}.hero{padding:48px 0 24px}.kicker{font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:900}.hero h1{font-size:clamp(3rem,8vw,6rem);line-height:.9;letter-spacing:-.06em;margin:10px 0 16px}.hero p{max-width:800px;color:var(--muted)}.rail{display:flex;gap:12px;overflow-x:auto;overscroll-behavior-inline:contain;scroll-snap-type:x mandatory;padding:10px 2px 20px}.card{flex:0 0 min(82vw,330px);background:linear-gradient(180deg,#151b23,#0e1217);border:1px solid var(--line);border-radius:16px;overflow:hidden;scroll-snap-align:start}.art{height:135px;display:grid;place-items:center;background:radial-gradient(circle at 25% 20%,#4a3f28 0,#20242b 38%,#0d1015 78%);color:#d8b56b;font-size:2.8rem;font-weight:950}.body{padding:16px}.pill{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:4px 9px;color:var(--muted);font-size:.65rem;letter-spacing:.08em}.card h2{font-size:1.18rem;margin:10px 0 6px}.desc,.meta{color:var(--muted);font-size:.88rem}.price{font-size:1.7rem;font-weight:950;margin:12px 0 3px}.cta{display:block;text-align:center;margin-top:13px;padding:12px 14px;border-radius:9px;background:var(--gold);color:#111;font-weight:950}.cta.secondary{background:transparent;color:var(--ink);border:1px solid var(--line)}.status{color:var(--muted);min-height:24px}.notice{border:1px solid var(--line);border-radius:12px;padding:16px;color:var(--muted);margin-top:24px}@media(max-width:620px){.card{flex-basis:87vw}}
+:root{color-scheme:dark;--bg:#0b0d11;--panel:#131820;--panel2:#191f29;--line:#2a3340;--ink:#f5f3ec;--muted:#aeb8c5;--gold:#e0bd71;--gold2:#f0d292;--green:#a5e0bd;--red:#f1a0a0}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(ellipse at 85% -10%,#3d3220 0,transparent 32%),var(--bg);color:var(--ink);font:15px/1.6 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}a{color:var(--gold2);text-decoration:none}a:hover{text-decoration:underline}button,input,textarea,select{font:inherit}.wrap{width:min(1160px,calc(100% - 32px));margin:auto}.top{display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding:18px 0}.brand{font-weight:950;letter-spacing:.08em;color:var(--ink)}.brand span{color:var(--gold)}.nav{display:flex;flex-wrap:wrap;gap:15px;align-items:center}.nav a{color:var(--muted);font-size:13px}.hero{padding:48px 0 34px;max-width:880px}.eyebrow{text-transform:uppercase;letter-spacing:.17em;font-size:11px;font-weight:850;color:var(--gold)}h1{font-size:clamp(43px,8vw,82px);line-height:.96;letter-spacing:-.065em;margin:14px 0 18px;max-width:12ch}h2{font-size:clamp(25px,4vw,37px);line-height:1.08;letter-spacing:-.04em;margin:0 0 9px}h3{font-size:17px;line-height:1.2;margin:0 0 8px}.lede{font-size:18px;max-width:760px;color:var(--muted)}.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 15px;border-radius:11px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);font-weight:800;font-size:13px;cursor:pointer}.btn.gold{background:linear-gradient(180deg,var(--gold2),var(--gold));color:#17140d;border-color:transparent}.btn:disabled{opacity:.5;cursor:not-allowed}.support{display:inline-flex;align-items:center;gap:8px;border:1px solid #5a4828;background:#17140f;color:var(--gold2);padding:9px 12px;border-radius:10px;font-weight:750;font-size:13px}.section{padding:28px 0;border-top:1px solid var(--line)}.section-head{display:flex;justify-content:space-between;align-items:end;gap:16px;margin-bottom:15px;flex-wrap:wrap}.muted{color:var(--muted)}.small{font-size:12px}.pill{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:3px 8px;color:var(--muted);font-size:10px;letter-spacing:.08em;text-transform:uppercase}.listings{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.listing{border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--panel);display:flex;flex-direction:column}.listing-art{height:76px;background:radial-gradient(circle at 20% 20%,#54442a,#25262c 43%,#141820);display:flex;align-items:end;padding:13px;color:var(--gold2);font-size:11px;letter-spacing:.12em;font-weight:900;text-transform:uppercase}.listing-body{padding:16px;display:flex;flex-direction:column;gap:8px;flex:1;min-width:0}.listing-title{font-weight:800;font-size:16px;line-height:1.25}.price{font-size:24px;font-weight:900;letter-spacing:-.04em}.list-actions{display:flex;flex-direction:column;gap:8px;margin-top:auto}.list-actions a,.list-actions span{width:100%;text-align:center}.status{border:1px solid var(--line);border-radius:11px;padding:11px 13px;color:var(--muted);font-size:13px;margin-bottom:13px}.status.bad{border-color:#784343;color:var(--red)}.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.community-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:15px}.panel{border:1px solid var(--line);border-radius:17px;background:linear-gradient(150deg,var(--panel2),var(--panel));padding:18px;min-width:0}.panel p{color:var(--muted);font-size:14px}.messages{height:300px;overflow:auto;display:flex;flex-direction:column;gap:9px;border:1px solid var(--line);background:#0d1117;border-radius:12px;padding:12px}.message{border-bottom:1px solid #242c35;padding:0 0 8px;overflow-wrap:anywhere}.message:last-child{border:0}.message-meta{font-size:11px;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap}.message-body{white-space:pre-wrap;overflow-wrap:anywhere}.composer{display:flex;gap:8px;margin-top:9px}.composer input,.field{width:100%;min-width:0;border:1px solid var(--line);border-radius:10px;background:#0d1117;color:var(--ink);padding:11px}.composer textarea{min-height:75px;resize:vertical}.fields{display:grid;grid-template-columns:1fr 1fr;gap:9px}.field-label{display:block;font-size:12px;color:var(--muted);margin:0 0 5px}.authbox{border:1px solid var(--line);border-radius:12px;padding:13px;margin-bottom:12px;background:#0d1117}.authrow{display:flex;align-items:end;gap:8px;flex-wrap:wrap}.forum-list{display:flex;flex-direction:column;gap:8px}.topic{padding:13px 14px;border-radius:12px;border:1px solid var(--line);background:#0d1117;cursor:pointer}.topic:hover{border-color:#806a3d}.topic-title{font-weight:800}.topic-meta{font-size:11px;color:var(--muted);margin-top:4px}.thread{border-top:1px solid var(--line);margin-top:14px;padding-top:14px}.thread-post{border:1px solid var(--line);border-radius:11px;padding:12px;margin:8px 0;background:#10151b}.thread-post p{white-space:pre-wrap;overflow-wrap:anywhere}.empty{padding:22px;border:1px dashed #45505d;border-radius:13px;color:var(--muted);font-size:13px}.foot{border-top:1px solid var(--line);padding:22px 0 40px;margin-top:22px;color:var(--muted);font-size:12px;display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
+@media(max-width:760px){.listings,.grid3{grid-template-columns:1fr 1fr}.community-grid{grid-template-columns:1fr}.hero{padding-top:35px}.listings .listing:last-child{grid-column:1/-1}}
+@media(max-width:480px){.wrap{width:calc(100% - 22px)}.listings,.grid3,.fields{grid-template-columns:1fr}.nav{gap:9px}.nav a{font-size:12px}.hero{padding-top:30px}.lede{font-size:16px}}
 </style></head>
-<body><main class="wrap">
-<header class="nav"><div class="brand"><b>MAGIC</b> / DREAMLEDGER</div><nav><a href="/">DreamLedger home</a><a href="/mtg-marketplace.html">Marketplace</a><a href="/music-media.html">Music &amp; Media</a></nav></header>
-<section class="hero"><div class="kicker">Commander decks · real listings</div><h1>Find your next deck.</h1><p>Browse the current decks, open the full list, and use the listing's claim instructions. We only advertise direct checkout when that listing has a working checkout path.</p></section>
-<section><div class="kicker">Available decks</div><h2>MTG Deck Catalogue</h2><div id="status" class="status">Loading deck listings…</div><div id="rail" class="rail"></div></section>
-<div class="notice">Check the decklist and listing details before buying. Never send payment-card details in a direct message. Direct checkout appears only when the listing has a verified Stripe link. <strong>#MeatiestMagic</strong></div>
+<body><div class="wrap">
+<header class="top"><a class="brand" href="/mtg/"><span>MAGIC</span> / DREAMLEDGER</a><nav class="nav" aria-label="Main navigation"><a href="#market">Marketplace</a><a href="#live">Live chat</a><a href="#forum">Forum</a><a href="#inbox">Private messages</a><a href="#rules">Community rules</a></nav></header>
+<main>
+<section class="hero">
+<div class="eyebrow">Magic: The Gathering · Aotearoa New Zealand</div>
+<h1>Less gatekeeping. More gathering.</h1>
+<p class="lede">Buy, sell, trade, ask questions and talk Magic. Free listings, live community chat, private buyer-seller conversations and an old-school threaded forum. Posts remain findable after the feed has moved on.</p>
+<div class="actions"><a class="btn gold" href="#market">Browse listings</a><a class="btn" href="#live">Enter live chat</a><a class="btn" href="#forum">Open the forum</a><a class="support" href="https://patreon.com/happyhomarid" target="_blank" rel="noopener noreferrer">Support HappyHomarid on Patreon ↗</a></div>
+<p class="muted small">Browse free. List free. This silo charges no percentage success fee. Confirm stock, condition, price and shipping before committing. DreamLedger does not hold buyer funds or guarantee off-platform deals.</p>
+</section>
+
+<section class="section" id="market"><div class="section-head"><div><div class="eyebrow">Marketplace</div><h2>Listings that show their working</h2></div><a class="btn gold" href="/mtg-list">List a single free</a></div>
+<div class="status" id="catalog-status" role="status">Loading listings…</div><div class="listings" id="listings"><div class="empty">Loading catalogue…</div></div>
+<p class="muted small">Condition is shown only for a physical single when a seller has explicitly supplied it. Commander decks are complete decks, not individual card-condition listings. Unknown stays unknown.</p></section>
+
+<section class="section" id="community"><div class="section-head"><div><div class="eyebrow">One community · three ways to talk</div><h2>Fast chat. Private chat. Forum that lasts.</h2></div><span class="pill">Live connection status below</span></div>
+<div class="grid3">
+<article class="panel"><h3>Live public chat</h3><p>Quick questions about decks, trades, rules and the hobby. Messages are stored and update live.</p><a class="btn" href="#live">Join chat</a></article>
+<article class="panel"><h3>Private messages</h3><p>Talk directly with another member about a listing or a deal. Only conversation participants can read the thread.</p><a class="btn" href="#inbox">Open messages</a></article>
+<article class="panel"><h3>Classic forum</h3><p>Deck tech, card interactions, wanted lists, trading and long-running topics that remain searchable.</p><a class="btn" href="#forum">Browse topics</a></article>
+</div></section>
+
+<section class="section" id="live"><div class="section-head"><div><div class="eyebrow">Real-time community</div><h2>The table chat</h2></div><span id="chat-status" class="pill">Connecting…</span></div>
+<div class="authbox"><h3 id="auth-heading">Join the conversation</h3><p class="muted small">Read public chat and forum topics without an account. Sign in or create a free account to post, start private conversations and open forum threads.</p>
+<div class="fields">
+<label><span class="field-label">Username (new accounts)</span><input class="field" id="auth-username" autocomplete="username" maxlength="24" placeholder="3–24 letters or numbers"></label>
+<label><span class="field-label">Email</span><input class="field" id="auth-email" autocomplete="email" type="email" placeholder="you@example.com"></label>
+<label><span class="field-label">Password</span><input class="field" id="auth-password" autocomplete="current-password" type="password" minlength="8" placeholder="At least 8 characters"></label>
+<div class="authrow"><button class="btn gold" id="sign-in">Sign in</button><button class="btn" id="sign-up">Join free</button><button class="btn" id="sign-out" hidden>Sign out</button></div></div>
+<div id="auth-status" class="muted small" aria-live="polite" style="margin-top:8px">Browse while the community connects.</div></div>
+<div class="community-grid">
+<div class="panel"><div id="chat-messages" class="messages" aria-live="polite"><div class="empty">Connecting…</div></div><form id="chat-form" class="composer"><input id="chat-input" maxlength="800" placeholder="Say something about Magic…" aria-label="Chat message" disabled><button class="btn gold" id="chat-send" disabled>Send</button></form><p class="muted small">No private details, payment credentials, harassment or spam. Accounts can be reported and abusive content removed.</p></div>
+<div class="panel"><h3>Community noticeboard</h3><p>Agree the exact cards, price, condition and shipping before paying. Use tracked shipping for valuable cards. Never post payment details publicly.</p><div class="thread-post"><span class="eyebrow">Creator corner</span><p>Deck builds, collection updates and community extras from HappyHomarid.</p><a href="https://patreon.com/happyhomarid" target="_blank" rel="noopener noreferrer">Visit HappyHomarid on Patreon ↗</a></div></div>
+</div></section>
+
+<section class="section" id="forum"><div class="section-head"><div><div class="eyebrow">Old-school forum</div><h2>Threads that stick around</h2></div><span id="forum-status" class="pill">Connecting…</span></div>
+<div class="community-grid"><div class="panel"><h3>Start a topic</h3><form id="topic-form"><label class="field-label" for="topic-title">Title</label><input class="field" id="topic-title" maxlength="160" required placeholder="e.g. Help tuning my budget Elf deck"><label class="field-label" for="topic-category" style="margin-top:9px">Board</label><select class="field" id="topic-category"><option value="general">General Magic</option><option value="deck-tech">Deck tech & strategy</option><option value="rules">Rules & card interactions</option><option value="buy-sell-trade">Buy / sell / trade</option><option value="wanted">Wanted & collection search</option></select><label class="field-label" for="topic-body" style="margin-top:9px">First post</label><textarea class="field" id="topic-body" rows="5" maxlength="6000" required placeholder="Give the thread a useful first post…"></textarea><button class="btn gold" type="submit" id="topic-submit" style="margin-top:10px" disabled>Post topic</button><p id="topic-compose-status" class="muted small" aria-live="polite">Sign in to create a topic.</p></form></div>
+<div class="panel"><div class="section-head"><h3>Recent topics</h3><select class="field" id="forum-filter" style="max-width:180px"><option value="all">All boards</option><option value="general">General Magic</option><option value="deck-tech">Deck tech</option><option value="rules">Rules</option><option value="buy-sell-trade">Buy / sell / trade</option><option value="wanted">Wanted</option></select></div><div id="forum-topics" class="forum-list"><div class="empty">Loading forum…</div></div><div id="thread-view" class="thread" hidden></div></div>
+</div></section>
+
+<section class="section" id="inbox"><div class="section-head"><div><div class="eyebrow">Member-to-member</div><h2>Private buyer-seller conversations</h2></div><span id="inbox-status" class="pill">Account required</span></div>
+<div class="community-grid"><div class="panel"><h3>Start a conversation</h3><form id="dm-start"><label class="field-label" for="dm-username">Member username</label><input class="field" id="dm-username" maxlength="24" placeholder="Exact username" required><button class="btn gold" type="submit" id="dm-start-button" disabled style="margin-top:10px">Start private chat</button><p class="muted small" id="dm-start-status">Sign in to message a member.</p></form><h3 style="margin-top:22px">Your conversations</h3><div id="dm-list" class="forum-list"><div class="empty">Sign in to load private conversations.</div></div></div>
+<div class="panel"><h3 id="dm-title">Your private chat</h3><div id="dm-messages" class="messages"><div class="empty">Choose or start a conversation.</div></div><form id="dm-form" class="composer"><input id="dm-input" maxlength="2000" placeholder="Write a private message…" aria-label="Private message" disabled><button class="btn gold" id="dm-send" disabled>Send</button></form><p class="muted small">Only conversation participants can read this thread. Do not send payment credentials.</p></div></div></section>
+
+<section class="section" id="rules"><div class="eyebrow">Clear rules</div><h2>Free to use. Clear about what is protected.</h2><div class="grid3"><article class="panel"><h3>Honest listings</h3><p>Use real photos, accurate product details and condition claims you can support. Do not list counterfeits as genuine.</p></article><article class="panel"><h3>Safer deals</h3><p>Agree the actual item, total, shipping method and timing. DreamLedger is not escrow and does not insure private trades.</p></article><article class="panel"><h3>Good community</h3><p>No scams, impersonation, harassment, spam or doxxing. Report content that puts members at risk.</p></article></div></section>
 </main>
-<script>
-const rail=document.getElementById('rail'),status=document.getElementById('status');
-const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-async function load(){
+<footer class="foot"><span>DreamLedger Magic · Browse, talk, trade.</span><span><a href="/">Home</a> · <a href="/trust/">Trust & evidence</a> · <a href="https://patreon.com/happyhomarid" target="_blank" rel="noopener noreferrer">HappyHomarid on Patreon</a> · <a href="/privacy.html">Privacy</a></span></footer>
+</div>
+<script type="module">
+const PROJECT_URL = 'https://wbwgroygjeyukkspnqiy.supabase.co';
+const PUBLISHABLE_KEY = 'sb_publishable_O5JRD67KaU3SA9dFq-JIuQ_Pzs8pedj';
+const $ = id => document.getElementById(id);
+const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const categoryName = value => ({general:'General Magic','deck-tech':'Deck tech & strategy',rules:'Rules & card interactions','buy-sell-trade':'Buy / sell / trade',wanted:'Wanted & collection search'}[value] || value);
+let sb, currentSession=null, currentProfile=null, activeDmId=null, dmChannel=null, forumChannel=null, chatChannel=null, openTopicId=null;
+const reportError = (el, error) => { el.textContent = error && error.message ? error.message : String(error); el.style.color = 'var(--red)'; };
+async function readCatalog(){
+ const status=$('catalog-status'), root=$('listings');
  try{
-  const r=await fetch('/public/catalog.json',{cache:'no-store'});
-  if(!r.ok)throw Error('Catalogue feed returned '+r.status);
-  const data=await r.json();
-  const products=(data.products||[]).filter(p=>p&&p.status==='published'&&(String(p.silo||p.category||'').toLowerCase()==='mtg'||String(p.id||'').startsWith('EDH_')));
-  const rank=id=>id==='EDH_0001'?0:id==='EDH_QUINTORIUS_0002'?1:id==='EDH_DWYNEN_0003'?2:3;
-  products.sort((a,b)=>rank(a.id)-rank(b.id));
-  status.textContent=products.length+' published deck listing'+(products.length===1?'':'s');
-  rail.innerHTML=products.length?products.map(p=>{
-   const price=Number(p.price||0);
-   const direct=p.checkout_available===true&&typeof p.checkout_url==='string';
-   const claim=p.sale_mode==='claim_by_message'&&typeof p.claim_url==='string';
-   const href=direct?p.checkout_url:(claim?p.claim_url:'#');
-   const label=direct?'BUY WITH STRIPE':(claim?'VIEW DECK DETAILS':'ONLINE CHECKOUT UNAVAILABLE');
-   const commander=(p.metadata&&p.metadata.commander)||'Commander';
-   const archetype=(p.metadata&&p.metadata.archetype)||'MTG deck';
-   const decklist=p.decklist_url?'<a class="cta secondary" target="_blank" rel="noopener" href="'+esc(p.decklist_url)+'">Open full decklist</a>':'';
-   return '<article class="card"><div class="art">EDH</div><div class="body"><span class="pill">'+esc(archetype)+'</span><h2>'+esc(p.name||p.id)+'</h2><div class="desc">'+esc(p.description||'Commander deck listing.')+'</div><div class="price">NZ$'+price.toFixed(2)+'</div>'+'<div class="meta">Seller: '+esc(p.seller||'HappyHomarid')+'</div><a class="cta" href="'+esc(href)+'" '+(direct?'target="_blank" rel="noopener"':(claim?'':'aria-disabled="true"'))+'>'+label+'</a>'+decklist+'</div></article>';
-  }).join(''):'<div class="notice">No published MTG decks are available right now.</div>';
- }catch(e){status.textContent='Deck catalogue could not load: '+e.message;status.style.color='#ef9292';rail.innerHTML='<div class="notice">Please try again shortly. If this continues, contact DreamLedger support.</div>';}
+  let response=null;
+  for(const path of ['/catalog.json','/public/catalog.json','/data/mtg-catalog.json','/public/data/mtg-catalog.json']){
+   try{const r=await fetch(path,{cache:'no-store'});if(r.ok){response=r;break;}}catch(_){}
+  }
+  if(!response)throw new Error('The public catalogue could not be found on this host.');
+  const data=await response.json();
+  const products=(data.products||[]).filter(p=>p && p.status==='published' && (String(p.silo||p.category||'').toLowerCase()==='mtg'||String(p.id||'').startsWith('EDH_')));
+  products.sort((a,b)=>String(a.name||a.id).localeCompare(String(b.name||b.id)));
+  status.textContent=products.length+' published listing'+(products.length===1?'':'s')+'. Checkout appears only where the listing enables it.';
+  if(!products.length){root.innerHTML='<div class="empty">No verified listings are available right now. Inventory stays empty rather than invented.</div>';return;}
+  root.innerHTML=products.map(p=>{
+   const id=String(p.id||'');
+   const isDeck=id.startsWith('EDH_')||p.inventory_type==='physical_deck'||p.product_kind==='commander-deck'||p.category==='commander-deck';
+   const isSingle=p.product_kind==='single'||p.inventory_type==='single'||p.item_type==='single';
+   const direct=p.checkout_available===true&&typeof p.checkout_url==='string'&&/^https:\/\/buy\.stripe\.com\//.test(p.checkout_url);
+   const claim=p.sale_mode==='claim_by_message'&&typeof p.claim_url==='string'&&(p.claim_url.startsWith('mailto:')||p.claim_url.startsWith('https://'));
+   const detail=typeof p.detail_url==='string'&&p.detail_url.startsWith('/')?p.detail_url:'';
+   const patron=typeof p.patron_url==='string'&&p.patron_url.startsWith('https://patreon.com/')?p.patron_url:'https://patreon.com/happyhomarid';
+   const price=Number(p.price), priceHtml=Number.isFinite(price)?'<div class="price">NZ$'+price.toFixed(2)+'</div>':'<div class="muted">Price not supplied</div>';
+   const conditionAllowed=isSingle&&typeof p.condition==='string'&&p.condition.trim().length>0;
+   const conditionHtml=conditionAllowed?'<span class="pill">Condition: '+esc(p.condition)+'</span>':'';
+   const label=isDeck?'Commander deck':(isSingle?'Single card':'MTG listing');
+   const primary=direct?'<a class="btn gold" href="'+esc(p.checkout_url)+'" target="_blank" rel="noopener noreferrer">Buy with checkout</a>':(claim?'<a class="btn gold" href="'+esc(p.claim_url)+'">Ask to claim</a>':'<span class="btn" aria-disabled="true">Checkout not enabled</span>');
+   const decklist=typeof p.decklist_url==='string'&&p.decklist_url.startsWith('https://')?'<a class="btn" href="'+esc(p.decklist_url)+'" target="_blank" rel="noopener noreferrer">View full decklist</a>':'';
+   const detailLink=detail?'<a class="btn" href="'+esc(detail)+'">Listing details</a>':'';
+   const patronPrice=Number(p.patron_price_nzd ?? (p.metadata&&p.metadata.patron_price_nzd));
+   const patronLine=Number.isFinite(patronPrice)?'<p class="small muted">Creator member price: NZ$'+patronPrice.toFixed(2)+' · confirm eligibility with seller.</p>':'';
+   return '<article class="listing"><div class="listing-art">'+label+'</div><div class="listing-body"><span class="pill">'+esc(p.seller||'Community seller')+'</span><div class="listing-title">'+esc(p.name||id)+'</div><p class="muted small">'+esc(p.description||'Confirm details with the seller before committing.')+'</p>'+conditionHtml+priceHtml+patronLine+'<div class="list-actions">'+primary+decklist+detailLink+'<a class="btn" href="'+esc(patron)+'" target="_blank" rel="noopener noreferrer">Support HappyHomarid ↗</a></div></div></article>';
+  }).join('');
+ }catch(error){status.textContent='Catalogue unavailable: '+error.message;status.classList.add('bad');root.innerHTML='<div class="empty">Listings could not be loaded. No sample inventory is being invented.</div>';}
 }
-load();
+function appendMessage(container,row, nameField='username'){
+ const el=document.createElement('article');el.className='message';
+ const meta=document.createElement('div');meta.className='message-meta';
+ const name=document.createElement('strong');name.textContent=row[nameField]||'Member';
+ const time=document.createElement('time');const date=new Date(row.created_at);time.textContent=Number.isNaN(date.valueOf())?'':date.toLocaleString();
+ meta.append(name,time);el.append(meta);
+ const body=document.createElement('div');body.className='message-body';body.textContent=row.body||'';el.append(body);
+ container.append(el);
+}
+function renderMessages(container, rows, emptyText){
+ container.replaceChildren();
+ if(!rows||!rows.length){const empty=document.createElement('div');empty.className='empty';empty.textContent=emptyText;container.append(empty);return;}
+ rows.forEach(row=>appendMessage(container,row));container.scrollTop=container.scrollHeight;
+}
+async function loadPublicChat(){
+ const status=$('chat-status'), box=$('chat-messages');
+ const {data,error}=await sb.from('mtg_chat_messages').select('id,user_id,username,body,created_at').order('created_at',{ascending:false}).limit(80);
+ if(error){status.textContent='Chat schema not ready';box.innerHTML='<div class="empty">Live chat is waiting for its database migration and access policies.</div>';return;}
+ status.textContent='Connected';renderMessages(box,(data||[]).reverse(),'Be the first to start a conversation.');
+ if(chatChannel)await sb.removeChannel(chatChannel);
+ chatChannel=sb.channel('mtg-live-chat').on('postgres_changes',{event:'INSERT',schema:'public',table:'mtg_chat_messages'},payload=>{
+  const empty=box.querySelector('.empty');if(empty)empty.remove();appendMessage(box,payload.new);box.scrollTop=box.scrollHeight;
+ }).subscribe((state)=>{if(state==='SUBSCRIBED')status.textContent='Live';else if(state==='CHANNEL_ERROR'||state==='TIMED_OUT')status.textContent='Reconnecting';});
+}
+async function loadTopics(){
+ const el=$('forum-topics'), status=$('forum-status'), filter=$('forum-filter').value;
+ let query=sb.from('mtg_forum_topics').select('id,user_id,username,title,category,body,created_at,updated_at,is_locked').eq('is_hidden',false).order('updated_at',{ascending:false}).limit(80);
+ if(filter!=='all')query=query.eq('category',filter);
+ const {data,error}=await query;
+ if(error){status.textContent='Database migration required';el.innerHTML='<div class="empty">Forum tables are not ready yet. The migration must be applied before topics can persist.</div>';return;}
+ status.textContent='Connected · '+data.length+' topics';el.replaceChildren();
+ if(!data.length){el.innerHTML='<div class="empty">No topics yet. Start the first thread when you sign in.</div>';return;}
+ data.forEach(topic=>{
+  const item=document.createElement('button');item.type='button';item.className='topic';item.style.textAlign='left';item.style.color='inherit';item.style.width='100%';
+  const title=document.createElement('div');title.className='topic-title';title.textContent=topic.title;
+  const meta=document.createElement('div');meta.className='topic-meta';meta.textContent=categoryName(topic.category)+' · '+(topic.username||'Member')+' · '+new Date(topic.updated_at||topic.created_at).toLocaleString()+(topic.is_locked?' · locked':'');
+  const summary=document.createElement('div');summary.className='muted small';summary.textContent=(topic.body||'').slice(0,150);
+  item.append(title,meta,summary);item.addEventListener('click',()=>openTopic(topic.id));el.append(item);
+ });
+}
+async function openTopic(id){
+ openTopicId=id;const view=$('thread-view');view.hidden=false;view.replaceChildren();
+ const {data:topic,error:te}=await sb.from('mtg_forum_topics').select('*').eq('id',id).maybeSingle();
+ if(te||!topic){view.textContent='This topic is not available.';return;}
+ const heading=document.createElement('h3');heading.textContent=topic.title;view.append(heading);
+ const meta=document.createElement('p');meta.className='muted small';meta.textContent=categoryName(topic.category)+' · '+(topic.username||'Member')+' · '+new Date(topic.created_at).toLocaleString();view.append(meta);
+ const original=document.createElement('div');original.className='thread-post';const op=document.createElement('p');op.textContent=topic.body;original.append(op);view.append(original);
+ const postBox=document.createElement('div');view.append(postBox);
+ const {data:posts,error}=await sb.from('mtg_forum_posts').select('*').eq('topic_id',id).eq('is_hidden',false).order('created_at',{ascending:true}).limit(200);
+ if(error){const warning=document.createElement('p');warning.className='muted small';warning.textContent='Replies are waiting for the forum migration.';view.append(warning);}else (posts||[]).forEach(post=>{const el=document.createElement('article');el.className='thread-post';const who=document.createElement('div');who.className='message-meta';who.textContent=(post.username||'Member')+' · '+new Date(post.created_at).toLocaleString();const body=document.createElement('p');body.textContent=post.body;el.append(who,body);postBox.append(el);});
+ if(currentSession&&!topic.is_locked){
+  const form=document.createElement('form');form.style.marginTop='12px';const label=document.createElement('label');label.className='field-label';label.textContent='Reply to topic';
+  const area=document.createElement('textarea');area.className='field';area.rows=3;area.maxLength=6000;area.required=true;area.placeholder='Write a useful reply…';
+  const button=document.createElement('button');button.className='btn gold';button.style.marginTop='8px';button.textContent='Post reply';
+  const feedback=document.createElement('p');feedback.className='muted small';feedback.style.marginTop='6px';
+  form.append(label,area,button,feedback);form.addEventListener('submit',async e=>{e.preventDefault();button.disabled=true;const {error}=await sb.from('mtg_forum_posts').insert({topic_id:id,user_id:currentSession.user.id,body:area.value.trim()});button.disabled=false;if(error){feedback.textContent=error.message;feedback.style.color='var(--red)';}else{area.value='';await openTopic(id);await loadTopics();}});view.append(form);
+ }
+ if(forumChannel)await sb.removeChannel(forumChannel);
+ forumChannel=sb.channel('mtg-topic-'+id).on('postgres_changes',{event:'INSERT',schema:'public',table:'mtg_forum_posts',filter:'topic_id=eq.'+id},()=>openTopic(id)).subscribe();
+}
+async function loadDmList(){
+ const list=$('dm-list');if(!currentSession){list.innerHTML='<div class="empty">Sign in to load private conversations.</div>';return;}
+ const {data:memberships,error}=await sb.from('mtg_dm_members').select('conversation_id,joined_at').eq('user_id',currentSession.user.id).order('joined_at',{ascending:false}).limit(40);
+ if(error){list.innerHTML='<div class="empty">Private messaging is waiting for its database migration.</div>';return;}
+ list.replaceChildren();if(!memberships.length){list.innerHTML='<div class="empty">No conversations yet. Enter a member username to start one.</div>';return;}
+ for(const member of memberships){
+  const {data:allMembers}=await sb.from('mtg_dm_members').select('user_id').eq('conversation_id',member.conversation_id);
+  const other=(allMembers||[]).find(x=>x.user_id!==currentSession.user.id);
+  let username='Member';
+  if(other){const {data:prof}=await sb.from('mtg_profiles').select('username').eq('user_id',other.user_id).maybeSingle();if(prof)username=prof.username;}
+  const {data:latest}=await sb.from('mtg_dm_messages').select('body,created_at').eq('conversation_id',member.conversation_id).order('created_at',{ascending:false}).limit(1);
+  const button=document.createElement('button');button.type='button';button.className='topic';button.style.textAlign='left';button.style.color='inherit';
+  const title=document.createElement('div');title.className='topic-title';title.textContent=username;
+  const detail=document.createElement('div');detail.className='topic-meta';detail.textContent=latest&&latest[0]?(latest[0].body.slice(0,75)+' · '+new Date(latest[0].created_at).toLocaleString()):'No messages yet';
+  button.append(title,detail);button.addEventListener('click',()=>openDm(member.conversation_id,username));list.append(button);
+ }
+}
+async function openDm(id,username){
+ activeDmId=id;$('dm-title').textContent='Private chat · '+username;$('dm-input').disabled=!currentSession;$('dm-send').disabled=!currentSession;
+ if(dmChannel)await sb.removeChannel(dmChannel);
+ const box=$('dm-messages');box.innerHTML='<div class="empty">Loading conversation…</div>';
+ const {data,error}=await sb.from('mtg_dm_messages').select('id,sender_id,username,body,created_at').eq('conversation_id',id).order('created_at',{ascending:true}).limit(150);
+ if(error){box.innerHTML='<div class="empty">Could not load this conversation. Access is restricted to its members.</div>';return;}
+ renderMessages(box,data,'Start the conversation.');
+ dmChannel=sb.channel('mtg-dm-'+id).on('postgres_changes',{event:'INSERT',schema:'public',table:'mtg_dm_messages',filter:'conversation_id=eq.'+id},payload=>{if(payload.new.conversation_id!==activeDmId)return;const empty=box.querySelector('.empty');if(empty)empty.remove();appendMessage(box,payload.new);box.scrollTop=box.scrollHeight;}).subscribe();
+}
+async function updateSession(){
+ const {data}=await sb.auth.getSession();currentSession=data.session;
+ const inSession=!!currentSession;
+ $('sign-in').hidden=inSession;$('sign-up').hidden=inSession;$('sign-out').hidden=!inSession;
+ $('auth-username').disabled=inSession;$('auth-email').disabled=inSession;$('auth-password').disabled=inSession;
+ $('chat-input').disabled=!inSession;$('chat-send').disabled=!inSession;
+ $('topic-submit').disabled=!inSession;$('dm-start-button').disabled=!inSession;
+ $('inbox-status').textContent=inSession?'Signed in':'Account required';
+ $('auth-heading').textContent=inSession?'You are part of the community':'Join the conversation';
+ if(inSession){
+  const {data:prof}=await sb.from('mtg_profiles').select('username').eq('user_id',currentSession.user.id).maybeSingle();
+  currentProfile=prof;
+  $('auth-status').textContent=prof?'Signed in as '+prof.username:'Signed in, but your community profile is missing. Sign out and rejoin with a username, or contact support.';
+  $('auth-status').style.color=prof?'var(--green)':'var(--red)';
+  $('topic-compose-status').textContent=prof?'Your next topic will be public.':'Your account needs a community username.';
+  $('dm-start-status').textContent=prof?'Private messages are limited to conversation participants.':'Your account needs a community username.';
+  await loadDmList();
+ } else {
+  currentProfile=null;$('auth-status').textContent='Public chat and the forum are readable without an account.';$('auth-status').style.color='var(--muted)';
+  $('topic-compose-status').textContent='Sign in to create a topic.';$('dm-start-status').textContent='Sign in to message a member.';
+  $('dm-list').innerHTML='<div class="empty">Sign in to load private conversations.</div>';
+  $('dm-messages').innerHTML='<div class="empty">Choose or start a conversation.</div>';$('dm-input').disabled=true;$('dm-send').disabled=true;activeDmId=null;
+ }
+}
+async function init(){
+ try{
+  const {createClient}=await import('https://esm.sh/@supabase/supabase-js@2');
+  sb=createClient(PROJECT_URL,PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+  await readCatalog();await loadPublicChat();await loadTopics();await updateSession();
+  sb.auth.onAuthStateChange(async()=>{await updateSession();});
+  $('chat-form').addEventListener('submit',async e=>{e.preventDefault();if(!currentSession||!currentProfile)return;const input=$('chat-input'),body=input.value.trim();if(!body)return;const {error}=await sb.from('mtg_chat_messages').insert({user_id:currentSession.user.id,body});if(error){$('auth-status').textContent=error.message;}else input.value='';});
+  $('sign-in').addEventListener('click',async()=>{const {error}=await sb.auth.signInWithPassword({email:$('auth-email').value.trim(),password:$('auth-password').value});if(error)$('auth-status').textContent=error.message;});
+  $('sign-up').addEventListener('click',async()=>{const username=$('auth-username').value.trim(),email=$('auth-email').value.trim(),password=$('auth-password').value;if(!/^[A-Za-z0-9_]{3,24}$/.test(username)){ $('auth-status').textContent='Username must be 3–24 letters, numbers or underscores.';return;}if(password.length<8){$('auth-status').textContent='Use a password with at least 8 characters.';return;}const {data,error}=await sb.auth.signUp({email,password,options:{data:{username}}});if(error){$('auth-status').textContent=error.message;return;}if(!data.session)$('auth-status').textContent='Check your email to confirm the account, then sign in. Your username is reserved when confirmation succeeds.';else $('auth-status').textContent='Account created.';});
+  $('sign-out').addEventListener('click',async()=>{if(chatChannel)await sb.removeChannel(chatChannel);if(dmChannel)await sb.removeChannel(dmChannel);if(forumChannel)await sb.removeChannel(forumChannel);await sb.auth.signOut();});
+  $('topic-form').addEventListener('submit',async e=>{e.preventDefault();if(!currentSession||!currentProfile)return;const status=$('topic-compose-status'),button=$('topic-submit');button.disabled=true;const {data,error}=await sb.from('mtg_forum_topics').insert({user_id:currentSession.user.id,title:$('topic-title').value.trim(),category:$('topic-category').value,body:$('topic-body').value.trim()}).select('id').single();button.disabled=false;if(error){status.textContent=error.message;status.style.color='var(--red)';return;}$('topic-title').value='';$('topic-body').value='';status.textContent='Topic posted.';status.style.color='var(--green)';await loadTopics();if(data)openTopic(data.id);});
+  $('forum-filter').addEventListener('change',loadTopics);
+  $('dm-start').addEventListener('submit',async e=>{e.preventDefault();if(!currentSession||!currentProfile)return;const text=$('dm-start-status');const {data,error}=await sb.rpc('mtg_start_dm',{p_username:$('dm-username').value.trim()});if(error){text.textContent=error.message;return;}text.textContent='Private conversation ready.';await loadDmList();const {data:prof}=await sb.from('mtg_profiles').select('username').ilike('username',$('dm-username').value.trim()).maybeSingle();openDm(data,prof?prof.username:$('dm-username').value.trim());});
+  $('dm-form').addEventListener('submit',async e=>{e.preventDefault();if(!currentSession||!currentProfile||!activeDmId)return;const body=$('dm-input').value.trim();if(!body)return;const {error}=await sb.from('mtg_dm_messages').insert({conversation_id:activeDmId,sender_id:currentSession.user.id,body});if(error){$('dm-title').textContent='Message not sent: '+error.message;}else{$('dm-input').value='';await loadDmList();}});
+ }catch(error){
+  $('chat-status').textContent='Backend unavailable';$('forum-status').textContent='Backend unavailable';
+  $('chat-messages').innerHTML='<div class="empty">The community client could not connect. Try refreshing; the public catalogue remains separate.</div>';
+  $('auth-status').textContent='Community connection error: '+(error.message||error);
+  $('forum-topics').innerHTML='<div class="empty">The forum is temporarily unreachable.</div>';
+ }
+}
+init();
 </script></body></html>
