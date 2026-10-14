@@ -103,7 +103,13 @@ http.createServer(async (req,res)=>{
     return send(res,200,JSON.stringify({ok:true,service:'dreamledger-storefront'}),'application/json; charset=utf-8');
   }
   if(req.method==='GET'&&p==='/version'){
-    return send(res,200,JSON.stringify({service:'dreamledger-storefront',status:'ok'}),'application/json; charset=utf-8');
+    return send(res,200,JSON.stringify({
+      service:'dreamledger-storefront',
+      status:'ok',
+      commit:COMMIT,
+      environment:process.env.NODE_ENV||'production',
+      verified_contract:'production-version-v2'
+    }),'application/json; charset=utf-8');
   }
   if(req.method==='GET' && (p==='/api/offers' || p==='/api/products')){
     try{
