@@ -375,6 +375,28 @@ def run_777():
     return {"returncode":p.returncode,"stdout":p.stdout[-4000:],"stderr":p.stderr[-2000:]}
 
 def cycle():
+    # Preserve the first-dollar diagnostic as default; build mode is explicit and issue-scoped.
+    if os.environ.get("DREAMLEDGER_NORTH_STAR_MODE","").strip().lower() == "build_worker":
+        try:
+            from pathlib import Path
+            from north_star_build_worker import run_cycle as run_build_worker_cycle
+            build_result = run_build_worker_cycle(Path(ROOT))
+            if build_result.get("status") == "BUILD_READY":
+                return {"status":"CYCLE_COMPLETE","mode":"NORTH_STAR_BUILD_WORKER","build_worker_result":build_result,
+                        "priority_task_id":"BUILD-ISSUE-712-MTG-STORE-AUDIT","external_action_performed":False,
+                        "economic_truth":{"verified_external_revenue_nzd":0,"settled_external_payments":0,"independent_external_buyers":0}}
+            if build_result.get("status") == "DRY_RUN_READY":
+                return {"status":"CYCLE_COMPLETE","mode":"NORTH_STAR_BUILD_WORKER","build_worker_result":build_result,
+                        "priority_task_id":"BUILD-ISSUE-712-MTG-STORE-AUDIT","external_action_performed":False,
+                        "economic_truth":{"verified_external_revenue_nzd":0,"settled_external_payments":0,"independent_external_buyers":0}}
+            return {"status":"BLOCKED","reason":build_result.get("reason",build_result.get("status","BUILD_WORKER_HOLD")),
+                    "mode":"NORTH_STAR_BUILD_WORKER","build_worker_result":build_result,
+                    "priority_task_id":"BUILD-ISSUE-712-MTG-STORE-AUDIT","external_action_performed":False,
+                    "economic_truth":{"verified_external_revenue_nzd":0,"settled_external_payments":0,"independent_external_buyers":0}}
+        except Exception as ex:
+            return {"status":"BLOCKED","reason":"BUILD_WORKER_DISPATCH_FAILED","mode":"NORTH_STAR_BUILD_WORKER",
+                    "error":type(ex).__name__+": "+str(ex)[:400],"external_action_performed":False,
+                    "economic_truth":{"verified_external_revenue_nzd":0,"settled_external_payments":0,"independent_external_buyers":0}}
     try:
         available=get(BASE+"/v1/models").get("data",[])
         ids=[str(x.get("id")) for x in available]
