@@ -169,11 +169,12 @@
     "tracked_campaign_rule": "Use placement-specific QR variants only for approved campaign placements. Never replace the canonical buyer insert with an unapproved third-party destination.",
     "privacy_rule": "QRs contain no buyer email, address, payment ID or other personal data.",
     "truth_rule": "A scan, click or referral is not a buyer, payment, revenue, fulfilment or delivery proof.",
-    "current_coverage_status": "PARTIAL_IMPLEMENTATION",
+    "current_coverage_status": "CENTRAL_FULFILLMENT_QR_METADATA_AND_OUTBOX_WIRED_PARTIAL_RENDER_AND_PHYSICAL_CONFIRMATION",
     "missing_gates": [
-      "Integrate QR metadata into every product-specific fulfillment output",
-      "Verify that physical-order packlists include the insert",
-      "Verify deployed assets and end-to-end delivery"
+      "Render the QR image in every product-specific digital delivery surface, not merely metadata",
+      "Confirm physical order packing includes the generated insert",
+      "Persist evidence that the QR insert was included in the delivered package",
+      "Verify the live deployed assets and delivery pages"
     ]
   }
 }
