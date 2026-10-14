@@ -1,7 +1,7 @@
 'use strict';
-const assert = require('node:assert/strict');
-const fs = require('node:fs');
-const path = require('node:path');
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
 
 const root = process.cwd();
 const modulePath = path.join(root, 'BEC-PRIME/lib/mtgStoreAudit.js');
@@ -17,6 +17,8 @@ assert.equal(bundle, source, 'browser bundle must be byte-identical to tested mo
 assert.match(page, /<meta\s+name=["']robots["']\s+content=["']noindex,nofollow["']/i, 'offer remains noindex pending review');
 assert.match(page, /mtgStoreAudit\.js/, 'page must load its local module');
 assert.doesNotMatch(page, /buy\.stripe\.com|checkout\.session|sk_live_|whsec_/, 'no checkout URL or credential-like string');
+import { createRequire } from 'node:module';
+const require = createRequire(import.meta.url);
 const api = require(modulePath);
 assert.equal(typeof api.auditStore, 'function', 'auditStore export required');
 assert.equal(typeof api.safeUrl, 'function', 'safeUrl export required');
