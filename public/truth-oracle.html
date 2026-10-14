@@ -37,22 +37,24 @@
 <div class="tool" id="grocery">
 <div class="toolhead"><div><div class="eyebrow">01 / Groceries</div><h3>Unit-price and basket comparator</h3><p>Enter the same basket quantity at each store. For different pack sizes, use the store's unit price to calculate the equivalent quantity first. Add any number of items; the total and cheapest comparable store update automatically.</p></div><a class="btn" href="https://grocer.nz/" target="_blank" rel="noopener noreferrer">Live prices at Grocer.nz ↗</a></div>
 <div class="fields">
-<div class="field"><label for="store-a">Store A</label><input id="store-a" value="Pak'nSave" maxlength="60"></div><div class="field"><label for="store-b">Store B</label><input id="store-b" value="Woolworths" maxlength="60"></div><div class="field"><label for="store-c">Store C</label><input id="store-c" value="New World" maxlength="60"></div>
+<div class="field"><label for="store-a">Store A</label><input id="store-a" value="Store A" maxlength="60"></div><div class="field"><label for="store-b">Store B</label><input id="store-b" value="Store B" maxlength="60"></div><div class="field"><label for="store-c">Store C</label><input id="store-c" value="Store C" maxlength="60"></div><div class="field"><label for="store-d">Store D</label><input id="store-d" value="Store D" maxlength="60"></div><div class="field"><label for="store-e">Store E</label><input id="store-e" value="Store E" maxlength="60"></div><div class="field"><label for="store-f">Store F</label><input id="store-f" value="Store F" maxlength="60"></div>
 </div>
-<div class="tablewrap"><table class="price-table"><thead><tr><th>Item</th><th>Comparable quantity</th><th>Unit</th><th>Price A (NZ$)</th><th>Price B (NZ$)</th><th>Price C (NZ$)</th><th>Evidence/source URL</th><th></th></tr></thead><tbody id="grocery-rows"></tbody></table></div>
+<div class="tablewrap"><table class="price-table"><thead><tr><th>Item</th><th>Comparable quantity</th><th>Unit</th><th>Price A (NZ$)</th><th>Price B (NZ$)</th><th>Price C (NZ$)</th><th>Price D (NZ$)</th><th>Price E (NZ$)</th><th>Price F (NZ$)</th><th>Evidence/source URL</th><th></th></tr></thead><tbody id="grocery-rows"></tbody></table></div>
 <div class="formrow" style="margin-top:12px"><button class="btn" id="add-item" type="button">+ Add item</button><button class="btn primary" id="export-basket" type="button">Download basket CSV</button></div>
 <div class="result" id="grocery-result" aria-live="polite">Add observed prices to compare your basket. Empty prices are excluded.</div>
-<p class="tiny">Useful free upgrade over a basic single-price lookup: compare an unrestricted personal basket across three named stores, capture source links, calculate unit values and export your own record. This worksheet does not supply a live national grocery feed; check observed prices before acting.</p>
+<p class="tiny">Free tier: compare six named stores and as many basket items as you need, attach source URLs, calculate unit values, save personal price history in this browser, and export a CSV. No account or subscription required. This worksheet does not supply a live national grocery feed; check observed prices before acting.</p>
+<div class="formrow" style="margin-top:12px"><button class="btn" id="save-basket" type="button">Save this basket locally</button><button class="btn" id="export-history" type="button">Export local price history</button></div>
+<div id="basket-history" class="tiny" aria-live="polite" style="margin-top:9px">Local history has not been saved yet.</div>
 </div>
 
 <div class="tool" id="fuel">
 <div class="toolhead"><div><div class="eyebrow">02 / Fuel</div><h3>Does the cheaper station really save?</h3><p>Use the current pump prices from your fuel app, then account for how far you need to detour.</p></div><a class="btn" href="https://www.gaspy.nz/" target="_blank" rel="noopener noreferrer">Check Gaspy prices ↗</a></div>
 <div class="fields">
-<div class="field"><label for="fuel-cheap">Cheaper station price ($/L)</label><input id="fuel-cheap" type="number" min="0" max="10" step=".001" value="2.65"></div>
-<div class="field"><label for="fuel-local">Nearby station price ($/L)</label><input id="fuel-local" type="number" min="0" max="10" step=".001" value="2.72"></div>
-<div class="field"><label for="fuel-litres">Litres you plan to buy</label><input id="fuel-litres" type="number" min="0" max="250" step=".1" value="40"></div>
-<div class="field"><label for="fuel-detour">Extra round-trip distance (km)</label><input id="fuel-detour" type="number" min="0" max="1000" step=".1" value="8"></div>
-<div class="field"><label for="fuel-economy">Vehicle fuel use (L/100 km)</label><input id="fuel-economy" type="number" min="0" max="50" step=".1" value="8"></div>
+<div class="field"><label for="fuel-cheap">Cheaper station price ($/L)</label><input id="fuel-cheap" type="number" min="0" max="10" step=".001" value="" placeholder="enter your details"></div>
+<div class="field"><label for="fuel-local">Nearby station price ($/L)</label><input id="fuel-local" type="number" min="0" max="10" step=".001" value="" placeholder="enter your details"></div>
+<div class="field"><label for="fuel-litres">Litres you plan to buy</label><input id="fuel-litres" type="number" min="0" max="250" step=".1" value="" placeholder="enter your details"></div>
+<div class="field"><label for="fuel-detour">Extra round-trip distance (km)</label><input id="fuel-detour" type="number" min="0" max="1000" step=".1" value="" placeholder="enter your details"></div>
+<div class="field"><label for="fuel-economy">Vehicle fuel use (L/100 km)</label><input id="fuel-economy" type="number" min="0" max="50" step=".1" value="" placeholder="enter your details"></div>
 </div><div class="result" id="fuel-result" aria-live="polite"></div>
 <p class="tiny">Estimate only. Use pump prices, not stale sign prices, and include the entire extra drive. Does not include the value of your time or traffic.</p>
 </div>
@@ -60,13 +62,13 @@
 <div class="tool" id="power">
 <div class="toolhead"><div><div class="eyebrow">03 / Electricity</div><h3>Compare the whole power year</h3><p>Use your actual bill and offer details. This estimate compares a single-rate usage model with fixed charges and credits; it is not a substitute for a personalised power quotation.</p></div><div class="sources"><a class="source-link" href="https://billy.govt.nz/" target="_blank" rel="noopener noreferrer">Billy · public power comparator ↗</a><a class="source-link" href="https://www.powerswitch.org.nz/" target="_blank" rel="noopener noreferrer">Powerswitch ↗</a></div></div>
 <div class="fields">
-<div class="field"><label for="power-kwh">Average usage per month (kWh)</label><input id="power-kwh" type="number" min="0" max="10000" step="1" value="600"></div>
-<div class="field"><label for="power-a-daily">Plan A daily charge ($/day)</label><input id="power-a-daily" type="number" min="0" max="50" step=".001" value="1.80"></div>
-<div class="field"><label for="power-a-rate">Plan A energy rate (c/kWh)</label><input id="power-a-rate" type="number" min="0" max="300" step=".01" value="30"></div>
-<div class="field"><label for="power-a-credit">Plan A annual credits/fees ($)</label><input id="power-a-credit" type="number" min="-2000" max="10000" step=".01" value="0"></div>
-<div class="field"><label for="power-b-daily">Plan B daily charge ($/day)</label><input id="power-b-daily" type="number" min="0" max="50" step=".001" value="1.45"></div>
-<div class="field"><label for="power-b-rate">Plan B energy rate (c/kWh)</label><input id="power-b-rate" type="number" min="0" max="300" step=".01" value="32"></div>
-<div class="field"><label for="power-b-credit">Plan B annual credits/fees ($)</label><input id="power-b-credit" type="number" min="-2000" max="10000" step=".01" value="100"></div>
+<div class="field"><label for="power-kwh">Average usage per month (kWh)</label><input id="power-kwh" type="number" min="0" max="10000" step="1" value="" placeholder="enter your details"></div>
+<div class="field"><label for="power-a-daily">Plan A daily charge ($/day)</label><input id="power-a-daily" type="number" min="0" max="50" step=".001" value="" placeholder="enter your details"></div>
+<div class="field"><label for="power-a-rate">Plan A energy rate (c/kWh)</label><input id="power-a-rate" type="number" min="0" max="300" step=".01" value="" placeholder="enter your details"></div>
+<div class="field"><label for="power-a-credit">Plan A annual credits/fees ($)</label><input id="power-a-credit" type="number" min="-2000" max="10000" step=".01" value="" placeholder="enter your details"></div>
+<div class="field"><label for="power-b-daily">Plan B daily charge ($/day)</label><input id="power-b-daily" type="number" min="0" max="50" step=".001" value="" placeholder="enter your details"></div>
+<div class="field"><label for="power-b-rate">Plan B energy rate (c/kWh)</label><input id="power-b-rate" type="number" min="0" max="300" step=".01" value="" placeholder="enter your details"></div>
+<div class="field"><label for="power-b-credit">Plan B annual credits/fees ($)</label><input id="power-b-credit" type="number" min="-2000" max="10000" step=".01" value="" placeholder="enter your details"></div>
 </div><div class="result" id="power-result" aria-live="polite"></div>
 <p class="tiny">Positive annual credits reduce cost; negative values add cost. Include credits only if you qualify, and check contract exit fees, time-of-use requirements, bundled services and any rate changes.</p>
 </div>
@@ -75,11 +77,11 @@
 <div class="toolhead"><div><div class="eyebrow">04 / Mobile, broadband, gas & other bills</div><h3>12-month all-in cost checker</h3><p>Compare the current bill with an alternative after temporary deals, monthly discounts, setup costs and credits expire. Use actual contract details, not just a headline monthly price.</p></div><div class="sources"><a class="source-link" href="https://www.moneyhub.co.nz/compare-mobile-plans.html" target="_blank" rel="noopener noreferrer">Mobile plan comparison ↗</a><a class="source-link" href="https://www.broadbandcompare.co.nz/" target="_blank" rel="noopener noreferrer">Broadband Compare ↗</a></div></div>
 <div class="fields">
 <div class="field"><label for="bill-a-name">Current plan / bill</label><input id="bill-a-name" maxlength="80" value="Current plan"></div><div class="field"><label for="bill-b-name">Alternative plan / bill</label><input id="bill-b-name" maxlength="80" value="Alternative plan"></div>
-<div class="field"><label for="bill-a-month">A: usual monthly charge ($)</label><input id="bill-a-month" type="number" min="0" max="50000" step=".01" value="80"></div><div class="field"><label for="bill-b-month">B: usual monthly charge ($)</label><input id="bill-b-month" type="number" min="0" max="50000" step=".01" value="65"></div>
-<div class="field"><label for="bill-a-discount">A: monthly promo discount ($)</label><input id="bill-a-discount" type="number" min="0" max="50000" step=".01" value="0"></div><div class="field"><label for="bill-b-discount">B: monthly promo discount ($)</label><input id="bill-b-discount" type="number" min="0" max="50000" step=".01" value="10"></div>
-<div class="field"><label for="bill-a-months">A: discount months (0–12)</label><input id="bill-a-months" type="number" min="0" max="12" step="1" value="0"></div><div class="field"><label for="bill-b-months">B: discount months (0–12)</label><input id="bill-b-months" type="number" min="0" max="12" step="1" value="12"></div>
-<div class="field"><label for="bill-a-fees">A: total setup/exit fees ($)</label><input id="bill-a-fees" type="number" min="0" max="100000" step=".01" value="0"></div><div class="field"><label for="bill-b-fees">B: total setup/exit fees ($)</label><input id="bill-b-fees" type="number" min="0" max="100000" step=".01" value="0"></div>
-<div class="field"><label for="bill-a-credit">A: guaranteed credits ($ total)</label><input id="bill-a-credit" type="number" min="0" max="100000" step=".01" value="0"></div><div class="field"><label for="bill-b-credit">B: guaranteed credits ($ total)</label><input id="bill-b-credit" type="number" min="0" max="100000" step=".01" value="0"></div>
+<div class="field"><label for="bill-a-month">A: usual monthly charge ($)</label><input id="bill-a-month" type="number" min="0" max="50000" step=".01" value="" placeholder="enter your details"></div><div class="field"><label for="bill-b-month">B: usual monthly charge ($)</label><input id="bill-b-month" type="number" min="0" max="50000" step=".01" value="" placeholder="enter your details"></div>
+<div class="field"><label for="bill-a-discount">A: monthly promo discount ($)</label><input id="bill-a-discount" type="number" min="0" max="50000" step=".01" value="" placeholder="enter your details"></div><div class="field"><label for="bill-b-discount">B: monthly promo discount ($)</label><input id="bill-b-discount" type="number" min="0" max="50000" step=".01" value="" placeholder="enter your details"></div>
+<div class="field"><label for="bill-a-months">A: discount months (0–12)</label><input id="bill-a-months" type="number" min="0" max="12" step="1" value="" placeholder="enter your details"></div><div class="field"><label for="bill-b-months">B: discount months (0–12)</label><input id="bill-b-months" type="number" min="0" max="12" step="1" value="" placeholder="enter your details"></div>
+<div class="field"><label for="bill-a-fees">A: total setup/exit fees ($)</label><input id="bill-a-fees" type="number" min="0" max="100000" step=".01" value="" placeholder="enter your details"></div><div class="field"><label for="bill-b-fees">B: total setup/exit fees ($)</label><input id="bill-b-fees" type="number" min="0" max="100000" step=".01" value="" placeholder="enter your details"></div>
+<div class="field"><label for="bill-a-credit">A: guaranteed credits ($ total)</label><input id="bill-a-credit" type="number" min="0" max="100000" step=".01" value="" placeholder="enter your details"></div><div class="field"><label for="bill-b-credit">B: guaranteed credits ($ total)</label><input id="bill-b-credit" type="number" min="0" max="100000" step=".01" value="" placeholder="enter your details"></div>
 </div><div class="result" id="bill-result" aria-live="polite"></div>
 <p class="tiny">Use for mobile, internet, bottled/natural gas or other recurring services. Include only credits you can actually claim. An advertised discount is not a saving if other costs rise.</p>
 </div>
@@ -145,6 +147,9 @@ function addGroceryRow(name,quantity,unit){
  '<td><input data-key="a" type="number" min="0" max="100000" step=".01" aria-label="Price at store A" placeholder="price"></td>'+
  '<td><input data-key="b" type="number" min="0" max="100000" step=".01" aria-label="Price at store B" placeholder="price"></td>'+
  '<td><input data-key="c" type="number" min="0" max="100000" step=".01" aria-label="Price at store C" placeholder="price"></td>'+
+ '<td><input data-key="d" type="number" min="0" max="100000" step=".01" aria-label="Price at store D" placeholder="price"></td>'+
+ '<td><input data-key="e" type="number" min="0" max="100000" step=".01" aria-label="Price at store E" placeholder="price"></td>'+
+ '<td><input data-key="f" type="number" min="0" max="100000" step=".01" aria-label="Price at store F" placeholder="price"></td>'+
  '<td><input data-key="source" type="url" aria-label="Price evidence URL" placeholder="https://…"></td>'+
  '<td><button class="btn" type="button" data-remove="'+id+'" aria-label="Remove item">×</button></td>';
  tr.querySelector('[data-key="unit"]').value=unit||'item';
@@ -153,44 +158,74 @@ function addGroceryRow(name,quantity,unit){
  tbody.append(tr);updateGrocery();
 }
 function updateGrocery(){
- const rows=[...$('grocery-rows').querySelectorAll('tr')],stores=['a','b','c'];
- const names=stores.map(k=>$(k==='a'?'store-a':k==='b'?'store-b':'store-c').value.trim()||('Store '+k.toUpperCase()));
- const totals=[0,0,0],counts=[0,0,0],details=[];
+ const rows=[...$('grocery-rows').querySelectorAll('tr')],stores=['a','b','c','d','e','f'];
+ const names=stores.map(k=>$('store-'+k).value.trim()||('Store '+k.toUpperCase()));
+ const details=[];
  for(const row of rows){
   const get=k=>row.querySelector('[data-key="'+k+'"]');
   const name=get('name').value.trim()||'Unnamed item',qty=Number(get('qty').value),unit=get('unit').value;
   const unitLabel=unit==='100g'?'per 100 g':unit==='kg'?'per kg':unit==='L'?'per litre':'per item';
   const prices=stores.map(k=>get(k).value===''?null:Number(get(k).value));
-  const valid=prices.map((p,i)=>p!==null&&Number.isFinite(p)&&p>=0&&qty>0);
-  prices.forEach((p,i)=>{if(valid[i]){totals[i]+=p;counts[i]++;}});
+  const valid=prices.map(p=>p!==null&&Number.isFinite(p)&&p>=0&&qty>0);
   const unitPrices=prices.map((p,i)=>valid[i]?p/qty:null);
   const available=unitPrices.map((p,i)=>({p,i})).filter(x=>x.p!==null).sort((x,y)=>x.p-y.p);
   const winner=available.length?names[available[0].i]:'No price entered';
   const proof=get('source').value.trim();
   details.push({name,qty,unit,prices,unitPrices,winner,proof,unitLabel});
  }
- let out=names.map((name,i)=>name+': '+(counts[i]?money(totals[i])+' for '+counts[i]+' priced item(s)':'no prices entered')).join('\n');
- const lowest=totals.map((v,i)=>({v,i})).filter(x=>counts[x.i]&&counts[x.i]===details.filter(d=>d.prices[x.i]!==null).length).sort((a,b)=>a.v-b.v);
- if(lowest.length)out+='\nLowest entered basket total: '+names[lowest[0].i]+' at '+money(lowest[0].v)+'. Only compare totals where the same quantities were entered at every store.';
- out+='\n\nCheapest observed unit price by item:\n'+details.map(d=>d.name+': '+d.winner+(d.unitPrices.some(v=>v!==null)?' ('+d.unitLabel+')':'')).join('\n');
- setResult('grocery-result',out);
+ const completeRows=details.filter(d=>d.prices.every(v=>v!==null));
+ const out=[];
+ if(completeRows.length){
+  const totals=stores.map((k,i)=>completeRows.reduce((sum,d)=>sum+d.prices[i],0));
+  const ranked=totals.map((v,i)=>({v,i})).sort((a,b)=>a.v-b.v);
+  out.push('Comparable basket ('+completeRows.length+' item(s) priced at all six stores):');
+  totals.forEach((total,i)=>out.push(names[i]+': '+money(total)));
+  out.push('Lowest comparable basket: '+names[ranked[0].i]+' at '+money(ranked[0].v)+'.');
+ } else out.push('To compare basket totals fairly, enter the same quantity at all six stores for at least one item. Incomplete rows are not counted in the total.');
+ out.push('','Cheapest observed unit price by item:',...details.map(d=>d.name+': '+d.winner+(d.unitPrices.some(v=>v!==null)?' ('+d.unitLabel+')':'')));
+ setResult('grocery-result',out.join('\n'));
 }
 $('add-item').addEventListener('click',()=>addGroceryRow('New item',1,'item'));
 $('export-basket').addEventListener('click',()=>{
- const stores=[$('store-a').value,$('store-b').value,$('store-c').value];
+ const stores=['a','b','c','d','e','f'];
  const escapeCsv=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
- const data=[['Item','Reference quantity','Unit',stores[0]+' price NZD',stores[1]+' price NZD',stores[2]+' price NZD','Evidence URL','Date exported']];
+ const data=[['Item','Reference quantity','Unit',...stores.map(k=>$('store-'+k).value+' price NZD'),'Evidence URL','Date exported']];
  for(const tr of $('grocery-rows').querySelectorAll('tr')){
   const v=k=>tr.querySelector('[data-key="'+k+'"]').value;
-  data.push([v('name'),v('qty'),v('unit'),v('a'),v('b'),v('c'),v('source'),new Date().toISOString()]);
+  data.push([v('name'),v('qty'),v('unit'),...stores.map(k=>v(k)),v('source'),new Date().toISOString()]);
  }
  const blob=new Blob([data.map(r=>r.map(escapeCsv).join(',')).join('\r\n')],{type:'text/csv;charset=utf-8'});
  const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='truth-oracle-grocery-comparison.csv';a.click();URL.revokeObjectURL(url);
 });
-['store-a','store-b','store-c'].forEach(id=>$(id).addEventListener('input',updateGrocery));
+['store-a','store-b','store-c','store-d','store-e','store-f'].forEach(id=>$(id).addEventListener('input',updateGrocery));
 [['Bread / loaf',1,'item'],['Milk',2,'L'],['Rice / pasta',1,'kg'],['Eggs / dozen',12,'item']].forEach(r=>addGroceryRow(r[0],r[1],r[2]));
 
+$('save-basket').addEventListener('click',()=>{
+ const stores=['a','b','c','d','e','f'].map(k=>({id:k,name:$('store-'+k).value.trim()}));
+ const items=[...$('grocery-rows').querySelectorAll('tr')].map(tr=>{
+  const v=k=>tr.querySelector('[data-key="'+k+'"]').value;
+  return {item:v('name'),quantity:v('qty'),unit:v('unit'),prices:stores.map(store=>({store:store.name,price:v(store.id)})),source:v('source')};
+ }).filter(item=>item.item&&item.prices.some(p=>p.price!==''));
+ const record={saved_at:new Date().toISOString(),stores:stores.map(x=>x.name),items};
+ if(!items.length){$('basket-history').textContent='Enter at least one price before saving.';return;}
+ let history=[];try{history=JSON.parse(localStorage.getItem('truth-oracle-basket-history')||'[]');if(!Array.isArray(history))history=[];}catch(_){history=[];}
+ history.unshift(record);history=history.slice(0,100);
+ try{localStorage.setItem('truth-oracle-basket-history',JSON.stringify(history));$('basket-history').textContent='Saved locally: '+items.length+' item(s), '+new Date(record.saved_at).toLocaleString()+'. '+history.length+' record(s) in this browser.';}
+ catch(_){$('basket-history').textContent='Browser storage is full or blocked. Use Download basket CSV instead.';}
+});
+$('export-history').addEventListener('click',()=>{
+ let history=[];try{history=JSON.parse(localStorage.getItem('truth-oracle-basket-history')||'[]');}catch(_){}
+ if(!history.length){$('basket-history').textContent='No local history to export yet.';return;}
+ const quote=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
+ const rows=[['Saved at','Item','Quantity','Unit','Store','Price NZD','Source URL']];
+ for(const rec of history)for(const item of rec.items)for(const price of item.prices)rows.push([rec.saved_at,item.item,item.quantity,item.unit,price.store,price.price,item.source]);
+ const blob=new Blob([rows.map(r=>r.map(quote).join(',')).join('\r\n')],{type:'text/csv;charset=utf-8'});
+ const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='truth-oracle-local-price-history.csv';a.click();URL.revokeObjectURL(url);
+});
+(function restoreHistoryLabel(){try{const h=JSON.parse(localStorage.getItem('truth-oracle-basket-history')||'[]');if(Array.isArray(h)&&h.length)$('basket-history').textContent=h.length+' locally saved basket record(s) in this browser. Data is not uploaded.';}catch(_){}})();
 function updateFuel(){
+ const ids=['fuel-cheap','fuel-local','fuel-litres','fuel-detour','fuel-economy'];
+ if(ids.some(id=>$(id).value==='')){setResult('fuel-result','Enter observed pump prices, litres, detour distance and vehicle fuel use. No current prices are pre-filled.');return;}
  const cheap=num('fuel-cheap'),local=num('fuel-local'),litres=num('fuel-litres'),detour=num('fuel-detour'),economy=num('fuel-economy');
  const gross=(local-cheap)*litres,extraLitres=detour*economy/100,detourCost=extraLitres*cheap,net=gross-detourCost;
  setResult('fuel-result','Gross saving on '+litres.toFixed(1)+' L: '+money(gross)+'\nEstimated extra fuel for detour: '+extraLitres.toFixed(2)+' L ('+money(detourCost)+')\nNet estimate after detour: '+money(net)+'\n'+(net>0?'The cheaper station wins on these inputs.':net<0?'The detour costs more than the price saving.':'No net saving on these inputs.'),net<0);
@@ -198,6 +233,8 @@ function updateFuel(){
 ['fuel-cheap','fuel-local','fuel-litres','fuel-detour','fuel-economy'].forEach(id=>$(id).addEventListener('input',updateFuel));updateFuel();
 
 function updatePower(){
+ const ids=['power-kwh','power-a-daily','power-a-rate','power-a-credit','power-b-daily','power-b-rate','power-b-credit'];
+ if(ids.some(id=>$(id).value==='')){setResult('power-result','Enter usage from your bill and each plan rate, daily charge and annual credit/fee. Blank fields are not assumed to be zero.');return;}
  const kwh=num('power-kwh'),a=365*num('power-a-daily')+12*kwh*num('power-a-rate')/100-num('power-a-credit'),b=365*num('power-b-daily')+12*kwh*num('power-b-rate')/100-num('power-b-credit'),delta=a-b;
  setResult('power-result','Plan A estimated annual cost: '+money(a)+'\nPlan B estimated annual cost: '+money(b)+'\nEstimated difference: '+money(Math.abs(delta))+' '+(delta>0?'less on Plan B':delta<0?'less on Plan A':'(tie)')+'.\nModel: 365 × daily charge + 12 × monthly kWh × usage rate − annual credits.',a<0||b<0);
 }
@@ -208,6 +245,8 @@ function planCost(prefix){
  return 12*monthly-discount+num('bill-'+prefix+'-fees')-num('bill-'+prefix+'-credit');
 }
 function updateBill(){
+ const ids=['bill-a-month','bill-b-month','bill-a-discount','bill-b-discount','bill-a-months','bill-b-months','bill-a-fees','bill-b-fees','bill-a-credit','bill-b-credit'];
+ if(ids.some(id=>$(id).value==='')){setResult('bill-result','Enter the actual monthly charges, promo terms, fees and credits for both plans. Use 0 explicitly where a cost or credit does not apply.');return;}
  const a=planCost('a'),b=planCost('b'),names=[$('bill-a-name').value.trim()||'Current plan',$('bill-b-name').value.trim()||'Alternative plan'],delta=a-b;
  setResult('bill-result',names[0]+': '+money(a)+' over 12 months\n'+names[1]+': '+money(b)+' over 12 months\nEstimated difference: '+money(Math.abs(delta))+' '+(delta>0?('less with '+names[1]):delta<0?('less with '+names[0]):'(tie)')+'.\nFormula: 12 × standard monthly charge − promo discounts that apply during the year + one-off fees − guaranteed credits.',a<0||b<0);
 }
