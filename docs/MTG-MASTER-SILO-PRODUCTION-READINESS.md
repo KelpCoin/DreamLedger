@@ -1,6 +1,6 @@
 # DreamLedger MTG Master Silo: Production Readiness
 
-**Status:** implementation contract and readiness plan; not a production certification.  
+**Status:** implementation contract and readiness plan; PR changes pushed, not yet merged/deployed, and not a production certification.  
 **Reviewed:** 2026-10-14  
 **Canonical surface:** `/mtg/`  
 **Master manifest:** `public/silos/mtg/silo.json`  
@@ -97,6 +97,27 @@ A green schema check is not a production-readiness certification. Production rea
 - A clone is deployable in isolation and quarantines on a failed gate.
 - CUBE/Gauntlet produces a durable report with commit, artifact hashes, test results and explicit blockers.
 - Human gate remains required for deployment, public promotion and any irreversible or money-moving action.
+
+## Canonical QR and low-input distribution
+
+The canonical doorway is `https://dreamledger.org/go?src=qr-canonical`. The master QR is generated from source rather than designed as a placeholder, and its SVG/PNG hashes are emitted by `BEC-PRIME/distribution/QRAssetCompiler.js`. A reusable helper and printable insert exist at `BEC-PRIME/lib/canonicalQrFulfillment.js` and `public/qr/fulfillment-insert.html`.
+
+Current wiring includes QR metadata in the paid Commander diagnostic report, a QR panel in the diagnostic delivery page, and QR metadata in Billboard's automatic fulfillment record. The generic printable insert is available for physical shipments. This is **partial coverage**, not proof every product currently includes the QR: all product-specific fulfillment handlers, packing steps, and live deployed pages still require end-to-end verification.
+
+`BEC-PRIME/distribution/QR-CampaignPlanner.js` generates a placement-specific tracked QR and campaign plan for the 20-entry distribution matrix. The campaign packet separates:
+- first-party web and fulfillment assets, which can be generated automatically;
+- partner, venue, creator, club, social, forum and newsletter placements, which remain prepare-only until the relevant owner permission and platform rules are verified;
+- paid placement, which remains disabled without explicit budget authorization.
+
+No outbound posts, DMs, emails, or paid placements were made by this PR. This is deliberate: a lawful campaign factory can automatically research/prepare and publish to clearly authorized first-party surfaces, but it must not treat the ability to generate artwork as permission to post to someone else's community. QR scans remain acquisition telemetry, not a sale or revenue event.
+
+## Cloud scheduling and local inference
+
+The new `supabase/migrations/20261014190000_schedule_commerce_supervisor.sql` schedules the existing authenticated `commerce-supervisor` using Supabase Cron and `pg_net`, with the service-role JWT loaded from Supabase Vault at runtime. This avoids relying solely on GitHub Actions' scheduler for the durable cloud heartbeat. It requires a one-time private Vault secret named `dreamledger_supervisor_service_role_key`; the migration has **not** been applied in this PR, and the Supabase SQL/log tools timed out during this session, so the live cron schedule is not yet proven active.
+
+Important research nuance: a GitHub Community report describes private-repository scheduled runs failing while `workflow_dispatch` succeeds, but GitHub's official plan/event docs do not establish a universal policy that schedules are disabled for all Free personal private repositories. The operational failure is credible; the plan-wide policy claim is not officially confirmed. Supabase Cron is the more durable authoritative scheduler here.
+
+DreamLedger should continue using the installed local LM Studio three-role stack by default. Existing `BEC-PRIME/refinement/MultiLMRefinementEngine.py` documents a local-first endpoint and sends nothing to cloud models unless an operator explicitly configures a non-local endpoint. Cloud scheduling and storage are separate from model inference. If the PC is off, local inference cannot run; the cloud supervisor can still reconcile payments, evidence, health and queue state, but should not pretend the local models are executing tasks in that period. No Ollama/Jan/AnythingLLM migration is needed just to achieve the current local-first inference path.
 
 ## Economic validation
 
