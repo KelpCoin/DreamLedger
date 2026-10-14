@@ -34,19 +34,27 @@ jobs:
           test -s public/sitemap.xml
           grep -q 'Supplier Quote Comparison Worksheet' public/home.html
           grep -q 'Truth Oracle evidence review' public/home.html
-          grep -q 'Commander Deck Diagnostic' public/home.html
+
           grep -q 'Agent Bridge · Preview (held)' public/home.html
           grep -q "p==='/api/offers' || p==='/api/products'" public/server.js
           grep -q "'/sitemap.xml':'sitemap.xml'" public/server.js
           grep -q "p.startsWith('/buy/')" public/server.js
           node - <<'NODE'
           const fs=require('fs');
+          const fs=require('fs');
           const c=JSON.parse(fs.readFileSync('public/catalog.json','utf8'));
           const b=c.products.find(x=>x.id==='DREAMLEDGER-BILLBOARD-FOUNDING-001');
-          if(!b || b.checkout_available!==false || b.checkout_url!==null || b.availability!=='review_required') process.exit(1);
+          if(!b || b.checkout_available!==false || b.checkout_url!==null || b.availability!=='review_required') throw new Error('Billboard catalog must fail closed');
           const page=fs.readFileSync('public/billboard.html','utf8');
-          if(page.includes('buy.stripe.com') || page.includes('/api/molt-beach-checkout')) process.exit(1);
-          console.log('PASS: unverified billboard checkout is held.');
+          if(page.includes('buy.stripe.com') || page.includes('/api/molt-beach-checkout') || !page.includes('Paid placement checkout is temporarily held')) throw new Error('Billboard surface and catalog disagree about held checkout');
+          const canonical='https://buy.stripe.com/eVqeVdc1T01n1DV3gwdwc30';
+          const old='https://buy.stripe.com/8x228r1nfg0l3M32csdwc2I';
+          const diagnostic=c.products.find(x=>x.id==='COMMANDER-DECK-DIAGNOSTIC-001' && x.sku==='CMD-DIAG-29');
+          if(!diagnostic || Number(diagnostic.price)!==29 || diagnostic.checkout_available!==true || diagnostic.checkout_url!==canonical) throw new Error('Commander diagnostic public catalog contract is not canonical');
+          if(c.products.some(x=>x && x.checkout_url===old)) throw new Error('Legacy Commander diagnostic link remains in public catalog');
+          const mtg=fs.readFileSync('public/mtg/index.html','utf8');
+          if(!mtg.includes('Commander diagnostic') || !mtg.includes(canonical) || mtg.includes(old)) throw new Error('Commander diagnostic CTA must be on the MTG surface with the canonical URL');
+          console.log('PASS: canonical storefront, MTG diagnostic link, and held billboard are verified.');
           NODE
           grep -q 'https://dreamledger.org/sitemap.xml' public/robots.txt
           grep -q 'https://dreamledger.org/' public/sitemap.xml
