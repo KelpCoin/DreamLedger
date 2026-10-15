@@ -2,7 +2,6 @@
   "schema": "BEC-PRIME/CUBE-CLONE-MANIFEST/v1",
   "status": "deprecated_alias",
   "canonical_manifest": "/silos/mtg/silo.json",
-  "canonical_registry": "/BEC-PRIME/catalog/silos/CUBE-SILO-REGISTRY.json",
   "master": {
     "id": "mtg",
     "manifest_path": "silos/mtg/silo.json",
@@ -20,5 +19,6 @@
     "human_publish_approval_required": true,
     "verified_settlement_required_for_revenue_claims": true
   },
-  "note": "This file is a pointer to the canonical CUBE manifest, not an independent clone schema. The Commander diagnostic is held and must not be exposed as a purchase CTA."
+  "note": "This file is a pointer to the canonical CUBE manifest, not an independent clone schema. The Commander diagnostic is held and must not be exposed as a purchase CTA.",
+  "canonical_registry_source": "BEC-PRIME/catalog/silos/CUBE-SILO-REGISTRY.json"
 }
