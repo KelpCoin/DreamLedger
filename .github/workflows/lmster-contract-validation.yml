@@ -1,0 +1,35 @@
+name: LMSTER Contract Validation
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'BEC-PRIME/contracts/lmster/**'
+      - 'BEC-PRIME/scripts/Verify-LMSTERContract.js'
+      - 'BEC-PRIME/scripts/Start-LMSTER-Headless.ps1'
+      - 'BEC-PRIME/scripts/Install-LMSTER-StartupTask.ps1'
+      - 'docs/LMSTER-HEADLESS-WORKER-CONTRACT.md'
+      - 'package.json'
+      - '.github/workflows/lmster-contract-validation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lmster-contract-validation
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Check verifier syntax
+        run: node --check BEC-PRIME/scripts/Verify-LMSTERContract.js
+      - name: Validate worker contract and safety invariants
+        run: npm run verify:lmster-contract
