@@ -1,0 +1,40 @@
+{
+  "audit_date": "2026-10-03",
+  "mode": "HANDS_OFF_ECONOMIC_CATALYST",
+  "blocked_at": "CI_OR_PRODUCTION_PROOF",
+  "because": "The measured settlement blocker was a missing Stripe API key prerequisite in the live webhook, causing recent POSTs to return 503. That prerequisite has now been removed only for signed checkout webhook ingestion; the production Edge Function was hotfixed from deployed version 24 to version 25. The remaining proof gap is a real signed checkout event plus CI proof for the repository head. Direct Postgres inspection remains UNOBSERVABLE.",
+  "required": "Observe a real signed Stripe checkout webhook after version 25 and prove the existing revenue_order -> revenue_entitlement -> fulfillment path. Separately obtain a completed relevant CI run for the repository head, then restore authorized Session Pooler database observability for the entitlement inspection.",
+  "fallback": "No scoreboard promotion. Repository and deployed-function source remain the only evidence available until a real external settlement is observed. Payment_intent reconciliation and marketplace transfer paths fail closed without STRIPE_API_KEY.",
+  "owner_action": "NONE_YET",
+  "human_minutes": 0,
+  "expected_economic_effect": "Removes a measured configuration failure that was preventing signed checkout settlement observation. This can shorten the path to a real buyer/payment but creates no revenue itself.",
+  "evidence": {
+    "live_webhook_version": 25,
+    "live_webhook_sha256": "46f30a7e7254e80fe24b28ab8bfb9b503125863fef8226c8d959854a3c590590",
+    "live_get": "healthy; configured=false because stripe_api_key=false; stripe_webhook_secret=true",
+    "live_code_guards": [
+      "checkout webhook no longer globally requires STRIPE_API_KEY",
+      "payment_intent.succeeded requires STRIPE_API_KEY",
+      "marketplace settlement requires STRIPE_API_KEY"
+    ],
+    "prior_503s": [
+      "2026-10-02T19:09:22.754000",
+      "2026-10-02T17:57:09.364000",
+      "2026-10-02T15:07:11.479000",
+      "2026-10-02T14:07:36.103000",
+      "2026-10-02T04:31:33.776000"
+    ],
+    "github_head": "aa2a98f7f8eaac41155c583628e112dc3084b1c9",
+    "pull_request": 439,
+    "ci_status": "NOT_PROVEN",
+    "database_observability": "UNOBSERVABLE: direct PostgreSQL connector path refused IPv6 endpoint"
+  },
+  "scoreboard": {
+    "VERIFIED_EXTERNAL_REVENUE_NZD": 0,
+    "SETTLED_EXTERNAL_PAYMENTS": 0,
+    "INDEPENDENT_EXTERNAL_BUYERS": 0,
+    "PAID_FULFILLED_ORDERS": 0,
+    "VERIFIED_ECONOMIC_OUTCOMES": 0
+  },
+  "next_blocker": "REAL_SETTLEMENT_EVENT_AND_CI_PROOF"
+}
