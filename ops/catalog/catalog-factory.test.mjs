@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import crypto from 'node:crypto';
 import { candidateDigest, compileCatalogue, loadRegistry, verifyGauntlet } from './catalog-factory.mjs';
 import { productBlockers, runProvisioner } from './stripe-link-provisioner.mjs';
 
@@ -11,14 +12,16 @@ const SEED_CHECKS = [
   'rights_and_privacy','duplicate_sku','truth_boundary'
 ];
 const PRODUCT_CHECKS = ['demand_evidence','price_integrity','unit_economics','fulfillment_test','delivery_receipt'];
-const shaA = 'a'.repeat(64);
+const TEST_SOURCE_REL = 'ops/catalog/fixtures/test-source.json';
+const shaA = crypto.createHash('sha256').update(fs.readFileSync(TEST_SOURCE_REL)).digest('hex');
 const shaB = 'b'.repeat(64);
 
 function candidate(sku, silo, ready=true) {
   return {
     sku, silo, kind:'digital_product', name:'Test '+sku,
     description:'Bounded digital deliverable used by automated catalogue tests.',
-    source:{ref:'fixture://source/'+sku,sha256:shaA},
+    source:{ref:'fixture://source/'+sku,artifact_path:TEST_SOURCE_REL,sha256:shaA},
+    rights:{status:'CLEAR',basis:'FIRST_PARTY_RESEARCH',evidence_ref:TEST_SOURCE_REL},
     demand:{buyer_segment:'Test developers',status:'SUPPORTED',evidence_ref:'fixture://demand/'+sku},
     price:ready?{currency:'nzd',unit_amount_minor:2500,billing_mode:'one_time'}:null,
     unit_economics:ready?{status:'PASS',estimated_cost_minor:100}: {status:'UNVERIFIED'},
@@ -33,6 +36,7 @@ function record(sku,silo,ready=true,overrides={}) {
     candidate:c,
     gauntlet:{status:'PASS',run_id:'test-run-'+sku,completed_at:'2026-10-15T10:00:00.000Z',candidate_sha256:'',checks},
     elohim:{iteration:0,proposals:[]},
+    truth_contract:{business_truth:'NOT_CLAIMED',verified_revenue_nzd:0,checkout_available:false},
     commercial_review:ready?{status:'APPROVED',approved_by:'test-reviewer',approved_at:'2026-10-15T10:01:00.000Z'}:{status:'PENDING'},
     checkout:ready?{live_activation_approved:true,approved_by:'test-reviewer',approved_at:'2026-10-15T10:02:00.000Z'}:{live_activation_approved:false}
   };
