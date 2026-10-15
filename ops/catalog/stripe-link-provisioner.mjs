@@ -10,7 +10,7 @@ import readline from 'node:readline';
 import crypto from 'node:crypto';
 import { once } from 'node:events';
 import { pathToFileURL } from 'node:url';
-import { canonical, sha256, verifyGauntlet } from './catalog-factory.mjs';
+import { candidateDigest, loadRegistry, PRODUCT_CHECKS, verifyGauntlet } from './catalog-factory.mjs';
 
 const SHA256_RE = /^[a-f0-9]{64}$/i;
 const DEFAULT_BATCH_LIMIT = 25;
@@ -18,12 +18,13 @@ const MAX_BATCH_LIMIT = 250;
 const STRIPE_API = 'https://api.stripe.com/v1';
 
 function readArgs(argv) {
-  const out = { dryRun: true, limit: DEFAULT_BATCH_LIMIT, input: 'ops/catalog/build/products.ndjson', state: 'ops/catalog/build/stripe-link-state.ndjson' };
+  const out = { dryRun: true, limit: DEFAULT_BATCH_LIMIT, input: 'ops/catalog/build/products.ndjson', state: 'ops/catalog/build/stripe-link-state.ndjson', registryPath: 'ops/catalog/silos/registry.json' };
   for (let i=0;i<argv.length;i++) {
     const a=argv[i];
     if (a==='--apply-live') out.dryRun=false;
     else if (a==='--input' && argv[i+1]) out.input=argv[++i];
     else if (a==='--state' && argv[i+1]) out.state=argv[++i];
+    else if (a==='--registry' && argv[i+1]) out.registryPath=argv[++i];
     else if (a==='--limit' && argv[i+1]) out.limit=Number(argv[++i]);
     else if (a==='--help') out.help=true;
     else throw new Error('Unknown or incomplete argument: '+a);
@@ -51,22 +52,37 @@ async function writeLine(stream,value) {
 function finish(stream) {
   return new Promise((resolve,reject)=>{stream.once('finish',resolve);stream.once('error',reject);stream.end();});
 }
-function productBlockers(record) {
+function productBlockers(record, siloMap) {
   const c=record?.candidate||{};
   const g=verifyGauntlet(record);
   const blockers=[];
+  const digest=candidateDigest(record);
+  const silo=siloMap?.get(c.silo);
   if (record?.factory?.state!=='PRODUCT_READY') blockers.push('FACTORY_STATE_NOT_PRODUCT_READY');
   if (!g.passed) blockers.push(...g.failures);
+  if (record?.factory?.candidate_sha256!==digest) blockers.push('FACTORY_CANDIDATE_DIGEST_MISMATCH');
+  for(const check of PRODUCT_CHECKS) if(!g.check_ids?.includes(check)) blockers.push('PRODUCT_GAUNTLET_CHECK_MISSING:'+check);
   if (!c.sku || !c.silo || !c.name || !String(c.description||'').trim()) blockers.push('PRODUCT_IDENTITY_INCOMPLETE');
+  if (!silo) blockers.push('SILO_NOT_REGISTERED');
+  if (silo?.live_checkout_enabled!==true || record?.factory?.live_checkout_enabled_for_silo!==true) blockers.push('SILO_CHECKOUT_DISABLED');
   if (!c.source?.ref || !SHA256_RE.test(String(c.source?.sha256||''))) blockers.push('SOURCE_PROVENANCE_INVALID');
+  if (c.demand?.status!=='SUPPORTED' || !String(c.demand?.evidence_ref||'').trim()) blockers.push('DEMAND_EVIDENCE_NOT_PROVEN');
   if (!c.price || !/^[a-z]{3}$/i.test(String(c.price.currency||'')) ||
       !Number.isSafeInteger(c.price.unit_amount_minor) || c.price.unit_amount_minor<=0) blockers.push('PRICE_INVALID');
   if (c.price?.billing_mode==='subscription' && !['day','week','month','year'].includes(c.price.interval)) blockers.push('SUBSCRIPTION_INTERVAL_INVALID');
+  const unitEconomicsPass=c.unit_economics?.status==='PASS' &&
+    Number.isSafeInteger(c.unit_economics.estimated_cost_minor) &&
+    c.unit_economics.estimated_cost_minor>=0 &&
+    c.unit_economics.estimated_cost_minor<c.price?.unit_amount_minor;
+  if(!unitEconomicsPass) blockers.push('UNIT_ECONOMICS_NOT_PROVEN');
   if (c.fulfillment?.status!=='PASS' || !c.fulfillment?.contract_id || !c.fulfillment?.test_ref ||
       !SHA256_RE.test(String(c.fulfillment?.test_sha256||''))) blockers.push('FULFILLMENT_NOT_VERIFIED');
-  if (record?.commercial_review?.status!=='APPROVED' || !record.commercial_review?.approved_by) blockers.push('COMMERCIAL_REVIEW_NOT_APPROVED');
-  if (record?.checkout?.live_activation_approved!==true || !record.checkout.approved_by || !record.checkout.approved_at) blockers.push('LIVE_CHECKOUT_APPROVAL_MISSING');
-  if (record?.factory?.live_checkout_enabled_for_silo!==true) blockers.push('SILO_CHECKOUT_DISABLED');
+  if (record?.commercial_review?.status!=='APPROVED' || !record.commercial_review?.approved_by ||
+      !Number.isFinite(Date.parse(record.commercial_review?.approved_at||'')) ||
+      record.commercial_review?.candidate_sha256!==digest) blockers.push('COMMERCIAL_REVIEW_NOT_APPROVED_FOR_CANDIDATE');
+  if (record?.checkout?.live_activation_approved!==true || !record.checkout.approved_by ||
+      !Number.isFinite(Date.parse(record.checkout.approved_at||'')) ||
+      record.checkout.candidate_sha256!==digest) blockers.push('LIVE_CHECKOUT_APPROVAL_MISSING_OR_STALE');
   return [...new Set(blockers)];
 }
 function formEncode(entries) {
@@ -141,6 +157,7 @@ async function runProvisioner(options) {
   }
   const input=path.resolve(options.input);
   const statePath=path.resolve(options.state);
+  const { map: siloMap }=loadRegistry(path.resolve(options.registryPath||'ops/catalog/silos/registry.json'));
   if (!fs.existsSync(input)) throw new Error('Input products file not found: '+input);
   const existing=new Map();
   if(fs.existsSync(statePath)) {
@@ -155,7 +172,7 @@ async function runProvisioner(options) {
     const sku=record?.candidate?.sku;
     if(!sku) { skipped.push({line,state:'SKIPPED',reason:'SKU_MISSING'}); return; }
     if(existing.has(sku)) { skipped.push({sku,line,state:'SKIPPED',reason:'STATE_ALREADY_EXISTS'}); return; }
-    const blockers=productBlockers(record);
+    const blockers=productBlockers(record,siloMap);
     if(blockers.length) { skipped.push({sku,line,state:'SKIPPED',reason:blockers}); return; }
     if(selected.length<options.limit) selected.push({record,line});
   });
