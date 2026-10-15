@@ -1,12 +1,25 @@
 {
   "schema": "dreamledger/commerce-sku-contract/v1",
   "status": "binding",
-  "allowed_metadata_keys": ["sku_id", "sku", "marketplace_listing_id"],
-  "key_priority": ["sku_id", "sku", "marketplace_listing_id"],
-  "forbidden_identifier_keys": ["dreamledger_sku"],
+  "allowed_metadata_keys": [
+    "sku_id",
+    "sku",
+    "marketplace_listing_id"
+  ],
+  "key_priority": [
+    "sku_id",
+    "sku",
+    "marketplace_listing_id"
+  ],
+  "forbidden_identifier_keys": [
+    "dreamledger_sku"
+  ],
   "offer_mappings": {
     "CMD-DIAG-29": "COMMANDER-DECK-DIAGNOSTIC-001"
   },
-  "known_canonical_skus": ["COMMANDER-DECK-DIAGNOSTIC-001"],
+  "known_canonical_skus": [
+    "COMMANDER-DECK-DIAGNOSTIC-001",
+    "TOLL-PROBE-50C"
+  ],
   "fail_closed": true
 }

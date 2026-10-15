@@ -1,3 +1,5 @@
+import { COMMERCE_SKU_CONTRACT, normalizeCanonicalSku } from '../supabase/functions/_shared/commerce-sku-contract.ts';
+
 const STRIPE_API = 'https://api.stripe.com/v1/checkout/sessions';
 
 const OFFERS = {
@@ -52,26 +54,30 @@ export default async function handler(request: Request): Promise<Response> {
   const requested = body.offer_id || body.product_id || body.sku;
   const offer = requested ? OFFERS[requested as keyof typeof OFFERS] : undefined;
   if (!offer) return json({ error: 'Unknown or missing approved offer', requested }, 400);
+  const canonicalSku = normalizeCanonicalSku(offer.sku);
+  if (!canonicalSku) return json({ error: 'Canonical SKU is required', requested }, 400);
   if (body.silo && body.silo !== offer.silo) return json({ error: 'Silo mismatch', expected_silo: offer.silo }, 409);
 
   const form = new URLSearchParams();
   form.set('mode', 'payment');
   form.set('line_items[0][price_data][currency]', 'nzd');
   form.set('line_items[0][price_data][product_data][name]', offer.name);
-  form.set('line_items[0][price_data][product_data][metadata][sku]', offer.sku);
+  form.set('line_items[0][price_data][product_data][metadata][sku_id]', canonicalSku);
+  form.set('line_items[0][price_data][product_data][metadata][sku]', canonicalSku);
   form.set('line_items[0][price_data][product_data][metadata][product_id]', offer.product_id);
   form.set('line_items[0][price_data][unit_amount]', String(offer.amount_nzd_cents));
-  form.set('line_items[0][quantity]', '1');\n  form.set('payment_intent_data[metadata][product_sku]', offer.sku);\n  form.set('payment_intent_data[metadata][product_id]', offer.product_id);\n  form.set('payment_intent_data[metadata][offer_id]', requested || offer.sku);\n  form.set('payment_intent_data[metadata][silo]', offer.silo);\n  form.set('payment_intent_data[metadata][source]', 'stripe_link');\n
+  form.set('line_items[0][quantity]', '1');
   form.set('success_url', 'https://dreamledger.org/success?session_id={CHECKOUT_SESSION_ID}');
   form.set('cancel_url', 'https://dreamledger.org/cancel');
   form.set('metadata[offer_id]', requested || offer.sku);
   form.set('metadata[product_id]', offer.product_id);
   form.set('metadata[silo]', offer.silo);
-  form.set('metadata[sku]', offer.sku);
-  form.set('metadata[product_sku]', offer.sku);
+  form.set('metadata[sku_id]', canonicalSku);
+  form.set('metadata[sku]', canonicalSku);
   form.set('metadata[source]', 'stripe_link');
   form.set('payment_intent_data[metadata][product_id]', offer.product_id);
-  form.set('payment_intent_data[metadata][product_sku]', offer.sku);
+  form.set('payment_intent_data[metadata][sku_id]', canonicalSku);
+  form.set('payment_intent_data[metadata][sku]', canonicalSku);
   form.set('payment_intent_data[metadata][offer_id]', requested || offer.sku);
   form.set('payment_intent_data[metadata][silo]', offer.silo);
   form.set('payment_intent_data[metadata][source]', 'stripe_link');
@@ -101,6 +107,7 @@ export default async function handler(request: Request): Promise<Response> {
   return json({
     offer_id: requested || offer.sku,
     product_id: offer.product_id,
+    sku_id: canonicalSku,
     silo: offer.silo,
     amount_nzd: offer.amount_nzd_cents / 100,
     session_id: result.id,

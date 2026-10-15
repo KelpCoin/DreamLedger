@@ -1,0 +1,43 @@
+name: Live Stripe SKU regression (read-only)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Inspect Phase-1 candidates without mutation
+        id: check
+        continue-on-error: true
+        env:
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          COMMANDER_DIAGNOSTIC_PAYMENT_LINK_ID: plink_1UKS00EGgEAnUFF9kUjraaL5
+          TOLL_PROBE_PAYMENT_LINK_ID: plink_1UNpw7EGgEAnUFF9yLItVlyv
+        run: node scripts/verify-live-payment-link-sku-contract.js
+      - name: Upload read-only audit fossil
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sku-live-link-audit
+          path: proof/commerce/sku-live-link-audit-latest.json
+          if-no-files-found: error
+          retention-days: 30
+      - name: Keep commerce gate red until candidates are corrected
+        if: always()
+        env:
+          AUDIT_OUTCOME: ${{ steps.check.outcome }}
+        run: |
+          test "$AUDIT_OUTCOME" = "success" || {
+            echo "Live SKU regression failed; commerce remains HOLD."
+            exit 1
+          }

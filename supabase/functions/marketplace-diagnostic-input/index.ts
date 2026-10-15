@@ -1,6 +1,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import Stripe from "npm:stripe@22";
+import { COMMERCE_SKU_CONTRACT, normalizeCanonicalSku, resolveCanonicalSku } from "../_shared/commerce-sku-contract.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
 const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
@@ -8,12 +9,8 @@ const STRIPE_API_KEY = (Deno.env.get("STRIPE_API_KEY") || Deno.env.get("STRIPE_S
 const db = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
 const stripe = STRIPE_API_KEY ? new Stripe(STRIPE_API_KEY) : null;
 
-// Public Stripe offer SKU -> authoritative internal fulfillment SKU.
-// Keep the public payment-link identifier stable; only translate at intake.
-const SESSION_SKU_TO_INTERNAL: Readonly<Record<string, string>> = {
-  "CMD-DIAG-29": "COMMANDER-DECK-DIAGNOSTIC-001",
-  "COMMANDER-DECK-DIAGNOSTIC-001": "COMMANDER-DECK-DIAGNOSTIC-001",
-};
+const COMMANDER_OFFER_ID = "CMD-DIAG-29";
+const COMMANDER_CANONICAL_SKU = COMMERCE_SKU_CONTRACT.offer_mappings[COMMANDER_OFFER_ID];
 
 Deno.serve(async (req: Request) => {
   if (req.method !== "POST") return new Response("POST only", { status: 405 });
@@ -41,11 +38,26 @@ Deno.serve(async (req: Request) => {
     const email = String(session.customer_details?.email || session.customer_email || "").trim().toLowerCase();
     const metadata = session.metadata || {};
     const listingId = String(metadata.marketplace_listing_id || "").trim();
-    const offeredSku = String(metadata.sku_id || metadata.sku || metadata.marketplace_listing_id || "").trim();
-    const internalSku = SESSION_SKU_TO_INTERNAL[offeredSku];
+    const resolution = resolveCanonicalSku(metadata);
+    let internalSku = resolution && resolution.key !== "marketplace_listing_id" ? resolution.value : "";
 
-    if (!listingId || !internalSku) {
-      return Response.json({ error: "not a recognised Commander Diagnostic checkout" }, { status: 400 });
+    if (!listingId) {
+      return Response.json({ error: "not a recognised Commander Diagnostic checkout", reason: "SKU_CONTRACT_VIOLATION" }, { status: 400 });
+    }
+    const { data: listing, error: listingError } = await db
+      .from("marketplace_listings")
+      .select("id,sku")
+      .eq("id", listingId)
+      .maybeSingle();
+    if (listingError) return Response.json({ error: "marketplace listing lookup failed" }, { status: 500 });
+    if (!listing) return Response.json({ error: "marketplace listing not found" }, { status: 400 });
+    const listingSku = normalizeCanonicalSku(listing.sku);
+    if (internalSku && internalSku !== listingSku) {
+      return Response.json({ error: "metadata SKU does not match canonical listing SKU", reason: "SKU_CONTRACT_VIOLATION" }, { status: 400 });
+    }
+    internalSku = internalSku || listingSku;
+    if (!resolution || internalSku !== COMMANDER_CANONICAL_SKU) {
+      return Response.json({ error: "not a recognised Commander Diagnostic checkout", reason: "SKU_CONTRACT_VIOLATION" }, { status: 400 });
     }
 
     const { data: fulfillment, error: lookupError } = await db
