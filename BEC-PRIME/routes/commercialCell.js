@@ -46,6 +46,19 @@ async function rpc(name, args) {
 
 function clean(v) { return String(v || '').trim().slice(0, 500); }
 
+function normalizeCommerceSku(metadata = {}) {
+  const raw = clean(metadata.dreamledger_sku || metadata.sku || metadata.product_sku || metadata.sku_id || metadata.product_id).toUpperCase();
+  // Live Payment Links use CMD-DIAG-29; settlement expects the canonical SKU.
+  return raw === 'CMD-DIAG-29' ? 'COMMANDER-DECK-DIAGNOSTIC-001' : raw;
+}
+
+function resolveCommerceSilo(metadata = {}, listingId = '') {
+  const explicit = clean(metadata.silo).toLowerCase();
+  if (explicit) return explicit;
+  // A listing-backed Commander order belongs to the MTG silo, not generic DreamLedger.
+  return clean(listingId) ? 'mtg' : 'dreamledger';
+}
+
 function verify(raw, signature) {
   stripeProof.verifyStripeSignature(raw, signature || '', STRIPE_WEBHOOK_SECRET);
 }
@@ -90,10 +103,11 @@ async function reconcileFunds(sessionId) {
 }
 
 async function settleSession(session, event) {
-  const sku = clean(session.metadata?.dreamledger_sku || session.metadata?.sku || session.metadata?.product_sku).toUpperCase();
-  const offerId = clean(session.metadata?.offer_id);
-  const silo = clean(session.metadata?.silo || 'dreamledger');
-  const listingId = clean(session.metadata?.marketplace_listing_id || session.metadata?.listing_id);
+  const metadata = session.metadata || {};
+  const listingId = clean(metadata.marketplace_listing_id || metadata.listing_id);
+  const sku = normalizeCommerceSku(metadata);
+  const offerId = clean(metadata.offer_id);
+  const silo = resolveCommerceSilo(metadata, listingId);
   if (!sku) return {handled:false, reason:'no_dreamledger_sku'};
   if (session.payment_status !== 'paid') return {handled:true, ignored:true, reason:'payment_not_paid'};
   if (session.livemode !== true) return {handled:true, ignored:true, reason:'not_livemode'};
@@ -289,4 +303,4 @@ async function handle(req,res,path) {
   return false;
 }
 
-module.exports={handle};
+module.exports={handle,normalizeCommerceSku,resolveCommerceSilo};
