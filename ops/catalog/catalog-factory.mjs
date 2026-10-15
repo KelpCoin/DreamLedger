@@ -243,7 +243,7 @@ export async function compileCatalogue({ input, registryPath = DEFAULT_REGISTRY,
           source_line_number: lineNumber,
           generated_at: new Date().toISOString(),
           product_blockers: ready.blockers,
-          elo​​him_refinement_state: refinements.candidate_sha256 === result.gauntlet.candidate_sha256
+          elohim_refinement_state: refinements.candidate_sha256 === result.gauntlet.candidate_sha256
             ? 'REFINEMENT_CURRENT'
             : (refinements.iteration ? 'REFINEMENT_REVIEW_DUE' : 'AWAITING_ELOHIM_REFINEMENT'),
           live_checkout_enabled_for_silo: silo.live_checkout_enabled === true,
