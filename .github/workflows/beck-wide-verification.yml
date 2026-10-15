@@ -1,0 +1,51 @@
+name: BECK Wide Verification
+on:
+  pull_request:
+    paths:
+      - 'ops/decision/tri-llm-quote-gauntlet.mjs'
+      - 'ops/decision/tri-llm-quote-gauntlet.test.mjs'
+      - 'ops/decision/run-tri-llm-quote-gauntlet.mjs'
+      - 'BEC-PRIME/refinement/MultiLMRefinementEngine.py'
+      - 'BEC-PRIME/runtime/AgentBridgeEventLedger.js'
+      - 'BEC-PRIME/runtime/AgentBridgeEventLedger.test.js'
+      - 'BEC-PRIME/security/AgentBridgeDefense.js'
+      - 'BEC-PRIME/scripts/Verify-BEC-DefensiveControlPlane.js'
+      - '.github/workflows/beck-wide-verification.yml'
+  push:
+    branches:
+      - 'feat/beck-recovery-control-plane-2026-10-15'
+    paths:
+      - 'ops/decision/tri-llm-quote-gauntlet.mjs'
+      - 'ops/decision/tri-llm-quote-gauntlet.test.mjs'
+      - 'ops/decision/run-tri-llm-quote-gauntlet.mjs'
+      - 'BEC-PRIME/refinement/MultiLMRefinementEngine.py'
+      - 'BEC-PRIME/runtime/AgentBridgeEventLedger.js'
+      - 'BEC-PRIME/runtime/AgentBridgeEventLedger.test.js'
+      - 'BEC-PRIME/security/AgentBridgeDefense.js'
+      - 'BEC-PRIME/scripts/Verify-BEC-DefensiveControlPlane.js'
+      - '.github/workflows/beck-wide-verification.yml'
+permissions:
+  contents: read
+jobs:
+  quote-gauntlet:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: node --check ops/decision/tri-llm-quote-gauntlet.mjs
+      - run: node --check ops/decision/run-tri-llm-quote-gauntlet.mjs
+      - run: node --test ops/decision/tri-llm-quote-gauntlet.test.mjs
+  beck-core-contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm run validate:economics
+      - run: node BEC-PRIME/scripts/Verify-BEC-DefensiveControlPlane.js
+      - run: node --test BEC-PRIME/runtime/AgentBridgeEventLedger.test.js
