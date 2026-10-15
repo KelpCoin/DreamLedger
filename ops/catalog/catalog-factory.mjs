@@ -21,11 +21,11 @@ const SHA256_RE = /^[a-f0-9]{64}$/i;
 const SKU_RE = /^[A-Z0-9][A-Z0-9_-]{2,127}$/;
 const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const SEED_CHECKS = [
-  'schema_valid', 'source_provenance', 'demand_evidence', 'silo_boundary',
+  'schema_valid', 'source_provenance', 'buyer_hypothesis', 'silo_boundary',
   'rights_and_privacy', 'duplicate_sku', 'truth_boundary'
 ];
 const PRODUCT_CHECKS = [
-  'price_integrity', 'unit_economics', 'fulfillment_test', 'delivery_receipt'
+  'demand_evidence', 'price_integrity', 'unit_economics', 'fulfillment_test', 'delivery_receipt'
 ];
 
 export function canonical(value) {
@@ -134,7 +134,13 @@ export function validateCandidate(record, siloMap) {
   if (!String(c.name || '').trim() || String(c.name).length > 180) failures.push('PRODUCT_NAME_INVALID');
   if (!String(c.description || '').trim() || String(c.description).length > 2000) failures.push('PRODUCT_DESCRIPTION_INVALID');
   if (!c.source || !String(c.source.ref || '').trim() || !SHA256_RE.test(String(c.source.sha256 || ''))) failures.push('SOURCE_PROVENANCE_INVALID');
-  if (!c.demand || !String(c.demand.buyer_segment || '').trim() || !String(c.demand.evidence_ref || '').trim()) failures.push('DEMAND_EVIDENCE_INVALID');
+  if (!c.demand || !String(c.demand.buyer_segment || '').trim()) {
+    failures.push('BUYER_HYPOTHESIS_INVALID');
+  } else if (!['HYPOTHESIS','SUPPORTED'].includes(c.demand.status)) {
+    failures.push('DEMAND_STATUS_INVALID');
+  } else if (c.demand.status === 'SUPPORTED' && !String(c.demand.evidence_ref || '').trim()) {
+    failures.push('DEMAND_EVIDENCE_INVALID');
+  }
   if (c.price !== null && c.price !== undefined) {
     if (!/^[a-z]{3}$/i.test(String(c.price.currency || ''))) failures.push('PRICE_CURRENCY_INVALID');
     if (!Number.isSafeInteger(c.price.unit_amount_minor) || c.price.unit_amount_minor <= 0) failures.push('PRICE_MINOR_AMOUNT_INVALID');
@@ -160,6 +166,7 @@ function productReady(record, siloManifest, validation) {
   const c = record.candidate;
   const checkIds = new Set(validation.gauntlet.check_ids);
   const missingProductChecks = PRODUCT_CHECKS.filter(id => !checkIds.has(id));
+  const demandEvidencePass = c.demand?.status === 'SUPPORTED' && Boolean(String(c.demand?.evidence_ref || '').trim());
   const fulfillmentPass = c.fulfillment?.status === 'PASS' &&
     c.fulfillment?.contract_id && c.fulfillment?.test_ref && SHA256_RE.test(String(c.fulfillment?.test_sha256 || ''));
   const pricePass = c.price && /^[a-z]{3}$/i.test(String(c.price.currency || '')) &&
@@ -176,10 +183,11 @@ function productReady(record, siloManifest, validation) {
     checkout.approved_by && isIsoDate(checkout.approved_at);
   const siloLive = siloManifest?.live_checkout_enabled === true;
   return {
-    ready: missingProductChecks.length === 0 && fulfillmentPass && pricePass && unitEconomicsPass &&
+    ready: missingProductChecks.length === 0 && demandEvidencePass && fulfillmentPass && pricePass && unitEconomicsPass &&
       reviewPass && checkoutApprovalPass && siloLive,
     blockers: [
       ...missingProductChecks.map(x => 'GAUNTLET_CHECK_MISSING:' + x),
+      ...(demandEvidencePass ? [] : ['DEMAND_EVIDENCE_NOT_PROVEN']),
       ...(fulfillmentPass ? [] : ['FULFILLMENT_NOT_PROVEN']),
       ...(pricePass ? [] : ['PRICE_NOT_VALID']),
       ...(unitEconomicsPass ? [] : ['UNIT_ECONOMICS_NOT_PROVEN']),
@@ -253,6 +261,9 @@ export async function compileCatalogue({ input, registryPath = DEFAULT_REGISTRY,
   const duplicateSkus = new Set([...occurrences].filter(([, v]) => v.count > 1).map(([sku]) => sku));
   const outputDir = path.resolve(outdir);
   fs.mkdirSync(outputDir, { recursive: true });
+  // Remove prior success marker before overwriting any outputs. A failed run
+  // must never leave a stale manifest that appears to certify partial files.
+  fs.rmSync(path.join(outputDir, 'manifest.json'), { force: true });
   const streams = {
     products: fs.createWriteStream(path.join(outputDir, 'products.ndjson'), { flags: 'w', encoding: 'utf8' }),
     seeds: fs.createWriteStream(path.join(outputDir, 'seeds.ndjson'), { flags: 'w', encoding: 'utf8' }),
