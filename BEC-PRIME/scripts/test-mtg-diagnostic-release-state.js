@@ -8,7 +8,7 @@ const root = path.resolve(__dirname, '..');
 const product = JSON.parse(fs.readFileSync(path.join(root, 'catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json'), 'utf8'));
 const registry = JSON.parse(fs.readFileSync(path.join(root, 'fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json'), 'utf8'));
 const offers = JSON.parse(fs.readFileSync(path.join(root, 'catalog/offers/approved.json'), 'utf8'));
-const publicPage = fs.readFileSync(path.resolve(root, '..', '..', 'public/mtg/master.html'), 'utf8');
+const publicPage = fs.readFileSync(path.resolve(root, '..', 'public/mtg/master.html'), 'utf8');
 
 assert.equal(product.status, 'held', 'product must remain held');
 assert.equal(product.checkout?.mode, 'disabled', 'held product must not enable checkout');
