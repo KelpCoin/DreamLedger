@@ -19,7 +19,7 @@ jobs:
         shell: bash
         env:
           BASE: https://dreamledger.org
-          EXPECTED_COMMIT: \${{ github.sha }}
+          EXPECTED_COMMIT: ${{ github.sha }}
         run: |
           set -uo pipefail
           mkdir -p proof
@@ -27,12 +27,12 @@ jobs:
           record_route() {
             local path="$1"
             local code
-            code=$(curl -L -sS -o "proof/route$(echo "$path" | tr '/:' '__').body" -w "%{http_code}" --max-time 15 "$BASE$path" 2>/dev/null || echo 000)
+            if ! code=$(curl -L -sS -o "proof/route$(echo "$path" | tr '/:' '__').body" -w "%{http_code}" --max-time 15 "$BASE$path" 2>/dev/null); then code=000; fi
             echo "$code $path"
             if [ "$code" != "200" ]; then failures=1; fi
           }
 
-          VERSION_CODE=$(curl -L -sS -o proof/LIVE-VERSION.json -w '%{http_code}' --max-time 15 "$BASE/version" 2>/dev/null || echo 000)
+          if ! VERSION_CODE=$(curl -L -sS -o proof/LIVE-VERSION.json -w '%{http_code}' --max-time 15 "$BASE/version" 2>/dev/null); then VERSION_CODE=000; fi
           echo "$VERSION_CODE /version"
           LIVE_COMMIT=""
           if [ "$VERSION_CODE" = "200" ]; then
@@ -47,7 +47,7 @@ jobs:
 
           for path in /mtg /mtg/ /api/products /sitemap.xml /robots.txt; do record_route "$path"; done
 
-          PRODUCTS_CODE=$(curl -L -sS -o proof/PRODUCTS.json -w '%{http_code}' --max-time 15 "$BASE/api/products" 2>/dev/null || echo 000)
+          if ! PRODUCTS_CODE=$(curl -L -sS -o proof/PRODUCTS.json -w '%{http_code}' --max-time 15 "$BASE/api/products" 2>/dev/null); then PRODUCTS_CODE=000; fi
           if [ "$PRODUCTS_CODE" = "200" ]; then
             node - <<'NODE'
           const fs=require('fs');
@@ -101,6 +101,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: mtg-live-production-probe-\${{ github.sha }}
+          name: mtg-live-production-probe-${{ github.sha }}
           path: proof/
           if-no-files-found: error
