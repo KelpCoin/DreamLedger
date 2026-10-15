@@ -30,6 +30,8 @@ assert.match(entry.reason || '', /HOLD/i, 'registry reason must explicitly recor
 
 assert.equal((offers.approved || []).some(x => x.offer_id === 'OFFER-CMD-DIAG-29-NZD'), false,
   'held Commander offer must not be included in approved checkout catalog');
+const compiledCommander = (JSON.parse(fs.readFileSync(path.join(root, 'catalog/offers/offers.json'), 'utf8')).offers || []).filter(x => x.offer_id === 'OFFER-CMD-DIAG-29-NZD');
+assert.ok(compiledCommander.every(x => x.checkout_available !== true && x.status !== 'VERIFIED_AVAILABLE' && !x.checkout_url && !x.payment_link_url), 'a generated candidate can exist only with checkout disabled');
 const held = (offers.held || []).filter(x => x.offer_id === 'OFFER-CMD-DIAG-29-NZD');
 assert.equal(held.length, 1, 'held offer must remain in the audit catalog');
 assert.equal(held[0].status, 'HELD');
