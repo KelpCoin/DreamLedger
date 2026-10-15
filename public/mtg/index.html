@@ -126,6 +126,7 @@ async function applyManifest(){
   }catch(e){return null;}
 }
 function isPhysical(p){return p.category==='commander-deck'||/^EDH/i.test(p.id||'');}
+function conditionEligible(p){const kind=String(p.product_kind||p.category||p.inventory_type||'').toLowerCase();return ['single','single-card','mtg-single','physical-single'].includes(kind);}
 async function loadCatalog(manifest){
   const catalogUrl=(manifest&&manifest.catalog)||CATALOG;
   try{
@@ -143,10 +144,24 @@ async function loadCatalog(manifest){
       const price=Number(p.price)||0;
       const detail=p.detail_url||'#';
       const inv=Number(p.inventory)>0;
+      const deckCondition=p.category==='commander-deck'&&typeof p.deck_condition==='string'&&p.deck_condition.trim()?'<p class="desc">Deck condition: '+esc(p.deck_condition.trim())+'</p>':'';
+      const cardCondition=conditionEligible(p)&&typeof p.condition==='string'&&p.condition.trim()?'<p class="desc">Card condition: '+esc(p.condition.trim())+'</p>':'';
       const buy=inv
         ? '<a class="buy" href="'+esc(detail)+'">See cards &amp; buy · NZ$'+price+'</a>'
         : '<a class="buy" href="'+esc(detail)+'" style="opacity:.6">View</a>';
-      return '<article class="deck"><div class="deck-banner">Commander · '+(inv?'In stock':'—')+'</div><div class="deck-body"><div class="tag">'+(p.commander?esc(p.commander):'EDH')+'</div><h3>'+esc(p.name)+'</h3><p class="desc">'+esc(p.description||'')+'</p><div class="price">NZ$'+price+'</div><div class="actions">'+buy+'<a class="see" href="'+esc(detail)+'">Open full card grid</a></div></div></article>';
+      return '<article class="deck"><div class="deck-banner">Commander · '+(inv?'In stock':'—')+'</div><div class="deck-body"><div class="tag">'+(p.commander?esc(p.commander):'EDH')+'</div><h3>'+esc(p.name)+'</h3><p class="desc">'+esc(p.description||'')+'</p>'+deckCondition+cardCondition+'<div class="price">NZ'+buy+'<a class="see" href="'+esc(detail)+'">Open full card grid</a></div></div></article>';
+    }).join('');
+  }catch(e){
+    status.className='status-bar error';
+    status.textContent=e.message||'Load failed';
+  }
+}
+applyManifest().then(loadCatalog);
+})();
+</script>
+</body>
+</html>
++price+'</div><div class="actions">'+buy+'<a class="see" href="'+esc(detail)+'">Open full card grid</a></div></div></article>';
     }).join('');
   }catch(e){
     status.className='status-bar error';
