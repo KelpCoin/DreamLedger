@@ -295,6 +295,7 @@ export async function compileCatalogue({ input, registryPath = DEFAULT_REGISTRY,
           gauntlet_completed_at: record.gauntlet.completed_at,
           source_line_number: lineNumber,
           generated_at: new Date().toISOString(),
+          canonical_gauntlet_execution: result.gauntlet.canonical_gauntlet,
           product_blockers: ready.blockers,
           elohim_refinement_state: refinements.candidate_sha256 === result.gauntlet.candidate_sha256
             ? 'REFINEMENT_CURRENT'
