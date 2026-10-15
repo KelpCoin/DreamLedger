@@ -15,53 +15,60 @@ function Assert-True([bool]$Condition, [string]$Message) {
     Write-Host "PASS: $Message"
 }
 
-$required = @(
-    'catalog\products\COMMANDER-DECK-DIAGNOSTIC-001.json',
-    'catalog\offers\offers.json',
-    'catalog\offers\approved.json',
-    'scripts\Activate-FirstRevenue.ps1'
-)
-
-foreach ($path in $required) {
-    Assert-True (Test-Path (Join-Path $RepoRoot $path)) "required file exists: $path"
-}
-
 $productPath = Join-Path $RepoRoot 'catalog\products\COMMANDER-DECK-DIAGNOSTIC-001.json'
 $product = Get-Content $productPath -Raw | ConvertFrom-Json
-
-Assert-True ($product.id -eq 'COMMANDER-DECK-DIAGNOSTIC-001') 'canonical Commander diagnostic SKU is present'
-Assert-True ($product.silo -eq 'mtg') 'Commander diagnostic remains in MTG silo'
-Assert-True ($product.status -eq 'published') 'Commander diagnostic is published in the internal catalog'
-Assert-True ([int]$product.price -gt 0) 'Commander diagnostic has a positive price'
-Assert-True ($product.currency -eq 'nzd') 'Commander diagnostic currency is NZD'
-Assert-True ($product.checkout.mode -eq 'payment') 'Commander diagnostic uses payment checkout mode'
-Assert-True ($product.delivery.type -eq 'digital_report') 'Commander diagnostic has defined digital fulfilment'
-Assert-True ($product.evidence.status -eq 'awaiting_first_payment') 'revenue truth remains unproven until first payment'
-
-$offerCatalogPath = Join-Path $RepoRoot 'catalog\offers\offers.json'
-$offerCatalog = Get-Content $offerCatalogPath -Raw | ConvertFrom-Json
-Assert-True ($offerCatalog.approval_rule -match 'approval') 'offer catalog is approval-gated'
-
 $approvedPath = Join-Path $RepoRoot 'catalog\offers\approved.json'
 $approved = Get-Content $approvedPath -Raw | ConvertFrom-Json
-Assert-True ($null -ne $approved.approved) 'approved-offer registry exists'
+$offersPath = Join-Path $RepoRoot 'catalog\offers\offers.json'
+$compiled = Get-Content $offersPath -Raw | ConvertFrom-Json
+$featuredPath = Join-Path $RepoRoot 'catalog\featured-offer.json'
+$featured = Get-Content $featuredPath -Raw | ConvertFrom-Json
+$registryPath = Join-Path $RepoRoot 'fulfillment\PRODUCT-FULFILLMENT-REGISTRY.json'
+$registry = Get-Content $registryPath -Raw | ConvertFrom-Json
+$offerId = 'OFFER-CMD-DIAG-29-NZD'
+$productId = 'COMMANDER-DECK-DIAGNOSTIC-001'
 
-$canonicalPriceNzd = [math]::Round(([int]$product.price / 100), 2)
+Assert-True ($product.id -eq $productId) 'canonical Commander diagnostic product exists'
+Assert-True ($product.silo -eq 'mtg') 'Commander diagnostic remains inside the MTG silo'
+Assert-True ($product.status -eq 'held') 'Commander diagnostic is held until delivery is durable'
+Assert-True ([math]::Round([double]$product.price, 2) -eq 29 -and $product.price_unit -eq 'major') 'NZ$29 is recorded as a major-unit reference price'
+Assert-True ($product.currency -eq 'nzd') 'canonical currency is NZD'
+Assert-True ($product.checkout.mode -eq 'disabled' -and $null -eq $product.checkout.url) 'Commander checkout is disabled and exposes no URL'
+Assert-True ($product.commercial_truth.sellable -eq $false -and $product.commercial_truth.approval_required -eq $true) 'commercial truth denies sale until explicitly cleared'
+Assert-True ($product.fulfillment.mode -eq 'disabled' -and $product.fulfillment.operator_required -eq $true) 'fulfillment is not falsely marked automated'
+Assert-True ($null -eq $product.commercial_truth.payment_surface) 'product record does not expose a payment surface'
+
+$approvedCommander = @($approved.approved | Where-Object { $_.offer_id -eq $offerId })
+$heldCommander = @($approved.held | Where-Object { $_.offer_id -eq $offerId })
+Assert-True ($approvedCommander.Count -eq 0) 'held Commander offer is excluded from approved checkout catalog'
+Assert-True ($heldCommander.Count -eq 1 -and $null -eq $heldCommander[0].payment_link_url) 'held Commander offer remains auditable without a payment URL'
+$compiledCommander = @($compiled.offers | Where-Object { $_.offer_id -eq $offerId })
+Assert-True ($compiledCommander.Count -eq 0) 'compiled catalogue does not advertise Commander as available'
+Assert-True ($featured.status -eq 'HELD' -and $null -eq $featured.payment_link_url -and $null -eq $featured.checkout_url) 'featured offer does not expose a Commander payment URL'
+
+$fulfillment = $registry.entries.$productId
+Assert-True ($fulfillment.ready -eq $false -and $fulfillment.operator_required -eq $true) 'fulfillment registry agrees that delivery is not ready'
+
 $proof = [ordered]@{
     type = 'dreamledger-revenue-readiness'
-    status = 'PASS'
+    status = 'HOLD'
     generated_at_utc = (Get-Date).ToUniversalTime().ToString('o')
-    first_revenue_target_nzd = $canonicalPriceNzd
+    reference_price_nzd = 29
+    checkout_enabled = $false
     verified_revenue_nzd = 0
-    canonical_activation_sku = $product.id
-    canonical_activation_price_nzd = $canonicalPriceNzd
-    payment_truth = 'AWAITING_FIRST_PAYMENT'
+    independent_buyers_verified = 0
+    completed_deliveries_verified = 0
+    canonical_product_id = $productId
+    canonical_offer_id = $offerId
+    release_status = 'HELD_DURABLE_FULFILLMENT_UNVERIFIED'
+    payment_truth = 'NO_VERIFIED_REVENUE'
     public_promotion = 'NOT_PERFORMED'
     approval_gate = 'PRESERVED'
     mtg_silo = 'ISOLATED'
-    next_economic_gate = 'SIGNED_STRIPE_PAYMENT_WEBHOOK'
+    next_economic_gate = 'RESTORE_DATABASE_OBSERVABILITY_AND_PROVE_DURABLE_DELIVERY'
     proof_path = 'data/proofs/REVENUE-READINESS.json'
 }
 
 $proof | ConvertTo-Json -Depth 10 | Set-Content $proofPath -Encoding utf8
+Write-Host 'REVENUE_READINESS=HOLD'
 Write-Host "PROOF: $proofPath"
