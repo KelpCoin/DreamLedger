@@ -117,15 +117,25 @@ export function buildSiloPlan(options, { repoRoot = REPO_ROOT } = {}) {
   manifest.product_kinds = [{ id: 'offer', label: 'Offer', primary: true }];
   manifest.listing_fields_required = ['title', 'description', 'price', 'currency'];
   manifest.listing_fields_optional = ['images', 'delivery_terms', 'lead_time'];
+  // Replace source clone steps entirely to avoid MTG-specific path contamination.
   manifest.clone = {
-    ...manifest.clone,
-    rule: 'Clone shell and capability bindings only. Never copy inventory, identities, promotion state, or credentials.',
+    rule: 'Clone shell and capability bindings only. Never copy inventory, identities, promotion state, credentials, or live commerce state.',
     source_master_ref: MASTER_MANIFEST,
-    catalog_gate_manifest_ref: 'ops/catalog/templates/silo-manifest.v1.json',
-    stage_only: true,
+    catalog_gate_manifest_ref: 'ops/catalog/silos/manifests/' + input.slug + '.json',
+    generation_mode: 'STAGE_ONLY',
+    requires_fresh_gauntlet: true,
+    requires_publication_approval: true,
     do_not_copy: [
       'product inventory rows', 'customer data', 'stripe credentials',
-      'analytics identities', 'other silo promotion', 'payment links', 'secrets'
+      'analytics identities', 'other silo promotion', 'payment links', 'secrets',
+      'source-specific listing fields', 'source-specific checkout links'
+    ],
+    activation_steps: [
+      'verify generated manifest and empty catalogue',
+      'verify route and tenant isolation',
+      'run candidate Gauntlet against current evidence',
+      'pass commerce, fulfillment, and delivery gates',
+      'obtain explicit publication approval'
     ]
   };
   manifest.surface = {
@@ -238,13 +248,17 @@ export function stageSiloClone(options, { stageDir, repoRoot = REPO_ROOT } = {})
   if (typeof stageDir !== 'string' || !path.isAbsolute(stageDir)) {
     throw new Error('ABSOLUTE_EXTERNAL_STAGE_DIR_REQUIRED');
   }
-  const resolvedStage = path.resolve(stageDir);
-  const resolvedRepo = path.resolve(repoRoot);
+  const unresolvedStage = path.resolve(stageDir);
+  if (!fs.existsSync(unresolvedStage) || !fs.statSync(unresolvedStage).isDirectory()) {
+    throw new Error('STAGE_DIRECTORY_MUST_EXIST');
+  }
+  const resolvedStage = fs.realpathSync(unresolvedStage);
+  const resolvedRepo = fs.realpathSync(repoRoot);
   const relative = path.relative(resolvedRepo, resolvedStage);
   if (relative === '' || (!relative.startsWith('..' + path.sep) && relative !== '..' && !path.isAbsolute(relative))) {
     throw new Error('STAGE_DIRECTORY_MUST_BE_OUTSIDE_REPOSITORY');
   }
-  if (fs.existsSync(resolvedStage) && fs.readdirSync(resolvedStage).length > 0) {
+  if (fs.readdirSync(resolvedStage).length > 0) {
     throw new Error('STAGE_DIRECTORY_MUST_BE_EMPTY');
   }
   const plan = buildSiloPlan(options, { repoRoot });
@@ -252,11 +266,20 @@ export function stageSiloClone(options, { stageDir, repoRoot = REPO_ROOT } = {})
   for (const destination of destinations) {
     if (fs.existsSync(destination)) throw new Error('CLONE_OUTPUT_ALREADY_EXISTS:' + destination);
   }
-  for (const file of Object.values(plan.files)) {
-    const destination = path.join(resolvedStage, file.path);
-    fs.mkdirSync(path.dirname(destination), { recursive: true });
-    const content = typeof file.content === 'string' ? file.content : JSON.stringify(file.content, null, 2) + '\n';
-    fs.writeFileSync(destination, content, { flag: 'wx' });
+  const createdFiles = [];
+  try {
+    for (const file of Object.values(plan.files)) {
+      const destination = path.join(resolvedStage, file.path);
+      fs.mkdirSync(path.dirname(destination), { recursive: true });
+      const content = typeof file.content === 'string' ? file.content : JSON.stringify(file.content, null, 2) + '\n';
+      fs.writeFileSync(destination, content, { flag: 'wx' });
+      createdFiles.push(destination);
+    }
+  } catch (error) {
+    for (const destination of createdFiles.reverse()) {
+      try { fs.rmSync(destination, { force: true }); } catch { /* preserve original error */ }
+    }
+    throw error;
   }
   return {
     ...plan,
