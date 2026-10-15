@@ -3,6 +3,18 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 import Stripe from "npm:stripe@22";
 import { createMarketplaceSellerTransfers } from "./shared/marketplace-transfers.ts";
 const FUNCTION_NAME="stripe-revenue-41104f355d6878cdd6d1f9dc";
+const SKU_CONTRACT_VERSION="dreamledger/commerce-sku-contract/v1";
+const ALLOWED_SKU_KEYS=["sku_id","sku","marketplace_listing_id"] as const;
+const COMMANDER_OFFER_ID="CMD-DIAG-29";
+const COMMANDER_CANONICAL_SKU="COMMANDER-DECK-DIAGNOSTIC-001";
+function resolveCanonicalSku(metadata:Record<string,unknown>){
+ for(const key of ALLOWED_SKU_KEYS){
+  const value=metadata[key];
+  if(typeof value==="string"&&value.trim())return {key,value:value.trim()};
+ }
+ return null;
+}
+
 const SUPABASE_URL=Deno.env.get("SUPABASE_URL")||"";
 const SERVICE_ROLE_KEY=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")||"";
 const STRIPE_WEBHOOK_SIGNING_SECRET=(Deno.env.get("STRIPE_WEBHOOK_SIGNING_SECRET")||"").trim();
@@ -58,10 +70,16 @@ Deno.serve(async(req)=>{
    return Response.json({received:true,ignored:true,event_id:eventId,reason:"checkout_not_settled"});
  }
  if((eventType==="payment_intent.succeeded" || eventType==="checkout.session.async_payment_succeeded") && session.payment_status!=="paid")return new Response("settlement event is not paid",{status:409}); if(currency!=="NZD")return new Response("unexpected currency",{status:400});
+ const resolvedSku=resolveCanonicalSku(metadata);
+ if(!resolvedSku){
+   await supabase.from("stripe_webhook_events").update({processed:true,processed_at:new Date().toISOString(),processing_outcome:"SKU_CONTRACT_VIOLATION"}).eq("event_id",eventId);
+   return Response.json({received:true,rejected:true,event_id:eventId,outcome:"SKU_CONTRACT_VIOLATION",contract:SKU_CONTRACT_VERSION,reason:"no canonical SKU key present"}, {status:400});
+ }
  const marketplaceListingId=String(metadata.marketplace_listing_id||"");
  let marketplaceSettlement:any=null;
  let marketplaceListing:any=null;
- let sku=String(metadata.sku_id||metadata.sku||""); if(metadata.opportunity_id==="ACNC_RESEARCH_001"&&metadata.fulfillment_worker==="ACNC_RESEARCH_WORKER"&&metadata.source_gauntlet==="ACNC_PASS") sku="ACNC-CHARITY-DD-99";
+ let sku=resolvedSku.value;
+ if(sku===COMMANDER_OFFER_ID) sku=COMMANDER_CANONICAL_SKU;
  if(marketplaceListingId){
    if(!stripe)return new Response("stripe api key required for marketplace settlement",{status:503});
    const {data:listing,error:listingError}=await supabase.from("marketplace_listings").select("id,sku,title,price_nzd,status,inventory,seller_id,organization_id,fulfillment_type,metadata").eq("id",marketplaceListingId).single();
@@ -70,7 +88,7 @@ Deno.serve(async(req)=>{
    const {data:settlement,error:settlementError}=await supabase.rpc("marketplace_settle_stripe_payment",{p_listing_id:marketplaceListingId,p_checkout_session_id:checkoutSessionId,p_payment_intent_id:paymentIntentId,p_event_id:eventId,p_amount_nzd:amountMinor/100,p_currency:currency,p_customer_email:customerEmail,p_quantity:1});
    if(settlementError)return new Response("marketplace settlement failed",{status:500});
    marketplaceSettlement=settlement;
-   sku=listing.sku==="COMMANDER-DECK-DIAGNOSTIC-001" ? "CMD-DIAG-29" : String(listing.sku||"");
+   sku=String(listing.sku||"");
    const marketplaceOrderId=String(marketplaceSettlement?.order_id||"");
    if(marketplaceOrderId){
      const transferGroup=`order_${marketplaceOrderId}`;
