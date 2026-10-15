@@ -114,10 +114,10 @@ function run() {
     const rereadCatalog = readJson(written.catalogPath);
     const rereadProof = readJson(written.proofPath);
     check('factory_artifact_routes_match_manifest', () => {
-      assert.equal(path.relative(temp, written.manifestPath).replace(/\\\\/g, '/'), 'silos/' + testSlug + '/silo.json');
-      assert.equal(path.relative(temp, written.catalogPath).replace(/\\\\/g, '/'), 'data/' + testSlug + '-catalog.json');
-      assert.equal(rereadManifest.manifest_path, '/' + path.relative(temp, written.manifestPath).replace(/\\\\/g, '/'));
-      assert.equal(rereadManifest.catalog, '/' + path.relative(temp, written.catalogPath).replace(/\\\\/g, '/'));
+      assert.equal(path.relative(temp, written.manifestPath).replace(/\\/g, '/'), 'silos/' + testSlug + '/silo.json');
+      assert.equal(path.relative(temp, written.catalogPath).replace(/\\/g, '/'), 'data/' + testSlug + '-catalog.json');
+      assert.equal(rereadManifest.manifest_path, '/' + path.relative(temp, written.manifestPath).replace(/\\/g, '/'));
+      assert.equal(rereadManifest.catalog, '/' + path.relative(temp, written.catalogPath).replace(/\\/g, '/'));
       assert.equal(rereadProof.release_status, 'HOLD');
     });
     cloneChecks = validateClone(rereadManifest, rereadCatalog, testSlug);
