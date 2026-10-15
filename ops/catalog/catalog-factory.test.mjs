@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { candidateDigest, compileCatalogue, verifyGauntlet } from './catalog-factory.mjs';
+import { candidateDigest, compileCatalogue, loadRegistry, verifyGauntlet } from './catalog-factory.mjs';
 import { productBlockers, runProvisioner } from './stripe-link-provisioner.mjs';
 
 const SEED_CHECKS = [
@@ -38,6 +38,8 @@ function record(sku,silo,ready=true,overrides={}) {
   };
   rec.gauntlet.candidate_sha256=candidateDigest(rec);
   rec.elohim.candidate_sha256=rec.gauntlet.candidate_sha256;
+  if (rec.commercial_review?.status === 'APPROVED') rec.commercial_review.candidate_sha256=rec.gauntlet.candidate_sha256;
+  if (rec.checkout?.live_activation_approved === true) rec.checkout.candidate_sha256=rec.gauntlet.candidate_sha256;
   return {...rec,...overrides};
 }
 function tempRoot() {
@@ -72,7 +74,7 @@ test('only fully gated product becomes PRODUCT_READY; passed incomplete candidat
   const products=fs.readFileSync(path.join(out,'products.ndjson'),'utf8').trim().split('\n').map(JSON.parse);
   const seeds=fs.readFileSync(path.join(out,'seeds.ndjson'),'utf8').trim().split('\n').map(JSON.parse);
   assert.equal(products[0].factory.state,'PRODUCT_READY');
-  assert.equal(productBlockers(products[0]).length,0);
+  assert.equal(productBlockers(products[0],(await loadRegistry(reg)).map).length,0);
   assert.equal(seeds[0].factory.state,'GAUNTLET_PASSED_SEED');
   assert.equal(seeds[0].factory.public_listing,false);
   assert.equal(result.outputs.live_checkout_created,false);
