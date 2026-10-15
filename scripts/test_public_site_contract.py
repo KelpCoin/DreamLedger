@@ -10,6 +10,7 @@ SERVER = (ROOT / "public" / "server.js").read_text(encoding="utf-8")
 HOME = (ROOT / "public" / "home.html").read_text(encoding="utf-8")
 TRUST = (ROOT / "public" / "trust.html").read_text(encoding="utf-8")
 ABOUT = (ROOT / "public" / "about.html").read_text(encoding="utf-8")
+QUOTE = (ROOT / "public" / "quote-comparison" / "index.html").read_text(encoding="utf-8")
 CATALOGUE = json.loads((ROOT / "public" / "catalog.json").read_text(encoding="utf-8"))
 
 checks = {
@@ -17,17 +18,17 @@ checks = {
     "about route maps to page": "'/about/':'about.html'" in SERVER,
     "trust route maps to page": "'/trust/':'trust.html'" in SERVER,
     "homepage has responsive viewport": 'name="viewport"' in HOME,
-    "homepage has a free quote worksheet": "quote-tool" in HOME and "comparison-template.csv" in HOME,
-    "homepage explains browser-local CSV": "No supplier data was uploaded" in HOME,
+    "homepage has a free quote worksheet": 'href="/quote-comparison/"' in HOME and "Free Supplier Quote Comparison Worksheet" in HOME,
+    "homepage explains browser-local CSV": "does not upload your information to DreamLedger" in QUOTE and 'id="csv"' in QUOTE and "Export CSV" in QUOTE,
     "trust page defines evidence boundary": "VERIFIED" in TRUST and "UNVERIFIED" in TRUST,
     "about page is present": "DreamLedger" in ABOUT and len(ABOUT) > 1000,
     "no fake customer metrics on homepage": not re.search(r"\b(?:10,000\+ customers|100% uptime|SOC 2 certified|ISO 27001 certified)\b", HOME, re.I),
-    "no public secret literals": not re.search(r"(?:sk_live_[A-Za-z0-9]+|whsec_[A-Za-z0-9]+)", HOME + TRUST + ABOUT),
+    "no public secret literals": not re.search(r"(?:sk_live_[A-Za-z0-9]+|whsec_[A-Za-z0-9]+)", HOME + TRUST + ABOUT + QUOTE),
 }
 
 route_keys = set(re.findall(r"""['"](/[^'"]*)['"]\s*:""", SERVER))
 internal_links = []
-for page in (HOME, TRUST, ABOUT):
+for page in (HOME, TRUST, ABOUT, QUOTE):
     internal_links.extend(re.findall(r"""href=["'](/[^"']*)["']""", page))
 broken_links = []
 for target in internal_links:

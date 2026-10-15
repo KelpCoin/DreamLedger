@@ -36,6 +36,8 @@ test('MTG renderer has no default Lightly Played condition', () => {
   assert.equal(patch.includes('Condition not specified'), false);
   assert.match(source, /conditionEligible/);
   assert.match(patch, /conditionEligible/);
+  assert.equal(source.includes('buy.stripe.com'), false);
+  assert.ok(source.includes('Currently held'));
 });
 
 test('static root publication contains the manifest-driven MTG master paths', () => {
@@ -44,6 +46,15 @@ test('static root publication contains the manifest-driven MTG master paths', ()
     'data/_catalog-empty.template.json', 'assets/mtg-deck-grid.js',
     'assets/silo-master.css', 'data/decklists/quintorius.json'
   ]) assert.equal(fs.existsSync(path.join(root, p)), true, p + ' must exist at the static publish root');
-  assert.equal(read('mtg/index.html'), read('public/mtg/index.html'));
+  const preview = read('mtg/index.html');
+  const live = read('public/mtg/index.html');
+  assert.ok(preview.includes("CATALOG='/public/catalog.json'"));
+  assert.ok(live.includes("CATALOG='/catalog.json'"));
+  assert.equal(preview.includes('buy.stripe.com'), false);
+  assert.equal(live.includes('buy.stripe.com'), false);
   assert.equal(read('data/mtg-catalog.json'), read('public/data/mtg-catalog.json'));
+  const canonical = json('public/catalog.json');
+  for (const p of canonical.products.filter(p => /^EDH_/.test(String(p.id || '')))) {
+    assert.equal(Object.hasOwn(p, 'condition'), false, p.id + ' must use deck_condition');
+  }
 });
