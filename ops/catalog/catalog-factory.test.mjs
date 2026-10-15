@@ -111,10 +111,12 @@ test('Stripe provisioner remains dry-run by default and revalidates product gate
   const root=tempRoot();
   const input=path.join(root,'products.ndjson');
   const state=path.join(root,'state.ndjson');
+  const reg=path.join(root,'registry.json');
   const row=record('DEV-API-WRAPPER-123','developer-assets',true);
   row.factory={state:'PRODUCT_READY',candidate_sha256:row.gauntlet.candidate_sha256,live_checkout_enabled_for_silo:true};
   writeNdjson(input,[row]);
-  const result=await runProvisioner({input,state,limit:25,dryRun:true});
+  fs.writeFileSync(reg,JSON.stringify(registry([{slug:'developer-assets',live_checkout_enabled:true}])));
+  const result=await runProvisioner({input,state,registryPath:reg,limit:25,dryRun:true});
   assert.equal(result.mode,'DRY_RUN');
   assert.equal(result.created_count,0);
   assert.equal(result.results[0].state,'DRY_RUN');
