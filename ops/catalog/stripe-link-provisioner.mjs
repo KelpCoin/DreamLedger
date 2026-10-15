@@ -93,6 +93,20 @@ function formEncode(entries) {
   }
   return out.toString();
 }
+async function stripeFindExistingProduct(candidate, candidateSha256, secretKey) {
+  const query = `metadata['dreamledger_sku']:'${String(candidate.sku).replace(/'/g, "\\'")}' AND metadata['dreamledger_candidate_sha256']:'${candidateSha256}'`;
+  const url = STRIPE_API + '/products/search?' + new URLSearchParams({query,limit:'100'}).toString();
+  const response = await fetch(url, {headers:{Authorization:'Bearer '+secretKey},redirect:'error'});
+  const text = await response.text();
+  let data;
+  try { data = JSON.parse(text); } catch { data = {message:text.slice(0,500)}; }
+  if (!response.ok) {
+    const error = new Error('STRIPE_PRODUCT_SEARCH_'+response.status+':'+String(data?.error?.message||'request failed').slice(0,300));
+    error.status = response.status;
+    throw error;
+  }
+  return Array.isArray(data.data) ? data.data : [];
+}
 async function stripeCreateLink(record, secretKey) {
   const c=record.candidate;
   const digest=record.factory.candidate_sha256;
@@ -200,6 +214,13 @@ async function runProvisioner(options) {
       const started={...attempt,state:'PROVISIONING_STARTED',idempotency_key:'dreamledger-link-'+c.sku.toLowerCase()+'-'+item.record.factory.candidate_sha256.slice(0,32)};
       await writeLine(stream,started);
       try {
+        const matches=await stripeFindExistingProduct(c,attempt.candidate_sha256,process.env.STRIPE_SECRET_KEY);
+        if(matches.length) {
+          const review={...attempt,state:'REVIEW_REQUIRED',reason:'MATCHING_STRIPE_PRODUCT_ALREADY_EXISTS',matching_product_ids:matches.map(x=>x.id),retry_rule:'Reconcile the existing product and associated link before attempting another live link.'};
+          await writeLine(stream,review);
+          results.push(review);
+          continue;
+        }
         const link=await stripeCreateLink(item.record,process.env.STRIPE_SECRET_KEY);
         const success={...attempt,...link,state:'CREATED',created_at:new Date().toISOString(),mode:'LIVE'};
         await writeLine(stream,success);
@@ -251,4 +272,4 @@ if (process.argv[1] && import.meta.url===pathToFileURL(path.resolve(process.argv
       .catch(error=>{console.error(JSON.stringify({status:'HOLD',error:String(error.message||error)},null,2));process.exitCode=1;});
   }
 }
-export { productBlockers, stripeCreateLink, runProvisioner };
+export { productBlockers, stripeFindExistingProduct, stripeCreateLink, runProvisioner };
