@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Magic · Buy & sell singles | DreamLedger NZ</title>
+<title>Magic · Buy &amp; sell singles | DreamLedger NZ</title>
 <meta name="description" content="NZ Magic marketplace. List singles free. See the cards. Safe deals.">
 <link rel="canonical" href="https://dreamledger.org/mtg/">
 <link rel="stylesheet" href="/assets/silo-master.css">
@@ -37,7 +37,7 @@
 </head>
 <body class="silo-body">
 <header class="silo-hdr"><div class="silo-hdr-inner">
-  <a class="silo-logo" href="/mtg/" id="logo">
+  <a class="silo-logo" href="/mtg/">
     <span class="silo-logo-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M4 8l8-5 8 5v8l-8 5-8-5V8z" stroke="currentColor" stroke-width="1.4"/></svg></span>
     <span>Dream<em>Ledger</em> · <span id="navShort">Magic</span></span>
   </a>
@@ -57,7 +57,7 @@
       <span class="silo-pill silo-pill-ok">0% success fee</span>
       <span class="silo-pill">See the cards</span>
     </div>
-    <h1 class="silo-display" id="headline" style="margin-top:14px;max-width:16ch">Sell singles. See the cards.</h1>
+    <h1 class="silo-display" style="margin-top:14px;max-width:16ch">Sell singles. See the cards.</h1>
     <p class="silo-lead" id="tagline">List free with a clear card face, condition, and price. Browse decks when you want a whole pile.</p>
     <div class="silo-actions">
       <a class="silo-btn silo-btn-gold" id="ctaPrimary" href="/mtg-list">Sell a single</a>
@@ -74,7 +74,14 @@
     <div id="status" class="status-bar">Loading inventory…</div>
     <div id="grid" class="grid"></div>
   </section>
-  
+  <section class="silo-section">
+    <div class="diag">
+      <p class="silo-eyebrow">Platform tool · not cardboard</p>
+      <h2 class="silo-h2" style="margin:0 0 8px">Commander diagnostic · NZ$29</h2>
+      <p style="color:var(--silo-muted);margin:0 0 14px;max-width:36em">Digital structure review. Settles on Stripe. Separate from peer singles.</p>
+      <a class="silo-btn silo-btn-gold" href="https://buy.stripe.com/8x228r1nfg0l3M32csdwc2I">Buy diagnostic</a>
+    </div>
+  </section>
   <p class="clone-meta" id="cloneMeta">Master silo · driven by /silos/mtg/silo.json · clone = new manifest + empty catalog · gauntlet before activation</p>
 </main>
 <footer class="silo-footer silo-wrap">
@@ -83,22 +90,71 @@
   <a id="footList" href="/mtg-list">Sell single</a>
   <a href="/register">Join</a>
   <p style="margin-top:12px">DreamLedger Magic — see the cards, then deal.</p>
-
-<p><a href="https://patreon.com/happyhomarid" target="_blank" rel="noopener noreferrer">Support Happy Homarid on Patreon</a></p>
 </footer>
 <script>
 (function(){
- const MANIFEST='/silos/mtg/silo.json',CATALOG='/data/mtg-catalog.json',grid=document.getElementById('grid'),status=document.getElementById('status');
- const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- async function json(url){const r=await fetch(url,{cache:'no-store',headers:{Accept:'application/json'}});if(!r.ok)throw new Error(url+' returned '+r.status);return r.json();}
- async function start(){
-  let m=null;try{m=await json(MANIFEST);}catch(e){console.warn('MTG manifest unavailable',e);}
-  if(m){if(m.accent)document.documentElement.style.setProperty('--silo-accent',m.accent);if(m.accent_bright)document.documentElement.style.setProperty('--silo-accent-bright',m.accent_bright);if(m.short&&document.getElementById('navShort'))document.getElementById('navShort').textContent=m.short;if(m.tagline&&document.getElementById('tagline'))document.getElementById('tagline').textContent=m.tagline;}
+const MANIFEST='/silos/mtg/silo.json',CATALOG='/data/mtg-catalog.json',grid=document.getElementById('grid'),status=document.getElementById('status');
+function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+async function applyManifest(){
   try{
-   const data=await json((m&&m.catalog)||CATALOG);
-   const decks=(Array.isArray(data.products)?data.products:[]).filter(p=>p&&p.silo==='mtg'&&p.category==='commander-deck'&&p.status==='published'&&Number(p.inventory)>0);
-   if(!decks.length){status.textContent='No verified deck listings are currently available. Inventory appears only when valid listings are present.';grid.innerHTML='';return;}
-   status.textContent=decks.length+' listed deck'+(decks.length===1?'':'s')+'. Confirm availability with the seller before paying.';
-   grid.innerHTML=decks.map(p=>{const price=Number(p.price),claim=p.claim_url||p.detail_url||'/mtg-list';return '<article class="deck"><div class="deck-body"><div class="tag">Physical Commander deck</div><h3>'+esc(p.name)+'</h3><p class="desc">'+esc(p.description||'Details supplied by seller.')+'</p><div class="price">'+(Number.isFinite(price)?'NZ
+    const m=await (await fetch(MANIFEST,{cache:'no-store'})).json();
+    if(m.accent) document.documentElement.style.setProperty('--silo-accent', m.accent);
+    if(m.accent_bright) document.documentElement.style.setProperty('--silo-accent-bright', m.accent_bright);
+    const short=m.short||'Magic';
+    document.getElementById('navShort').textContent=short;
+    document.getElementById('eyebrow').textContent=(m.name||short)+' · New Zealand';
+    if(m.tagline) document.getElementById('tagline').textContent=m.tagline;
+    const list=m.list_route||'/mtg-list';
+    document.getElementById('navList').href=list;
+    document.getElementById('navCta').href=list;
+    document.getElementById('ctaPrimary').href=list;
+    document.getElementById('footList').href=list;
+    if(m.surface&&m.surface.primary_cta) document.getElementById('ctaPrimary').textContent=m.surface.primary_cta.label||'Sell a single';
+    if(m.surface&&Array.isArray(m.surface.hero_pills)){
+      document.getElementById('pills').innerHTML=m.surface.hero_pills.map((p,i)=>
+        '<span class="silo-pill'+(i===0?' silo-pill-gold':i===1?' silo-pill-ok':'')+'">'+esc(p)+'</span>'
+      ).join('');
+    }
+    const blocks=(m.surface&&m.surface.community_blocks)||[];
+    if(blocks.length){
+      document.getElementById('community').innerHTML=blocks.map(b=>
+        '<article><h3>'+esc(b.title)+'</h3><p>'+esc(b.body)+'</p></article>'
+      ).join('');
+    }
+    document.getElementById('cloneMeta').textContent='Master silo · '+MANIFEST+' · inventory_policy='+(m.inventory_policy||'')+' · clone via cube → gauntlet';
+    return m;
+  }catch(e){return null;}
+}
+function isPhysical(p){return p.category==='commander-deck'||/^EDH/i.test(p.id||'');}
+async function loadCatalog(manifest){
+  const catalogUrl=(manifest&&manifest.catalog)||CATALOG;
+  try{
+    const r=await fetch(catalogUrl,{cache:'no-store'});
+    if(!r.ok)throw new Error('Catalogue unavailable');
+    const data=await r.json();
+    const decks=(data.products||[]).filter(isPhysical);
+    if(!decks.length){
+      status.textContent='No verified deck supply listed yet. Inventory stays empty until supply is verified.';
+      grid.innerHTML='';
+      return;
+    }
+    status.textContent=decks.length+' deck'+(decks.length===1?'':'s')+' · open listing to see cards';
+    grid.innerHTML=decks.map(p=>{
+      const price=Number(p.price)||0;
+      const detail=p.detail_url||'#';
+      const inv=Number(p.inventory)>0;
+      const buy=inv
+        ? '<a class="buy" href="'+esc(detail)+'">See cards &amp; buy · NZ$'+price+'</a>'
+        : '<a class="buy" href="'+esc(detail)+'" style="opacity:.6">View</a>';
+      return '<article class="deck"><div class="deck-banner">Commander · '+(inv?'In stock':'—')+'</div><div class="deck-body"><div class="tag">'+(p.commander?esc(p.commander):'EDH')+'</div><h3>'+esc(p.name)+'</h3><p class="desc">'+esc(p.description||'')+'</p><div class="price">NZ$'+price+'</div><div class="actions">'+buy+'<a class="see" href="'+esc(detail)+'">Open full card grid</a></div></div></article>';
+    }).join('');
+  }catch(e){
+    status.className='status-bar error';
+    status.textContent=e.message||'Load failed';
+  }
+}
+applyManifest().then(loadCatalog);
+})();
+</script>
 </body>
 </html>
