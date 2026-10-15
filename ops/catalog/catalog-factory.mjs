@@ -11,6 +11,9 @@ import crypto from 'node:crypto';
 import readline from 'node:readline';
 import { once } from 'node:events';
 import { pathToFileURL } from 'node:url';
+import { createRequire } from 'node:module';
+const require = createRequire(import.meta.url);
+const { run: runCanonicalCandidateGauntlet } = require('../../BEC-PRIME/gauntlet/CandidateGauntlet.js');
 
 const DEFAULT_REGISTRY = 'ops/catalog/silos/registry.json';
 const DEFAULT_MAX_RECORDS = 250000;
@@ -48,6 +51,40 @@ function lineObject(text, lineNumber) {
     return { error: 'INVALID_JSON:' + String(error.message || error), line_number: lineNumber };
   }
 }
+function toCanonicalGauntletOffer(record) {
+  const c = record?.candidate || {};
+  const paid = c.price && Number.isSafeInteger(c.price.unit_amount_minor) && c.price.unit_amount_minor > 0;
+  return {
+    offer_id: String(c.sku || ''),
+    name: String(c.name || ''),
+    problem: String(c.problem || c.description || ''),
+    input: String(c.input_contract || 'Candidate contract and source evidence supplied by the registered silo.'),
+    output: String(c.description || ''),
+    target_buyer: String(c.demand?.buyer_segment || ''),
+    deliverable: String(c.description || ''),
+    delivery_mechanism: String(c.fulfillment?.delivery_mode || 'blocked_until_fulfillment_ready'),
+    price: paid ? Number(c.price.unit_amount_minor) / 100 : 0,
+    currency: String(c.price?.currency || 'NZD').toUpperCase(),
+    commercial_mode: paid ? 'PAID_CANDIDATE' : 'FREE_DISCOVERY',
+    payment_adapter: 'stripe',
+    checkout_route: '/api/offer-checkout/create',
+    approval_required: true,
+    checkout_available: false,
+    status: 'candidate',
+    proof_of_delivery: String(c.fulfillment?.test_ref || 'delivery_proof_required_before_product_release'),
+    verification_rules: [
+      'registered_silo',
+      'source_provenance',
+      'buyer_demand_evidence',
+      'fulfillment_contract',
+      'settlement_attribution',
+      'delivery_receipt'
+    ],
+    provenance: { source_ref: c.source?.ref || null, source_sha256: c.source?.sha256 || null, private_material: 'excluded' },
+    silo: String(c.silo || ''),
+    kill_condition: 'No source provenance, no buyer evidence, failed fulfillment, or contradictory evidence.'
+  };
+}
 export function verifyGauntlet(record) {
   const failures = [];
   const g = record?.gauntlet;
@@ -68,7 +105,23 @@ export function verifyGauntlet(record) {
     seen.add(check.id);
   }
   for (const id of SEED_CHECKS) if (!seen.has(id)) failures.push('GAUNTLET_REQUIRED_CHECK_MISSING:' + id);
-  return { passed: failures.length === 0, failures, candidate_sha256: digest, check_ids: [...seen].sort() };
+  let canonicalProof = null;
+  try {
+    canonicalProof = runCanonicalCandidateGauntlet(toCanonicalGauntletOffer(record));
+    if (canonicalProof.status !== 'PASS') {
+      const failed = (canonicalProof.checks || []).filter(x => x.status !== 'PASS').map(x => x.id);
+      failures.push('CANONICAL_GAUNTLET_FAIL:' + failed.join(','));
+    }
+  } catch (error) {
+    failures.push('CANONICAL_GAUNTLET_ERROR:' + String(error.message || error));
+  }
+  return {
+    passed: failures.length === 0,
+    failures,
+    candidate_sha256: digest,
+    check_ids: [...seen].sort(),
+    canonical_gauntlet: canonicalProof ? {status: canonicalProof.status, candidate_hash: canonicalProof.candidate_hash, checks: canonicalProof.checks} : null
+  };
 }
 export function validateCandidate(record, siloMap) {
   const failures = [];
