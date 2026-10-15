@@ -5,6 +5,18 @@
   "default_live_checkout_enabled": false,
   "silos": [
     {
+      "slug": "mtg",
+      "title": "Magic: The Gathering",
+      "description": "Canonical clone master for the public silo shell. Template structure only; catalogue is not copied.",
+      "lifecycle": "INGEST_ONLY",
+      "live_checkout_enabled": false,
+      "clone_master_ref": "silos/mtg/silo.json",
+      "public_manifest_ref": "public/silos/mtg/silo.json",
+      "clone_manifest_schema": "BEC-PRIME/CUBE-CLONE-MANIFEST/v1",
+      "catalog_gate_manifest_ref": "ops/catalog/templates/silo-manifest.v1.json",
+      "catalog_gate_manifest_schema": "dreamledger/silo-manifest/v1"
+    },
+    {
       "slug": "b2b-compliance",
       "title": "B2B Compliance Artifacts",
       "description": "Evidence-backed technical/compliance kits and readiness tooling.",
