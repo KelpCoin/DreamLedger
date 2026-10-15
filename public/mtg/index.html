@@ -128,31 +128,35 @@ async function applyManifest(){
 function isPhysical(p){return p.category==='commander-deck'||/^EDH/i.test(p.id||'');}
 function conditionEligible(p){const kind=String(p.product_kind||p.category||p.inventory_type||'').toLowerCase();return ['single','single-card','mtg-single','physical-single'].includes(kind);}
 async function loadCatalog(manifest){
-  const catalogUrl=(manifest&&manifest.catalog)||CATALOG;
+  const catalogUrl=(manifest&&typeof manifest.catalog==='string'&&manifest.catalog.trim())||CATALOG;
   try{
-    const r=await fetch(catalogUrl,{cache:'no-store'});
-    if(!r.ok)throw new Error('Catalogue unavailable');
+    const r=await fetch(catalogUrl,{cache:'no-store',headers:{Accept:'application/json'}});
+    if(!r.ok)throw new Error('Catalogue unavailable ('+r.status+')');
     const data=await r.json();
-    const decks=(data.products||[]).filter(isPhysical);
+    const decks=(Array.isArray(data.products)?data.products:[]).filter(p=>p&&isPhysical(p)&&p.status==='published');
     if(!decks.length){
-      status.textContent='No verified deck supply listed yet. Inventory stays empty until supply is verified.';
+      status.textContent='No published physical decks are listed. Inventory stays unverified until a valid listing is present.';
       grid.innerHTML='';
       return;
     }
-    status.textContent=decks.length+' deck'+(decks.length===1?'':'s')+' · open listing to see cards';
+    status.textContent=decks.length+' listed deck'+(decks.length===1?'':'s')+' · seller availability and payment must be confirmed before purchase';
     grid.innerHTML=decks.map(p=>{
-      const price=Number(p.price)||0;
+      const price=Number(p.price);
       const detail=p.detail_url||p.claim_url||'/mtg-list';
-      const inv=Number(p.inventory)>0;
-      const deckCondition=p.category==='commander-deck'&&typeof p.deck_condition==='string'&&p.deck_condition.trim()?'<p class="desc">Deck condition: '+esc(p.deck_condition.trim())+'</p>':'';
-      const cardCondition=conditionEligible(p)&&typeof p.condition==='string'&&p.condition.trim()?'<p class="desc">Card condition: '+esc(p.condition.trim())+'</p>':'';
-      const buy=inv
-        ? '<a class="buy" href="'+esc(detail)+'">Open listing · NZ
-      return '<article class="deck"><div class="deck-banner">Commander · '+(inv?'In stock':'—')+'</div><div class="deck-body"><div class="tag">'+(p.commander?esc(p.commander):'EDH')+'</div><h3>'+esc(p.name)+'</h3><p class="desc">'+esc(p.description||'')+'</p>'+deckCondition+cardCondition+'<div class="price">NZ'+buy+'<a class="see" href="'+esc(detail)+'">Open full card grid</a></div></div></article>';
+      const canCheckout=p.checkout_available===true&&typeof p.checkout_url==='string'&&p.checkout_url.startsWith('https://')&&p.availability!=='review_required';
+      const deckCondition=isPhysical(p)&&typeof p.deck_condition==='string'&&p.deck_condition.trim()
+        ?'<p class="desc">Deck condition: '+esc(p.deck_condition.trim())+'</p>':'';
+      const cardCondition=conditionEligible(p)&&typeof p.condition==='string'&&p.condition.trim()
+        ?'<p class="desc">Card condition: '+esc(p.condition.trim())+'</p>':'';
+      const statusLabel=p.availability==='review_required'?'Availability review required':'Seller-listed · confirm availability';
+      const actionHref=canCheckout?p.checkout_url:detail;
+      const actionLabel=canCheckout?'Continue to verified checkout':p.sale_mode==='claim_by_message'?'Ask to claim':'Open listing';
+      return '<article class="deck"><div class="deck-banner">Commander · '+esc(statusLabel)+'</div><div class="deck-body"><div class="tag">'+(p.commander?esc(p.commander):'EDH')+'</div><h3>'+esc(p.name)+'</h3><p class="desc">'+esc(p.description||'')+'</p>'+deckCondition+cardCondition+'<div class="price">'+(Number.isFinite(price)?'NZ$'+price.toFixed(2):'Price unverified')+'</div><div class="actions"><a class="buy" href="'+esc(actionHref)+'">'+esc(actionLabel)+'</a><a class="see" href="'+esc(detail)+'">Open listing details</a></div></div></article>';
     }).join('');
   }catch(e){
     status.className='status-bar error';
-    status.textContent=e.message||'Load failed';
+    status.textContent=e.message||'Catalogue load failed';
+    grid.innerHTML='';
   }
 }
 applyManifest().then(loadCatalog);
