@@ -58,28 +58,36 @@ export default async function handler(request: Request): Promise<Response> {
   form.set('mode', 'payment');
   form.set('line_items[0][price_data][currency]', 'nzd');
   form.set('line_items[0][price_data][product_data][name]', offer.name);
+  form.set('line_items[0][price_data][product_data][metadata][sku_id]', offer.product_id);
   form.set('line_items[0][price_data][product_data][metadata][sku]', offer.sku);
   form.set('line_items[0][price_data][product_data][metadata][product_id]', offer.product_id);
   form.set('line_items[0][price_data][unit_amount]', String(offer.amount_nzd_cents));
   form.set('line_items[0][quantity]', '1');
+
+  form.set('metadata[offer_id]', requested || offer.sku);
+  form.set('metadata[sku_id]', offer.product_id);
+  form.set('metadata[sku]', offer.sku);
+  form.set('metadata[product_id]', offer.product_id);
+  form.set('metadata[product_sku]', offer.sku);
+  form.set('metadata[silo]', offer.silo);
+  form.set('metadata[source]', 'stripe_link');
+
+  form.set('payment_intent_data[metadata][sku_id]', offer.product_id);
+  form.set('payment_intent_data[metadata][sku]', offer.sku);
   form.set('payment_intent_data[metadata][product_sku]', offer.sku);
   form.set('payment_intent_data[metadata][product_id]', offer.product_id);
   form.set('payment_intent_data[metadata][offer_id]', requested || offer.sku);
   form.set('payment_intent_data[metadata][silo]', offer.silo);
   form.set('payment_intent_data[metadata][source]', 'stripe_link');
+
+  if ('marketplace_listing_id' in offer && offer.marketplace_listing_id) {
+    form.set('metadata[marketplace_listing_id]', offer.marketplace_listing_id);
+    form.set('line_items[0][price_data][product_data][metadata][marketplace_listing_id]', offer.marketplace_listing_id);
+    form.set('payment_intent_data[metadata][marketplace_listing_id]', offer.marketplace_listing_id);
+  }
+
   form.set('success_url', 'https://dreamledger.org/success?session_id={CHECKOUT_SESSION_ID}');
   form.set('cancel_url', 'https://dreamledger.org/cancel');
-  form.set('metadata[offer_id]', requested || offer.sku);
-  form.set('metadata[product_id]', offer.product_id);
-  form.set('metadata[silo]', offer.silo);
-  form.set('metadata[sku]', offer.sku);
-  form.set('metadata[product_sku]', offer.sku);
-  form.set('metadata[source]', 'stripe_link');
-  form.set('payment_intent_data[metadata][product_id]', offer.product_id);
-  form.set('payment_intent_data[metadata][product_sku]', offer.sku);
-  form.set('payment_intent_data[metadata][offer_id]', requested || offer.sku);
-  form.set('payment_intent_data[metadata][silo]', offer.silo);
-  form.set('payment_intent_data[metadata][source]', 'stripe_link');
 
   if ('custom_fields' in offer && Array.isArray(offer.custom_fields)) {
     offer.custom_fields.forEach((field, index) => {
