@@ -165,7 +165,6 @@
       "inventory": 1,
       "status": "published",
       "seller": "Biggie",
-      "condition": "Seller reports fully sleeved; extensively playtested",
       "fulfillment_method": "physical_delivery",
       "image_url": null,
       "checkout_available": false,
@@ -202,7 +201,8 @@
         "evidence_required": true,
         "payment_link": null
       },
-      "default_offer_id": "EDH_QUINTORIUS_0002"
+      "default_offer_id": "EDH_QUINTORIUS_0002",
+      "deck_condition": "Seller reports fully sleeved; extensively playtested"
     },
     {
       "id": "EDH_DWYNEN_0003",
@@ -215,7 +215,6 @@
       "inventory": 1,
       "status": "published",
       "seller": "HappyHomarid",
-      "condition": "Seller reports sleeved and extensively playtested",
       "fulfillment_method": "physical_delivery",
       "image_url": null,
       "checkout_available": false,
@@ -252,7 +251,8 @@
         "evidence_required": true,
         "payment_link": null
       },
-      "default_offer_id": "EDH_DWYNEN_0003"
+      "default_offer_id": "EDH_DWYNEN_0003",
+      "deck_condition": "Seller reports sleeved and extensively playtested"
     },
     {
       "id": "DREAMLEDGER-DOOH-CAMPAIGN-500",
@@ -455,7 +455,6 @@
       "detail_url": "/mtg/jon-irenicus-shattered-one.html",
       "decklist_url": "https://manabox.app/decks/AZ2BaCy-c-a8MpZUUcgxqw",
       "seller": "HappyHomarid",
-      "condition": "Fully sleeved, playtested rigorously and ready to play",
       "fulfillment_method": "physical_delivery",
       "patron_price_nzd": 200,
       "patron_url": "https://patreon.com/happyhomarid",
@@ -466,7 +465,8 @@
         "fulfillment_required": true,
         "evidence_required": true,
         "payment_link": null
-      }
+      },
+      "deck_condition": "Fully sleeved, playtested rigorously and ready to play"
     }
   ]
 }
