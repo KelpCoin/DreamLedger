@@ -49,18 +49,20 @@ jobs:
         shell: pwsh
         run: pwsh -NoProfile -File BEC-PRIME/scripts/Verify-RevenueReadiness.ps1
 
-      - name: Verify canonical Commander product price
+      - name: Verify Commander is held with a correctly represented reference price
         shell: pwsh
         run: |
           $product = Get-Content BEC-PRIME/catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json -Raw | ConvertFrom-Json
           if ($product.id -ne 'COMMANDER-DECK-DIAGNOSTIC-001') { throw 'wrong canonical product' }
-          if ([int]$product.price -ne 2900) { throw "canonical product price is not 2900 cents: $($product.price)" }
+          if ([double]$product.price -ne 29 -or $product.price_unit -ne 'major') { throw 'reference price must be NZD 29 major units' }
           if ($product.currency -ne 'nzd') { throw 'canonical currency is not nzd' }
-          if ($product.checkout.mode -ne 'payment') { throw 'canonical checkout mode is not payment' }
+          if ($product.status -ne 'held' -or $product.checkout.mode -ne 'disabled') { throw 'Commander sale must remain held until durable delivery is verified' }
+          if ($product.commercial_truth.sellable -ne $false -or $product.fulfillment.operator_required -ne $true) { throw 'Held product truth is inconsistent' }
           Write-Host 'CANONICAL_MTG_PRODUCT=PASS'
-          Write-Host 'CANONICAL_PRICE_NZD=29.00'
+          Write-Host 'REFERENCE_PRICE_NZD=29.00'
+          Write-Host 'CHECKOUT_STATE=HELD'
 
-      - name: Probe public offers
+      - name: Verify public offers do not expose held Commander checkout
         shell: bash
         run: |
           set -euo pipefail
@@ -71,35 +73,31 @@ jobs:
           data=json.load(open('offers.json',encoding='utf-8'))
           offers=data.get('offers', []) if isinstance(data,dict) else []
           target=None
+          identities={'COMMANDER-DECK-DIAGNOSTIC-001','CMD-DIAG-29','OFFER-CMD-DIAG-29-NZD'}
           for item in offers:
-              identity = str(item.get('offer_id') or item.get('product_sku') or item.get('product_id') or '')
-              if identity == 'COMMANDER-DECK-DIAGNOSTIC-001':
+              found={str(item.get(k) or '') for k in ('offer_id','product_sku','product_id','sku','id')}
+              if found & identities:
                   target=item
                   break
-          if target is None:
-              raise SystemExit('PUBLIC_MTG_OFFER=NOT_EXPOSED')
-          price=float(target.get('price'))
-          if price not in (25.0, 2500.0):
-              raise SystemExit(f'PUBLIC_MTG_PRICE_MISMATCH={price}')
-          currency=str(target.get('currency','')).lower()
-          if currency and currency != 'nzd':
-              raise SystemExit(f'PUBLIC_MTG_CURRENCY_MISMATCH={currency}')
-          if 'checkout_available' in target and target.get('checkout_available') is not True:
-              raise SystemExit('PUBLIC_MTG_CHECKOUT=NOT_AVAILABLE')
-          print('PUBLIC_MTG_OFFER=PASS')
-          print(f'PUBLIC_MTG_PRICE={price}')
-          print('PUBLIC_MTG_CURRENCY=NZD')
-          print('PUBLIC_MTG_CHECKOUT=PASS')
+          if target is not None:
+              if target.get('checkout_available') is True:
+                  raise SystemExit('PUBLIC_MTG_CHECKOUT=UNSAFE_ACTIVE')
+              if target.get('checkout_url') or target.get('payment_link_url'):
+                  raise SystemExit('PUBLIC_MTG_PAYMENT_URL=EXPOSED')
+              if str(target.get('status','')).lower() not in ('held','blocked','unavailable','not_available'):
+                  raise SystemExit('PUBLIC_MTG_RELEASE_STATE=AMBIGUOUS')
+          print('PUBLIC_MTG_HELD_OFFER_NOT_PURCHASABLE=PASS')
+          print('PUBLIC_MTG_DIRECT_PAYMENT_URL=ABSENT')
           PY
 
-      - name: Emit first-sale readiness proof
+      - name: Emit honest release readiness proof
         shell: bash
         env:
           RELEASE_SHA: ${{ inputs.release_sha || github.sha }}
         run: |
           set -euo pipefail
           mkdir -p proof
-          printf '{"status":"READY_FOR_FIRST_PAYMENT","sha":"%s","sku":"COMMANDER-DECK-DIAGNOSTIC-001","price_nzd":29,"payment_truth":"AWAITING_FIRST_PAYMENT","public_payment_not_claimed":true}\n' "$RELEASE_SHA" > proof/mtg-first-sale-readiness.json
+          printf '{"status":"HOLD_DURABLE_FULFILLMENT_UNVERIFIED","sha":"%s","sku":"COMMANDER-DECK-DIAGNOSTIC-001","reference_price_nzd":29,"checkout_enabled":false,"verified_revenue_nzd":0,"payment_truth":"NO_VERIFIED_REVENUE","public_payment_not_claimed":true}\n' "$RELEASE_SHA" > proof/mtg-first-sale-readiness.json
           cat proof/mtg-first-sale-readiness.json
 
       - name: Upload first-sale proof

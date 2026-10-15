@@ -72,8 +72,6 @@ function demandEvidenceForOffer(offer, radar) {
 }
 
 const demandRadar = fs.existsSync(DEMAND_RADAR) ? readJson(DEMAND_RADAR) : null;
-if (!offers.length) throw new Error('No explicitly approved offers found. Refusing to publish an empty commercial portfolio.');
-
 const eligible = offers.filter(o =>
   o &&
   o.approved_by === 'operator' &&
@@ -85,9 +83,23 @@ const eligible = offers.filter(o =>
   o.currency === 'NZD'
 );
 
-if (!eligible.length) {
-  throw new Error('No approved livemode Stripe offers available. Refusing to publish a non-purchasable portfolio.');
+if (!eligible.length && offers.length > 0) {
+  throw new Error('Approved records exist but none qualify for live checkout. Refusing to promote an invalid approved record.');
 }
+
+const hasEligibleOffers = eligible.length > 0;
+const previousPortfolioNames = (() => {
+  if (!fs.existsSync(CAROUSEL_OUT)) return [];
+  try {
+    const previous = readJson(CAROUSEL_OUT);
+    return (Array.isArray(previous.silos) ? previous.silos : [])
+      .flatMap(silo => Array.isArray(silo.carousel) ? silo.carousel : [])
+      .map(offer => String(offer.name || '').trim())
+      .filter(Boolean);
+  } catch {
+    return [];
+  }
+})();
 
 fs.mkdirSync(OUT_DIR, { recursive: true });
 fs.mkdirSync(CATALOG_DIR, { recursive: true });
@@ -132,7 +144,9 @@ const compiled = eligible.map((offer, index) => {
 
 const catalog = {
   schema: 'BEC-PRIME/SLEEPING-COMMERCE-PORTFOLIO/v1',
-  status: 'COMPILED',
+  status: hasEligibleOffers ? 'COMPILED' : 'HELD_NO_APPROVED_OFFERS',
+  release_state: hasEligibleOffers ? 'APPROVED_OFFERS_PRESENT' : 'HOLD',
+  hold_reason: hasEligibleOffers ? null : 'No offer is currently approved and configured for live checkout. No purchase CTAs are published.',
   compiler: 'SiloPortfolioCompiler',
   compiled_at: new Date().toISOString(),
   source_hash: digest(fs.readFileSync(APPROVED, 'utf8')),
@@ -151,6 +165,15 @@ const catalog = {
 
 fs.writeFileSync(CATALOG, JSON.stringify(catalog, null, 2) + '\n', 'utf8');
 
+// Remove only pages named in the prior generated carousel manifest, and only when
+// those previously compiler-owned offers are no longer in the approved portfolio.
+const currentPortfolioNames = new Set(compiled.map(offer => slug(offer.name)));
+for (const oldName of previousPortfolioNames) {
+  if (currentPortfolioNames.has(slug(oldName))) continue;
+  const stalePage = path.join(OUT_DIR, `${slug(oldName)}.html`);
+  if (fs.existsSync(stalePage)) fs.unlinkSync(stalePage);
+}
+
 const registry = readJson(SILO_REGISTRY);
 const silos = Array.isArray(registry.silos) ? registry.silos : [];
 const bySilo = new Map();
@@ -162,7 +185,8 @@ for (const offer of compiled) {
 
 const carouselManifest = {
   schema: 'BEC-PRIME/SILO-CAROUSEL-MANIFEST/v1',
-  status: 'COMPILED',
+  status: hasEligibleOffers ? 'COMPILED' : 'HELD_NO_APPROVED_OFFERS',
+  release_state: hasEligibleOffers ? 'APPROVED_OFFERS_PRESENT' : 'HOLD',
   compiler: 'SiloPortfolioCompiler',
   trend_engine: 'BEC-PRIME/trends/TrendFlywheel.js',
   compiled_at: catalog.compiled_at,
@@ -215,19 +239,19 @@ const publicCards = rankOffers(compiled).map(offer => `
 
 const publicIndex = `<!doctype html>
 <html lang="en-NZ"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="robots" content="index,follow"><link rel="canonical" href="https://dreamledger.org/portfolio/">
+<meta name="robots" content="${hasEligibleOffers ? 'index,follow' : 'noindex,follow'}"><link rel="canonical" href="https://dreamledger.org/portfolio/">
 <title>DreamLedger Commercial Portfolio</title>
-<meta name="description" content="Current DreamLedger commercial inventory ranked by the trend-aware portfolio compiler.">
+<meta name="description" content="${hasEligibleOffers ? 'Current approved DreamLedger commercial inventory.' : 'No offers are currently approved for live checkout.'}">
 <style>
 body{margin:0;background:#080a0d;color:#f5f3eb;font:16px/1.55 system-ui}.wrap{max-width:1100px;margin:auto;padding:32px 20px 70px}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:16px}.card{border:1px solid #303541;background:#151820;border-radius:18px;padding:22px}
 .eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#a8adb8}.price{font-size:28px;font-weight:900}.state{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#d8b66b}
 a{color:#d8b56b}.buy{display:inline-block;padding:12px 18px;border-radius:10px;background:#d8b66b;color:#111;text-decoration:none;font-weight:900}
-</style></head><body><main class="wrap"><p class="eyebrow">ONE COMMERCE SUBSTRATE · TREND-AWARE INVENTORY</p>
+</style></head><body><main class="wrap"><p class="eyebrow">${hasEligibleOffers ? 'ONE COMMERCE SUBSTRATE · TREND-AWARE INVENTORY' : 'COMMERCE HOLD · 0 APPROVED OFFERS'}</p>
 <h1>DreamLedger Commercial Portfolio</h1>
-<p>Approved, live-checkout offers ranked by the existing trend flywheel. Unknown market evidence remains unknown. Trend state does not imply revenue.</p>
+<p>${hasEligibleOffers ? 'Only explicitly approved, live-checkout offers are shown here. Trend state does not imply revenue.' : 'No paid offers are currently approved for purchase. Commander Diagnostic and Founding Billboard remain held until secure intake, settlement, durable delivery and buyer proof can be verified. This page has no purchase links.'}</p>
 <section class="grid">${publicCards}</section>
-<p style="color:#a8adb8">Settlement, fulfillment and economic verification remain governed by the existing commerce and Truth machinery.</p>
+<p style="color:#a8adb8">${hasEligibleOffers ? 'Settlement, fulfillment and economic verification remain governed by the existing commerce and Truth machinery.' : 'Verified external revenue remains NZ$0.00 until an independent buyer, settlement, attribution, fulfillment and delivery evidence are verified.'}</p>
 </main></body></html>`;
 
 fs.writeFileSync(PUBLIC_PORTFOLIO_INDEX, publicIndex, 'utf8');
@@ -349,6 +373,8 @@ fs.writeFileSync(path.join(OUT_DIR, 'index.html'), index, 'utf8');
 const proof = {
   schema: 'BEC-PRIME/SLEEPING-COMMERCE-PORTFOLIO/v1',
   status: 'PASS',
+  release_state: hasEligibleOffers ? 'APPROVED_OFFERS_PRESENT' : 'HOLD_NO_APPROVED_OFFERS',
+  checkout_enabled: hasEligibleOffers,
   compiled_at: catalog.compiled_at,
   source_hash: catalog.source_hash,
   offer_count: compiled.length,

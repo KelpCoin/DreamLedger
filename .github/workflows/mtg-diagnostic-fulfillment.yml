@@ -20,17 +20,23 @@ jobs:
           node --check BEC-PRIME/start.js
       - name: Contract test
         run: node BEC-PRIME/scripts/test-mtg-diagnostic.js
-      - name: Product and fulfillment contract
+      - name: Verify the Commander offer remains held until delivery is durable
+        run: node BEC-PRIME/scripts/test-mtg-diagnostic-release-state.js
+      - name: Product and fulfillment state agree
         shell: pwsh
         run: |
           $p = Get-Content BEC-PRIME/catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json -Raw | ConvertFrom-Json
           $f = Get-Content BEC-PRIME/fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json -Raw | ConvertFrom-Json
+          $offers = Get-Content BEC-PRIME/catalog/offers/approved.json -Raw | ConvertFrom-Json
           if ($p.price -ne 29) { throw 'Commander diagnostic price contract failed' }
-          if ($p.fulfillment.mode -ne 'automated') { throw 'Automated fulfillment contract failed' }
-          if ($p.fulfillment.operator_required -ne $false) { throw 'Operator-free fulfillment contract failed' }
-          if ($f.entries.'COMMANDER-DECK-DIAGNOSTIC-001'.operator_required -ne $false) { throw 'Registry still requires operator' }
-          if ($f.entries.'COMMANDER-DECK-DIAGNOSTIC-001'.ready -ne $true) { throw 'Registry is not ready' }
-          Write-Host '[PASS] MTG diagnostic commercial and fulfillment contract'
+          if ($p.status -ne 'held') { throw 'Commander diagnostic must remain held until durable fulfillment is verified' }
+          if ($p.checkout.mode -ne 'disabled' -or $p.commercial_truth.sellable -ne $false) { throw 'Held product cannot advertise checkout' }
+          if ($p.fulfillment.mode -ne 'disabled' -or $p.fulfillment.operator_required -ne $true) { throw 'Product fulfillment state must match the hold' }
+          if ($f.entries.'COMMANDER-DECK-DIAGNOSTIC-001'.operator_required -ne $true) { throw 'Registry must not claim zero-human fulfillment' }
+          if ($f.entries.'COMMANDER-DECK-DIAGNOSTIC-001'.ready -ne $false) { throw 'Registry must remain held' }
+          if (@($offers.approved | Where-Object { $_.offer_id -eq 'OFFER-CMD-DIAG-29-NZD' }).Count -ne 0) { throw 'Held Commander offer remains in approved checkout catalog' }
+          if (@($offers.held | Where-Object { $_.offer_id -eq 'OFFER-CMD-DIAG-29-NZD' -and $_.payment_link_url -eq $null }).Count -ne 1) { throw 'Held Commander offer is missing from non-purchasable hold registry' }
+          Write-Host '[PASS] Commander product, registry, and approved-offer catalog agree on held state'
       - name: Compile MTG surface
         run: node BEC-PRIME/compiler/MTGCatalogCompiler.js
       - name: Verify CUBE MTG reskin
@@ -51,7 +57,7 @@ jobs:
           # DreamLedger1 serves public/home.html at /. Check the actual canonical storefront,
           # not a stale compiled snapshot maintained by a different build path.
           $homeHtml = Get-Content public/home.html -Raw
-          foreach ($token in @('DreamLedger','Supplier Quote Comparison Worksheet','Commander Deck Diagnostic','Truth Oracle')) {
+          foreach ($token in @('DreamLedger','Supplier Quote Comparison Worksheet','Magic: The Gathering','Commander Deck Diagnostic','currently held','Truth Oracle')) {
             if ($homeHtml -notmatch [regex]::Escape($token)) { throw "Canonical storefront token missing: $token" }
           }
           if ($homeHtml -match 'Agentic Commerce Readiness Audit|BrownEye Cortex|Economic Court|ELOHIM|AMPLISSA|COLLECTORSCOAST') { throw 'Internal or historical homepage residue detected' }

@@ -176,8 +176,13 @@ jobs:
           if billboard.get('checkout_available') is not True:
               raise SystemExit('FAIL: BILLBOARD-LARGE checkout not available')
           diagnostic = next((p for p in products if p.get('id') == 'COMMANDER-DECK-DIAGNOSTIC-001'), None)
-          if diagnostic is not None and diagnostic.get('checkout_available') is not True:
-              raise SystemExit('FAIL: diagnostic checkout not available')
+          if diagnostic is not None:
+              if str(diagnostic.get('status', '')).lower() != 'held':
+                  raise SystemExit('FAIL: diagnostic must remain held until durable delivery is verified')
+              if diagnostic.get('checkout_available') is not False:
+                  raise SystemExit('FAIL: held diagnostic must not expose checkout')
+              if diagnostic.get('checkout_url') or diagnostic.get('payment_link_url'):
+                  raise SystemExit('FAIL: held diagnostic exposes a payment URL')
           print('PASS: public commerce catalogue verified')
           PY
           for path in / /billboard /mtg /sitemap.xml /robots.txt; do

@@ -24,15 +24,15 @@ Check 'neutral_front_door_exists' (Test-Path $frontDoor)
 if (Test-Path $candidate) {
     $c = Get-Content -Raw $candidate | ConvertFrom-Json
     Check 'offer_price_is_29_nzd' ([int]$c.price -eq 29 -and $c.currency -eq 'nzd')
-    Check 'offer_is_live' ($c.status -eq 'published' -and $c.commercial_truth.approval_required -eq $false)
-    Check 'offer_is_not_still_approval_blocked' ($c.commercial_truth.approval_required -eq $false)
+    Check 'offer_is_held_until_delivery_is_durable' ($c.status -eq 'held' -and $c.commercial_truth.approval_required -eq $true -and $c.commercial_truth.sellable -eq $false)
+    Check 'offer_checkout_and_fulfillment_are_disabled' ($c.checkout.mode -eq 'disabled' -and $c.fulfillment.mode -eq 'disabled' -and $c.fulfillment.operator_required -eq $true)
     $experiment = if ($c.experiment) { [string]$c.experiment } elseif ($c.commercial_truth.PSObject.Properties.Name -contains 'experiment') { [string]$c.commercial_truth.experiment } else { '' }
     Check 'offer_is_not_claimed_as_revenue' ($experiment -eq 'MTG-SALES-001' -and $c.evidence.status -eq 'awaiting_first_payment' -and $null -eq $c.evidence.transaction_id)
 }
 
 if (Test-Path $frontDoor) {
     $html = Get-Content -Raw $frontDoor
-    Check 'front_door_is_commercial' ($html -match 'Commander Deck Diagnostic' -and $html -match 'NZ\$29' -and $html -match '/buy/COMMANDER-DECK-DIAGNOSTIC-001')
+    Check 'front_door_is_commercial' ($html -match 'Truth Oracle' -and $html -match 'Supplier Quote Comparison Worksheet' -and $html -match 'Commander Deck Diagnostic is currently held')
     Check 'mtg_silo_not_required_on_home' $true
     Check 'no_internal_front_door_language' ($html -notmatch 'BrownEye Cortex|Economic Court|ELOHIM|AMPLISSA|COLLECTORSCOAST')
 }

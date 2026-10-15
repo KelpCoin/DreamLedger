@@ -117,7 +117,8 @@ http.createServer(async (req,res)=>{
       return send(res,200,JSON.stringify({schema:'dreamledger/offers/v1',count:listed.length,offers:listed}),'application/json; charset=utf-8');
     }catch(error){ return send(res,500,JSON.stringify({error:'CATALOG_UNAVAILABLE'}),'application/json; charset=utf-8'); }
   }
-  if(p.startsWith('/api/toll')||p.startsWith('/toll/')) return proxyTollToEngine(req,res,p);
+  if(p.startsWith('/buy/') && p==='/buy/COMMANDER-DECK-DIAGNOSTIC-001') return send(res,410,JSON.stringify({error:'COMMANDER_CHECKOUT_HELD',message:'Commander Diagnostic checkout is disabled until durable delivery is verified.'}),'application/json; charset=utf-8');
+  if(p.startsWith('/api/toll/v1/')||p.startsWith('/toll/')) return proxyTollToEngine(req,res,p);
   if(p.startsWith('/swarm/')||p.startsWith('/api/swarm')) return proxySwarm(req,res,p);
   if(p.startsWith('/api/commercial/') || p==='/api/webhooks/stripe'){
     try{

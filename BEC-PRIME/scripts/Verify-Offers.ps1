@@ -47,16 +47,22 @@ foreach ($approvedId in $approvedIds) {
     if ($approvedId -notin $ids) { $errors.Add("approved offer missing from compiled catalog: $approvedId") }
 }
 foreach ($dup in ($ids | Group-Object | Where-Object Count -gt 1)) { $errors.Add("duplicate offer id: $($dup.Name)") }
-$cmd = @($approvedCatalog.approved | Where-Object { $_.offer_id -eq $canonicalProductOffer }) | Select-Object -First 1
-if (-not $cmd) { $errors.Add('canonical Commander Diagnostic offer missing') }
-elseif ([double]$cmd.price -ne 29 -or $cmd.product_id -ne 'COMMANDER-DECK-DIAGNOSTIC-001' -or $cmd.product_sku -ne 'CMD-DIAG-29') { $errors.Add('canonical Commander Diagnostic identity/price mismatch') }
+$cmd = @($approvedCatalog.held | Where-Object { $_.offer_id -eq $canonicalProductOffer }) | Select-Object -First 1
+if (-not $cmd) { $errors.Add('canonical Commander Diagnostic hold record missing') }
+elseif ([double]$cmd.price -ne 29 -or $cmd.product_id -ne 'COMMANDER-DECK-DIAGNOSTIC-001' -or $cmd.product_sku -ne 'CMD-DIAG-29' -or $cmd.status -ne 'HELD' -or $null -ne $cmd.payment_link_url) { $errors.Add('canonical Commander Diagnostic hold identity/status mismatch') }
+$productFile = Join-Path $root 'catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json'
+if (-not (Test-Path $productFile)) { $errors.Add('canonical Commander product source missing') }
+else {
+    $product = Get-Content -Raw $productFile | ConvertFrom-Json
+    if ($product.status -ne 'held' -or $product.checkout.mode -ne 'disabled' -or $product.commercial_truth.sellable -ne $false) { $errors.Add('canonical Commander product is not held') }
+}
 if ($errors.Count -gt 0) {
     $proof = [ordered]@{ type='dreamledger-offer-compilation-proof'; status='FAIL'; verified_at=(Get-Date).ToUniversalTime().ToString('o'); errors=$errors; generated_offers=$generatedCount; explicitly_approved_offers=$approvedCount }
     $proof | ConvertTo-Json -Depth 10 | Set-Content -Encoding utf8 $proofFile
     $errors | ForEach-Object { Write-Host "FAIL: $_" -ForegroundColor Red }
     exit 1
 }
-$proof = [ordered]@{ type='dreamledger-offer-compilation-proof'; status='PASS'; verified_at=(Get-Date).ToUniversalTime().ToString('o'); compiler=$offers.compiler; capabilities=[int]$offers.counts.capabilities; candidates=[int]$offers.counts.candidates; compiled=[int]$offers.counts.passed; approved=[int]$offers.counts.approved; rejected=[int]$offers.counts.rejected; generated_offers=$generatedCount; explicitly_approved_offers=$approvedCount; canonical_product_offer=$canonicalProductOffer; generated_offers_require_approval=$true; generated_offers_checkout_disabled=$true; approved_offers_require_explicit_record=$true; approved_offers_checkout_enabled=$true; source=$offers.source; offer_ids=$ids }
+$proof = [ordered]@{ type='dreamledger-offer-compilation-proof'; status='PASS'; verified_at=(Get-Date).ToUniversalTime().ToString('o'); compiler=$offers.compiler; capabilities=[int]$offers.counts.capabilities; candidates=[int]$offers.counts.candidates; compiled=[int]$offers.counts.passed; approved=[int]$offers.counts.approved; rejected=[int]$offers.counts.rejected; generated_offers=$generatedCount; explicitly_approved_offers=$approvedCount; canonical_product_offer=$canonicalProductOffer; canonical_product_offer_release_state='HELD'; generated_offers_require_approval=$true; generated_offers_checkout_disabled=$true; approved_offers_require_explicit_record=$true; approved_offers_checkout_enabled=$true; source=$offers.source; offer_ids=$ids }
 $proof | ConvertTo-Json -Depth 10 | Set-Content -Encoding utf8 $proofFile
 Write-Host "PASS: $($ids.Count) compiled offers verified ($generatedCount gated candidates, $approvedCount explicitly approved)." -ForegroundColor Green
 Write-Host "Proof: $proofFile" -ForegroundColor Green

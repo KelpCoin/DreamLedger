@@ -63,7 +63,7 @@ jobs:
           node - <<'NODE'
           const fs=require('fs');
           const compiled=['compiled/website/mtg/index.html'];
-          const compiledMissing=compiled.filter(p=>!fs.existsSync(p)||!fs.readFileSync(p,'utf8').includes('dreamledger-core.css'));
+          const compiledMissing=compiled.filter(p=>{if(!fs.existsSync(p))return true;const s=fs.readFileSync(p,'utf8');return !s.includes('dreamledger-core.css')&&!s.includes('silo-master.css');});
           if(compiledMissing.length){console.error('MTG_BRAND_COMPILED_MISSING',compiledMissing);process.exit(1);}
           const routes=['/mtg-search','/mtg-list'];
           for(const p of ['compiled/website/mtg-search.html','compiled/website/mtg-list.html']){ const s=fs.existsSync(p)?fs.readFileSync(p,'utf8'):''; console.log('MTG_DEBUG',p,{bytes:s.length,hasHtml:/<html\\b/i.test(s),hasHead:/<head\\b/i.test(s),hasCss:s.includes('dreamledger-core.css'),preview:s.slice(0,220)}); }

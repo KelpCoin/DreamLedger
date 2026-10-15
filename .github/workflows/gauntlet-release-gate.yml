@@ -53,32 +53,44 @@ jobs:
           if (result.status !== 'PASS') process.exit(2);
           NODE
 
-      - name: Verify approved offer contract
+      - name: Verify Commander release state and checkout safety
         shell: bash
         run: |
           set -euo pipefail
           python3 - <<'PY'
-          import json
+          import json, re
           from pathlib import Path
-          approved = json.loads(Path('BEC-PRIME/catalog/offers/approved.json').read_text())
-          offers = json.loads(Path('BEC-PRIME/catalog/offers/offers.json').read_text())
-          target = next((x for x in approved.get('approved', []) if x.get('offer_id') == 'OFFER-CMD-DIAG-29-NZD'), None)
-          if not target:
-              raise SystemExit('APPROVED_COMMANDER_DIAGNOSTIC=FAIL')
-          if target.get('price') != 29 or target.get('currency') != 'NZD':
-              raise SystemExit('APPROVED_PRICE_CURRENCY=FAIL')
-          if target.get('payment_link_status') != 'ACTIVE_LIVEMODE':
-              raise SystemExit('PAYMENT_LINK_STATUS=FAIL')
-          if not str(target.get('payment_link_url','')).startswith('https://buy.stripe.com/'):
-              raise SystemExit('PAYMENT_LINK_URL=FAIL')
-          if target.get('product_id') != 'COMMANDER-DECK-DIAGNOSTIC-001':
-              raise SystemExit('PRODUCT_ID=FAIL')
-          print('APPROVED_COMMANDER_DIAGNOSTIC=PASS')
-          print('APPROVED_PRICE_CURRENCY=PASS')
-          print('PAYMENT_LINK_STATUS=PASS')
-          print('PAYMENT_LINK_URL=PASS')
-          print('PRODUCT_ID=PASS')
-          print('CANONICAL_CANDIDATE_COUNT=' + str(len(offers.get('offers', []))))
+          offer_catalog = json.loads(Path('BEC-PRIME/catalog/offers/approved.json').read_text())
+          compiled = json.loads(Path('BEC-PRIME/catalog/offers/offers.json').read_text())
+          featured = json.loads(Path('BEC-PRIME/catalog/featured-offer.json').read_text())
+          product = json.loads(Path('BEC-PRIME/catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json').read_text())
+          registry = json.loads(Path('BEC-PRIME/fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json').read_text())
+          public_master = Path('public/mtg/master.html').read_text()
+          offer_id = 'OFFER-CMD-DIAG-29-NZD'
+          product_id = 'COMMANDER-DECK-DIAGNOSTIC-001'
+          held = [x for x in offer_catalog.get('held', []) if x.get('offer_id') == offer_id]
+          if any(x.get('offer_id') == offer_id for x in offer_catalog.get('approved', [])):
+              raise SystemExit('COMMANDER_MUST_NOT_BE_APPROVED_WHILE_HELD=FAIL')
+          if len(held) != 1 or held[0].get('payment_link_url') is not None:
+              raise SystemExit('COMMANDER_HELD_RECORD=FAIL')
+          if product.get('id') != product_id or product.get('status') != 'held':
+              raise SystemExit('COMMANDER_PRODUCT_STATE=FAIL')
+          if product.get('checkout', {}).get('mode') != 'disabled' or product.get('commercial_truth', {}).get('sellable') is not False:
+              raise SystemExit('COMMANDER_CHECKOUT_STATE=FAIL')
+          compiled_commander = [x for x in compiled.get('offers', []) if x.get('offer_id') == offer_id]
+          if any(x.get('checkout_available') is True or x.get('status') == 'VERIFIED_AVAILABLE' or x.get('checkout_url') or x.get('payment_link_url') for x in compiled_commander):
+              raise SystemExit('COMMANDER_COMPILED_AS_BUYABLE=FAIL')
+          if featured.get('status') != 'HELD' or featured.get('payment_link_url') is not None or featured.get('checkout_url') is not None:
+              raise SystemExit('COMMANDER_FEATURED_SURFACE=FAIL')
+          fulfillment = registry.get('entries', {}).get(product_id, {})
+          if fulfillment.get('ready') is not False or fulfillment.get('operator_required') is not True:
+              raise SystemExit('COMMANDER_FULFILLMENT_READINESS=FAIL')
+          if re.search(r'buy\.stripe\.com|/api/mtg/diagnostic/intake', public_master, re.I):
+              raise SystemExit('COMMANDER_PUBLIC_PAYMENT_BYPASS=FAIL')
+          print('COMMANDER_RELEASE_STATE=HELD')
+          print('COMMANDER_CHECKOUT_BYPASS=ABSENT')
+          print('COMMANDER_COMPILED_OFFER=EXCLUDED')
+          print('CANONICAL_COMPILED_OFFER_COUNT=' + str(len(compiled.get('offers', []))))
           PY
 
       - name: Verify critical syntax
@@ -120,33 +132,26 @@ jobs:
           done
           echo 'LIVE_FRONT_DOOR=PASS'
 
-      - name: Verify checkout contract without purchase
+      - name: Verify held checkout contract without contacting production
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         shell: bash
-        env:
-          BASE_URL: https://dreamledger.org
         run: |
           set -euo pipefail
-          response=$(curl -sS --fail-with-body --retry 3 --retry-delay 2 --max-time 20 \
-            -X POST "$BASE_URL/api/offer-checkout/create" \
-            -H 'Content-Type: application/json' \
-            --data '{"offer_id":"OFFER-CMD-DIAG-29-NZD"}')
-          python3 - <<'PY' "$response"
-          import json, sys
-          data = json.loads(sys.argv[1])
-          url = str(data.get('url', data.get('checkout_url', '')))
-          sku = str(data.get('product_id', ''))
-          amount = data.get('amount_nzd')
-          if not url.startswith('https://') or 'stripe.com' not in url:
-              raise SystemExit('CHECKOUT_URL=FAIL')
-          if sku != 'COMMANDER-DECK-DIAGNOSTIC-001':
-              raise SystemExit('CHECKOUT_SKU=FAIL')
-          if amount != 29:
-              raise SystemExit(f'CHECKOUT_AMOUNT=FAIL:{amount}')
-          print('CHECKOUT_URL=PASS')
-          print('CHECKOUT_SKU=PASS')
-          print('CHECKOUT_AMOUNT_NZD_29=PASS')
-          print('PURCHASE_EXECUTED=FALSE')
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          product = json.loads(Path('BEC-PRIME/catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json').read_text())
+          featured = json.loads(Path('BEC-PRIME/catalog/featured-offer.json').read_text())
+          approved = json.loads(Path('BEC-PRIME/catalog/offers/approved.json').read_text())
+          held = [x for x in approved.get('held', []) if x.get('offer_id') == 'OFFER-CMD-DIAG-29-NZD']
+          assert product.get('status') == 'held', 'Commander release state must stay held'
+          assert product.get('checkout', {}).get('mode') == 'disabled', 'Commander checkout must remain disabled'
+          assert product.get('commercial_truth', {}).get('sellable') is False, 'Held diagnostic cannot claim sellability'
+          assert featured.get('payment_link_url') is None and featured.get('checkout_url') is None, 'Featured offer cannot expose payment URLs'
+          assert not any(x.get('offer_id') == 'OFFER-CMD-DIAG-29-NZD' for x in approved.get('approved', [])), 'Held diagnostic cannot be in approved[]'
+          assert len(held) == 1 and held[0].get('payment_link_url') is None, 'Held catalog record is missing or exposes a payment URL'
+          print('COMMANDER_CHECKOUT_HELD=PASS')
+          print('PRODUCTION_CHECKOUT_REQUESTS=0')
           PY
 
       - name: Write proof artifact

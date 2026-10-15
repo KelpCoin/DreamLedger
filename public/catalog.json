@@ -100,22 +100,6 @@
       "availability": "review_required"
     },
     {
-      "id": "COMMANDER-DECK-DIAGNOSTIC-001",
-      "sku": "CMD-DIAG-29",
-      "name": "Commander Deck Diagnostic",
-      "description": "Held. Digital service, not a physical card or deck. Not currently offered for purchase.",
-      "price": 29,
-      "currency": "nzd",
-      "status": "held",
-      "checkout_available": false,
-      "payment_link_id": "plink_1UKS00EGgEAnUFF9kUjraaL5",
-      "stripe_price_id": "price_1UFFY1EGgEAnUFF9Yq03zIa7",
-      "category": "mtg",
-      "delivery_test_status": "UNVERIFIED",
-      "commercial_validation_status": "UNVALIDATED",
-      "inventory": 0
-    },
-    {
       "id": "DISCORD-WEBHOOK-STARTER-KIT-001",
       "sku": "DISCORD_WEBHOOK_STARTER_KIT",
       "name": "Discord Webhook Starter Kit",
@@ -451,7 +435,7 @@
       "checkout_available": false,
       "checkout_url": null,
       "sale_mode": "claim_by_message",
-      "claim_url": "mailto:hello@dreamledger.org?subject=Claim%20Jon%20Irenicus%20Commander%20Deck&body=I%27d%20like%20to%20claim%20the%20Jon%20Irenicus%2C%20Shattered%20One%20Commander%20deck%20(NZ%24220%2C%20or%20NZ%24200%20for%20Patreon%20members).%20Please%20confirm%20availability%20and%20shipping.",
+      "claim_url": "/mtg/jon-irenicus-shattered-one.html",
       "detail_url": "/mtg/jon-irenicus-shattered-one.html",
       "decklist_url": "https://manabox.app/decks/AZ2BaCy-c-a8MpZUUcgxqw",
       "seller": "HappyHomarid",

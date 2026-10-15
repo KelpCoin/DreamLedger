@@ -1,71 +1,50 @@
 [CmdletBinding()]
-param(
-    [string]$RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path,
-    [switch]$SkipSmoke
-)
-
+param([string]$RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path)
 $ErrorActionPreference = 'Stop'
 Set-Location $RepoRoot
-
 $proofDir = Join-Path $RepoRoot 'data\proofs'
 New-Item -ItemType Directory -Force -Path $proofDir | Out-Null
 $proofPath = Join-Path $proofDir 'FIRST-REVENUE-ACTIVATION-GATE.json'
 $productPath = Join-Path $RepoRoot 'catalog\products\COMMANDER-DECK-DIAGNOSTIC-001.json'
-$offerPath = Join-Path $RepoRoot 'catalog\offers\offers.json'
-$registry = Join-Path $RepoRoot 'scripts\Verify-Registry.ps1'
-
-function Invoke-Gate([string]$Name, [scriptblock]$Action) {
-    Write-Host "[GATE] $Name"
-    & $Action
-    if ($LASTEXITCODE -ne 0) { throw "Gate failed: $Name (exit $LASTEXITCODE)" }
-    Write-Host "[PASS] $Name"
+$approvedPath = Join-Path $RepoRoot 'catalog\offers\approved.json'
+$registryPath = Join-Path $RepoRoot 'fulfillment\PRODUCT-FULFILLMENT-REGISTRY.json'
+foreach ($path in @($productPath,$approvedPath,$registryPath)) {
+    if (-not (Test-Path $path)) { throw "Missing activation evidence input: $path" }
 }
-
-$gates = @()
-
-if (-not $SkipSmoke) {
-    Invoke-Gate 'Revenue ledger smoke' { npm run smoke:revenue-ledger }
-    $gates += 'smoke:revenue-ledger'
-}
-
-Invoke-Gate 'Gauntlet' { npm run gauntlet }
-$gates += 'gauntlet'
-
-Invoke-Gate 'Registry boundary' { powershell -NoProfile -ExecutionPolicy Bypass -File $registry }
-$gates += 'Verify-Registry.ps1'
-
-if (-not (Test-Path $productPath)) { throw "Missing activation product: $productPath" }
-if (-not (Test-Path $offerPath)) { throw "Missing compiled offer catalog: $offerPath" }
-
 $product = Get-Content $productPath -Raw | ConvertFrom-Json
-if ($product.id -ne 'COMMANDER-DECK-DIAGNOSTIC-001') { throw 'Unexpected activation SKU' }
-if ($product.price -ne 29 -or $product.currency -ne 'nzd') { throw 'Activation SKU price/currency changed; refusing to activate' }
-
-$product.commercial_truth.approval_required = $false
-$product.commercial_truth.activation_gate = 'FIRST_REVENUE_GATES_PASS'
-$product.commercial_truth.activation_timestamp = (Get-Date).ToUniversalTime().ToString('o')
-$product.evidence.status = 'awaiting_first_payment'
-
-$backup = "$productPath.pre-activation.json"
-Copy-Item $productPath $backup -Force
-$product | ConvertTo-Json -Depth 20 | Set-Content $productPath -Encoding utf8
-
+$approved = Get-Content $approvedPath -Raw | ConvertFrom-Json
+$registry = Get-Content $registryPath -Raw | ConvertFrom-Json
+$approvedOffer = @($approved.approved | Where-Object { $_.offer_id -eq 'OFFER-CMD-DIAG-29-NZD' })
+$heldOffer = @($approved.held | Where-Object { $_.offer_id -eq 'OFFER-CMD-DIAG-29-NZD' })
+$fulfillment = $registry.entries.'COMMANDER-DECK-DIAGNOSTIC-001'
+# This gate is intentionally non-mutating. Static checks, link history, and LLM agreement do not prove delivery.
 $proof = [ordered]@{
     type = 'dreamledger-first-revenue-activation-gate'
-    status = 'PASS'
-    sku = $product.id
-    price_nzd = [math]::Round([decimal]$product.price, 2)
-    gates = $gates
-    activation_rule = 'No activation occurs unless all required verification gates exit successfully.'
-    payment_proof_status = 'AWAITING_FIRST_PAYMENT'
-    product_path = 'catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json'
-    backup_path = 'catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json.pre-activation.json'
-    activated_at_utc = $product.commercial_truth.activation_timestamp
+    schema_version = '2.0'
+    status = 'HOLD'
+    generated_at_utc = (Get-Date).ToUniversalTime().ToString('o')
+    sku = 'COMMANDER-DECK-DIAGNOSTIC-001'
+    reference_price_nzd = 29
+    checkout_enabled = $false
+    verified_revenue_nzd = 0
+    independent_buyer_verified = $false
+    payment_settlement_verified = $false
+    durable_fulfillment_verified = $false
+    delivery_proof_verified = $false
+    gate_checks = [ordered]@{
+        product_is_held = ($product.status -eq 'held')
+        checkout_is_disabled = ($product.checkout.mode -eq 'disabled' -and $null -eq $product.checkout.url)
+        offer_is_not_approved = ($approvedOffer.Count -eq 0)
+        held_offer_has_no_payment_url = ($heldOffer.Count -eq 1 -and $null -eq $heldOffer[0].payment_link_url)
+        fulfillment_not_claimed_ready = ($null -ne $fulfillment -and $fulfillment.ready -eq $false)
+    }
+    activation_decision = 'HOLD_UNTIL_DURABLE_FULFILLMENT_AND_SETTLEMENT_PROOF'
+    mutation_performed = $false
+    note = 'No product, offer, checkout, secret, database, or deployment state is changed by this gate.'
+    proof_path = 'data/proofs/FIRST-REVENUE-ACTIVATION-GATE.json'
 }
-$proof | ConvertTo-Json -Depth 10 | Set-Content $proofPath -Encoding utf8
-
-Write-Host ''
-Write-Host 'FIRST REVENUE ACTIVATION: PASS'
-Write-Host 'Commander Deck Diagnostic is checkout-eligible.'
-Write-Host 'This script does not claim revenue. Revenue remains unproven until a signed Stripe webhook creates FIRST_PAYMENT_PROOF.json.'
-Write-Host "Proof: $proofPath"
+$proof | ConvertTo-Json -Depth 12 | Set-Content $proofPath -Encoding utf8
+$proof | ConvertTo-Json -Depth 12
+Write-Host 'ACTIVATION_GATE=HOLD'
+Write-Host "PROOF=$proofPath"
+Write-Host 'MUTATION_PERFORMED=FALSE'

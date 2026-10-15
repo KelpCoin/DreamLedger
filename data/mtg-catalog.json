@@ -60,22 +60,6 @@
       "commander": "See listing"
     },
     {
-      "id": "COMMANDER-DECK-DIAGNOSTIC-001",
-      "sku": "CMD-DIAG-29",
-      "name": "Commander Deck Diagnostic",
-      "description": "Held. Digital service, not a physical card or deck. Not currently offered for purchase.",
-      "price": 29,
-      "currency": "NZD",
-      "status": "held",
-      "inventory": 0,
-      "silo": "mtg",
-      "category": "digital-service",
-      "sale_mode": "checkout",
-      "checkout_available": false,
-      "detail_url": "/buy/COMMANDER-DECK-DIAGNOSTIC-001",
-      "commander": null
-    },
-    {
       "id": "EDH_JON_IRENICUS_0004",
       "sku": "EDH-JON-IRENICUS-SHATTERED-ONE-004",
       "name": "Jon Irenicus, Shattered One – Give Them the Problem",

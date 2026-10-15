@@ -1,12 +1,15 @@
 {
-  "cube_version":"CUBE-CLONE-MANIFEST-1.0",
-  "silo_name":"mtg",
-  "product_name":"Commander Deck Diagnostic",
-  "price_nzd":29,
-  "stripe_product_id":"prod_V6iVKl9HgFpzRU",
-  "domain":"dreamledger.org/mtg",
-  "repo_name":"KelpCoin/DreamLedger",
-  "surface":"BEC-PRIME/compiled/website/mtg/diagnostic.html",
-  "status":"deployed",
-  "isolation":true
+  "cube_version": "CUBE-CLONE-MANIFEST-1.0",
+  "silo_name": "mtg",
+  "product_name": "Commander Deck Diagnostic",
+  "price_nzd": 29,
+  "stripe_product_id": "prod_V6iVKl9HgFpzRU",
+  "domain": "dreamledger.org/mtg",
+  "repo_name": "KelpCoin/DreamLedger",
+  "surface": "BEC-PRIME/compiled/website/mtg/diagnostic.html",
+  "status": "deployed",
+  "isolation": true,
+  "sale_status": "held",
+  "checkout_enabled": false,
+  "hold_reason": "Durable settlement, report persistence, buyer access, and completed delivery are not yet verified."
 }

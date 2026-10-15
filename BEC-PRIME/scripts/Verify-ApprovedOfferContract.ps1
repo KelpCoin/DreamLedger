@@ -58,7 +58,17 @@ foreach ($record in $approvedRecords) {
     if ($offer.capability_id -notin $validIds) { $errors.Add("${id}: compiled capability is not present in capability catalog") }
 }
 
-if ($approvedRecords.Count -eq 0) { $errors.Add('approved catalog contains zero records') }
+# Zero approved offers is valid while all commerce rails are held.
+$heldRecords = @($approvedCatalog.held)
+$approvedIds = @($approvedRecords | ForEach-Object { [string]$_.offer_id })
+foreach ($held in $heldRecords) {
+    $id = [string]$held.offer_id
+    if ([string]::IsNullOrWhiteSpace($id)) { $errors.Add('held record missing offer_id'); continue }
+    if ($id -in $approvedIds) { $errors.Add("held offer must not also be approved: $id") }
+    if ($held.status -ne 'HELD') { $errors.Add("$id: held record status must be HELD") }
+    if ($null -ne $held.payment_link_url) { $errors.Add("$id: held record exposes payment_link_url") }
+    if ($held.payment_link_status -ne 'HELD_NOT_PROMOTED') { $errors.Add("$id: held record must not be promoted") }
+}
 
 if ($errors.Count -gt 0) {
     $proof = [ordered]@{
@@ -81,7 +91,7 @@ $proof = [ordered]@{
     approved_count = $approvedRecords.Count
     compiled_count = $compiledRecords.Count
     approved_offer_ids = @($approvedRecords | ForEach-Object { $_.offer_id })
-    contract = 'every approved source record must exist in offers.json as VERIFIED_AVAILABLE and checkoutable'
+    contract = 'only explicitly approved records may be VERIFIED_AVAILABLE; held records have no payment URL; zero approved offers is valid'
 }
 $proof | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $proofFile -Encoding UTF8
-Write-Host "PASS: $($approvedRecords.Count) approved offer records are present and checkoutable in compiled catalog." -ForegroundColor Green
+Write-Host "PASS: $($approvedRecords.Count) approved offer records are consistent; $($heldRecords.Count) held records expose no payment URLs." -ForegroundColor Green

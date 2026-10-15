@@ -5,7 +5,7 @@
   "generated_at": null,
   "git_commit": null,
   "input_capabilities_sha256": "1bdc927bd040e03eb7d8da6a3b5b408ae788670495593b54c15a82608b0ad005",
-  "approved_offers_sha256": "ea7641f365bf9fd429d6b14b1370d60b5a389c80d2cd24490e9c9c39259a854f",
+  "approved_offers_sha256": "1d42ed02fd0093bca041a43d7af3bbbc94bd5c1deea4382a09d41a10c9b437eb",
   "source": "catalog/ip-capabilities.json",
   "approval_source": "catalog/offers/approved.json",
   "schema": "compiler/schemas/offer.schema.json",
@@ -13,7 +13,7 @@
     "capabilities": 17,
     "candidates": 35,
     "passed": 33,
-    "approved": 2,
+    "approved": 0,
     "rejected": 2
   },
   "passed_offer_ids": [
@@ -49,9 +49,7 @@
     "OFFER-PRODUCT-COMMANDER-DECK-DIAGNOSTIC-001-DIAGNOSTIC",
     "OFFER-PRODUCT-COMMANDER-DECK-DIAGNOSTIC-001-AUDIT",
     "OFFER-PRODUCT-QUOTE-COMPARE-49-DIAGNOSTIC",
-    "OFFER-PRODUCT-QUOTE-COMPARE-49-AUDIT",
-    "OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001",
-    "OFFER-CMD-DIAG-29-NZD"
+    "OFFER-PRODUCT-QUOTE-COMPARE-49-AUDIT"
   ],
   "rejected_offer_ids": [
     "OFFER-BEC-PRIME-DIGITAL-PROXY-ASSIST-DIAGNOSTIC",

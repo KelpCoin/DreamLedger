@@ -13,72 +13,92 @@ permissions:
 jobs:
   probe:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 5
     steps:
-      - name: Wait for Render and probe live DreamLedger MTG surface
+      - name: Read-only probe of the live MTG surface and held diagnostic
         shell: bash
         env:
           BASE: https://dreamledger.org
           EXPECTED_COMMIT: ${{ github.sha }}
         run: |
-          set -euo pipefail
+          set -uo pipefail
           mkdir -p proof
-          echo "Expected commit: $EXPECTED_COMMIT"
-
-          converged=0
-          for attempt in $(seq 1 18); do
-            if curl -L -sS --fail --max-time 20 "$BASE/version" -o proof/LIVE-VERSION.json; then
-              LIVE_COMMIT=$(node -e "const fs=require('fs'); const x=JSON.parse(fs.readFileSync('proof/LIVE-VERSION.json','utf8')); process.stdout.write(String(x.commit||''))")
-              echo "Attempt $attempt/18 - live commit: $LIVE_COMMIT"
-              if [ "$LIVE_COMMIT" = "$EXPECTED_COMMIT" ]; then
-                converged=1
-                break
-              fi
-            else
-              echo "Attempt $attempt/18 - /version unavailable"
-            fi
-            sleep 20
-          done
-
-          test "$converged" = "1"
-          cat proof/LIVE-VERSION.json
-
-          for path in /mtg /mtg/ /MTG /MTG/ /version /api/products /api/products/COMMANDER-DECK-DIAGNOSTIC-001 /sitemap.xml /robots.txt; do
-            code=$(curl -L -sS -o /tmp/response -w "%{http_code}" --max-time 20 "$BASE$path")
+          failures=0
+          record_route() {
+            local path="$1"
+            local code
+            if ! code=$(curl -L -sS -o "proof/route$(echo "$path" | tr '/:' '__').body" -w "%{http_code}" --max-time 15 "$BASE$path" 2>/dev/null); then code=000; fi
             echo "$code $path"
-            test "$code" = "200"
-          done
-
-          curl -L -sS --fail --max-time 20 "$BASE/api/products" -o proof/PRODUCTS.json
-          node - <<'NODE'
-          const fs = require('fs');
-          const x = JSON.parse(fs.readFileSync('proof/PRODUCTS.json','utf8'));
-          const products = Array.isArray(x.products) ? x.products : (Array.isArray(x.offers) ? x.offers : []);
-          const p = products.find(v => (v.id || v.product_id) === 'COMMANDER-DECK-DIAGNOSTIC-001');
-          if (!p) throw new Error('COMMANDER-DECK-DIAGNOSTIC-001 missing from /api/products');
-          if (Number(p.price ?? p.price_nzd) !== 29) throw new Error('MTG diagnostic price is not 29');
-          if (String(p.currency).toUpperCase() !== 'NZD') throw new Error('MTG diagnostic currency is not NZD');
-          if (!p.checkout_url) throw new Error('MTG diagnostic checkout URL missing');
-          console.log('PRODUCT CONTRACT: PASS');
-          NODE
-
-          curl -L -sS --fail --max-time 20 "$BASE/mtg" -o proof/MTG.html
-          grep -q "data-dreamledger-mtg-commerce-v2" proof/MTG.html
-          grep -q "BUY NOW" proof/MTG.html
-
-          cat > proof/MTG-LIVE-GATE.json <<EOF
-          {
-            "status": "PASS",
-            "expected_commit": "$EXPECTED_COMMIT",
-            "live_commit": "$LIVE_COMMIT",
-            "mtg_routes": "PASS",
-            "diagnostic_product": "PASS",
-            "commerce_markers": "PASS",
-            "sitemap": "PASS",
-            "robots": "PASS"
+            if [ "$code" != "200" ]; then failures=1; fi
           }
-          EOF
-      - name: Upload production proof
+
+          if ! VERSION_CODE=$(curl -L -sS -o proof/LIVE-VERSION.json -w '%{http_code}' --max-time 15 "$BASE/version" 2>/dev/null); then VERSION_CODE=000; fi
+          echo "$VERSION_CODE /version"
+          LIVE_COMMIT=""
+          if [ "$VERSION_CODE" = "200" ]; then
+            LIVE_COMMIT=$(node -e "const fs=require('fs');try{const x=JSON.parse(fs.readFileSync('proof/LIVE-VERSION.json','utf8'));process.stdout.write(String(x.commit||x.sha||''))}catch{}")
+          else
+            failures=1
+          fi
+          if [ "$LIVE_COMMIT" != "$EXPECTED_COMMIT" ]; then
+            echo "LIVE_COMMIT_MISMATCH expected=$EXPECTED_COMMIT actual=$LIVE_COMMIT"
+            failures=1
+          fi
+
+          for path in /mtg /mtg/ /api/products /sitemap.xml /robots.txt; do record_route "$path"; done
+
+          if ! PRODUCTS_CODE=$(curl -L -sS -o proof/PRODUCTS.json -w '%{http_code}' --max-time 15 "$BASE/api/products" 2>/dev/null); then PRODUCTS_CODE=000; fi
+          if [ "$PRODUCTS_CODE" = "200" ]; then
+            node - <<'NODE'
+          const fs=require('fs');
+          const x=JSON.parse(fs.readFileSync('proof/PRODUCTS.json','utf8'));
+          const products=Array.isArray(x.products)?x.products:(Array.isArray(x.offers)?x.offers:[]);
+          const p=products.find(v=>(v.id||v.product_id)==='COMMANDER-DECK-DIAGNOSTIC-001');
+          if(p && (String(p.status||'').toLowerCase()!=='held' || p.checkout_available===true || p.checkout_url || p.payment_link_url)) {
+            console.error('FAIL: public products API exposes Commander as purchasable');
+            process.exit(1);
+          }
+          console.log(p ? 'COMMANDER_API=HELD_NOT_PURCHASABLE' : 'COMMANDER_API=NOT_PUBLISHED');
+          NODE
+            if [ "$?" -ne 0 ]; then failures=1; fi
+          else
+            echo "PRODUCTS_API_HTTP=$PRODUCTS_CODE"
+            failures=1
+          fi
+
+          curl -L -sS --max-time 15 "$BASE/mtg" -o proof/MTG.html 2>/dev/null || { failures=1; : > proof/MTG.html; }
+          if grep -Eiq 'buy\.stripe\.com|BUY DIAGNOSTIC|BUY NOW' proof/MTG.html; then
+            echo "MTG_SURFACE=UNSAFE_PAYMENT_BYPASS"
+            failures=1
+          else
+            echo "MTG_SURFACE=NO_DIRECT_STRIPE_LINK"
+          fi
+          if ! grep -Eiq 'temporarily held|currently held|no verified deck supply|held until' proof/MTG.html; then
+            echo "MTG_SURFACE=HOLD_STATE_NOT_VISIBLE"
+            failures=1
+          fi
+
+          node - <<'NODE'
+          const fs=require('fs');
+          const version=(()=>{try{return JSON.parse(fs.readFileSync('proof/LIVE-VERSION.json','utf8'))}catch{return {}}})();
+          const proof={
+            schema:'DREAMLEDGER/MTG-LIVE-STATE-PROBE/v2',
+            expected_commit:process.env.EXPECTED_COMMIT,
+            live_commit:String(version.commit||version.sha||''),
+            commit_matches:String(version.commit||version.sha||'')===process.env.EXPECTED_COMMIT,
+            production_verification_performed:false,
+            verified_revenue_nzd:0,
+            checkout_state:'HELD_UNTIL_DURABLE_DELIVERY_VERIFIED',
+            note:'Read-only HTTP probes only. No checkout session or payment was created.',
+            observed_at_utc:new Date().toISOString()
+          };
+          fs.writeFileSync('proof/MTG-LIVE-GATE.json',JSON.stringify(proof,null,2)+'\n');
+          console.log(JSON.stringify(proof,null,2));
+          NODE
+          echo "PROBE_FAILURES=$failures"
+          if [ "$failures" -ne 0 ]; then exit 1; fi
+      - name: Upload live probe proof
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: mtg-live-production-probe-${{ github.sha }}

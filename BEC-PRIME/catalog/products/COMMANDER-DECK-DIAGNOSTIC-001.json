@@ -4,7 +4,7 @@
   "capability_id": "PRODUCT-COMMANDER-DECK-DIAGNOSTIC-001",
   "silo": "mtg",
   "name": "Commander Deck Diagnostic",
-  "description": "Held digital service. Not a physical card or deck and not currently offered for purchase.",
+  "description": "Held digital service. Not currently available to purchase; no payment should be taken until settlement and durable delivery are verified.",
   "price": 29,
   "price_unit": "major",
   "currency": "nzd",
@@ -20,7 +20,7 @@
   "commercial_truth": {
     "approval_required": true,
     "sellable": false,
-    "reason": "Held until settlement, entitlement, and fulfillment are verified. No public sale is authorized.",
+    "reason": "Held until authoritative settlement, durable report storage, buyer access, and delivery evidence are verified. No public sale is authorized.",
     "payment_surface": null
   },
   "fulfillment": {
