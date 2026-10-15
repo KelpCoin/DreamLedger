@@ -4,15 +4,29 @@ on:
   pull_request:
     paths:
       - "public/catalog.json"
+      - "data/mtg-catalog.json"
+      - "public/data/mtg-catalog.json"
       - "mtg/**"
       - "public/mtg/**"
+      - "silos/mtg/silo.json"
+      - "public/silos/mtg/silo.json"
+      - "BEC-PRIME/website/mtg-catalog.html"
+      - "BEC-PRIME/scripts/Patch-MTG-CommerceSurface.js"
+      - "BEC-PRIME/scripts/mtg-condition-contract.test.js"
       - ".github/workflows/mtg-catalogue-validation.yml"
   push:
     branches: [main]
     paths:
       - "public/catalog.json"
+      - "data/mtg-catalog.json"
+      - "public/data/mtg-catalog.json"
       - "mtg/**"
       - "public/mtg/**"
+      - "silos/mtg/silo.json"
+      - "public/silos/mtg/silo.json"
+      - "BEC-PRIME/website/mtg-catalog.html"
+      - "BEC-PRIME/scripts/Patch-MTG-CommerceSurface.js"
+      - "BEC-PRIME/scripts/mtg-condition-contract.test.js"
       - ".github/workflows/mtg-catalogue-validation.yml"
 
 jobs:
@@ -21,36 +35,50 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-      - name: Validate catalogue records and buyer routes
+      - name: Validate canonical catalog and buyer routes
         run: |
           node <<'NODE'
           const fs = require('fs');
           const catalog = JSON.parse(fs.readFileSync('public/catalog.json', 'utf8'));
+          const products = catalog.products || [];
           const required = [
             ['EDH_0001', null],
             ['EDH_QUINTORIUS_0002', 'mtg/quintorius-field-historian.html'],
             ['EDH_DWYNEN_0003', 'mtg/dwynen-gilt-leaf-daen.html']
           ];
-          const products = catalog.products || [];
-          for (const [id, page] of required) {
+          for (const [id, route] of required) {
             const p = products.find(x => x.id === id);
             if (!p || p.status !== 'published') throw new Error('Missing/unpublished MTG listing: ' + id);
-            if (page && !fs.existsSync(page)) throw new Error('Missing buyer route: ' + page);
-            if (id !== 'EDH_0001' && (p.checkout_available !== false || p.sale_mode !== 'claim_by_message' || !p.claim_url)) {
-              throw new Error('Claim-only deck must not claim direct checkout: ' + id);
+            if (route && !fs.existsSync(route)) throw new Error('Missing preview buyer route: ' + route);
+            if (p.checkout_available !== false || p.checkout_url) throw new Error('Unverified MTG listing must not expose direct checkout: ' + id);
+            if (id !== 'EDH_0001' && (p.sale_mode !== 'claim_by_message' || !p.claim_url)) {
+              throw new Error('Claim-only deck must have a claim route and no direct checkout: ' + id);
             }
           }
-          const html = fs.readFileSync('mtg/index.html', 'utf8');
-          if (!html.includes('/public/catalog.json')) throw new Error('Root preview catalogue must use tracked public catalogue data');
-          const liveHtml = fs.readFileSync('public/mtg/index.html', 'utf8');
-          if (!liveHtml.includes("get('/catalog.json')")) throw new Error('Live public MTG page must load the tracked catalogue.json');
-          for (const page of ['public/mtg/quintorius-field-historian.html', 'public/mtg/dwynen-gilt-leaf-daen.html']) {
-            if (!fs.existsSync(page)) throw new Error('Missing deployed public route: ' + page);
+          const diagnostic = products.find(x => x.id === 'COMMANDER-DECK-DIAGNOSTIC-001');
+          if (!diagnostic || diagnostic.status !== 'held' || diagnostic.checkout_available !== false || diagnostic.checkout_url) {
+            throw new Error('Commander diagnostic must remain held without checkout');
           }
-          if (!html.includes('EDH_QUINTORIUS_0002') || !html.includes('EDH_DWYNEN_0003')) throw new Error('Catalogue must prioritize the new decks');
-          for (const page of ['mtg/quintorius-field-historian.html', 'mtg/dwynen-gilt-leaf-daen.html']) {
-            const body = fs.readFileSync(page, 'utf8');
-            if (!body.includes('decklist') && !body.includes('decklist')) throw new Error('Missing decklist reference in ' + page);
+          for (const p of products.filter(x => /^EDH_/.test(String(x.id || '')))) {
+            if (Object.hasOwn(p, 'condition')) throw new Error('Physical deck must use deck_condition, not card condition: ' + p.id);
           }
-          console.log('MTG catalogue validation passed.');
+
+          const preview = fs.readFileSync('mtg/index.html', 'utf8');
+          if (!preview.includes("CATALOG='/public/catalog.json'")) throw new Error('Root preview must use tracked public/catalog.json');
+          const live = fs.readFileSync('public/mtg/index.html', 'utf8');
+          if (!live.includes("CATALOG='/catalog.json'")) throw new Error('Live MTG route must use canonical /catalog.json');
+          for (const [label, html] of [['preview',preview],['live',live]]) {
+            if (!html.includes('function isPhysical(p)')) throw new Error(label + ' page must filter physical listings');
+            if (!html.includes('conditionEligible(p)')) throw new Error(label + ' page must gate card-condition fields');
+            if (html.includes('buy.stripe.com')) throw new Error(label + ' page contains direct Stripe checkout while MTG offers are held');
+            if (!html.includes('Ask to claim') && !html.includes('Open listing')) throw new Error(label + ' page lacks non-checkout listing action');
+          }
+          for (const page of ['public/mtg/quintorius-field-historian.html','public/mtg/dwynen-gilt-leaf-daen.html']) {
+            if (!fs.existsSync(page)) throw new Error('Missing live public detail route: ' + page);
+          }
+          if (!fs.readFileSync('data/mtg-catalog.json','utf8').trim()) throw new Error('MTG projection missing');
+          if (fs.readFileSync('data/mtg-catalog.json','utf8') !== fs.readFileSync('public/data/mtg-catalog.json','utf8')) {
+            throw new Error('MTG data projection mirrors differ');
+          }
+          console.log('MTG catalog validation passed: canonical data, hold state, condition boundary and buyer routes checked.');
           NODE
