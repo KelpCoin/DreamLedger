@@ -106,7 +106,7 @@ function basePrompt(role, context) {
   return common.join('\n');
 }
 
-function validateStageOutput(value, role) {
+export function validateStageOutput(value, role) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('MODEL_JSON_OBJECT_REQUIRED:' + role);
   const arr = (x) => Array.isArray(x) && x.every(v => typeof v === 'string');
   if (role === 'EXTRACTOR') {
@@ -224,6 +224,9 @@ export async function runQuoteGauntlet({
   if (!apiToken || typeof apiToken !== 'string') return unavailable('LM_API_TOKEN_REQUIRED');
   if (typeof fetchImpl !== 'function') return unavailable('FETCH_UNAVAILABLE');
 
+  let manifestSize = 0;
+  try { manifestSize = Buffer.byteLength(canonicalJson(contextManifest), 'utf8'); } catch { return unavailable('CONTEXT_MANIFEST_NOT_CANONICAL_JSON'); }
+  if (manifestSize > 32768) return unavailable('CONTEXT_MANIFEST_TOO_LARGE_MAX_32KB');
   const manifestFailure = contextManifestError(contextManifest, checkedAt);
   if (manifestFailure) return unavailable(manifestFailure);
   const rawInputSha256 = sha256(rawInput);
@@ -265,6 +268,9 @@ export async function runQuoteGauntlet({
       context_manifest: contextManifest,
       previous_stages: stageResults.map(x => ({ role: x.role, model: x.model, prompt_version: x.prompt_version, output: x.output }))
     };
+    let modelInputJson;
+    try { modelInputJson = canonicalJson(modelInput); } catch { return unavailable('MODEL_INPUT_NOT_CANONICAL_JSON', { raw_input_sha256: rawInputSha256 }); }
+    if (Buffer.byteLength(modelInputJson, 'utf8') > 131072) return unavailable('MODEL_INPUT_TOO_LARGE_MAX_128KB', { raw_input_sha256: rawInputSha256 });
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeoutMs);
     try {
@@ -279,7 +285,7 @@ export async function runQuoteGauntlet({
           response_format: { type: 'json_object' },
           messages: [
             { role: 'system', content: basePrompt(role, roleContext) },
-            { role: 'user', content: canonicalJson(modelInput) }
+            { role: 'user', content: modelInputJson }
           ]
         })
       });
