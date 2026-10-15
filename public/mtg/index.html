@@ -79,7 +79,7 @@
       <p class="silo-eyebrow">Platform tool · not cardboard</p>
       <h2 class="silo-h2" style="margin:0 0 8px">Commander diagnostic · NZ$29</h2>
       <p style="color:var(--silo-muted);margin:0 0 14px;max-width:36em">Digital structure review. Settles on Stripe. Separate from peer singles.</p>
-      <a class="silo-btn silo-btn-gold" href="https://buy.stripe.com/8x228r1nfg0l3M32csdwc2I">Buy diagnostic</a>
+      <span class="silo-btn silo-btn-gold" aria-disabled="true">Diagnostic currently held</span>
     </div>
   </section>
   <p class="clone-meta" id="cloneMeta">Master silo · driven by /silos/mtg/silo.json · clone = new manifest + empty catalog · gauntlet before activation</p>
@@ -93,7 +93,7 @@
 </footer>
 <script>
 (function(){
-const MANIFEST='/silos/mtg/silo.json',CATALOG='/data/mtg-catalog.json',grid=document.getElementById('grid'),status=document.getElementById('status');
+const MANIFEST='/silos/mtg/silo.json',CATALOG='/catalog.json',grid=document.getElementById('grid'),status=document.getElementById('status');
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 async function applyManifest(){
   try{
@@ -142,13 +142,38 @@ async function loadCatalog(manifest){
     status.textContent=decks.length+' deck'+(decks.length===1?'':'s')+' · open listing to see cards';
     grid.innerHTML=decks.map(p=>{
       const price=Number(p.price)||0;
-      const detail=p.detail_url||'#';
+      const detail=p.detail_url||p.claim_url||'/mtg-list';
       const inv=Number(p.inventory)>0;
       const deckCondition=p.category==='commander-deck'&&typeof p.deck_condition==='string'&&p.deck_condition.trim()?'<p class="desc">Deck condition: '+esc(p.deck_condition.trim())+'</p>':'';
       const cardCondition=conditionEligible(p)&&typeof p.condition==='string'&&p.condition.trim()?'<p class="desc">Card condition: '+esc(p.condition.trim())+'</p>':'';
       const buy=inv
-        ? '<a class="buy" href="'+esc(detail)+'">See cards &amp; buy · NZ$'+price+'</a>'
-        : '<a class="buy" href="'+esc(detail)+'" style="opacity:.6">View</a>';
+        ? '<a class="buy" href="'+esc(detail)+'">Open listing · NZ
+      return '<article class="deck"><div class="deck-banner">Commander · '+(inv?'In stock':'—')+'</div><div class="deck-body"><div class="tag">'+(p.commander?esc(p.commander):'EDH')+'</div><h3>'+esc(p.name)+'</h3><p class="desc">'+esc(p.description||'')+'</p>'+deckCondition+cardCondition+'<div class="price">NZ'+buy+'<a class="see" href="'+esc(detail)+'">Open full card grid</a></div></div></article>';
+    }).join('');
+  }catch(e){
+    status.className='status-bar error';
+    status.textContent=e.message||'Load failed';
+  }
+}
+applyManifest().then(loadCatalog);
+})();
+</script>
+</body>
+</html>
++price+'</div><div class="actions">'+buy+'<a class="see" href="'+esc(detail)+'">Open full card grid</a></div></div></article>';
+    }).join('');
+  }catch(e){
+    status.className='status-bar error';
+    status.textContent=e.message||'Load failed';
+  }
+}
+applyManifest().then(loadCatalog);
+})();
+</script>
+</body>
+</html>
++price+'</a>'
+        : '<a class="buy" href="'+esc(detail)+'" style="opacity:.6">View listing</a>';
       return '<article class="deck"><div class="deck-banner">Commander · '+(inv?'In stock':'—')+'</div><div class="deck-body"><div class="tag">'+(p.commander?esc(p.commander):'EDH')+'</div><h3>'+esc(p.name)+'</h3><p class="desc">'+esc(p.description||'')+'</p>'+deckCondition+cardCondition+'<div class="price">NZ'+buy+'<a class="see" href="'+esc(detail)+'">Open full card grid</a></div></div></article>';
     }).join('');
   }catch(e){
