@@ -3,7 +3,7 @@ param(
     [Parameter(Mandatory=$true)][ValidatePattern('^[a-z0-9][a-z0-9-]{1,39}$')][string]$SiloName,
     [Parameter(Mandatory=$true)][ValidateNotNullOrEmpty()][string]$ProductName,
     [string]$ShortName = '',
-    [ValidatePattern('^#[0-9a-fA-F]{6}$')][string]$Accent = ''
+    [string]$Accent = ''
 )
 
 $ErrorActionPreference = 'Stop'
