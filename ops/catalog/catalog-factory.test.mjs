@@ -163,3 +163,19 @@ test('hypothesis-only candidates can become gated seeds but not products', async
   assert.equal(seed.candidate.demand.status,'HYPOTHESIS');
   assert.ok(seed.factory.product_blockers.includes('DEMAND_EVIDENCE_NOT_PROVEN'));
 });
+
+test('Stripe provisioner rejects all duplicate SKU rows before creating links', async () => {
+  const root=tempRoot();
+  const input=path.join(root,'products.ndjson');
+  const state=path.join(root,'state.ndjson');
+  const reg=path.join(root,'registry.json');
+  const a=record('DEV-DUPLICATE-SKU-001','developer-assets',true);
+  const b=record('DEV-DUPLICATE-SKU-001','developer-assets',true);
+  writeNdjson(input,[a,b]);
+  fs.writeFileSync(reg,JSON.stringify(registry([{slug:'developer-assets',live_checkout_enabled:true}])));
+  const result=await runProvisioner({input,state,registryPath:reg,limit:25,dryRun:true});
+  assert.equal(result.selected_count,0);
+  assert.equal(result.skipped_count,2);
+  assert.ok(result.skipped.every(x=>x.reason==='DUPLICATE_SKU_ALL_OCCURRENCES_REJECTED'));
+  assert.equal(result.created_count,0);
+});
