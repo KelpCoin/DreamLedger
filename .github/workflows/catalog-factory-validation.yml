@@ -4,6 +4,8 @@ on:
   pull_request:
     paths:
       - "ops/catalog/**"
+      - "silos/mtg/silo.json"
+      - "public/silos/mtg/silo.json"
       - "package.json"
       - ".github/workflows/catalog-factory-validation.yml"
       - "BEC-PRIME/gauntlet/CandidateGauntlet.js"
@@ -38,5 +40,9 @@ jobs:
           if (x.schema_version !== 'dreamledger/silo-registry/v1' || !Array.isArray(x.silos) || x.silos.length < 2) throw new Error('Invalid silo registry');
           if (x.invented_products_allowed !== false || x.default_live_checkout_enabled !== false) throw new Error('Silo defaults must be fail-closed');
           if (x.silos.some(s => s.live_checkout_enabled !== false || s.lifecycle !== 'INGEST_ONLY')) throw new Error('A new silo unexpectedly enables live checkout');
-          console.log(JSON.stringify({status:'PASS',silo_count:x.silos.length,live_checkout_enabled:false}));
+          const mtg = x.silos.find(s => s.slug === 'mtg');
+          if (!mtg || mtg.clone_master_ref !== 'silos/mtg/silo.json') throw new Error('MTG canonical clone master is not registered');
+          if (mtg.clone_manifest_schema !== 'BEC-PRIME/CUBE-CLONE-MANIFEST/v1') throw new Error('Public shell manifest contract drifted');
+          if (mtg.catalog_gate_manifest_ref !== 'ops/catalog/templates/silo-manifest.v1.json' || mtg.catalog_gate_manifest_schema !== 'dreamledger/silo-manifest/v1') throw new Error('Catalogue gate contract binding missing');
+          console.log(JSON.stringify({status:'PASS',silo_count:x.silos.length,mtg_clone_master_registered:true,live_checkout_enabled:false}));
           NODE
