@@ -65,6 +65,8 @@ if (product.commercial_truth?.payment_surface !== null) errors.push('PRODUCT_PAY
 if (activeOffer) errors.push('HELD_OFFER_STILL_APPROVED');
 if (heldOffers.length !== 1) errors.push('HELD_OFFER_RECORD_MISSING_OR_DUPLICATED');
 if (heldOffer && (heldOffer.status !== 'HELD' || heldOffer.payment_link_url !== null || heldOffer.payment_link_status !== 'HELD_NOT_PROMOTED')) errors.push('HELD_OFFER_EXPOSES_PURCHASE_RAIL');
+const compiledCommander = readJson('catalog/offers/offers.json').offers.filter(x => x && x.offer_id === 'OFFER-CMD-DIAG-29-NZD');
+if (compiledCommander.some(x => x.checkout_available === true || x.status === 'VERIFIED_AVAILABLE' || x.checkout_url || x.payment_link_url)) errors.push('COMPILED_HELD_OFFER_CAN_BE_PURCHASED');
 
 if (featured.status !== 'HELD' || featured.public_visibility !== 'held' || featured.payment_link_url !== null ||
     featured.payment_link_status !== 'HELD_NOT_PROMOTED' || featured.checkout_url !== null) {
