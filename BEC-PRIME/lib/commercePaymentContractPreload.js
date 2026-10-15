@@ -166,6 +166,9 @@ if (!global.__dreamledgerMvpContractPatch) {
 }
 
 // Canonical contract literals for verifier:
+// payment_intent_data[metadata][sku_id]
+// payment_intent_data[metadata][sku]
+// payment_intent_data[metadata][marketplace_listing_id]
 // payment_intent_data[metadata][product_sku]
 // payment_intent_data[metadata][product_id]
 // payment_intent_data[metadata][offer_id]
