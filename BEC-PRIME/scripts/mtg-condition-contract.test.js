@@ -37,7 +37,7 @@ test('MTG renderer has no default Lightly Played condition', () => {
   assert.match(source, /conditionEligible/);
   assert.match(patch, /conditionEligible/);
   assert.doesNotMatch(source, /buy\\.stripe\\.com/);
-  assert.match(source, /Diagnostic currently held/);
+  assert.match(source, /Currently held/);
 });
 
 test('static root publication contains the manifest-driven MTG master paths', () => {
