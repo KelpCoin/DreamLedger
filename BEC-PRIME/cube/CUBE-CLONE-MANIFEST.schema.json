@@ -1,20 +1,168 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "BEC CUBE Clone Manifest",
+  "$id": "https://dreamledger.org/schemas/cube-clone-manifest.v1.schema.json",
+  "title": "DreamLedger canonical CUBE clone manifest",
   "type": "object",
-  "required": ["cube_version", "silo_name", "product_name", "price_nzd", "stripe_product_id", "domain", "repo_name", "surface", "status"],
+  "required": [
+    "schema",
+    "slug",
+    "name",
+    "short",
+    "route",
+    "list_route",
+    "catalog",
+    "manifest_path",
+    "status",
+    "isolation",
+    "inventory_policy",
+    "payment_truth",
+    "clone",
+    "template_role",
+    "clone_fossil_status"
+  ],
   "properties": {
-    "cube_version": {"type": "string"},
-    "silo_name": {"type": "string", "pattern": "^[a-z0-9_-]+$"},
-    "product_name": {"type": "string", "minLength": 1},
-    "price_nzd": {"type": "integer", "minimum": 1},
-    "stripe_product_id": {"type": "string"},
-    "domain": {"type": "string"},
-    "repo_name": {"type": "string"},
-    "surface": {"type": "string"},
-    "status": {"enum": ["template", "approved", "deployed", "retired"]},
-    "source_template": {"type": "string"},
-    "isolation": {"type": "boolean"}
+    "schema": {
+      "const": "BEC-PRIME/CUBE-CLONE-MANIFEST/v1"
+    },
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]{1,39}$"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "short": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 24
+    },
+    "route": {
+      "type": "string",
+      "pattern": "^/[a-z0-9-]+/$"
+    },
+    "list_route": {
+      "type": "string",
+      "pattern": "^/[a-z0-9-]+/list$"
+    },
+    "catalog": {
+      "type": "string",
+      "pattern": "^/data/[a-z0-9-]+-catalog\\.json$"
+    },
+    "manifest_path": {
+      "type": "string",
+      "pattern": "^/silos/[a-z0-9-]+/silo\\.json$"
+    },
+    "status": {
+      "enum": [
+        "live_candidate",
+        "candidate",
+        "active",
+        "retired"
+      ]
+    },
+    "template_role": {
+      "enum": [
+        "candidate_reference",
+        "verified_reference",
+        "candidate"
+      ]
+    },
+    "clone_fossil_status": {
+      "enum": [
+        "NOT_RUN",
+        "PASS",
+        "FAIL"
+      ]
+    },
+    "inventory_policy": {
+      "const": "empty_until_verified_supply"
+    },
+    "payment_truth": {
+      "const": "settled_payment_only"
+    },
+    "isolation": {
+      "type": "object",
+      "required": [
+        "catalog",
+        "checkout",
+        "analytics",
+        "customer_data",
+        "content",
+        "promotion"
+      ],
+      "properties": {
+        "catalog": {
+          "const": true
+        },
+        "checkout": {
+          "const": true
+        },
+        "analytics": {
+          "const": true
+        },
+        "customer_data": {
+          "const": true
+        },
+        "content": {
+          "const": true
+        },
+        "promotion": {
+          "const": true
+        }
+      },
+      "additionalProperties": {
+        "type": "boolean"
+      }
+    },
+    "clone": {
+      "type": "object",
+      "required": [
+        "master_schema",
+        "source_of_truth",
+        "catalog_default",
+        "inventory_copy",
+        "customer_data_copy",
+        "credential_copy",
+        "checkout_default",
+        "release_requires_clean_clone_fossil",
+        "activation_requires"
+      ],
+      "properties": {
+        "master_schema": {
+          "const": "BEC-PRIME/CUBE-CLONE-MANIFEST/v1"
+        },
+        "source_of_truth": {
+          "const": "silos/mtg/silo.json"
+        },
+        "catalog_default": {
+          "const": "empty"
+        },
+        "inventory_copy": {
+          "const": false
+        },
+        "customer_data_copy": {
+          "const": false
+        },
+        "credential_copy": {
+          "const": false
+        },
+        "checkout_default": {
+          "const": "disabled"
+        },
+        "release_requires_clean_clone_fossil": {
+          "const": true
+        },
+        "activation_requires": {
+          "type": "array",
+          "minItems": 3,
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": true
+    }
   },
   "additionalProperties": true
 }
