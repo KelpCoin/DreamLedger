@@ -64,24 +64,35 @@ if (
   errors.push('SKU_DRIFT');
 }
 
-const paymentLink = product.commercial_truth?.payment_link || '';
+const paymentLink = product.commercial_truth?.payment_link || null;
+const held = product.status === 'held' &&
+  product.checkout?.mode === 'disabled' &&
+  product.commercial_truth?.approval_required === true &&
+  product.commercial_truth?.sellable === false;
 
-if (
-  product.commercial_truth?.payment_link !== paymentLink ||
-  featured.payment_link_url !== paymentLink ||
-  offer?.payment_link_url !== paymentLink
-) {
-  errors.push('STRIPE_LINK_DRIFT');
+if (held) {
+  if (offer?.payment_link_status !== 'HELD' || offer?.payment_link_url != null || offer?.payment_link_id != null) {
+    errors.push('HELD_OFFER_HAS_LIVE_PAYMENT_REFERENCE');
+  }
+  if (featured.public_visibility !== 'hidden' || featured.payment_link_status !== 'HELD' ||
+      featured.payment_link_url != null || featured.payment_link_id != null ||
+      featured.checkout_url != null || featured.fulfillment_route != null) {
+    errors.push('HELD_OFFER_PUBLIC_SURFACE_NOT_DISABLED');
+  }
+  if (product.commercial_truth?.payment_link != null || product.checkout?.url != null) {
+    errors.push('HELD_PRODUCT_HAS_CHECKOUT_REFERENCE');
+  }
+} else {
+  if (featured.payment_link_url !== paymentLink || offer?.payment_link_url !== paymentLink) {
+    errors.push('STRIPE_LINK_DRIFT');
+  }
+  if (offer && offer.payment_link_status !== 'ACTIVE_LIVEMODE') {
+    errors.push('STRIPE_LINK_NOT_LIVEMODE');
+  }
+  if (product.commercial_truth?.approval_required !== false || product.commercial_truth?.sellable !== true) {
+    errors.push('PRODUCT_NOT_SELLABLE');
+  }
 }
-
-if (offer && offer.payment_link_status !== 'ACTIVE_LIVEMODE') {
-  errors.push('STRIPE_LINK_NOT_LIVEMODE');
-}
-
-if (product.commercial_truth?.approval_required !== false || product.commercial_truth?.sellable !== true) {
-  errors.push('PRODUCT_NOT_SELLABLE');
-}
-
 const homepageFile = path.join(root, 'compiled/website/index.html');
 
 if (fs.existsSync(homepageFile)) {
@@ -106,14 +117,17 @@ if (fs.existsSync(homepageFile)) {
 }
 
 const result = {
-  schema: 'BEC-PRIME/PRODUCTION-CONTRACT/v3',
+  schema: 'BEC-PRIME/PRODUCTION-CONTRACT/v4',
   status: errors.length ? 'FAIL' : 'PASS',
   checked_at: new Date().toISOString(),
   canonical_offer: {
     offer_id: 'OFFER-CMD-DIAG-29-NZD',
     sku: 'CMD-DIAG-29',
     price_nzd: 29,
-    payment_link_status: offer?.payment_link_status || null
+    payment_link_status: offer?.payment_link_status || null,
+    product_status: product.status || null,
+    checkout_mode: product.checkout?.mode || null,
+    public_visibility: featured.public_visibility || null
   },
   excluded_surfaces: ['cinema', 'private-adult-boundary'],
   errors
