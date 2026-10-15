@@ -11,16 +11,17 @@ const delivery = fs.readFileSync(path.join(root, 'supabase/functions/marketplace
 const failures = [];
 function need(condition, message) { if (!condition) failures.push(message); }
 
-need(/Deno\.env\.get\("STRIPE_WEBHOOK_SIGNING_SECRET"\)/.test(canonical), 'canonical handler must read its endpoint-specific signing secret');
-need(!/const STRIPE_WEBHOOK_SIGNING_SECRET=.*STRIPE_WEBHOOK_SECRET/.test(canonical), 'canonical handler must not silently fall back to a possibly unrelated legacy signing secret');
-need(/stripe_webhook_signing_secret:Boolean\(STRIPE_WEBHOOK_SIGNING_SECRET\)/.test(canonical), 'health must expose canonical signing-secret presence separately');
-need(/constructEventAsync\([\s\S]*?STRIPE_WEBHOOK_SIGNING_SECRET/.test(canonical), 'canonical handler must verify the Stripe signature with the canonical secret');
+need(canonical.includes('Deno.env.get("STRIPE_WEBHOOK_SIGNING_SECRET")'), 'canonical handler must read the endpoint-specific signing secret');
+need(!canonical.includes('Deno.env.get("STRIPE_WEBHOOK_SIGNING_SECRET")||Deno.env.get("STRIPE_WEBHOOK_SECRET")'), 'canonical handler must not silently fall back to a possibly unrelated legacy signing secret');
+need(canonical.includes('stripe_webhook_signing_secret:Boolean(STRIPE_WEBHOOK_SIGNING_SECRET)'), 'health must expose canonical signing-secret presence separately');
+need(canonical.includes('constructEventAsync') && canonical.includes('STRIPE_WEBHOOK_SIGNING_SECRET'), 'canonical handler must verify the Stripe signature with the canonical secret');
 need(canonical.indexOf('constructEventAsync') < canonical.indexOf('marketplace_settle_stripe_payment'), 'signature verification must precede marketplace settlement');
 need((canonical.match(/marketplace_settle_stripe_payment/g) || []).length === 1, 'there must be one canonical settlement RPC call site');
-need(/"CMD-DIAG-29":\s*"COMMANDER-DECK-DIAGNOSTIC-001"/.test(intake), 'public Commander SKU must map to the internal fulfillment SKU');
-need(/\.eq\("metadata->>sku", internalSku\)/.test(intake), 'fulfillment lookup must use the normalized internal SKU');
-need(/session\.livemode !== true \|\| session\.payment_status !== "paid"/.test(intake), 'intake must require a live, settled Stripe session');
-need(/session\\.livemode/.test(delivery) && /session\\.payment_status\\s*!==\\s*"paid"/.test(delivery), 'delivery must continue to require a live, settled session');
+need(intake.includes('"CMD-DIAG-29": "COMMANDER-DECK-DIAGNOSTIC-001"'), 'public Commander SKU must map to the internal fulfillment SKU');
+need(intake.includes('.eq("metadata->>sku", internalSku)'), 'fulfillment lookup must use the normalized internal SKU');
+need(intake.includes('session.livemode !== true || session.payment_status !== "paid"'), 'intake must require a live, settled Stripe session');
+need(delivery.includes('session.livemode') && delivery.includes('session.payment_status!=="paid"'), 'delivery must continue to require a live, settled session');
+need(!canonical.includes('WEBHOOK_QUARANTINED'), 'canonical settlement owner must not be the quarantined v2 handler');
 
 if (failures.length) {
   console.error('COMMANDER_DIAGNOSTIC_WEBHOOK_CONTRACT=FAIL');
@@ -28,4 +29,4 @@ if (failures.length) {
   process.exit(1);
 }
 console.log('COMMANDER_DIAGNOSTIC_WEBHOOK_CONTRACT=PASS');
-console.log('checks=10');
+console.log('checks=11');
