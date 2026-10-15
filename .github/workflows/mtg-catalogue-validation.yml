@@ -41,9 +41,16 @@ jobs:
             }
           }
           const html = fs.readFileSync('mtg/index.html', 'utf8');
-          if (!html.includes('/public/catalog.json')) throw new Error('Root preview catalogue must use tracked public catalogue data');
+          if (!html.includes("CATALOG='/data/mtg-catalog.json'")) throw new Error('Root preview MTG page must use the tracked /data/mtg-catalog.json inventory');
           const liveHtml = fs.readFileSync('public/mtg/index.html', 'utf8');
-          if (!liveHtml.includes("get('/catalog.json')")) throw new Error('Live public MTG page must load the tracked catalogue.json');
+          if (!liveHtml.includes("CATALOG='/data/mtg-catalog.json'")) throw new Error('Live public MTG page must use the tracked /data/mtg-catalog.json inventory route');
+          if (!fs.existsSync('data/mtg-catalog.json') || !fs.existsSync('public/data/mtg-catalog.json')) throw new Error('Tracked MTG inventory mirror is missing');
+          const rootInventory = JSON.parse(fs.readFileSync('data/mtg-catalog.json','utf8'));
+          const publicInventory = JSON.parse(fs.readFileSync('public/data/mtg-catalog.json','utf8'));
+          if (JSON.stringify(rootInventory) !== JSON.stringify(publicInventory)) throw new Error('Root and public MTG inventory mirrors diverge');
+          for (const inventory of [rootInventory,publicInventory]) {
+            if ((inventory.products||[]).some(p=>p.id==='COMMANDER-DECK-DIAGNOSTIC-001'||p.sku==='CMD-DIAG-29')) throw new Error('Held digital diagnostic cannot be listed as a purchasable physical deck');
+          }
           for (const page of ['public/mtg/quintorius-field-historian.html', 'public/mtg/dwynen-gilt-leaf-daen.html']) {
             if (!fs.existsSync(page)) throw new Error('Missing deployed public route: ' + page);
           }
