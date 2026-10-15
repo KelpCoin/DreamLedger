@@ -24,6 +24,7 @@ function verifyContract(html) {
   ];
   const missing = required.filter(s => !html.includes(s));
   if (missing.length) throw new Error('MTG commerce source contract failed: missing ' + missing.join(', '));
+  if (html.includes('buy.stripe.com')) throw new Error('MTG source contains a direct Stripe purchase URL while the diagnostic offer is held');
   if (/LP− \(Lightly Played\)/i.test(html)) {
     throw new Error('MTG source contains a default card condition label');
   }
