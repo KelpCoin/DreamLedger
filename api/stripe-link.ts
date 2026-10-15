@@ -66,7 +66,7 @@ export default async function handler(request: Request): Promise<Response> {
   form.set('payment_intent_data[metadata][product_id]', offer.product_id);
   form.set('payment_intent_data[metadata][offer_id]', requested || offer.sku);
   form.set('payment_intent_data[metadata][silo]', offer.silo);
-  form.set('payment_intent_data[metadata][source]', 'stripe_link');\n
+  form.set('payment_intent_data[metadata][source]', 'stripe_link');
   form.set('success_url', 'https://dreamledger.org/success?session_id={CHECKOUT_SESSION_ID}');
   form.set('cancel_url', 'https://dreamledger.org/cancel');
   form.set('metadata[offer_id]', requested || offer.sku);
