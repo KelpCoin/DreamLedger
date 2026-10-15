@@ -10,6 +10,8 @@ const { buildCandidate } = require('../cube/CubeCloneFactory');
 const REPO_ROOT = path.resolve(__dirname, '../..');
 const MASTER_PATH = path.join(REPO_ROOT, 'silos', 'mtg', 'silo.json');
 const REGISTRY_PATH = path.join(__dirname, '..', 'catalog', 'silos', 'CUBE-SILO-REGISTRY.json');
+const SCHEMA_PATH = path.join(__dirname, '..', 'cube', 'CUBE-CLONE-MANIFEST.schema.json');
+const LEGACY_CLONE_PATHS = [path.join(__dirname, '..', 'cube', 'CUBE-Clone.ps1'), path.join(__dirname, '..', 'cube', 'CUBE-Clone-Silo.ps1')];
 const PROOF_PATH = path.join(__dirname, '..', 'data', 'proofs', 'CUBE-CLEAN-CLONE-TEST-PROOF.json');
 
 function readJson(file) {
@@ -50,6 +52,7 @@ function validateClone(manifest, catalog, expectedSlug) {
 function run() {
   const master = readJson(MASTER_PATH);
   const registry = readJson(REGISTRY_PATH);
+  const schema = readJson(SCHEMA_PATH);
   const entry = (registry.silos || []).find(s => s.id === 'mtg');
   const checks = [];
   const check = (name, fn) => {
@@ -60,6 +63,19 @@ function run() {
   };
 
   check('master_manifest_schema', () => assert.equal(master.schema, 'BEC-PRIME/CUBE-CLONE-MANIFEST/v1'));
+  check('canonical_schema_matches_master', () => assert.equal(schema.properties?.schema?.const, master.schema));
+  check('legacy_product_specific_schema_removed', () => {
+    assert.equal(schema.properties?.stripe_product_id, undefined);
+    assert.equal(schema.properties?.price_nzd, undefined);
+    assert.equal(schema.required.includes('stripe_product_id'), false);
+  });
+  check('legacy_clone_entrypoints_use_factory', () => {
+    for (const file of LEGACY_CLONE_PATHS) {
+      const source = fs.readFileSync(file, 'utf8');
+      assert.ok(source.includes('CubeCloneFactory.js'));
+      assert.equal(/StripeProductId|CreateRemote|\$Push/.test(source), false);
+    }
+  });
   check('master_manifest_source_of_truth', () => assert.equal(master.clone.source_of_truth, 'silos/mtg/silo.json'));
   check('master_inventory_policy', () => assert.equal(master.inventory_policy, 'empty_until_verified_supply'));
   check('master_payment_truth', () => assert.equal(master.payment_truth, 'settled_payment_only'));
