@@ -31,11 +31,41 @@ export function validateVerdict(x, role) {
   if (role === 'EXTRACTOR' && (!Array.isArray(x.facts) || !x.facts.every(v => v && typeof v.name === 'string' && typeof v.value === 'string'))) return false;
   return true;
 }
-
 export function validateLocalEndpoint(raw) {
   const url = new URL(raw);
-  if (url.protocol !== 'http:' || !['127.0.0.1', 'localhost', '[::1]', '::1'].includes(url.hostname)) {
-    throw new Error('LOCAL_ENDPOINT_REQUIRED: LM Studio must remain loopback-only');
-  }
+  if (url.protocol !== 'http:' || !['127.0.0.1', 'localhost', '[::1]', '::1'].includes(url.hostname)) throw new Error('LOCAL_ENDPOINT_REQUIRED');
   return url;
+}
+
+function makePrompt(role, ctx) {
+  return [
+    'Return JSON only, no Markdown.',
+    'Required: schema_version="dreamledger.tri-llm-verdict/v1", verdict, rationale, evidence_refs string array, limitations string array.',
+    'Allowed verdicts: VERIFIED_MATCH, MISMATCH, INSUFFICIENT_EVIDENCE, UNAVAILABLE.',
+    'Never invent evidence, payment state, buyers, or fulfillment. A model verdict is not proof.',
+    'Use INSUFFICIENT_EVIDENCE when the retained context does not support a conclusion.',
+    'Role=' + role + '; input_sha256=' + ctx.inputDigest + '; context_version=' + ctx.contextVersion + '; policy_version=' + ctx.policyVersion + '; prompt_version=' + ctx.promptVersion,
+    role === 'EXTRACTOR' ? 'Also include facts: [{name:string,value:string}], extracted only from input.' : 'Also include findings: string array and independently challenge prior stages.'
+  ].join('\n');
+}
+async function callModel({ endpoint, token, model, role, prompt, context, fetchImpl, timeoutMs }) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const headers = { 'content-type': 'application/json' };
+    if (token) headers.authorization = 'Bearer ' + token;
+    const response = await fetchImpl(endpoint, { method: 'POST', headers, signal: controller.signal,
+      body: JSON.stringify({ model, temperature: 0, stream: false, messages: [
+        { role: 'system', content: prompt }, { role: 'user', content: canonicalJson(context) }
+      ] }) });
+    if (!response.ok) throw new Error('MODEL_UNAVAILABLE:' + role + ':' + response.status);
+    const raw = await response.text();
+    if (Buffer.byteLength(raw, 'utf8') > 131072) throw new Error('MODEL_RESPONSE_TOO_LARGE:' + role);
+    const envelope = JSON.parse(raw);
+    const text = envelope?.choices?.[0]?.message?.content;
+    if (typeof text !== 'string') throw new Error('MODEL_RESPONSE_SHAPE_INVALID:' + role);
+    const output = JSON.parse(text);
+    if (!validateVerdict(output, role)) throw new Error('MODEL_SCHEMA_INVALID:' + role);
+    return { role, model, promptVersion: context.promptVersion, output };
+  } finally { clearTimeout(timer); }
 }
