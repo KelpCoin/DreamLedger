@@ -2,31 +2,51 @@
 <html lang="en-NZ"><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Shop · DreamLedger NZ</title>
+<title>Shop · DreamLedger NZ — Pay on Stripe</title>
+<meta name="description" content="Checkout-ready products. Lowest price first. Every button goes to Stripe when live.">
 <style>
 :root{--bg:#f7f5ef;--paper:#fffdf8;--ink:#191a17;--muted:#65635c;--line:#ddd8cd;--accent:#5d43d8}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,sans-serif}a{color:inherit;text-decoration:none}
-.wrap{max-width:1100px;margin:auto;padding:0 20px}.top{position:sticky;top:0;background:#f7f5eff2;border-bottom:1px solid var(--line);padding:14px 0}
-.top .wrap{display:flex;justify-content:space-between;align-items:center}.brand{font-weight:950}.brand span{color:var(--accent)}
+.wrap{max-width:1100px;margin:auto;padding:0 20px}.top{position:sticky;top:0;background:#f7f5eff2;border-bottom:1px solid var(--line);padding:14px 0;z-index:10}
+.top .wrap{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.brand{font-weight:950}.brand span{color:var(--accent)}
 nav{display:flex;gap:14px;font-size:.85rem;font-weight:750;color:var(--muted)}
-.hero{padding:48px 0 24px}h1{font-size:clamp(2.2rem,5vw,3.5rem);letter-spacing:-.05em}
-.lead{color:var(--muted)}.rail{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin:20px 0}
-.card{display:flex;flex-direction:column;gap:8px;padding:20px;border:1px solid var(--line);border-radius:14px;background:var(--paper);min-height:200px}
+.hero{padding:40px 0 16px}h1{font-size:clamp(2rem,5vw,3.2rem);letter-spacing:-.05em;margin:8px 0}
+.lead{color:var(--muted);max-width:40em}
+.banner{margin:12px 0 20px;padding:14px 16px;border-radius:12px;background:#191a17;color:#fff;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+.banner a{background:var(--accent);color:#fff;padding:10px 14px;border-radius:9px;font-weight:850}
+.rail{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin:16px 0}
+.card{display:flex;flex-direction:column;gap:8px;padding:18px;border:1px solid var(--line);border-radius:14px;background:var(--paper);min-height:200px}
 .price{font-size:1.35rem;font-weight:900}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:10px 14px;background:var(--ink);color:#fff;border-radius:9px;font-weight:850}
+.empty{padding:20px;color:var(--muted)}
+footer{border-top:1px solid var(--line);padding:24px 0 48px;color:var(--muted);font-size:.8rem}
 </style></head>
 <body>
-<header class="top"><div class="wrap"><a class="brand" href="/">Dream<span>Ledger</span></a>
-<nav><a href="/">Home</a><a href="/cash.html">From NZ$3.99</a><a href="/mtg/">Magic</a></nav></div></header>
+<header class="top"><div class="wrap">
+<a class="brand" href="/">Dream<span>Ledger</span></a>
+<nav><a href="/money.html">From NZ$3.99</a><a href="/avatar.html">Avatar</a><a href="/mtg/">Magic</a></nav>
+</div></header>
 <main class="wrap">
-<section class="hero"><h1>Pay for real work.</h1>
-<p class="lead">Checkout-ready products only. Lowest price first. Buttons go to Stripe.</p></section>
+<section class="hero">
+<h1>Pay for real work.</h1>
+<p class="lead">Checkout-ready products only, lowest price first. Buttons open live Stripe when available.</p>
+<div class="banner">
+  <div><strong>Fastest path:</strong> Supporter Sprout · NZ$3.99</div>
+  <a href="/buy/DREAMMEEZ-SUPPORTER-SPROUT">Pay NZ$3.99 on Stripe →</a>
+</div>
+</section>
 <div id="products"></div>
 </main>
+<footer><div class="wrap">© 2026 DreamLedger · <a href="/money.html">Money board</a></div></footer>
 <script>
-fetch('/api/products',{cache:'no-store'}).then(r=>r.json()).then(d=>{
-  const products=(d.products||[]).filter(p=>p&&p.checkout_available===true).sort((a,b)=>(Number(a.price)||0)-(Number(b.price)||0));
-  const esc=v=>String(v??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-  document.getElementById('products').innerHTML='<div class="rail">'+products.map(p=>'<article class="card"><h3>'+esc(p.name)+'</h3><p style="color:#65635c;flex:1">'+esc((p.description||'').slice(0,140))+'</p><div class="price">NZ$'+esc(Number(p.price||0))+'</div><a class="btn" href="/buy/'+encodeURIComponent(p.id)+'">Pay on Stripe</a></article>').join('')+'</div>';
-}).catch(()=>{document.getElementById('products').innerHTML='<p>Products temporarily unavailable.</p>';});
+fetch('/api/products',{cache:'no-store'}).then(function(r){return r.json()}).then(function(d){
+  var products=(d.products||[]).filter(function(p){return p&&p.checkout_available===true;})
+    .sort(function(a,b){return (Number(a.price)||0)-(Number(b.price)||0);});
+  function esc(v){return String(v==null?'':v).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  var root=document.getElementById('products');
+  if(!products.length){root.innerHTML='<p class="empty">No checkout-ready products. <a href="/buy/DREAMMEEZ-SUPPORTER-SPROUT">Pay NZ$3.99</a></p>';return;}
+  root.innerHTML='<div class="rail">'+products.map(function(p){
+    return '<article class="card"><h3>'+esc(p.name)+'</h3><p style="color:#65635c;flex:1">'+esc((p.description||'').slice(0,140))+'</p><div class="price">NZ$'+esc(Number(p.price||0))+'</div><a class="btn" href="/buy/'+encodeURIComponent(p.id)+'">Pay on Stripe</a></article>';
+  }).join('')+'</div>';
+}).catch(function(){document.getElementById('products').innerHTML='<p class="empty"><a href="/buy/DREAMMEEZ-SUPPORTER-SPROUT">Pay NZ$3.99 on Stripe</a></p>';});
 </script>
 </body></html>
