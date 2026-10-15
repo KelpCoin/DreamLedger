@@ -69,3 +69,58 @@ async function callModel({ endpoint, token, model, role, prompt, context, fetchI
     return { role, model, promptVersion: context.promptVersion, output };
   } finally { clearTimeout(timer); }
 }
+
+export async function runTriLlm({
+  input, endpoint = 'http://127.0.0.1:1235/v1/chat/completions',
+  token = process.env.LM_API_TOKEN || '', contextVersion = 'context.v1',
+  policyVersion = 'policy.v1', roles = DEFAULT_ROLES, fetchImpl = globalThis.fetch,
+  timeoutMs = 25000, now = () => new Date().toISOString()
+}) {
+  const checkedAt = now();
+  let inputJson, inputDigest;
+  try {
+    inputJson = canonicalJson(input);
+    if (Buffer.byteLength(inputJson, 'utf8') > 65536) throw new Error('INPUT_TOO_LARGE');
+    inputDigest = sha256(inputJson);
+  } catch (e) {
+    return { status: 'QUARANTINE', verdict: 'INSUFFICIENT_EVIDENCE', reason: String(e.message || e), inputDigest: null, receipt: null };
+  }
+  let url;
+  try { url = validateLocalEndpoint(endpoint); } catch (e) {
+    return { status: 'UNAVAILABLE', verdict: 'UNAVAILABLE', reason: String(e.message || e), inputDigest, receipt: null };
+  }
+  if (!Array.isArray(roles) || roles.length !== 3 ||
+      new Set(roles.map(x => x.role)).size !== 3 || new Set(roles.map(x => x.model)).size !== 3 ||
+      !roles.every(x => ['EXTRACTOR', 'GAUNTLET', 'ELOHIM'].includes(x.role) && x.model && x.promptVersion)) {
+    return { status: 'QUARANTINE', verdict: 'INSUFFICIENT_EVIDENCE', reason: 'THREE_DISTINCT_MODELS_REQUIRED', inputDigest, receipt: null };
+  }
+  const results = [];
+  for (const r of roles) {
+    try {
+      const context = { input: JSON.parse(inputJson), priorStages: results.map(x => ({ role: x.role, model: x.model, output: x.output })) };
+      const ctx = { inputDigest, contextVersion, policyVersion, promptVersion: r.promptVersion };
+      const result = await callModel({ endpoint: url.toString(), token, model: r.model, role: r.role,
+        prompt: makePrompt(r.role, ctx), context, fetchImpl, timeoutMs });
+      results.push(result);
+    } catch (e) {
+      return { status: 'UNAVAILABLE', verdict: 'UNAVAILABLE', reason: String(e.message || e), inputDigest, modelResults: results, receipt: null };
+    }
+  }
+  const verdicts = results.map(x => x.output.verdict);
+  const consensus = verdicts.every(v => v === verdicts[0]);
+  const verdict = consensus ? verdicts[0] : 'INSUFFICIENT_EVIDENCE';
+  const status = consensus && verdict === 'VERIFIED_MATCH' ? 'REVIEW_REQUIRED' : 'QUARANTINE';
+  const receiptBody = {
+    schema: 'dreamledger.tri-llm-evidence-receipt/v1',
+    contractVersion: 'dreamledger.tri-llm-worker/v1',
+    inputDigest, contextVersion, policyVersion, checkedAt,
+    models: results, verdict, consensus, status,
+    limitations: [
+      'LLM consensus is not proof of factual correctness.',
+      'SHA-256 proves integrity, not truth, payment settlement, or fulfillment.',
+      'This worker does not initiate payment or fulfillment.'
+    ]
+  };
+  const receiptSha256 = sha256(canonicalJson(receiptBody));
+  return { status, verdict, inputDigest, modelResults: results, receipt: { ...receiptBody, receiptSha256 } };
+}
