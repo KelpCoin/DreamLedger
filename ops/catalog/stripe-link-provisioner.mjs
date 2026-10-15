@@ -145,7 +145,7 @@ async function runProvisioner(options) {
   const existing=new Map();
   if(fs.existsSync(statePath)) {
     await eachLine(statePath, async row=>{
-      if(row?.sku && ['CREATED','SKIPPED'].includes(row.state)) existing.set(row.sku,row);
+      if(row?.sku && ['CREATED','SKIPPED','PROVISIONING_STARTED'].includes(row.state)) existing.set(row.sku,row);
       else if(row?.sku && row.state==='REVIEW_REQUIRED') existing.set(row.sku,row);
     });
   }
