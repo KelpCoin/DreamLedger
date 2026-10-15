@@ -77,7 +77,8 @@ jobs:
               raise SystemExit('COMMANDER_PRODUCT_STATE=FAIL')
           if product.get('checkout', {}).get('mode') != 'disabled' or product.get('commercial_truth', {}).get('sellable') is not False:
               raise SystemExit('COMMANDER_CHECKOUT_STATE=FAIL')
-          if any(x.get('offer_id') == offer_id for x in compiled.get('offers', [])):
+          compiled_commander = [x for x in compiled.get('offers', []) if x.get('offer_id') == offer_id]
+          if any(x.get('checkout_available') is True or x.get('status') == 'VERIFIED_AVAILABLE' or x.get('checkout_url') or x.get('payment_link_url') for x in compiled_commander):
               raise SystemExit('COMMANDER_COMPILED_AS_BUYABLE=FAIL')
           if featured.get('status') != 'HELD' or featured.get('payment_link_url') is not None or featured.get('checkout_url') is not None:
               raise SystemExit('COMMANDER_FEATURED_SURFACE=FAIL')
