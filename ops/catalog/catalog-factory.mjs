@@ -24,7 +24,7 @@ const SEED_CHECKS = [
   'schema_valid', 'source_provenance', 'buyer_hypothesis', 'silo_boundary',
   'rights_and_privacy', 'duplicate_sku', 'truth_boundary'
 ];
-const PRODUCT_CHECKS = [
+export const PRODUCT_CHECKS = [
   'demand_evidence', 'price_integrity', 'unit_economics', 'fulfillment_test', 'delivery_receipt'
 ];
 
@@ -177,10 +177,11 @@ function productReady(record, siloManifest, validation) {
     c.unit_economics.estimated_cost_minor < c.price?.unit_amount_minor;
   const review = record.commercial_review;
   const checkout = record.checkout;
+  const digest = candidateDigest(record);
   const reviewPass = review?.status === 'APPROVED' && review.approved_by &&
-    isIsoDate(review.approved_at);
+    isIsoDate(review.approved_at) && review.candidate_sha256 === digest;
   const checkoutApprovalPass = checkout?.live_activation_approved === true &&
-    checkout.approved_by && isIsoDate(checkout.approved_at);
+    checkout.approved_by && isIsoDate(checkout.approved_at) && checkout.candidate_sha256 === digest;
   const siloLive = siloManifest?.live_checkout_enabled === true;
   return {
     ready: missingProductChecks.length === 0 && demandEvidencePass && fulfillmentPass && pricePass && unitEconomicsPass &&
@@ -227,7 +228,7 @@ function finishStream(stream) {
     stream.end();
   });
 }
-function loadRegistry(file) {
+export function loadRegistry(file) {
   const registry = JSON.parse(fs.readFileSync(file, 'utf8'));
   if (registry.schema_version !== 'dreamledger/silo-registry/v1' || !Array.isArray(registry.silos)) {
     throw new Error('Invalid silo registry schema');
