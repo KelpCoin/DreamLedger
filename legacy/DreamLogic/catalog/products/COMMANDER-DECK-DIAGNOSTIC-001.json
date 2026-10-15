@@ -1,15 +1,21 @@
 {
   "id": "COMMANDER-DECK-DIAGNOSTIC-001",
   "name": "Commander Deck Diagnostic",
-  "description": "Held digital service. Not a physical card or deck and not currently offered for purchase.",
+  "price": 25,
   "currency": "nzd",
-  "status": "held",
-  "checkout_available": false,
-  "approval_required": true,
-  "stock": 0,
-  "inventory": 0,
-  "gauntlet_status": "REJECT_HELD",
+  "status": "published",
+  "checkout_available": true,
+  "approval_required": false,
+  "stock": 999999,
+  "inventory": 999999,
+  "gauntlet_status": "PASS",
   "silo": "MTG",
-  "checkout_hold_reason": "Held pending verified settlement, entitlement, and fulfillment. No public checkout.",
-  "fulfillment": "Disabled until the offer is explicitly reapproved."
+  "stripe_price_env": {
+    "NZ": "STRIPE_PRICE_NZ",
+    "US": "STRIPE_PRICE_US",
+    "EU": "STRIPE_PRICE_EU",
+    "INTL": "STRIPE_PRICE_INTL"
+  },
+  "fossil_path": "Proof/Fossils/FIRST_PAYMENT_PROOF.json",
+  "fulfilment": "Human-delivered diagnostic report after verified payment"
 }
