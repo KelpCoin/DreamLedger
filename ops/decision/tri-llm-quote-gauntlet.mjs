@@ -199,3 +199,167 @@ export function deterministicQuoteChecks(extraction) {
   }
   return { checks, mismatch, checked };
 }
+
+export async function runQuoteGauntlet({
+  rawInput,
+  contextManifest,
+  modelConfig = ROLE_CONFIG,
+  apiToken = process.env.LM_API_TOKEN || '',
+  fetchImpl = globalThis.fetch,
+  timeoutMs = 20000,
+  now = () => new Date().toISOString()
+}) {
+  const checkedAt = now();
+  const unavailable = (reason, extra = {}) => ({
+    schema: 'dreamledger/tri-llm-run/v1',
+    status: 'UNAVAILABLE',
+    verdict: 'INSUFFICIENT_EVIDENCE',
+    reason,
+    checked_at: checkedAt,
+    ...extra
+  });
+
+  if (typeof rawInput !== 'string' || rawInput.trim().length === 0) return unavailable('RAW_INPUT_REQUIRED');
+  if (Buffer.byteLength(rawInput, 'utf8') > 65536) return unavailable('RAW_INPUT_TOO_LARGE_MAX_64KB');
+  if (!apiToken || typeof apiToken !== 'string') return unavailable('LM_API_TOKEN_REQUIRED');
+  if (typeof fetchImpl !== 'function') return unavailable('FETCH_UNAVAILABLE');
+
+  const manifestFailure = contextManifestError(contextManifest, checkedAt);
+  if (manifestFailure) return unavailable(manifestFailure);
+  const rawInputSha256 = sha256(rawInput);
+  const contextManifestSha256 = contextManifest.manifest_sha256;
+
+  if (!Array.isArray(modelConfig) || modelConfig.length !== 3 ||
+      new Set(modelConfig.map(x => x.role)).size !== 3 ||
+      new Set(modelConfig.map(x => x.model)).size !== 3 ||
+      !['EXTRACTOR','GAUNTLET','ELOHIM'].every(role => modelConfig.some(x => x.role === role))) {
+    return unavailable('THREE_DISTINCT_MODEL_ROLES_AND_IDS_REQUIRED', { raw_input_sha256: rawInputSha256, context_manifest_sha256: contextManifestSha256 });
+  }
+
+  const configByRole = {};
+  for (const c of modelConfig) {
+    try {
+      if (!requiredString(c.model) || !requiredString(c.promptVersion) ||
+          !Number.isFinite(c.temperature) || c.temperature < 0 || c.temperature > 1) throw new Error('MODEL_CONFIG_INVALID');
+      c.url = validateLoopbackEndpoint(c.endpoint).toString();
+      if (contextManifest.model_ids?.[c.role] !== c.model) throw new Error('CONTEXT_MODEL_DRIFT:' + c.role);
+      if (contextManifest.prompt_versions?.[c.role] !== c.promptVersion) throw new Error('CONTEXT_PROMPT_DRIFT:' + c.role);
+      configByRole[c.role] = c;
+    } catch (error) {
+      return unavailable(String(error.message || error), { raw_input_sha256: rawInputSha256, context_manifest_sha256: contextManifestSha256 });
+    }
+  }
+
+  const stageResults = [];
+  for (const role of ['EXTRACTOR','GAUNTLET','ELOHIM']) {
+    const c = configByRole[role];
+    const roleContext = {
+      inputDigest: rawInputSha256,
+      contextVersion: contextManifest.context_version,
+      policyVersion: contextManifest.policy_version,
+      promptVersion: c.promptVersion
+    };
+    const modelInput = {
+      raw_input: rawInput,
+      raw_input_sha256: rawInputSha256,
+      context_manifest: contextManifest,
+      previous_stages: stageResults.map(x => ({ role: x.role, model: x.model, prompt_version: x.prompt_version, output: x.output }))
+    };
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const response = await fetchImpl(c.url, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', authorization: 'Bearer ' + apiToken },
+        signal: controller.signal,
+        body: JSON.stringify({
+          model: c.model,
+          temperature: c.temperature,
+          stream: false,
+          response_format: { type: 'json_object' },
+          messages: [
+            { role: 'system', content: basePrompt(role, roleContext) },
+            { role: 'user', content: canonicalJson(modelInput) }
+          ]
+        })
+      });
+      if (!response.ok) throw new Error('MODEL_HTTP_UNAVAILABLE:' + role + ':' + response.status);
+      const payloadText = await response.text();
+      if (Buffer.byteLength(payloadText, 'utf8') > 131072) throw new Error('MODEL_RESPONSE_TOO_LARGE:' + role);
+      const envelope = JSON.parse(payloadText);
+      const content = envelope?.choices?.[0]?.message?.content;
+      if (typeof content !== 'string' || Buffer.byteLength(content, 'utf8') > 65536) throw new Error('MODEL_RESPONSE_SHAPE_OR_SIZE_INVALID:' + role);
+      const output = validateStageOutput(JSON.parse(content), role);
+      stageResults.push({ role, model: c.model, endpoint: c.url, temperature: c.temperature, prompt_version: c.promptVersion, output });
+    } catch (error) {
+      return {
+        schema: 'dreamledger/tri-llm-run/v1',
+        status: 'UNAVAILABLE',
+        verdict: 'INSUFFICIENT_EVIDENCE',
+        reason: String(error.message || error),
+        checked_at: checkedAt,
+        raw_input_sha256: rawInputSha256,
+        context_manifest_sha256: contextManifestSha256,
+        completed_stages: stageResults,
+        receipt: null
+      };
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  const extraction = stageResults.find(x => x.role === 'EXTRACTOR').output;
+  const audit = stageResults.find(x => x.role === 'GAUNTLET').output;
+  const judge = stageResults.find(x => x.role === 'ELOHIM').output;
+  const arithmetic = deterministicQuoteChecks(extraction);
+
+  let verdict = judge.verdict;
+  let overrideReason = null;
+  if (arithmetic.mismatch) {
+    verdict = 'MISMATCH';
+    overrideReason = 'DETERMINISTIC_ARITHMETIC_CONTRADICTION';
+  } else if (audit.risk_level === 'CRITICAL' || audit.risk_level === 'HIGH' || audit.injection_risks.length > 0) {
+    if (verdict === 'MATCH') {
+      verdict = 'INSUFFICIENT_EVIDENCE';
+      overrideReason = 'HIGH_RISK_AUDIT_REQUIRES_HUMAN_REVIEW';
+    }
+  }
+  const status = verdict === 'MATCH' ? 'REVIEW_REQUIRED' : 'QUARANTINE';
+  const receiptBody = {
+    schema: 'dreamledger/tri-llm-evidence-receipt/v1',
+    contract_version: 'dreamledger/tri-llm-quote-gauntlet/v1',
+    created_at: checkedAt,
+    raw_input_sha256: rawInputSha256,
+    context_manifest_sha256: contextManifestSha256,
+    context_version: contextManifest.context_version,
+    policy_version: contextManifest.policy_version,
+    source_refs: contextManifest.sources.map(s => ({ id: s.id, sha256: s.sha256, authority: s.authority, captured_at: s.captured_at })),
+    stages: stageResults.map(x => ({ role:x.role, model:x.model, endpoint:x.endpoint, temperature:x.temperature, prompt_version:x.prompt_version, output:x.output })),
+    deterministic_checks: arithmetic.checks,
+    deterministic_checks_counted: arithmetic.checked,
+    model_judgment: judge.verdict,
+    audit_risk_level: audit.risk_level,
+    final_verdict: verdict,
+    override_reason: overrideReason,
+    status,
+    limitations: [
+      'Model results and consensus are assessments, not proof that a quote is accurate.',
+      'The receipt hash proves integrity of this envelope, not truth, payment settlement or fulfillment.',
+      'No payment, external action, job admission or fulfillment was initiated by this local worker.',
+      'A MATCH is advisory and remains REVIEW_REQUIRED until a separate authorized reviewer accepts it.'
+    ]
+  };
+  const receiptSha256 = sha256(canonicalJson(receiptBody));
+  return {
+    schema: 'dreamledger/tri-llm-run/v1',
+    status,
+    verdict,
+    checked_at: checkedAt,
+    raw_input_sha256: rawInputSha256,
+    context_manifest_sha256: contextManifestSha256,
+    stage_results: stageResults,
+    deterministic_checks: arithmetic,
+    override_reason: overrideReason,
+    receipt: { ...receiptBody, receipt_sha256: receiptSha256 }
+  };
+}
