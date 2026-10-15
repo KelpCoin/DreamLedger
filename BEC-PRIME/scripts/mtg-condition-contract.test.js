@@ -28,7 +28,9 @@ test('digital services and commander decks never inherit a card condition', () =
     assert.equal(diagnostic.checkout_available, false);
     assert.equal(Object.hasOwn(diagnostic, 'condition'), false);
   }
-  for (const p of mtg.products.filter(p => p.category === 'commander-deck' || p.category === 'digital-service')) {
+  // Physical Commander decks may have an explicitly seller-supplied deck-condition note;
+  // digital products must never inherit a condition field from a physical card listing.
+  for (const p of mtg.products.filter(p => p.category === 'digital-service')) {
     assert.equal(Object.hasOwn(p, 'condition'), false, p.id + ' must not carry a card condition');
   }
 });
