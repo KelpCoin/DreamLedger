@@ -45,13 +45,13 @@ assert.equal(cube.sale_status, 'held');
 assert.equal(cube.checkout_enabled, false);
 assert.match(compiledDiagnostic, /Currently held/);
 assert.match(compiledDiagnostic, /not available for purchase/);
-assert.doesNotMatch(compiledDiagnostic, /NZ\\$29|\\/api\\/mtg\\/diagnostic\\/intake|buy\\.stripe\\.com/i);
+assert.doesNotMatch(compiledDiagnostic, /NZ\$29|\/api\/mtg\/diagnostic\/intake|buy\.stripe\.com/i);
 
-assert.doesNotMatch(publicIndex, /\\/buy\\/COMMANDER-DECK-DIAGNOSTIC-001/i);
+assert.doesNotMatch(publicIndex, /\/buy\/COMMANDER-DECK-DIAGNOSTIC-001/i);
 assert.doesNotMatch(publicShop, /Commander Deck Diagnostic/i);
 assert.match(publicIndex, /temporarily held/i);
 assert.match(publicSilo, /Currently held/i);
-assert.doesNotMatch(publicSilo, /mailto:hello@dreamledger\\.org|buy\\.stripe\\.com/i);
+assert.doesNotMatch(publicSilo, /mailto:hello@dreamledger\.org|buy\.stripe\.com/i);
 
 assert.doesNotMatch(publicPage, /buy\.stripe\.com\//i, 'public MTG master must not bypass the first-party fulfillment gate');
 assert.doesNotMatch(publicPage, />\s*Buy diagnostic\s*</i, 'held public page must not show a buy CTA');
