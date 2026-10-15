@@ -139,6 +139,7 @@
   const status=document.getElementById('status');
   function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
   function isPhysical(p){return p.category==='commander-deck'||/^EDH/i.test(p.id||'');}
+  function conditionEligible(p){const kind=String(p.product_kind||p.category||p.inventory_type||'').toLowerCase();return ['single','single-card','mtg-single','physical-single'].includes(kind);}
   async function load(){
     try{
       try{ await fetch(MANIFEST,{cache:'no-store'}); }catch(e){}
@@ -157,7 +158,9 @@
         const detail=p.detail_url||'/mtg/';
         const inv=Number(p.inventory)>0;
         const stock=inv?'<span class="stock">In stock</span>':'<span class="stock out">—</span>';
-        const cond=p.condition?('<span>'+esc(p.condition)+'</span>'):'';
+        const cardCondition=conditionEligible(p)&&typeof p.condition==='string'&&p.condition.trim()?'<span>Card condition: '+esc(p.condition.trim())+'</span>':'';
+        const deckCondition=p.category==='commander-deck'&&typeof p.deck_condition==='string'&&p.deck_condition.trim()?'<span>Deck condition: '+esc(p.deck_condition.trim())+'</span>':'';
+        const cond=deckCondition+cardCondition;
         const cmd=p.commander?('<span>'+esc(p.commander)+'</span>'):'';
         const buy=inv
           ? '<a class="buy" href="'+esc(detail)+'">See cards &amp; buy · NZ$'+price+'</a>'
