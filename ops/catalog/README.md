@@ -26,7 +26,7 @@ One JSON object per line:
     "name": "Documented API wrapper",
     "description": "A bounded, documented API integration package.",
     "source": {"ref": "https://example.invalid/source", "sha256": "<64-hex-source-digest>"},
-    "demand": {"buyer_segment": "API developers", "evidence_ref": "research-record-123"},
+    "demand": {"buyer_segment": "API developers", "status": "SUPPORTED", "evidence_ref": "research-record-123"},
     "price": null,
     "unit_economics": {"status": "UNVERIFIED"},
     "fulfillment": {"status": "UNVERIFIED"}
