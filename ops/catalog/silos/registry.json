@@ -1,0 +1,85 @@
+{
+  "schema_version": "dreamledger/silo-registry/v1",
+  "objective": "Silo shells are ingest namespaces only. They do not represent public storefronts, validated inventory, or live offers.",
+  "invented_products_allowed": false,
+  "default_live_checkout_enabled": false,
+  "silos": [
+    {
+      "slug": "b2b-compliance",
+      "title": "B2B Compliance Artifacts",
+      "description": "Evidence-backed technical/compliance kits and readiness tooling.",
+      "lifecycle": "INGEST_ONLY",
+      "live_checkout_enabled": false
+    },
+    {
+      "slug": "developer-assets",
+      "title": "Developer Assets",
+      "description": "Reusable code, APIs, starter kits and developer productivity assets.",
+      "lifecycle": "INGEST_ONLY",
+      "live_checkout_enabled": false
+    },
+    {
+      "slug": "workflow-automation",
+      "title": "Workflow Automation",
+      "description": "Bounded integrations, bots and workflow automation assets.",
+      "lifecycle": "INGEST_ONLY",
+      "live_checkout_enabled": false
+    },
+    {
+      "slug": "procurement-tools",
+      "title": "Procurement Tools",
+      "description": "Quote comparison, sourcing, estimating and supplier-risk utilities.",
+      "lifecycle": "INGEST_ONLY",
+      "live_checkout_enabled": false
+    },
+    {
+      "slug": "data-intelligence",
+      "title": "Data and Intelligence",
+      "description": "Licensed data products, research feeds and evidence-backed datasets.",
+      "lifecycle": "INGEST_ONLY",
+      "live_checkout_enabled": false
+    },
+    {
+      "slug": "creative-media",
+      "title": "Creative and Media Assets",
+      "description": "Licensed multimedia, design systems, templates and production assets.",
+      "lifecycle": "INGEST_ONLY",
+      "live_checkout_enabled": false
+    },
+    {
+      "slug": "gaming-assets",
+      "title": "Gaming Assets",
+      "description": "Game engine plugins, models, presets and creator assets.",
+      "lifecycle": "INGEST_ONLY",
+      "live_checkout_enabled": false
+    },
+    {
+      "slug": "digital-commerce",
+      "title": "Digital Commerce",
+      "description": "Digital products, creator storefronts, templates and commerce components.",
+      "lifecycle": "INGEST_ONLY",
+      "live_checkout_enabled": false
+    },
+    {
+      "slug": "finance-models",
+      "title": "Business and Finance Models",
+      "description": "Business calculators, pricing models and operational planning artifacts.",
+      "lifecycle": "INGEST_ONLY",
+      "live_checkout_enabled": false
+    },
+    {
+      "slug": "industrial-automation",
+      "title": "Industrial Automation",
+      "description": "Software, data and automation offerings for industrial and agricultural workflows.",
+      "lifecycle": "INGEST_ONLY",
+      "live_checkout_enabled": false
+    },
+    {
+      "slug": "utility-services",
+      "title": "Utility Services",
+      "description": "Software-mediated utility services and verified operational tooling.",
+      "lifecycle": "INGEST_ONLY",
+      "live_checkout_enabled": false
+    }
+  ]
+}
