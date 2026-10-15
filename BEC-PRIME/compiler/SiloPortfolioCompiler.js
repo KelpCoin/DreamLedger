@@ -45,6 +45,7 @@ function digest(value) {
 
 const source = readJson(APPROVED);
 const offers = Array.isArray(source.approved) ? source.approved : [];
+const heldCount = Array.isArray(source.held) ? source.held.length : 0;
 
 function demandEvidenceForOffer(offer, radar) {
   if (!radar || !Array.isArray(radar.active)) return null;
@@ -72,7 +73,7 @@ function demandEvidenceForOffer(offer, radar) {
 }
 
 const demandRadar = fs.existsSync(DEMAND_RADAR) ? readJson(DEMAND_RADAR) : null;
-if (!offers.length) throw new Error('No explicitly approved offers found. Refusing to publish an empty commercial portfolio.');
+// An empty approved set is a valid fail-closed state. Never turn a missing/held offer into a build failure that encourages bypassing the gate.
 
 const eligible = offers.filter(o =>
   o &&
@@ -85,9 +86,7 @@ const eligible = offers.filter(o =>
   o.currency === 'NZD'
 );
 
-if (!eligible.length) {
-  throw new Error('No approved livemode Stripe offers available. Refusing to publish a non-purchasable portfolio.');
-}
+// Zero eligible payment links is represented honestly by an empty portfolio. It is not an error and must not trigger a guessed fallback offer.
 
 fs.mkdirSync(OUT_DIR, { recursive: true });
 fs.mkdirSync(CATALOG_DIR, { recursive: true });
@@ -133,6 +132,8 @@ const compiled = eligible.map((offer, index) => {
 const catalog = {
   schema: 'BEC-PRIME/SLEEPING-COMMERCE-PORTFOLIO/v1',
   status: 'COMPILED',
+  commercial_state: compiled.length ? 'APPROVED_OFFERS_AVAILABLE' : 'HOLD_NO_APPROVED_LIVE_CHECKOUTS',
+  held_source_offer_count: heldCount,
   compiler: 'SiloPortfolioCompiler',
   compiled_at: new Date().toISOString(),
   source_hash: digest(fs.readFileSync(APPROVED, 'utf8')),
@@ -163,6 +164,8 @@ for (const offer of compiled) {
 const carouselManifest = {
   schema: 'BEC-PRIME/SILO-CAROUSEL-MANIFEST/v1',
   status: 'COMPILED',
+  commercial_state: compiled.length ? 'APPROVED_OFFERS_AVAILABLE' : 'HOLD_NO_APPROVED_LIVE_CHECKOUTS',
+  held_source_offer_count: heldCount,
   compiler: 'SiloPortfolioCompiler',
   trend_engine: 'BEC-PRIME/trends/TrendFlywheel.js',
   compiled_at: catalog.compiled_at,
@@ -301,6 +304,9 @@ ul{padding-left:22px}
 </html>`;
 }
 
+for (const name of fs.readdirSync(OUT_DIR)) {
+  if (name.endsWith('.html')) fs.rmSync(path.join(OUT_DIR, name), { force: true });
+}
 for (const offer of compiled) {
   fs.writeFileSync(path.join(OUT_DIR, `${slug(offer.name)}.html`), page(offer), 'utf8');
 }
@@ -337,8 +343,8 @@ h1{font-size:44px;line-height:1.05}
 <main class="wrap">
 <p class="eyebrow">ONE COMMERCE SUBSTRATE · MULTIPLE OFFERS</p>
 <h1>DreamLedger Commercial Portfolio</h1>
-<p>Live commercial offers compiled from the existing approved-offer catalog. Each offer resolves to its canonical page and existing Stripe livemode checkout.</p>
-<div class="grid">${cards}</div>
+<p>${compiled.length ? 'Live commercial offers compiled from the existing approved-offer catalog. Each offer resolves to its canonical page and existing Stripe livemode checkout.' : 'No offer is currently approved for purchase. The compiler has not substituted candidates or held products as checkout items.'}</p>
+<div class="grid">${cards || '<article class="card"><div class="eyebrow">CURRENT STATE · HOLD</div><h2>No purchasable offers</h2><p>The approved-offer registry is empty. Payments and fulfillment remain disabled until acceptance evidence exists.</p><a href="/truth-oracle.html">Use free Truth Oracle</a></article>'}</div>
 <p class="eyebrow">The portfolio compiler does not create economic claims. Settlement, fulfillment and verification remain governed by the existing commerce and evidence machinery.</p>
 </main>
 </body>
@@ -349,6 +355,8 @@ fs.writeFileSync(path.join(OUT_DIR, 'index.html'), index, 'utf8');
 const proof = {
   schema: 'BEC-PRIME/SLEEPING-COMMERCE-PORTFOLIO/v1',
   status: 'PASS',
+  commercial_state: compiled.length ? 'APPROVED_OFFERS_AVAILABLE' : 'HOLD_NO_APPROVED_LIVE_CHECKOUTS',
+  held_source_offer_count: heldCount,
   compiled_at: catalog.compiled_at,
   source_hash: catalog.source_hash,
   offer_count: compiled.length,
