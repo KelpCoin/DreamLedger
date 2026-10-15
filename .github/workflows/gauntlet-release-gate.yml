@@ -84,7 +84,7 @@ jobs:
           fulfillment = registry.get('entries', {}).get(product_id, {})
           if fulfillment.get('ready') is not False or fulfillment.get('operator_required') is not True:
               raise SystemExit('COMMANDER_FULFILLMENT_READINESS=FAIL')
-          if re.search(r'buy\\.stripe\\.com|/api/mtg/diagnostic/intake', public_master, re.I):
+          if re.search(r'buy\.stripe\.com|/api/mtg/diagnostic/intake', public_master, re.I):
               raise SystemExit('COMMANDER_PUBLIC_PAYMENT_BYPASS=FAIL')
           print('COMMANDER_RELEASE_STATE=HELD')
           print('COMMANDER_CHECKOUT_BYPASS=ABSENT')
