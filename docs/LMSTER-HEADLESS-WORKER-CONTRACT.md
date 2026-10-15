@@ -57,7 +57,7 @@ Do not implement these routes by proxying arbitrary table names or caller-select
 
 ## 5. Job protocol and leases
 
-The strict job envelope is **schemas/job-envelope.schema.json**.
+The strict job envelope is **BEC-PRIME/contracts/lmster/job-envelope.schema.json**.
 
 Each accepted job includes protocol version, stable job ID, stable idempotency key, server-issued lease ID and generation, expiry, worker ID, silo/namespace/manifest digest, allowlisted task type, input digest, prompt pack digest/version, output schema version, permitted models, resource caps, and server-validated checkpoint references.
 
@@ -73,7 +73,7 @@ Suggested initial limits: one concurrent job, lease TTL 180 seconds, renewal eve
 
 ## 6. Fail-closed Tri-LLM workflow
 
-Strict output schemas are in **schemas/tri-llm-result.schema.json**. Use three explicitly configured, independently recorded roles.
+Strict output schemas are in **BEC-PRIME/contracts/lmster/tri-llm-result.schema.json**. Use three explicitly configured, independently recorded roles.
 
 ### Extractor
 Extract only source-grounded facts. Each fact must name a source reference and quote or locator that can be resolved against the input. Unknown values are UNVERIFIED. Invalid JSON, unknown fields, missing evidence, timeout, truncation or digest mismatch fails the stage.
@@ -89,7 +89,7 @@ The final verdict is computed by policy code, never copied directly from model p
 
 ## 7. Evidence receipt
 
-The receipt schema is **schemas/evidence-receipt.schema.json**. It binds:
+The receipt schema is **BEC-PRIME/contracts/lmster/evidence-receipt.schema.json**. It binds:
 
 - job, idempotency key, lease and worker identity;
 - authoritative silo ID, namespace and manifest digest/version;
@@ -117,7 +117,7 @@ Measure per-job and per-silo costs including inference, retries, cache, API fall
 
 The supported local startup path uses the LM Studio **llmster** daemon and CLI, starting with **lms daemon up** and **lms server start --port 1234 --bind 127.0.0.1**. See the official [headless runtime documentation](https://lmstudio.ai/docs/developer/core/headless).
 
-**Start-LMSTER-Headless.ps1** is only a local server launcher. **Install-LMSTER-StartupTask.ps1** creates a current-user logon task with limited privileges. Neither is a cloud queue consumer, neither authenticates a worker, and neither proves an LLM inference result. The actual queue-consuming worker and narrow cloud gateway are a separate implementation phase.
+Run the static contract verifier with **npm run verify:lmster-contract** before changing this contract. **Start-LMSTER-Headless.ps1** is only a local server launcher. **Install-LMSTER-StartupTask.ps1** creates a current-user logon task with limited privileges. Neither is a cloud queue consumer, neither authenticates a worker, and neither proves an LLM inference result. The actual queue-consuming worker and narrow cloud gateway are a separate implementation phase.
 
 Before a worker is considered available, the cloud must validate its credential, fresh heartbeat, configured role models and successful inference probe. Otherwise mark the local capability unavailable and leave work queued or use an explicitly allowed cloud fallback. Never make payment processing dependent on local availability.
 
