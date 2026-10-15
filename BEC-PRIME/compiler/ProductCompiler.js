@@ -3,6 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const { validateCatalogProduct } = require('../elohim/validateElohimProduct');
 
 const ROOT = path.join(__dirname, '..');
 const PRODUCT_DIR = path.join(ROOT, 'catalog', 'products');
@@ -44,14 +45,9 @@ function inventoryPositive(product) {
 }
 function fulfillmentReady(product, registry) {
   const f = registry.entries[product.offer_id] || registry.entries[product.id];
-  if (!f || f.ready !== true || f.operator_required === true) return { ready: false, reason: 'NO_FULFILLMENT_CONTRACT' };
-  if (f.type === 'physical_inventory' && !inventoryPositive(product)) return { ready: false, reason: 'NO_POSITIVE_INVENTORY' };
-  if (f.type === 'report_template') {
-    const templatePath = path.join(ROOT, '..', f.template);
-    if (!fs.existsSync(templatePath)) return { ready: false, reason: 'FULFILLMENT_TEMPLATE_MISSING' };
+  if (!f || f.ready !== true) {
+    return { ready: false, reason: f ? (f.block_reason || 'fulfillment_not_ready') : 'missing_fulfillment_contract', contract: f || null };
   }
-  if (f.type === 'service_activation' && !f.delivery_target) return { ready: false, reason: 'DELIVERY_TARGET_MISSING' };
-  if (f.type === 'automatic_service_activation' && !f.delivery_target) return { ready: false, reason: 'DELIVERY_TARGET_MISSING' };
   return { ready: true, reason: null, contract: f };
 }
 
@@ -62,11 +58,44 @@ function compile() {
   const registry = read(FULFILLMENT_FILE);
   const products = fs.readdirSync(PRODUCT_DIR).filter(x => x.endsWith('.json')).sort().map(x => read(path.join(PRODUCT_DIR, x)));
 
+  const schemaQuarantineIds = [];
+
   const offers = products.map(p => {
+    const schema = validateCatalogProduct(p);
     const f = fulfillmentReady(p, registry);
     const resolvedPrice = resolvePriceUnit(p);
-    const price = priceInMajorUnits(p);
-    const checkoutAvailable = p.status === 'published' && p.commercial_truth?.approval_required === false && inventoryPositive(p) && f.ready;
+    let price;
+    try {
+      price = priceInMajorUnits(p);
+    } catch (e) {
+      schemaQuarantineIds.push(p.id);
+      return {
+        offer_id: p.offer_id || p.id,
+        product_id: p.id,
+        version: 'product-offer-v3',
+        status: 'QUARANTINED_SCHEMA',
+        checkout_available: false,
+        schema_validation: schema,
+        error: e.message
+      };
+    }
+
+    if (!schema.ok) {
+      schemaQuarantineIds.push(p.id);
+    }
+
+    const checkoutAvailable = schema.ok
+      && p.status === 'published'
+      && p.commercial_truth?.approval_required === false
+      && inventoryPositive(p)
+      && f.ready;
+
+    let status;
+    if (!schema.ok) status = 'QUARANTINED_SCHEMA';
+    else if (checkoutAvailable) status = 'VERIFIED_AVAILABLE';
+    else if (p.status === 'published') status = 'QUARANTINED_NO_FULFILLMENT';
+    else status = 'unavailable';
+
     return {
       offer_id: p.offer_id || p.id,
       product_id: p.id,
@@ -93,11 +122,12 @@ function compile() {
       checkout_url: p.commercial_truth?.payment_link || null,
       approval_required: p.commercial_truth?.approval_required === true,
       checkout_available: checkoutAvailable,
-      status: checkoutAvailable ? 'VERIFIED_AVAILABLE' : (p.status === 'published' ? 'QUARANTINED_NO_FULFILLMENT' : 'unavailable'),
+      status,
       fulfillment_ready: f.ready,
       fulfillment_block_reason: f.reason,
+      schema_validation: { ok: schema.ok, errors: schema.errors, warnings: schema.warnings },
       proof_of_delivery: 'payment_plus_fulfillment_record_plus_transaction_proof',
-      verification_rules: ['canonical_product', 'explicit_operator_approval', 'inventory_positive', 'fulfillment_contract_ready', 'stripe_checkout', 'webhook_proof'],
+      verification_rules: ['canonical_product', 'schema_validation', 'explicit_operator_approval', 'inventory_positive', 'fulfillment_contract_ready', 'stripe_checkout', 'webhook_proof'],
       provenance: { source: `catalog/products/${p.id}.json`, private_material: 'excluded' }
     };
   });
@@ -106,11 +136,12 @@ function compile() {
   fs.mkdirSync(OUT_DIR, { recursive: true });
   const manifest = {
     schema: 'BEC-PRIME/PRODUCT-OFFER-CATALOG/v3',
-    compiler: 'product-compiler-v3-major-unit-safe',
+    compiler: 'product-compiler-v4-schema-gated',
     source: 'catalog/products/*.json',
     fulfillment_registry: 'fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json',
     count: offers.length,
     checkoutable_count: offers.filter(x => x.checkout_available).length,
+    schema_quarantine_count: schemaQuarantineIds.length,
     source_hash: sha256(JSON.stringify(products)),
     price_contract: 'major_units_by_default; legacy allowlist remains minor until explicit price_unit migration',
     implicit_legacy_price_unit_count: implicitLegacyCount,
@@ -121,13 +152,14 @@ function compile() {
   const proof = {
     type: 'dreamledger-product-compilation-proof',
     status: 'PASS',
-    compiler: 'product-compiler-v3-major-unit-safe',
+    compiler: 'product-compiler-v4-schema-gated',
     source_hash: manifest.source_hash,
     price_contract: manifest.price_contract,
     implicit_legacy_price_unit_count: implicitLegacyCount,
     product_count: products.length,
     checkoutable_product_ids: offers.filter(x => x.checkout_available).map(x => x.offer_id),
-    quarantined_published_product_ids: offers.filter(x => x.status === 'QUARANTINED_NO_FULFILLMENT').map(x => x.offer_id)
+    quarantined_published_product_ids: offers.filter(x => x.status === 'QUARANTINED_NO_FULFILLMENT').map(x => x.offer_id),
+    quarantined_schema_product_ids: schemaQuarantineIds
   };
   fs.writeFileSync(PROOF_FILE, JSON.stringify(proof, null, 2) + '\n', 'utf8');
   return manifest;
