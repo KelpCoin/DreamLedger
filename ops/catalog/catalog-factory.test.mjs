@@ -10,7 +10,7 @@ const SEED_CHECKS = [
   'schema_valid','source_provenance','buyer_hypothesis','silo_boundary',
   'rights_and_privacy','duplicate_sku','truth_boundary'
 ];
-const PRODUCT_CHECKS = ['price_integrity','unit_economics','fulfillment_test','delivery_receipt'];
+const PRODUCT_CHECKS = ['demand_evidence','price_integrity','unit_economics','fulfillment_test','delivery_receipt'];
 const shaA = 'a'.repeat(64);
 const shaB = 'b'.repeat(64);
 
