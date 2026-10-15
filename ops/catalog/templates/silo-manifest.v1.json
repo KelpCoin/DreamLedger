@@ -15,13 +15,14 @@
     "required_seed_checks": [
       "schema_valid",
       "source_provenance",
-      "demand_evidence",
+      "buyer_hypothesis",
       "silo_boundary",
       "rights_and_privacy",
       "duplicate_sku",
       "truth_boundary"
     ],
     "required_product_checks": [
+      "demand_evidence",
       "price_integrity",
       "unit_economics",
       "fulfillment_test",
