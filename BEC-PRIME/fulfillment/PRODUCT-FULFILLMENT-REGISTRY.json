@@ -26,11 +26,9 @@
       "failure_behavior": "payment remains recorded but publication is not marked complete until every fulfillment step succeeds; retry is idempotent"
     },
     "OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001": {
-      "ready": true,
-      "type": "automatic_service_activation",
-      "delivery_target": "dreamledger.org/billboard",
-      "activation": "verified_paid_stripe_session -> signed_webhook -> exact_amount_currency_validation -> buyer_field_validation -> public_image_fetch_validation -> automatic_moderation -> atomic_first_available_100x100_grid_allocation -> media_persist -> billboard_state_persist -> publication -> durable_fulfillment_proof",
-      "operator_required": false,
+      "ready": false,
+      "type": "held_not_sellable",
+      "operator_required": true,
       "idempotency_key": "stripe_checkout_session_id",
       "buyer_inputs": [
         "destination_url",
@@ -46,7 +44,8 @@
         "proof_url"
       ],
       "failure_behavior": "payment remains recorded but publication is not marked complete until every fulfillment step succeeds; retry is idempotent",
-      "canonical_product_id": "DREAMLEDGER-BILLBOARD-FOUNDING-001"
+      "canonical_product_id": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "reason": "HELD: secure intake, exact settlement validation, atomic inventory reservation, publication review, and durable delivery proof are not independently verified. Do not accept checkout."
     },
     "BILLBOARD-MEDIUM": {
       "ready": false,
@@ -69,9 +68,10 @@
       "reason": "not approved for sale"
     },
     "COMMANDER-DECK-DIAGNOSTIC-001": {
-      "ready": true,
-      "operator_required": false,
-      "reason": "Automated MTG digital fulfillment contract validated by the MTG Diagnostic Fulfillment Gate; public sale readiness enabled 2026-08-26."
+      "ready": false,
+      "operator_required": true,
+      "reason": "HELD: no validated paid-job admission, report generation, delivery receipt, and independent end-to-end test. Do not accept checkout.",
+      "type": "held_not_sellable"
     },
     "BEC-PRIME-ARCHITECTURE-AUDIT-001": {
       "ready": false,
