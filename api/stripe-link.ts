@@ -54,7 +54,8 @@ export default async function handler(request: Request): Promise<Response> {
   const requested = body.offer_id || body.product_id || body.sku;
   const offer = requested ? OFFERS[requested as keyof typeof OFFERS] : undefined;
   if (!offer) return json({ error: 'Unknown or missing approved offer', requested }, 400);
-  const canonicalSku = normalizeCanonicalSku(offer.sku);
+  const skuMappings = COMMERCE_SKU_CONTRACT.offer_mappings as Record<string, string>;
+  const canonicalSku = normalizeCanonicalSku(skuMappings[offer.sku] || offer.sku);
   if (!canonicalSku) return json({ error: 'Canonical SKU is required', requested }, 400);
   if (body.silo && body.silo !== offer.silo) return json({ error: 'Silo mismatch', expected_silo: offer.silo }, 409);
 
@@ -74,10 +75,12 @@ export default async function handler(request: Request): Promise<Response> {
   form.set('metadata[silo]', offer.silo);
   form.set('metadata[sku_id]', canonicalSku);
   form.set('metadata[sku]', canonicalSku);
+  form.set('metadata[product_sku]', canonicalSku);
   form.set('metadata[source]', 'stripe_link');
   form.set('payment_intent_data[metadata][product_id]', offer.product_id);
   form.set('payment_intent_data[metadata][sku_id]', canonicalSku);
   form.set('payment_intent_data[metadata][sku]', canonicalSku);
+  form.set('payment_intent_data[metadata][product_sku]', canonicalSku);
   form.set('payment_intent_data[metadata][offer_id]', requested || offer.sku);
   form.set('payment_intent_data[metadata][silo]', offer.silo);
   form.set('payment_intent_data[metadata][source]', 'stripe_link');

@@ -26,7 +26,9 @@ need(webhook.indexOf('.from("skus")') < webhook.indexOf('marketplace_settle_stri
 need(intake.includes('resolveCanonicalSku(metadata)') && !intake.includes('metadata.dreamledger_sku'), 'diagnostic intake must use the shared canonical resolver only');
 need(producer.includes("import { COMMERCE_SKU_CONTRACT, normalizeCanonicalSku }") && producer.includes("form.set('metadata[sku_id]', canonicalSku)"), 'checkout producer must use contract and emit sku_id');
 need(producer.includes("form.set('payment_intent_data[metadata][sku_id]', canonicalSku)"), 'PaymentIntent metadata must carry canonical SKU');
-need(!producer.includes('\\n') && !producer.includes('metadata][product_sku]'), 'checkout producer must not retain malformed literal newlines or legacy identifier');
+need(!producer.includes('\\n'), 'checkout producer must not retain malformed literal newlines');
+need(producer.includes("form.set('metadata[product_sku]', canonicalSku)"), 'product_sku may remain supplemental metadata for compatibility');
+need(!webhook.includes('metadata.product_sku') && !intake.includes('metadata.product_sku'), 'non-canonical product_sku must never be used as an identifier');
 need(workflow.includes('npm run verify:commerce-sku-contract'), 'CI must run this verifier');
 function resolve(metadata) {
   for (const key of contract.key_priority) {
