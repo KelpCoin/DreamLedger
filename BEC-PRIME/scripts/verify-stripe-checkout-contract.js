@@ -7,7 +7,7 @@ const path = require('path');
 const ROOT = path.resolve(__dirname, '..', '..');
 const SKIP = new Set(['.git', 'node_modules', '.next', 'dist', 'build', 'coverage']);
 const EXT = new Set(['.js', '.cjs', '.mjs', '.ts', '.tsx', '.jsx', '.py', '.ps1', '.yml', '.yaml', '.sh']);
-const REQUIRED = ['product_sku', 'product_id', 'offer_id', 'silo', 'source'];
+const REQUIRED = ['sku_id', 'sku', 'marketplace_listing_id', 'product_sku', 'product_id', 'offer_id', 'silo', 'source'];
 const CENTRAL_PRELOAD = path.join(ROOT, 'BEC-PRIME', 'lib', 'commercePaymentContractPreload.js');
 const PRODUCER_MARKERS = [
   /checkout\/sessions/i,
