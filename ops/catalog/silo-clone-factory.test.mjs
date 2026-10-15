@@ -40,7 +40,10 @@ test('MTG master generates an isolated, empty and checkout-disabled shell', () =
   assert.equal(manifest.catalog, '/data/music-media-lab-catalog.json');
   assert.equal(manifest.manifest_path, '/silos/music-media-lab/silo.json');
   assert.equal(manifest.status, 'ingest_only');
+  assert.notEqual(manifest.status, 'live_candidate');
   assert.equal(manifest.live_checkout_enabled, false);
+  assert.equal(Object.hasOwn(manifest, 'listing_template_ref'), false);
+  assert.equal(Object.hasOwn(manifest, 'success_fee_peer'), false);
   assert.equal(manifest.inventory_policy, 'empty_until_verified_supply');
   assert.deepEqual(manifest.product_kinds, [{ id: 'offer', label: 'Offer', primary: true }]);
   assert.deepEqual(manifest.isolation, {
@@ -51,13 +54,27 @@ test('MTG master generates an isolated, empty and checkout-disabled shell', () =
   assert.equal(catalog.silo, 'music-media-lab');
   assert.equal(catalog.currency, 'USD');
   assert.deepEqual(catalog.products, []);
+  const gate = plan.files.catalogGateManifest.content;
+  assert.equal(gate.schema_version, 'dreamledger/silo-manifest/v1');
+  assert.equal(gate.slug, 'music-media-lab');
+  assert.equal(gate.lifecycle, 'INGEST_ONLY');
+  assert.equal(gate.product_gate.gauntlet_pass_required, true);
+  assert.equal(gate.source_policy.invented_products_allowed, false);
+  assert.equal(gate.commerce.live_checkout_enabled, false);
+  assert.equal(gate.commerce.default_checkout_state, 'HOLD');
+  const registry = plan.files.registry.content;
+  const registered = registry.silos.find(s => s.slug === 'music-media-lab');
+  assert.ok(registered);
+  assert.equal(registered.live_checkout_enabled, false);
+  assert.equal(registered.clone_manifest_schema, 'BEC-PRIME/CUBE-CLONE-MANIFEST/v1');
+  assert.equal(registered.catalog_gate_manifest_schema, 'dreamledger/silo-manifest/v1');
   assert.equal(plan.files.index.path, 'public/music-media-lab/index.html');
   assert.match(plan.files.index.content, /noindex,nofollow/);
   assert.match(plan.files.index.content, /Checkout is disabled/);
   assert.doesNotMatch(plan.files.index.content, /Diagnostic NZ\$29|Commander|Buy now|Checkout now/);
 });
 
-test('stages exactly three files outside the repository, without publishing', () => {
+test('stages the shell, empty catalogue, catalogue gate, and registry proposal outside the repository', () => {
   const stageDir = emptyStage();
   const result = stageSiloClone({
     slug: 'procurement-lab',
@@ -68,12 +85,18 @@ test('stages exactly three files outside the repository, without publishing', ()
   const manifestPath = path.join(stageDir, 'public/silos/procurement-lab/silo.json');
   const catalogPath = path.join(stageDir, 'public/data/procurement-lab-catalog.json');
   const indexPath = path.join(stageDir, 'public/procurement-lab/index.html');
+  const gatePath = path.join(stageDir, 'ops/catalog/silos/manifests/procurement-lab.json');
+  const registryPath = path.join(stageDir, 'ops/catalog/silos/registry.json');
   assert.equal(fs.existsSync(manifestPath), true);
   assert.equal(fs.existsSync(catalogPath), true);
   assert.equal(fs.existsSync(indexPath), true);
+  assert.equal(fs.existsSync(gatePath), true);
+  assert.equal(fs.existsSync(registryPath), true);
   assert.equal(fs.readdirSync(path.join(stageDir, 'public/data')).length, 1);
   assert.deepEqual(JSON.parse(fs.readFileSync(catalogPath, 'utf8')).products, []);
   assert.equal(JSON.parse(fs.readFileSync(manifestPath, 'utf8')).live_checkout_enabled, false);
+  assert.equal(JSON.parse(fs.readFileSync(gatePath, 'utf8')).commerce.default_checkout_state, 'HOLD');
+  assert.equal(JSON.parse(fs.readFileSync(registryPath, 'utf8')).silos.find(s => s.slug === 'procurement-lab').live_checkout_enabled, false);
   assert.equal(result.public_routes_published, false);
   assert.equal(result.payment_links_created, false);
   assert.equal(result.files.manifest.absolute_path, manifestPath);
