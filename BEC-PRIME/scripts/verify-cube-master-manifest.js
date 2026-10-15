@@ -5,7 +5,7 @@ const os = require('node:os');
 const path = require('node:path');
 const crypto = require('node:crypto');
 const assert = require('node:assert/strict');
-const { buildCandidate } = require('../cube/CubeCloneFactory');
+const { buildCandidate, writeCandidate } = require('../cube/CubeCloneFactory');
 
 const REPO_ROOT = path.resolve(__dirname, '../..');
 const MASTER_PATH = path.join(REPO_ROOT, 'silos', 'mtg', 'silo.json');
@@ -109,10 +109,17 @@ function run() {
   const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'dreamledger-cube-clone-'));
   let cloneChecks = [];
   try {
-    fs.writeFileSync(path.join(temp, 'silo.json'), JSON.stringify(clone, null, 2));
-    fs.writeFileSync(path.join(temp, testSlug + '-catalog.json'), JSON.stringify(emptyCatalog, null, 2));
-    const rereadManifest = readJson(path.join(temp, 'silo.json'));
-    const rereadCatalog = readJson(path.join(temp, testSlug + '-catalog.json'));
+    const written = writeCandidate(temp, candidate);
+    const rereadManifest = readJson(written.manifestPath);
+    const rereadCatalog = readJson(written.catalogPath);
+    const rereadProof = readJson(written.proofPath);
+    check('factory_artifact_routes_match_manifest', () => {
+      assert.equal(path.relative(temp, written.manifestPath).replace(/\\\\/g, '/'), 'silos/' + testSlug + '/silo.json');
+      assert.equal(path.relative(temp, written.catalogPath).replace(/\\\\/g, '/'), 'data/' + testSlug + '-catalog.json');
+      assert.equal(rereadManifest.manifest_path, '/' + path.relative(temp, written.manifestPath).replace(/\\\\/g, '/'));
+      assert.equal(rereadManifest.catalog, '/' + path.relative(temp, written.catalogPath).replace(/\\\\/g, '/'));
+      assert.equal(rereadProof.release_status, 'HOLD');
+    });
     cloneChecks = validateClone(rereadManifest, rereadCatalog, testSlug);
     checks.push(...cloneChecks.map(x => ({ ...x, name: 'clean_clone.' + x.name })));
   } finally {
