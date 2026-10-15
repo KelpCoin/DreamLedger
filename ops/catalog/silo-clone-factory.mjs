@@ -52,14 +52,27 @@ export function buildSiloPlan(options, { repoRoot = REPO_ROOT } = {}) {
   const masterPath = path.join(repoRoot, MASTER_MANIFEST);
   const publicMasterPath = path.join(repoRoot, PUBLIC_MASTER_MANIFEST);
   const registryPath = path.join(repoRoot, REGISTRY_PATH);
+  const gateTemplatePath = path.join(repoRoot, 'ops/catalog/templates/silo-manifest.v1.json');
   const master = readJson(masterPath);
   const publicMaster = readJson(publicMasterPath);
   const registry = readJson(registryPath);
+  const gateTemplate = readJson(gateTemplatePath);
 
   if (master.schema !== 'BEC-PRIME/CUBE-CLONE-MANIFEST/v1' ||
       publicMaster.schema !== master.schema ||
-      publicMaster.slug !== 'mtg' || master.slug !== 'mtg') {
-    throw new Error('MTG_MASTER_SCHEMA_OR_SLUG_INVALID');
+      publicMaster.slug !== 'mtg' || master.slug !== 'mtg' ||
+      gateTemplate.schema_version !== 'dreamledger/silo-manifest/v1') {
+    throw new Error('MTG_MASTER_SCHEMA_OR_GATE_TEMPLATE_INVALID');
+  }
+  if (master.status === 'production' || master.status === 'live' ||
+      master.inventory_policy !== 'empty_until_verified_supply' ||
+      master.payment_truth !== 'settled_payment_only' ||
+      !master.isolation || Object.values(master.isolation).some(value => value !== true) ||
+      JSON.stringify(master.capabilities_by_ref) !== JSON.stringify(publicMaster.capabilities_by_ref) ||
+      JSON.stringify(master.isolation) !== JSON.stringify(publicMaster.isolation) ||
+      publicMaster.inventory_policy !== 'empty_until_verified_supply' ||
+      publicMaster.payment_truth !== 'settled_payment_only') {
+    throw new Error('MTG_MASTER_BASELINE_NOT_SAFE_TO_CLONE');
   }
   // This is a deliberate two-contract boundary:
   // CUBE manifest drives the public shell; dreamledger/silo-manifest/v1 gates
@@ -91,8 +104,13 @@ export function buildSiloPlan(options, { repoRoot = REPO_ROOT } = {}) {
   manifest.catalog = '/data/' + input.slug + '-catalog.json';
   manifest.manifest_path = '/silos/' + input.slug + '/silo.json';
   manifest.neutral_host = 'dreamledger';
+  // Never inherit the source's live_candidate lifecycle, even though the source
+  // itself is not a production-grade baseline. Every clone begins quarantined.
   manifest.status = 'ingest_only';
   manifest.live_checkout_enabled = false;
+  delete manifest.listing_template_ref;
+  delete manifest.success_fee_peer;
+  delete manifest.account_to_sell;
   manifest.currency = input.currency;
   manifest.inventory_policy = 'empty_until_verified_supply';
   manifest.payment_truth = 'settled_payment_only';
@@ -123,6 +141,34 @@ export function buildSiloPlan(options, { repoRoot = REPO_ROOT } = {}) {
     currency: input.currency,
     products: []
   };
+  const gateManifest = structuredClone(gateTemplate);
+  gateManifest.slug = input.slug;
+  gateManifest.title = input.title;
+  gateManifest.description = input.tagline;
+  gateManifest.lifecycle = 'INGEST_ONLY';
+  gateManifest.source_policy.invented_products_allowed = false;
+  gateManifest.elohim_refinement.enabled = true;
+  gateManifest.elohim_refinement.suggestions_are_non_mutating = true;
+  gateManifest.elohim_refinement.changes_require_new_gauntlet_run = true;
+  gateManifest.commerce.live_checkout_enabled = false;
+  gateManifest.commerce.requires_human_commercial_approval = true;
+  gateManifest.commerce.fulfillment_contract_required = true;
+  gateManifest.commerce.default_checkout_state = 'HOLD';
+
+  const registryEntry = {
+    slug: input.slug,
+    title: input.title,
+    description: input.tagline,
+    lifecycle: 'INGEST_ONLY',
+    live_checkout_enabled: false,
+    clone_master_ref: MASTER_MANIFEST,
+    public_manifest_ref: 'public/silos/' + input.slug + '/silo.json',
+    clone_manifest_schema: master.schema,
+    catalog_gate_manifest_ref: 'ops/catalog/silos/manifests/' + input.slug + '.json',
+    catalog_gate_manifest_schema: gateManifest.schema_version
+  };
+  const clonedRegistry = structuredClone(registry);
+  clonedRegistry.silos.push(registryEntry);
   const indexHtml = createIndexHtml(input);
   return {
     schema: 'dreamledger/silo-clone-plan/v1',
@@ -139,7 +185,9 @@ export function buildSiloPlan(options, { repoRoot = REPO_ROOT } = {}) {
     files: {
       manifest: { path: 'public/silos/' + input.slug + '/silo.json', content: manifest },
       catalog: { path: 'public/data/' + input.slug + '-catalog.json', content: catalog },
-      index: { path: 'public/' + input.slug + '/index.html', content: indexHtml }
+      index: { path: 'public/' + input.slug + '/index.html', content: indexHtml },
+      catalogGateManifest: { path: 'ops/catalog/silos/manifests/' + input.slug + '.json', content: gateManifest },
+      registry: { path: REGISTRY_PATH, content: clonedRegistry }
     }
   };
 }
