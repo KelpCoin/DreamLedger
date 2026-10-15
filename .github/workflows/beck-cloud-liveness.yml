@@ -31,6 +31,14 @@ jobs:
           echo "health_http=$code" >> "$GITHUB_OUTPUT"
           cat /tmp/health.txt || true
 
+      - name: Check public storefront version
+        shell: bash
+        run: |
+          set -euo pipefail
+          code="$(curl --location --silent --show-error --retry 2 --retry-delay 2 --retry-all-errors --output "$RUNNER_TEMP/version.json" --write-out '%{http_code}' --max-time 15 https://dreamledger.org/version)"
+          test "$code" = "200"
+          node -e "const x=require(process.env.RUNNER_TEMP+'/version.json');if(x.service!=='dreamledger-storefront'||x.mtg!=='master')process.exit(1);console.log('PUBLIC_VERSION_CONTRACT=PASS')"
+
       - name: Check canonical public Truth Oracle page
         shell: bash
         run: |
