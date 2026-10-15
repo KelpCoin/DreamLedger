@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dreamledger.org/schemas/lmster-job-envelope-v1.schema.json",
+  "title": "LMSTER job envelope",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["protocol_version", "job_id", "idempotency_key", "lease_id", "lease_generation", "lease_expires_at", "worker_id", "silo_id", "namespace", "manifest_digest", "manifest_version", "task_type", "input_ref", "input_sha256", "prompt_pack_version", "prompt_pack_sha256", "output_schema_version", "allowed_models", "resource_limits", "completed_checkpoints"],
+  "properties": {
+    "protocol_version": {"const": "1.0"},
+    "job_id": {"type": "string", "minLength": 1, "maxLength": 128},
+    "idempotency_key": {"type": "string", "minLength": 16, "maxLength": 256},
+    "lease_id": {"type": "string", "minLength": 1, "maxLength": 128},
+    "lease_generation": {"type": "integer", "minimum": 1},
+    "lease_expires_at": {"type": "string", "format": "date-time"},
+    "worker_id": {"const": "lmster-local-01"},
+    "silo_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]{1,62}$"},
+    "namespace": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]{1,62}$"},
+    "manifest_digest": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+    "manifest_version": {"type": "string", "minLength": 1, "maxLength": 64},
+    "task_type": {"enum": ["TRI_LLM_EVIDENCE_REVIEW", "QUOTE_NORMALIZE_TEST", "SOURCE_EXTRACTION_TEST"]},
+    "input_ref": {"type": "string", "minLength": 1, "maxLength": 2048},
+    "input_sha256": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+    "prompt_pack_version": {"type": "string", "minLength": 1, "maxLength": 64},
+    "prompt_pack_sha256": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+    "output_schema_version": {"type": "string", "minLength": 1, "maxLength": 64},
+    "allowed_models": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["extractor", "critic", "synthesizer"],
+      "properties": {
+        "extractor": {"type": "string", "minLength": 1},
+        "critic": {"type": "string", "minLength": 1},
+        "synthesizer": {"type": "string", "minLength": 1}
+      }
+    },
+    "resource_limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["max_input_chars", "max_output_tokens", "timeout_seconds", "max_model_retries"],
+      "properties": {
+        "max_input_chars": {"type": "integer", "minimum": 1, "maximum": 1000000},
+        "max_output_tokens": {"type": "integer", "minimum": 1, "maximum": 32768},
+        "timeout_seconds": {"type": "integer", "minimum": 1, "maximum": 1800},
+        "max_model_retries": {"type": "integer", "minimum": 0, "maximum": 2}
+      }
+    },
+    "completed_checkpoints": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["stage", "input_sha256", "prompt_pack_sha256", "output_schema_version", "model_id", "checkpoint_ref", "output_sha256"],
+        "properties": {
+          "stage": {"enum": ["EXTRACTOR", "CRITIC", "SYNTHESIZER", "DETERMINISTIC_GATE"]},
+          "input_sha256": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+          "prompt_pack_sha256": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+          "output_schema_version": {"type": "string"},
+          "model_id": {"type": "string"},
+          "checkpoint_ref": {"type": "string"},
+          "output_sha256": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"}
+        }
+      }
+    },
+    "trace_context": {"type": "object", "additionalProperties": {"type": ["string", "number", "boolean", "null"]}}
+  }
+}
