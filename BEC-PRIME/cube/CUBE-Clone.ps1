@@ -1,61 +1,37 @@
-[CmdletBinding(SupportsShouldProcess)]
+[CmdletBinding(SupportsShouldProcess=$true)]
 param(
-    [Parameter(Mandatory=$true)][ValidatePattern('^[a-z0-9_-]+$')][string]$SiloName,
-    [Parameter(Mandatory=$true)][string]$ProductName,
-    [Parameter(Mandatory=$true)][ValidateRange(1,1000000)][int]$PriceNZD,
-    [Parameter(Mandatory=$true)][string]$StripeProductId,
-    [Parameter(Mandatory=$true)][string]$Domain,
-    [Parameter(Mandatory=$true)][string]$RepoName,
-    [string]$Surface = 'commerce',
-    [ValidateSet('template','approved','deployed','retired')][string]$Status = 'template',
-    [string]$SourceTemplate = 'DreamLedger-CUBE-v1'
+    [Parameter(Mandatory=$true)][ValidatePattern('^[a-z0-9][a-z0-9-]{1,39}$')][string]$SiloName,
+    [Parameter(Mandatory=$true)][ValidateNotNullOrEmpty()][string]$ProductName,
+    [string]$ShortName = '',
+    [string]$Accent = ''
 )
 
 $ErrorActionPreference = 'Stop'
-$root = Split-Path -Parent $PSScriptRoot
-$manifestDir = Join-Path $root 'cube\manifests'
-$proofDir = Join-Path $root 'proofs'
-New-Item -ItemType Directory -Force -Path $manifestDir,$proofDir | Out-Null
-
-$manifest = [ordered]@{
-    cube_version = '1.0'
-    silo_name = $SiloName
-    product_name = $ProductName
-    price_nzd = $PriceNZD
-    stripe_product_id = $StripeProductId
-    domain = $Domain
-    repo_name = $RepoName
-    surface = $Surface
-    status = $Status
-    source_template = $SourceTemplate
-    isolation = $true
-    created_utc = (Get-Date).ToUniversalTime().ToString('o')
+$repoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
+$factory = Join-Path $PSScriptRoot 'CubeCloneFactory.js'
+if (-not (Test-Path -LiteralPath $factory)) {
+    throw "Canonical CUBE clone factory is missing: $factory"
+}
+if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
+    throw 'Node.js is required. No clone has been generated.'
+}
+if ($SiloName -eq 'mtg') {
+    throw 'The MTG master cannot be cloned over itself.'
 }
 
-$manifestPath = Join-Path $manifestDir ($SiloName + '.json')
-$manifestJson = $manifest | ConvertTo-Json -Depth 10
-if ($PSCmdlet.ShouldProcess($manifestPath,'Write CUBE clone manifest')) {
-    Set-Content -LiteralPath $manifestPath -Value $manifestJson -Encoding UTF8
+$target = Join-Path (Join-Path $repoRoot 'BEC-PRIME/data/cube-clones/candidates') $SiloName
+if (Test-Path -LiteralPath $target) {
+    throw "Candidate already exists; refusing to overwrite: $target"
 }
 
-$proof = [ordered]@{
-    schema = 'BEC-CUBE-CLONE-PROOF-1.0'
-    event = 'CUBE_CLONE_MANIFEST_CREATED'
-    silo_name = $SiloName
-    product_name = $ProductName
-    price_nzd = $PriceNZD
-    repo_name = $RepoName
-    domain = $Domain
-    isolation = $true
-    public_posting = 'approval_required'
-    payment_claim = 'none'
-    timestamp_utc = (Get-Date).ToUniversalTime().ToString('o')
+if ($PSCmdlet.ShouldProcess($target, 'Generate isolated CUBE candidate from the canonical MTG manifest')) {
+    $argsList = @($factory, '--slug', $SiloName, '--name', $ProductName)
+    if ($ShortName) { $argsList += @('--short', $ShortName) }
+    if ($Accent) { $argsList += @('--accent', $Accent) }
+    & node @argsList
+    if ($LASTEXITCODE -ne 0) {
+        throw "CUBE clone factory failed with exit code $LASTEXITCODE"
+    }
+    Write-Output "[HOLD] Candidate generated only. No deployment, checkout activation, remote repository creation, or publication was performed."
+    Write-Output "[PROOF] $target/candidate-proof.json"
 }
-$proofPath = Join-Path $proofDir ('PROOF-CUBE-' + $SiloName + '.json')
-if ($PSCmdlet.ShouldProcess($proofPath,'Write CUBE proof artifact')) {
-    Set-Content -LiteralPath $proofPath -Value ($proof | ConvertTo-Json -Depth 10) -Encoding UTF8
-}
-
-Write-Output "CUBE manifest ready: $manifestPath"
-Write-Output "CUBE proof ready:    $proofPath"
-Write-Output "No deployment performed. No public post performed. No payment claimed."

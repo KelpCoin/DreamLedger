@@ -10,7 +10,7 @@ const ROOT=__dirname;
 const ENGINE_INTERNAL_URL=String(process.env.ENGINE_INTERNAL_URL||'').replace(/\/$/,'');
 const ENGINE_INTERNAL_API_KEY=String(process.env.ENGINE_INTERNAL_API_KEY||'');
 const PUBLIC_FILES={
-  '/':'home.html','/index.html':'home.html','/status':'status.html','/status/':'status.html','/status.html':'status.html',
+  '/':'home.html','/index.html':'home.html','/comparison-template.csv':'comparison-template.csv','/status':'status.html','/status/':'status.html','/status.html':'status.html',
   '/about':'about.html','/about/':'about.html','/privacy':'privacy.html','/privacy/':'privacy.html','/privacy.html':'privacy.html','/terms':'terms.html','/terms/':'terms.html','/terms.html':'terms.html','/security':'security.html','/security/':'security.html','/security.html':'security.html','/contact':'contact.html','/contact/':'contact.html','/trust':'trust.html','/trust/':'trust.html',
   '/catalogue':'catalogue.html','/catalogue/':'catalogue.html','/catalogue.html':'catalogue.html',
   '/app.js':'app.js',
@@ -54,7 +54,7 @@ Object.assign(PUBLIC_FILES,{
   "/mtg/quintorius-field-historian.html":"mtg/quintorius-field-historian.html",
   "/mtg/master.html":"mtg/master.html"
 });
-const MIME={'.html':'text/html; charset=utf-8','.js':'application/javascript; charset=utf-8','.json':'application/json; charset=utf-8','.txt':'text/plain; charset=utf-8','.xml':'application/xml; charset=utf-8','.css':'text/css; charset=utf-8','.png':'image/png','.svg':'image/svg+xml','.ico':'image/x-icon'};
+const MIME={'.csv':'text/csv; charset=utf-8','.html':'text/html; charset=utf-8','.js':'application/javascript; charset=utf-8','.json':'application/json; charset=utf-8','.txt':'text/plain; charset=utf-8','.xml':'application/xml; charset=utf-8','.css':'text/css; charset=utf-8','.png':'image/png','.svg':'image/svg+xml','.ico':'image/x-icon'};
 function send(res,s,b,t){if(res.writableEnded)return;res.statusCode=s;if(t)res.setHeader('Content-Type',t);res.end(b)}
 function headers(res){
   res.setHeader('Strict-Transport-Security','max-age=31536000; includeSubDomains');

@@ -38,6 +38,37 @@ test('MTG renderer has no default Lightly Played condition', () => {
   assert.match(patch, /conditionEligible/);
 });
 
+test('held Commander offer has no public purchase CTA or stale Stripe identifiers', () => {
+  for (const rel of [
+    'public/home.html',
+    'public/index.html',
+    'public/cash.html',
+    'public/mtg/index.html',
+    'public/mtg/master.html'
+  ]) {
+    const html = read(rel);
+    assert.equal(html.includes('/buy/COMMANDER-DECK-DIAGNOSTIC-001'), false, rel + ' must not advertise held checkout');
+    assert.equal(html.includes('eVqeVdc1T01n1DV3gwdwc30'), false, rel + ' must not expose the held Stripe link');
+  }
+  const catalog = json('public/catalog.json');
+  const held = catalog.products.find(p => p.id === 'COMMANDER-DECK-DIAGNOSTIC-001');
+  assert.ok(held);
+  assert.equal(held.status, 'held');
+  assert.equal(held.checkout_available, false);
+  assert.equal(Object.hasOwn(held, 'payment_link_id'), false);
+  assert.equal(Object.hasOwn(held, 'stripe_price_id'), false);
+  assert.equal(Object.hasOwn(held, 'checkout_url'), false);
+});
+
+test('diagnostic success route does not fabricate delivery evidence', () => {
+  const page = read('public/thanks-diagnostic.html');
+  assert.match(page, /Receipt verification required/);
+  assert.match(page, /Not a delivery receipt/);
+  assert.match(page, /currently held/i);
+  assert.doesNotMatch(page, /Decklist received|write-up on the email used at checkout/i);
+  assert.doesNotMatch(page, /buy\.stripe\.com|\/buy\/COMMANDER-DECK-DIAGNOSTIC-001/);
+});
+
 test('static root publication contains the manifest-driven MTG master paths', () => {
   for (const p of [
     'mtg/index.html', 'silos/mtg/silo.json', 'data/mtg-catalog.json',

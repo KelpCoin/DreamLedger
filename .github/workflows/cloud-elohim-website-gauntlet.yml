@@ -4,6 +4,9 @@ on:
   pull_request:
     paths:
       - "index.html"
+      - "public/**"
+      - "mtg/index.html"
+      - "silos/mtg/silo.json"
       - "BEC-PRIME/**"
       - "package.json"
       - "package-lock.json"
@@ -80,16 +83,24 @@ jobs:
           grep -q "Marketplace trust" website/mtg-catalog.html
           echo "MTG_ROUTE_CONTRACT=PASS"
 
-      - name: Website surface checks
+      - name: Canonical public storefront checks
         working-directory: .
         run: |
           set -euo pipefail
-          test -s index.html
-          grep -Eqi 'DreamLedger|Dream Ledger' index.html
-          grep -qi 'Magic' index.html
-          grep -qi 'VERIFIED EXTERNAL REVENUE' index.html
-          grep -q 'NZ\$0.00' index.html
-          echo "WEBSITE_SURFACE=PASS"
+          test -s public/home.html
+          grep -Eqi 'DreamLedger|Dream Ledger' public/home.html
+          grep -qi 'Magic' public/home.html
+          grep -Fq 'NZ$0.00' public/home.html
+          grep -qi 'Free quote worksheet' public/home.html
+          grep -qi 'Truth Oracle' public/home.html
+          grep -q 'Commander Deck Diagnostic' public/home.html
+          if grep -q '/buy/COMMANDER-DECK-DIAGNOSTIC-001' public/home.html; then
+            echo 'HELD_COMMANDER_CTA=FAIL'
+            exit 1
+          fi
+          echo "CANONICAL_PUBLIC_STOREFRONT=PASS"
+          echo "VERIFIED_EXTERNAL_REVENUE=NZ$0.00"
+          echo "HELD_COMMANDER_CTA=ABSENT"
 
       - name: Emit candidate judgment
         working-directory: .

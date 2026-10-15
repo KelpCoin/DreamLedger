@@ -16,7 +16,7 @@ const stripeProof = require('./stripeWebhookProof');
 const ROOT = path.join(__dirname, '..');
 const CATALOG = path.join(ROOT, 'catalog', 'products');
 const ORIGINAL_LOAD = Module._load;
-const CONTRACT_FIELDS = ['product_sku', 'product_id', 'offer_id', 'silo', 'source'];
+const CONTRACT_FIELDS = ['sku_id', 'sku', 'marketplace_listing_id', 'product_sku', 'product_id', 'offer_id', 'silo', 'source'];
 
 function clean(value) { return String(value == null ? '' : value).replace(/[^A-Za-z0-9_:-]/g, '').slice(0, 500); }
 function product(id) {
@@ -41,14 +41,22 @@ function augmentStripeBody(body) {
   }
   const p = product(metadata.product_id || lineMetadata.product_id);
   const values = {
-    product_sku: metadata.product_sku || lineMetadata.product_sku || p?.sku || metadata.product_id || lineMetadata.product_id || metadata.listing_id || '',
-    product_id: metadata.product_id || lineMetadata.product_id || metadata.listing_id || metadata.cart_id || '',
+    sku_id: metadata.sku_id || lineMetadata.sku_id || metadata.product_id || lineMetadata.product_id || metadata.listing_id || metadata.marketplace_listing_id || '',
+    sku: metadata.sku || lineMetadata.sku || metadata.product_sku || lineMetadata.product_sku || p?.sku || '',
+    marketplace_listing_id: metadata.marketplace_listing_id || lineMetadata.marketplace_listing_id || metadata.listing_id || lineMetadata.listing_id || '',
+    product_sku: metadata.product_sku || lineMetadata.product_sku || metadata.sku || lineMetadata.sku || p?.sku || metadata.product_id || lineMetadata.product_id || metadata.listing_id || '',
+    product_id: metadata.product_id || lineMetadata.product_id || metadata.sku_id || lineMetadata.sku_id || metadata.listing_id || metadata.marketplace_listing_id || metadata.cart_id || '',
     offer_id: metadata.offer_id || lineMetadata.offer_id || metadata.product_id || lineMetadata.product_id || metadata.listing_id || '',
     silo: metadata.silo || lineMetadata.silo || p?.silo || metadata.category || 'dreamledger',
     source: metadata.source || lineMetadata.source || 'stripe_checkout'
   };
   for (const field of CONTRACT_FIELDS) {
-    if (values[field]) params.set('payment_intent_data[metadata][' + field + ']', clean(values[field]));
+    if (!values[field]) continue;
+    params.set('payment_intent_data[metadata][' + field + ']', clean(values[field]));
+    if (['sku_id', 'sku', 'marketplace_listing_id'].includes(field)) {
+      params.set('metadata[' + field + ']', clean(values[field]));
+      params.set('line_items[0][price_data][product_data][metadata][' + field + ']', clean(values[field]));
+    }
   }
   return formBody(params);
 }
@@ -158,6 +166,9 @@ if (!global.__dreamledgerMvpContractPatch) {
 }
 
 // Canonical contract literals for verifier:
+// payment_intent_data[metadata][sku_id]
+// payment_intent_data[metadata][sku]
+// payment_intent_data[metadata][marketplace_listing_id]
 // payment_intent_data[metadata][product_sku]
 // payment_intent_data[metadata][product_id]
 // payment_intent_data[metadata][offer_id]

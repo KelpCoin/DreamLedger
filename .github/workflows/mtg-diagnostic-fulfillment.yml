@@ -25,12 +25,14 @@ jobs:
         run: |
           $p = Get-Content BEC-PRIME/catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json -Raw | ConvertFrom-Json
           $f = Get-Content BEC-PRIME/fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json -Raw | ConvertFrom-Json
+          $entry = $f.entries.'COMMANDER-DECK-DIAGNOSTIC-001'
           if ($p.price -ne 29) { throw 'Commander diagnostic price contract failed' }
-          if ($p.fulfillment.mode -ne 'automated') { throw 'Automated fulfillment contract failed' }
-          if ($p.fulfillment.operator_required -ne $false) { throw 'Operator-free fulfillment contract failed' }
-          if ($f.entries.'COMMANDER-DECK-DIAGNOSTIC-001'.operator_required -ne $false) { throw 'Registry still requires operator' }
-          if ($f.entries.'COMMANDER-DECK-DIAGNOSTIC-001'.ready -ne $true) { throw 'Registry is not ready' }
-          Write-Host '[PASS] MTG diagnostic commercial and fulfillment contract'
+          if ($p.status -ne 'held') { throw 'Commander diagnostic must remain held until release evidence passes' }
+          if ($p.checkout.mode -ne 'disabled') { throw 'Held Commander checkout must be disabled' }
+          if ($p.commercial_truth.sellable -ne $false -or $p.commercial_truth.approval_required -ne $true) { throw 'Held Commander sellability boundary failed' }
+          if ($p.fulfillment.mode -ne 'disabled' -or $p.fulfillment.operator_required -ne $true) { throw 'Held Commander fulfillment must remain disabled' }
+          if ($entry.operator_required -ne $true -or $entry.ready -ne $false) { throw 'Fulfillment registry must keep held Commander unavailable' }
+          Write-Host '[PASS] MTG diagnostic is held fail-closed; checkout and fulfillment remain disabled'
       - name: Compile MTG surface
         run: node BEC-PRIME/compiler/MTGCatalogCompiler.js
       - name: Verify CUBE MTG reskin
@@ -51,8 +53,9 @@ jobs:
           # DreamLedger1 serves public/home.html at /. Check the actual canonical storefront,
           # not a stale compiled snapshot maintained by a different build path.
           $homeHtml = Get-Content public/home.html -Raw
-          foreach ($token in @('DreamLedger','Supplier Quote Comparison Worksheet','Commander Deck Diagnostic','Truth Oracle')) {
+          foreach ($token in @('DreamLedger','Free quote worksheet','Commander diagnostic','Truth Oracle')) {
             if ($homeHtml -notmatch [regex]::Escape($token)) { throw "Canonical storefront token missing: $token" }
           }
           if ($homeHtml -match 'Agentic Commerce Readiness Audit|BrownEye Cortex|Economic Court|ELOHIM|AMPLISSA|COLLECTORSCOAST') { throw 'Internal or historical homepage residue detected' }
+          if ($homeHtml -match '/buy/COMMANDER-DECK-DIAGNOSTIC-001|eVqeVdc1T01n1DV3gwdwc30') { throw 'Held Commander checkout must not appear on homepage' }
           Write-Host '[PASS] DreamLedger catalogue doorway + MTG + Billboard surfaces present'
