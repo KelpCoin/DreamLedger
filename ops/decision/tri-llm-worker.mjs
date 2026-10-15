@@ -29,6 +29,7 @@ export function validateVerdict(x, role) {
   if (!Array.isArray(x.evidence_refs) || !x.evidence_refs.every(v => typeof v === 'string')) return false;
   if (!Array.isArray(x.limitations) || !x.limitations.every(v => typeof v === 'string')) return false;
   if (role === 'EXTRACTOR' && (!Array.isArray(x.facts) || !x.facts.every(v => v && typeof v.name === 'string' && typeof v.value === 'string'))) return false;
+  if (role !== 'EXTRACTOR' && (!Array.isArray(x.findings) || !x.findings.every(v => typeof v === 'string'))) return false;
   return true;
 }
 export function validateLocalEndpoint(raw) {
@@ -48,7 +49,7 @@ function makePrompt(role, ctx) {
     role === 'EXTRACTOR' ? 'Also include facts: [{name:string,value:string}], extracted only from input.' : 'Also include findings: string array and independently challenge prior stages.'
   ].join('\n');
 }
-async function callModel({ endpoint, token, model, role, prompt, context, fetchImpl, timeoutMs }) {
+async function callModel({ endpoint, token, model, role, prompt, promptVersion, context, fetchImpl, timeoutMs }) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
@@ -60,13 +61,13 @@ async function callModel({ endpoint, token, model, role, prompt, context, fetchI
       ] }) });
     if (!response.ok) throw new Error('MODEL_UNAVAILABLE:' + role + ':' + response.status);
     const raw = await response.text();
-    if (Buffer.byteLength(raw, 'utf8') > 131072) throw new Error('MODEL_RESPONSE_TOO_LARGE:' + role);
+    if (Buffer.byteLength(raw, 'utf8') > 32768) throw new Error('MODEL_RESPONSE_TOO_LARGE:' + role);
     const envelope = JSON.parse(raw);
     const text = envelope?.choices?.[0]?.message?.content;
     if (typeof text !== 'string') throw new Error('MODEL_RESPONSE_SHAPE_INVALID:' + role);
     const output = JSON.parse(text);
     if (!validateVerdict(output, role)) throw new Error('MODEL_SCHEMA_INVALID:' + role);
-    return { role, model, promptVersion: context.promptVersion, output };
+    return { role, model, promptVersion, output };
   } finally { clearTimeout(timer); }
 }
 
@@ -100,7 +101,7 @@ export async function runTriLlm({
       const context = { input: JSON.parse(inputJson), priorStages: results.map(x => ({ role: x.role, model: x.model, output: x.output })) };
       const ctx = { inputDigest, contextVersion, policyVersion, promptVersion: r.promptVersion };
       const result = await callModel({ endpoint: url.toString(), token, model: r.model, role: r.role,
-        prompt: makePrompt(r.role, ctx), context, fetchImpl, timeoutMs });
+        prompt: makePrompt(r.role, ctx), promptVersion: r.promptVersion, context, fetchImpl, timeoutMs });
       results.push(result);
     } catch (e) {
       return { status: 'UNAVAILABLE', verdict: 'UNAVAILABLE', reason: String(e.message || e), inputDigest, modelResults: results, receipt: null };
