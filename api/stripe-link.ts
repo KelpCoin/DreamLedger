@@ -80,10 +80,11 @@ export default async function handler(request: Request): Promise<Response> {
   form.set('payment_intent_data[metadata][silo]', offer.silo);
   form.set('payment_intent_data[metadata][source]', 'stripe_link');
 
-  if ('marketplace_listing_id' in offer && offer.marketplace_listing_id) {
-    form.set('metadata[marketplace_listing_id]', offer.marketplace_listing_id);
-    form.set('line_items[0][price_data][product_data][metadata][marketplace_listing_id]', offer.marketplace_listing_id);
-    form.set('payment_intent_data[metadata][marketplace_listing_id]', offer.marketplace_listing_id);
+  const listingId = 'marketplace_listing_id' in offer ? String(offer.marketplace_listing_id || '') : '';
+  if (listingId) {
+    form.set('metadata[marketplace_listing_id]', listingId);
+    form.set('line_items[0][price_data][product_data][metadata][marketplace_listing_id]', listingId);
+    form.set('payment_intent_data[metadata][marketplace_listing_id]', listingId);
   }
 
   form.set('success_url', 'https://dreamledger.org/success?session_id={CHECKOUT_SESSION_ID}');
