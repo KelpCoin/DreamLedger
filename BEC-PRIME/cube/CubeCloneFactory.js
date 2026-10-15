@@ -101,6 +101,19 @@ function buildCandidate(master, slug, name, shortName, accent) {
   };
   return { manifest, catalog, proof };
 }
+function writeCandidate(target, candidate) {
+  const manifestPath = path.join(target, 'silos', candidate.manifest.slug, 'silo.json');
+  const catalogPath = path.join(target, 'data', candidate.manifest.slug + '-catalog.json');
+  const proofPath = path.join(target, 'proofs', 'candidate-proof.json');
+  fs.mkdirSync(path.dirname(manifestPath), { recursive: true });
+  fs.mkdirSync(path.dirname(catalogPath), { recursive: true });
+  fs.mkdirSync(path.dirname(proofPath), { recursive: true });
+  fs.writeFileSync(manifestPath, JSON.stringify(candidate.manifest, null, 2) + '\n');
+  fs.writeFileSync(catalogPath, JSON.stringify(candidate.catalog, null, 2) + '\n');
+  fs.writeFileSync(proofPath, JSON.stringify(candidate.proof, null, 2) + '\n');
+  return { manifestPath, catalogPath, proofPath };
+}
+
 function run(argv = process.argv.slice(2)) {
   const args = parseArgs(argv);
   const slug = String(args.slug || '').trim().toLowerCase();
@@ -121,14 +134,12 @@ function run(argv = process.argv.slice(2)) {
   const target = path.join(OUT_ROOT, slug);
   if (fs.existsSync(target)) throw new Error('Candidate already exists; refusing to overwrite: ' + target);
   fs.mkdirSync(target, { recursive: true });
-  fs.writeFileSync(path.join(target, 'silo.json'), JSON.stringify(candidate.manifest, null, 2) + '\n');
-  fs.writeFileSync(path.join(target, 'catalog.json'), JSON.stringify(candidate.catalog, null, 2) + '\n');
-  fs.writeFileSync(path.join(target, 'candidate-proof.json'), JSON.stringify(candidate.proof, null, 2) + '\n');
-  console.log(JSON.stringify({ ...candidate.proof, output: path.relative(REPO_ROOT, target), public_activation: 'NOT_PERFORMED' }, null, 2));
+  const written = writeCandidate(target, candidate);
+  console.log(JSON.stringify({ ...candidate.proof, output: path.relative(REPO_ROOT, target), files: Object.fromEntries(Object.entries(written).map(([key, value]) => [key, path.relative(REPO_ROOT, value)])), public_activation: 'NOT_PERFORMED' }, null, 2));
   return candidate;
 }
 
 if (require.main === module) {
   try { run(); } catch (error) { console.error('CUBE_CLONE_FACTORY=HOLD'); console.error(error.message); process.exitCode = 1; }
 }
-module.exports = { buildCandidate, run };
+module.exports = { buildCandidate, writeCandidate, run };
