@@ -4,50 +4,165 @@
   "title": "LMSTER Tri-LLM result",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema_version", "job_id", "silo_id", "namespace", "stage_results", "deterministic_checks", "proposed_verdict", "policy_verdict", "blockers"],
+  "required": [
+    "schema_version",
+    "job_id",
+    "silo_id",
+    "namespace",
+    "stage_results",
+    "deterministic_checks",
+    "proposed_verdict",
+    "policy_verdict",
+    "blockers"
+  ],
   "properties": {
-    "schema_version": {"const": "1.0"},
-    "job_id": {"type": "string", "minLength": 1},
-    "silo_id": {"type": "string", "minLength": 2},
-    "namespace": {"type": "string", "minLength": 2},
+    "schema_version": {
+      "const": "1.0"
+    },
+    "job_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "silo_id": {
+      "type": "string",
+      "minLength": 2
+    },
+    "namespace": {
+      "type": "string",
+      "minLength": 2
+    },
     "stage_results": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["extractor", "critic", "synthesizer"],
+      "required": [
+        "extractor",
+        "critic",
+        "synthesizer"
+      ],
       "properties": {
         "extractor": {
-          "type": "object", "additionalProperties": false,
-          "required": ["status", "model_id", "output_sha256", "schema_valid", "source_references_valid"],
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status",
+            "model_id",
+            "output_sha256",
+            "schema_valid",
+            "source_references_valid"
+          ],
           "properties": {
-            "status": {"enum": ["PASS", "FAIL", "UNVERIFIED"]},
-            "model_id": {"type": "string"},
-            "output_sha256": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
-            "schema_valid": {"type": "boolean"},
-            "source_references_valid": {"type": "boolean"},
-            "artifact_ref": {"type": ["string", "null"]}
+            "status": {
+              "enum": [
+                "PASS",
+                "FAIL",
+                "UNVERIFIED"
+              ]
+            },
+            "model_id": {
+              "type": "string"
+            },
+            "output_sha256": {
+              "type": "string",
+              "pattern": "^sha256:[a-f0-9]{64}$"
+            },
+            "schema_valid": {
+              "type": "boolean"
+            },
+            "source_references_valid": {
+              "type": "boolean"
+            },
+            "artifact_ref": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
           }
         },
         "critic": {
-          "type": "object", "additionalProperties": false,
-          "required": ["status", "model_id", "output_sha256", "decision", "issue_codes"],
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status",
+            "model_id",
+            "output_sha256",
+            "decision",
+            "issue_codes"
+          ],
           "properties": {
-            "status": {"enum": ["PASS", "FAIL", "UNVERIFIED"]},
-            "model_id": {"type": "string"},
-            "output_sha256": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
-            "decision": {"enum": ["PASS", "BLOCK", "UNVERIFIED"]},
-            "issue_codes": {"type": "array", "items": {"type": "string"}},
-            "artifact_ref": {"type": ["string", "null"]}
+            "status": {
+              "enum": [
+                "PASS",
+                "FAIL",
+                "UNVERIFIED"
+              ]
+            },
+            "model_id": {
+              "type": "string"
+            },
+            "output_sha256": {
+              "type": "string",
+              "pattern": "^sha256:[a-f0-9]{64}$"
+            },
+            "decision": {
+              "enum": [
+                "PASS",
+                "BLOCK",
+                "UNVERIFIED"
+              ]
+            },
+            "issue_codes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "artifact_ref": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
           }
         },
         "synthesizer": {
-          "type": "object", "additionalProperties": false,
-          "required": ["status", "model_id", "output_sha256", "proposed_verdict"],
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status",
+            "model_id",
+            "output_sha256",
+            "proposed_verdict"
+          ],
           "properties": {
-            "status": {"enum": ["PASS", "FAIL", "UNVERIFIED"]},
-            "model_id": {"type": "string"},
-            "output_sha256": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
-            "proposed_verdict": {"enum": ["VERIFIED_MATCH", "UNVERIFIED", "CONFLICT", "BLOCKED"]},
-            "artifact_ref": {"type": ["string", "null"]}
+            "status": {
+              "enum": [
+                "PASS",
+                "FAIL",
+                "UNVERIFIED"
+              ]
+            },
+            "model_id": {
+              "type": "string"
+            },
+            "output_sha256": {
+              "type": "string",
+              "pattern": "^sha256:[a-f0-9]{64}$"
+            },
+            "proposed_verdict": {
+              "enum": [
+                "VERIFIED_MATCH",
+                "UNVERIFIED",
+                "CONFLICT",
+                "BLOCKED"
+              ]
+            },
+            "artifact_ref": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
           }
         }
       }
@@ -55,33 +170,143 @@
     "deterministic_checks": {
       "type": "array",
       "items": {
-        "type": "object", "additionalProperties": false,
-        "required": ["check_id", "status", "implementation_version", "details_sha256"],
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "check_id",
+          "status",
+          "implementation_version",
+          "details_sha256"
+        ],
         "properties": {
-          "check_id": {"type": "string"},
-          "status": {"enum": ["PASS", "FAIL", "NOT_APPLICABLE", "UNVERIFIED"]},
-          "implementation_version": {"type": "string"},
-          "details_sha256": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"}
+          "check_id": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "PASS",
+              "FAIL",
+              "NOT_APPLICABLE",
+              "UNVERIFIED"
+            ]
+          },
+          "implementation_version": {
+            "type": "string"
+          },
+          "details_sha256": {
+            "type": "string",
+            "pattern": "^sha256:[a-f0-9]{64}$"
+          }
         }
+      },
+      "minItems": 1
+    },
+    "proposed_verdict": {
+      "enum": [
+        "VERIFIED_MATCH",
+        "UNVERIFIED",
+        "CONFLICT",
+        "BLOCKED"
+      ]
+    },
+    "policy_verdict": {
+      "enum": [
+        "VERIFIED_MATCH",
+        "UNVERIFIED",
+        "CONFLICT",
+        "BLOCKED"
+      ]
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "type": "string"
       }
     },
-    "proposed_verdict": {"enum": ["VERIFIED_MATCH", "UNVERIFIED", "CONFLICT", "BLOCKED"]},
-    "policy_verdict": {"enum": ["VERIFIED_MATCH", "UNVERIFIED", "CONFLICT", "BLOCKED"]},
-    "blockers": {"type": "array", "items": {"type": "string"}},
-    "note": {"type": "string", "maxLength": 4000}
+    "note": {
+      "type": "string",
+      "maxLength": 4000
+    }
   },
   "allOf": [
     {
-      "if": {"properties": {"policy_verdict": {"const": "VERIFIED_MATCH"}}, "required": ["policy_verdict"]},
+      "if": {
+        "properties": {
+          "policy_verdict": {
+            "const": "VERIFIED_MATCH"
+          }
+        },
+        "required": [
+          "policy_verdict"
+        ]
+      },
       "then": {
         "properties": {
           "stage_results": {
             "properties": {
-              "extractor": {"properties": {"status": {"const": "PASS"}, "schema_valid": {"const": true}, "source_references_valid": {"const": true}}, "required": ["status", "schema_valid", "source_references_valid"]},
-              "critic": {"properties": {"status": {"const": "PASS"}, "decision": {"const": "PASS"}}, "required": ["status", "decision"]},
-              "synthesizer": {"properties": {"status": {"const": "PASS"}}, "required": ["status"]}
+              "extractor": {
+                "properties": {
+                  "status": {
+                    "const": "PASS"
+                  },
+                  "schema_valid": {
+                    "const": true
+                  },
+                  "source_references_valid": {
+                    "const": true
+                  }
+                },
+                "required": [
+                  "status",
+                  "schema_valid",
+                  "source_references_valid"
+                ]
+              },
+              "critic": {
+                "properties": {
+                  "status": {
+                    "const": "PASS"
+                  },
+                  "decision": {
+                    "const": "PASS"
+                  }
+                },
+                "required": [
+                  "status",
+                  "decision"
+                ]
+              },
+              "synthesizer": {
+                "properties": {
+                  "status": {
+                    "const": "PASS"
+                  }
+                },
+                "required": [
+                  "status"
+                ]
+              }
             },
-            "required": ["extractor", "critic", "synthesizer"]
+            "required": [
+              "extractor",
+              "critic",
+              "synthesizer"
+            ]
+          },
+          "proposed_verdict": {
+            "const": "VERIFIED_MATCH"
+          },
+          "deterministic_checks": {
+            "items": {
+              "properties": {
+                "status": {
+                  "const": "PASS"
+                }
+              },
+              "required": [
+                "status"
+              ]
+            }
           }
         }
       }
