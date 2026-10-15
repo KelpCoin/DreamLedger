@@ -1,0 +1,42 @@
+name: Catalog factory validation
+
+on:
+  pull_request:
+    paths:
+      - "ops/catalog/**"
+      - "package.json"
+      - ".github/workflows/catalog-factory-validation.yml"
+      - "BEC-PRIME/gauntlet/CandidateGauntlet.js"
+  push:
+    branches: [main]
+    paths:
+      - "ops/catalog/**"
+      - "package.json"
+      - ".github/workflows/catalog-factory-validation.yml"
+      - "BEC-PRIME/gauntlet/CandidateGauntlet.js"
+
+jobs:
+  validate-catalog-factory:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Syntax checks
+        run: |
+          node --check ops/catalog/catalog-factory.mjs
+          node --check ops/catalog/stripe-link-provisioner.mjs
+          node --check ops/catalog/elohim-refinement-queue.mjs
+      - name: Gauntlet and bulk-catalog tests
+        run: npm run catalog:test
+      - name: Verify silo registry defaults fail closed
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const x = JSON.parse(fs.readFileSync('ops/catalog/silos/registry.json', 'utf8'));
+          if (x.schema_version !== 'dreamledger/silo-registry/v1' || !Array.isArray(x.silos) || x.silos.length < 2) throw new Error('Invalid silo registry');
+          if (x.invented_products_allowed !== false || x.default_live_checkout_enabled !== false) throw new Error('Silo defaults must be fail-closed');
+          if (x.silos.some(s => s.live_checkout_enabled !== false || s.lifecycle !== 'INGEST_ONLY')) throw new Error('A new silo unexpectedly enables live checkout');
+          console.log(JSON.stringify({status:'PASS',silo_count:x.silos.length,live_checkout_enabled:false}));
+          NODE
