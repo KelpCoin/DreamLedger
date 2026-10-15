@@ -9,6 +9,8 @@ const { buildCandidate, writeCandidate } = require('../cube/CubeCloneFactory');
 
 const REPO_ROOT = path.resolve(__dirname, '../..');
 const MASTER_PATH = path.join(REPO_ROOT, 'silos', 'mtg', 'silo.json');
+const PUBLIC_MASTER_PATH = path.join(REPO_ROOT, 'public', 'silos', 'mtg', 'silo.json');
+const PUBLIC_POINTER_PATH = path.join(REPO_ROOT, 'public', 'silo-clone-manifest.json');
 const REGISTRY_PATH = path.join(__dirname, '..', 'catalog', 'silos', 'CUBE-SILO-REGISTRY.json');
 const SCHEMA_PATH = path.join(__dirname, '..', 'cube', 'CUBE-CLONE-MANIFEST.schema.json');
 const LEGACY_CLONE_PATHS = [path.join(__dirname, '..', 'cube', 'CUBE-Clone.ps1'), path.join(__dirname, '..', 'cube', 'CUBE-Clone-Silo.ps1')];
@@ -51,6 +53,8 @@ function validateClone(manifest, catalog, expectedSlug) {
 
 function run() {
   const master = readJson(MASTER_PATH);
+  const publicMaster = readJson(PUBLIC_MASTER_PATH);
+  const publicPointer = readJson(PUBLIC_POINTER_PATH);
   const registry = readJson(REGISTRY_PATH);
   const schema = readJson(SCHEMA_PATH);
   const entry = (registry.silos || []).find(s => s.id === 'mtg');
@@ -63,6 +67,13 @@ function run() {
   };
 
   check('master_manifest_schema', () => assert.equal(master.schema, 'BEC-PRIME/CUBE-CLONE-MANIFEST/v1'));
+  check('public_master_matches_canonical_source', () => assert.deepEqual(publicMaster, master));
+  check('public_manifest_file_is_pointer_only', () => {
+    assert.equal(publicPointer.schema, 'dreamledger/manifest-pointer/v1');
+    assert.equal(publicPointer.canonical_manifest, '/silos/mtg/silo.json');
+    assert.equal(Object.hasOwn(publicPointer, 'clones'), false);
+    assert.equal(Object.hasOwn(publicPointer, 'products'), false);
+  });
   check('canonical_schema_matches_master', () => assert.equal(schema.properties?.schema?.const, master.schema));
   check('legacy_product_specific_schema_removed', () => {
     assert.equal(schema.properties?.stripe_product_id, undefined);
