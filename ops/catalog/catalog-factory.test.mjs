@@ -7,7 +7,7 @@ import { candidateDigest, compileCatalogue, verifyGauntlet } from './catalog-fac
 import { productBlockers, runProvisioner } from './stripe-link-provisioner.mjs';
 
 const SEED_CHECKS = [
-  'schema_valid','source_provenance','demand_evidence','silo_boundary',
+  'schema_valid','source_provenance','buyer_hypothesis','silo_boundary',
   'rights_and_privacy','duplicate_sku','truth_boundary'
 ];
 const PRODUCT_CHECKS = ['price_integrity','unit_economics','fulfillment_test','delivery_receipt'];
@@ -19,7 +19,7 @@ function candidate(sku, silo, ready=true) {
     sku, silo, kind:'digital_product', name:'Test '+sku,
     description:'Bounded digital deliverable used by automated catalogue tests.',
     source:{ref:'fixture://source/'+sku,sha256:shaA},
-    demand:{buyer_segment:'Test developers',evidence_ref:'fixture://demand/'+sku},
+    demand:{buyer_segment:'Test developers',status:'SUPPORTED',evidence_ref:'fixture://demand/'+sku},
     price:ready?{currency:'nzd',unit_amount_minor:2500,billing_mode:'one_time'}:null,
     unit_economics:ready?{status:'PASS',estimated_cost_minor:100}: {status:'UNVERIFIED'},
     fulfillment:ready?{status:'PASS',contract_id:'FUL-'+sku,delivery_mode:'signed_download',test_ref:'fixture://test/'+sku,test_sha256:shaB}: {status:'UNVERIFIED'}
@@ -137,4 +137,24 @@ test('streams 10,000 Gauntlet-passed candidate seeds without creating products',
   assert.equal(result.totals.products,0);
   assert.equal(result.totals.rejected,0);
   assert.equal(result.silos['developer-assets'].seed_count,10000);
+});
+
+test('hypothesis-only candidates can become gated seeds but not products', async () => {
+  const root=tempRoot();
+  const input=path.join(root,'input.ndjson');
+  const reg=path.join(root,'registry.json');
+  const out=path.join(root,'out');
+  const row=record('B2B-COMPLIANCE-HYPOTHESIS-001','b2b-compliance',false);
+  row.candidate.demand={buyer_segment:'Compliance leads evaluating reusable policy tooling',status:'HYPOTHESIS',evidence_ref:null};
+  row.gauntlet.checks=SEED_CHECKS.map(id=>({id,status:'PASS'}));
+  row.gauntlet.candidate_sha256=candidateDigest(row);
+  row.elohim.candidate_sha256=row.gauntlet.candidate_sha256;
+  writeNdjson(input,[row]);
+  fs.writeFileSync(reg,JSON.stringify(registry([{slug:'b2b-compliance',live_checkout_enabled:false}])));
+  const result=await compileCatalogue({input,registryPath:reg,outdir:out,maxRecords:10});
+  assert.equal(result.totals.seeds,1);
+  assert.equal(result.totals.products,0);
+  const seed=JSON.parse(fs.readFileSync(path.join(out,'seeds.ndjson'),'utf8').trim());
+  assert.equal(seed.candidate.demand.status,'HYPOTHESIS');
+  assert.ok(seed.factory.product_blockers.includes('DEMAND_EVIDENCE_NOT_PROVEN'));
 });
