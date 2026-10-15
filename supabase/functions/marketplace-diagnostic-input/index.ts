@@ -41,7 +41,7 @@ Deno.serve(async (req: Request) => {
     const email = String(session.customer_details?.email || session.customer_email || "").trim().toLowerCase();
     const metadata = session.metadata || {};
     const listingId = String(metadata.marketplace_listing_id || "").trim();
-    const offeredSku = String(metadata.sku_id || metadata.sku || metadata.dreamledger_sku || "").trim();
+    const offeredSku = String(metadata.sku_id || metadata.sku || metadata.marketplace_listing_id || "").trim();
     const internalSku = SESSION_SKU_TO_INTERNAL[offeredSku];
 
     if (!listingId || !internalSku) {
