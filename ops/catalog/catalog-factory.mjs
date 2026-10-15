@@ -10,11 +10,12 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import readline from 'node:readline';
 import { once } from 'node:events';
-import { pathToFileURL } from 'node:url';
+import { pathToFileURL, fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 const { run: runCanonicalCandidateGauntlet } = require('../../BEC-PRIME/gauntlet/CandidateGauntlet.js');
 
+const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const DEFAULT_REGISTRY = 'ops/catalog/silos/registry.json';
 const DEFAULT_MAX_RECORDS = 250000;
 const SHA256_RE = /^[a-f0-9]{64}$/i;
@@ -38,6 +39,30 @@ export function sha256(value) {
 }
 export function candidateDigest(record) {
   return sha256(record?.candidate ?? null);
+}
+const SOURCE_HASH_CACHE = new Map();
+export function verifySourceArtifact(source) {
+  if (!source || typeof source.artifact_path !== 'string' || !source.artifact_path.trim()) {
+    return {ok:false,reason:'SOURCE_ARTIFACT_PATH_REQUIRED'};
+  }
+  if (path.isAbsolute(source.artifact_path)) return {ok:false,reason:'SOURCE_ARTIFACT_PATH_MUST_BE_RELATIVE'};
+  const resolved = path.resolve(REPO_ROOT, source.artifact_path);
+  if (resolved !== REPO_ROOT && !resolved.startsWith(REPO_ROOT + path.sep)) {
+    return {ok:false,reason:'SOURCE_ARTIFACT_PATH_TRAVERSAL'};
+  }
+  let stat;
+  try { stat = fs.statSync(resolved); } catch { return {ok:false,reason:'SOURCE_ARTIFACT_MISSING'}; }
+  if (!stat.isFile() || stat.size > 50 * 1024 * 1024) return {ok:false,reason:'SOURCE_ARTIFACT_NOT_FILE_OR_TOO_LARGE'};
+  if (!SHA256_RE.test(String(source.sha256 || ''))) return {ok:false,reason:'SOURCE_ARTIFACT_SHA256_INVALID'};
+  const cacheKey = resolved + '|' + stat.size + '|' + stat.mtimeMs;
+  let actual = SOURCE_HASH_CACHE.get(cacheKey);
+  if (!actual) {
+    actual = crypto.createHash('sha256').update(fs.readFileSync(resolved)).digest('hex');
+    SOURCE_HASH_CACHE.set(cacheKey, actual);
+  }
+  return actual.toLowerCase() === String(source.sha256).toLowerCase()
+    ? {ok:true,artifact_path:source.artifact_path,sha256:actual}
+    : {ok:false,reason:'SOURCE_ARTIFACT_HASH_MISMATCH',actual_sha256:actual};
 }
 function isIsoDate(value) {
   return typeof value === 'string' && Number.isFinite(Date.parse(value));
@@ -91,6 +116,20 @@ export function verifyGauntlet(record) {
   const c = record?.candidate;
   if (record?.schema_version !== 'dreamledger/catalog-candidate/v1') failures.push('UNSUPPORTED_SCHEMA');
   if (!c || typeof c !== 'object' || Array.isArray(c)) failures.push('CANDIDATE_REQUIRED');
+  const sourceCheck = verifySourceArtifact(c?.source);
+  if (!sourceCheck.ok) failures.push(sourceCheck.reason);
+  const rights = c?.rights;
+  if (rights?.status !== 'CLEAR' ||
+      !['FIRST_PARTY_RESEARCH','ORIGINAL','LICENSED','CC0','PUBLIC_DOMAIN','RIGHTS_CLEARED'].includes(rights?.basis) ||
+      !String(rights?.evidence_ref || '').trim()) {
+    failures.push('RIGHTS_AND_PRIVACY_NOT_CLEARED');
+  }
+  const truth = record?.truth_contract;
+  if (truth?.business_truth !== 'NOT_CLAIMED' ||
+      truth?.verified_revenue_nzd !== 0 ||
+      truth?.checkout_available !== false) {
+    failures.push('TRUTH_BOUNDARY_INVALID');
+  }
   if (g?.status !== 'PASS') failures.push('GAUNTLET_NOT_PASS');
   if (!g?.run_id || !isIsoDate(g?.completed_at)) failures.push('GAUNTLET_RUN_PROVENANCE_MISSING');
   const digest = candidateDigest(record);
