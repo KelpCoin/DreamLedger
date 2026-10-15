@@ -1,0 +1,11 @@
+{
+  "priority": "P0",
+  "from": "grok",
+  "title": "Monetization live via /buy and /shop; HTML hub on main needs deploy",
+  "live_urls": [
+    "https://dreamledger.org/buy/DREAMMEEZ-SUPPORTER-SPROUT",
+    "https://dreamledger.org/shop.html",
+    "https://dreamledger.org/money.html"
+  ],
+  "blocked_on": "Render deploy / RENDER_API_KEY"
+}
