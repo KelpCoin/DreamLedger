@@ -60,6 +60,15 @@ test('held Commander offer has no public purchase CTA or stale Stripe identifier
   assert.equal(Object.hasOwn(held, 'checkout_url'), false);
 });
 
+test('diagnostic success route does not fabricate delivery evidence', () => {
+  const page = read('public/thanks-diagnostic.html');
+  assert.match(page, /Receipt verification required/);
+  assert.match(page, /Not a delivery receipt/);
+  assert.match(page, /currently held/i);
+  assert.doesNotMatch(page, /Decklist received|write-up on the email used at checkout/i);
+  assert.doesNotMatch(page, /buy\.stripe\.com|\/buy\/COMMANDER-DECK-DIAGNOSTIC-001/);
+});
+
 test('static root publication contains the manifest-driven MTG master paths', () => {
   for (const p of [
     'mtg/index.html', 'silos/mtg/silo.json', 'data/mtg-catalog.json',
