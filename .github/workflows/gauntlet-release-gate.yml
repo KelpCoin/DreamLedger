@@ -53,7 +53,7 @@ jobs:
           if (result.status !== 'PASS') process.exit(2);
           NODE
 
-      - name: Verify approved offer contract
+      - name: Verify canonical offer state
         shell: bash
         run: |
           set -euo pipefail
@@ -61,23 +61,36 @@ jobs:
           import json
           from pathlib import Path
           approved = json.loads(Path('BEC-PRIME/catalog/offers/approved.json').read_text())
+          product = json.loads(Path('BEC-PRIME/catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json').read_text())
+          featured = json.loads(Path('BEC-PRIME/catalog/featured-offer.json').read_text())
+          fulfillment = json.loads(Path('BEC-PRIME/fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json').read_text())
           offers = json.loads(Path('BEC-PRIME/catalog/offers/offers.json').read_text())
           target = next((x for x in approved.get('approved', []) if x.get('offer_id') == 'OFFER-CMD-DIAG-29-NZD'), None)
           if not target:
-              raise SystemExit('APPROVED_COMMANDER_DIAGNOSTIC=FAIL')
+              raise SystemExit('CANONICAL_COMMANDER_OFFER=FAIL')
           if target.get('price') != 29 or target.get('currency') != 'NZD':
-              raise SystemExit('APPROVED_PRICE_CURRENCY=FAIL')
-          if target.get('payment_link_status') != 'ACTIVE_LIVEMODE':
-              raise SystemExit('PAYMENT_LINK_STATUS=FAIL')
-          if not str(target.get('payment_link_url','')).startswith('https://buy.stripe.com/'):
-              raise SystemExit('PAYMENT_LINK_URL=FAIL')
-          if target.get('product_id') != 'COMMANDER-DECK-DIAGNOSTIC-001':
-              raise SystemExit('PRODUCT_ID=FAIL')
-          print('APPROVED_COMMANDER_DIAGNOSTIC=PASS')
-          print('APPROVED_PRICE_CURRENCY=PASS')
-          print('PAYMENT_LINK_STATUS=PASS')
-          print('PAYMENT_LINK_URL=PASS')
-          print('PRODUCT_ID=PASS')
+              raise SystemExit('CANONICAL_PRICE_CURRENCY=FAIL')
+          if target.get('product_id') != 'COMMANDER-DECK-DIAGNOSTIC-001' or target.get('product_sku') != 'CMD-DIAG-29':
+              raise SystemExit('CANONICAL_PRODUCT_SKU=FAIL')
+          if target.get('payment_link_status') != 'HELD' or target.get('payment_link_url') is not None or target.get('payment_link_id') is not None:
+              raise SystemExit('HELD_OFFER_PAYMENT_REFERENCE=FAIL')
+          if product.get('status') != 'held' or product.get('checkout', {}).get('mode') != 'disabled':
+              raise SystemExit('HELD_PRODUCT_CHECKOUT=FAIL')
+          if product.get('commercial_truth', {}).get('sellable') is not False or product.get('commercial_truth', {}).get('approval_required') is not True:
+              raise SystemExit('HELD_PRODUCT_AUTHORITY=FAIL')
+          if featured.get('public_visibility') != 'hidden' or featured.get('payment_link_status') != 'HELD' or featured.get('payment_link_url') is not None or featured.get('checkout_url') is not None:
+              raise SystemExit('HELD_FEATURED_SURFACE=FAIL')
+          entry = fulfillment.get('entries', {}).get('COMMANDER-DECK-DIAGNOSTIC-001', {})
+          if entry.get('ready') is not False or entry.get('operator_required') is not True:
+              raise SystemExit('HELD_FULFILLMENT_REGISTRY=FAIL')
+          print('CANONICAL_COMMANDER_OFFER=PASS')
+          print('CANONICAL_PRICE_CURRENCY=PASS')
+          print('CANONICAL_PRODUCT_SKU=PASS')
+          print('HELD_OFFER_PAYMENT_REFERENCE=PASS')
+          print('HELD_PRODUCT_CHECKOUT=PASS')
+          print('HELD_PRODUCT_AUTHORITY=PASS')
+          print('HELD_FEATURED_SURFACE=PASS')
+          print('HELD_FULFILLMENT_REGISTRY=PASS')
           print('CANONICAL_CANDIDATE_COUNT=' + str(len(offers.get('offers', []))))
           PY
 
@@ -120,32 +133,31 @@ jobs:
           done
           echo 'LIVE_FRONT_DOOR=PASS'
 
-      - name: Verify checkout contract without purchase
+      - name: Verify held offer checkout is blocked without purchase
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         shell: bash
         env:
           BASE_URL: https://dreamledger.org
         run: |
           set -euo pipefail
-          response=$(curl -sS --fail-with-body --retry 3 --retry-delay 2 --max-time 20 \
+          status=$(curl -sS -o /tmp/held-checkout.json -w '%{http_code}' --max-time 20 \
             -X POST "$BASE_URL/api/offer-checkout/create" \
             -H 'Content-Type: application/json' \
             --data '{"offer_id":"OFFER-CMD-DIAG-29-NZD"}')
-          python3 - <<'PY' "$response"
+          python3 - <<'PY' "$status"
           import json, sys
-          data = json.loads(sys.argv[1])
-          url = str(data.get('url', data.get('checkout_url', '')))
-          sku = str(data.get('product_id', ''))
-          amount = data.get('amount_nzd')
-          if not url.startswith('https://') or 'stripe.com' not in url:
-              raise SystemExit('CHECKOUT_URL=FAIL')
-          if sku != 'COMMANDER-DECK-DIAGNOSTIC-001':
-              raise SystemExit('CHECKOUT_SKU=FAIL')
-          if amount != 29:
-              raise SystemExit(f'CHECKOUT_AMOUNT=FAIL:{amount}')
-          print('CHECKOUT_URL=PASS')
-          print('CHECKOUT_SKU=PASS')
-          print('CHECKOUT_AMOUNT_NZD_29=PASS')
+          from pathlib import Path
+          status = int(sys.argv[1])
+          data = json.loads(Path('/tmp/held-checkout.json').read_text())
+          if status == 200 or data.get('url') or data.get('checkout_url') or data.get('session_id'):
+              raise SystemExit('HELD_CHECKOUT_BLOCK=FAIL')
+          if status == 400 and data.get('error') != 'Unknown or missing approved offer':
+              raise SystemExit('HELD_CHECKOUT_REASON=FAIL')
+          if status == 503 and data.get('error') != 'STRIPE_SECRET_KEY is not configured':
+              raise SystemExit('HELD_CHECKOUT_REASON=FAIL')
+          if status not in (400, 503):
+              raise SystemExit('HELD_CHECKOUT_HTTP_STATUS=FAIL:' + str(status))
+          print('HELD_CHECKOUT_BLOCK=PASS')
           print('PURCHASE_EXECUTED=FALSE')
           PY
 
@@ -169,7 +181,7 @@ jobs:
               'economic_truth': {
                   'status': 'BLOCKED',
                   'blocker': 'No independently attributable settled live payment plus fulfillment and delivery evidence.',
-                  'payment_link': 'VERIFIED_CONFIGURED',
+                  'payment_link': 'HELD_NO_PUBLIC_REFERENCE',
                   'purchase_executed': False,
                   'sale_settled': False,
                   'economic_proof': False
@@ -181,7 +193,7 @@ jobs:
                   'javascript_syntax',
                   'silo_isolation',
                   'live_front_door',
-                  'checkout_contract'
+                  'held_offer_checkout_block'
               ],
               'public_actions': 'approval-gated',
               'financial_actions': 'approval-gated'
