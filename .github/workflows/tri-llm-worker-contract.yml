@@ -1,0 +1,26 @@
+name: Tri-LLM Worker Contract
+on:
+  pull_request:
+    paths:
+      - 'ops/decision/tri-llm-worker.mjs'
+      - 'ops/decision/tri-llm-worker.test.mjs'
+      - '.github/workflows/tri-llm-worker-contract.yml'
+  push:
+    branches:
+      - 'feat/tri-llm-fail-closed-evidence-2026-10-15'
+    paths:
+      - 'ops/decision/tri-llm-worker.mjs'
+      - 'ops/decision/tri-llm-worker.test.mjs'
+      - '.github/workflows/tri-llm-worker-contract.yml'
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: node --check ops/decision/tri-llm-worker.mjs
+      - run: node --test ops/decision/tri-llm-worker.test.mjs
