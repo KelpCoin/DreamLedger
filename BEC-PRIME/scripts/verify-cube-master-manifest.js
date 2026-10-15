@@ -5,6 +5,7 @@ const os = require('node:os');
 const path = require('node:path');
 const crypto = require('node:crypto');
 const assert = require('node:assert/strict');
+const { buildCandidate } = require('../cube/CubeCloneFactory');
 
 const REPO_ROOT = path.resolve(__dirname, '../..');
 const MASTER_PATH = path.join(REPO_ROOT, 'silos', 'mtg', 'silo.json');
@@ -80,33 +81,14 @@ function run() {
   });
 
   const testSlug = 'clean-clone-test';
-  const clone = JSON.parse(JSON.stringify(master));
-  clone.slug = testSlug;
-  clone.name = 'Clean Clone Test';
-  clone.short = 'Test';
-  clone.route = '/' + testSlug + '/';
-  clone.list_route = '/' + testSlug + '/list';
-  clone.catalog = '/data/' + testSlug + '-catalog.json';
-  clone.manifest_path = '/silos/' + testSlug + '/silo.json';
-  clone.status = 'candidate';
-  clone.template_role = 'candidate';
-  clone.clone_fossil_status = 'NOT_RUN';
-  clone.clone = {
-    ...clone.clone,
-    source_of_truth: 'silos/mtg/silo.json',
-    catalog_default: 'empty',
-    inventory_copy: false,
-    customer_data_copy: false,
-    credential_copy: false,
-    checkout_default: 'disabled',
-    release_requires_clean_clone_fossil: true
-  };
-  const emptyCatalog = {
-    schema: 'BEC-PRIME/SILO-CATALOG/v1',
-    silo: testSlug,
-    status: 'empty_until_verified_supply',
-    products: []
-  };
+  const candidate = buildCandidate(master, testSlug, 'Clean Clone Test', 'Test');
+  const clone = candidate.manifest;
+  const emptyCatalog = candidate.catalog;
+  check('factory_candidate_assertions', () => {
+    assert.ok(Object.values(candidate.proof.assertions).every(value => value === true));
+    assert.equal(candidate.proof.status, 'CANDIDATE_GENERATED');
+    assert.equal(candidate.proof.release_status, 'HOLD');
+  });
 
   const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'dreamledger-cube-clone-'));
   let cloneChecks = [];
