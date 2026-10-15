@@ -4,11 +4,11 @@
   "updated": "2026-09-04",
   "entries": {
     "BILLBOARD-SMALL": {
-      "ready": true,
+      "ready": false,
       "type": "automatic_service_activation",
       "delivery_target": "dreamledger.org/billboard",
       "activation": "verified_paid_stripe_session -> signed_webhook -> exact_amount_currency_validation -> buyer_field_validation -> public_image_fetch_validation -> automatic_moderation -> atomic_first_available_100x100_grid_allocation -> media_persist -> billboard_state_persist -> publication -> durable_fulfillment_proof",
-      "operator_required": false,
+      "operator_required": true,
       "idempotency_key": "stripe_checkout_session_id",
       "buyer_inputs": [
         "tile_image_url",
@@ -23,14 +23,16 @@
         "delivery_url",
         "proof_url"
       ],
-      "failure_behavior": "payment remains recorded but publication is not marked complete until every fulfillment step succeeds; retry is idempotent"
+      "failure_behavior": "payment remains recorded but publication is not marked complete until every fulfillment step succeeds; retry is idempotent",
+      "reason": "HOLD: secure buyer intake and atomic inventory reservation are not deployed and independently verified; all live checkout links are disabled pending durable payment-to-placement proof.",
+      "status": "HELD_SECURE_INTAKE_AND_INVENTORY_UNVERIFIED"
     },
     "OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001": {
-      "ready": true,
+      "ready": false,
       "type": "automatic_service_activation",
       "delivery_target": "dreamledger.org/billboard",
       "activation": "verified_paid_stripe_session -> signed_webhook -> exact_amount_currency_validation -> buyer_field_validation -> public_image_fetch_validation -> automatic_moderation -> atomic_first_available_100x100_grid_allocation -> media_persist -> billboard_state_persist -> publication -> durable_fulfillment_proof",
-      "operator_required": false,
+      "operator_required": true,
       "idempotency_key": "stripe_checkout_session_id",
       "buyer_inputs": [
         "destination_url",
@@ -46,7 +48,9 @@
         "proof_url"
       ],
       "failure_behavior": "payment remains recorded but publication is not marked complete until every fulfillment step succeeds; retry is idempotent",
-      "canonical_product_id": "DREAMLEDGER-BILLBOARD-FOUNDING-001"
+      "canonical_product_id": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "reason": "HOLD: secure buyer intake and atomic inventory reservation are not deployed and independently verified; all live checkout links are disabled pending durable payment-to-placement proof.",
+      "status": "HELD_SECURE_INTAKE_AND_INVENTORY_UNVERIFIED"
     },
     "BILLBOARD-MEDIUM": {
       "ready": false,
