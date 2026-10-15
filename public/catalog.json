@@ -435,7 +435,7 @@
       "checkout_available": false,
       "checkout_url": null,
       "sale_mode": "claim_by_message",
-      "claim_url": "mailto:hello@dreamledger.org?subject=Claim%20Jon%20Irenicus%20Commander%20Deck&body=I%27d%20like%20to%20claim%20the%20Jon%20Irenicus%2C%20Shattered%20One%20Commander%20deck%20(NZ%24220%2C%20or%20NZ%24200%20for%20Patreon%20members).%20Please%20confirm%20availability%20and%20shipping.",
+      "claim_url": "/mtg/jon-irenicus-shattered-one.html",
       "detail_url": "/mtg/jon-irenicus-shattered-one.html",
       "decklist_url": "https://manabox.app/decks/AZ2BaCy-c-a8MpZUUcgxqw",
       "seller": "HappyHomarid",
