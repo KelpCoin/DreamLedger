@@ -63,7 +63,7 @@ const makeFetch = ({judgeVerdict='MATCH',gross=115,failRole=null}={}) => {
     assert.equal(sent.temperature,cfg.temperature);
     if (failRole===cfg.role) return {ok:false,status:503,text:async()=>''};
     const out=cfg.role==='EXTRACTOR'?extraction(gross):cfg.role==='GAUNTLET'?audit():judge(judgeVerdict);
-    return {ok:true,status:200,text:async()=>JSON.stringify({choices:[{message:{content:JSON.stringify(out)}}])};
+    return {ok:true,status:200,text:async()=>JSON.stringify({choices:[{message:{content:JSON.stringify(out)}}]})};
   };
 };
 
