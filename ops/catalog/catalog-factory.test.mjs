@@ -119,3 +119,22 @@ test('Stripe provisioner remains dry-run by default and revalidates product gate
   assert.equal(result.results[0].would_create_active_link,true);
   assert.equal(fs.existsSync(state),true);
 });
+
+test('streams 10,000 Gauntlet-passed candidate seeds without creating products', async () => {
+  const root=tempRoot();
+  const input=path.join(root,'input.ndjson');
+  const reg=path.join(root,'registry.json');
+  const out=path.join(root,'out');
+  const rows=[];
+  for(let i=1;i<=10000;i++) {
+    rows.push(JSON.stringify(record('LOAD-SEED-'+String(i).padStart(6,'0'),'developer-assets',false)));
+  }
+  fs.writeFileSync(input,rows.join('\n')+'\n');
+  fs.writeFileSync(reg,JSON.stringify(registry([{slug:'developer-assets',live_checkout_enabled:false}])));
+  const result=await compileCatalogue({input,registryPath:reg,outdir:out,maxRecords:10000});
+  assert.equal(result.totals.source_records,10000);
+  assert.equal(result.totals.seeds,10000);
+  assert.equal(result.totals.products,0);
+  assert.equal(result.totals.rejected,0);
+  assert.equal(result.silos['developer-assets'].seed_count,10000);
+});
