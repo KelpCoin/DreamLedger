@@ -21,7 +21,6 @@ need(/"CMD-DIAG-29":\s*"COMMANDER-DECK-DIAGNOSTIC-001"/.test(intake), 'public Co
 need(/\.eq\("metadata->>sku", internalSku\)/.test(intake), 'fulfillment lookup must use the normalized internal SKU');
 need(/session\.livemode !== true \|\| session\.payment_status !== "paid"/.test(intake), 'intake must require a live, settled Stripe session');
 need(/session\.livemode/.test(delivery) && /session\.payment_status !== "paid"/.test(delivery), 'delivery must continue to require a live, settled session');
-need(/WEBHOOK_QUARANTINED/.test('WEBHOOK_QUARANTINED'), 'sanity');
 
 if (failures.length) {
   console.error('COMMANDER_DIAGNOSTIC_WEBHOOK_CONTRACT=FAIL');
