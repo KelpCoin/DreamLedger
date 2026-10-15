@@ -24,15 +24,17 @@ function copyTree(src, dst) {
   }
 }
 
+function ensureDir(file) {
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+}
+
 if (!fs.existsSync(SOURCE)) {
   throw new Error('BEC-PRIME compiled website missing. Run npm run compile first.');
 }
 
-// Preserve reviewed public surfaces that compiled legacy must not overwrite.
 const canonicalPublicFiles = [
   'avatar.html',
   'billboard.html',
-  // MTG master (cube-clone candidate)
   'mtg/index.html',
   'mtg/quintorius-field-historian.html',
   'mtg-list.html',
@@ -57,8 +59,39 @@ copyTree(SOURCE, DEST);
 for (const [rel, bytes] of canonicalSnapshots) {
   if (bytes) {
     const target = path.join(DEST, rel);
-    fs.mkdirSync(path.dirname(target), { recursive: true });
+    ensureDir(target);
     fs.writeFileSync(target, bytes);
+  }
+}
+
+const compiledMtgFallbacks = [
+  'mtg/index.html',
+  'silos/mtg/silo.json',
+  'data/mtg-catalog.json',
+  'assets/mtg-deck-grid.js',
+  'assets/mtg-deck-grid.css',
+  'data/decklists/quintorius.json',
+  'mtg/quintorius-field-historian.html',
+];
+for (const rel of compiledMtgFallbacks) {
+  const dest = path.join(DEST, rel);
+  const src = path.join(SOURCE, rel);
+  if (!fs.existsSync(dest) && fs.existsSync(src)) {
+    ensureDir(dest);
+    fs.copyFileSync(src, dest);
+  }
+}
+
+const mtgIndex = path.join(DEST, 'mtg/index.html');
+const mtgBody = fs.existsSync(mtgIndex) ? fs.readFileSync(mtgIndex, 'utf8') : '';
+if (!mtgBody.includes('/silos/mtg/silo.json') || !mtgBody.includes('Sell a single')) {
+  const fromCompiled = path.join(SOURCE, 'mtg/index.html');
+  if (fs.existsSync(fromCompiled)) {
+    const compiledBody = fs.readFileSync(fromCompiled, 'utf8');
+    if (compiledBody.includes('/silos/mtg/silo.json')) {
+      ensureDir(mtgIndex);
+      fs.writeFileSync(mtgIndex, compiledBody);
+    }
   }
 }
 
@@ -66,7 +99,7 @@ function copyStage0File(rel) {
   const from = path.join(__dirname, '..', rel);
   const to = path.join(DEST, rel);
   if (!fs.existsSync(from)) throw new Error('Required PhinHaven source missing: ' + rel);
-  fs.mkdirSync(path.dirname(to), { recursive: true });
+  ensureDir(to);
   fs.copyFileSync(from, to);
 }
 
@@ -87,13 +120,16 @@ if (missing.length) {
   throw new Error('Required public surface missing: ' + missing.join(', '));
 }
 
+const finalMtg = fs.readFileSync(path.join(DEST, 'mtg/index.html'), 'utf8');
+if (!finalMtg.includes('/silos/mtg/silo.json')) {
+  throw new Error('MTG master index is not manifest-driven after sync — refusing to start');
+}
+
 console.log(
   JSON.stringify({
     status: 'PASS',
-    source: SOURCE,
-    destination: DEST,
+    mtg_master: 'LIVE_GATE_OK',
     required,
     preserved: canonicalPublicFiles.filter((rel) => canonicalSnapshots.get(rel)),
-    mtg_master: 'PRESERVED',
   })
 );
