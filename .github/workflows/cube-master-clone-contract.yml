@@ -1,0 +1,38 @@
+name: CUBE Master Clone Contract
+
+on:
+  push:
+    paths:
+      - "silos/mtg/silo.json"
+      - "BEC-PRIME/catalog/silos/CUBE-SILO-REGISTRY.json"
+      - "BEC-PRIME/scripts/verify-cube-master-manifest.js"
+      - "BEC-PRIME/package.json"
+      - ".github/workflows/cube-master-clone-contract.yml"
+  pull_request:
+    paths:
+      - "silos/mtg/silo.json"
+      - "BEC-PRIME/catalog/silos/CUBE-SILO-REGISTRY.json"
+      - "BEC-PRIME/scripts/verify-cube-master-manifest.js"
+      - "BEC-PRIME/package.json"
+      - ".github/workflows/cube-master-clone-contract.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  clean-clone-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Verify canonical MTG master and clean clone
+        run: node BEC-PRIME/scripts/verify-cube-master-manifest.js
+      - name: Upload clone contract fossil
+        uses: actions/upload-artifact@v4
+        with:
+          name: cube-clean-clone-contract-${{ github.sha }}
+          path: BEC-PRIME/data/proofs/CUBE-CLEAN-CLONE-TEST-PROOF.json
+          if-no-files-found: error
+          retention-days: 30
