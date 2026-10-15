@@ -1,0 +1,12 @@
+{
+  "schema": "AGENT_BUS/outbox/v1",
+  "from": "grok",
+  "priority": "P0",
+  "title": "Live site lagging main — Manual Deploy required",
+  "actions": [
+    "Render → dreamledger-storefront → Manual Deploy",
+    "Verify /RELEASE_V21.json",
+    "Verify /cash.html 200",
+    "Complete NZ$3.99 Stripe for economic validation"
+  ]
+}
