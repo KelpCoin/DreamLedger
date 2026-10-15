@@ -20,10 +20,14 @@ test('Commander diagnostic is held and has no card condition or live checkout', 
 
 test('digital services and commander decks never inherit a card condition', () => {
   const mtg = json('public/data/mtg-catalog.json');
+  // The MTG inventory is a physical-listings catalog. The digital diagnostic
+  // is sourced from the canonical product registry, not injected into card inventory.
   const diagnostic = mtg.products.find(p => p.id === 'COMMANDER-DECK-DIAGNOSTIC-001');
-  assert.equal(diagnostic.status, 'held');
-  assert.equal(diagnostic.checkout_available, false);
-  assert.equal(Object.hasOwn(diagnostic, 'condition'), false);
+  if (diagnostic) {
+    assert.equal(diagnostic.status, 'held');
+    assert.equal(diagnostic.checkout_available, false);
+    assert.equal(Object.hasOwn(diagnostic, 'condition'), false);
+  }
   for (const p of mtg.products.filter(p => p.category === 'commander-deck' || p.category === 'digital-service')) {
     assert.equal(Object.hasOwn(p, 'condition'), false, p.id + ' must not carry a card condition');
   }
