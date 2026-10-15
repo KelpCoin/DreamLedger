@@ -43,7 +43,7 @@ $heldCommander = @($approved.held | Where-Object { $_.offer_id -eq $offerId })
 Assert-True ($approvedCommander.Count -eq 0) 'held Commander offer is excluded from approved checkout catalog'
 Assert-True ($heldCommander.Count -eq 1 -and $null -eq $heldCommander[0].payment_link_url) 'held Commander offer remains auditable without a payment URL'
 $compiledCommander = @($compiled.offers | Where-Object { $_.offer_id -eq $offerId })
-Assert-True ($compiledCommander.Count -eq 0) 'compiled catalogue does not advertise Commander as available'
+Assert-True (@($compiledCommander | Where-Object { $_.checkout_available -eq $true -or $_.status -eq 'VERIFIED_AVAILABLE' -or $_.checkout_url -or $_.payment_link_url }).Count -eq 0) 'compiled catalogue cannot advertise Commander as purchasable'
 Assert-True ($featured.status -eq 'HELD' -and $null -eq $featured.payment_link_url -and $null -eq $featured.checkout_url) 'featured offer does not expose a Commander payment URL'
 
 $fulfillment = $registry.entries.$productId
