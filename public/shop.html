@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en-NZ"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Shop · DreamLedger NZ</title>
+<meta name="description" content="Paid products with Stripe checkout. Lowest price first.">
+<style>
+:root{--bg:#f7f5ef;--paper:#fffdf8;--ink:#191a17;--muted:#65635c;--line:#ddd8cd;--accent:#5d43d8}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,sans-serif}a{color:inherit;text-decoration:none}
+.wrap{max-width:1100px;margin:auto;padding:0 20px}.top{position:sticky;top:0;background:#f7f5eff2;border-bottom:1px solid var(--line);padding:14px 0}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px}.brand{font-weight:950}.brand span{color:var(--accent)}
+nav{display:flex;gap:14px;flex-wrap:wrap;font-size:.85rem;font-weight:750;color:var(--muted)}
+.hero{padding:48px 0 24px}.eyebrow{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;font-weight:850;color:var(--accent)}
+h1{font-size:clamp(2.4rem,6vw,4rem);line-height:.95;letter-spacing:-.06em;margin:12px 0 16px}
+.lead{max-width:700px;color:var(--muted)}.group{padding:20px 0}.group h2{font-size:1.25rem}
+.rail{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+.card{display:flex;flex-direction:column;gap:8px;padding:20px;border:1px solid var(--line);border-radius:14px;background:var(--paper);min-height:220px}
+.tag{font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;font-weight:850;color:var(--accent)}
+.card p{color:var(--muted);font-size:.9rem;flex:1}.price{font-size:1.35rem;font-weight:900}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:10px 14px;background:var(--ink);color:#fff;border-radius:9px;font-weight:850}
+.empty{padding:22px;border:1px dashed var(--line);border-radius:12px;color:var(--muted)}
+footer{border-top:1px solid var(--line);padding:25px 0 45px;color:var(--muted);font-size:.8rem}
+</style></head>
+<body>
+<header class="top"><div class="wrap"><a class="brand" href="/">Dream<span>Ledger</span></a>
+<nav><a href="/">Home</a><a href="/cash.html">From NZ$3.99</a><a href="/mtg/">Magic</a><a href="/truth-oracle.html">Free Truth Oracle</a></nav></div></header>
+<main class="wrap">
+<section class="hero">
+<div class="eyebrow">Stripe checkout · NZD</div>
+<h1>Pay for real work.</h1>
+<p class="lead">Lowest price first. Every button goes to Stripe when checkout is live. Start from NZ$3.99.</p>
+</section>
+<div id="products"></div>
+</main>
+<footer><div class="wrap">© 2026 DreamLedger · <a href="/cash.html">Cash board</a></div></footer>
+<script>
+(function(){
+const labels={mtg:"Magic: The Gathering","public-placements":"Public placements","avatar-accessories":"Avatar accessories","digital-tools":"Digital tools","seller-services":"Seller services","digital-experiences":"Digital experiences","research-services":"Research services","procurement-tools":"Procurement tools","growth-services":"Growth services","other-products":"More products"};
+const order=["avatar-accessories","digital-tools","mtg","seller-services","research-services","growth-services","digital-experiences","procurement-tools","public-placements","other-products"];
+const clean=v=>String(v??"").trim();
+const esc=v=>clean(v).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+fetch("/api/products",{cache:"no-store"}).then(r=>{if(!r.ok)throw Error();return r.json()}).then(d=>{
+  const products=(d.products||[]).filter(p=>p&&p.status==="published"&&p.checkout_available===true).sort((a,b)=>(Number(a.price)||0)-(Number(b.price)||0));
+  const groups={};
+  products.forEach(p=>{const k=labels[p.category]?p.category:"other-products";(groups[k]=groups[k]||[]).push(p)});
+  const root=document.getElementById("products");
+  const html=order.filter(k=>groups[k]&&groups[k].length).map(k=>'<section class="group"><h2>'+esc(labels[k]||"Products")+'</h2><div class="rail">'+groups[k].map(p=>'<article class="card"><div class="tag">'+esc(labels[k]||"Product")+'</div><h3>'+esc(p.name)+'</h3><p>'+esc(p.description||"See product for details.")+'</p><div class="price">NZ$'+esc(Number(p.price||0).toLocaleString("en-NZ",{maximumFractionDigits:2}))+'</div><a class="btn" href="/buy/'+encodeURIComponent(p.id)+'">Pay on Stripe</a></article>').join("")+'</div></section>').join("");
+  root.innerHTML=html||'<p class="empty">No checkout-ready products right now.</p>';
+}).catch(()=>{document.getElementById("products").innerHTML='<p class="empty">Products temporarily unavailable. <a href="/truth-oracle.html">Free Truth Oracle</a></p>';});
+})();
+</script>
+</body></html>
