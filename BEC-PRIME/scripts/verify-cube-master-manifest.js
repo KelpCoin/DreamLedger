@@ -112,7 +112,15 @@ function run() {
   const clone = candidate.manifest;
   const emptyCatalog = candidate.catalog;
   check('factory_candidate_assertions', () => {
-    assert.ok(Object.values(candidate.proof.assertions).every(value => value === true));
+    const a = candidate.proof.assertions;
+    assert.equal(a.source_resolved_through_registry, true);
+    assert.equal(a.inventory_copied, false);
+    assert.equal(a.customer_data_copied, false);
+    assert.equal(a.credentials_copied, false);
+    assert.equal(a.route_isolated, true);
+    assert.equal(a.catalog_empty, true);
+    assert.equal(a.checkout_disabled, true);
+    assert.equal(a.gauntlet_and_human_approval_required, true);
     assert.equal(candidate.proof.status, 'CANDIDATE_GENERATED');
     assert.equal(candidate.proof.release_status, 'HOLD');
   });
