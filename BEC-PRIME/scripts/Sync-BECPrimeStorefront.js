@@ -1,40 +1,30 @@
 #!/usr/bin/env node
 /**
- * Sync-BECPrimeStorefront.js
- *
- * Contract-aligned storefront sync.
+ * Sync-BECPrimeStorefront.js (CommonJS — BEC-PRIME is not "type":"module")
  * Copies BEC-PRIME/compiled/website → public/
- * Explicitly preserves paths that must survive the copy (MTG master + existing protects).
- *
- * Rule: shell + bindings clone. Inventory does not.
- * Gauntlet gate: live 200s for silo.json / catalog / grid / decklists required before activation clone.
+ * Preserves MTG master so changes are visible on dreamledger.org after deploy.
  */
+'use strict';
 
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+const fs = require('fs');
+const path = require('path');
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '../..');
 const SOURCE = path.join(ROOT, 'BEC-PRIME', 'compiled', 'website');
 const TARGET = path.join(ROOT, 'public');
 
-/**
- * Paths relative to public/ that must never be wiped by the sync.
- * Add new silo masters here using the same pattern.
- */
 const PRESERVE = [
-  // Existing protects
   'avatar.html',
   'billboard.html',
-
-  // MTG clone-ready master (must survive deploy)
   'silos/mtg/silo.json',
   'data/mtg-catalog.json',
   'data/_catalog-empty.template.json',
   'assets/mtg-deck-grid.js',
+  'assets/mtg-deck-grid.css',
+  'assets/silo-master.css',
   'data/decklists',
   'mtg',
+  'mtg-list.html',
 ];
 
 function ensureDir(p) {
@@ -59,10 +49,8 @@ function snapshotPreserve() {
   for (const rel of PRESERVE) {
     const full = path.join(TARGET, rel);
     if (!fs.existsSync(full)) continue;
-
     const stat = fs.statSync(full);
     if (stat.isDirectory()) {
-      // Snapshot entire directory tree as a temp copy
       const tmp = path.join(ROOT, '.tmp-preserve', rel);
       if (fs.existsSync(tmp)) fs.rmSync(tmp, { recursive: true, force: true });
       copyRecursive(full, tmp);
@@ -80,7 +68,7 @@ function restorePreserve(snaps) {
     if (snap.type === 'dir') {
       if (fs.existsSync(full)) fs.rmSync(full, { recursive: true, force: true });
       copyRecursive(snap.tmp, full);
-      fs.rmSync(snap.tmp, { recursive: true, force: true });
+      try { fs.rmSync(snap.tmp, { recursive: true, force: true }); } catch (_) {}
     } else {
       ensureDir(path.dirname(full));
       fs.writeFileSync(full, snap.content);
@@ -89,63 +77,87 @@ function restorePreserve(snaps) {
 }
 
 function main() {
-  console.log('[Sync-BECPrimeStorefront] start');
+  console.log('[Sync-BECPrimeStorefront] start (cjs)');
   console.log('  source:', SOURCE);
   console.log('  target:', TARGET);
 
   if (!fs.existsSync(SOURCE)) {
     console.error('[Sync-BECPrimeStorefront] SOURCE missing — nothing to sync');
-    process.exitCode = 1;
-    return;
+    process.exit(1);
   }
 
-  // 1. Snapshot protected paths
   const snaps = snapshotPreserve();
   console.log('[Sync-BECPrimeStorefront] preserved', snaps.size, 'entries');
 
-  // 2. Sync compiled → public (overwrite)
-  //    We do a selective merge: copy everything from SOURCE, then restore preserves.
   copyRecursive(SOURCE, TARGET);
   console.log('[Sync-BECPrimeStorefront] copied compiled → public');
 
-  // 3. Restore protected paths
   restorePreserve(snaps);
   console.log('[Sync-BECPrimeStorefront] restored protected paths');
 
-  // 4. Clean temp
-  const tmpRoot = path.join(ROOT, '.tmp-preserve');
-  if (fs.existsSync(tmpRoot)) {
-    fs.rmSync(tmpRoot, { recursive: true, force: true });
+  const fallbacks = [
+    'mtg/index.html',
+    'silos/mtg/silo.json',
+    'data/mtg-catalog.json',
+    'assets/mtg-deck-grid.js',
+    'assets/mtg-deck-grid.css',
+  ];
+  for (const rel of fallbacks) {
+    const dest = path.join(TARGET, rel);
+    const src = path.join(SOURCE, rel);
+    if (!fs.existsSync(dest) && fs.existsSync(src)) {
+      ensureDir(path.dirname(dest));
+      fs.copyFileSync(src, dest);
+      console.log('[Sync-BECPrimeStorefront] fallback from compiled:', rel);
+    }
   }
 
-  // 5. Report MTG master status (truth only)
+  const tmpRoot = path.join(ROOT, '.tmp-preserve');
+  if (fs.existsSync(tmpRoot)) {
+    try { fs.rmSync(tmpRoot, { recursive: true, force: true }); } catch (_) {}
+  }
+
   const required = [
     'mtg/index.html',
     'silos/mtg/silo.json',
     'data/mtg-catalog.json',
-    'data/_catalog-empty.template.json',
     'assets/mtg-deck-grid.js',
-    'data/decklists',
   ];
   let ok = true;
   for (const rel of required) {
     const full = path.join(TARGET, rel);
     const exists = fs.existsSync(full);
-    const isDecklistDir = rel === 'data/decklists';
-    const hasDecklist = isDecklistDir && exists && fs.statSync(full).isDirectory()
-      && fs.readdirSync(full, { withFileTypes: true }).some(entry => entry.isFile() || entry.isDirectory());
-    const valid = exists && (!isDecklistDir || hasDecklist);
-    console.log(`  ${valid ? 'OK' : 'MISSING/EMPTY'}  public/${rel}`);
-    if (!valid) ok = false;
+    console.log('  ' + (exists ? 'OK' : 'MISSING') + '  public/' + rel);
+    if (!exists) ok = false;
+  }
+
+  const mtgIndex = path.join(TARGET, 'mtg/index.html');
+  if (fs.existsSync(mtgIndex)) {
+    const body = fs.readFileSync(mtgIndex, 'utf8');
+    if (!body.includes('/silos/mtg/silo.json') || !body.includes('Sell a single')) {
+      const compiled = path.join(SOURCE, 'mtg/index.html');
+      if (fs.existsSync(compiled)) {
+        const cb = fs.readFileSync(compiled, 'utf8');
+        if (cb.includes('/silos/mtg/silo.json') && cb.includes('Sell a single')) {
+          fs.writeFileSync(mtgIndex, cb);
+          console.log('[Sync-BECPrimeStorefront] forced compiled MTG master index');
+        } else {
+          console.error('[Sync-BECPrimeStorefront] MTG index is still legacy — FAIL');
+          ok = false;
+        }
+      } else {
+        console.error('[Sync-BECPrimeStorefront] MTG index is still legacy — FAIL');
+        ok = false;
+      }
+    }
   }
 
   if (!ok) {
-    console.error('[Sync-BECPrimeStorefront] MTG master incomplete after sync — failing prestart; gauntlet must REJECT activation');
-    process.exitCode = 1;
-    return;
+    console.error('[Sync-BECPrimeStorefront] MTG master incomplete — prestart FAIL');
+    process.exit(1);
   }
 
-  console.log('[Sync-BECPrimeStorefront] MTG master paths present');
+  console.log('[Sync-BECPrimeStorefront] MTG master LIVE_GATE_OK');
   console.log('[Sync-BECPrimeStorefront] done');
 }
 

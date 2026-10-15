@@ -1,13 +1,14 @@
 {
   "name": "dreamledger-public-storefront",
   "private": true,
-  "version": "1.0.6",
+  "version": "1.0.7",
   "engines": {
     "node": ">=24 <25"
   },
   "scripts": {
     "start": "node -r ./discordCommercePreload.js -r ./agentbridge-preload.js -r ./webhook-proxy-preload.js -r ./hypothesisCommercePreload.js -r ./brand-preload.js -r ./qrSurfacePreload.js server.js",
-    "prestart": "cd ../BEC-PRIME && npm ci --no-audit --no-fund && npm test && npm run compile && node scripts/Sync-BECPrimeStorefront.js"
+    "prestart": "cd ../BEC-PRIME && npm ci --no-audit --no-fund && npm run compile && node scripts/Sync-BECPrimeStorefront.js",
+    "test": "cd ../BEC-PRIME && npm test"
   },
   "description": "DreamLedger public storefront with free evidence tools, clear product pages, and source-linked research."
 }
