@@ -166,11 +166,19 @@ async function runProvisioner(options) {
       else if(row?.sku && row.state==='REVIEW_REQUIRED') existing.set(row.sku,row);
     });
   }
+  // First pass detects all duplicate SKUs. If a SKU occurs more than once,
+  // reject every occurrence instead of letting file order choose a winner.
+  const skuCounts=new Map();
+  await eachLine(input,async(record)=>{
+    const sku=record?.candidate?.sku;
+    if(typeof sku==='string' && sku) skuCounts.set(sku,(skuCounts.get(sku)||0)+1);
+  });
   const selected=[];
   const skipped=[];
   await eachLine(input,async(record,line)=>{
     const sku=record?.candidate?.sku;
     if(!sku) { skipped.push({line,state:'SKIPPED',reason:'SKU_MISSING'}); return; }
+    if((skuCounts.get(sku)||0)>1) { skipped.push({sku,line,state:'SKIPPED',reason:'DUPLICATE_SKU_ALL_OCCURRENCES_REJECTED'}); return; }
     if(existing.has(sku)) { skipped.push({sku,line,state:'SKIPPED',reason:'STATE_ALREADY_EXISTS'}); return; }
     const blockers=productBlockers(record,siloMap);
     if(blockers.length) { skipped.push({sku,line,state:'SKIPPED',reason:blockers}); return; }
