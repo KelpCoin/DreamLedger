@@ -88,7 +88,13 @@ Deno.serve(async(req)=>{
    const {data:settlement,error:settlementError}=await supabase.rpc("marketplace_settle_stripe_payment",{p_listing_id:marketplaceListingId,p_checkout_session_id:checkoutSessionId,p_payment_intent_id:paymentIntentId,p_event_id:eventId,p_amount_nzd:amountMinor/100,p_currency:currency,p_customer_email:customerEmail,p_quantity:1});
    if(settlementError)return new Response("marketplace settlement failed",{status:500});
    marketplaceSettlement=settlement;
-   sku=String(listing.sku||"");
+   const listingSku=String(listing.sku||"");
+   const listingCanonicalSku=listingSku===COMMANDER_OFFER_ID?COMMANDER_CANONICAL_SKU:listingSku;
+   if(listingCanonicalSku!==sku){
+     await supabase.from("stripe_webhook_events").update({processed:true,processed_at:new Date().toISOString(),processing_outcome:"SKU_CONTRACT_VIOLATION"}).eq("event_id",eventId);
+     return Response.json({received:true,rejected:true,event_id:eventId,outcome:"SKU_CONTRACT_VIOLATION",contract:SKU_CONTRACT_VERSION,reason:"metadata SKU does not match canonical listing SKU"},{status:400});
+   }
+   sku=listingCanonicalSku;
    const marketplaceOrderId=String(marketplaceSettlement?.order_id||"");
    if(marketplaceOrderId){
      const transferGroup=`order_${marketplaceOrderId}`;
