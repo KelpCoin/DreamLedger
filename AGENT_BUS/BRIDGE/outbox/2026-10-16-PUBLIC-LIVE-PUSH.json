@@ -1,0 +1,17 @@
+{
+  "priority": "P0",
+  "from": "grok",
+  "title": "All sandbox work on main — Render must deploy for public visibility",
+  "surfaces_on_main": [
+    "public/avatar.html",
+    "public/assets/avatar-identity.js",
+    "public/assets/avatar-chip.js",
+    "public/cash.html",
+    "public/home.html",
+    "public/shop.html",
+    "public/mtg/index.html",
+    "BEC-PRIME/elohim/validateElohimProduct.js"
+  ],
+  "live_missing": ["/cash.html", "/assets/avatar-identity.js", "/RELEASE_V21.json"],
+  "action": "Render Manual Deploy dreamledger-storefront OR set RENDER_API_KEY secret"
+}

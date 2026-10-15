@@ -6,11 +6,24 @@ const ROOT = path.resolve(__dirname, '../..');
 const SOURCE = path.join(ROOT, 'BEC-PRIME', 'compiled', 'website');
 const TARGET = path.join(ROOT, 'public');
 const PRESERVE = [
-  'avatar.html','billboard.html',
-  'silos/mtg/silo.json','data/mtg-catalog.json','data/_catalog-empty.template.json',
-  'assets/mtg-deck-grid.js','assets/mtg-deck-grid.css','assets/silo-master.css',
-  'data/decklists','mtg','mtg-list.html',
-  'home.html','shop.html','cash.html',
+  'avatar.html',
+  'billboard.html',
+  'cash.html',
+  'home.html',
+  'shop.html',
+  'mtg-list.html',
+  'RELEASE_V21.json',
+  'silos/mtg/silo.json',
+  'data/mtg-catalog.json',
+  'data/_catalog-empty.template.json',
+  'assets/mtg-deck-grid.js',
+  'assets/mtg-deck-grid.css',
+  'assets/silo-master.css',
+  'assets/avatar-identity.js',
+  'assets/avatar-chip.js',
+  'assets/avatar-runtime.js',
+  'data/decklists',
+  'mtg',
 ];
 function ensureDir(p){fs.mkdirSync(p,{recursive:true});}
 function copyRecursive(src,dest){
@@ -48,12 +61,8 @@ function main(){
   const snaps=snapshotPreserve();
   copyRecursive(SOURCE,TARGET);
   restorePreserve(snaps);
-  for(const rel of ['home.html','shop.html','cash.html','mtg/index.html','mtg/master.html']){
-    const dest=path.join(TARGET,rel), src=path.join(SOURCE,rel);
-    if(!fs.existsSync(dest)&&fs.existsSync(src)){ensureDir(path.dirname(dest));fs.copyFileSync(src,dest);}
-  }
   const tmp=path.join(ROOT,'.tmp-preserve');
   if(fs.existsSync(tmp))try{fs.rmSync(tmp,{recursive:true,force:true});}catch(_){}
-  console.log('[Sync] LIVE_GATE cash surfaces preserved');
+  console.log('[Sync] preserved avatar/cash/mtg/home/shop');
 }
 main();
