@@ -51,7 +51,12 @@ function augmentStripeBody(body) {
     source: metadata.source || lineMetadata.source || 'stripe_checkout'
   };
   for (const field of CONTRACT_FIELDS) {
-    if (values[field]) params.set('payment_intent_data[metadata][' + field + ']', clean(values[field]));
+    if (!values[field]) continue;
+    params.set('payment_intent_data[metadata][' + field + ']', clean(values[field]));
+    if (['sku_id', 'sku', 'marketplace_listing_id'].includes(field)) {
+      params.set('metadata[' + field + ']', clean(values[field]));
+      params.set('line_items[0][price_data][product_data][metadata][' + field + ']', clean(values[field]));
+    }
   }
   return formBody(params);
 }
