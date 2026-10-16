@@ -5,7 +5,7 @@
   "generated_at": null,
   "git_commit": null,
   "input_capabilities_sha256": "1bdc927bd040e03eb7d8da6a3b5b408ae788670495593b54c15a82608b0ad005",
-  "approved_offers_sha256": "ea7641f365bf9fd429d6b14b1370d60b5a389c80d2cd24490e9c9c39259a854f",
+  "approved_offers_sha256": "0a730c535af494db2a31f6b6bcf6599016e384d82d9f24a6c3074b0b1108b106",
   "source": "catalog/ip-capabilities.json",
   "approval_source": "catalog/offers/approved.json",
   "schema": "compiler/schemas/offer.schema.json",
@@ -62,5 +62,6 @@
   "approved_checkout_enabled_only_by_explicit_record": true,
   "silo_integrity": true,
   "deterministic_ids": true,
-  "deterministic_proof": true
+  "deterministic_proof": true,
+  "held_approved_offers_disabled": true
 }
