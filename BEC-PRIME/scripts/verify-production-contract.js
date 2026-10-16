@@ -64,7 +64,7 @@ if (
   errors.push('SKU_DRIFT');
 }
 
-const paymentLink = product.commercial_truth?.payment_link || '';
+const paymentLink = product.checkout?.url || product.commercial_truth?.payment_link || product.checkout_url || '';
 const featuredPaymentLink = featured.payment_link_url || '';
 const approvedPaymentLink = offer?.payment_link_url || '';
 const isStripeLink = value => typeof value === 'string'
@@ -73,7 +73,7 @@ const productGateOpen = product.status === 'published'
   && product.commercial_truth?.approval_required === false
   && product.commercial_truth?.sellable === true
   && product.checkout_available === true
-  && product.checkout?.mode === 'stripe'
+  && ['stripe', 'payment_link'].includes(product.checkout?.mode)
   && isStripeLink(paymentLink);
 const offerGateOpen = offer?.approval_required === false
   && offer?.checkout_available === true
