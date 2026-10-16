@@ -197,12 +197,54 @@ function runGauntlet(candidates, capabilities) {
   return { passed, rejected };
 }
 
+function evaluateCanonicalOffer(record, product, fulfillment) {
+  const reasons = [];
+  if (!record || !product) return { allowed: false, reason: 'canonical_product_missing' };
+  if (product.id !== record.product_id) reasons.push('canonical_product_id_mismatch');
+  if (product.status !== 'published') reasons.push('canonical_product_not_published');
+  if (product.commercial_truth?.approval_required !== false) reasons.push('canonical_product_approval_required');
+  if (product.commercial_truth?.sellable !== true) reasons.push('canonical_product_not_sellable');
+  if (product.checkout?.mode === 'disabled') reasons.push('canonical_checkout_disabled');
+  if (Object.prototype.hasOwnProperty.call(product, 'inventory') && (!Number.isFinite(Number(product.inventory)) || Number(product.inventory) < 1)) {
+    reasons.push('canonical_inventory_unavailable');
+  }
+  if (!fulfillment || fulfillment.ready !== true || fulfillment.operator_required !== false) {
+    reasons.push('canonical_fulfillment_not_ready');
+  }
+  const price = Number(product.price);
+  if (!Number.isFinite(price) || price !== Number(record.price)) reasons.push('canonical_price_mismatch');
+  if (String(product.currency || '').toUpperCase() !== String(record.currency || '').toUpperCase()) reasons.push('canonical_currency_mismatch');
+  const canonicalLink = product.commercial_truth?.payment_link || product.checkout?.url || product.checkout_url || null;
+  if (typeof record.payment_link_url !== 'string' || !record.payment_link_url.trim() || canonicalLink !== record.payment_link_url) {
+    reasons.push('canonical_payment_link_mismatch');
+  } else if (!/^https:\/\/(?:buy\.stripe\.com|checkout\.stripe\.com)\//i.test(record.payment_link_url)) {
+    reasons.push('canonical_payment_link_invalid');
+  }
+  if (record.payment_link_status !== 'ACTIVE_LIVEMODE') reasons.push('provider_link_not_verified_active');
+  return { allowed: reasons.length === 0, reason: reasons.length ? reasons.join(';') : null, reasons };
+}
+
+function canonicalProductGate(record) {
+  if (!record || typeof record.product_id !== 'string' || !/^[A-Za-z0-9._-]+$/.test(record.product_id)) {
+    return { allowed: false, reason: 'canonical_product_id_invalid', product: null };
+  }
+  const productPath = path.join(ROOT, 'catalog', 'products', record.product_id + '.json');
+  if (!fs.existsSync(productPath)) return { allowed: false, reason: 'canonical_product_missing', product: null };
+  const product = JSON.parse(fs.readFileSync(productPath, 'utf8'));
+  const registryPath = path.join(ROOT, 'fulfillment', 'PRODUCT-FULFILLMENT-REGISTRY.json');
+  if (!fs.existsSync(registryPath)) return { allowed: false, reason: 'fulfillment_registry_missing', product };
+  const registry = JSON.parse(fs.readFileSync(registryPath, 'utf8'));
+  const entries = registry && registry.entries && typeof registry.entries === 'object' ? registry.entries : {};
+  const fulfillment = entries[record.offer_id] || entries[record.product_id] || entries[product.id] || null;
+  return { ...evaluateCanonicalOffer(record, product, fulfillment), product };
+}
+
 function compileApprovedOffers(records, capabilities, generatedOffers) {
   const byId = new Map(capabilities.map(c => [c.id, c]));
   const generatedIds = new Set(generatedOffers.map(o => o.offer_id));
   const approved = [];
   const errors = [];
-  const required = ['offer_id', 'capability_id', 'silo', 'name', 'problem', 'input', 'output', 'delivery_mechanism', 'deliverable', 'target_buyer', 'eligibility', 'constraints', 'price', 'currency', 'refund_rules', 'payment_adapter', 'checkout_route', 'proof_of_delivery', 'verification_rules', 'provenance', 'approved_by', 'approved_at'];
+  const required = ['offer_id', 'product_id', 'capability_id', 'silo', 'name', 'problem', 'input', 'output', 'delivery_mechanism', 'deliverable', 'target_buyer', 'eligibility', 'constraints', 'price', 'currency', 'refund_rules', 'payment_adapter', 'checkout_route', 'proof_of_delivery', 'verification_rules', 'provenance', 'approved_by', 'approved_at'];
 
   for (const record of records) {
     const missing = required.filter(field => record[field] === undefined || record[field] === null || record[field] === '');
@@ -211,29 +253,40 @@ function compileApprovedOffers(records, capabilities, generatedOffers) {
     if (!capability) { errors.push({ offer_id: record.offer_id, errors: ['unknown_capability'] }); continue; }
     if (record.silo !== capability.silo) { errors.push({ offer_id: record.offer_id, errors: ['silo_mismatch'] }); continue; }
     if (record.currency !== 'NZD' || typeof record.price !== 'number' || record.price <= 0) { errors.push({ offer_id: record.offer_id, errors: ['invalid_price'] }); continue; }
-    if (record.approved_by !== 'operator') { errors.push({ offer_id: record.offer_id, errors: ['explicit_operator_approval_required'] }); continue; }
+    if (record.approved_by !== 'operator') { errors.push({ offer_id: record.offer_id, errors: ['explicit_operator_approval_required'] }); continue;
+    }
     if (approved.some(o => o.offer_id === record.offer_id)) { errors.push({ offer_id: record.offer_id, errors: ['duplicate_approved_offer_id'] }); continue; }
     if (generatedIds.has(record.offer_id)) {
-      // Explicit operator approval intentionally overrides the generated, locked candidate
-      // with the same offer ID. The approved record becomes the sole canonical public offer.
+      // The explicit approval record replaces the generated candidate identity,
+      // but it never overrides the independent product and fulfillment gates.
     }
 
+    let gate;
+    try { gate = canonicalProductGate(record); }
+    catch (error) { gate = { allowed: false, reason: 'canonical_gate_error:' + String(error.message || error).slice(0, 180) }; }
+    const enabled = gate.allowed === true;
     const offer = {
       ...record,
       version: 'offer-v1',
       pricing_strategy: record.pricing_strategy || 'fixed',
       pricing_tier: record.pricing_tier || 'snapshot',
-      approval_required: false,
-      checkout_available: true,
-      status: 'VERIFIED_AVAILABLE'
+      approval_required: !enabled,
+      checkout_available: enabled,
+      status: enabled ? 'VERIFIED_AVAILABLE' : (String(gate.reason || '').includes('payment_link') ? 'HELD_STRIPE_LINK_DRIFT' : 'HELD_CANONICAL_PRODUCT_GATE'),
+      checkout_disabled_reason: enabled ? null : (gate.reason || 'canonical_product_gate_closed')
     };
+    if (!enabled) {
+      // Public/runtime products must not leak historical payment URLs when held.
+      offer.payment_link_url = null;
+      offer.checkout_route = record.silo === 'mtg' ? '/mtg/' : (record.silo === 'dreamledger' ? '/billboard' : '/shop.html');
+      offer.fulfillment_route = null;
+    }
     delete offer.approved_by;
     delete offer.approved_at;
     approved.push(offer);
   }
   return { approved, errors };
 }
-
 function byCapability(capabilities, id) {
   return capabilities.find(c => c.id === id);
 }
@@ -255,7 +308,7 @@ function compile() {
     schema: 'BEC-PRIME/OFFER-CATALOG/v1',
     compiler: OFFER_VERSION,
     source: 'catalog/ip-capabilities.json',
-    approval_rule: 'All generated offers remain approval-gated and checkout-disabled until explicitly approved in catalog/offers/approved.json.',
+    approval_rule: 'Explicit operator approval identifies a candidate only; checkout opens only when the canonical product is published, explicitly sellable, link-matched, and backed by ready zero-human fulfillment.',
     counts: {
       capabilities: capabilities.length,
       candidates: generated.candidates.length,
@@ -285,7 +338,8 @@ function compile() {
     rejected_offer_ids: allRejected.map(item => item.offer_id || item.candidate?.offer_id || item.capability_id || null),
     approval_required_for_generated_offers: gauntlet.passed.every(o => o.approval_required === true),
     checkout_disabled_for_generated_offers: gauntlet.passed.every(o => o.checkout_available === false),
-    approved_checkout_enabled_only_by_explicit_record: approvedResult.approved.every(o => o.checkout_available === true && o.approval_required === false),
+    approved_checkout_enabled_only_by_canonical_product_and_fulfillment_gate: approvedResult.approved.every(o => o.checkout_available === false ? (o.approval_required === true && o.payment_link_url == null && o.fulfillment_route == null && String(o.status).startsWith('HELD_')) : (o.checkout_available === true && o.approval_required === false && o.status === 'VERIFIED_AVAILABLE' && typeof o.payment_link_url === 'string')),
+    held_approved_records_have_no_public_payment_route: approvedResult.approved.every(o => o.checkout_available !== false || (o.payment_link_url == null && o.fulfillment_route == null)),
     silo_integrity: finalOffers.every(o => byCapability(capabilities, o.capability_id)?.silo === o.silo),
     deterministic_ids: new Set(finalOffers.map(o => o.offer_id)).size === finalOffers.length,
     deterministic_proof: true
@@ -294,7 +348,7 @@ function compile() {
   return { ...deterministicManifest, candidates: generated.candidates, passed: finalOffers, rejected: allRejected };
 }
 
-module.exports = { compile, loadCapabilities, loadApprovedOffers, generateCandidates, runGauntlet, compileApprovedOffers, eligibility };
+module.exports = { compile, loadCapabilities, loadApprovedOffers, generateCandidates, runGauntlet, compileApprovedOffers, evaluateCanonicalOffer, canonicalProductGate, eligibility };
 
 if (require.main === module) {
   const result = compile();
