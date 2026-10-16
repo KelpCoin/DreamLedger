@@ -4,6 +4,7 @@ param()
 
 $ErrorActionPreference = 'Stop'
 $root = Join-Path $PSScriptRoot '..'
+$repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
 $offersFile = Join-Path $root 'catalog\offers\offers.json'
 $approvedFile = Join-Path $root 'catalog\offers\approved.json'
 $capabilitiesFile = Join-Path $root 'catalog\ip-capabilities.json'
