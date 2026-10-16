@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const { validateCatalogProduct } = require('../elohim/validateElohimProduct');
+const { evaluateCanonicalProduct } = require('../runtime/canonicalCheckoutGate');
 
 const ROOT = path.join(__dirname, '..');
 const PRODUCT_DIR = path.join(ROOT, 'catalog', 'products');
@@ -63,6 +64,7 @@ function compile() {
   const offers = products.map(p => {
     const schema = validateCatalogProduct(p);
     const f = fulfillmentReady(p, registry);
+    const canonicalGate = evaluateCanonicalProduct(p, registry, path.join(ROOT, '..'));
     const resolvedPrice = resolvePriceUnit(p);
     let price;
     try {
@@ -87,7 +89,7 @@ function compile() {
     const paymentLink = p.commercial_truth?.payment_link || p.checkout?.url || p.checkout_url || null;
     const validStripePaymentLink = typeof paymentLink === 'string'
       && /^https:\/\/(?:buy\.stripe\.com|checkout\.stripe\.com)\//i.test(paymentLink);
-    const checkoutAvailable = schema.ok
+    const checkoutAvailable = schema.ok && canonicalGate.allowed
       && ['mtg', 'crypto', 'media_music', 'digital_products'].includes(p.silo)
       && p.status === 'published'
       && p.commercial_truth?.approval_required === false
@@ -99,9 +101,13 @@ function compile() {
 
     let status;
     if (!schema.ok) status = 'QUARANTINED_SCHEMA';
-    else if (checkoutAvailable) status = 'VERIFIED_AVAILABLE';
-    else if (p.status === 'published') status = 'QUARANTINED_NO_FULFILLMENT';
-    else status = 'unavailable';
+    else if (p.status !== 'published') status = 'unavailable';
+    else if (!['mtg', 'crypto', 'media_music', 'digital_products'].includes(p.silo)) status = 'QUARANTINED_SILO';
+    else if (!f.ready) status = 'QUARANTINED_NO_FULFILLMENT';
+    else if (!validStripePaymentLink) status = 'HELD_STRIPE_LINK_MISSING';
+    else if (canonicalGate.reasons.includes('product_gauntlet_not_pass') || canonicalGate.reasons.includes('test_mode_chain_not_pass') || canonicalGate.reasons.includes('product_checkout_proof_missing_or_invalid')) status = 'HELD_GAUNTLET_PROOF';
+    else if (!checkoutAvailable) status = 'HELD_CANONICAL_PRODUCT_GATE';
+    else status = 'VERIFIED_AVAILABLE';
 
     return {
       offer_id: p.offer_id || p.id,
@@ -126,7 +132,7 @@ function compile() {
       pricing_strategy: 'fixed',
       payment_adapter: 'stripe',
       checkout_route: p.checkout?.mode === 'payment_link' ? 'stripe_payment_link' : '/api/offer-checkout/create',
-      checkout_url: validStripePaymentLink ? paymentLink : null,
+      checkout_url: checkoutAvailable ? paymentLink : null,
       approval_required: p.commercial_truth?.approval_required === true,
       checkout_available: checkoutAvailable,
       status,
@@ -143,7 +149,7 @@ function compile() {
   fs.mkdirSync(OUT_DIR, { recursive: true });
   const manifest = {
     schema: 'BEC-PRIME/PRODUCT-OFFER-CATALOG/v3',
-    compiler: 'product-compiler-v4-schema-gated',
+    compiler: 'product-compiler-v5-gauntlet-proof-gated',
     source: 'catalog/products/*.json',
     fulfillment_registry: 'fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json',
     count: offers.length,
@@ -159,13 +165,14 @@ function compile() {
   const proof = {
     type: 'dreamledger-product-compilation-proof',
     status: 'PASS',
-    compiler: 'product-compiler-v4-schema-gated',
+    compiler: 'product-compiler-v5-gauntlet-proof-gated',
     source_hash: manifest.source_hash,
     price_contract: manifest.price_contract,
     implicit_legacy_price_unit_count: implicitLegacyCount,
     product_count: products.length,
     checkoutable_product_ids: offers.filter(x => x.checkout_available).map(x => x.offer_id),
-    quarantined_published_product_ids: offers.filter(x => x.status === 'QUARANTINED_NO_FULFILLMENT').map(x => x.offer_id),
+    quarantined_published_product_ids: offers.filter(x => String(x.status).startsWith('QUARANTINED_')).map(x => x.offer_id),
+    held_published_product_ids: offers.filter(x => String(x.status).startsWith('HELD_')).map(x => x.offer_id),
     quarantined_schema_product_ids: schemaQuarantineIds
   };
   fs.writeFileSync(PROOF_FILE, JSON.stringify(proof, null, 2) + '\n', 'utf8');
