@@ -104,6 +104,7 @@ jobs:
           node BEC-PRIME/scripts/verify-render-stripe-webhook-route.js
           node BEC-PRIME/compiler/compile-public-agent-products.js
           node --test BEC-PRIME/compiler/compile-public-agent-products.test.js
+          node --test BEC-PRIME/compiler/OfferCompiler.gate.test.js
           node --test BEC-PRIME/routes/tollRoad.local-heartbeat.test.js
           node --check scripts/validate-customer-facing-artifact.js
           node --test scripts/validate-customer-facing-artifact.test.js
