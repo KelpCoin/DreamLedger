@@ -1,0 +1,277 @@
+{
+  "schema": "dreamledger/canonical-economic-event-contract/v1",
+  "title": "Canonical Economic Event Contract",
+  "status": "binding",
+  "enforcement": "fail_closed",
+  "branch_scope": "phase-5/prep — additive only; no activation; no merge to main until Phases 0–4 fossils exist",
+  "purpose": "One shared event model for payment intent, settlement, order attribution, fulfilment, delivery, and independent verification across all silos and platform offers. A successful checkout or Stripe redirect is never verified revenue.",
+  "reconciles_with": [
+    "existing economic-event schema on main (extend and enforce; do not fork a competing system)",
+    "dreamledger/commerce-sku-contract/v1",
+    "dreamledger/commerce-settlement-owner-contract/v1",
+    "dreamledger/verified-supply-contract/v1",
+    "fulfillment registry",
+    "cross-silo revenue attribution rules"
+  ],
+  "non_goals": [
+    "Does not invent supply",
+    "Does not activate checkout",
+    "Does not replace verified-supply decisions",
+    "Does not allow dual settlement owners"
+  ],
+
+  "core_principle": {
+    "checkout_is_not_revenue": true,
+    "redirect_is_not_settlement": true,
+    "order_row_is_not_fulfilment": true,
+    "fulfilment_record_is_not_delivery": true,
+    "verified_revenue_requires": [
+      "settlement event with independent payment evidence",
+      "order attributed under single CSO",
+      "fulfilment event linked to that order",
+      "delivery evidence where the product type requires it",
+      "no double-count of the same payment identity"
+    ]
+  },
+
+  "event_types": {
+    "payment_intent": {
+      "description": "Buyer started checkout or intent was created. Not revenue.",
+      "may_create_order": false,
+      "counts_as_verified_revenue": false
+    },
+    "settlement": {
+      "description": "Payment captured/settled by the processor. Required before verified revenue.",
+      "may_create_order": true,
+      "counts_as_verified_revenue": false,
+      "note": "Settlement alone is not fulfilment or delivery."
+    },
+    "order_attributed": {
+      "description": "CSO created exactly one order for a settled payment with canonical SKU and silo attribution.",
+      "requires_prior": ["settlement"],
+      "counts_as_verified_revenue": false
+    },
+    "fulfilment": {
+      "description": "Fulfilment job admitted and/or completed for the order.",
+      "requires_prior": ["order_attributed"],
+      "counts_as_verified_revenue": false
+    },
+    "delivery": {
+      "description": "Buyer-controlled delivery evidence (artifact, receipt, shipment, access grant).",
+      "requires_prior": ["fulfilment"],
+      "counts_as_verified_revenue": false
+    },
+    "verification": {
+      "description": "Independent check that the chain is complete and consistent. Only then may totals include this payment.",
+      "requires_prior": ["settlement", "order_attributed"],
+      "recommended_prior": ["fulfilment", "delivery"],
+      "counts_as_verified_revenue": true,
+      "only_when": "status == VERIFIED and no compensating reversal"
+    },
+    "reversal": {
+      "description": "Refund, chargeback, or void. Must compensate attributed totals.",
+      "counts_as_verified_revenue": false,
+      "effect": "net out prior verification for the same payment identity"
+    }
+  },
+
+  "envelope": {
+    "description": "Minimum fields on every economic event. Event-type-specific fields are additive.",
+    "required_fields": {
+      "schema_version": { "const": "1.0" },
+      "event_id": {
+        "type": "string",
+        "description": "Stable unique id for this event record (not necessarily Stripe event.id)."
+      },
+      "event_type": {
+        "enum": [
+          "payment_intent",
+          "settlement",
+          "order_attributed",
+          "fulfilment",
+          "delivery",
+          "verification",
+          "reversal"
+        ]
+      },
+      "payment_identity": {
+        "type": "string",
+        "description": "Durable key for the payment (e.g. Stripe pi_/cs_/charge id or equivalent). Used for idempotency and anti double-count."
+      },
+      "processor_event_id": {
+        "type": "string",
+        "required": false,
+        "description": "Stripe event.id or equivalent when applicable; primary dedup key at CSO ingress."
+      },
+      "silo_id": {
+        "type": "string",
+        "description": "silo_slug or 'platform' for non-silo offers."
+      },
+      "sku_id": {
+        "type": "string",
+        "description": "Canonical SKU under commerce-sku-contract/v1."
+      },
+      "order_id": {
+        "type": "string",
+        "required": false,
+        "description": "Required once order_attributed exists; shared across linked events for the same order."
+      },
+      "job_id": {
+        "type": "string",
+        "required": false,
+        "description": "Fulfilment job id when admitted."
+      },
+      "amount": {
+        "type": "integer",
+        "description": "Minor units (e.g. cents). Required on settlement, order_attributed, verification, reversal."
+      },
+      "currency": {
+        "type": "string",
+        "description": "ISO currency, lowercase or uppercase consistently (prefer nzd)."
+      },
+      "status": {
+        "enum": ["UNVERIFIED", "VERIFIED", "REJECTED", "DUPLICATE", "REVERSED", "HOLD"]
+      },
+      "source_refs": {
+        "type": "array",
+        "items": "string",
+        "description": "Processor ids, fossil paths, artifact hashes, delivery refs."
+      },
+      "occurred_at": { "type": "string", "format": "date-time" },
+      "recorded_at": { "type": "string", "format": "date-time" },
+      "contract_version": {
+        "const": "dreamledger/canonical-economic-event-contract/v1"
+      }
+    },
+    "illustrative_shape": {
+      "schema_version": "1.0",
+      "event_id": "ee-...",
+      "event_type": "settlement",
+      "payment_identity": "pi_...",
+      "processor_event_id": "evt_...",
+      "silo_id": "digital_products",
+      "sku_id": "COMMANDER-DECK-DIAGNOSTIC-001",
+      "order_id": null,
+      "amount": 2900,
+      "currency": "nzd",
+      "status": "UNVERIFIED",
+      "source_refs": [],
+      "occurred_at": "2026-10-16T00:00:00Z",
+      "recorded_at": "2026-10-16T00:00:00Z",
+      "contract_version": "dreamledger/canonical-economic-event-contract/v1"
+    }
+  },
+
+  "idempotency": {
+    "processor_event_id": "At CSO ingress, event.id must be deduplicated. Second delivery = DUPLICATE, no second order.",
+    "payment_identity": "At most one open order and one admitted fulfilment job per settled payment_identity unless an explicit multi-job contract says otherwise.",
+    "verification": "The same payment_identity may contribute to verified revenue totals only once; reversals net out.",
+    "job_ledger": "Admit job only if not already admitted for that payment_identity / job key."
+  },
+
+  "linkage_rules": [
+    "settlement.payment_identity == order_attributed.payment_identity",
+    "order_attributed.order_id is the sole order id for downstream fulfilment and delivery events",
+    "fulfilment.order_id and delivery.order_id must match order_attributed.order_id",
+    "verification must reference the same payment_identity and order_id",
+    "No event may change silo_id or sku_id after order_attributed without a compensating correction fossil"
+  ],
+
+  "cso_ingress_sequence": [
+    "Verify Stripe signature on raw body",
+    "Deduplicate processor_event_id",
+    "Resolve canonical SKU (sku contract)",
+    "Confirm payment settled",
+    "Attribute silo via SKU → silo registry",
+    "Create at most one order (order_attributed)",
+    "Admit at most one fulfilment job",
+    "Emit fossils for each step outcome"
+  ],
+
+  "fail_closed_rules": [
+    {
+      "id": "NO_CSO",
+      "condition": "Event processed by non-owner endpoint attempting order creation",
+      "decision": "REJECTED"
+    },
+    {
+      "id": "SKU_VIOLATION",
+      "condition": "No allowed SKU key or unknown SKU",
+      "decision": "REJECTED"
+    },
+    {
+      "id": "DOUBLE_ORDER",
+      "condition": "Second order for same payment_identity",
+      "decision": "DUPLICATE — no write"
+    },
+    {
+      "id": "FULFILMENT_WITHOUT_SETTLEMENT",
+      "condition": "Fulfilment or delivery without prior settlement + order_attributed",
+      "decision": "HOLD / REJECTED"
+    },
+    {
+      "id": "REVENUE_WITHOUT_CHAIN",
+      "condition": "Public or Discord total includes amount without verification event",
+      "decision": "FORBIDDEN"
+    },
+    {
+      "id": "CHECKOUT_AS_REVENUE",
+      "condition": "payment_intent or redirect treated as verified revenue",
+      "decision": "FORBIDDEN"
+    }
+  ],
+
+  "public_and_discord": {
+    "may_report": [
+      "counts and sums derived only from verification events with status VERIFIED, net of reversals",
+      "per-silo breakdowns from the same events",
+      "explicit zeros when no verification events exist"
+    ],
+    "must_not_report": [
+      "payment_intent counts as revenue",
+      "checkout starts or abandoned sessions as revenue",
+      "unattributed settlements",
+      "catalogue published counts as sales"
+    ]
+  },
+
+  "required_tests": [
+    {
+      "id": "replayed_processor_event",
+      "expect": "second delivery DUPLICATE, single order"
+    },
+    {
+      "id": "fulfilment_without_settlement",
+      "expect": "REJECTED or HOLD"
+    },
+    {
+      "id": "missing_canonical_sku",
+      "expect": "REJECTED SKU_VIOLATION"
+    },
+    {
+      "id": "two_endpoints_same_event",
+      "expect": "only CSO creates order"
+    },
+    {
+      "id": "verification_without_order",
+      "expect": "cannot count as verified revenue"
+    },
+    {
+      "id": "reversal_nets_total",
+      "expect": "verified total decreases by reversed amount"
+    },
+    {
+      "id": "cross_silo_same_payment",
+      "expect": "single silo attribution only; no double-count"
+    }
+  ],
+
+  "adoption": {
+    "first_commit_on": "phase-5/prep (after verified-supply contract)",
+    "next_commits": [
+      "product-envelope tightening",
+      "executable adversarial tests wiring both contracts into gates"
+    ],
+    "production": "Not binding on main until reconciled with live CSO path, tested, and Phases 0–4 fossils exist."
+  }
+}
