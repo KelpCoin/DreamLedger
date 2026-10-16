@@ -51,7 +51,7 @@
    if(m){if(m.accent)document.documentElement.style.setProperty('--silo-accent',m.accent);if(m.accent_bright)document.documentElement.style.setProperty('--silo-accent-bright',m.accent_bright);if(m.short&&document.getElementById('navShort'))document.getElementById('navShort').textContent=m.short;if(m.tagline&&document.getElementById('tagline'))document.getElementById('tagline').textContent=m.tagline;}
    const decks=(Array.isArray(data.products)?data.products:[]).filter(isDeck);
    if(!decks.length){status.textContent='No deck listings are present in the canonical public catalogue.';grid.innerHTML='';return;}
-   const canPurchase=p=>p.status==='published'&&p.checkout_available===true&&typeof p.checkout_url==='string'&&/^https:\/\/(?:buy|checkout)\.stripe\.com\//i.test(p.checkout_url);
+   const canPurchase=p=>p.status==='published'&&p.checkout_available===true&&p.commercial_truth?.approval_required===false&&p.commercial_truth?.sellable===true&&p.fulfillment?.ready===true&&p.gauntlet?.checkout_authorized===true&&typeof p.checkout_url==='string'&&/^https:\/\/(?:buy|checkout)\.stripe\.com\//i.test(p.checkout_url);
    const purchasable=decks.filter(canPurchase);
    status.textContent=decks.length+' deck listing'+(decks.length===1?'':'s')+' from the canonical catalogue. '+(purchasable.length?'Only explicitly verified listings may be purchased.':'Checkout is currently held for these listings.');
    grid.innerHTML=decks.map(p=>{
