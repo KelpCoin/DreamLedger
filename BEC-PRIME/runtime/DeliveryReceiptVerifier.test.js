@@ -68,7 +68,9 @@ function fixture() {
   }
   const options = {
     expectedSellerPublicKey: keys.publicKey,
-    // Keep the trusted quote independent from the mutable receipt object.\n    // Sharing this reference would let a re-signed receipt rewrite its own authority.\n    expectedRequirements: JSON.parse(JSON.stringify(requirements)),
+    // Keep the trusted quote independent from the mutable receipt object.
+    // Sharing this reference would let a re-signed receipt rewrite its own authority.
+    expectedRequirements: JSON.parse(JSON.stringify(requirements)),
     expectedRequest: request,
     responseBody: body,
     verifySettlement: async payment => payment.settlement_status === 'SETTLED' && Boolean(payment.tx_hash),
