@@ -18,13 +18,15 @@ local refill_per_sec = tonumber(ARGV[4])
 local wanted_tokens = tonumber(ARGV[5])
 local reserve_micro = tonumber(ARGV[6])
 local daily_limit = tonumber(ARGV[7])
-local ttl = tonumber(ARGV[8])
+local bucket_ttl = tonumber(ARGV[8])
+local budget_ttl = tonumber(ARGV[9])
+local reservation_ttl = tonumber(ARGV[10])
 local tokens = tonumber(redis.call('HGET', KEYS[1], 'tokens')) or capacity
 local last = tonumber(redis.call('HGET', KEYS[1], 'last_ms')) or now
 tokens = math.min(capacity, tokens + math.max(0, now - last) * refill_per_sec / 1000)
 if tokens < wanted_tokens then
   redis.call('HSET', KEYS[1], 'tokens', tostring(tokens), 'last_ms', tostring(now))
-  redis.call('EXPIRE', KEYS[1], ttl)
+  redis.call('EXPIRE', KEYS[1], bucket_ttl)
   local wait_ms = math.ceil((wanted_tokens - tokens) / refill_per_sec * 1000)
   return {'RATE_LIMITED', tostring(wait_ms)}
 end
@@ -38,7 +40,7 @@ tokens = tokens - wanted_tokens
 redis.call('HSET', KEYS[1], 'tokens', tostring(tokens), 'last_ms', tostring(now))
 redis.call('EXPIRE', KEYS[1], ttl)
 redis.call('INCRBY', KEYS[2], reserve_micro)
-redis.call('EXPIRE', KEYS[2], ttl)
+redis.call('EXPIRE', KEYS[2], budget_ttl)
 local reservation = cjson.encode({
   status = 'RESERVED',
   request_hash = ARGV[1],
@@ -46,7 +48,7 @@ local reservation = cjson.encode({
   reserved_tokens = wanted_tokens,
   daily_limit_micro = daily_limit
 })
-redis.call('SET', KEYS[3], reservation, 'EX', ttl)
+redis.call('SET', KEYS[3], reservation, 'EX', reservation_ttl)
 return {'RESERVED', tostring(tokens), tostring(used + reserve_micro)}
 `;
 
@@ -82,7 +84,9 @@ if not raw then return {'RESERVATION_MISSING'} end
 local p = cjson.decode(raw)
 if p.status == 'CANCELLED' then return {'CANCELLED'} end
 if p.status ~= 'RESERVED' then return {'INVALID_STATE', p.status} end
-redis.call('INCRBY', KEYS[2], -tonumber(p.reserved_micro))
+if redis.call('EXISTS', KEYS[2]) == 1 then
+  redis.call('INCRBY', KEYS[2], -tonumber(p.reserved_micro))
+end
 local tokens = tonumber(redis.call('HGET', KEYS[1], 'tokens')) or 0
 tokens = math.min(tonumber(ARGV[1]), tokens + tonumber(p.reserved_tokens))
 redis.call('HSET', KEYS[1], 'tokens', tostring(tokens))
@@ -212,7 +216,7 @@ class RedisAtomicBudgetStore {
       arguments: [
         input.requestHash, String(input.nowMs), String(input.bucketCapacityTokens),
         String(input.refillTokensPerSecond), String(input.reservedTokens),
-        String(input.reservedMicroNzd), String(input.dailyLimitMicroNzd), '172800'
+        String(input.reservedMicroNzd), String(input.dailyLimitMicroNzd), '172800', '259200', '172800'
       ]
     });
     const status = String(result?.[0] || 'STORE_ERROR');
