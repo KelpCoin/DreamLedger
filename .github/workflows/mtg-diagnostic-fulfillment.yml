@@ -26,11 +26,14 @@ jobs:
           $p = Get-Content BEC-PRIME/catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json -Raw | ConvertFrom-Json
           $f = Get-Content BEC-PRIME/fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json -Raw | ConvertFrom-Json
           if ($p.price -ne 29) { throw 'Commander diagnostic price contract failed' }
-          if ($p.fulfillment.mode -ne 'automated') { throw 'Automated fulfillment contract failed' }
-          if ($p.fulfillment.operator_required -ne $false) { throw 'Operator-free fulfillment contract failed' }
-          if ($f.entries.'COMMANDER-DECK-DIAGNOSTIC-001'.operator_required -ne $false) { throw 'Registry still requires operator' }
-          if ($f.entries.'COMMANDER-DECK-DIAGNOSTIC-001'.ready -ne $true) { throw 'Registry is not ready' }
-          Write-Host '[PASS] MTG diagnostic commercial and fulfillment contract'
+          if ($p.status -ne 'held') { throw 'Commander diagnostic must remain held until evidence gates pass' }
+          if ($p.checkout.mode -ne 'disabled') { throw 'Held Commander diagnostic must not expose checkout' }
+          if ($p.commercial_truth.sellable -ne $false -or $p.commercial_truth.approval_required -ne $true) { throw 'Commander diagnostic commercial hold contract failed' }
+          if ($p.fulfillment.mode -ne 'disabled') { throw 'Unverified fulfillment must remain disabled' }
+          if ($p.fulfillment.operator_required -ne $true) { throw 'Held fulfillment must not claim zero-human readiness' }
+          if ($f.entries.'COMMANDER-DECK-DIAGNOSTIC-001'.operator_required -ne $true) { throw 'Registry must preserve the fulfillment hold' }
+          if ($f.entries.'COMMANDER-DECK-DIAGNOSTIC-001'.ready -ne $false) { throw 'Registry must not claim fulfillment readiness before proof' }
+          Write-Host '[PASS] MTG diagnostic remains safely held pending economic proof'
       - name: Compile MTG surface
         run: node BEC-PRIME/compiler/MTGCatalogCompiler.js
       - name: Verify CUBE MTG reskin
