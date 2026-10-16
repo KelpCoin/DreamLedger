@@ -27,7 +27,7 @@ ACTIVE_COMMERCE_PAGES = [
     *(p.read_text(encoding="utf-8") for p in BUY_PAGES),
     *(p.read_text(encoding="utf-8") for p in PRODUCT_PAGES),
 ]
-DIRECT_STRIPE_URL = re.compile(r"https://(?:buy|checkout)\\.stripe\\.com/", re.I)
+DIRECT_STRIPE_URL = re.compile(r"https://(?:buy|checkout)\.stripe\.com/", re.I)
 HELD_SKUS = [
     "COMMANDER-DECK-DIAGNOSTIC-001",
     "DREAMLEDGER-BILLBOARD-FOUNDING-001",
@@ -55,7 +55,7 @@ checks = {
     "no public secret literals": not re.search(r"(?:sk_live_[A-Za-z0-9]+|whsec_[A-Za-z0-9]+)", HOME + TRUST + ABOUT),
     "active commerce surfaces contain no direct Stripe checkout URLs": not any(DIRECT_STRIPE_URL.search(page) for page in ACTIVE_COMMERCE_PAGES),
     "static buy routes never redirect directly to Stripe": not any(DIRECT_STRIPE_URL.search(page.read_text(encoding="utf-8")) for page in BUY_PAGES),
-    "product landing pages have no direct buy route": not any(re.search(r'href=["']/buy/', page.read_text(encoding="utf-8"), re.I) for page in PRODUCT_PAGES),
+    "product landing pages have no direct buy route": not any(re.search(r"""href=["\']/buy/""", page.read_text(encoding="utf-8"), re.I) for page in PRODUCT_PAGES),
     "canonical held SKUs have checkout disabled and no payment link": all(
         product.get("status") in {"held", "review_required"}
         and product.get("checkout", {}).get("mode") == "disabled"
