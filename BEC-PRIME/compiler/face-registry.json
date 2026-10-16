@@ -1,11 +1,27 @@
 {
   "schema": "BEC-PRIME/FACE-REGISTRY/v1",
-  "rule": "Faces are emitted by WebsiteFaceCompiler from this registry + live_checkout_routes. Hand-edited public HTML is legacy.",
+  "rule": "Public checkout links are emitted only when a route is explicitly authorized, its canonical product is published/sellable, its live Stripe URL matches, and the canonical fulfillment registry proves ready=true with operator_required=false. Missing evidence fails closed.",
   "nav": [
-    {"label": "Pay", "href": "/money.html"},
-    {"label": "Shop", "href": "/shop.html"},
-    {"label": "Magic", "href": "/mtg/"},
-    {"label": "Avatar", "href": "/avatar.html"}
+    {
+      "label": "Compare quotes",
+      "href": "/quote-comparison/"
+    },
+    {
+      "label": "Truth Oracle",
+      "href": "/truth-oracle.html"
+    },
+    {
+      "label": "Trust",
+      "href": "/trust/"
+    },
+    {
+      "label": "Pay",
+      "href": "/money.html"
+    },
+    {
+      "label": "Magic",
+      "href": "/mtg/"
+    }
   ],
   "faces": [
     {
@@ -14,32 +30,42 @@
       "out": "money.html",
       "title": "Pay · DreamLedger NZ",
       "eyebrow": "Compiler exhaust · Stripe · NZD",
-      "headline": "Pay. Get a receipt. System validated.",
-      "lead": "Generated from the face registry and live checkout routes. No revenue claimed without settlement.",
+      "headline": "Verified offers only",
+      "lead": "Only offers with an authorized checkout and verified automated fulfillment are listed here.",
       "cta_source": "live_checkout_routes",
-      "primary_offer_ids": [
-        "LIVE-DREAMMEEZ-SUPPORTER-SPROUT",
-        "LIVE-DOC-EXTRACT-50",
-        "LIVE-SUPPLIER-CHECK-50",
-        "LIVE-COMMANDER-DECK-DIAGNOSTIC-001",
-        "LIVE-SELLER-PROFIT-AUDIT-001"
-      ]
+      "primary_offer_ids": []
     },
     {
       "id": "home",
       "route": "/",
       "out": "home.html",
       "title": "DreamLedger",
-      "eyebrow": "BECK compiler · evidence · Stripe",
-      "headline": "Build the factory. Get paid.",
-      "lead": "Free tools stay free. Paid surfaces are compiler-emitted from structured offers. Validated by receipts.",
+      "eyebrow": "Evidence-first commerce",
+      "headline": "Make the next decision",
+      "lead": "Free tools help compare supplier quotes and organize evidence. Paid offers appear only when checkout and delivery paths are verified.",
       "cta_source": "live_checkout_routes",
-      "primary_offer_ids": ["LIVE-DREAMMEEZ-SUPPORTER-SPROUT"],
+      "primary_offer_ids": [],
       "secondary_links": [
-        {"label": "All cash offers", "href": "/money.html"},
-        {"label": "Shop", "href": "/shop.html"},
-        {"label": "Magic", "href": "/mtg/"},
-        {"label": "Avatar", "href": "/avatar.html"}
+        {
+          "label": "Compare supplier quotes",
+          "href": "/quote-comparison/"
+        },
+        {
+          "label": "Truth Oracle",
+          "href": "/truth-oracle.html"
+        },
+        {
+          "label": "Trust & verification",
+          "href": "/trust/"
+        },
+        {
+          "label": "Magic marketplace",
+          "href": "/mtg/"
+        },
+        {
+          "label": "Cash offers",
+          "href": "/money.html"
+        }
       ]
     },
     {
@@ -48,10 +74,10 @@
       "out": "shop.html",
       "title": "Shop · DreamLedger NZ",
       "eyebrow": "Compiler exhaust · checkout-ready",
-      "headline": "Pay for real work.",
-      "lead": "Lowest price first. Every button uses a live Stripe route from the registry.",
+      "headline": "Offers with verified delivery",
+      "lead": "Paid products appear only after their product, Stripe route, and fulfillment contract pass the commercial gate.",
       "cta_source": "live_checkout_routes_sorted",
-      "banner_offer_id": "LIVE-DREAMMEEZ-SUPPORTER-SPROUT"
+      "banner_offer_id": null
     },
     {
       "id": "start",
@@ -59,12 +85,29 @@
       "out": "start.html",
       "title": "Start · DreamLedger",
       "eyebrow": "Compiler exhaust · onboarding",
-      "headline": "Three doors. One receipt.",
-      "lead": "Pick a path. Money validates the system. Magic and avatar are surfaces on the same spine.",
+      "headline": "Start with the right tool",
+      "lead": "Use free tools first. Paid checkout appears only when its delivery path is verified.",
       "doors": [
-        {"label": "Pay from NZ$3.99", "href": "/money.html", "blurb": "Settled Stripe — economic validation"},
-        {"label": "Magic silo", "href": "/mtg/", "blurb": "Singles and decks — see the cards"},
-        {"label": "Avatar studio", "href": "/avatar.html", "blurb": "Cosmetics that follow you to Phinhaven"}
+        {
+          "label": "Verified offers",
+          "href": "/money.html",
+          "blurb": "Only offers cleared by the commercial gate appear here."
+        },
+        {
+          "label": "Magic marketplace",
+          "href": "/mtg/",
+          "blurb": "Browse listings and check inventory before a deal."
+        },
+        {
+          "label": "Truth Oracle",
+          "href": "/truth-oracle.html",
+          "blurb": "Organize source links, evidence, uncertainty, and contradictions."
+        },
+        {
+          "label": "Compare supplier quotes",
+          "href": "/quote-comparison/",
+          "blurb": "Free worksheet for organizing supplier offers."
+        }
       ]
     },
     {
@@ -73,17 +116,89 @@
       "out": "offers.html",
       "title": "Offers · DreamLedger",
       "eyebrow": "Compiler exhaust · structured offers",
-      "headline": "Offers with a path to payment.",
-      "lead": "Emitted from the same live checkout registry as money and shop.",
+      "headline": "Offers must earn their checkout",
+      "lead": "A product is not public just because a Stripe URL exists. Checkout requires a valid product, an authorized route, and verified automated fulfillment.",
       "cta_source": "live_checkout_routes_sorted"
     }
   ],
   "live_checkout_routes": [
-    {"id": "LIVE-DREAMMEEZ-SUPPORTER-SPROUT", "name": "Supporter — Sprout", "price_nzd": 3.99, "href": "/buy/DREAMMEEZ-SUPPORTER-SPROUT", "tag": "Lowest friction"},
-    {"id": "LIVE-DOC-EXTRACT-50", "name": "Document Extraction", "price_nzd": 5, "href": "/buy/DOC-EXTRACT-50", "tag": "Micro"},
-    {"id": "LIVE-SUPPLIER-CHECK-50", "name": "Supplier Check", "price_nzd": 5, "href": "/buy/SUPPLIER-CHECK-50", "tag": "Micro"},
-    {"id": "LIVE-COMMANDER-DECK-DIAGNOSTIC-001", "name": "Commander Deck Diagnostic", "price_nzd": 29, "href": "/buy/COMMANDER-DECK-DIAGNOSTIC-001", "tag": "Magic"},
-    {"id": "LIVE-SELLER-PROFIT-AUDIT-001", "name": "Seller Profit Audit", "price_nzd": 29, "href": "/buy/SELLER-PROFIT-AUDIT-001", "tag": "Seller"},
-    {"id": "LIVE-DISCORD-WEBHOOK-STARTER-KIT-001", "name": "Discord Webhook Kit", "price_nzd": 79, "href": "/buy/DISCORD-WEBHOOK-STARTER-KIT-001", "tag": "Tools"}
+    {
+      "id": "LIVE-DREAMMEEZ-SUPPORTER-SPROUT",
+      "name": "Supporter — Sprout",
+      "price_nzd": 3.99,
+      "href": "/buy/DREAMMEEZ-SUPPORTER-SPROUT",
+      "tag": "Lowest friction",
+      "product_id": "DREAMMEEZ-SUPPORTER-SPROUT",
+      "checkout_authorized": false,
+      "evidence_status": "UNVERIFIED",
+      "fulfillment_status": "UNVERIFIED",
+      "payment_link_status": "HOLD",
+      "hold_reason": "No current evidence-backed authorization for public checkout; held until canonical product and automated fulfillment pass."
+    },
+    {
+      "id": "LIVE-DOC-EXTRACT-50",
+      "name": "Document Extraction",
+      "price_nzd": 5,
+      "href": "/buy/DOC-EXTRACT-50",
+      "tag": "Micro",
+      "product_id": "DOC-EXTRACT-50",
+      "checkout_authorized": false,
+      "evidence_status": "UNVERIFIED",
+      "fulfillment_status": "UNVERIFIED",
+      "payment_link_status": "HOLD",
+      "hold_reason": "No current evidence-backed authorization for public checkout; held until canonical product and automated fulfillment pass."
+    },
+    {
+      "id": "LIVE-SUPPLIER-CHECK-50",
+      "name": "Supplier Check",
+      "price_nzd": 5,
+      "href": "/buy/SUPPLIER-CHECK-50",
+      "tag": "Micro",
+      "product_id": "SUPPLIER-CHECK-50",
+      "checkout_authorized": false,
+      "evidence_status": "UNVERIFIED",
+      "fulfillment_status": "UNVERIFIED",
+      "payment_link_status": "HOLD",
+      "hold_reason": "No current evidence-backed authorization for public checkout; held until canonical product and automated fulfillment pass."
+    },
+    {
+      "id": "LIVE-COMMANDER-DECK-DIAGNOSTIC-001",
+      "name": "Commander Deck Diagnostic",
+      "price_nzd": 29,
+      "href": "/buy/COMMANDER-DECK-DIAGNOSTIC-001",
+      "tag": "Magic",
+      "product_id": "COMMANDER-DECK-DIAGNOSTIC-001",
+      "checkout_authorized": false,
+      "evidence_status": "UNVERIFIED",
+      "fulfillment_status": "UNVERIFIED",
+      "payment_link_status": "HOLD",
+      "hold_reason": "No current evidence-backed authorization for public checkout; held until canonical product and automated fulfillment pass."
+    },
+    {
+      "id": "LIVE-SELLER-PROFIT-AUDIT-001",
+      "name": "Seller Profit Audit",
+      "price_nzd": 29,
+      "href": "/buy/SELLER-PROFIT-AUDIT-001",
+      "tag": "Seller",
+      "product_id": "SELLER-PROFIT-AUDIT-001",
+      "checkout_authorized": false,
+      "evidence_status": "UNVERIFIED",
+      "fulfillment_status": "UNVERIFIED",
+      "payment_link_status": "HOLD",
+      "hold_reason": "No current evidence-backed authorization for public checkout; held until canonical product and automated fulfillment pass."
+    },
+    {
+      "id": "LIVE-DISCORD-WEBHOOK-STARTER-KIT-001",
+      "name": "Discord Webhook Kit",
+      "price_nzd": 79,
+      "href": "/buy/DISCORD-WEBHOOK-STARTER-KIT-001",
+      "tag": "Tools",
+      "product_id": "DISCORD-WEBHOOK-STARTER-KIT-001",
+      "checkout_authorized": false,
+      "evidence_status": "UNVERIFIED",
+      "fulfillment_status": "UNVERIFIED",
+      "payment_link_status": "HOLD",
+      "hold_reason": "No current evidence-backed authorization for public checkout; held until canonical product and automated fulfillment pass."
+    }
   ]
 }
