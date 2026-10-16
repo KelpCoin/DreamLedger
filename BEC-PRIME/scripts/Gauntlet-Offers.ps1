@@ -27,17 +27,26 @@ foreach ($offer in @($offers.offers)) {
 
     $isApproved = $approvedIds -contains $offer.offer_id
     if ($isApproved) {
-        if ($offer.approval_required -ne $false) {
-            Write-Host "FAIL $($offer.offer_id): approved offer must have approval_required=false" -ForegroundColor Red
+        $heldIsSafe = (
+            $offer.approval_required -eq $true -and
+            $offer.checkout_available -eq $false -and
+            ([string]$offer.status).StartsWith('HELD_') -and
+            [string]::IsNullOrWhiteSpace([string]$offer.payment_link_url) -and
+            [string]::IsNullOrWhiteSpace([string]$offer.fulfillment_route) -and
+            -not [string]::IsNullOrWhiteSpace([string]$offer.checkout_disabled_reason)
+        )
+        $openIsSafe = (
+            $offer.approval_required -eq $false -and
+            $offer.checkout_available -eq $true -and
+            $offer.status -eq 'VERIFIED_AVAILABLE' -and
+            ([string]$offer.payment_link_url) -match '^https://(buy|checkout)\.stripe\.com/' -and
+            -not [string]::IsNullOrWhiteSpace([string]$offer.fulfillment_route)
+        )
+        if (-not ($heldIsSafe -or $openIsSafe)) {
+            Write-Host "FAIL $($offer.offer_id): approved source must compile to either a fully gated VERIFIED_AVAILABLE offer or a clean HELD offer with no public payment/fulfillment route" -ForegroundColor Red
             $errors++
-        }
-        if ($offer.checkout_available -ne $true) {
-            Write-Host "FAIL $($offer.offer_id): approved offer must have checkout_available=true" -ForegroundColor Red
-            $errors++
-        }
-        if ($offer.status -ne 'VERIFIED_AVAILABLE') {
-            Write-Host "FAIL $($offer.offer_id): approved offer must have status VERIFIED_AVAILABLE" -ForegroundColor Red
-            $errors++
+        } elseif ($heldIsSafe) {
+            Write-Host "HOLD $($offer.offer_id): canonical product/fulfillment evidence is incomplete; checkout remains disabled." -ForegroundColor Yellow
         }
     } else {
         if ($offer.approval_required -ne $true) {
