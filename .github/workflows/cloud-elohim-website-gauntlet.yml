@@ -91,7 +91,7 @@ jobs:
           grep -Eqi 'DreamLedger|Dream Ledger' index.html
           grep -qi 'Magic' index.html
           grep -qi 'VERIFIED EXTERNAL REVENUE' index.html
-          grep -q 'NZ\$0.00' index.html
+          grep -Fq 'NZ$0.00' index.html
           echo "WEBSITE_SURFACE=PASS"
 
       - name: Emit candidate judgment
