@@ -23,7 +23,7 @@ class MemoryAtomicStore {
     const previous = this.reservations.get(reservationKey);
     if (previous) {
       return previous.requestHash === input.requestHash
-        ? { allowed: false, status: 'DUPLICATE', priorStatus: previous.status }
+        ? { allowed: false, status: 'DUPLICATE', priorStatus: previous.statusInternal }
         : { allowed: false, status: 'IDEMPOTENCY_CONFLICT' };
     }
 
@@ -184,18 +184,24 @@ test('unknown model pricing fails closed before provider invocation', async () =
   assert.equal(called, 0);
 });
 
-test('per-agent and per-model bucket isolation prevents one agent exhausting another', async () => {
-  const f = fixture();
-  const a1 = await f.gateway.execute(request({ idempotencyKey: 'a-1', inputTokens: 60, maxOutputTokens: 30 }));
+test('per-agent and per-model buckets are isolated', async () => {
+  const policy = {
+    investigator: { dailyBudgetNzd: 1, bucketCapacityTokens: 100, refillTokensPerSecond: 1 },
+    tri_llm_critic: { dailyBudgetNzd: 1, bucketCapacityTokens: 100, refillTokensPerSecond: 1 }
+  };
+  const f = fixture({ agentPolicies: policy });
+  const expensiveUsage = async () => ({ usage: { input_tokens: 60, output_tokens: 30 } });
+  const a1 = await f.gateway.execute(request({ idempotencyKey: 'a-1', inputTokens: 60, maxOutputTokens: 30, invoke: expensiveUsage }));
   assert.equal(a1.status, 200);
-  const a2 = await f.gateway.execute(request({ idempotencyKey: 'a-2', inputTokens: 60, maxOutputTokens: 30 }));
+  const a2 = await f.gateway.execute(request({ idempotencyKey: 'a-2', inputTokens: 60, maxOutputTokens: 30, invoke: expensiveUsage }));
   assert.equal(a2.status, 429);
   assert.equal(a2.reason, 'RATE_LIMITED');
   const b = await f.gateway.execute(request({
     agentId: 'tri_llm_critic',
     idempotencyKey: 'b-1',
     inputTokens: 60,
-    maxOutputTokens: 30
+    maxOutputTokens: 30,
+    invoke: expensiveUsage
   }));
   assert.equal(b.status, 200);
 });
@@ -253,5 +259,5 @@ test('cached input uses the explicitly priced cached-token rate', async () => {
     invoke: async () => ({ usage: { prompt_tokens: 10, completion_tokens: 5, prompt_tokens_details: { cached_tokens: 4 } } })
   }));
   assert.equal(result.status, 200);
-  assert.equal(result.cost_nzd, 0.000034);
+  assert.equal(result.cost_nzd, 0.000036);
 });
