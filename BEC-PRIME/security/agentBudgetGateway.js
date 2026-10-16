@@ -150,25 +150,63 @@ function priceUsageMicroNzd(usage, price) {
   );
 }
 
-function appendHashChainedJsonl(filePath, event) {
-  fs.mkdirSync(path.dirname(filePath), { recursive: true });
-  let previousHash = 'GENESIS';
-  if (fs.existsSync(filePath)) {
-    const integrity = verifyUsageLedger(filePath);
-    if (!integrity.ok) throw new Error('Usage ledger integrity verification failed before append: ' + integrity.reason);
-    const raw = fs.readFileSync(filePath, 'utf8');
-    const lines = raw.split(/\r?\n/).filter(Boolean);
-    if (lines.length) {
-      const last = JSON.parse(lines[lines.length - 1]);
-      if (typeof last.record_hash !== 'string') throw new Error('Usage ledger last record has no hash');
-      previousHash = last.record_hash;
+function acquireUsageLedgerLock(lockPath, timeoutMs = 5000) {
+  const started = Date.now();
+  for (;;) {
+    try {
+      const fd = fs.openSync(lockPath, 'wx', 0o600);
+      try { fs.writeFileSync(fd, JSON.stringify({ pid: process.pid, created_at: new Date().toISOString() })); }
+      finally { fs.closeSync(fd); }
+      return;
+    } catch (error) {
+      if (!error || error.code !== 'EEXIST') throw error;
+      try {
+        const stat = fs.statSync(lockPath);
+        if (Date.now() - stat.mtimeMs > 30000) {
+          fs.unlinkSync(lockPath);
+          continue;
+        }
+      } catch (statError) {
+        if (statError && statError.code === 'ENOENT') continue;
+      }
+      if (Date.now() - started >= timeoutMs) throw new Error('Usage ledger append lock unavailable');
+      const wait = new Int32Array(new SharedArrayBuffer(4));
+      Atomics.wait(wait, 0, 0, 10);
     }
   }
-  const body = { ...event, previous_hash: previousHash };
-  const record = { ...body, record_hash: sha256(JSON.stringify(body)) };
-  fs.appendFileSync(filePath, JSON.stringify(record) + '\n', { encoding: 'utf8', flag: 'a', mode: 0o600 });
-  try { fs.chmodSync(filePath, 0o600); } catch (_) { /* platform may not support POSIX modes */ }
-  return record;
+}
+
+function appendHashChainedJsonl(filePath, event) {
+  fs.mkdirSync(path.dirname(filePath), { recursive: true });
+  const lockPath = filePath + '.lock';
+  acquireUsageLedgerLock(lockPath);
+  try {
+    let previousHash = 'GENESIS';
+    if (fs.existsSync(filePath)) {
+      const integrity = verifyUsageLedger(filePath);
+      if (!integrity.ok) throw new Error('Usage ledger integrity verification failed before append: ' + integrity.reason);
+      const raw = fs.readFileSync(filePath, 'utf8');
+      const lines = raw.split(/\r?\n/).filter(Boolean);
+      if (lines.length) {
+        const last = JSON.parse(lines[lines.length - 1]);
+        if (typeof last.record_hash !== 'string') throw new Error('Usage ledger last record has no hash');
+        previousHash = last.record_hash;
+      }
+    }
+    const body = { ...event, previous_hash: previousHash };
+    const record = { ...body, record_hash: sha256(JSON.stringify(body)) };
+    const fd = fs.openSync(filePath, 'a', 0o600);
+    try {
+      fs.writeSync(fd, JSON.stringify(record) + '\n', null, 'utf8');
+      fs.fsyncSync(fd);
+    } finally {
+      fs.closeSync(fd);
+    }
+    try { fs.chmodSync(filePath, 0o600); } catch (_) { /* platform may not support POSIX modes */ }
+    return record;
+  } finally {
+    try { fs.unlinkSync(lockPath); } catch (error) { if (!error || error.code !== 'ENOENT') throw error; }
+  }
 }
 
 function verifyUsageLedger(filePath) {
