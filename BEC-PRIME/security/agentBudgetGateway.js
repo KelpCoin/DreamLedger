@@ -69,7 +69,7 @@ redis.call('HSET', KEYS[1], 'tokens', tostring(adjusted))
 p.status = 'SETTLED'
 p.actual_micro = actual_micro
 p.actual_tokens = actual_tokens
-p.over_budget = ((used + delta) > tonumber(p.daily_limit_micro))
+p.over_budget = ((used + delta) > tonumber(p.daily_limit_micro)) or (actual_micro > tonumber(p.reserved_micro)) or (actual_tokens > tonumber(p.reserved_tokens))
 redis.call('SET', KEYS[3], cjson.encode(p), 'EX', 604800)
 if p.over_budget then return {'SETTLED_OVER_BUDGET', tostring(used + delta)} end
 return {'SETTLED', tostring(used + delta)}
@@ -150,6 +150,8 @@ function appendHashChainedJsonl(filePath, event) {
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
   let previousHash = 'GENESIS';
   if (fs.existsSync(filePath)) {
+    const integrity = verifyUsageLedger(filePath);
+    if (!integrity.ok) throw new Error('Usage ledger integrity verification failed before append: ' + integrity.reason);
     const raw = fs.readFileSync(filePath, 'utf8');
     const lines = raw.split(/\r?\n/).filter(Boolean);
     if (lines.length) {
@@ -277,7 +279,8 @@ function createAgentBudgetGateway(options = {}) {
     if (reservedTokens > policy.bucketCapacityTokens) {
       return { status: 429, allowed: false, reason: 'REQUEST_EXCEEDS_TOKEN_BUCKET_CAPACITY' };
     }
-    const reservedMicroNzd = Math.ceil(inputTokens * price.inputNzdPerMillion + maxOutputTokens * price.outputNzdPerMillion);
+    const worstCaseInputRate = Math.max(price.inputNzdPerMillion, price.cachedInputNzdPerMillion ?? price.inputNzdPerMillion);
+    const reservedMicroNzd = Math.ceil(inputTokens * worstCaseInputRate + maxOutputTokens * price.outputNzdPerMillion);
     const dailyLimitMicroNzd = toMicroNzd(policy.dailyBudgetNzd);
     const requestHash = sha256(JSON.stringify({ modelId, request, inputTokens, maxOutputTokens }));
     const nowMs = clock();
@@ -407,7 +410,7 @@ function createAgentBudgetGateway(options = {}) {
       return { status: 503, allowed: false, reason: 'RECONCILIATION_LEDGER_FAILED_PROVIDER_RESULT_WITHHELD' };
     }
     if (settlement.status === 'SETTLED_OVER_BUDGET') {
-      return { status: 429, allowed: false, reason: 'PROVIDER_USAGE_EXCEEDED_RESERVED_BUDGET_STOP_AGENT', cost_nzd: nzdFromMicro(actualMicroNzd) };
+      return { status: 429, allowed: false, reason: 'PROVIDER_USAGE_EXCEEDED_RESERVATION_OR_DAILY_BUDGET_STOP_AGENT', cost_nzd: nzdFromMicro(actualMicroNzd) };
     }
     return { status: 200, allowed: true, result, usage, cost_nzd: nzdFromMicro(actualMicroNzd) };
   }
