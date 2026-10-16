@@ -26,11 +26,11 @@ async function main() {
   assert.strictEqual(metrics.lands,2);
   assert.strictEqual(metrics.removal,1);
 
-  // Economic fail-closed contract: no checkout session or intake artifact may
-  // be created while the settlement ledger cannot record the resulting order.
+  // Canonical product gate must reject before touching checkout or intake storage.
+  // The source SKU is held, so this test proves that hold cannot be bypassed.
   await assert.rejects(
     d.createCheckout({decklist:deck}),
-    /Economic ledger unavailable; checkout held/
+    /CANONICAL_PRODUCT_HELD: checkout remains disabled/
   );
   assert.deepStrictEqual(fs.readdirSync(tempDir), []);
 
@@ -39,7 +39,7 @@ async function main() {
     test:'mtg-diagnostic-contract',
     parsed_cards:parsed.length,
     metrics,
-    checkout_without_economic_ledger:'BLOCKED_AS_REQUIRED',
+    checkout_with_canonical_product_held:'BLOCKED_AS_REQUIRED',
     intake_artifacts_created:0
   },null,2));
 }
