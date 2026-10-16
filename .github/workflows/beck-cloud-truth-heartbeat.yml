@@ -18,8 +18,10 @@ jobs:
     timeout-minutes: 8
     env:
       BASE_URL: https://dreamledger.org
-      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-      SUPABASE_KEY: ${{ secrets.SUPABASE_SECRET_KEY || secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      # Project URL is public configuration, not a credential. Pin it so an absent Actions secret cannot silently disable persistence.
+      SUPABASE_URL: https://wbwgroygjeyukkspnqiy.supabase.co
+      SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -80,13 +82,29 @@ jobs:
         run: |
           set -euo pipefail
           test -n "$SUPABASE_URL"
-          test -n "$SUPABASE_KEY"
+          if [ -n "${SUPABASE_SECRET_KEY:-}" ]; then
+            SUPABASE_KEY="$SUPABASE_SECRET_KEY"
+            KEY_MODE='secret'
+          elif [ -n "${SUPABASE_SERVICE_ROLE_KEY:-}" ]; then
+            SUPABASE_KEY="$SUPABASE_SERVICE_ROLE_KEY"
+            KEY_MODE='legacy_jwt'
+          else
+            echo "No supported Supabase server key configured (SUPABASE_SECRET_KEY or SUPABASE_SERVICE_ROLE_KEY)" >&2
+            exit 1
+          fi
+          # New sb_secret_ keys belong in apikey only. Legacy service_role JWTs also need Bearer auth.
+          supabase_curl() {
+            if [ "$KEY_MODE" = "legacy_jwt" ]; then
+              curl -sS -H "apikey: $SUPABASE_KEY" -H "Authorization: Bearer $SUPABASE_KEY" "$@"
+            else
+              curl -sS -H "apikey: $SUPABASE_KEY" "$@"
+            fi
+          }
           base="${SUPABASE_URL%/}"
           agent='cloud-beck'
           previous='GENESIS'
           seq=1
-          code="$(curl -sS --max-time 20 -o /tmp/previous.json -w '%{http_code}' \
-            -H "apikey: $SUPABASE_KEY" -H "Authorization: Bearer $SUPABASE_KEY" \
+          code="$(supabase_curl --max-time 20 -o /tmp/previous.json -w '%{http_code}' \
             "$base/rest/v1/cortex_heartbeat?select=seq,current_hash&agent_id=eq.cloud-beck&order=seq.desc&limit=1" || true)"
           if [ "$code" = "200" ]; then
             read -r seq previous < <(node -e 'const x=require("/tmp/previous.json");if(x.length){console.log(Number(x[0].seq)+1,x[0].current_hash||"GENESIS")}else console.log(1,"GENESIS")')
@@ -114,9 +132,8 @@ jobs:
           canonical.current_hash=hash;
           fs.writeFileSync('proof/beck/latest-cloud-heartbeat-row.json',JSON.stringify(canonical,null,2)+'\n');
           NODE
-          insert_code="$(curl -sS --max-time 30 -o /tmp/insert.json -w '%{http_code}' \
+          insert_code="$(supabase_curl --max-time 30 -o /tmp/insert.json -w '%{http_code}' \
             -X POST "$base/rest/v1/cortex_heartbeat" \
-            -H "apikey: $SUPABASE_KEY" -H "Authorization: Bearer $SUPABASE_KEY" \
             -H 'Content-Type: application/json' -H 'Prefer: return=representation' \
             --data-binary @proof/beck/latest-cloud-heartbeat-row.json || true)"
           if [ "$insert_code" != "201" ] && [ "$insert_code" != "200" ]; then
