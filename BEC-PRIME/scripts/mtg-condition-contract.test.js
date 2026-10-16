@@ -55,6 +55,8 @@ test('MTG condition rendering never invents a default card condition', () => {
   assert.doesNotMatch(patch, /condition\s*(?:\|\||\?\?)\s*['"`](?:LP|Lightly Played)/i);
   assert.match(patch, /const conditionEligible=\['single','single-card','mtg-single','physical-single'\]\.includes\(kind\)/);
   assert.match(patch, /conditionEligible&&typeof p\.condition==='string'&&p\.condition\.trim\(\)\?p\.condition\.trim\(\):''/);
+  assert.match(source, /conditionEligible=\['single','single-card','mtg-single','physical-single'\]\.includes\(kind\)/);
+  assert.match(source, /conditionEligible&&typeof p\.condition==='string'&&p\.condition\.trim\(\)/);
 });
 
 test('static MTG publication paths exist and neither exposes diagnostic checkout', () => {
