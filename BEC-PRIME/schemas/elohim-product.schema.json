@@ -68,7 +68,8 @@
         "archived",
         "QUARANTINED_SCHEMA",
         "QUARANTINED_NO_FULFILLMENT",
-        "unavailable"
+        "unavailable",
+        "catalog_only"
       ]
     },
     "silo": {
@@ -79,7 +80,18 @@
         "media_music",
         "digital_products",
         "dreamledger",
-        "commerce"
+        "commerce",
+        "billboard",
+        "dreamiez",
+        "digital",
+        "dreamiez-beauty",
+        "SILO_DREAMIEZ",
+        "seller_tools",
+        "SILO_DREAMLEDGER",
+        "cinema",
+        "digital-products",
+        "dreammeez",
+        "account"
       ]
     },
     "category": {
