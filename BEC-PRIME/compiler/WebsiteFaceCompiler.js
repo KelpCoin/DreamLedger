@@ -13,13 +13,40 @@ function sha256(s){return crypto.createHash('sha256').update(s,'utf8').digest('h
 function readJson(f){return JSON.parse(fs.readFileSync(f,'utf8'));}
 function write(f,t){fs.mkdirSync(path.dirname(f),{recursive:true});fs.writeFileSync(f,t,'utf8');}
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function routeEligible(route, productId, link){
+  if(!route || route.checkout_authorized !== true || route.evidence_status !== 'VERIFIED'
+    || route.fulfillment_status !== 'VERIFIED_AUTOMATED' || route.payment_link_status !== 'ACTIVE_LIVEMODE') return false;
+  const price = Number(route.price_nzd ?? route.price);
+  if(!Number.isFinite(price) || price <= 0) return false;
+  if(typeof link !== 'string' || !(/^\/buy\/[A-Z0-9_-]+$/i.test(link) || /^https:\/\/buy\.stripe\.com\//i.test(link))) return false;
+  const id = String(productId || route.product_id || '');
+  if(!/^[A-Z0-9][A-Z0-9_-]{1,127}$/i.test(id)) return false;
+  const productPath = path.join(ROOT, 'catalog', 'products', id + '.json');
+  const fulfillmentPath = path.join(ROOT, 'fulfillment', 'PRODUCT-FULFILLMENT-REGISTRY.json');
+  if(!fs.existsSync(productPath) || !fs.existsSync(fulfillmentPath)) return false;
+  let product, fulfillmentRegistry;
+  try { product = readJson(productPath); fulfillmentRegistry = readJson(fulfillmentPath); } catch (_) { return false; }
+  if(product.id !== id || product.status !== 'published' || product.commercial_truth?.sellable !== true
+    || product.commercial_truth?.approval_required !== false || Number(product.inventory) <= 0) return false;
+  const productLink = product.commercial_truth?.payment_link || product.checkout?.url || product.checkout_url || null;
+  if(typeof productLink !== 'string' || !/^https:\/\/buy\.stripe\.com\//i.test(productLink)) return false;
+  if(/^https:\/\/buy\.stripe\.com\//i.test(link) && link !== productLink) return false;
+  const fulfillment = product.fulfillment || product.fulfilment;
+  const contract = fulfillmentRegistry.entries?.[id];
+  if(!fulfillment || fulfillment.operator_required !== false || ['disabled','manual_pdf','manual','manual_review'].includes(String(fulfillment.mode || '').toLowerCase())) return false;
+  if(!contract || contract.ready !== true || contract.operator_required !== false) return false;
+  return true;
+}
 function loadRoutes(registry){
   const byId={};
-  for(const r of registry.live_checkout_routes||[]) byId[r.id]=r;
+  for(const r of registry.live_checkout_routes||[]){
+    if(!routeEligible(r, r.product_id, r.href)) continue;
+    byId[r.id]=r;
+  }
   try{if(fs.existsSync(APPROVED)){const approved=readJson(APPROVED);
-    for(const o of approved.approved||[]){const link=o.payment_link_url||o.payment_link;if(!link)continue;
+    for(const o of approved.approved||[]){const link=o.payment_link_url||o.payment_link;if(!routeEligible(o,o.product_id,link))continue;
       const id='APPROVED-'+(o.product_id||o.offer_id);if(byId[id])continue;
-      byId[id]={id,name:o.name,price_nzd:Number(o.price),href:link,tag:o.silo||'approved'};}}}
+      byId[id]={id,name:o.name,price_nzd:Number(o.price),href:link,tag:o.silo||'approved'};}}
   catch(_){}
   return byId;
 }
@@ -33,15 +60,15 @@ function navHtml(registry){
 function css(){return `:root{--bg:#0a0b0f;--surface:#141722;--ink:#f4f1ea;--muted:#9aa0b0;--line:#2a3040;--gold:#d8b56b;--goldb:#e8c87a}*{box-sizing:border-box;margin:0;padding:0}body{font:16px/1.5 system-ui,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}a{color:var(--goldb);text-decoration:none;font-weight:700}.wrap{max-width:960px;margin:auto;padding:24px 16px 80px}.top{display:flex;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--line);margin-bottom:28px;gap:12px;flex-wrap:wrap}.brand span{color:var(--gold)}nav a{margin-left:12px;font-size:13px;color:var(--muted)}.eyebrow{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:10px}h1{font-size:clamp(2rem,6vw,3rem);letter-spacing:-.04em;line-height:1.05;margin-bottom:12px}.lead{color:var(--muted);max-width:36em;margin-bottom:28px}.grid{display:grid;gap:14px}@media(min-width:640px){.grid{grid-template-columns:1fr 1fr}}.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:8px}.card.hero{border-color:#d8b56b66;grid-column:1/-1}.tag{font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--gold)}.price{font-size:1.6rem;font-weight:900}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 16px;border-radius:12px;background:linear-gradient(180deg,var(--goldb),var(--gold));color:#14120c;font-weight:900;border:0}.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}.actions{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0}.note{margin-top:28px;font-size:12px;color:var(--muted)}.badge{display:inline-block;font-size:10px;padding:4px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted);margin-bottom:12px}.banner{margin:0 0 20px;padding:14px 16px;border-radius:12px;border:1px solid #d8b56b44;background:#1a160c;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}.door p{color:var(--muted);font-size:13px;flex:1}`;}function shell({title,canonical,body}){return `<!doctype html>\n<html lang="en-NZ">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width,initial-scale=1">\n<title>${esc(title)}</title>\n<meta name="description" content="Compiler-emitted DreamLedger face.">\n${canonical?`<link rel="canonical" href="${esc(canonical)}">`:''}\n<meta name="bec-compiler" content="WebsiteFaceCompiler">\n<style>\n${css()}\n</style>\n</head>\n<body>\n${body}\n</body>\n</html>\n`;}
 function offerCard(route,hero){return `<article class="card${hero?' hero':''}"><div class="tag">${esc(route.tag||'Offer')}</div><h2>${esc(route.name)}</h2><div class="price">NZ$${esc(route.price_nzd)}</div><a class="btn" href="${esc(route.href)}">Pay on Stripe →</a></article>`;}
 function emitMoney(face,registry,routesById){const cards=(face.primary_offer_ids||[]).map((id,i)=>{const r=routesById[id];return r?offerCard(r,i===0):'';}).join('\n');
-  return shell({title:face.title,canonical:'https://dreamledger.org/money.html',body:`<div class="wrap">${navHtml(registry)}<span class="badge">emitted by WebsiteFaceCompiler · face=${esc(face.id)}</span><p class="eyebrow">${esc(face.eyebrow)}</p><h1>${esc(face.headline)}</h1><p class="lead">${esc(face.lead)}</p><div class="grid">${cards}</div><p class="note">Generated from face-registry.json.</p></div>`});}
+  return shell({title:face.title,canonical:'https://dreamledger.org/money.html',body:`<div class="wrap">${navHtml(registry)}<span class="badge">emitted by WebsiteFaceCompiler · face=${esc(face.id)}</span><p class="eyebrow">${esc(face.eyebrow)}</p><h1>${esc(face.headline)}</h1><p class="lead">${esc(face.lead)}</p><div class="grid">${cards}</div>${cards?'': '<p class="note">No checkout-enabled offers are currently published. Free tools remain available while paid routes are verified.</p>'}<p class="note">Generated from face-registry.json.</p></div>`});}
 function emitHome(face,registry,routesById){const primary=routesById[(face.primary_offer_ids||[])[0]];const secondary=(face.secondary_links||[]).map(l=>`<a class="btn ghost" href="${esc(l.href)}">${esc(l.label)}</a>`).join('');
   return shell({title:face.title,canonical:'https://dreamledger.org/',body:`<div class="wrap">${navHtml(registry)}<span class="badge">emitted by WebsiteFaceCompiler · face=${esc(face.id)}</span><p class="eyebrow">${esc(face.eyebrow)}</p><h1>${esc(face.headline)}</h1><p class="lead">${esc(face.lead)}</p><div class="actions">${primary?`<a class="btn" href="${esc(primary.href)}">Pay NZ$${esc(primary.price_nzd)} on Stripe →</a>`:''}${secondary}</div><p class="note">Compiler exhaust.</p></div>`});}
 function emitShop(face,registry,routesById){const list=sortedRoutes(registry,routesById);const banner=routesById[face.banner_offer_id];const cards=list.map((r,i)=>offerCard(r,i===0)).join('\n');
-  return shell({title:face.title,canonical:'https://dreamledger.org/shop.html',body:`<div class="wrap">${navHtml(registry)}<span class="badge">emitted by WebsiteFaceCompiler · face=${esc(face.id)}</span><p class="eyebrow">${esc(face.eyebrow)}</p><h1>${esc(face.headline)}</h1><p class="lead">${esc(face.lead)}</p>${banner?`<div class="banner"><div><strong>Fastest path:</strong> ${esc(banner.name)} · NZ$${esc(banner.price_nzd)}</div><a class="btn" href="${esc(banner.href)}">Pay NZ$${esc(banner.price_nzd)} →</a></div>`:''}<div class="grid">${cards}</div><p class="note">Sorted by price from registry.</p></div>`});}
+  return shell({title:face.title,canonical:'https://dreamledger.org/shop.html',body:`<div class="wrap">${navHtml(registry)}<span class="badge">emitted by WebsiteFaceCompiler · face=${esc(face.id)}</span><p class="eyebrow">${esc(face.eyebrow)}</p><h1>${esc(face.headline)}</h1><p class="lead">${esc(face.lead)}</p>${banner?`<div class="banner"><div><strong>Fastest path:</strong> ${esc(banner.name)} · NZ$${esc(banner.price_nzd)}</div><a class="btn" href="${esc(banner.href)}">Pay NZ$${esc(banner.price_nzd)} →</a></div>`:''}<div class="grid">${cards}</div>${cards?'': '<p class="note">No checkout-enabled offers are currently published. Free tools remain available while paid routes are verified.</p>'}<p class="note">Sorted by price from registry.</p></div>`});}
 function emitStart(face,registry){const doors=(face.doors||[]).map(d=>`<article class="card door"><h2>${esc(d.label)}</h2><p>${esc(d.blurb||'')}</p><a class="btn" href="${esc(d.href)}">Open →</a></article>`).join('\n');
   return shell({title:face.title,canonical:'https://dreamledger.org/start.html',body:`<div class="wrap">${navHtml(registry)}<span class="badge">emitted by WebsiteFaceCompiler · face=${esc(face.id)}</span><p class="eyebrow">${esc(face.eyebrow)}</p><h1>${esc(face.headline)}</h1><p class="lead">${esc(face.lead)}</p><div class="grid">${doors}</div><p class="note">Onboarding face.</p></div>`});}
 function emitOffers(face,registry,routesById){const cards=sortedRoutes(registry,routesById).map(r=>offerCard(r,false)).join('\n');
-  return shell({title:face.title,canonical:'https://dreamledger.org/offers.html',body:`<div class="wrap">${navHtml(registry)}<span class="badge">emitted by WebsiteFaceCompiler · face=${esc(face.id)}</span><p class="eyebrow">${esc(face.eyebrow)}</p><h1>${esc(face.headline)}</h1><p class="lead">${esc(face.lead)}</p><div class="grid">${cards}</div><p class="note">Structured offers only.</p></div>`});}
+  return shell({title:face.title,canonical:'https://dreamledger.org/offers.html',body:`<div class="wrap">${navHtml(registry)}<span class="badge">emitted by WebsiteFaceCompiler · face=${esc(face.id)}</span><p class="eyebrow">${esc(face.eyebrow)}</p><h1>${esc(face.headline)}</h1><p class="lead">${esc(face.lead)}</p><div class="grid">${cards}</div>${cards?'': '<p class="note">No checkout-enabled offers are currently published. Free tools remain available while paid routes are verified.</p>'}<p class="note">Structured offers only.</p></div>`});}
 function compile(){const registry=readJson(REGISTRY);const routesById=loadRoutes(registry);const emitted=[];
   const emitters={money:emitMoney,home:emitHome,shop:emitShop,start:emitStart,offers:emitOffers};
   for(const face of registry.faces||[]){const fn=emitters[face.id];if(!fn)throw new Error('Unknown face: '+face.id);
