@@ -74,6 +74,8 @@ async function proxyTollToEngine(req,res,p){
     }
     const h={'accept':'application/json'};
     for(const name of ['content-type','idempotency-key','x-dreamledger-toll-key'])if(req.headers[name])h[name]=req.headers[name];
+    // The local BECK heartbeat uses its own scoped bearer token. Forward it only for that route.
+    if(p==='/api/toll/v1/local-heartbeat'&&req.headers.authorization)h.authorization=req.headers.authorization;
     if(ENGINE_INTERNAL_API_KEY)h['x-api-key']=ENGINE_INTERNAL_API_KEY;
     const target=ENGINE_INTERNAL_URL+(req.url||p);
     const upstream=await fetch(target,{method:req.method,headers:h,body:chunks.length?Buffer.concat(chunks):undefined,redirect:'manual'});
