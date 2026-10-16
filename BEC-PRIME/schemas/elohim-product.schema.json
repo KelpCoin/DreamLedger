@@ -4,36 +4,129 @@
   "title": "Elohim catalog product",
   "type": "object",
   "additionalProperties": true,
-  "required": ["id", "name", "price", "currency", "status", "silo"],
+  "required": [
+    "id",
+    "name",
+    "price",
+    "currency",
+    "status",
+    "silo"
+  ],
   "properties": {
-    "id": { "type": "string", "minLength": 3, "maxLength": 120, "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$" },
-    "sku": { "type": ["string", "null"], "maxLength": 80 },
-    "name": { "type": "string", "minLength": 2, "maxLength": 200 },
-    "description": { "type": "string", "maxLength": 4000 },
-    "price": { "type": "number", "minimum": 0, "maximum": 1000000 },
-    "price_unit": { "type": "string", "enum": ["major", "minor", "cents"] },
-    "currency": { "type": "string", "enum": ["nzd", "NZD"] },
+    "id": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 120,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+    },
+    "sku": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 80
+    },
+    "name": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 200
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 4000
+    },
+    "price": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1000000
+    },
+    "price_unit": {
+      "type": "string",
+      "enum": [
+        "major",
+        "minor",
+        "cents"
+      ]
+    },
+    "currency": {
+      "type": "string",
+      "enum": [
+        "nzd",
+        "NZD"
+      ]
+    },
     "status": {
       "type": "string",
-      "enum": ["draft", "published", "held", "gated", "retired", "ELOHIM_CREATED_CANDIDATE", "INVALID"]
+      "enum": [
+        "draft",
+        "published",
+        "held",
+        "gated",
+        "retired",
+        "ELOHIM_CREATED_CANDIDATE",
+        "INVALID",
+        "archived",
+        "QUARANTINED_SCHEMA",
+        "QUARANTINED_NO_FULFILLMENT",
+        "unavailable"
+      ]
     },
     "silo": {
       "type": "string",
-      "enum": ["mtg", "crypto", "media_music", "digital_products", "dreamledger"]
+      "enum": [
+        "mtg",
+        "crypto",
+        "media_music",
+        "digital_products",
+        "dreamledger",
+        "commerce"
+      ]
     },
-    "category": { "type": "string", "maxLength": 80 },
-    "inventory": { "type": "number", "minimum": 0 },
-    "checkout_available": { "type": "boolean" },
-    "checkout_url": { "type": ["string", "null"], "maxLength": 500 },
-    "sale_mode": { "type": "string", "enum": ["checkout", "claim_by_message", "disabled"] },
+    "category": {
+      "type": "string",
+      "maxLength": 80
+    },
+    "inventory": {
+      "type": "number",
+      "minimum": 0
+    },
+    "checkout_available": {
+      "type": "boolean"
+    },
+    "checkout_url": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 500
+    },
+    "sale_mode": {
+      "type": "string",
+      "enum": [
+        "checkout",
+        "claim_by_message",
+        "disabled"
+      ]
+    },
     "checkout": {
       "type": "object",
       "properties": {
-        "mode": { "type": "string" },
-        "url": { "type": ["string", "null"] }
+        "mode": {
+          "type": "string"
+        },
+        "url": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
       }
     },
-    "commercial_truth": { "type": "object" },
-    "created_by": { "type": "string" }
+    "commercial_truth": {
+      "type": "object"
+    },
+    "created_by": {
+      "type": "string"
+    }
   }
 }
