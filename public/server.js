@@ -141,7 +141,7 @@ http.createServer(async (req,res)=>{
   if(p.startsWith('/swarm/')||p.startsWith('/api/swarm')) return proxySwarm(req,res,p);
   // The private engine is the only commercial settlement owner. The public
   // storefront forwards signed webhook bytes and bounded commercial API calls.
-  if(p==='/api/webhooks/stripe'||p==='/webhook'||p.startsWith('/api/commercial/')) return proxyTollToEngine(req,res,p);
+  if(p==='/api/webhooks/stripe'||p==='/webhook'||p.startsWith('/api/commercial/')||p.startsWith('/api/commercial-cell/')) return proxyTollToEngine(req,res,p);
   if(req.method!=='GET'&&req.method!=='HEAD') return send(res,405,'Method Not Allowed','text/plain; charset=utf-8');
   const file=PUBLIC_FILES[p];
   if(file) return serveFile(res,file);
