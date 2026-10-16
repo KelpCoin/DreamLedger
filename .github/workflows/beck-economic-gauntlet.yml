@@ -12,6 +12,10 @@ on:
       - 'scripts/install-beck-heartbeat.ps1'
       - 'scripts/beck-one-shot-bootstrap.ps1'
       - 'scripts/Start-BECK-FigureEight.ps1'
+      - 'docs/FIGURE-EIGHT-OPERATING-PROTOCOL.md'
+      - 'scripts/validate-customer-facing-artifact.test.js'
+      - 'scripts/validate-customer-facing-artifact.js'
+      - 'runtime/humanizer/customer-facing-voice-checkpoint-v1.json'
       - 'BEC-PRIME/routes/tollRoad.js'
       - 'BEC-PRIME/routes/tollRoad.local-heartbeat.test.js'
       - 'public/server.js'
@@ -36,6 +40,10 @@ on:
       - 'scripts/beck-one-shot-bootstrap.ps1'
       - 'scripts/beck-cockpit-bootstrap.ps1'
       - 'scripts/Start-BECK-FigureEight.ps1'
+      - 'docs/FIGURE-EIGHT-OPERATING-PROTOCOL.md'
+      - 'scripts/validate-customer-facing-artifact.test.js'
+      - 'scripts/validate-customer-facing-artifact.js'
+      - 'runtime/humanizer/customer-facing-voice-checkpoint-v1.json'
       - 'BEC-PRIME/routes/tollRoad.js'
       - 'BEC-PRIME/routes/tollRoad.local-heartbeat.test.js'
       - 'public/server.js'
@@ -87,6 +95,8 @@ jobs:
           node --check BEC-PRIME/scripts/verify-render-stripe-webhook-route.js
           node BEC-PRIME/scripts/verify-render-stripe-webhook-route.js
           node --test BEC-PRIME/routes/tollRoad.local-heartbeat.test.js
+          node --check scripts/validate-customer-facing-artifact.js
+          node --test scripts/validate-customer-facing-artifact.test.js
 
       - name: Parse PowerShell bootstrap without executing it
         shell: powershell
