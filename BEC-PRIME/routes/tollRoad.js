@@ -497,4 +497,4 @@ async function handle(req,res,path){
   return false;
 }
 
-module.exports={handle};
+module.exports={handle,localHeartbeatSnapshot};
