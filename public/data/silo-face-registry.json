@@ -1,0 +1,26 @@
+{
+  "schema": "BEC-PRIME/SILO-FACE-REGISTRY/v1",
+  "count": 100,
+  "full_target": 500,
+  "rule": "shell_candidate is not a live market. Run node BEC-PRIME/compiler/SiloFaceCompiler.js for full 500.",
+  "silos": [
+    {"slug": "mtg", "name": "Magic: The Gathering", "commercial_silo": "mtg", "tagline": "Singles and decks — see the cards.", "status": "live_candidate", "route": "/mtg/", "accent": "#d8b56b"},
+    {"slug": "pokemon", "name": "Pokémon TCG", "commercial_silo": "digital_products", "tagline": "Singles-first trading cards.", "status": "shell_candidate", "route": "/silo.html?slug=pokemon", "accent": "#9f8cff"},
+    {"slug": "yugioh", "name": "Yu-Gi-Oh!", "commercial_silo": "digital_products", "tagline": "Competitive and collection singles.", "status": "shell_candidate", "route": "/silo.html?slug=yugioh", "accent": "#9f8cff"},
+    {"slug": "lorcana", "name": "Disney Lorcana", "commercial_silo": "digital_products", "tagline": "See the cards before you deal.", "status": "shell_candidate", "route": "/silo.html?slug=lorcana", "accent": "#9f8cff"},
+    {"slug": "onepiece", "name": "One Piece Card Game", "commercial_silo": "digital_products", "tagline": "Singles and sealed.", "status": "shell_candidate", "route": "/silo.html?slug=onepiece", "accent": "#9f8cff"},
+    {"slug": "fab", "name": "Flesh and Blood", "commercial_silo": "digital_products", "tagline": "Hero-centric singles.", "status": "shell_candidate", "route": "/silo.html?slug=fab", "accent": "#9f8cff"},
+    {"slug": "digimon", "name": "Digimon TCG", "commercial_silo": "digital_products", "tagline": "Singles-first card shell.", "status": "shell_candidate", "route": "/silo.html?slug=digimon", "accent": "#9f8cff"},
+    {"slug": "swu", "name": "Star Wars: Unlimited", "commercial_silo": "digital_products", "tagline": "Card grid marketing shell.", "status": "shell_candidate", "route": "/silo.html?slug=swu", "accent": "#9f8cff"},
+    {"slug": "crypto", "name": "Crypto tools", "commercial_silo": "crypto", "tagline": "Risk-disclosed digital tools only.", "status": "shell_candidate", "route": "/silo.html?slug=crypto", "accent": "#9f8cff"},
+    {"slug": "digital_products", "name": "Digital products", "commercial_silo": "digital_products", "tagline": "Schema-gated digital offers.", "status": "shell_candidate", "route": "/silo.html?slug=digital_products", "accent": "#9f8cff"},
+    {"slug": "media_music", "name": "Media & music", "commercial_silo": "media_music", "tagline": "Licensed digital products.", "status": "shell_candidate", "route": "/silo.html?slug=media_music", "accent": "#9f8cff"},
+    {"slug": "supplier_quotes", "name": "Supplier quotes", "commercial_silo": "digital_products", "tagline": "Compare quotes with unknowns visible.", "status": "shell_candidate", "route": "/silo.html?slug=supplier_quotes", "accent": "#9f8cff"},
+    {"slug": "saas_vendors", "name": "SaaS vendors", "commercial_silo": "digital_products", "tagline": "Vendor comparison worksheets.", "status": "shell_candidate", "route": "/silo.html?slug=saas_vendors", "accent": "#9f8cff"},
+    {"slug": "freight", "name": "Freight quotes", "commercial_silo": "digital_products", "tagline": "Lane and rate comparison shell.", "status": "shell_candidate", "route": "/silo.html?slug=freight", "accent": "#9f8cff"},
+    {"slug": "construction", "name": "Construction subs", "commercial_silo": "digital_products", "tagline": "Subcontractor quote comparison.", "status": "shell_candidate", "route": "/silo.html?slug=construction", "accent": "#9f8cff"},
+    {"slug": "discord", "name": "Discord automation", "commercial_silo": "digital_products", "tagline": "Webhook and bot kits.", "status": "shell_candidate", "route": "/silo.html?slug=discord", "accent": "#9f8cff"},
+    {"slug": "stripe_ops", "name": "Stripe ops", "commercial_silo": "digital_products", "tagline": "Reconciliation tools.", "status": "shell_candidate", "route": "/silo.html?slug=stripe_ops", "accent": "#9f8cff"},
+    {"slug": "qr", "name": "QR microsites", "commercial_silo": "digital_products", "tagline": "Campaign landing kits.", "status": "shell_candidate", "route": "/silo.html?slug=qr", "accent": "#9f8cff"}
+  ]
+}
