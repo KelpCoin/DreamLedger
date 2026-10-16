@@ -34,12 +34,12 @@ function getAjvValidators() {
   }
   let Ajv;
   try {
-    Ajv = require('ajv');
+    Ajv = require('ajv/dist/2020.js');
   } catch (_)
   {
     return null;
   }
-  const ajv = new Ajv({ allErrors: true, strict: false });
+  const ajv = new Ajv({ allErrors: true, strict: false, validateSchema: false });
   _ajvValidateProduct = ajv.compile(loadSchema('elohim-product.schema.json'));
   _ajvValidateCandidate = ajv.compile(loadSchema('elohim-candidate.schema.json'));
   return { product: _ajvValidateProduct, candidate: _ajvValidateCandidate };
