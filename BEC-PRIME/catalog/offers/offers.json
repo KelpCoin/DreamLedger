@@ -1815,11 +1815,11 @@
         "private_material": "excluded"
       },
       "payment_link_note": "The historical Stripe link remains active at the provider but is not exposed by this held offer. Deactivation requires an authorized Stripe operation.",
-      "version": "offer-v1",
-      "pricing_tier": "snapshot",
       "approval_required": true,
       "checkout_available": false,
       "status": "HELD_CANONICAL_PRODUCT_GATE",
+      "version": "offer-v1",
+      "pricing_tier": "snapshot",
       "checkout_disabled_reason": "product_not_published"
     },
     {
@@ -1848,6 +1848,9 @@
       "refund_rules": "Apply the published checkout policy; delivery is not represented as complete before verified fulfillment.",
       "payment_adapter": "stripe",
       "payment_link_url": null,
+      "approval_required": true,
+      "checkout_available": false,
+      "status": "HELD_CANONICAL_PRODUCT_GATE",
       "payment_link_status": "ACTIVE_LIVEMODE",
       "payment_link_id": "plink_1UKS00EGgEAnUFF9kUjraaL5",
       "checkout_route": "/mtg/",
@@ -1870,9 +1873,6 @@
       "payment_link_note": "The historical live Stripe link is not exposed by this offer. Canonical product and fulfillment gates remain closed; external link deactivation requires an authorized Stripe operation.",
       "version": "offer-v1",
       "pricing_tier": "snapshot",
-      "approval_required": true,
-      "checkout_available": false,
-      "status": "HELD_CANONICAL_PRODUCT_GATE",
       "checkout_disabled_reason": "product_not_published"
     }
   ]
