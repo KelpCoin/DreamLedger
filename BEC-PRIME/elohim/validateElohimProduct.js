@@ -32,14 +32,15 @@ function getAjvValidators() {
   if (_ajvValidateProduct && _ajvValidateCandidate) {
     return { product: _ajvValidateProduct, candidate: _ajvValidateCandidate };
   }
-  let Ajv;
+  let Ajv2020;
   try {
-    Ajv = require('ajv');
-  } catch (_)
-  {
+    // Both Elohim schemas declare JSON Schema draft 2020-12. The default
+    // "ajv" export targets draft-07 and throws before validation can run.
+    Ajv2020 = require('ajv/dist/2020');
+  } catch (_) {
     return null;
   }
-  const ajv = new Ajv({ allErrors: true, strict: false });
+  const ajv = new Ajv2020({ allErrors: true, strict: false });
   _ajvValidateProduct = ajv.compile(loadSchema('elohim-product.schema.json'));
   _ajvValidateCandidate = ajv.compile(loadSchema('elohim-candidate.schema.json'));
   return { product: _ajvValidateProduct, candidate: _ajvValidateCandidate };
