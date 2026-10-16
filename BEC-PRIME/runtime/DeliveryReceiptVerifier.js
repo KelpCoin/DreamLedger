@@ -22,7 +22,7 @@ function signingPayload(receipt) {
   return Buffer.from(canonicalize(copy), 'utf8');
 }
 
-function verifyDeliveryReceipt(receipt, options = {}) {
+async function verifyDeliveryReceipt(receipt, options = {}) {
   const errors = [];
   const add = (code) => errors.push(code);
   const requirements = options.expectedRequirements;
