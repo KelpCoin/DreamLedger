@@ -56,3 +56,14 @@ The template now defines:
 - `allow_invented_products=false` and evidence requirements for performance claims.
 
 These are source-controlled contracts. They do not mean each existing silo has been migrated or validated yet. Clone-time validation must be wired into the factory and its tests before treating the new contract as enforced.
+
+## Source drift recovered in this branch
+
+The three deployed Commander diagnostic functions have been copied from the live Supabase function registry into the normal `supabase/functions/` source paths in this branch:
+- delivery v11
+- input v6
+- verify v4
+
+The deployed canonical revenue webhook v28 and older `dreamledger-stripe-webhook-v3` v13 have been snapshotted under `ops/recovered-production/` for comparison. The canonical webhook source in `supabase/functions/stripe-revenue-41104f355d6878cdd6d1f9dc/index.ts` on main is not byte-identical to deployed v28. Treat this as source drift. Do not overwrite the active production version with main until the differences are reviewed and tests pass.
+
+This branch intentionally does not deploy functions, alter Stripe endpoint routing, enable a Payment Link, or change production tables. Those are live-money actions and remain gated on test-mode evidence.
