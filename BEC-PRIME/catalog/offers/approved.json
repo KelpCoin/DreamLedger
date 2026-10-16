@@ -58,7 +58,10 @@
       },
       "approved_by": "operator",
       "approved_at": "2026-08-27",
-      "payment_link_note": "Aligned 2026-09-25 to live /buy/DREAMLEDGER-BILLBOARD-FOUNDING-001 redirect"
+      "payment_link_note": "The Stripe link is active, but public checkout remains held until a verified zero-operator fulfillment contract, content-approval policy, buyer delivery proof, and ledger reconciliation are evidenced. An active Stripe URL alone is not authorization.",
+      "checkout_authorized": false,
+      "evidence_status": "UNVERIFIED",
+      "fulfillment_status": "HELD"
     },
     {
       "offer_id": "OFFER-CMD-DIAG-29-NZD",
