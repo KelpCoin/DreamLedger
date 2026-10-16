@@ -41,7 +41,21 @@ function patch() {
 
   const start = html.indexOf('function render(items){');
   const end = html.indexOf('async function load(){', start);
-  if (start < 0 || end < 0) throw new Error('MTG render function boundary not found');
+  if (start < 0 || end < 0) {
+    // The current master template already uses a different, manifest-aware
+    // renderer. Do not force an obsolete text patch over that implementation.
+    // Accept it only when condition rendering is explicitly data-driven and
+    // there is no implicit Lightly Played fallback.
+    const conditionSafe = /const cond\s*=\s*p\.condition\s*\?/.test(html)
+      && !/condition\s*\|\|\s*['"]Lightly Played['"]/i.test(html)
+      && !html.includes('LP− (Lightly Played)');
+    if (!conditionSafe) throw new Error('MTG renderer boundary not found and current renderer did not prove safe condition handling');
+    html = html.replace('<body class="silo-body">', '<body class="silo-body" '+MARKER+'>');
+    if (html === original) throw new Error('MTG renderer already differs from legacy patch but marker could not be written');
+    fs.writeFileSync(SOURCE, html, 'utf8');
+    writeProof();
+    return;
+  }
 
   const render = String.raw`function render(items){
 const decks=items.filter(isMtg);
