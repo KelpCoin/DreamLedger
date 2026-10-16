@@ -39,6 +39,8 @@ jobs:
       - name: Verify CUBE MTG reskin
         shell: pwsh
         run: .\BEC-PRIME\scripts\Verify-CUBE-MTG-Reskin.ps1
+      - name: Compile canonical customer storefront
+        run: node BEC-PRIME/compiler/WebsiteFaceCompiler.js
       - name: Verify public surfaces exist
         shell: pwsh
         run: |
