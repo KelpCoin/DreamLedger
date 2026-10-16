@@ -13,7 +13,7 @@ const PROOF = path.join(ROOT, 'BEC-PRIME', 'PROOF-PUBLIC-AGENT-PRODUCTS-COMPILAT
 const REQUIRED = [
   'item_id', 'title', 'description', 'url', 'brand',
   'seller_name', 'seller_url', 'price', 'availability',
-  'sku', 'category', 'required_input', 'one_time_purchase',
+  'sku', 'category', 'one_time_purchase',
   'subscription', 'enable_search', 'enable_checkout'
 ];
 
