@@ -197,6 +197,31 @@ function runGauntlet(candidates, capabilities) {
   return { passed, rejected };
 }
 
+function canonicalProductGate(productId) {
+  const file = path.join(ROOT, 'catalog', 'products', `${productId}.json`);
+  let product;
+  try {
+    product = JSON.parse(fs.readFileSync(file, 'utf8'));
+  } catch {
+    return { open: false, reason: 'canonical_product_missing', paymentLink: null };
+  }
+  const paymentLink = product.checkout?.url || product.commercial_truth?.payment_link || product.checkout_url || null;
+  const validStripeLink = typeof paymentLink === 'string'
+    && /^https:\/\/(?:buy\.stripe\.com|checkout\.stripe\.com)\//i.test(paymentLink);
+  const open = product.status === 'published'
+    && product.commercial_truth?.approval_required === false
+    && product.commercial_truth?.sellable === true
+    && product.checkout_available === true
+    && product.checkout?.mode === 'stripe'
+    && validStripeLink;
+  return {
+    open,
+    reason: open ? null : 'canonical_product_gate_closed',
+    paymentLink,
+    product
+  };
+}
+
 function compileApprovedOffers(records, capabilities, generatedOffers) {
   const byId = new Map(capabilities.map(c => [c.id, c]));
   const generatedIds = new Set(generatedOffers.map(o => o.offer_id));
@@ -214,19 +239,36 @@ function compileApprovedOffers(records, capabilities, generatedOffers) {
     if (record.approved_by !== 'operator') { errors.push({ offer_id: record.offer_id, errors: ['explicit_operator_approval_required'] }); continue; }
     if (approved.some(o => o.offer_id === record.offer_id)) { errors.push({ offer_id: record.offer_id, errors: ['duplicate_approved_offer_id'] }); continue; }
     if (generatedIds.has(record.offer_id)) {
-      // Explicit operator approval intentionally overrides the generated, locked candidate
-      // with the same offer ID. The approved record becomes the sole canonical public offer.
+      // A canonical record replaces the generated candidate, but cannot bypass
+      // the independent canonical product's commercial and checkout gates.
     }
+
+    const gate = canonicalProductGate(record.product_id);
+    const linkMatches = gate.open
+      && typeof record.payment_link_url === 'string'
+      && record.payment_link_url === gate.paymentLink;
+    const enabled = gate.open
+      && linkMatches
+      && record.payment_link_status === 'ACTIVE_LIVEMODE';
 
     const offer = {
       ...record,
       version: 'offer-v1',
       pricing_strategy: record.pricing_strategy || 'fixed',
       pricing_tier: record.pricing_tier || 'snapshot',
-      approval_required: false,
-      checkout_available: true,
-      status: 'VERIFIED_AVAILABLE'
+      approval_required: !enabled,
+      checkout_available: enabled,
+      status: enabled ? 'VERIFIED_AVAILABLE' : (gate.open ? 'HELD_STRIPE_LINK_DRIFT' : 'HELD_CANONICAL_PRODUCT_GATE'),
+      checkout_disabled_reason: enabled ? null : (gate.open ? 'payment_link_does_not_match_canonical_product' : gate.reason)
     };
+
+    if (!enabled) {
+      // Do not publish an executable payment URL while the canonical product
+      // is held, missing, mismatched, or otherwise not explicitly sellable.
+      offer.payment_link_url = null;
+      offer.checkout_route = '/mtg/';
+      offer.fulfillment_route = null;
+    }
     delete offer.approved_by;
     delete offer.approved_at;
     approved.push(offer);
@@ -285,7 +327,8 @@ function compile() {
     rejected_offer_ids: allRejected.map(item => item.offer_id || item.candidate?.offer_id || item.capability_id || null),
     approval_required_for_generated_offers: gauntlet.passed.every(o => o.approval_required === true),
     checkout_disabled_for_generated_offers: gauntlet.passed.every(o => o.checkout_available === false),
-    approved_checkout_enabled_only_by_explicit_record: approvedResult.approved.every(o => o.checkout_available === true && o.approval_required === false),
+    checkout_enabled_only_when_canonical_product_gate_open: approvedResult.approved.every(o => o.checkout_available === false || (o.checkout_available === true && o.approval_required === false && o.status === 'VERIFIED_AVAILABLE')),
+    closed_canonical_product_gates_remain_disabled: approvedResult.approved.every(o => o.status !== 'HELD_CANONICAL_PRODUCT_GATE' || (o.checkout_available === false && o.approval_required === true && o.payment_link_url == null)),
     silo_integrity: finalOffers.every(o => byCapability(capabilities, o.capability_id)?.silo === o.silo),
     deterministic_ids: new Set(finalOffers.map(o => o.offer_id)).size === finalOffers.length,
     deterministic_proof: true
