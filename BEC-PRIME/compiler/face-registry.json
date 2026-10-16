@@ -47,7 +47,7 @@
       "primary_offer_ids": [],
       "secondary_links": [
         {
-          "label": "Compare supplier quotes",
+          "label": "Supplier Quote Comparison Worksheet",
           "href": "/quote-comparison/"
         },
         {
@@ -57,6 +57,10 @@
         {
           "label": "Trust & verification",
           "href": "/trust/"
+        },
+        {
+          "label": "Commander Deck Diagnostic (currently held)",
+          "href": "/mtg/diagnostic.html"
         },
         {
           "label": "Magic marketplace",
