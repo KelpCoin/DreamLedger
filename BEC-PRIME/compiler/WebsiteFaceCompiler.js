@@ -26,8 +26,12 @@ function routeEligible(route, productId, link){
   if(!fs.existsSync(productPath) || !fs.existsSync(fulfillmentPath)) return false;
   let product, fulfillmentRegistry;
   try { product = readJson(productPath); fulfillmentRegistry = readJson(fulfillmentPath); } catch (_) { return false; }
+  const productPrice = Number(product.price);
+  const productPriceMajor = ['minor','cents'].includes(String(product.price_unit || 'major').toLowerCase()) ? productPrice / 100 : productPrice;
   if(product.id !== id || product.status !== 'published' || product.commercial_truth?.sellable !== true
-    || product.commercial_truth?.approval_required !== false || Number(product.inventory) <= 0) return false;
+    || product.commercial_truth?.approval_required !== false || !Number.isFinite(Number(product.inventory))
+    || Number(product.inventory) <= 0 || !Number.isFinite(productPriceMajor)
+    || Math.abs(productPriceMajor - price) > 0.005 || String(product.currency || '').toLowerCase() !== 'nzd') return false;
   const productLink = product.commercial_truth?.payment_link || product.checkout?.url || product.checkout_url || null;
   if(typeof productLink !== 'string' || !/^https:\/\/buy\.stripe\.com\//i.test(productLink)) return false;
   if(/^https:\/\/buy\.stripe\.com\//i.test(link) && link !== productLink) return false;
