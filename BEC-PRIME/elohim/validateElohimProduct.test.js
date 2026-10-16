@@ -2,6 +2,8 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
 const {
   validateCatalogProduct,
   validateElohimCandidate,
@@ -23,6 +25,50 @@ test('valid catalog product passes', () => {
   });
   assert.equal(r.ok, true);
   assert.equal(r.price_major_nzd, 5);
+});
+
+test('legacy catalog-only silo remains provenance-only and non-publishable', () => {
+  const r = validateCatalogProduct({
+    id: 'BILLBOARD-LARGE',
+    name: 'Legacy billboard listing',
+    price: 349,
+    price_unit: 'major',
+    currency: 'nzd',
+    status: 'catalog_only',
+    silo: 'billboard',
+    inventory: 0,
+    checkout_available: false,
+    checkout: { mode: 'disabled', url: null },
+    commercial_truth: { approval_required: true, sellable: false }
+  });
+  assert.equal(r.ok, true);
+  assert.ok(r.warnings.some(w => w.code === 'LEGACY_SILO_NON_PUBLISHABLE'));
+  assert.equal(validateElohimCandidate({
+    id: 'NEW-LEGACY-SILO',
+    name: 'Must not create in legacy silo',
+    silo: 'billboard',
+    price_proposal_nzd: [29],
+    approval_required: true,
+    checkout_available: false,
+    created_by: 'ELOHIM'
+  }).ok, false);
+});
+
+test('archived catalog records remain valid without becoming sellable', () => {
+  const r = validateCatalogProduct({
+    id: 'ARCHIVED-TEST',
+    name: 'Archived record',
+    price: 49,
+    currency: 'nzd',
+    status: 'archived',
+    silo: 'commerce',
+    checkout_available: false,
+    checkout: { mode: 'disabled', url: null },
+    commercial_truth: { approval_required: true, sellable: false }
+  });
+  assert.equal(r.ok, true);
+  assert.equal(r.silo, null);
+  assert.ok(r.warnings.some(w => w.code === 'LEGACY_SILO_NON_PUBLISHABLE'));
 });
 
 test('checkout_available without Stripe URL fails', () => {
@@ -116,4 +162,23 @@ test('Elohim candidate with checkout_available true is rejected', () => {
   });
   assert.equal(r.ok, false);
   assert.ok(r.errors.some(e => e.code === 'CHECKOUT_GATE'));
+});
+
+test('uses the declared JSON Schema 2020-12 dialect and rejects wrong field types', () => {
+  const productSchema = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'schemas', 'elohim-product.schema.json'), 'utf8'));
+  const candidateSchema = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'schemas', 'elohim-candidate.schema.json'), 'utf8'));
+  assert.equal(productSchema.$schema, 'https://json-schema.org/draft/2020-12/schema');
+  assert.equal(candidateSchema.$schema, 'https://json-schema.org/draft/2020-12/schema');
+  const result = validateCatalogProduct({
+    id: 'SCHEMA-DIALECT-TEST',
+    name: 'Schema dialect test',
+    price: 29,
+    price_unit: 'major',
+    currency: 'nzd',
+    status: 'draft',
+    silo: 'mtg',
+    checkout_available: 'false'
+  });
+  assert.equal(result.ok, false);
+  assert.ok(result.errors.some(error => error.code === 'SCHEMA' && error.path === '/checkout_available'));
 });

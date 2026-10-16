@@ -1,0 +1,131 @@
+{
+  "schema": "dreamledger/customer-facing-voice-checkpoint/v1",
+  "status": "binding_policy_proposed",
+  "applies_to": [
+    "public_pages",
+    "product_descriptions",
+    "customer_reports",
+    "diagnostics",
+    "outreach",
+    "announcements",
+    "agent_generated_customer_artifacts"
+  ],
+  "stages": [
+    {
+      "id": "TRANSPARENCY",
+      "requirement": "Record the model/tool and contribution level for each generated or AI-assisted section, then disclose the assistance accurately when material to the customer's understanding.",
+      "required_artifact_fields": [
+        "ai_contribution.sections[].section_id",
+        "ai_contribution.sections[].origin",
+        "ai_contribution.sections[].model_or_tool",
+        "ai_contribution.sections[].contribution",
+        "ai_contribution.disclosure_text"
+      ],
+      "prohibited": [
+        "generic disclosure that falsely claims a specific model/tool was used",
+        "claiming local inference when cloud inference was used",
+        "claiming independent verification when the arithmetic or source was not independently checked"
+      ]
+    },
+    {
+      "id": "OPERATOR_VOICE",
+      "requirement": "Preserve a genuine operator-authored line, judgment, decision, or experience supplied by the operator and linked to its source. Do not invent first-person, sensory, autobiographical, customer, or testimonial detail.",
+      "required_artifact_fields": [
+        "operator_voice.anchor_text",
+        "operator_voice.source_ref",
+        "operator_voice.confirmed_by_operator"
+      ],
+      "prohibited": [
+        "model-invented personal experience",
+        "fabricated customer quotes or testimonials",
+        "adding sensory details merely to make copy appear human",
+        "treating a style score as proof of human authorship"
+      ]
+    },
+    {
+      "id": "TRUTH_PRESERVING_EDIT",
+      "requirement": "Edits may improve clarity, rhythm, concision, and remove formulaic phrasing only when they preserve meaning and factual scope. Do not rewrite to evade AI detectors or conceal AI involvement.",
+      "required_artifact_fields": [
+        "review.transformation_rules",
+        "review.fact_trail_refs",
+        "review.meaning_preserved",
+        "review.operator_approved"
+      ],
+      "prohibited": [
+        "AI-detector evasion",
+        "unsupported stronger claims",
+        "removal of caveats that materially affect truth",
+        "style changes that erase an operator's deliberate sharpness or uncertainty"
+      ]
+    }
+  ],
+  "decision_rules": [
+    {
+      "id": "NO_PROVENANCE",
+      "decision": "HOLD",
+      "reason": "AI contribution or source provenance is incomplete."
+    },
+    {
+      "id": "NO_AUTHENTIC_OPERATOR_ANCHOR",
+      "decision": "HOLD",
+      "reason": "A required human voice anchor is absent or not operator-confirmed."
+    },
+    {
+      "id": "FABRICATED_EXPERIENCE",
+      "decision": "REJECT",
+      "reason": "The artifact invents personal or customer experience."
+    },
+    {
+      "id": "MEANING_NOT_PRESERVED",
+      "decision": "HOLD",
+      "reason": "The edit changes factual scope, confidence, or material caveats."
+    },
+    {
+      "id": "DETECTOR_EVASION_REQUEST",
+      "decision": "REJECT",
+      "reason": "The objective is to conceal AI authorship or game a detector."
+    },
+    {
+      "id": "DISCLOSURE_CONFLICT",
+      "decision": "HOLD",
+      "reason": "Disclosure contradicts recorded model, tool, or contribution provenance."
+    }
+  ],
+  "zero_budget_inference_policy": {
+    "local_first_for": [
+      "private source material",
+      "repeatable deterministic checks",
+      "sensitive evidence analysis where the local model is suitable"
+    ],
+    "free_cloud_permitted_for": [
+      "public research",
+      "drafting",
+      "non-sensitive reasoning within the provider's free tier and terms"
+    ],
+    "paid_cloud": "DISABLED_BY_DEFAULT until the user explicitly approves spending after verified revenue or another stated funding source.",
+    "provider_claims": "Model names, limits, prices, free-tier availability, and availability must be checked at use time. Never hard-code transient vendor marketing claims as policy facts.",
+    "boundary": "Local model output is not a source of economic truth. Deterministic code and external evidence remain authoritative."
+  },
+  "learning_mode": {
+    "predict_before_evidence": [
+      "operator_prediction",
+      "falsification_evidence",
+      "decision_rule"
+    ],
+    "after_action_reflection": [
+      "surprising_finding",
+      "skill_to_practice",
+      "safe_automation_candidate"
+    ],
+    "privacy": "Record concise decisions and evidence, not hidden chain-of-thought."
+  },
+  "outputs": {
+    "allowed": [
+      "PASS_TO_HUMAN_REVIEW",
+      "HOLD",
+      "REJECT"
+    ],
+    "authority": "NON_AUTHORITATIVE_FOR_ECONOMICS",
+    "effect_on_revenue_truth": "NONE"
+  }
+}

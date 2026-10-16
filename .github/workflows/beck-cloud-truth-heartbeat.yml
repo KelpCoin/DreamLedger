@@ -18,10 +18,10 @@ jobs:
     timeout-minutes: 8
     env:
       BASE_URL: https://dreamledger.org
-      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_URL: ${{ vars.SUPABASE_URL || secrets.SUPABASE_URL || 'https://wbwgroygjeyukkspnqiy.supabase.co' }}
       SUPABASE_KEY: ${{ secrets.SUPABASE_SECRET_KEY || secrets.SUPABASE_SERVICE_ROLE_KEY }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: main
           fetch-depth: 1
@@ -128,7 +128,7 @@ jobs:
 
       - name: Upload cloud proof
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: beck-cloud-heartbeat-${{ github.run_id }}
           path: proof/beck

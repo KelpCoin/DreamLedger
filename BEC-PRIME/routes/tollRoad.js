@@ -207,7 +207,101 @@ function meterResult(key, service, extra){
   return Object.assign({schema:'dreamledger/toll-metered-result/v1',key_id:key.key_id,service,accepted:true,economic_truth_unchanged:true,received_at:new Date().toISOString()},extra||{});
 }
 
+const LOCAL_HEARTBEAT_TTL_MS = 5 * 60 * 1000;
+let latestLocalHeartbeat = null;
+
+function configuredLocalHeartbeatToken() {
+  const value = String(process.env.LOCAL_HEARTBEAT_TOKEN || '');
+  return value.length >= 32 ? value : '';
+}
+
+function matchesLocalHeartbeatToken(req, expected) {
+  const match = String(req.headers && req.headers.authorization || '').match(/^Bearer\s+(.+)$/i);
+  if (!match || !expected) return false;
+  const supplied = Buffer.from(match[1], 'utf8');
+  const canonical = Buffer.from(expected, 'utf8');
+  return supplied.length === canonical.length && crypto.timingSafeEqual(supplied, canonical);
+}
+
+function localHeartbeatSnapshot(now = Date.now()) {
+  if (!configuredLocalHeartbeatToken()) {
+    return {
+      schema: 'dreamledger/local-heartbeat-status/v1',
+      status: 'NOT_CONFIGURED',
+      online: false,
+      received_at: null,
+      checked_at: new Date(now).toISOString(),
+      ttl_seconds: LOCAL_HEARTBEAT_TTL_MS / 1000,
+      note: 'A dedicated LOCAL_HEARTBEAT_TOKEN of at least 32 characters must be configured. No local status is inferred.'
+    };
+  }
+  const receivedMs = latestLocalHeartbeat ? Date.parse(latestLocalHeartbeat.received_at) : NaN;
+  const fresh = Number.isFinite(receivedMs) && now - receivedMs >= 0 && now - receivedMs < LOCAL_HEARTBEAT_TTL_MS;
+  if (!fresh) {
+    return {
+      schema: 'dreamledger/local-heartbeat-status/v1',
+      status: 'OFFLINE_OR_STALE',
+      online: false,
+      received_at: latestLocalHeartbeat && latestLocalHeartbeat.received_at || null,
+      checked_at: new Date(now).toISOString(),
+      ttl_seconds: LOCAL_HEARTBEAT_TTL_MS / 1000,
+      note: 'No fresh authenticated heartbeat. This does not distinguish powered-off hardware from sleep, network, task, or local runtime failure.'
+    };
+  }
+  return {
+    schema: 'dreamledger/local-heartbeat-status/v1',
+    status: 'ONLINE',
+    online: true,
+    received_at: latestLocalHeartbeat.received_at,
+    checked_at: new Date(now).toISOString(),
+    ttl_seconds: LOCAL_HEARTBEAT_TTL_MS / 1000,
+    lm_studio: latestLocalHeartbeat.lm_studio,
+    tri_llm: latestLocalHeartbeat.tri_llm,
+    capacity: latestLocalHeartbeat.capacity,
+    loaded_model_count: latestLocalHeartbeat.loaded_model_count,
+    note: 'Operational presence only. This is not payment, fulfilment, capability-correctness, or revenue evidence.'
+  };
+}
+
 async function handle(req,res,path){
+  if(path==='/api/toll/v1/local-heartbeat'&&req.method==='GET') {
+    return send(res,200,localHeartbeatSnapshot());
+  }
+
+  if(path==='/api/toll/v1/local-heartbeat'&&req.method==='POST') {
+    const token=configuredLocalHeartbeatToken();
+    if(!token) return send(res,503,{schema:'dreamledger/local-heartbeat-status/v1',error:'local_heartbeat_not_configured',required_env:'LOCAL_HEARTBEAT_TOKEN'});
+    if(!matchesLocalHeartbeatToken(req,token)) return send(res,401,{schema:'dreamledger/local-heartbeat-status/v1',error:'invalid_local_heartbeat_token'});
+    const body=await readJson(req).catch(error=>({__error:error}));
+    if(body&&body.__error) return send(res,body.__error.statusCode||400,{schema:'dreamledger/local-heartbeat-status/v1',error:body.__error.message||'invalid_json'});
+    if(!body||typeof body!=='object'||Array.isArray(body)) return send(res,400,{error:'heartbeat_object_required'});
+    if(typeof body.ts!=='string'||!Number.isFinite(Date.parse(body.ts))) return send(res,400,{error:'valid_iso8601_ts_required'});
+    const sourceTs=Date.parse(body.ts),now=Date.now();
+    if(sourceTs<now-10*60*1000||sourceTs>now+5*60*1000) return send(res,400,{error:'heartbeat_timestamp_stale_or_future'});
+    if(latestLocalHeartbeat && sourceTs<=Date.parse(latestLocalHeartbeat.source_ts)) return send(res,409,{error:'heartbeat_timestamp_replayed_or_out_of_order'});
+    if(typeof body.lm_studio!=='boolean') return send(res,400,{error:'lm_studio_boolean_required'});
+    if(body.tri_llm!=null&&typeof body.tri_llm!=='boolean') return send(res,400,{error:'tri_llm_must_be_boolean'});
+    const capacity=body.capacity==null?(body.lm_studio?'available':'offline'):String(body.capacity);
+    if(!['available','busy','offline'].includes(capacity)) return send(res,400,{error:'invalid_capacity'});
+    const modelList=Array.isArray(body.models)?body.models.filter(x=>typeof x==='string').slice(0,20):[];
+    latestLocalHeartbeat={
+      received_at:new Date(now).toISOString(),
+      source_ts:new Date(sourceTs).toISOString(),
+      lm_studio:body.lm_studio,
+      tri_llm:body.tri_llm===true,
+      capacity,
+      loaded_model_count:modelList.length
+    };
+    return send(res,200,{
+      schema:'dreamledger/local-heartbeat-ack/v1',
+      status:'ACCEPTED',
+      received_at:latestLocalHeartbeat.received_at,
+      ttl_seconds:LOCAL_HEARTBEAT_TTL_MS/1000,
+      economic_truth_unchanged:true,
+      public_posts:false,
+      payments_created:false
+    });
+  }
   if(path==='/api/toll/v1/manifest'&&req.method==='GET')return send(res,200,Toll.publicManifest([{id:'ROAD-METER-10000',route:'/api/toll/v1/roads/{road_id}',scope:'road',status:'CATALOGUED_PENDING_DURABLE_QUOTA_LEDGER',checkout_configured:false,price_nzd:null,proposed_price_nzd:RoadFactory.ROAD_PRICE_NZD,description:'10,000 logical road IDs. Paid execution remains disabled until durable per-key quota accounting is available.',road_instances:RoadFactory.ROAD_COUNT,calls_per_pack:null,proposed_calls_per_pack:RoadFactory.CALLS_PER_ROAD,checkout_route:null,catalog_endpoint:'/api/toll/v1/roads?offset=0&limit=100'}]));
 
   if(path==='/api/toll/v1/roads'&&req.method==='GET'){
@@ -404,4 +498,4 @@ async function handle(req,res,path){
   return false;
 }
 
-module.exports={handle};
+module.exports={handle,localHeartbeatSnapshot};

@@ -1,22 +1,20 @@
 'use strict';
 // Storefront server — public/ is Render rootDir. Whitelist + safe file fallback.
 const http=require('http'),fs=require('fs'),path=require('path'),{URL}=require('url');
-const commercialCell=require('../BEC-PRIME/routes/commercialCell');
-const tollRoad=require('../BEC-PRIME/routes/tollRoad');
-const TollRuntime=require('../BEC-PRIME/runtime/TollRoad');
+const canonicalCheckoutGate=require('../BEC-PRIME/runtime/canonicalCheckoutGate');
 const PORT=Number(process.env.PORT||10000);
 const COMMIT=process.env.RENDER_GIT_COMMIT||process.env.RENDER_GIT_COMMIT_SHA||process.env.GITHUB_SHA||'unknown';
 const ROOT=__dirname;
 const ENGINE_INTERNAL_URL=String(process.env.ENGINE_INTERNAL_URL||'').replace(/\/$/,'');
 const ENGINE_INTERNAL_API_KEY=String(process.env.ENGINE_INTERNAL_API_KEY||'');
 const PUBLIC_FILES={
-  '/':'home.html','/index.html':'home.html','/status':'status.html','/status/':'status.html','/status.html':'status.html',
+  '/':'home.html','/index.html':'home.html','/cash.html':'cash.html','/RELEASE_V21.json':'RELEASE_V21.json','/status':'status.html','/status/':'status.html','/status.html':'status.html',
   '/about':'about.html','/about/':'about.html','/privacy':'privacy.html','/privacy/':'privacy.html','/privacy.html':'privacy.html','/terms':'terms.html','/terms/':'terms.html','/terms.html':'terms.html','/security':'security.html','/security/':'security.html','/security.html':'security.html','/contact':'contact.html','/contact/':'contact.html','/trust':'trust.html','/trust/':'trust.html',
   '/catalogue':'catalogue.html','/catalogue/':'catalogue.html','/catalogue.html':'catalogue.html',
   '/app.js':'app.js',
   '/sell.html':'sell.html','/sell':'sell.html','/sell/':'sell.html',
   '/billboard':'billboard.html','/billboard/':'billboard.html','/billboard.html':'billboard.html',
-  '/mtg':'mtg/master.html','/mtg/':'mtg/master.html','/mtg.html':'mtg/master.html',
+  '/mtg':'mtg/index.html','/mtg/':'mtg/index.html','/mtg.html':'mtg/index.html',
   '/demand-services':'demand-services.html','/demand-services/':'demand-services.html',
   '/fightedge':'fightedge/index.html','/fightedge/':'fightedge/index.html',
   '/commander-guide':'commander-guide.html','/commander-guide/':'commander-guide.html',
@@ -26,7 +24,7 @@ const PUBLIC_FILES={
   '/go':'go/index.html','/go/':'go/index.html',
   '/cost-of-living.html':'cost-of-living.html','/cost-of-living':'cost-of-living.html',
   '/truth-oracle.html':'truth-oracle.html',
-  '/truth-oracle-field-guide.html':'truth-oracle-field-guide.html','/shop.html':'shop.html','/truth-oracle':'truth-oracle.html',
+  '/truth-oracle-field-guide.html':'truth-oracle-field-guide.html','/shop.html':'shop.html','/money.html':'money.html','/money':'money.html','/money/':'money.html','/truth-oracle':'truth-oracle.html',
   '/agent-bridge-job-contract-v1.json':'agent-bridge-job-contract-v1.json','/agent.json':'agent.json','/agent-commerce.json':'agent-commerce.json',
   '/cube.json':'public-resources.json','/economic-loops.json':'public-resources.json','/ecosystem.json':'public-resources.json',
   '/data/economic-pulse.json':'public-research-feed.json',
@@ -35,6 +33,9 @@ const PUBLIC_FILES={
   '/.well-known/carbon-forward-schema.json':'.well-known/carbon-forward-schema.json','/schemas/carbon-forward-intent.v1.json':'schemas/carbon-forward-intent.v1.json',
   '/economic':'pulse/index.html','/economic/':'pulse/index.html',
   '/catalog.json':'catalog.json','/surfaces.json':'surfaces.json',
+  '/buy/COMMANDER-DECK-DIAGNOSTIC-001':'buy/commander-deck-diagnostic-001/index.html',
+  '/buy/commander-deck-diagnostic-001':'buy/commander-deck-diagnostic-001/index.html',
+  '/buy/cmd-diag-29':'buy/cmd-diag-29/index.html',
   '/robots.txt':'robots.txt','/sitemap.xml':'sitemap.xml',
   '/quote-comparison':'quote-comparison/index.html','/quote-comparison/':'quote-comparison/index.html','/quote-comparison.html':'quote-comparison.html',
   '/overpaying':'overpaying.html','/overpaying.html':'overpaying.html',
@@ -70,10 +71,16 @@ async function proxyTollToEngine(req,res,p){
   try{
     const chunks=[]; let size=0;
     if(!['GET','HEAD'].includes(req.method)){
-      for await(const chunk of req){ size+=chunk.length; if(size>1024*1024)return send(res,413,JSON.stringify({error:'request_too_large'}),'application/json; charset=utf-8'); chunks.push(chunk); }
+      const limit=(p==='/api/webhooks/stripe'||p==='/webhook')?5*1024*1024:1024*1024;
+      for await(const chunk of req){ size+=chunk.length; if(size>limit)return send(res,413,JSON.stringify({error:'request_too_large'}),'application/json; charset=utf-8'); chunks.push(chunk); }
     }
     const h={'accept':'application/json'};
     for(const name of ['content-type','idempotency-key','x-dreamledger-toll-key'])if(req.headers[name])h[name]=req.headers[name];
+    // The local BECK heartbeat uses its own scoped bearer token. Forward it only for that route.
+    if(p==='/api/toll/v1/local-heartbeat'&&req.headers.authorization)h.authorization=req.headers.authorization;
+    if((p==='/api/webhooks/stripe'||p==='/webhook')&&req.headers['stripe-signature'])h['stripe-signature']=req.headers['stripe-signature'];
+    if(p==='/api/commercial/claim'&&req.headers['x-dreamledger-agent-token'])h['x-dreamledger-agent-token']=req.headers['x-dreamledger-agent-token'];
+    if(p==='/api/commercial/reconcile'&&req.headers['x-dreamledger-reconcile-token'])h['x-dreamledger-reconcile-token']=req.headers['x-dreamledger-reconcile-token'];
     if(ENGINE_INTERNAL_API_KEY)h['x-api-key']=ENGINE_INTERNAL_API_KEY;
     const target=ENGINE_INTERNAL_URL+(req.url||p);
     const upstream=await fetch(target,{method:req.method,headers:h,body:chunks.length?Buffer.concat(chunks):undefined,redirect:'manual'});
@@ -106,27 +113,40 @@ http.createServer(async (req,res)=>{
   if(req.method==='GET'&&p==='/version'){
     return send(res,200,JSON.stringify({service:'dreamledger-storefront',status:'ok',mtg:'master'}),'application/json; charset=utf-8');
   }
+  // /catalog.json is the transparent public catalogue, including held listings.
+  // The API endpoints below expose only products cleared by the canonical checkout gate.
   if(req.method==='GET' && (p==='/api/offers' || p==='/api/products')){
     try{
-      const catalogue=JSON.parse(fs.readFileSync(path.join(ROOT,'catalog.json'),'utf8'));
-      const source=Array.isArray(catalogue.products)?catalogue.products:[];
-      const listed=source.filter(x=>x&&x.status==='published');
+      const repoRoot=path.resolve(__dirname,'..');
+      const canonical=canonicalCheckoutGate.loadCanonicalCheckoutableProducts({repoRoot});
+      const listed=canonical.map(canonicalCheckoutGate.toPublicProduct);
+      const commerceStatus=listed.length?'READY':'HOLD_NO_CANONICAL_PRODUCT_PROOF';
       if(p==='/api/products'){
-        return send(res,200,JSON.stringify({schema:'dreamledger/products/v1',count:listed.length,products:listed}),'application/json; charset=utf-8');
+        return send(res,200,JSON.stringify({schema:'dreamledger/products/v1',count:listed.length,commerce_status:commerceStatus,products:listed}),'application/json; charset=utf-8');
       }
-      return send(res,200,JSON.stringify({schema:'dreamledger/offers/v1',count:listed.length,offers:listed}),'application/json; charset=utf-8');
-    }catch(error){ return send(res,500,JSON.stringify({error:'CATALOG_UNAVAILABLE'}),'application/json; charset=utf-8'); }
+      const offers=canonical.map(product=>({
+        offer_id:product.offer_id||product.id,
+        product_id:product.id,
+        name:product.name,
+        description:product.description||'',
+        price:canonicalCheckoutGate.priceInMajorUnits(product),
+        currency:String(product.currency||'NZD').toUpperCase(),
+        checkout_url:canonicalCheckoutGate.checkoutUrl(product),
+        checkout_available:true,
+        approval_required:false,
+        status:'VERIFIED_AVAILABLE',
+        gauntlet_status:'PASS',
+        fulfillment_status:'READY',
+        silo:product.silo
+      }));
+      return send(res,200,JSON.stringify({schema:'dreamledger/offers/v1',count:offers.length,commerce_status:commerceStatus,offers}),'application/json; charset=utf-8');
+    }catch(error){ return send(res,500,JSON.stringify({error:'CANONICAL_CATALOG_UNAVAILABLE',commerce_status:'HOLD'}),'application/json; charset=utf-8'); }
   }
-  if(p.startsWith('/api/toll')||p.startsWith('/toll/')) return proxyTollToEngine(req,res,p);
+  if(p.startsWith('/api/toll/v1/')||p.startsWith('/toll/')) return proxyTollToEngine(req,res,p);
   if(p.startsWith('/swarm/')||p.startsWith('/api/swarm')) return proxySwarm(req,res,p);
-  if(p.startsWith('/api/commercial/') || p==='/api/webhooks/stripe'){
-    try{
-      const handled=await commercialCell.handle(req,res,p);
-      if(handled)return;
-    }catch(error){
-      return send(res,500,JSON.stringify({error:'commercial_cell_failed'}),'application/json; charset=utf-8');
-    }
-  }
+  // The private engine is the only commercial settlement owner. The public
+  // storefront forwards signed webhook bytes and bounded commercial API calls.
+  if(p==='/api/webhooks/stripe'||p==='/webhook'||p.startsWith('/api/commercial/')||p.startsWith('/api/commercial-cell/')) return proxyTollToEngine(req,res,p);
   if(req.method!=='GET'&&req.method!=='HEAD') return send(res,405,'Method Not Allowed','text/plain; charset=utf-8');
   const file=PUBLIC_FILES[p];
   if(file) return serveFile(res,file);

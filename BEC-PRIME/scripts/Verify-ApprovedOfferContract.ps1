@@ -4,12 +4,14 @@ param()
 
 $ErrorActionPreference = 'Stop'
 $root = Join-Path $PSScriptRoot '..'
+$repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
 $offersFile = Join-Path $root 'catalog\offers\offers.json'
 $approvedFile = Join-Path $root 'catalog\offers\approved.json'
 $capabilitiesFile = Join-Path $root 'catalog\ip-capabilities.json'
-$proofFile = Join-Path $root 'PROOF-OFFER-COMPILATION.json'
+$registryFile = Join-Path $root 'fulfillment\PRODUCT-FULFILLMENT-REGISTRY.json'
+$proofFile = Join-Path $root 'PROOF-APPROVED-OFFER-CONTRACT.json'
 
-foreach ($file in @($offersFile, $approvedFile, $capabilitiesFile)) {
+foreach ($file in @($offersFile, $approvedFile, $capabilitiesFile, $registryFile)) {
     if (-not (Test-Path -LiteralPath $file)) { throw "Missing required file: $file" }
 }
 
@@ -22,6 +24,115 @@ $validIds = @($catalog.capabilities | ForEach-Object { $_.id })
 $approvedRecords = @($approvedCatalog.approved)
 $compiledRecords = @($offers.offers)
 $compiledById = @{}
+
+function Get-CanonicalProductGate {
+    param(
+        [Parameter(Mandatory=$true)][object]$Product,
+        [Parameter(Mandatory=$true)][object]$Registry,
+        [Parameter(Mandatory=$true)][string]$RepositoryRoot
+    )
+
+    $reasons = New-Object System.Collections.Generic.List[string]
+    if ($Product.status -ne 'published') { $reasons.Add('product_not_published') }
+    if ([string]$Product.silo -notin @('mtg', 'crypto', 'media_music', 'digital_products')) { $reasons.Add('silo_not_canonical_publishable') }
+    if ($Product.commercial_truth.approval_required -ne $false) { $reasons.Add('operator_approval_gate_closed') }
+    if ($Product.commercial_truth.sellable -ne $true) { $reasons.Add('commercial_sellable_not_true') }
+    if ($Product.checkout_available -ne $true) { $reasons.Add('checkout_not_explicitly_enabled') }
+    if ([string]$Product.checkout.mode -notin @('stripe', 'payment_link')) { $reasons.Add('checkout_mode_not_canonical') }
+
+    $paymentLink = $null
+    if (-not [string]::IsNullOrWhiteSpace([string]$Product.commercial_truth.payment_link)) {
+        $paymentLink = [string]$Product.commercial_truth.payment_link
+    } elseif (-not [string]::IsNullOrWhiteSpace([string]$Product.checkout.url)) {
+        $paymentLink = [string]$Product.checkout.url
+    } elseif (-not [string]::IsNullOrWhiteSpace([string]$Product.checkout_url)) {
+        $paymentLink = [string]$Product.checkout_url
+    }
+    $validStripeLink = $false
+    if (-not [string]::IsNullOrWhiteSpace($paymentLink)) {
+        try {
+            $uri = [System.Uri]$paymentLink
+            $validStripeLink = $uri.Scheme -eq 'https' -and $uri.Host -in @('buy.stripe.com', 'checkout.stripe.com')
+        } catch {
+            $validStripeLink = $false
+        }
+    }
+    if (-not $validStripeLink) { $reasons.Add('stripe_payment_link_missing_or_invalid') }
+
+    $inventoryValues = @($Product.inventory, $Product.inventory_units, $Product.inventory_pixels)
+    $positiveInventory = $false
+    foreach ($value in $inventoryValues) {
+        $parsedInventory = 0.0
+        if ([double]::TryParse([string]$value, [ref]$parsedInventory) -and $parsedInventory -gt 0) {
+            $positiveInventory = $true
+            break
+        }
+    }
+    if (-not $positiveInventory) { $reasons.Add('inventory_not_positive') }
+
+    $price = 0.0
+    $priceValid = [double]::TryParse([string]$Product.price, [ref]$price) -and $price -gt 0
+    $priceUnit = ([string]$Product.price_unit).ToLowerInvariant()
+    if (-not $priceValid -or $priceUnit -notin @('major', 'minor', 'cents')) {
+        $reasons.Add('price_unit_missing_or_invalid')
+    }
+
+    $entry = $null
+    if ($Registry.entries) {
+        $entryProperty = $Registry.entries.PSObject.Properties | Where-Object { $_.Name -eq [string]$Product.id } | Select-Object -First 1
+        if ($entryProperty) {
+            $entry = $entryProperty.Value
+        } elseif (-not [string]::IsNullOrWhiteSpace([string]$Product.offer_id)) {
+            $offerEntryProperty = $Registry.entries.PSObject.Properties | Where-Object { $_.Name -eq [string]$Product.offer_id } | Select-Object -First 1
+            if ($offerEntryProperty) { $entry = $offerEntryProperty.Value }
+        }
+    }
+    if (-not $entry -or $entry.ready -ne $true -or $entry.operator_required -ne $false) {
+        $reasons.Add('fulfillment_contract_not_ready')
+    }
+    if ($entry -and $entry.canonical_product_id -and $entry.canonical_product_id -ne $Product.id) {
+        $reasons.Add('fulfillment_product_mismatch')
+    }
+
+    if ($Product.gauntlet.status -ne 'PASS') { $reasons.Add('product_gauntlet_not_pass') }
+    if ($Product.gauntlet.test_mode_chain -ne 'PASS') { $reasons.Add('test_mode_chain_not_pass') }
+
+    $proofValid = $false
+    $reference = [string]$Product.gauntlet.evidence_ref
+    if (-not [string]::IsNullOrWhiteSpace($reference) -and -not [System.IO.Path]::IsPathRooted($reference)) {
+        $rootPath = [System.IO.Path]::GetFullPath($RepositoryRoot)
+        $proofPath = [System.IO.Path]::GetFullPath((Join-Path $rootPath $reference))
+        $rootPrefix = $rootPath.TrimEnd([System.IO.Path]::DirectorySeparatorChar, [System.IO.Path]::AltDirectorySeparatorChar) + [System.IO.Path]::DirectorySeparatorChar
+        if ($proofPath.StartsWith($rootPrefix, [System.StringComparison]::OrdinalIgnoreCase) -and (Test-Path -LiteralPath $proofPath -PathType Leaf)) {
+            try {
+                $proof = Get-Content -Raw -LiteralPath $proofPath | ConvertFrom-Json
+                $chain = $proof.test_mode_chain
+                $proofValid = (
+                    $proof.schema -eq 'dreamledger/product-checkout-proof/v1' -and
+                    $proof.product_id -eq $Product.id -and
+                    $proof.verdict -eq 'PASS' -and
+                    $chain.checkout -eq 'PASS' -and
+                    $chain.settlement -eq 'PASS' -and
+                    $chain.attribution -eq 'PASS' -and
+                    $chain.fulfillment -eq 'PASS' -and
+                    $chain.delivery -eq 'PASS'
+                )
+            } catch {
+                $proofValid = $false
+            }
+        }
+    }
+    if (-not $proofValid) { $reasons.Add('product_checkout_proof_missing_or_invalid') }
+
+    return [pscustomobject]@{
+        allowed = ($reasons.Count -eq 0)
+        reasons = @($reasons)
+        checkout_url = if ($validStripeLink) { $paymentLink } else { $null }
+    }
+}
+
+
+
 
 if ($offers.schema -ne 'BEC-PRIME/OFFER-CATALOG/v1') { $errors.Add('offers schema mismatch') }
 if ($offers.compiler -ne 'offer-compiler-v1') { $errors.Add('compiler version mismatch') }
@@ -49,13 +160,53 @@ foreach ($record in $approvedRecords) {
         continue
     }
     $offer = $compiledById[$id]
-    if ($offer.approval_required -ne $false) { $errors.Add("${id}: approval_required must be false") }
-    if ($offer.checkout_available -ne $true) { $errors.Add("${id}: checkout_available must be true") }
-    if ($offer.status -ne 'VERIFIED_AVAILABLE') { $errors.Add("${id}: status must be VERIFIED_AVAILABLE") }
-    if ($offer.silo -ne $record.silo) { $errors.Add("${id}: silo mismatch between approved source and compiled catalog") }
-    if ([double]$offer.price -ne [double]$record.price) { $errors.Add("${id}: price mismatch between approved source and compiled catalog") }
-    if ([string]$offer.currency -ne [string]$record.currency) { $errors.Add("${id}: currency mismatch between approved source and compiled catalog") }
-    if ($offer.capability_id -notin $validIds) { $errors.Add("${id}: compiled capability is not present in capability catalog") }
+    if ($offer.silo -ne $record.silo) { $errors.Add("$($id): silo mismatch between approved source and compiled catalog") }
+    if ([double]$offer.price -ne [double]$record.price) { $errors.Add("$($id): price mismatch between approved source and compiled catalog") }
+    if ([string]$offer.currency -ne [string]$record.currency) { $errors.Add("$($id): currency mismatch between approved source and compiled catalog") }
+    if ($offer.capability_id -notin $validIds) { $errors.Add("$($id): compiled capability is not present in capability catalog") }
+
+    $productFile = Join-Path (Join-Path $root 'catalog\products') ("{0}.json" -f [string]$record.product_id)
+    if (-not (Test-Path -LiteralPath $productFile)) {
+        $errors.Add("$($id): canonical product file is missing")
+        continue
+    }
+
+    try {
+        $product = Get-Content -Raw -LiteralPath $productFile | ConvertFrom-Json
+        $registry = Get-Content -Raw -LiteralPath $registryFile | ConvertFrom-Json
+        $gate = Get-CanonicalProductGate -Product $product -Registry $registry -RepositoryRoot $repoRoot
+    } catch {
+        $errors.Add("$($id): canonical product gate could not be evaluated: $($_.Exception.Message)")
+        continue
+    }
+
+    $gateOpen = $gate.allowed -eq $true
+    $linkMatches = ($gateOpen -and (-not [string]::IsNullOrWhiteSpace([string]$record.payment_link_url)) -and ([string]$record.payment_link_url -ceq [string]$gate.checkout_url))
+    $enabled = $linkMatches -and ([string]$record.payment_link_status -ceq 'ACTIVE_LIVEMODE')
+
+    if ($enabled) {
+        if ($offer.approval_required -ne $false) { $errors.Add("$($id): canonical gate is open but approval_required must be false") }
+        if ($offer.checkout_available -ne $true) { $errors.Add("$($id): canonical gate is open but checkout_available must be true") }
+        if ($offer.status -ne 'VERIFIED_AVAILABLE') { $errors.Add("$($id): canonical gate is open but status must be VERIFIED_AVAILABLE") }
+        if ([string]$offer.payment_link_url -cne [string]$gate.checkout_url) { $errors.Add("$($id): compiled payment URL differs from canonical product URL") }
+        if ($offer.checkout_disabled_reason) { $errors.Add("$($id): enabled offer retains checkout_disabled_reason") }
+    } else {
+        if ($gateOpen) {
+            $expectedStatus = 'HELD_STRIPE_LINK_DRIFT'
+            $expectedReason = 'payment_link_does_not_match_canonical_product'
+        } else {
+            $expectedStatus = 'HELD_CANONICAL_PRODUCT_GATE'
+            $expectedReason = if (@($gate.reasons).Count -gt 0) { [string]@($gate.reasons)[0] } else { 'canonical_product_gate_closed' }
+        }
+        if ($offer.approval_required -ne $true) { $errors.Add("$($id): held offer must have approval_required=true") }
+        if ($offer.checkout_available -ne $false) { $errors.Add("$($id): held offer must have checkout_available=false") }
+        if ([string]$offer.status -cne $expectedStatus) { $errors.Add("$($id): expected held status $expectedStatus") }
+        if (-not [string]::IsNullOrWhiteSpace([string]$offer.payment_link_url)) { $errors.Add("$($id): held offer must not expose payment_link_url") }
+        if ([string]$offer.checkout_disabled_reason -cne $expectedReason) { $errors.Add("$($id): checkout_disabled_reason mismatch; expected $expectedReason") }
+        $expectedRoute = if ($record.silo -eq 'mtg') { '/mtg/' } elseif ($record.silo -eq 'dreamledger') { '/billboard' } else { '/shop.html' }
+        if ([string]$offer.checkout_route -cne $expectedRoute) { $errors.Add("$($id): held offer must use safe route $expectedRoute") }
+        if ($null -ne $offer.fulfillment_route -and -not [string]::IsNullOrWhiteSpace([string]$offer.fulfillment_route)) { $errors.Add("$($id): held offer must not expose a fulfillment route") }
+    }
 }
 
 if ($approvedRecords.Count -eq 0) { $errors.Add('approved catalog contains zero records') }
@@ -81,7 +232,7 @@ $proof = [ordered]@{
     approved_count = $approvedRecords.Count
     compiled_count = $compiledRecords.Count
     approved_offer_ids = @($approvedRecords | ForEach-Object { $_.offer_id })
-    contract = 'every approved source record must exist in offers.json as VERIFIED_AVAILABLE and checkoutable'
+    contract = 'compiled offer state must match the shared canonical product gate; closed gates stay held and payment URLs remain unexposed'
 }
 $proof | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $proofFile -Encoding UTF8
-Write-Host "PASS: $($approvedRecords.Count) approved offer records are present and checkoutable in compiled catalog." -ForegroundColor Green
+Write-Host "PASS: $($approvedRecords.Count) approved source records match the canonical product gate. Held offers remain non-checkoutable." -ForegroundColor Green

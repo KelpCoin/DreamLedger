@@ -11,6 +11,50 @@ on:
       - 'scripts/beck-heartbeat.ps1'
       - 'scripts/install-beck-heartbeat.ps1'
       - 'scripts/beck-one-shot-bootstrap.ps1'
+      - 'scripts/Start-BECK-FigureEight.ps1'
+      - 'docs/FIGURE-EIGHT-OPERATING-PROTOCOL.md'
+      - 'scripts/validate-customer-facing-artifact.test.js'
+      - 'scripts/validate-customer-facing-artifact.js'
+      - 'runtime/humanizer/customer-facing-voice-checkpoint-v1.json'
+      - 'BEC-PRIME/routes/tollRoad.js'
+      - 'BEC-PRIME/routes/tollRoad.local-heartbeat.test.js'
+      - 'BEC-PRIME/runtime/canonicalCheckoutGate.js'
+      - 'BEC-PRIME/runtime/canonicalCheckoutGate.test.js'
+      - 'BEC-PRIME/routes/mtgConfigurator.js'
+      - 'BEC-PRIME/routes/commercialCell.js'
+      - 'render.yaml'
+      - 'scripts/test_public_site_contract.py'
+      - 'public/catalog.json'
+      - 'public/buy/**'
+      - 'public/products/**'
+      - 'public/money.html'
+      - 'public/shop.html'
+      - 'public/quote-pilot.html'
+      - 'public/avatar.html'
+      - 'BEC-PRIME/runtime/DeliveryReceiptVerifier.js'
+      - 'BEC-PRIME/runtime/DeliveryReceiptVerifier.test.js'
+      - 'BEC-PRIME/runtime/BeckAuthorityBoundary.test.js'
+      - 'BEC-PRIME/runtime/heldCheckoutRouteGuard.js'
+      - 'BEC-PRIME/runtime/heldCheckoutRouteGuard.test.js'
+      - 'BEC-PRIME/compiler/SiloPortfolioCompiler.js'
+      - 'BEC-PRIME/compiler/SiloPortfolioCompiler.test.js'
+      - 'BEC-PRIME/catalog/offers/approved.json'
+      - 'BEC-PRIME/catalog/products/**'
+      - 'BEC-PRIME/fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json'
+      - 'BEC-PRIME/lib/mtgDiagnosticFulfillment.js'
+      - 'BEC-PRIME/routes/mtgDiagnostic.js'
+      - 'BEC-PRIME/lib/mtgDiagnosticCheckoutGate.test.js'
+      - 'BEC-PRIME/contracts/DELIVERY-RECEIPT-BINDING-CONTRACT-v1.json'
+      - 'BEC-PRIME/package.json'
+      - 'public/server.js'
+      - 'BEC-PRIME/catalog/public-agent-products.source.json'
+      - 'BEC-PRIME/compiler/compile-public-agent-products.js'
+      - 'BEC-PRIME/compiler/compile-public-agent-products.test.js'
+      - 'public/agent-products.json'
+      - 'BEC-PRIME/catalog/public-agent-products.source.json'
+      - 'BEC-PRIME/compiler/compile-public-agent-products.js'
+      - 'BEC-PRIME/compiler/compile-public-agent-products.test.js'
+      - 'public/agent-products.json'
       - 'ops/commerce/**'
       - 'ops/cockpit/**'
       - 'ops/decision/**'
@@ -31,9 +75,39 @@ on:
       - 'scripts/install-beck-heartbeat.ps1'
       - 'scripts/beck-one-shot-bootstrap.ps1'
       - 'scripts/beck-cockpit-bootstrap.ps1'
+      - 'scripts/Start-BECK-FigureEight.ps1'
+      - 'docs/FIGURE-EIGHT-OPERATING-PROTOCOL.md'
+      - 'scripts/validate-customer-facing-artifact.test.js'
+      - 'scripts/validate-customer-facing-artifact.js'
+      - 'runtime/humanizer/customer-facing-voice-checkpoint-v1.json'
+      - 'BEC-PRIME/routes/tollRoad.js'
+      - 'BEC-PRIME/routes/tollRoad.local-heartbeat.test.js'
+      - 'BEC-PRIME/runtime/canonicalCheckoutGate.js'
+      - 'BEC-PRIME/runtime/canonicalCheckoutGate.test.js'
+      - 'BEC-PRIME/routes/mtgConfigurator.js'
+      - 'BEC-PRIME/routes/commercialCell.js'
+      - 'render.yaml'
+      - 'scripts/test_public_site_contract.py'
+      - 'public/catalog.json'
+      - 'public/buy/**'
+      - 'public/products/**'
+      - 'public/money.html'
+      - 'public/shop.html'
+      - 'public/quote-pilot.html'
+      - 'public/avatar.html'
+      - 'BEC-PRIME/runtime/DeliveryReceiptVerifier.js'
+      - 'BEC-PRIME/runtime/DeliveryReceiptVerifier.test.js'
+      - 'BEC-PRIME/runtime/BeckAuthorityBoundary.test.js'
+      - 'BEC-PRIME/lib/mtgDiagnosticFulfillment.js'
+      - 'BEC-PRIME/routes/mtgDiagnostic.js'
+      - 'BEC-PRIME/lib/mtgDiagnosticCheckoutGate.test.js'
+      - 'BEC-PRIME/contracts/DELIVERY-RECEIPT-BINDING-CONTRACT-v1.json'
+      - 'BEC-PRIME/package.json'
+      - 'public/server.js'
       - 'ops/commerce/**'
       - 'ops/cockpit/**'
       - 'BEC-PRIME/server.js'
+      - 'BEC-PRIME/start.js'
       - 'BEC-PRIME/scripts/verify-render-stripe-webhook-route.js'
       - '.github/workflows/figure-eight-cockpit.yml'
       - 'package.json'
@@ -51,10 +125,10 @@ jobs:
     timeout-minutes: 20
     steps:
       - name: Checkout PR branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: '20'
 
@@ -77,13 +151,31 @@ jobs:
           node --check ops/cockpit/render-cockpit-html.mjs
           node --check BEC-PRIME/scripts/verify-render-stripe-webhook-route.js
           node BEC-PRIME/scripts/verify-render-stripe-webhook-route.js
+          node BEC-PRIME/compiler/compile-public-agent-products.js
+          node --test BEC-PRIME/compiler/compile-public-agent-products.test.js
+          node --test BEC-PRIME/compiler/OfferCompiler.gate.test.js
+          node --test BEC-PRIME/routes/tollRoad.local-heartbeat.test.js
+          node --check BEC-PRIME/runtime/DeliveryReceiptVerifier.js
+          node --test BEC-PRIME/runtime/DeliveryReceiptVerifier.test.js
+          node --test BEC-PRIME/runtime/BeckAuthorityBoundary.test.js
+          node --test BEC-PRIME/runtime/heldCheckoutRouteGuard.test.js
+          node --test BEC-PRIME/lib/mtgDiagnosticCheckoutGate.test.js
+          node --test BEC-PRIME/runtime/canonicalCheckoutGate.test.js
+          node --check BEC-PRIME/routes/mtgConfigurator.js
+          node --check BEC-PRIME/routes/mtgDiagnostic.js
+          node --check BEC-PRIME/routes/commercialCell.js
+          node --check BEC-PRIME/start.js
+          node --check public/server.js
+          node BEC-PRIME/scripts/verify-render-stripe-webhook-route.js
+          node --check scripts/validate-customer-facing-artifact.js
+          node --test scripts/validate-customer-facing-artifact.test.js
 
       - name: Parse PowerShell bootstrap without executing it
         shell: powershell
         run: |
           $tokens = $null
           $errors = $null
-          foreach ($path in @('scripts/beck-economic-bootstrap.ps1','scripts/beck-startup.ps1','scripts/beck-daily-bootstrap.ps1','scripts/beck-cockpit-bootstrap.ps1','scripts/beck-heartbeat.ps1','scripts/install-beck-heartbeat.ps1','scripts/beck-one-shot-bootstrap.ps1')) {
+          foreach ($path in @('scripts/beck-economic-bootstrap.ps1','scripts/beck-startup.ps1','scripts/beck-daily-bootstrap.ps1','scripts/beck-cockpit-bootstrap.ps1','scripts/beck-heartbeat.ps1','scripts/install-beck-heartbeat.ps1','scripts/beck-one-shot-bootstrap.ps1','scripts/Start-BECK-FigureEight.ps1')) {
             $tokens = $null
             $errors = $null
             [System.Management.Automation.Language.Parser]::ParseFile(
@@ -124,6 +216,8 @@ jobs:
           STRIPE_LIVE_ENABLED: 'false'
         run: |
           npm run validate:economics
+          if ($LASTEXITCODE -ne 0) { throw "Static economics validation failed with exit code $LASTEXITCODE." }
+          & .\scripts\beck-economic-bootstrap.ps1 -SkipInstall
           $validationExit = $LASTEXITCODE
           $gauntletPath = Join-Path $PWD 'proof/commerce/latest-gauntlet-economic-verdict.json'
           if (-not (Test-Path -LiteralPath $gauntletPath)) {
@@ -147,5 +241,8 @@ jobs:
           Write-Host "BOOTSTRAP_EXIT=$validationExit (nonzero is expected while live payment/fulfillment evidence is absent)"
           if ($validationExit -notin @(0,1,2)) {
             throw "Unexpected bootstrap process exit code: $validationExit"
+          }
+          if ($validationExit -eq 1) {
+            throw "Economic bootstrap found a hard failure; inspect the emitted proof and Gauntlet verdict."
           }
           $global:LASTEXITCODE = 0

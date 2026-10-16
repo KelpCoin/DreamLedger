@@ -13,10 +13,12 @@ const MANIFEST_PATH = path.join(__dirname, 'mcp-gateway-manifest.json');
 const PROOF_DIR = path.join(ROOT, 'data', 'proofs');
 const PROTOCOL_VERSION = '2025-11-25';
 const MAX_MESSAGE_BYTES = 262144;
-const MAX_CALLS = 100;
+const MAX_CALLS = 15;
+const MAX_WALL_CLOCK_MS = 5 * 60 * 1000;
 let initialized = false;
 let clientIdentity = null;
 let callCount = 0;
+let sessionStartedAt = null;
 
 const TOOL_PERMISSIONS = Object.freeze({
   dl_read_cartridge: 'READ_ONLY',
@@ -91,6 +93,11 @@ function proposeCheckout(args) {
   if (!cart) return { error:'SKU not found' };
   if (silo !== 'CORE' && String(cart.silo || '').toLowerCase() !== String(silo).toLowerCase()) return { error:'Silo access denied' };
   if (Number(cart.price) !== Number(checkout.amount)) return { error:'Price mismatch', expected:Number(cart.price), provided:Number(checkout.amount) };
+  const paymentLink = cart.commercial_truth?.payment_link || cart.checkout?.url || cart.checkout_url || null;
+  const validStripeLink = typeof paymentLink === 'string' && /^https:\/\/(?:buy\.stripe\.com|checkout\.stripe\.com)\//i.test(paymentLink);
+  if (cart.status !== 'published' || cart.commercial_truth?.approval_required !== false || cart.commercial_truth?.sellable !== true || cart.checkout_available !== true || !validStripeLink) {
+    return { error:'Product not authorized for checkout', reason:'canonical_product_gate_closed', checkout:'BLOCKED', capital_authority:'ZERO' };
+  }
   const court = courtEvaluate('CHECKOUT', checkout, silo);
   if (court.decision === 'BLOCKED') return { status:'BLOCKED', court };
   const proposal = { checkout_id:'CHECKOUT-' + crypto.randomUUID(), status:'AWAITING_HUMAN_APPROVAL', silo, checkout, cart_hash:ledger.sha256(cart), court, capital_authority:'ZERO', execution:'BLOCKED', executed:false };
@@ -120,15 +127,15 @@ function handle(req) {
     loadManifest();
     const ci=params.clientInfo || {};
     if(!ci.name) return respond(req,null,{code:-32602,message:'clientInfo.name required'});
-    clientIdentity={name:String(ci.name),version:String(ci.version || '')}; initialized=true;
+    clientIdentity={name:String(ci.name),version:String(ci.version || '')}; initialized=true; sessionStartedAt=Date.now();
     ledger.appendEvent({event_type:'MCP_INITIALIZED',actor:{type:'mcp-client',id:clientIdentity.name},payload:{client:clientIdentity,manifest_hash:loadManifest().manifest_hash},result:'PASS'});
     return respond(req,{protocolVersion:PROTOCOL_VERSION,capabilities:{tools:{}},serverInfo:{name:'dreamledger-gateway',version:'1.2.0'}});
   }
   if(!initialized) return respond(req,null,{code:-32002,message:'Initialize first'});
   if(method === 'initialized') return respond(req,{});
-  if(++callCount > MAX_CALLS) return respond(req,null,{code:-32000,message:'Session quota exceeded'});
+  if (!Number.isFinite(sessionStartedAt) || Date.now() - sessionStartedAt >= MAX_WALL_CLOCK_MS) return respond(req,null,{code:-32000,message:'Session wall-clock deadline exceeded; fail closed'});
   if(method === 'tools/list') return respond(req,{tools:loadManifest().tools.map(t=>({name:t.name,description:t.description,inputSchema:{type:'object'}}))});
-  if(method === 'tools/call') { try { return respond(req,{content:[{type:'text',text:JSON.stringify(callTool(String(params.name || ''),{...(params.arguments || {})}) )}]}); } catch(e) { return respond(req,null,{code:-32000,message:e.message}); } }
+  if(method === 'tools/call') { if (callCount >= MAX_CALLS) return respond(req,null,{code:-32000,message:'Session tool-call budget exceeded; fail closed'}); callCount += 1; try { return respond(req,{content:[{type:'text',text:JSON.stringify(callTool(String(params.name || ''),{...(params.arguments || {})}) )}]}); } catch(e) { return respond(req,null,{code:-32000,message:e.message}); } }
   return respond(req,null,{code:-32601,message:'Method not found'});
 }
 

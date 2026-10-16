@@ -45,7 +45,7 @@
       "price_nzd": 29,
       "currency": "NZD",
       "silo": "mtg",
-      "checkout_url": "https://buy.stripe.com/00wfZhaXP01neqHaIYdwc2R",
+      "checkout_url": null,
       "buy_router": "https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001",
       "delivery": "Automated diagnostic report after payment",
       "status": "VERIFIED_AVAILABLE"
@@ -57,7 +57,7 @@
       "price_nzd": 50,
       "currency": "NZD",
       "silo": "media",
-      "checkout_url": "https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w",
+      "checkout_url": null,
       "buy_router": "https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001",
       "delivery": "Public canvas placement after payment and content review",
       "status": "VERIFIED_AVAILABLE"
@@ -69,7 +69,7 @@
       "price_nzd": 79,
       "currency": "NZD",
       "silo": "commerce",
-      "checkout_url": "https://buy.stripe.com/4gMcN56HzaG1dmDeZedwc1n",
+      "checkout_url": null,
       "buy_router": "https://dreamledger.org/buy/DISCORD-WEBHOOK-STARTER-KIT-001",
       "delivery": "Digital kit download after payment",
       "status": "VERIFIED_AVAILABLE"
@@ -81,7 +81,7 @@
       "price_nzd": 29,
       "currency": "NZD",
       "silo": "seller_tools",
-      "checkout_url": "https://buy.stripe.com/8x2bJ17LD3dzeqH8AQdwc2S",
+      "checkout_url": null,
       "buy_router": "https://dreamledger.org/buy/SELLER-PROFIT-AUDIT-001",
       "delivery": "Manual PDF audit after payment",
       "status": "VERIFIED_AVAILABLE"
@@ -93,7 +93,7 @@
       "price_nzd": 400,
       "currency": "NZD",
       "silo": "mtg",
-      "checkout_url": "https://buy.stripe.com/14A3cvea1dSd1DV5oEdwc1J",
+      "checkout_url": null,
       "buy_router": "https://dreamledger.org/buy/EDH_0001",
       "delivery": "Physical Commander deck",
       "status": "VERIFIED_AVAILABLE"

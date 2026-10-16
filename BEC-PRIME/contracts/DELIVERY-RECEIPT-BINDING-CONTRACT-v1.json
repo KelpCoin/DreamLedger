@@ -1,0 +1,31 @@
+{
+  "schema": "dreamledger/delivery-receipt-contract/v1",
+  "status": "IMPLEMENTED_OFFLINE_VERIFIER_ONLY",
+  "purpose": "Bind a delivered response to the exact payment requirements, request context, settled payment, seller signature, and independently verified anchor.",
+  "authority": {
+    "settlement": "Must be confirmed by an injected independent verifier; a receipt field alone is not settlement proof.",
+    "anchor": "Must be confirmed by an injected independent chain or attestation verifier; an anchor-shaped object alone is not proof.",
+    "seller_key": "Must be supplied from a trusted key registry, not trusted from the receipt itself.",
+    "runtime_effect": "NONE",
+    "checkout_activation": false,
+    "revenue_effect": "NONE"
+  },
+  "required_checks": [
+    "schema_identity",
+    "payment_requirements_sha256_matches_receipt_and_trusted_quote",
+    "chain_asset_amount_and_payee_match_trusted_quote",
+    "payer_differs_from_payee",
+    "independent_settlement_verification",
+    "request_method_url_and_parameters_bound",
+    "response_status_and_body_sha256_bound",
+    "delivery_status_equals_delivered",
+    "trusted_seller_signature_valid",
+    "independent_anchor_verification"
+  ],
+  "failure_behavior": "FAIL_CLOSED",
+  "limitations": [
+    "This is DreamLedger's internal receipt-binding contract and offline verifier, not a claim of official x402 extension conformance.",
+    "No live chain, Stripe test transaction, production secret, or independent buyer flow is executed by this contract.",
+    "The verifier cannot infer successful delivery from a payment or from the presence of an anchor reference."
+  ]
+}

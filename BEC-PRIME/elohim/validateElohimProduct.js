@@ -10,6 +10,7 @@ const fs = require('fs');
 
 const ALLOWED_SILOS = Object.freeze(['mtg', 'crypto', 'media_music', 'digital_products', 'dreamledger']);
 const PUBLISHABLE_SILOS = Object.freeze(['mtg', 'crypto', 'media_music', 'digital_products']);
+const LEGACY_CATALOG_SILOS = Object.freeze(['commerce','billboard','dreamiez','digital','dreamiez-beauty','silo_dreamiez','seller_tools','silo_dreamledger','cinema','digital-products','dreammeez','account']);
 
 const PRICE_FLOORS_NZD = Object.freeze({
   mtg: 3,
@@ -27,22 +28,29 @@ function loadSchema(name) {
 
 let _ajvValidateProduct = null;
 let _ajvValidateCandidate = null;
+let _ajvInitializationError = null;
 
 function getAjvValidators() {
   if (_ajvValidateProduct && _ajvValidateCandidate) {
     return { product: _ajvValidateProduct, candidate: _ajvValidateCandidate };
   }
-  let Ajv;
+  if (_ajvInitializationError) return { error: _ajvInitializationError };
   try {
-    Ajv = require('ajv');
-  } catch (_)
-  {
-    return null;
+    // Both schemas declare draft 2020-12. Use the explicit dialect engine;
+    // never silently validate these schemas with the draft-07 default export.
+    const Ajv2020 = require('ajv/dist/2020.js');
+    const ajv = new Ajv2020({
+      allErrors: true,
+      strict: false,
+      validateSchema: false
+    });
+    _ajvValidateProduct = ajv.compile(loadSchema('elohim-product.schema.json'));
+    _ajvValidateCandidate = ajv.compile(loadSchema('elohim-candidate.schema.json'));
+    return { product: _ajvValidateProduct, candidate: _ajvValidateCandidate };
+  } catch (error) {
+    _ajvInitializationError = error instanceof Error ? error.message : String(error);
+    return { error: _ajvInitializationError };
   }
-  const ajv = new Ajv({ allErrors: true, strict: false });
-  _ajvValidateProduct = ajv.compile(loadSchema('elohim-product.schema.json'));
-  _ajvValidateCandidate = ajv.compile(loadSchema('elohim-candidate.schema.json'));
-  return { product: _ajvValidateProduct, candidate: _ajvValidateCandidate };
 }
 
 function push(errors, code, message, pathHint) {
@@ -96,25 +104,26 @@ function validateCatalogProduct(product, options = {}) {
   }
 
   const ajvPair = getAjvValidators();
-  if (ajvPair) {
+  if (ajvPair.error) {
+    push(errors, 'SCHEMA_ENGINE_UNAVAILABLE', `JSON Schema 2020-12 validation unavailable: ${ajvPair.error}`);
+  } else {
     const valid = ajvPair.product(product);
     if (!valid) {
       for (const e of ajvPair.product.errors || []) {
         push(errors, 'SCHEMA', `${e.instancePath || '/'} ${e.message}`, e.instancePath || null);
       }
     }
-  } else {
-    // Minimal fallback without ajv
-    if (!product.id) push(errors, 'REQUIRED', 'id is required', '/id');
-    if (!product.name) push(errors, 'REQUIRED', 'name is required', '/name');
-    if (product.price === undefined || product.price === null) push(errors, 'REQUIRED', 'price is required', '/price');
-    if (!product.currency) push(errors, 'REQUIRED', 'currency is required', '/currency');
-    if (!product.status) push(errors, 'REQUIRED', 'status is required', '/status');
-    if (!product.silo) push(errors, 'REQUIRED', 'silo is required', '/silo');
   }
 
+  const rawSilo = String(product.silo || '').trim().toLowerCase();
   const silo = normalizeSilo(product.silo);
-  if (!silo) {
+  if (!silo && LEGACY_CATALOG_SILOS.includes(rawSilo)) {
+    // Legacy catalog entries remain valid for provenance and can never be
+    // activated by this validator. Checkout compiler requires an exact
+    // canonical publishable silo, an explicit Stripe link, inventory, and
+    // fulfillment readiness.
+    warnings.push({ code: 'LEGACY_SILO_NON_PUBLISHABLE', message: `Legacy silo "${product.silo}" is retained for provenance but cannot be published by the canonical silo factory.`, path: '/silo' });
+  } else if (!silo) {
     push(errors, 'SILO', `silo must be one of ${ALLOWED_SILOS.join(', ')}`, '/silo');
   } else if (requirePublishable && !PUBLISHABLE_SILOS.includes(silo)) {
     push(errors, 'SILO_HOST', 'dreamledger host silo is not a cloneable commercial silo; map to digital_products or another allowed silo', '/silo');
@@ -179,7 +188,9 @@ function validateElohimCandidate(candidate) {
   }
 
   const ajvPair = getAjvValidators();
-  if (ajvPair) {
+  if (ajvPair.error) {
+    push(errors, 'SCHEMA_ENGINE_UNAVAILABLE', `JSON Schema 2020-12 validation unavailable: ${ajvPair.error}`);
+  } else {
     const valid = ajvPair.candidate(candidate);
     if (!valid) {
       for (const e of ajvPair.candidate.errors || []) {

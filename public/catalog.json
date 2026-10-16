@@ -9,10 +9,25 @@
       "description": "One-time DreamMeez identity cosmetic. Payment is matched to the buyer's DreamMeez account email and the cosmetic is granted after settled Stripe payment.",
       "price": 5,
       "currency": "nzd",
-      "status": "published",
-      "checkout_available": true,
-      "checkout_url": "https://buy.stripe.com/aFa14nd5XdSdeqH5oEdwc2J",
-      "category": "avatar-accessories"
+      "status": "held",
+      "checkout_available": false,
+      "checkout_url": null,
+      "category": "avatar-accessories",
+      "sale_mode": "disabled",
+      "commercial_truth": {
+        "approval_required": true,
+        "sellable": false,
+        "reason": "Held until canonical Gauntlet approval, settlement attribution, fulfillment readiness, and delivery evidence are independently verified.",
+        "payment_surface": null
+      },
+      "fulfillment": {
+        "status": "not_verified",
+        "ready": false
+      },
+      "gauntlet": {
+        "status": "NOT_VERIFIED",
+        "checkout_authorized": false
+      }
     },
     {
       "id": "DREAMMEEZ-CAPE-001",
@@ -21,10 +36,25 @@
       "description": "One-time DreamMeez identity cosmetic. Payment is matched to the buyer's DreamMeez account email and the cosmetic is granted after settled Stripe payment.",
       "price": 10,
       "currency": "nzd",
-      "status": "published",
-      "checkout_available": true,
-      "checkout_url": "https://buy.stripe.com/cNi5kDaXP7tP0zR2csdwc2K",
-      "category": "avatar-accessories"
+      "status": "held",
+      "checkout_available": false,
+      "checkout_url": null,
+      "category": "avatar-accessories",
+      "sale_mode": "disabled",
+      "commercial_truth": {
+        "approval_required": true,
+        "sellable": false,
+        "reason": "Held until canonical Gauntlet approval, settlement attribution, fulfillment readiness, and delivery evidence are independently verified.",
+        "payment_surface": null
+      },
+      "fulfillment": {
+        "status": "not_verified",
+        "ready": false
+      },
+      "gauntlet": {
+        "status": "NOT_VERIFIED",
+        "checkout_authorized": false
+      }
     },
     {
       "id": "DREAMMEEZ-CHROME-BOOTS-001",
@@ -33,10 +63,25 @@
       "description": "One-time DreamMeez identity cosmetic. Payment is matched to the buyer's DreamMeez account email and the cosmetic is granted after settled Stripe payment.",
       "price": 9,
       "currency": "nzd",
-      "status": "published",
-      "checkout_available": true,
-      "checkout_url": "https://buy.stripe.com/3cI5kDgi97tP3M37wMdwc2L",
-      "category": "avatar-accessories"
+      "status": "held",
+      "checkout_available": false,
+      "checkout_url": null,
+      "category": "avatar-accessories",
+      "sale_mode": "disabled",
+      "commercial_truth": {
+        "approval_required": true,
+        "sellable": false,
+        "reason": "Held until canonical Gauntlet approval, settlement attribution, fulfillment readiness, and delivery evidence are independently verified.",
+        "payment_surface": null
+      },
+      "fulfillment": {
+        "status": "not_verified",
+        "ready": false
+      },
+      "gauntlet": {
+        "status": "NOT_VERIFIED",
+        "checkout_authorized": false
+      }
     },
     {
       "id": "DREAMMEEZ-SUPPORTER-SPROUT",
@@ -45,10 +90,25 @@
       "description": "Monthly supporter identity tier with supporter status, a monthly cosmetic drop, and DreamMeez/Kelplantis cosmetic access.",
       "price": 3.99,
       "currency": "nzd",
-      "status": "published",
-      "checkout_available": true,
-      "checkout_url": "https://buy.stripe.com/3cI5kDfe5cO9gyP5oEdwc2M",
-      "category": "avatar-accessories"
+      "status": "held",
+      "checkout_available": false,
+      "checkout_url": null,
+      "category": "avatar-accessories",
+      "sale_mode": "disabled",
+      "commercial_truth": {
+        "approval_required": true,
+        "sellable": false,
+        "reason": "Held until canonical Gauntlet approval, settlement attribution, fulfillment readiness, and delivery evidence are independently verified.",
+        "payment_surface": null
+      },
+      "fulfillment": {
+        "status": "not_verified",
+        "ready": false
+      },
+      "gauntlet": {
+        "status": "NOT_VERIFIED",
+        "checkout_authorized": false
+      }
     },
     {
       "id": "DREAMMEEZ-SUPPORTER-GLOW",
@@ -57,10 +117,25 @@
       "description": "Monthly supporter identity tier with expanded cosmetic access and a monthly cosmetic drop.",
       "price": 5.99,
       "currency": "nzd",
-      "status": "published",
-      "checkout_available": true,
-      "checkout_url": "https://buy.stripe.com/5kQfZh5Dv9BXciz5oEdwc2N",
-      "category": "avatar-accessories"
+      "status": "held",
+      "checkout_available": false,
+      "checkout_url": null,
+      "category": "avatar-accessories",
+      "sale_mode": "disabled",
+      "commercial_truth": {
+        "approval_required": true,
+        "sellable": false,
+        "reason": "Held until canonical Gauntlet approval, settlement attribution, fulfillment readiness, and delivery evidence are independently verified.",
+        "payment_surface": null
+      },
+      "fulfillment": {
+        "status": "not_verified",
+        "ready": false
+      },
+      "gauntlet": {
+        "status": "NOT_VERIFIED",
+        "checkout_authorized": false
+      }
     },
     {
       "id": "DREAMMEEZ-SUPPORTER-DEPTH",
@@ -69,10 +144,25 @@
       "description": "Premium monthly supporter identity tier with premium cosmetic drops and premium DreamMeez/Kelplantis cosmetic access.",
       "price": 9.99,
       "currency": "nzd",
-      "status": "published",
-      "checkout_available": true,
-      "checkout_url": "https://buy.stripe.com/8x2dR93vnaG1gyPg3idwc2O",
-      "category": "avatar-accessories"
+      "status": "held",
+      "checkout_available": false,
+      "checkout_url": null,
+      "category": "avatar-accessories",
+      "sale_mode": "disabled",
+      "commercial_truth": {
+        "approval_required": true,
+        "sellable": false,
+        "reason": "Held until canonical Gauntlet approval, settlement attribution, fulfillment readiness, and delivery evidence are independently verified.",
+        "payment_surface": null
+      },
+      "fulfillment": {
+        "status": "not_verified",
+        "ready": false
+      },
+      "gauntlet": {
+        "status": "NOT_VERIFIED",
+        "checkout_authorized": false
+      }
     },
     {
       "id": "KELP-FLOOR1-001",
@@ -81,10 +171,25 @@
       "description": "One-time digital access to the Floor 1 vertical slice, including the persistent First Garden social hub and Floor 1 progression.",
       "price": 19,
       "currency": "nzd",
-      "status": "published",
-      "checkout_available": true,
-      "checkout_url": "https://buy.stripe.com/aFa3cvea16pLbevbN2dwc2P",
-      "category": "digital-experiences"
+      "status": "held",
+      "checkout_available": false,
+      "checkout_url": null,
+      "category": "digital-experiences",
+      "sale_mode": "disabled",
+      "commercial_truth": {
+        "approval_required": true,
+        "sellable": false,
+        "reason": "Held until canonical Gauntlet approval, settlement attribution, fulfillment readiness, and delivery evidence are independently verified.",
+        "payment_surface": null
+      },
+      "fulfillment": {
+        "status": "not_verified",
+        "ready": false
+      },
+      "gauntlet": {
+        "status": "NOT_VERIFIED",
+        "checkout_authorized": false
+      }
     },
     {
       "id": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
@@ -93,11 +198,28 @@
       "description": "Billboard preview only. Paid placement checkout is temporarily held while secure intake and live inventory reservation are repaired. No purchase is accepted from the current billboard page.",
       "price": 50,
       "currency": "nzd",
-      "status": "published",
+      "status": "held",
       "checkout_available": false,
       "checkout_url": null,
       "category": "public-placements",
-      "availability": "review_required"
+      "availability": "review_required",
+      "sale_mode": "disabled",
+      "commercial_truth": {
+        "approval_required": true,
+        "sellable": false,
+        "reason": "Held until the canonical product Gauntlet, test-mode settlement, attribution, fulfillment, and delivery proof are independently verified.",
+        "payment_surface": null
+      },
+      "fulfillment": {
+        "status": "not_verified",
+        "ready": false
+      },
+      "gauntlet": {
+        "status": "NOT_VERIFIED",
+        "test_mode_chain": "NOT_VERIFIED",
+        "checkout_authorized": false,
+        "evidence_ref": null
+      }
     },
     {
       "id": "COMMANDER-DECK-DIAGNOSTIC-001",
@@ -108,12 +230,12 @@
       "currency": "nzd",
       "status": "held",
       "checkout_available": false,
-      "payment_link_id": "plink_1UKS00EGgEAnUFF9kUjraaL5",
-      "stripe_price_id": "price_1UFFY1EGgEAnUFF9Yq03zIa7",
       "category": "mtg",
       "delivery_test_status": "UNVERIFIED",
       "commercial_validation_status": "UNVALIDATED",
-      "inventory": 0
+      "inventory": 0,
+      "availability": "review_required",
+      "checkout_url": null
     },
     {
       "id": "DISCORD-WEBHOOK-STARTER-KIT-001",
@@ -122,11 +244,26 @@
       "description": "A downloadable Stripe-to-Discord webhook kit. The ZIP and session-verified download endpoint exist, but the post-payment delivery path has not yet passed an end-to-end receipt test; the current Stripe completion message promises email delivery within 24 hours.",
       "price": 79,
       "currency": "nzd",
-      "status": "published",
-      "checkout_available": true,
-      "checkout_url": "https://buy.stripe.com/4gMcN56HzaG1dmDeZedwc1n",
+      "status": "held",
+      "checkout_available": false,
+      "checkout_url": null,
       "category": "digital-tools",
-      "delivery_test_status": "UNVERIFIED"
+      "delivery_test_status": "UNVERIFIED",
+      "sale_mode": "disabled",
+      "commercial_truth": {
+        "approval_required": true,
+        "sellable": false,
+        "reason": "Held until canonical Gauntlet approval, settlement attribution, fulfillment readiness, and delivery evidence are independently verified.",
+        "payment_surface": null
+      },
+      "fulfillment": {
+        "status": "not_verified",
+        "ready": false
+      },
+      "gauntlet": {
+        "status": "NOT_VERIFIED",
+        "checkout_authorized": false
+      }
     },
     {
       "id": "EDH_0001",
@@ -134,7 +271,7 @@
       "description": "Edward Kenway Pirate/Vehicle Commander deck. Public listing price: NZ$230. The connected live Stripe Payment Link currently charges NZ$400, so purchase is held until price and payment link are reconciled. This listing is visible for transparency but is not purchasable.",
       "price": 230,
       "currency": "nzd",
-      "status": "published",
+      "status": "held",
       "checkout_available": false,
       "checkout_url": null,
       "sku": "EDH-EDWARD-KENWAY-PACIN-ON-THE-PLANK-001",
@@ -152,7 +289,24 @@
       "patron_url": "https://patreon.com/happyhomarid",
       "category": "mtg",
       "availability": "review_required",
-      "checkout_hold_reason": "Live Stripe checkout charges NZ$400 while public listing is NZ$230; checkout remains held until parity is restored."
+      "checkout_hold_reason": "Live Stripe checkout charges NZ$400 while public listing is NZ$230; checkout remains held until parity is restored.",
+      "sale_mode": "disabled",
+      "commercial_truth": {
+        "approval_required": true,
+        "sellable": false,
+        "reason": "Held until the canonical product Gauntlet, test-mode settlement, attribution, fulfillment, and delivery proof are independently verified.",
+        "payment_surface": null
+      },
+      "fulfillment": {
+        "status": "not_verified",
+        "ready": false
+      },
+      "gauntlet": {
+        "status": "NOT_VERIFIED",
+        "test_mode_chain": "NOT_VERIFIED",
+        "checkout_authorized": false,
+        "evidence_ref": null
+      }
     },
     {
       "id": "EDH_QUINTORIUS_0002",
@@ -163,14 +317,14 @@
       "price": 90,
       "currency": "nzd",
       "inventory": 1,
-      "status": "published",
+      "status": "held",
       "seller": "Biggie",
       "condition": "Seller reports fully sleeved; extensively playtested",
       "fulfillment_method": "physical_delivery",
       "image_url": null,
       "checkout_available": false,
       "checkout_url": null,
-      "sale_mode": "claim_by_message",
+      "sale_mode": "disabled",
       "claim_url": "/mtg/quintorius-field-historian.html",
       "decklist_url": "https://manabox.app/decks/AZ4-aMxndkWrpKZVph4TSA",
       "metadata": {
@@ -196,13 +350,26 @@
         "payment_note": "DM to claim. Listing-specific online checkout not yet enabled."
       },
       "commercial_truth": {
-        "approval_required": false,
+        "approval_required": true,
         "checkout_available": false,
         "fulfillment_required": true,
         "evidence_required": true,
-        "payment_link": null
+        "payment_link": null,
+        "sellable": false,
+        "reason": "Held until the canonical product Gauntlet, test-mode settlement, attribution, fulfillment, and delivery proof are independently verified.",
+        "payment_surface": null
       },
-      "default_offer_id": "EDH_QUINTORIUS_0002"
+      "default_offer_id": "EDH_QUINTORIUS_0002",
+      "fulfillment": {
+        "status": "not_verified",
+        "ready": false
+      },
+      "gauntlet": {
+        "status": "NOT_VERIFIED",
+        "test_mode_chain": "NOT_VERIFIED",
+        "checkout_authorized": false,
+        "evidence_ref": null
+      }
     },
     {
       "id": "EDH_DWYNEN_0003",
@@ -213,14 +380,14 @@
       "price": 90,
       "currency": "nzd",
       "inventory": 1,
-      "status": "published",
+      "status": "held",
       "seller": "HappyHomarid",
       "condition": "Seller reports sleeved and extensively playtested",
       "fulfillment_method": "physical_delivery",
       "image_url": null,
       "checkout_available": false,
       "checkout_url": null,
-      "sale_mode": "claim_by_message",
+      "sale_mode": "disabled",
       "claim_url": "/mtg/dwynen-gilt-leaf-daen.html",
       "decklist_url": "https://manabox.app/decks/AZ46QrurcOObBGF6V5oWTA",
       "metadata": {
@@ -246,13 +413,26 @@
         "payment_note": "DM to claim. Listing-specific online checkout not yet enabled."
       },
       "commercial_truth": {
-        "approval_required": false,
+        "approval_required": true,
         "checkout_available": false,
         "fulfillment_required": true,
         "evidence_required": true,
-        "payment_link": null
+        "payment_link": null,
+        "sellable": false,
+        "reason": "Held until the canonical product Gauntlet, test-mode settlement, attribution, fulfillment, and delivery proof are independently verified.",
+        "payment_surface": null
       },
-      "default_offer_id": "EDH_DWYNEN_0003"
+      "default_offer_id": "EDH_DWYNEN_0003",
+      "fulfillment": {
+        "status": "not_verified",
+        "ready": false
+      },
+      "gauntlet": {
+        "status": "NOT_VERIFIED",
+        "test_mode_chain": "NOT_VERIFIED",
+        "checkout_authorized": false,
+        "evidence_ref": null
+      }
     },
     {
       "id": "DREAMLEDGER-DOOH-CAMPAIGN-500",
@@ -285,13 +465,28 @@
       "description": "Seller-specific NZ profit audit covering marketplace fees, pricing, GST threshold, ACC and income-tax considerations, channel comparison and shipping economics.",
       "price": 29,
       "currency": "nzd",
-      "status": "published",
-      "checkout_available": true,
-      "checkout_url": "https://buy.stripe.com/8x2bJ17LD3dzeqH8AQdwc2S",
+      "status": "held",
+      "checkout_available": false,
+      "checkout_url": null,
       "payment_link_id": "plink_1UJNTzEGgEAnUFF9bzVlFlng",
       "stripe_product_id": "prod_VK1WoQw8ieHpMN",
       "stripe_price_id": "price_1UJNTvEGgEAnUFF9bfGbtrmm",
-      "category": "seller-services"
+      "category": "seller-services",
+      "sale_mode": "disabled",
+      "commercial_truth": {
+        "approval_required": true,
+        "sellable": false,
+        "reason": "Held until canonical Gauntlet approval, settlement attribution, fulfillment readiness, and delivery evidence are independently verified.",
+        "payment_surface": null
+      },
+      "fulfillment": {
+        "status": "not_verified",
+        "ready": false
+      },
+      "gauntlet": {
+        "status": "NOT_VERIFIED",
+        "checkout_authorized": false
+      }
     },
     {
       "id": "DREAMLEDGER-COMMERCIAL-TRUTH-STRESS-TEST-001",
@@ -300,13 +495,28 @@
       "description": "A bounded adversarial review of a commercial claim, offer, workflow, or decision. Tests evidence, assumptions, failure modes, and the conditions required for the claim to be considered supported.",
       "price": 999,
       "currency": "nzd",
-      "status": "published",
-      "checkout_available": true,
-      "checkout_url": "https://buy.stripe.com/aFa4gz3vng0lfuLg3idwc2T",
+      "status": "held",
+      "checkout_available": false,
+      "checkout_url": null,
       "payment_link_id": "plink_1UJSwWEGgEAnUFF9EPmOx8PQ",
       "stripe_product_id": "prod_VK7AxB6WEZGX9C",
       "stripe_price_id": "price_1UJSwREGgEAnUFF9kGZjJEma",
-      "category": "other-products"
+      "category": "other-products",
+      "sale_mode": "disabled",
+      "commercial_truth": {
+        "approval_required": true,
+        "sellable": false,
+        "reason": "Held until canonical Gauntlet approval, settlement attribution, fulfillment readiness, and delivery evidence are independently verified.",
+        "payment_surface": null
+      },
+      "fulfillment": {
+        "status": "not_verified",
+        "ready": false
+      },
+      "gauntlet": {
+        "status": "NOT_VERIFIED",
+        "checkout_authorized": false
+      }
     },
     {
       "id": "ACNC-CHARITY-DD-99",
@@ -315,9 +525,9 @@
       "description": "Fixed-scope, source-backed due diligence report on one Australian charity using the ACNC public register, annual reports, governance records and other verifiable primary sources. A free Australian Red Cross sample is published.",
       "price": 99,
       "currency": "nzd",
-      "status": "published",
-      "checkout_available": true,
-      "checkout_url": "https://buy.stripe.com/28E5kD9TLeWhgyP04kdwc2Y",
+      "status": "held",
+      "checkout_available": false,
+      "checkout_url": null,
       "payment_link_id": "plink_1UKAu6EGgEAnUFF93oLQlZiR",
       "stripe_price_id": "price_1UKAu0EGgEAnUFF9OrBC80OU",
       "sample_url": "https://dreamledger.org/buy/acnc-charity-due-diligence/",
@@ -329,7 +539,22 @@
         "risk_rating",
         "source_trail"
       ],
-      "category": "research-services"
+      "category": "research-services",
+      "sale_mode": "disabled",
+      "commercial_truth": {
+        "approval_required": true,
+        "sellable": false,
+        "reason": "Held until canonical Gauntlet approval, settlement attribution, fulfillment readiness, and delivery evidence are independently verified.",
+        "payment_surface": null
+      },
+      "fulfillment": {
+        "status": "not_verified",
+        "ready": false
+      },
+      "gauntlet": {
+        "status": "NOT_VERIFIED",
+        "checkout_authorized": false
+      }
     },
     {
       "id": "QUOTE-COMPARE-49",
@@ -338,13 +563,30 @@
       "description": "Free browser-side supplier quote comparison worksheet. Paid comparison service temporarily unavailable while intake, persistence, and fulfillment are verified.",
       "price": 49,
       "currency": "nzd",
-      "status": "published",
+      "status": "held",
       "checkout_available": false,
       "checkout_url": null,
       "payment_link_id": "plink_1UKq77EGgEAnUFF9KOr1SuUY",
       "stripe_price_id": "price_1UKq73EGgEAnUFF92KC3fkh5",
       "category": "procurement-tools",
-      "availability": "review_required"
+      "availability": "review_required",
+      "sale_mode": "disabled",
+      "commercial_truth": {
+        "approval_required": true,
+        "sellable": false,
+        "reason": "Held until the canonical product Gauntlet, test-mode settlement, attribution, fulfillment, and delivery proof are independently verified.",
+        "payment_surface": null
+      },
+      "fulfillment": {
+        "status": "not_verified",
+        "ready": false
+      },
+      "gauntlet": {
+        "status": "NOT_VERIFIED",
+        "test_mode_chain": "NOT_VERIFIED",
+        "checkout_authorized": false,
+        "evidence_ref": null
+      }
     },
     {
       "id": "DOC-EXTRACT-50",
@@ -353,13 +595,28 @@
       "description": "PDF to structured data, with source references and unknowns preserved.",
       "price": 5,
       "currency": "nzd",
-      "status": "published",
-      "checkout_available": true,
-      "checkout_url": "https://buy.stripe.com/00wdR9ea14hDgyPbN2dwc33",
+      "status": "held",
+      "checkout_available": false,
+      "checkout_url": null,
       "payment_link_id": "plink_1UKqD6EGgEAnUFF9u9GanhSX",
       "stripe_price_id": "price_1UKqCvEGgEAnUFF9RnTtUUpH",
       "toll_unit": "per_document",
-      "category": "digital-tools"
+      "category": "digital-tools",
+      "sale_mode": "disabled",
+      "commercial_truth": {
+        "approval_required": true,
+        "sellable": false,
+        "reason": "Held until canonical Gauntlet approval, settlement attribution, fulfillment readiness, and delivery evidence are independently verified.",
+        "payment_surface": null
+      },
+      "fulfillment": {
+        "status": "not_verified",
+        "ready": false
+      },
+      "gauntlet": {
+        "status": "NOT_VERIFIED",
+        "checkout_authorized": false
+      }
     },
     {
       "id": "SUPPLIER-CHECK-50",
@@ -368,13 +625,28 @@
       "description": "Entity and registry verification with source-backed findings.",
       "price": 5,
       "currency": "nzd",
-      "status": "published",
-      "checkout_available": true,
-      "checkout_url": "https://buy.stripe.com/8x28wPc1T5lH6YfdVadwc34",
+      "status": "held",
+      "checkout_available": false,
+      "checkout_url": null,
       "payment_link_id": "plink_1UKqD9EGgEAnUFF9NUPlLvyp",
       "stripe_price_id": "price_1UKqCxEGgEAnUFF9gj639uka",
       "toll_unit": "per_check",
-      "category": "digital-tools"
+      "category": "digital-tools",
+      "sale_mode": "disabled",
+      "commercial_truth": {
+        "approval_required": true,
+        "sellable": false,
+        "reason": "Held until canonical Gauntlet approval, settlement attribution, fulfillment readiness, and delivery evidence are independently verified.",
+        "payment_surface": null
+      },
+      "fulfillment": {
+        "status": "not_verified",
+        "ready": false
+      },
+      "gauntlet": {
+        "status": "NOT_VERIFIED",
+        "checkout_authorized": false
+      }
     },
     {
       "id": "EVIDENCE-PACKET-10",
@@ -383,13 +655,28 @@
       "description": "Source bundle plus integrity/hash receipt for a defined claim or transaction.",
       "price": 10,
       "currency": "nzd",
-      "status": "published",
-      "checkout_available": true,
-      "checkout_url": "https://buy.stripe.com/28E14n6HzbK582j4kAdwc35",
+      "status": "held",
+      "checkout_available": false,
+      "checkout_url": null,
       "payment_link_id": "plink_1UKqDBEGgEAnUFF946wIyU9k",
       "stripe_price_id": "price_1UKqD0EGgEAnUFF9eJjEjHBb",
       "toll_unit": "per_packet",
-      "category": "digital-tools"
+      "category": "digital-tools",
+      "sale_mode": "disabled",
+      "commercial_truth": {
+        "approval_required": true,
+        "sellable": false,
+        "reason": "Held until canonical Gauntlet approval, settlement attribution, fulfillment readiness, and delivery evidence are independently verified.",
+        "payment_surface": null
+      },
+      "fulfillment": {
+        "status": "not_verified",
+        "ready": false
+      },
+      "gauntlet": {
+        "status": "NOT_VERIFIED",
+        "checkout_authorized": false
+      }
     },
     {
       "id": "DL-DEMAND-LEAK-500",
@@ -398,13 +685,28 @@
       "description": "Fixed-scope inbound demand audit for one product or service; competitor review, three high-intent acquisition opportunities, conversion-path findings, and a 30-day action plan.",
       "price": 500,
       "currency": "nzd",
-      "status": "published",
-      "checkout_available": true,
-      "checkout_url": "https://buy.stripe.com/9B67sLd5X01n2HZ4kAdwc3j",
+      "status": "held",
+      "checkout_available": false,
+      "checkout_url": null,
       "stripe_product_id": "prod_VPDirsbZswjiaR",
       "stripe_price_id": "price_1UOPHJEGgEAnUFF9Ph7ivnnV",
       "payment_link_id": "plink_1UOPHUEGgEAnUFF9OQvE578s",
-      "category": "growth-services"
+      "category": "growth-services",
+      "sale_mode": "disabled",
+      "commercial_truth": {
+        "approval_required": true,
+        "sellable": false,
+        "reason": "Held until canonical Gauntlet approval, settlement attribution, fulfillment readiness, and delivery evidence are independently verified.",
+        "payment_surface": null
+      },
+      "fulfillment": {
+        "status": "not_verified",
+        "ready": false
+      },
+      "gauntlet": {
+        "status": "NOT_VERIFIED",
+        "checkout_authorized": false
+      }
     },
     {
       "id": "DL-INBOUND-ENGINE-2500",
@@ -413,13 +715,28 @@
       "description": "Fixed-scope implementation of one measurable inbound acquisition funnel with landing page, lead capture, analytics, automated tests, and a 30-day report.",
       "price": 2500,
       "currency": "nzd",
-      "status": "published",
-      "checkout_available": true,
-      "checkout_url": "https://buy.stripe.com/dRm14n1nf6pLcizdVadwc3k",
+      "status": "held",
+      "checkout_available": false,
+      "checkout_url": null,
       "stripe_product_id": "prod_VPDifHxkq0QXuO",
       "stripe_price_id": "price_1UOPHLEGgEAnUFF9LCqTujZt",
       "payment_link_id": "plink_1UOPHWEGgEAnUFF93KiFoiMG",
-      "category": "growth-services"
+      "category": "growth-services",
+      "sale_mode": "disabled",
+      "commercial_truth": {
+        "approval_required": true,
+        "sellable": false,
+        "reason": "Held until canonical Gauntlet approval, settlement attribution, fulfillment readiness, and delivery evidence are independently verified.",
+        "payment_surface": null
+      },
+      "fulfillment": {
+        "status": "not_verified",
+        "ready": false
+      },
+      "gauntlet": {
+        "status": "NOT_VERIFIED",
+        "checkout_authorized": false
+      }
     },
     {
       "id": "DL-AUTONOMOUS-DEMAND-10000",
@@ -428,13 +745,28 @@
       "description": "Fixed-scope multi-channel inbound acquisition system with up to three offer pages, demand research, lead and purchase tracking, experiment scoring, failure controls, and handover documentation.",
       "price": 10000,
       "currency": "nzd",
-      "status": "published",
-      "checkout_available": true,
-      "checkout_url": "https://buy.stripe.com/cNi7sLd5X8xT2HZg3idwc3l",
+      "status": "held",
+      "checkout_available": false,
+      "checkout_url": null,
       "stripe_product_id": "prod_VPDibxfOI8hLz3",
       "stripe_price_id": "price_1UOPHNEGgEAnUFF9hMPRHJeA",
       "payment_link_id": "plink_1UOPHZEGgEAnUFF9yHvfZ1FL",
-      "category": "growth-services"
+      "category": "growth-services",
+      "sale_mode": "disabled",
+      "commercial_truth": {
+        "approval_required": true,
+        "sellable": false,
+        "reason": "Held until canonical Gauntlet approval, settlement attribution, fulfillment readiness, and delivery evidence are independently verified.",
+        "payment_surface": null
+      },
+      "fulfillment": {
+        "status": "not_verified",
+        "ready": false
+      },
+      "gauntlet": {
+        "status": "NOT_VERIFIED",
+        "checkout_authorized": false
+      }
     },
     {
       "id": "EDH_JON_IRENICUS_0004",
@@ -447,10 +779,10 @@
       "currency": "nzd",
       "inventory": 1,
       "inventory_type": "physical",
-      "status": "published",
+      "status": "held",
       "checkout_available": false,
       "checkout_url": null,
-      "sale_mode": "claim_by_message",
+      "sale_mode": "disabled",
       "claim_url": "mailto:hello@dreamledger.org?subject=Claim%20Jon%20Irenicus%20Commander%20Deck&body=I%27d%20like%20to%20claim%20the%20Jon%20Irenicus%2C%20Shattered%20One%20Commander%20deck%20(NZ%24220%2C%20or%20NZ%24200%20for%20Patreon%20members).%20Please%20confirm%20availability%20and%20shipping.",
       "detail_url": "/mtg/jon-irenicus-shattered-one.html",
       "decklist_url": "https://manabox.app/decks/AZ2BaCy-c-a8MpZUUcgxqw",
@@ -461,11 +793,24 @@
       "patron_url": "https://patreon.com/happyhomarid",
       "shipping": "Free shipping within Aotearoa New Zealand",
       "commercial_truth": {
-        "approval_required": false,
+        "approval_required": true,
         "checkout_available": false,
         "fulfillment_required": true,
         "evidence_required": true,
-        "payment_link": null
+        "payment_link": null,
+        "sellable": false,
+        "reason": "Held until the canonical product Gauntlet, test-mode settlement, attribution, fulfillment, and delivery proof are independently verified.",
+        "payment_surface": null
+      },
+      "fulfillment": {
+        "status": "not_verified",
+        "ready": false
+      },
+      "gauntlet": {
+        "status": "NOT_VERIFIED",
+        "test_mode_chain": "NOT_VERIFIED",
+        "checkout_authorized": false,
+        "evidence_ref": null
       }
     }
   ]

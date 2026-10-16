@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b0b0d">
-<title>DreamMeez Studio · Look good. Spend NZ$2–5.</title>
-<meta name="description" content="Build an avatar that follows you across DreamLedger and into Phinhaven. Free body extremes. Impulse cosmetics from NZ$2.">
+<title>DreamMeez Studio · Avatar preview demo</title>
+<meta name="description" content="Preview an avatar across DreamLedger and Phinhaven. Paid cosmetic checkout remains held; local demo unlocks are not purchases.">
 <link rel="canonical" href="https://dreamledger.org/avatar.html">
 <script src="/assets/avatar-identity.js"></script>
 <style>
@@ -191,8 +191,8 @@ buff{display:block;font-size:10px;color:var(--mint)}
   <section class="hero">
     <p class="eyebrow">Cross-surface avatar · Web + Phinhaven</p>
     <h1>Look like someone<br><span>worth a few dollars.</span></h1>
-    <p class="lead">Free extreme body types. Try cosmetics on your avatar before you pay. Same loadout follows you into Phinhaven — visuals on the web, light buffs in-game.</p>
-    <span class="pill">Impulse cosmetics NZ$2–5 · try-on first</span>
+    <p class="lead">Preview body types and cosmetics. Paid unlocks are held. Local demo unlocks do not create a payment, account entitlement, or verified sale.</p>
+    <span class="pill">Paid cosmetics held · local demo only</span>
   </section>
 
   <div class="studio">
@@ -405,7 +405,7 @@ buff{display:block;font-size:10px;color:var(--mint)}
       card.innerHTML =
         '<h4>' + item.name + '</h4>' +
         '<p>Web look · game: ' + (item.phinhaven && item.phinhaven.label ? item.phinhaven.label : 'cosmetic') + '</p>' +
-        '<div class="price">NZ$' + item.price_nzd + '</div>' +
+         '<div class="price">Proposed NZ$' + item.price_nzd + '</div>' +
         '<span class="buff">' + (item.phinhaven ? item.phinhaven.label : '') + '</span>' +
         '<div class="row"></div>';
       var row = card.querySelector('.row');
@@ -438,9 +438,85 @@ buff{display:block;font-size:10px;color:var(--mint)}
         buy.type = 'button';
         buy.className = 'btn';
         buy.textContent = 'Unlock demo';
-        buy.title = 'Local unlock for demo until Stripe cosmetic checkout is wired for this SKU';
+        buy.title = 'Demo-only local state; paid checkout is held for this SKU';
         buy.onclick = function() {
-          // Demo unlock so try→own→equip loop works before every Stripe SKU is live
+          // Demo-only local state; this creates no paid entitlement.
+          state = DreamLedgerAvatar.own(item.id);
+          state = DreamLedgerAvatar.equip(item.id);
+          tryingId = null;
+          status('Unlocked locally for demo only. No payment, account entitlement, or verified sale is created.');
+          render();
+        };
+        row.appendChild(buy);
+
+        // Paid checkout stays held until this SKU has canonical proof.
+      }
+
+      grid.appendChild(card);
+    });
+  }
+
+  $('displayName').addEventListener('change', function() {
+    state.display_name = ($('displayName').value || '').trim().slice(0, 24);
+    persistBody();
+    render();
+  });
+
+  // Seed phinhaven local link when name set
+  window.addEventListener('dreamledger:avatar-updated', function() {
+    try {
+      var payload = DreamLedgerAvatar.toPhinhavenLoadout();
+      localStorage.setItem('phinhaven_avatar_link_v1', JSON.stringify({
+        name: payload.avatar_link.name,
+        loadout: payload,
+        updated_at: new Date().toISOString()
+      }));
+    } catch (e) {}
+  });
+
+  render();
+  status('Try a cosmetic. Avatar follows you site-wide and into Phinhaven.');
+})();
+</script>
+<script src="/assets/avatar-chip.js"></script>
+</body>
+</html>
+ + item.price_nzd + '</div>' +
+        '<span class="buff">' + (item.phinhaven ? item.phinhaven.label : '') + '</span>' +
+        '<div class="row"></div>';
+      var row = card.querySelector('.row');
+
+      var tryBtn = document.createElement('button');
+      tryBtn.type = 'button';
+      tryBtn.className = 'btn ghost';
+      tryBtn.textContent = tryingId === item.id ? 'Trying' : 'Try';
+      tryBtn.onclick = function() {
+        tryingId = tryingId === item.id ? null : item.id;
+        render();
+      };
+      row.appendChild(tryBtn);
+
+      if (owned) {
+        var eq = document.createElement('button');
+        eq.type = 'button';
+        eq.className = 'btn';
+        eq.textContent = equipped ? 'Equipped' : 'Equip';
+        eq.disabled = equipped;
+        eq.onclick = function() {
+          state = DreamLedgerAvatar.equip(item.id);
+          tryingId = null;
+          status('Equipped for web + Phinhaven.');
+          render();
+        };
+        row.appendChild(eq);
+      } else {
+        var buy = document.createElement('button');
+        buy.type = 'button';
+        buy.className = 'btn';
+        buy.textContent = 'Unlock demo';
+        buy.title = 'Demo-only local state; paid checkout is held for this SKU';
+        buy.onclick = function() {
+          // Demo-only local state; this creates no paid entitlement.
           state = DreamLedgerAvatar.own(item.id);
           state = DreamLedgerAvatar.equip(item.id);
           tryingId = null;

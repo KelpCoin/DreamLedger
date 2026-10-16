@@ -26,11 +26,13 @@ jobs:
           $p = Get-Content BEC-PRIME/catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json -Raw | ConvertFrom-Json
           $f = Get-Content BEC-PRIME/fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json -Raw | ConvertFrom-Json
           if ($p.price -ne 29) { throw 'Commander diagnostic price contract failed' }
-          if ($p.fulfillment.mode -ne 'automated') { throw 'Automated fulfillment contract failed' }
-          if ($p.fulfillment.operator_required -ne $false) { throw 'Operator-free fulfillment contract failed' }
-          if ($f.entries.'COMMANDER-DECK-DIAGNOSTIC-001'.operator_required -ne $false) { throw 'Registry still requires operator' }
-          if ($f.entries.'COMMANDER-DECK-DIAGNOSTIC-001'.ready -ne $true) { throw 'Registry is not ready' }
-          Write-Host '[PASS] MTG diagnostic commercial and fulfillment contract'
+          if ($p.status -ne 'held') { throw 'Commander diagnostic must remain held until independent payment and delivery proof exist' }
+          if ($p.checkout.mode -ne 'disabled' -or $p.checkout.url -ne $null -or $p.checkout_available -eq $true) { throw 'Held Commander diagnostic exposes checkout' }
+          if ($p.commercial_truth.approval_required -ne $true -or $p.commercial_truth.sellable -ne $false) { throw 'Held Commander diagnostic commercial truth mismatch' }
+          if ($p.fulfillment.mode -ne 'disabled' -or $p.fulfillment.operator_required -ne $true) { throw 'Unproven fulfillment must remain disabled and operator-gated' }
+          if ($f.entries.'COMMANDER-DECK-DIAGNOSTIC-001'.operator_required -ne $true) { throw 'Registry must retain operator gate until fulfillment is proven' }
+          if ($f.entries.'COMMANDER-DECK-DIAGNOSTIC-001'.ready -ne $false) { throw 'Registry must not claim fulfillment readiness without evidence' }
+          Write-Host '[PASS] MTG diagnostic remains held; fulfillment and checkout are not falsely marked ready'
       - name: Compile MTG surface
         run: node BEC-PRIME/compiler/MTGCatalogCompiler.js
       - name: Verify CUBE MTG reskin

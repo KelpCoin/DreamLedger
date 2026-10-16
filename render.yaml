@@ -27,35 +27,6 @@ services:
           type: pserv
           name: dreamledger-engine
           envVarKey: ENGINE_INTERNAL_API_KEY
-      - key: SUPABASE_URL
-        fromService:
-          type: pserv
-          name: dreamledger-engine
-          envVarKey: SUPABASE_URL
-      - key: SUPABASE_PUBLISHABLE_KEY
-        value: sb_publishable_O5JRD67KaU3SA9dFq-JIuQ_Pzs8pedj
-      - key: SUPABASE_SERVICE_ROLE_KEY
-        fromService:
-          type: pserv
-          name: dreamledger-engine
-          envVarKey: SUPABASE_SERVICE_ROLE_KEY
-      - key: STRIPE_SECRET_KEY
-        fromService:
-          type: pserv
-          name: dreamledger-engine
-          envVarKey: STRIPE_SECRET_KEY
-      - key: DREAMLEDGER_TOLL_KEY_SECRET
-        fromService:
-          type: pserv
-          name: dreamledger-engine
-          envVarKey: DREAMLEDGER_TOLL_KEY_SECRET
-      - key: TOLL_CHECKOUT_ENABLED
-        value: "false"
-      - key: DREAMLEDGER_AGENT_BRIDGE_TOKEN
-        fromService:
-          type: pserv
-          name: dreamledger-engine
-          envVarKey: DREAMLEDGER_AGENT_BRIDGE_TOKEN
 
   - type: pserv
     name: dreamledger-engine

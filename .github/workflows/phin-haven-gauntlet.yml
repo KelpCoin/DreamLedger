@@ -14,7 +14,7 @@ jobs:
   gauntlet:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Canonical public naming
         shell: bash
@@ -70,8 +70,11 @@ jobs:
           set -euo pipefail
           test -f public/avatar.html
           grep -q 'id="avatar"' public/avatar.html
-          grep -q 'id="save"' public/avatar.html
-          grep -q 'Save DreamMeez' public/avatar.html
+          # Avatar state persists on each accepted control change; there is no
+          # separate save button in this current UI contract.
+          grep -q 'function persistBody' public/avatar.html
+          grep -q 'DreamLedgerAvatar.save(state)' public/avatar.html
+          grep -q 'Name saves with your portable identity' public/avatar.html
 
       - name: SQL canonical table check
         shell: bash

@@ -2,8 +2,8 @@
 <html lang="en-NZ"><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Shop · DreamLedger NZ — Pay on Stripe</title>
-<meta name="description" content="Checkout-ready products. Lowest price first. Every button goes to Stripe when live.">
+<title>Shop · DreamLedger | checkout status</title>
+<meta name="description" content="Products appear only after canonical approval, settlement attribution, fulfillment and delivery proof. Checkout remains held until the Gauntlet passes.">
 <style>
 :root{--bg:#f7f5ef;--paper:#fffdf8;--ink:#191a17;--muted:#65635c;--line:#ddd8cd;--accent:#5d43d8}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,sans-serif}a{color:inherit;text-decoration:none}
@@ -23,15 +23,15 @@ footer{border-top:1px solid var(--line);padding:24px 0 48px;color:var(--muted);f
 <body>
 <header class="top"><div class="wrap">
 <a class="brand" href="/">Dream<span>Ledger</span></a>
-<nav><a href="/money.html">From NZ$3.99</a><a href="/avatar.html">Avatar</a><a href="/mtg/">Magic</a></nav>
+<nav><a href="/money.html">Offer status</a><a href="/avatar.html">Avatar</a><a href="/mtg/">Magic</a></nav>
 </div></header>
 <main class="wrap">
 <section class="hero">
 <h1>Pay for real work.</h1>
-<p class="lead">Checkout-ready products only, lowest price first. Buttons open live Stripe when available.</p>
+<p class="lead">Products appear only when the canonical Gauntlet authorizes checkout. No paid offer is assumed available.</p>
 <div class="banner">
-  <div><strong>Fastest path:</strong> Supporter Sprout · NZ$3.99</div>
-  <a href="/buy/DREAMMEEZ-SUPPORTER-SPROUT">Pay NZ$3.99 on Stripe →</a>
+  <div><strong>Checkout status:</strong> Held until the canonical product, settlement, and delivery proof gates pass.</div>
+  <a href="/money.html">View current status →</a>
 </div>
 </section>
 <div id="products"></div>
@@ -43,10 +43,15 @@ fetch('/api/products',{cache:'no-store'}).then(function(r){return r.json()}).the
     .sort(function(a,b){return (Number(a.price)||0)-(Number(b.price)||0);});
   function esc(v){return String(v==null?'':v).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
   var root=document.getElementById('products');
-  if(!products.length){root.innerHTML='<p class="empty">No checkout-ready products. <a href="/buy/DREAMMEEZ-SUPPORTER-SPROUT">Pay NZ$3.99</a></p>';return;}
+  if(!products.length){root.innerHTML='<p class="empty">No checkout is currently authorized. Products appear here only after the canonical Gauntlet, test-mode settlement, attribution, fulfillment, and delivery proof gates pass. <a href="/money.html">View status →</a></p>';return;}
   root.innerHTML='<div class="rail">'+products.map(function(p){
-    return '<article class="card"><h3>'+esc(p.name)+'</h3><p style="color:#65635c;flex:1">'+esc((p.description||'').slice(0,140))+'</p><div class="price">NZ$'+esc(Number(p.price||0))+'</div><a class="btn" href="/buy/'+encodeURIComponent(p.id)+'">Pay on Stripe</a></article>';
+    return '<article class="card"><h3>'+esc(p.name)+'</h3><p style="color:#65635c;flex:1">'+esc((p.description||'').slice(0,140))+'</p><div class="price">NZ
   }).join('')+'</div>';
-}).catch(function(){document.getElementById('products').innerHTML='<p class="empty"><a href="/buy/DREAMMEEZ-SUPPORTER-SPROUT">Pay NZ$3.99 on Stripe</a></p>';});
+}).catch(function(){document.getElementById('products').innerHTML='<p class="empty">Checkout status is unavailable, so purchase actions remain held. Please retry later.</p>';});
+</script>
+</body></html>
++esc(Number(p.price||0))+'</div><a class="btn" href="'+esc(p.checkout_url)+'" rel="noopener noreferrer">Pay on Stripe</a></article>';
+  }).join('')+'</div>';
+}).catch(function(){document.getElementById('products').innerHTML='<p class="empty">Checkout status is unavailable, so purchase actions remain held. Please retry later.</p>';});
 </script>
 </body></html>

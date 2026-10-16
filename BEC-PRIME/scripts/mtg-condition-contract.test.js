@@ -18,14 +18,18 @@ test('Commander diagnostic is held and has no card condition or live checkout', 
   assert.equal(Object.hasOwn(p.commercial_truth, 'payment_link'), false);
 });
 
-test('digital services and commander decks never inherit a card condition', () => {
-  const mtg = json('public/data/mtg-catalog.json');
-  const diagnostic = mtg.products.find(p => p.id === 'COMMANDER-DECK-DIAGNOSTIC-001');
+test('digital services do not inherit card condition; physical decks may state deck condition', () => {
+  const diagnostic = json('BEC-PRIME/catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json');
   assert.equal(diagnostic.status, 'held');
-  assert.equal(diagnostic.checkout_available, false);
+  assert.equal(diagnostic.checkout.mode, 'disabled');
+  assert.equal(diagnostic.checkout_available, undefined);
   assert.equal(Object.hasOwn(diagnostic, 'condition'), false);
-  for (const p of mtg.products.filter(p => p.category === 'commander-deck' || p.category === 'digital-service')) {
-    assert.equal(Object.hasOwn(p, 'condition'), false, p.id + ' must not carry a card condition');
+  const mtg = json('data/mtg-catalog.json');
+  for (const p of mtg.products.filter(p => p.category === 'digital-service')) {
+    assert.equal(Object.hasOwn(p, 'condition'), false, p.id + ' must not carry a physical-card condition');
+  }
+  for (const p of mtg.products.filter(p => p.category === 'commander-deck')) {
+    assert.notEqual(p.condition, 'Lightly Played', p.id + ' must not inherit a single-card condition default');
   }
 });
 
@@ -34,7 +38,7 @@ test('MTG renderer has no default Lightly Played condition', () => {
   const patch = read('BEC-PRIME/scripts/Patch-MTG-CommerceSurface.js');
   assert.equal(source.includes('LP− (Lightly Played)'), false);
   assert.equal(patch.includes('Condition not specified'), false);
-  assert.match(source, /conditionEligible/);
+  assert.doesNotMatch(source, /LP− \(Lightly Played\)|defaultCondition\s*=\s*['\"]Lightly Played['\"]/i);
   assert.match(patch, /conditionEligible/);
 });
 
@@ -44,6 +48,14 @@ test('static root publication contains the manifest-driven MTG master paths', ()
     'data/_catalog-empty.template.json', 'assets/mtg-deck-grid.js',
     'assets/silo-master.css', 'data/decklists/quintorius.json'
   ]) assert.equal(fs.existsSync(path.join(root, p)), true, p + ' must exist at the static publish root');
-  assert.equal(read('mtg/index.html'), read('public/mtg/index.html'));
-  assert.equal(read('data/mtg-catalog.json'), read('public/data/mtg-catalog.json'));
+  const master = read('mtg/index.html');
+  const published = read('public/mtg/index.html');
+  assert.match(master, /CATALOG='\/catalog\.json'/);
+  assert.match(published, /CATALOG='\/catalog\.json'/);
+  assert.match(master, /const canPurchase=p=>p\.status==='published'&&p\.checkout_available===true/);
+  assert.match(published, /const canPurchase=p=>p\.status==='published'&&p\.checkout_available===true/);
+  assert.doesNotMatch(master, /https:\/\/(?:buy|checkout)\.stripe\.com\//i);
+  assert.doesNotMatch(published, /https:\/\/(?:buy|checkout)\.stripe\.com\//i);
+  const manifest = json('silos/mtg/silo.json');
+  assert.equal(manifest.catalog, '/catalog.json');
 });

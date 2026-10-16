@@ -69,7 +69,7 @@
       "name": "DreamMeez Supporter — Sprout",
       "price_nzd": 3.99,
       "buy_router": "https://dreamledger.org/buy/DREAMMEEZ-SUPPORTER-SPROUT",
-      "checkout_url": "https://buy.stripe.com/3cI5kDfe5cO9gyP5oEdwc2M",
+      "checkout_url": null,
       "status": "LISTED",
       "loop": "LOOP-SPROUT-3.99"
     },
@@ -78,7 +78,7 @@
       "name": "DreamMeez Supporter — Glow",
       "price_nzd": 5.99,
       "buy_router": "https://dreamledger.org/buy/DREAMMEEZ-SUPPORTER-GLOW",
-      "checkout_url": "https://buy.stripe.com/5kQfZh5Dv9BXciz5oEdwc2N",
+      "checkout_url": null,
       "status": "LISTED"
     },
     {
@@ -86,7 +86,7 @@
       "name": "DreamMeez Supporter — Depth",
       "price_nzd": 9.99,
       "buy_router": "https://dreamledger.org/buy/DREAMMEEZ-SUPPORTER-DEPTH",
-      "checkout_url": "https://buy.stripe.com/8x2dR93vnaG1gyPg3idwc2O",
+      "checkout_url": null,
       "status": "LISTED"
     },
     {
@@ -94,7 +94,7 @@
       "name": "DreamMeez Cosmic Hoodie",
       "price_nzd": 5,
       "buy_router": "https://dreamledger.org/buy/DREAMMEEZ-COSMIC-HOODIE-001",
-      "checkout_url": "https://buy.stripe.com/aFa14nd5XdSdeqH5oEdwc2J",
+      "checkout_url": null,
       "status": "LISTED"
     },
     {
@@ -102,7 +102,7 @@
       "name": "DreamMeez Cape",
       "price_nzd": 10,
       "buy_router": "https://dreamledger.org/buy/DREAMMEEZ-CAPE-001",
-      "checkout_url": "https://buy.stripe.com/cNi5kDaXP7tP0zR2csdwc2K",
+      "checkout_url": null,
       "status": "LISTED"
     },
     {
@@ -110,7 +110,7 @@
       "name": "DreamMeez Chrome Boots",
       "price_nzd": 9,
       "buy_router": "https://dreamledger.org/buy/DREAMMEEZ-CHROME-BOOTS-001",
-      "checkout_url": "https://buy.stripe.com/3cI5kDgi97tP3M37wMdwc2L",
+      "checkout_url": null,
       "status": "LISTED"
     },
     {
@@ -118,7 +118,7 @@
       "name": "Kelplantis Floor 1 Access Pass",
       "price_nzd": 19,
       "buy_router": "https://dreamledger.org/buy/KELP-FLOOR1-001",
-      "checkout_url": "https://buy.stripe.com/aFa3cvea16pLbevbN2dwc2P",
+      "checkout_url": null,
       "status": "LISTED",
       "loop": "LOOP-KELP-FLOOR1-19"
     },
@@ -127,7 +127,7 @@
       "name": "Seller Profit Audit",
       "price_nzd": 29,
       "buy_router": "https://dreamledger.org/buy/SELLER-PROFIT-AUDIT-001",
-      "checkout_url": "https://buy.stripe.com/8x2bJ17LD3dzeqH8AQdwc2S",
+      "checkout_url": null,
       "status": "LISTED",
       "loop": "LOOP-SELLER-AUDIT-29"
     },
@@ -136,7 +136,7 @@
       "name": "Discord Webhook Starter Kit",
       "price_nzd": 79,
       "buy_router": "https://dreamledger.org/buy/DISCORD-WEBHOOK-STARTER-KIT-001",
-      "checkout_url": "https://buy.stripe.com/4gMcN56HzaG1dmDeZedwc1n",
+      "checkout_url": null,
       "status": "LISTED",
       "loop": "LOOP-DISCORD-KIT-79"
     },
@@ -145,7 +145,7 @@
       "name": "ACNC Charity Due Diligence Report",
       "price_nzd": 99,
       "buy_router": "https://dreamledger.org/buy/ACNC-CHARITY-DD-99",
-      "checkout_url": "https://buy.stripe.com/28E5kD9TLeWhgyP04kdwc2Y",
+      "checkout_url": null,
       "status": "LISTED",
       "loop": "LOOP-ACNC-DD-99"
     },

@@ -57,29 +57,49 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python3 - <<'PY'
-          import json
-          from pathlib import Path
-          approved = json.loads(Path('BEC-PRIME/catalog/offers/approved.json').read_text())
-          offers = json.loads(Path('BEC-PRIME/catalog/offers/offers.json').read_text())
-          target = next((x for x in approved.get('approved', []) if x.get('offer_id') == 'OFFER-CMD-DIAG-29-NZD'), None)
-          if not target:
-              raise SystemExit('APPROVED_COMMANDER_DIAGNOSTIC=FAIL')
-          if target.get('price') != 29 or target.get('currency') != 'NZD':
-              raise SystemExit('APPROVED_PRICE_CURRENCY=FAIL')
-          if target.get('payment_link_status') != 'ACTIVE_LIVEMODE':
-              raise SystemExit('PAYMENT_LINK_STATUS=FAIL')
-          if not str(target.get('payment_link_url','')).startswith('https://buy.stripe.com/'):
-              raise SystemExit('PAYMENT_LINK_URL=FAIL')
-          if target.get('product_id') != 'COMMANDER-DECK-DIAGNOSTIC-001':
-              raise SystemExit('PRODUCT_ID=FAIL')
-          print('APPROVED_COMMANDER_DIAGNOSTIC=PASS')
-          print('APPROVED_PRICE_CURRENCY=PASS')
-          print('PAYMENT_LINK_STATUS=PASS')
-          print('PAYMENT_LINK_URL=PASS')
-          print('PRODUCT_ID=PASS')
-          print('CANONICAL_CANDIDATE_COUNT=' + str(len(offers.get('offers', []))))
-          PY
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const path = require('node:path');
+          const { evaluateCanonicalProduct } = require('./BEC-PRIME/runtime/canonicalCheckoutGate.js');
+          const root = process.cwd();
+          const approved = JSON.parse(fs.readFileSync(path.join(root, 'BEC-PRIME/catalog/offers/approved.json'), 'utf8'));
+          const catalog = JSON.parse(fs.readFileSync(path.join(root, 'BEC-PRIME/catalog/offers/offers.json'), 'utf8'));
+          const registry = JSON.parse(fs.readFileSync(path.join(root, 'BEC-PRIME/fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json'), 'utf8'));
+          const target = approved.approved.find(x => x.offer_id === 'OFFER-CMD-DIAG-29-NZD');
+          if (!target) throw new Error('APPROVED_COMMANDER_DIAGNOSTIC=FAIL');
+          if (target.price !== 29 || target.currency !== 'NZD') throw new Error('APPROVED_PRICE_CURRENCY=FAIL');
+          if (target.product_id !== 'COMMANDER-DECK-DIAGNOSTIC-001') throw new Error('PRODUCT_ID=FAIL');
+          const compiled = catalog.offers.find(x => x.offer_id === target.offer_id);
+          if (!compiled) throw new Error('COMPILED_COMMANDER_DIAGNOSTIC=FAIL');
+          const productPath = path.join(root, 'BEC-PRIME/catalog/products', target.product_id + '.json');
+          const product = JSON.parse(fs.readFileSync(productPath, 'utf8'));
+          const gate = evaluateCanonicalProduct(product, registry, root);
+          const sourceLink = typeof target.payment_link_url === 'string' ? target.payment_link_url : null;
+          const linkMatches = gate.allowed === true && !!sourceLink && sourceLink === gate.checkout_url;
+          const enabled = linkMatches && target.payment_link_status === 'ACTIVE_LIVEMODE';
+          if (enabled) {
+            if (compiled.status !== 'VERIFIED_AVAILABLE' || compiled.checkout_available !== true || compiled.approval_required !== false) {
+              throw new Error('OPEN_GATE_COMPILED_STATE=FAIL');
+            }
+            if (compiled.payment_link_url !== gate.checkout_url) throw new Error('OPEN_GATE_LINK_BINDING=FAIL');
+            console.log('CANONICAL_GATE=OPEN; CHECKOUT_STATE=VERIFIED_AVAILABLE');
+          } else {
+            const expectedStatus = gate.allowed === true ? 'HELD_STRIPE_LINK_DRIFT' : 'HELD_CANONICAL_PRODUCT_GATE';
+            if (compiled.status !== expectedStatus) throw new Error('HELD_OFFER_STATUS=FAIL expected=' + expectedStatus);
+            if (compiled.checkout_available !== false || compiled.approval_required !== true) {
+              throw new Error('HELD_OFFER_CHECKOUT_STATE=FAIL');
+            }
+            if (compiled.payment_link_url !== null && compiled.payment_link_url !== undefined && compiled.payment_link_url !== '') {
+              throw new Error('HELD_OFFER_MUST_NOT_EXPOSE_PAYMENT_URL=FAIL');
+            }
+            if (compiled.fulfillment_route) throw new Error('HELD_OFFER_MUST_NOT_EXPOSE_FULFILLMENT_ROUTE=FAIL');
+            console.log('CANONICAL_GATE=' + (gate.allowed ? 'OPEN_LINK_DRIFT' : 'CLOSED') + '; CHECKOUT_STATE=HELD; PAYMENT_URL_EXPOSED=false');
+          }
+          console.log('APPROVED_COMMANDER_DIAGNOSTIC=PASS');
+          console.log('APPROVED_PRICE_CURRENCY=PASS');
+          console.log('PRODUCT_ID=PASS');
+          console.log('CANONICAL_CANDIDATE_COUNT=' + catalog.offers.length);
+          NODE
 
       - name: Verify critical syntax
         shell: bash

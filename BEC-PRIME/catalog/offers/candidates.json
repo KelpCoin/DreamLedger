@@ -2,7 +2,7 @@
   "schema": "BEC-PRIME/OFFER-CATALOG/v1",
   "compiler": "offer-compiler-v1",
   "source": "catalog/ip-capabilities.json",
-  "approval_rule": "All generated offers remain approval-gated and checkout-disabled until explicitly approved in catalog/offers/approved.json.",
+  "approval_rule": "Generated offers remain held until explicitly approved and the canonical product is published, sellable, checkout-enabled, and link-matched.",
   "counts": {
     "capabilities": 17,
     "candidates": 35,

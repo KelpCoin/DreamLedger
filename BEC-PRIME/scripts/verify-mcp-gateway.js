@@ -16,6 +16,10 @@ function check(name, ok, detail) { checks.push({ name, status: ok ? 'PASS' : 'FA
 function canonical(m) { return JSON.stringify({schema_version:m.schema_version,gateway:m.gateway,transport:m.transport,protocol_version:m.protocol_version,tools:m.tools},null,2)+'\n'; }
 
 check('FILES_GATEWAY', fs.existsSync(GATEWAY), GATEWAY);
+const gatewaySource = fs.existsSync(GATEWAY) ? fs.readFileSync(GATEWAY, 'utf8') : '';
+check('SESSION_CALL_BUDGET_15', /const MAX_CALLS = 15;/.test(gatewaySource), '15 tools/call requests per initialized session');
+check('SESSION_WALLCLOCK_5_MIN', /const MAX_WALL_CLOCK_MS = 5 \* 60 \* 1000;/.test(gatewaySource) && /Date.now\(\) - sessionStartedAt >= MAX_WALL_CLOCK_MS/.test(gatewaySource), 'five-minute deadline enforced before post-initialize work');
+check('CALL_BUDGET_BEFORE_TOOL', /if \(callCount >= MAX_CALLS\)[\s\S]{0,250}callCount \+= 1;[\s\S]{0,150}callTool\(/.test(gatewaySource), 'tool call is denied before callTool executes');
 check('FILES_MANIFEST', fs.existsSync(MANIFEST), MANIFEST);
 check('FILES_POLICY', fs.existsSync(POLICY), POLICY);
 check('FILES_MIRROR', fs.existsSync(MIRROR), MIRROR);
@@ -44,19 +48,13 @@ child.stdout.on('data',chunk=>{ buffer += chunk.toString(); let idx; while((idx=
     r = await rpc({jsonrpc:'2.0',id:2,method:'initialize',params:{protocolVersion:'2025-11-25',clientInfo:{name:'behavioural-verifier',version:'1'}}}); check('INITIALIZE', r.result && r.result.protocolVersion === '2025-11-25', 'protocol negotiated');
     r = await rpc({jsonrpc:'2.0',id:3,method:'initialized',params:{}}); check('INITIALIZED', !r.error, 'initialized accepted');
     r = await rpc({jsonrpc:'2.0',id:4,method:'tools/list',params:{}}); check('TOOLS_LIST', Array.isArray(r.result && r.result.tools) && r.result.tools.length === 6, 'six tools exposed after handshake');
-    r = await rpc({jsonrpc:'2.0',id:5,method:'tools/call',params:{name:'dl_propose_checkout',arguments:{checkout:{sku:'EDH_0001',amount:40000,customer_ref:'CUST-TEST-001'},silo:'MTG'}}});
+    r = await rpc({jsonrpc:'2.0',id:5,method:'tools/call',params:{name:'dl_propose_checkout',arguments:{checkout:{sku:'COMMANDER-DECK-DIAGNOSTIC-001',amount:29,customer_ref:'CUST-TEST-001'},silo:'MTG'}}});
     if (r.result && r.result.content) {
       const payload = JSON.parse(r.result.content[0].text);
-      const authority = payload.capital_authority || (payload.court && payload.court.capital_authority);
-      const ok = payload.status === 'AWAITING_HUMAN_APPROVAL' &&
-        payload.execution === 'BLOCKED' &&
-        payload.executed === false &&
-        authority === 'ZERO' &&
-        payload.court &&
-        payload.court.decision === 'ELIGIBLE_FOR_HUMAN_APPROVAL' &&
-        payload.court.gauntlet === 'PASS' &&
-        payload.court.truth === 'PASS';
-      check('COURT_GAUNTLET_TRUTH_PATH', ok, 'Gauntlet PASS -> Truth Oracle PASS -> Court eligibility -> human approval');
+      const ok = payload.error === 'Product not authorized for checkout' &&
+        payload.checkout === 'BLOCKED' &&
+        payload.capital_authority === 'ZERO';
+      check('COURT_GAUNTLET_TRUTH_PATH', ok, 'Held canonical SKU rejected before proposal; zero capital authority');
     } else check('COURT_GAUNTLET_TRUTH_PATH', false, JSON.stringify(r));
     r = await rpc({jsonrpc:'2.0',id:6,method:'tools/call',params:{name:'dl_execute_powershell',arguments:{command:'whoami'}}}); check('DANGEROUS_TOOL_REJECTED', r.error && r.error.code === -32000, 'unknown execution tool rejected');
   } catch (err) { check('BEHAVIOURAL_HARNESS', false, err.message); }

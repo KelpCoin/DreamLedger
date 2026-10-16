@@ -1,0 +1,740 @@
+{
+  "schema": "DREAMLEDGER-FIGURE-EIGHT-VECTOR-STACK",
+  "version": "2.0.0",
+  "scope": "Vectors 23-66, canonical capabilities, continuous progress evaluation and clone certification gates",
+  "status": "DRAFT_REGISTRY_ONLY_NOT_RUNTIME_ENFORCEMENT",
+  "generated_at_utc": "2026-10-16",
+  "current_economic_truth": {
+    "verified_external_revenue_nzd": 0,
+    "independent_buyers": 0,
+    "paid_and_fulfilled_orders": 0,
+    "release_verdict": "BLOCKED_PENDING_FIRST_PAID_ORDER_AND_FULFILLMENT_PROOF"
+  },
+  "design_rules": [
+    "Repeated vector numbers describing the same capability alias one canonical capability; do not build duplicate settlement, ledger, reputation, or dispute authorities.",
+    "Every capability remains NOT_PROVEN until an independent verifier checks runtime evidence against explicit acceptance criteria.",
+    "Internet-Drafts and vendor frameworks are research inputs, not endorsements, finalized standards, or proof of DreamLedger conformance.",
+    "A clone may inherit code, schemas, tests, and governance policy only. It must not inherit stock, rights, supply evidence, customer intent, credentials, approvals, entitlements, settlement state, reputation, orders, or revenue.",
+    "No vector registry entry can authorize spending, checkout activation, a payment, a public post, a deployment, or a production write.",
+    "The builder is not the final verifier. Failed, stale, missing, or contradictory evidence produces HOLD.",
+    "Vectors 51-66 are mapped into this same registry; aliases reuse canonical capabilities rather than creating parallel ledgers or authorities.",
+    "Source maturity and current revision are recorded for protocol claims. Internet-Drafts are work in progress, not finalized standards; unverified names stay explicitly unverified.",
+    "Continuous completion scores are guidance for selecting repairs, not permission to publish, spend, activate checkout, or claim revenue."
+  ],
+  "canonical_capabilities": [
+    {
+      "id": "CAP-TTS",
+      "title": "Transaction trust scoring",
+      "vectors": [
+        23,
+        35
+      ],
+      "layer": "verification",
+      "status": "NOT_PROVEN",
+      "source_maturity": "DACP and the claimed Buf schema were not verified as an established interoperable standard in this review",
+      "required_signals": [
+        "entity_verification",
+        "constraint_compliance_history",
+        "behavioral_risk_signals",
+        "counterparty_risk"
+      ],
+      "acceptance": [
+        "Each signal has source, freshness, confidence, and unavailable-state fields.",
+        "Score calculation is deterministic for an identical evidence set and model version.",
+        "Missing or contradictory critical signals fail closed rather than being replaced by a guessed score.",
+        "Decision ledger stores component scores, version, calibrated outcome, and reason codes.",
+        "Truth Oracle independently evaluates scores against later observed outcomes.",
+        "Latency is measured under a defined load profile; a sub-200ms target is not claimed until measured."
+      ],
+      "failure_state": "HOLD_TTS_EVIDENCE_INCOMPLETE",
+      "external_source": null
+    },
+    {
+      "id": "CAP-VERIFIABLE-EVENT-TIMELINE",
+      "title": "Verifiable global event timeline and post-hoc accountability",
+      "vectors": [
+        24,
+        36,
+        66
+      ],
+      "layer": "audit",
+      "status": "NOT_PROVEN",
+      "source_maturity": "Active individual IETF Internet-Draft draft-sato-agent-accountability-refarch-01, updated 21 September 2026 and expiring 25 March 2027. Informational work in progress, not a finalized standard.",
+      "required_components": [
+        "canonical_event_schema",
+        "deterministic_batching",
+        "hash_chain",
+        "Merkle_root_and_inclusion_proof",
+        "signed_commitment",
+        "independent_anchor_verifier",
+        "third_party_audit_export"
+      ],
+      "acceptance": [
+        "Each Economic Event Protocol transition emits a validated canonical event.",
+        "Duplicate events are idempotent and conflicting event identities are rejected.",
+        "Ordering semantics distinguish causal order from wall-clock timestamps.",
+        "An independent verifier recomputes event hashes, Merkle roots, inclusion proofs, and signatures.",
+        "Tampering, deletion, reordering, missing anchors, and invalid signatures are adversarially tested.",
+        "The ledger's existing source of truth is migrated only through a reviewed, reversible plan with old evidence preserved."
+      ],
+      "failure_state": "HOLD_EVENT_PROOF_INVALID",
+      "external_source": "https://datatracker.ietf.org/doc/draft-sato-agent-accountability-refarch/"
+    },
+    {
+      "id": "CAP-A2A-SETTLEMENT",
+      "title": "Agent-to-agent settlement extension",
+      "vectors": [
+        25,
+        39
+      ],
+      "layer": "settlement",
+      "status": "NOT_PROVEN",
+      "source_maturity": "A2A-SE specification v0.11.0 is archived on Zenodo dated 10 June 2026. Treat it as a versioned project specification, not an adopted industry standard; pin this version and run conformance tests before interoperability claims.",
+      "required_states": [
+        "PROPOSED",
+        "COMMITTED",
+        "FUNDED_OR_HELD",
+        "DELIVERED",
+        "VERIFIED",
+        "RELEASED",
+        "REFUNDED",
+        "DISPUTED",
+        "FINAL"
+      ],
+      "acceptance": [
+        "A2A task identifiers bind to one durable settlement job.",
+        "State transitions are atomic and terminal RELEASED/REFUNDED states cannot be reopened.",
+        "Delivery proof is independently checked before release.",
+        "Duplicate callbacks cannot double-release, double-refund, or duplicate fulfillment.",
+        "Unsupported rails remain disabled.",
+        "Human approval is required for new rails and any irreversible economic action."
+      ],
+      "failure_state": "HOLD_A2A_SETTLEMENT_UNSUPPORTED",
+      "external_source": "https://doi.org/10.5281/zenodo.21953795"
+    },
+    {
+      "id": "CAP-VCAP",
+      "title": "Verified Commerce for Agent Protocols",
+      "vectors": [
+        26,
+        38
+      ],
+      "layer": "settlement_and_delivery_proof",
+      "status": "NOT_PROVEN",
+      "source_maturity": "Active individual IETF Internet-Draft draft-stone-vcap-02, dated 4 September 2026 and expiring 8 March 2027. Informational work in progress; no DreamLedger conformance is implied.",
+      "acceptance": [
+        "Pin the exact draft revision and schema hashes used by the adapter.",
+        "Offer terms are bound to payer, payee, asset, amount, chain or rail, job, expiry, and promised deliverable.",
+        "Receipts bind the actual response bytes to the paid request and verified settlement.",
+        "Wrong chain, asset, amount, payee, payer-equals-payee, missing settlement, invalid signature, and stale offer all fail closed.",
+        "Escrow release or refund requires an atomic transition and independent verification.",
+        "Official conformance is not claimed unless the implementation passes a pinned conformance suite."
+      ],
+      "failure_state": "HOLD_VCAP_CONFORMANCE_UNPROVEN",
+      "external_source": "https://datatracker.ietf.org/doc/draft-stone-vcap/"
+    },
+    {
+      "id": "CAP-MULTIAGENT-PATTERNS",
+      "title": "Multi-agent architectural patterns",
+      "vectors": [
+        27,
+        41
+      ],
+      "layer": "architecture",
+      "status": "NOT_PROVEN",
+      "source_maturity": "The four-pattern synthesis is a design hypothesis until the named paper and exact publication are independently pinned",
+      "patterns": [
+        "hierarchical_orchestration",
+        "event_driven_agent_mesh",
+        "capability_indexed_registry",
+        "stateless_execution_with_persistent_memory"
+      ],
+      "acceptance": [
+        "Every job has one durable owner and one independent verifier.",
+        "Parallel execution is limited to tasks proven independent.",
+        "Sequential settlement, attribution, and fulfillment transitions use a single canonical state machine.",
+        "Retries, duplicate events, stale workers, and worker loss are tested.",
+        "Each pattern has a failure mode, health metric, and bounded resource budget."
+      ],
+      "failure_state": "HOLD_AGENT_TOPOLOGY_UNVERIFIED",
+      "external_source": null
+    },
+    {
+      "id": "CAP-TASK-ARCHITECTURE-ROUTER",
+      "title": "Task-aware architecture selection",
+      "vectors": [
+        28,
+        42
+      ],
+      "layer": "orchestration",
+      "status": "NOT_PROVEN",
+      "source_maturity": "The claimed evaluation of 180 configurations and 87 percent accuracy was not verified in this review; do not hard-code it as a fact",
+      "acceptance": [
+        "Task dependency and parallelizability are represented explicitly.",
+        "Sequential economic operations are never fanned out as competing writers.",
+        "Routing decisions log selected topology, alternatives, expected cost, deadline, and observed outcome.",
+        "Routing is evaluated against a deterministic baseline on held-out tasks before becoming adaptive.",
+        "Failure or missing telemetry falls back to bounded sequential execution."
+      ],
+      "failure_state": "HOLD_ROUTING_POLICY_UNVALIDATED",
+      "external_source": null
+    },
+    {
+      "id": "CAP-OBSERVABILITY-GOVERNANCE",
+      "title": "Agent observability and governance evidence",
+      "vectors": [
+        29
+      ],
+      "layer": "observability_and_governance",
+      "status": "NOT_PROVEN",
+      "source_maturity": "OpenTelemetry publishes semantic conventions; GenAI-specific conventions may have separate stability levels and must be version-pinned",
+      "acceptance": [
+        "Trace and event records correlate agent, workflow, job, model, tool, decision, and economic-event IDs.",
+        "Record latency, input/output/cached tokens, price-table version, estimated and actual cost, retries, denials, schema failures, and result quality.",
+        "Sensitive prompt contents and secrets are excluded by default.",
+        "Bias or fairness claims identify the measured population, test, uncertainty, and limits.",
+        "Governance records can be exported to an external auditor without granting write access."
+      ],
+      "failure_state": "HOLD_GOVERNANCE_EVIDENCE_MISSING",
+      "external_source": "https://github.com/open-telemetry/semantic-conventions-genai"
+    },
+    {
+      "id": "CAP-TRANSACTION-INTENT",
+      "title": "Buyer intent and authorization binding",
+      "vectors": [
+        30,
+        43
+      ],
+      "layer": "transaction_security",
+      "status": "NOT_PROVEN",
+      "source_maturity": "Vendor intent-intelligence frameworks are inputs; no interoperable DreamLedger intent binding is proven",
+      "acceptance": [
+        "Capture an explicit authorization or mandate before a consequential agent action.",
+        "Bind intent ID to principal, agent, purpose, SKU, maximum amount, currency, expiry, and allowed fulfillment.",
+        "Require processor authorization and settlement evidence separately; an intent record is not payment proof.",
+        "Reject replay, changed amount, changed SKU, expired intent, revoked mandate, and unauthorized counterparty.",
+        "Retain only data needed for verification and apply a defined privacy/retention policy."
+      ],
+      "failure_state": "HOLD_BUYER_INTENT_UNBOUND",
+      "external_source": null
+    },
+    {
+      "id": "CAP-AGENT-REPUTATION",
+      "title": "Evidence-backed agent reputation",
+      "vectors": [
+        31,
+        44,
+        64
+      ],
+      "layer": "trust",
+      "status": "NOT_PROVEN",
+      "source_maturity": "Named reputation projects are separate project specifications, not one interoperable standard. SwarmScore V2 is included as a safety-aware evidence profile, not an independent reputation authority. Only verified task outcomes, reversals, disputes and audited canary results may contribute.",
+      "acceptance": [
+        "Reputation derives from independently verified task and commercial outcomes, including reversals and disputes.",
+        "Technical execution and commercial reliability remain separate dimensions.",
+        "Scores disclose sample size, observation window, uncertainty, and source references.",
+        "A candidate cannot improve reputation using its own unverified claims or generated test events.",
+        "Portability, privacy, appeal, and correction procedures are defined before external sharing."
+      ],
+      "failure_state": "HOLD_REPUTATION_EVIDENCE_INSUFFICIENT",
+      "external_source": null
+    },
+    {
+      "id": "CAP-AGENT-NEGOTIATION",
+      "title": "Agent capability negotiation",
+      "vectors": [
+        32,
+        45
+      ],
+      "layer": "coordination",
+      "status": "NOT_PROVEN",
+      "source_maturity": "The named negotiation protocols are treated as candidate designs until a primary specification and compatibility tests are pinned",
+      "states": [
+        "OPEN",
+        "COUNTER",
+        "ACCEPT",
+        "COMMIT",
+        "EXECUTED",
+        "CLOSED"
+      ],
+      "acceptance": [
+        "Offers and counters bind price, scope, rights, delivery criteria, expiry, and counterparty identity.",
+        "ACCEPT does not itself move money or authorize external execution.",
+        "COMMIT requires policy approval and a valid settlement route.",
+        "Retries and stale negotiation messages are idempotent.",
+        "Disputes and cancellation follow deterministic transitions."
+      ],
+      "failure_state": "HOLD_NEGOTIATION_NOT_AUTHORIZED",
+      "external_source": null
+    },
+    {
+      "id": "CAP-SUPPLY-CHAIN-PROVENANCE",
+      "title": "Repository and dependency provenance",
+      "vectors": [
+        33,
+        46
+      ],
+      "layer": "software_supply_chain",
+      "status": "NOT_PROVEN",
+      "source_maturity": "Treat OWASP, SBOM, signature, build-provenance, and package-registry guidance as controls to verify against pinned primary documents",
+      "acceptance": [
+        "Every imported component has a repository URL, immutable commit or version, content hash, license finding, and origin timestamp.",
+        "Lockfiles are present and dependency integrity is checked.",
+        "Signed releases and build provenance are verified where available.",
+        "Unpinned, vulnerable, unverifiable, or policy-prohibited dependencies are blocked or quarantined.",
+        "The audit record retains what was inspected and what could not be verified; provenance does not claim a component is immune to attack."
+      ],
+      "failure_state": "HOLD_DEPENDENCY_PROVENANCE_INCOMPLETE",
+      "external_source": "https://owasp.org/www-project-top-10-for-large-language-model-applications/"
+    },
+    {
+      "id": "CAP-ESCROW-DISPUTES",
+      "title": "Escrow and dispute lifecycle",
+      "vectors": [
+        34,
+        47
+      ],
+      "layer": "commercial_governance",
+      "status": "NOT_PROVEN",
+      "source_maturity": "AgentCourt, Internet Court, and ATXN are not treated as binding legal authorities or production-ready services without primary-source and legal review",
+      "acceptance": [
+        "Funds, settlement state, delivery evidence, counterparty submissions, and deadline are linked by one transaction ID.",
+        "Disputes suspend release under a deterministic hold state.",
+        "AI reviewers can recommend but cannot alone release funds, deny a valid refund, or establish legal finality.",
+        "A human or legally authorized resolver owns the final consequential decision.",
+        "Every ruling records evidence considered, conflicts, appeal path, deadline, and state transition.",
+        "Double release, double refund, and release-during-dispute are adversarially tested."
+      ],
+      "failure_state": "HOLD_DISPUTE_REQUIRES_AUTHORIZED_REVIEW",
+      "external_source": null
+    },
+    {
+      "id": "CAP-GOVERNANCE-AUDIT-RECORD",
+      "title": "Governance Audit Record and Session Audit Record",
+      "vectors": [
+        37
+      ],
+      "layer": "governance_audit",
+      "status": "NOT_PROVEN",
+      "source_maturity": "Active individual IETF Internet-Draft draft-sato-soos-gar-08, published 7 September 2026 and expiring 7 March 2027. Not an RFC or finalized standard.",
+      "acceptance": [
+        "Each governed run captures declared intent, authority scope, policy version, approvals, tools, agent boundary, decisions, and terminal outcome.",
+        "Session Audit Records are generated from source events rather than model summaries.",
+        "Audit type, session context, and verifier result are explicit.",
+        "External audit packages preserve provenance, hashes, and disclosure boundaries.",
+        "The implementation pins the draft revision and does not claim IETF endorsement."
+      ],
+      "failure_state": "HOLD_GAR_SESSION_RECORD_MISSING",
+      "external_source": "https://datatracker.ietf.org/doc/draft-sato-soos-gar/"
+    },
+    {
+      "id": "CAP-AREF",
+      "title": "Agent referral attribution and escrow-bound commission",
+      "vectors": [
+        40
+      ],
+      "layer": "attribution",
+      "status": "NOT_PROVEN",
+      "source_maturity": "AREF is an individual informational IETF Internet-Draft; use as work in progress only",
+      "acceptance": [
+        "Referral proofs are signed, time-bound, and linked to the transaction before commission can accrue.",
+        "Self-referrals, loops, invalid signatures, revoked keys, and missing attribution fail closed for commission.",
+        "Commission vests only after independently verified settlement finality and fulfilled work.",
+        "Traditional payment and cryptographic rails each have their own verified finality adapter.",
+        "Referral chains cannot change attribution after settlement without an audited correction."
+      ],
+      "failure_state": "HOLD_REFERRAL_ATTRIBUTION_UNVERIFIED",
+      "external_source": "https://datatracker.ietf.org/doc/draft-stone-aref/"
+    },
+    {
+      "id": "CAP-AIGA-RISK-GOVERNANCE",
+      "title": "Tiered risk governance and authority controls",
+      "vectors": [
+        48
+      ],
+      "layer": "governance",
+      "status": "NOT_PROVEN",
+      "source_maturity": "The located AIGA draft-02 expired on 30 July 2026. No current replacement was verified in this review; treat as expired work in progress until a current revision is pinned.",
+      "acceptance": [
+        "Pin an active primary specification revision before adapter work; the located draft is expired.",
+        "Agents are assigned capability-based risk tiers with explicit allowed actions.",
+        "The policy kernel is protected from model-proposed changes.",
+        "High-risk actions require action-bound approval and an auditable scope.",
+        "Quarantine, key revocation, and recovery transitions are tested."
+      ],
+      "failure_state": "HOLD_RISK_TIER_OR_AUTHORITY_MISSING",
+      "external_source": "https://datatracker.ietf.org/doc/draft-aylward-aiga/"
+    },
+    {
+      "id": "CAP-UCP-AP2-ADAPTER",
+      "title": "Canonical commerce adapters for UCP and AP2",
+      "vectors": [
+        49
+      ],
+      "layer": "interoperability",
+      "status": "NOT_PROVEN",
+      "source_maturity": "UCP and AP2 have public protocol documentation; each adapter still needs a pinned version and its own conformance proof",
+      "acceptance": [
+        "Adapters map into the existing canonical SKU, price, intent, settlement, entitlement, and receipt contracts.",
+        "Adapters do not create competing order or settlement authorities.",
+        "Mandate signatures are checked against a trusted key and scope before use.",
+        "Amounts, currencies, SKU, merchant/payee, expiry, and transaction IDs are bound across adapter boundaries.",
+        "Any claimed integration-effort reduction is measured in DreamLedger's own repository rather than copied from a paper or vendor claim."
+      ],
+      "failure_state": "HOLD_ADAPTER_CONFORMANCE_UNPROVEN",
+      "external_sources": [
+        "https://developers.google.com/merchant/ucp",
+        "https://ap2-protocol.org/"
+      ]
+    },
+    {
+      "id": "CAP-CHAIN-OF-TRUST",
+      "title": "Cross-layer agent commerce trust mapping",
+      "vectors": [
+        50
+      ],
+      "layer": "interoperability_and_assurance",
+      "status": "NOT_PROVEN",
+      "source_maturity": "The seven-layer demo is a reference mapping, not by itself a standard or conformity certificate",
+      "acceptance": [
+        "Map discovery, communication, mandate, policy, payment, settlement, delivery, and audit transitions to named records.",
+        "Every cross-layer ID is bound by verified hashes or signatures where required.",
+        "Each layer identifies its trust owner and what that owner does not prove.",
+        "A positive result in one layer cannot substitute for settlement or fulfillment evidence in another.",
+        "Interop tests include mismatched identities, replay, missing claims, and version disagreement."
+      ],
+      "failure_state": "HOLD_CROSS_LAYER_BINDING_INCOMPLETE",
+      "external_source": null
+    },
+    {
+      "id": "CAP-AGTP-TRANSPORT",
+      "title": "Agent Transfer Protocol transport and signed attribution",
+      "vectors": [
+        51
+      ],
+      "layer": "agent_transport_and_attribution",
+      "status": "NOT_PROVEN",
+      "source_maturity": "The named AGTP specification, revision, primary publisher and interoperability suite were not independently located in this review. Do not assert that it is an established open standard until pinned.",
+      "acceptance": [
+        "Locate and pin the primary protocol source, version and license before implementing an adapter.",
+        "If DNS and X.509 are part of the chosen profile, validate the certificate chain, DNS control, scope, validity period, revocation and rotation.",
+        "Every invocation binds agent identity, delegated authority, budget limit, request identity and signed attribution record.",
+        "A valid identity certificate does not establish payment, authorization for an arbitrary action, or safe behavior.",
+        "Unsigned, replayed, expired, revoked or scope-mismatched calls fail closed."
+      ],
+      "failure_state": "HOLD_AGTP_SPEC_OR_IDENTITY_UNVERIFIED",
+      "external_source": null
+    },
+    {
+      "id": "CAP-AEPP-EXECUTION-PAYMENT",
+      "title": "Agent Execution and Payment Protocol adapter",
+      "vectors": [
+        52
+      ],
+      "layer": "execution_and_payment_interoperability",
+      "status": "NOT_PROVEN",
+      "source_maturity": "Active individual IETF Internet-Draft draft-agentir-aepp-02, published 23 May 2026 and expiring 24 November 2026. Informational work in progress, not a finalized IETF standard.",
+      "acceptance": [
+        "Pin draft-agentir-aepp-02 and canonical schema hashes in the adapter manifest.",
+        "Map AEPP payment and execution identifiers into the existing canonical job, SKU, settlement, entitlement and receipt contracts.",
+        "Verify payment and finality with an independent rail-specific adapter before fulfillment.",
+        "Reject replay, amount/currency/payee mismatch, stale payment and duplicate job admission.",
+        "Claim interoperability only after running primary-spec test vectors and negative cases."
+      ],
+      "failure_state": "HOLD_AEPP_CONFORMANCE_UNPROVEN",
+      "external_source": "https://datatracker.ietf.org/doc/draft-agentir-aepp/"
+    },
+    {
+      "id": "CAP-SCITT-ATTESTED-AUTHORIZATION",
+      "title": "SCITT-attested payment authorization",
+      "vectors": [
+        53
+      ],
+      "layer": "authorization_and_transparency",
+      "status": "NOT_PROVEN",
+      "source_maturity": "The specific draft-hawkins-scitt-attested-agent-payment submission has a formal discontinuation notice in its current revision. Its authors state that the concepts are being consolidated into IETF SCITT and x402 work. Do not implement or claim this named submission as an active interoperable protocol. General SCITT specifications remain separately versioned work.",
+      "acceptance": [
+        "Do not pin the discontinued agent-payment submission as the protocol authority; pin the specific active SCITT and x402 specifications and their revisions before adapter work.",
+        "Bind authorization scope to exact agent/software identity, principal, budget, asset, amount, payee, purpose and expiry.",
+        "Validate the chosen hardware-attestation trust chain and transparency-log inclusion/consistency proofs only where the pinned profile requires them.",
+        "An attested authorization or transparency-log statement is not itself evidence that a processor settled money or that a deliverable was received.",
+        "Revocation, stale statements, wrong scope and untrusted attestation roots fail closed."
+      ],
+      "failure_state": "HOLD_SCITT_ATTESTATION_UNVERIFIED",
+      "external_source": "https://datatracker.ietf.org/doc/draft-hawkins-scitt-attested-agent-payment/"
+    },
+    {
+      "id": "CAP-PORTABLE-AGENT-IDENTITY",
+      "title": "Portable agent identity bridge and registry",
+      "vectors": [
+        54,
+        58
+      ],
+      "layer": "identity_and_discovery",
+      "status": "NOT_PROVEN",
+      "source_maturity": "The AIR repository is an identifiable open-source project, not an established cross-protocol standard; the current behavior dimension is a placeholder and must not be treated as validated reputation. The AIB project was not independently pinned to a primary specification and conformance suite. Keep both unproven and separate their future adapters.",
+      "acceptance": [
+        "For AIR, pin an immutable repository commit, credential schema, scoring version and test vectors; do not consume placeholder behavior scores as evidence.",
+        "For AIB, locate and pin its primary specification, license, credential schema and interoperability tests before claiming conformance.",
+        "Verify issuer, subject, signature, expiry, audience, capability scope and revocation independently.",
+        "Portable identity must not automatically convey execution rights, spending authority, reputation or human consent.",
+        "Cross-protocol identity mappings are tested against issuer mismatch, revoked passport, replay and scope escalation.",
+        "Only evidence-backed identity and trust claims are exported; unsupported fields remain unknown."
+      ],
+      "failure_state": "HOLD_AGENT_IDENTITY_PROFILE_UNVERIFIED",
+      "external_source": null,
+      "external_sources": [
+        "https://github.com/AgentIdentityRegistry/agent-identity-registry"
+      ]
+    },
+    {
+      "id": "CAP-AER1-EXECUTION-RECEIPT",
+      "title": "AER-1 portable execution receipts",
+      "vectors": [
+        55
+      ],
+      "layer": "execution_observability",
+      "status": "NOT_PROVEN",
+      "source_maturity": "Active informational IETF Internet-Draft draft-zambo-aer1-20 dated 15 October 2026 and expiring 15 April 2027. Work in progress, not a finalized standard.",
+      "acceptance": [
+        "Pin draft-zambo-aer1-20 and its canonical serialization and receipt test vectors.",
+        "Mint one receipt per actual tool invocation with execution identity, caller scope, timestamp, canonical output commitment and provenance class.",
+        "Differentiate what the runtime observed from claims about external reality.",
+        "Verify per-step hash binding, receipt sequence and provenance; test replay, truncation, reordered calls and altered output bytes.",
+        "Execution receipts prove recorded execution context only; they do not by themselves prove payment settlement or external-world truth."
+      ],
+      "failure_state": "HOLD_AER1_RECEIPT_CONFORMANCE_UNPROVEN",
+      "external_source": "https://datatracker.ietf.org/doc/draft-zambo-aer1/"
+    },
+    {
+      "id": "CAP-MTAC-IDENTITY-CREDENTIALS",
+      "title": "Merkle Tree Agent Certificates",
+      "vectors": [
+        56
+      ],
+      "layer": "batch_identity_credentials",
+      "status": "NOT_PROVEN",
+      "source_maturity": "Active individual IETF Internet-Draft draft-burls-mtac-00, published 21 July 2026 and expiring 22 January 2027. The draft describes batch issuance and offline inclusion verification but does not define runtime authorization.",
+      "acceptance": [
+        "Pin draft-burls-mtac-00, leaf encoding, tree hash algorithm, signed tree-head format and verifier test vectors.",
+        "Verify leaf inclusion, tree-head signature, witness co-signature, root continuity and any required independent public corroboration.",
+        "Treat declared credential scopes as recorded claims, not an authorization decision.",
+        "Credential revocation, batch replacement and issuer-key rotation have explicit fail-closed behavior.",
+        "No clone inherits credentials, approvals, customer state or commerce permissions from a parent."
+      ],
+      "failure_state": "HOLD_MTAC_CREDENTIAL_CONFORMANCE_UNPROVEN",
+      "external_source": "https://datatracker.ietf.org/doc/draft-burls-mtac/"
+    },
+    {
+      "id": "CAP-HUMAN-DELEGATION-PROVENANCE",
+      "title": "Human Delegation Provenance chain",
+      "vectors": [
+        57
+      ],
+      "layer": "delegation_authority",
+      "status": "NOT_PROVEN",
+      "source_maturity": "Active individual IETF Internet-Draft draft-helixar-hdp-agentic-delegation-03, dated 6 October 2026 and expiring 9 April 2027. This is work in progress, not a finalized IETF standard. The draft provides provenance/tamper-evidence semantics; it is not runtime enforcement and a signed hop does not prove agent consent or that an action actually executed.",
+      "acceptance": [
+        "Pin draft-helixar-hdp-agentic-delegation-03 and test vectors before claiming conformance.",
+        "Each delegation binds human principal, purpose, allowed actions, limits, expiry and revocation handle.",
+        "Every agent-to-agent delegation hop is signed and linked to its parent grant; signatures prove the signed claim, not agent consent or execution by themselves.",
+        "Downstream actions cannot widen the parent's scope, spending limit or expiry; the runtime separately enforces authority.",
+        "Revocation propagates through cached and delegated grants within a measured limit.",
+        "The verifier traces each action to an authorized root mandate without exposing unnecessary personal data."
+      ],
+      "failure_state": "HOLD_DELEGATION_CHAIN_UNVERIFIED",
+      "external_source": "https://datatracker.ietf.org/doc/draft-helixar-hdp-agentic-delegation/03"
+    },
+    {
+      "id": "CAP-PROOF-CARRYING-ACTIONS",
+      "title": "Proof-Carrying Agent Actions",
+      "vectors": [
+        59
+      ],
+      "layer": "pre_action_governance",
+      "status": "NOT_PROVEN",
+      "source_maturity": "A peer-reviewed Scientific Reports article on PCAA was published 13 October 2026. The research is not by itself an interoperable protocol or a deployed DreamLedger enforcement mechanism.",
+      "acceptance": [
+        "Define a typed action certificate that binds intended action, inputs, authority scope, policy version, assumptions and expected postconditions.",
+        "A deterministic planner-independent checker rejects inadmissible actions before execution.",
+        "Capture pre-action admissibility, action-open, assumption capture, approval and outcome-closure checkpoints.",
+        "The action certificate is bound to the actual invocation and returned output hashes.",
+        "A model cannot approve its own certificate; missing, stale or contradictory evidence blocks execution."
+      ],
+      "failure_state": "HOLD_ACTION_CERTIFICATE_CHECK_UNPROVEN",
+      "external_source": "https://www.nature.com/articles/s41598-026-74900-x"
+    },
+    {
+      "id": "CAP-ZKAGENT-EXECUTION-PROOF",
+      "title": "Zero-knowledge proof of agent execution",
+      "vectors": [
+        60
+      ],
+      "layer": "high_assurance_execution",
+      "status": "NOT_PROVEN",
+      "source_maturity": "The specific zkAgent system and claimed performance numbers were not independently verified from a pinned primary specification during this review. Treat zero-knowledge execution proof as a research capability, not a currently available DreamLedger feature.",
+      "acceptance": [
+        "Pin the paper, implementation repository, proving-system version, trusted setup assumptions and verifier specification.",
+        "Specify exactly which inference computation and tool interactions are covered by the proof and which are not.",
+        "Test proof verification, witness omission, altered input/output, invalid circuit and cross-version compatibility.",
+        "Benchmark proving time, verification time, memory and financial cost on the intended workloads.",
+        "A proof of computation does not establish that the model's external-world assertions are true or that a payment settled."
+      ],
+      "failure_state": "HOLD_ZK_EXECUTION_SCOPE_UNVERIFIED",
+      "external_source": null
+    },
+    {
+      "id": "CAP-SC-A2A-SESSION-GATEWAY",
+      "title": "SC-A2A session grants and audit",
+      "vectors": [
+        61
+      ],
+      "layer": "session_authorization_and_audit",
+      "status": "NOT_PROVEN",
+      "source_maturity": "The named SC-A2A Gateway's primary source, chain/security assumptions, contract addresses, and conformance tests were not independently verified in this review.",
+      "acceptance": [
+        "Pin primary implementation, contract addresses, chain IDs, ABI and source-code commit before any integration.",
+        "Session grants bind initiator, counterparty, capabilities, scope, expiry and revocation state.",
+        "Only data appropriate for public persistence is anchored; secrets and personal data remain off-chain.",
+        "Verify transaction finality and revocation on the configured chain.",
+        "Do not deploy contracts or spend gas without explicit operator authorization and a defined budget."
+      ],
+      "failure_state": "HOLD_SESSION_GATEWAY_UNVERIFIED",
+      "external_source": null
+    },
+    {
+      "id": "CAP-OPENAGENTSAFETY",
+      "title": "OpenAgentSafety benchmark integration",
+      "vectors": [
+        62
+      ],
+      "layer": "safety_evaluation",
+      "status": "NOT_PROVEN",
+      "source_maturity": "Research benchmark described in a 2025 arXiv paper, not a certification standard. The paper describes eight risk categories and over 350 multi-turn, multi-user tool-interaction tasks.",
+      "acceptance": [
+        "Pin the benchmark version, task files, execution environment and scoring rules.",
+        "Run the relevant browser, code, filesystem, shell and messaging evaluations in an isolated test environment.",
+        "Retain per-task inputs, allowed tools, outcomes and independent checks; aggregate scores never replace severe-failure gates.",
+        "Separate deterministic checks from LLM-as-judge outputs and report uncertainty.",
+        "Do not describe benchmark completion as proof of general safety or unrestricted clone eligibility."
+      ],
+      "failure_state": "HOLD_AGENT_SAFETY_BENCHMARK_UNRUN",
+      "external_source": "https://arxiv.org/abs/2507.06134"
+    },
+    {
+      "id": "CAP-AGENT-AUDITOR",
+      "title": "AgentAuditor evaluator as auxiliary safety signal",
+      "vectors": [
+        63
+      ],
+      "layer": "safety_evaluation",
+      "status": "NOT_PROVEN",
+      "source_maturity": "The named AgentAuditor framework's primary paper, revision, implementation and evaluation dataset were not independently pinned in this review.",
+      "acceptance": [
+        "Pin the primary source and version before integrating evaluator or memory-bank code.",
+        "Store scenario, risk category, observed behavior, evidence references and judge version separately from conclusions.",
+        "Use the model evaluator only as an auxiliary signal; deterministic guards and independent human review remain authoritative for consequential actions.",
+        "Test false positives, false negatives, prompt injection, stale memory, evaluator disagreement and retrieval poisoning.",
+        "Do not describe evaluator output as human-level performance without a comparable independently measured benchmark."
+      ],
+      "failure_state": "HOLD_AGENT_AUDITOR_UNVALIDATED",
+      "external_source": null
+    },
+    {
+      "id": "CAP-COGITATOR-WITNESS",
+      "title": "COGITATOR witness root for execution records",
+      "vectors": [
+        65
+      ],
+      "layer": "execution_audit",
+      "status": "NOT_PROVEN",
+      "source_maturity": "The located IETF Internet-Draft draft-noctem-cogitator-witness-protocol-00 expired on 11 October 2026. No newer revision was verified by this review; do not treat the expired draft as an active standard.",
+      "acceptance": [
+        "Locate and pin a current draft revision or explicitly treat the design as a local experimental format.",
+        "Deterministically derive the witness root from canonical inputs and ordered execution receipts.",
+        "Verify the root independently from the same input artifacts; test omission, reordering and mutation.",
+        "Bind witness roots to event IDs and existing ledger hashes rather than creating a competing economic ledger.",
+        "A witness root proves commitment to supplied inputs, not the truth of unsupported claims contained in those inputs."
+      ],
+      "failure_state": "HOLD_COGITATOR_SPEC_EXPIRED_OR_UNPINNED",
+      "external_source": "https://datatracker.ietf.org/doc/draft-noctem-cogitator-witness-protocol/"
+    }
+  ],
+  "clone_master_certification": {
+    "status": "NOT_CERTIFIED",
+    "rule": "The MTG master template cannot be declared safe for unrestricted cloning until every canonical capability above has a named owner, independent verifier, pinned schema/specification, passing adversarial tests, runtime proof, rollback plan, and explicit approval record.",
+    "allowed_before_certification": [
+      "read-only research",
+      "local simulations",
+      "test fixtures",
+      "draft code",
+      "reviewable pull requests"
+    ],
+    "prohibited_before_certification": [
+      "unbounded clone creation",
+      "automatic production deployment",
+      "inherited credentials or commercial authority",
+      "automatic checkout activation",
+      "unverified reputation or revenue inheritance"
+    ]
+  },
+  "progress_evaluation": {
+    "schema": "DREAMLEDGER-CONTINUOUS-EVALUATION-CONTRACT/v1",
+    "status": "IMPLEMENTATION_DRAFT_NOT_YET_RUNTIME_PROVEN",
+    "weight_sum": 1,
+    "weights_by_step": {
+      "documented_signal": 0.05,
+      "human_reviewed": 0.05,
+      "specific_offer": 0.1,
+      "lawful_public_surface": 0.05,
+      "independent_buyer": 0.15,
+      "settled_payment": 0.2,
+      "attributed_transaction": 0.1,
+      "fulfillment_artifact": 0.1,
+      "delivery_confirmation": 0.1,
+      "independent_proof": 0.1
+    },
+    "verdicts": [
+      "PROCEED",
+      "HOLD",
+      "REPAIR",
+      "KILL",
+      "NEEDS_EVIDENCE",
+      "QUARANTINE"
+    ],
+    "rules": [
+      "Score only provenance-bound signal records whose evidence bytes/hash and verifier identity are confirmed by a trusted verifier callback.",
+      "A missing record is unknown and earns no credit; malformed or unverifiable claims trigger QUARANTINE.",
+      "The ten dimensions sum to 1.00. Fully verified steps 1-6 total 0.60, not 0.65.",
+      "Step 11 remains a binary economic gate requiring all ten dimensions, independently verified final outcome, settlement reconciliation, and reversal checks.",
+      "completion_score=1.0 is not itself proof of revenue or permission to proceed; binary_gate_pass remains false without independent final-outcome proof.",
+      "Only the existing append-only BEC event ledger stores the score trajectory; no parallel decision or economic ledger is introduced.",
+      "Score regressions and repeated scores are recorded, not hidden. Rollback, attribution loss, conflicting sources, and tampering are adversarially tested.",
+      "Completion, typed verdict, economic truth, safety verdict, and release approval remain distinct outputs.",
+      "GDS-related decay, variance and meltdown metrics remain descriptive until thresholds are calibrated against a pinned benchmark."
+    ],
+    "clone_isolation_dimensions": [
+      {
+        "id": "route_isolation",
+        "weight": 0.25
+      },
+      {
+        "id": "empty_catalogue_preservation",
+        "weight": 0.2
+      },
+      {
+        "id": "credential_separation",
+        "weight": 0.2
+      },
+      {
+        "id": "gauntlet_enforcement",
+        "weight": 0.2
+      },
+      {
+        "id": "checkout_disabled_by_default",
+        "weight": 0.15
+      }
+    ],
+    "clone_release_rule": "Four of five passing dimensions can score 0.85 when the missing dimension has weight 0.15, but clone release remains blocked. All five dimensions plus separate independent release approval are required."
+  }
+}

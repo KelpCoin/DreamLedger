@@ -58,6 +58,25 @@
     "note": "Replaces standalone audit-order product pages. Checkout opens when intake and delivery are ready."
   },
   {
+    "item_id": "TRUTH-ORACLE-ACCESS-001",
+    "title": "Truth Oracle Access",
+    "description": "A bounded structured evidence review. This NZ$9 offer is held until payment attribution, entitlement redemption, report delivery, and independent verification are proven end to end. Payment never improves a Truth Oracle verdict.",
+    "url": "https://dreamledger.org/truth-oracle.html",
+    "brand": "DreamLedger",
+    "seller_name": "DreamLedger",
+    "seller_url": "https://dreamledger.org/",
+    "price": "9 NZD",
+    "availability": "review_required",
+    "sku": "TRUTH-ORACLE-ACCESS-001",
+    "category": "Truth Oracle",
+    "required_input": "One public claim or artifact, source references, and a bounded review question.",
+    "one_time_purchase": true,
+    "subscription": false,
+    "enable_search": true,
+    "enable_checkout": false,
+    "tier": "review"
+  },
+  {
     "item_id": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
     "title": "DreamLedger Founding Billboard",
     "description": "A permanent digital placement on the DreamLedger Billboard.",
@@ -78,20 +97,19 @@
   {
     "item_id": "COMMANDER-DECK-DIAGNOSTIC-001",
     "title": "Commander Deck Diagnostic",
-    "description": "First-pass Commander deck structure review. Sold inside the Magic silo.",
+    "description": "Commander deck structure review.",
     "url": "https://dreamledger.org/mtg",
     "brand": "DreamLedger",
     "seller_name": "DreamLedger",
     "seller_url": "https://dreamledger.org/",
     "price": "29 NZD",
-    "availability": "available",
+    "availability": "review_required",
     "sku": "COMMANDER-DECK-DIAGNOSTIC-001",
     "category": "Magic silo",
-    "buy_router": "https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001",
     "one_time_purchase": true,
     "subscription": false,
     "enable_search": true,
-    "enable_checkout": true,
+    "enable_checkout": false,
     "silo": "mtg"
   }
 ]

@@ -28,23 +28,44 @@
 <div class="silo-actions">
 <a class="silo-btn silo-btn-gold" href="/mtg-list">Sell a single</a>
 <a class="silo-btn silo-btn-ghost" href="#decks">Browse decks</a>
-<a class="silo-btn silo-btn-line" href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Diagnostic NZ$29</a>
+<span class="silo-btn silo-btn-line" aria-disabled="true">Commander Deck Diagnostic · NZ$29 · held</span>
 </div>
+<p class="status-bar">Commander Deck Diagnostic is a proposed NZ$29 digital service. Checkout is held until settlement attribution, fulfillment, and delivery proof pass independently.</p>
 </section>
 <section class="silo-section" id="decks">
-<h2 class="silo-h2">Decks for sale</h2>
+<h2 class="silo-h2">Deck listings</h2>
 <div id="status" class="status-bar">Loading…</div>
 <div id="grid" class="grid"></div>
 </section>
 </main>
 <script>
-fetch('/data/mtg-catalog.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('Catalogue unavailable');return r.json()}).then(d=>{
-  const decks=(d.products||[]).filter(p=>p.category==='commander-deck'||/^EDH/i.test(p.id||''));
-  const status=document.getElementById('status'), grid=document.getElementById('grid');
-  const esc=v=>String(v??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-  if(!decks.length){status.textContent='No verified decks listed. Sell a single free.';return;}
-  status.textContent=decks.length+' deck(s)';
-  grid.innerHTML=decks.map(p=>'<article class="deck"><h3>'+esc(p.name)+'</h3><p style="color:var(--silo-muted);font-size:13px">'+esc(p.description||'')+'</p><div class="price">NZ$'+esc(p.price)+'</div><a class="silo-btn silo-btn-gold" style="margin-top:10px" href="'+esc(p.detail_url||'/mtg/')+'">See cards</a></article>').join('');
-}).catch(e=>{document.getElementById('status').textContent=e.message;});
+(function(){
+ const MANIFEST='/silos/mtg/silo.json', CATALOG='/catalog.json';
+ const grid=document.getElementById('grid'), status=document.getElementById('status');
+ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ async function json(url){const r=await fetch(url,{cache:'no-store',headers:{Accept:'application/json'}});if(!r.ok)throw new Error(url+' returned '+r.status);return r.json();}
+ function isDeck(p){return Boolean(p)&&(/^EDH/i.test(String(p.id||''))||p.category==='commander-deck');}
+ async function start(){
+  try{
+   const [m,data]=await Promise.all([json(MANIFEST).catch(()=>null),json(CATALOG)]);
+   if(m){if(m.accent)document.documentElement.style.setProperty('--silo-accent',m.accent);if(m.accent_bright)document.documentElement.style.setProperty('--silo-accent-bright',m.accent_bright);if(m.short&&document.getElementById('navShort'))document.getElementById('navShort').textContent=m.short;if(m.tagline&&document.getElementById('tagline'))document.getElementById('tagline').textContent=m.tagline;}
+   const decks=(Array.isArray(data.products)?data.products:[]).filter(isDeck);
+   if(!decks.length){status.textContent='No deck listings are present in the canonical public catalogue.';grid.innerHTML='';return;}
+   const canPurchase=p=>p.status==='published'&&p.checkout_available===true&&p.commercial_truth?.approval_required===false&&p.commercial_truth?.sellable===true&&p.fulfillment?.ready===true&&p.gauntlet?.checkout_authorized===true&&typeof p.checkout_url==='string'&&/^https:\/\/(?:buy|checkout)\.stripe\.com\//i.test(p.checkout_url);
+   const purchasable=decks.filter(canPurchase);
+   status.textContent=decks.length+' deck listing'+(decks.length===1?'':'s')+' from the canonical catalogue. '+(purchasable.length?'Only explicitly verified listings may be purchased.':'Checkout is currently held for these listings.');
+   grid.innerHTML=decks.map(p=>{
+    const price=Number(p.price), detail=p.claim_url||p.detail_url||'/mtg/';
+    const held=!canPurchase(p);
+    const state=held?'Currently held':'Available';
+    const action=held
+      ? '<span class="silo-btn silo-btn-line" aria-disabled="true">Checkout held</span>'
+      : '<a class="silo-btn silo-btn-gold" href="'+esc(detail)+'">View listing</a>';
+    return '<article class="deck"><div class="deck-body"><div class="tag">'+state+'</div><h3>'+esc(p.name)+'</h3><p class="desc">'+esc(p.description||'Details supplied by seller.')+'</p>'+(Number.isFinite(price)?'<div class="price">NZ$'+esc(price)+'</div>':'')+'<div class="actions"><a class="silo-btn silo-btn-ghost" href="'+esc(detail)+'">View details</a>'+action+'</div></div></article>';
+   }).join('');
+  }catch(e){status.className='status-bar error';status.textContent=e.message||'Catalogue unavailable';grid.innerHTML='';}
+ }
+ start();
+})();
 </script>
 </body></html>

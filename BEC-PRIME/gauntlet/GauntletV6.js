@@ -9,6 +9,29 @@ const OFFER_FILE = path.join(ROOT, 'catalog', 'offers', 'offers.json');
 const APPROVED_FILE = path.join(ROOT, 'catalog', 'offers', 'approved.json');
 const IP_FILE = path.join(ROOT, 'catalog', 'ip-capabilities.json');
 const PROOF_DIR = path.join(ROOT, 'data', 'proofs');
+const continuousCompletion = require('./ContinuousCompletionEvaluator');
+
+function evaluateContinuousProgress(options) {
+  if (!options.continuousEvaluation) {
+    return {
+      schema: 'DREAMLEDGER-VERDICT-RECORD/v1',
+      status: 'NOT_RUN',
+      typed_verdict: 'NEEDS_EVIDENCE',
+      completion_score: null,
+      score_domain: 'economic_event_steps_1_to_10_only',
+      binary_gate_pass: false,
+      verified_economic_outcome: false,
+      missing_evidence: ['continuous_evaluation_input_not_supplied'],
+      next_action: 'supply evidence records from trusted verifiers; do not infer economic truth from catalog checks'
+    };
+  }
+  return {
+    status: 'EVALUATED',
+    ...continuousCompletion.evaluateEconomicEvent(options.continuousEvaluation, {
+      verifyEvidence: options.verifyContinuousEvidence
+    })
+  };
+}
 
 function sha256(value) { return crypto.createHash('sha256').update(value, 'utf8').digest('hex'); }
 function readJson(file) { return JSON.parse(fs.readFileSync(file, 'utf8')); }
@@ -48,11 +71,24 @@ function run(options = {}) {
     }
 
     if (explicitlyApproved) {
-      if (offer.approval_required !== false) fail(checks, `${prefix}.approval`, 'Explicitly approved offer must have approval_required=false');
-      if (offer.checkout_available !== true) fail(checks, `${prefix}.checkout`, 'Explicitly approved offer must have checkout enabled');
-      if (offer.status !== 'VERIFIED_AVAILABLE') fail(checks, `${prefix}.status`, 'Explicitly approved offer must be VERIFIED_AVAILABLE');
-      pass(checks, `${prefix}.approval`, 'Explicit operator approval record present');
-      pass(checks, `${prefix}.checkout`, 'Checkout enabled only for explicitly approved offer');
+      const intentionallyHeld = offer.approval_required === true
+        && offer.checkout_available === false
+        && ['HELD_CANONICAL_PRODUCT_GATE', 'HELD_STRIPE_LINK_DRIFT'].includes(offer.status)
+        && (offer.payment_link_url === null || offer.payment_link_url === undefined || offer.payment_link_url === '');
+      if (intentionallyHeld) {
+        // An operator approval record does not override the live canonical
+        // product gate. A deliberately held offer is a valid, safe Gauntlet
+        // state and must remain visibly non-purchasable.
+        pass(checks, `${prefix}.approval`, 'Operator record exists; canonical product gate still requires approval');
+        pass(checks, `${prefix}.checkout`, 'Checkout remains disabled while canonical gate is closed');
+        pass(checks, `${prefix}.status`, `Explicitly held by ${offer.status}`);
+      } else {
+        if (offer.approval_required !== false) fail(checks, `${prefix}.approval`, 'Checkout-enabled approved offer must have approval_required=false');
+        if (offer.checkout_available !== true) fail(checks, `${prefix}.checkout`, 'Checkout-enabled approved offer must have checkout enabled');
+        if (offer.status !== 'VERIFIED_AVAILABLE') fail(checks, `${prefix}.status`, 'Checkout-enabled approved offer must be VERIFIED_AVAILABLE');
+        pass(checks, `${prefix}.approval`, 'Explicit operator approval record present');
+        pass(checks, `${prefix}.checkout`, 'Checkout enabled only for explicitly approved offer');
+      }
     } else {
       if (offer.approval_required !== true) fail(checks, `${prefix}.approval`, 'Human approval gate must remain locked');
       if (offer.checkout_available !== false) fail(checks, `${prefix}.checkout`, 'Checkout must remain disabled until approval');
@@ -74,14 +110,35 @@ function run(options = {}) {
   }
 
   const status = checks.every(x => x.status === 'PASS') ? 'PASS' : 'FAIL';
+  const continuousProgress = evaluateContinuousProgress(options);
+  let continuousProgressLedger = { recorded: false, status: 'NOT_REQUESTED' };
+  if (options.recordContinuousProgress === true && options.continuousEvaluation) {
+    try {
+      const completionLedger = require('./ContinuousCompletionLedger');
+      continuousProgressLedger = completionLedger.evaluateAndRecordEconomicEvent(options.continuousEvaluation, {
+        ledger: options.decisionLedger,
+        verifyEvidence: options.verifyContinuousEvidence
+      });
+    } catch (error) {
+      continuousProgressLedger = { recorded: false, status: 'HOLD_CONTINUOUS_LEDGER_ADAPTER_ERROR', error_class: error && error.name || 'Error' };
+    }
+  }
   const payload = {
     type: 'dreamledger-gauntlet-v6-proof',
     version: '6.0',
     status,
     checks,
+    continuous_progress: continuousProgress,
+    continuous_progress_ledger: continuousProgressLedger,
+    economic_truth_authority: 'INDEPENDENT_SETTLEMENT_AND_FULFILLMENT_EVIDENCE_REQUIRED',
     checked_at: new Date().toISOString(),
     approved_offer_ids: Array.from(approvedIds),
-    source_hash: sha256(JSON.stringify({ offers: offerCatalog, approved: approvedCatalog, ip: fs.existsSync(ipFile) ? readJson(ipFile) : null }))
+    source_hash: sha256(JSON.stringify({
+      offers: offerCatalog,
+      approved: approvedCatalog,
+      ip: fs.existsSync(ipFile) ? readJson(ipFile) : null,
+      continuous_evaluation_input: options.continuousEvaluation || null
+    }))
   };
 
   if (options.writeProof !== false) {

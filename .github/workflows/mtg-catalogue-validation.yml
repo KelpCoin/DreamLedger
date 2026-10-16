@@ -34,20 +34,32 @@ jobs:
           const products = catalog.products || [];
           for (const [id, page] of required) {
             const p = products.find(x => x.id === id);
-            if (!p || p.status !== 'published') throw new Error('Missing/unpublished MTG listing: ' + id);
-            if (page && !fs.existsSync(page)) throw new Error('Missing buyer route: ' + page);
-            if (id !== 'EDH_0001' && (p.checkout_available !== false || p.sale_mode !== 'claim_by_message' || !p.claim_url)) {
-              throw new Error('Claim-only deck must not claim direct checkout: ' + id);
+            if (!p) throw new Error('Missing MTG catalogue record: ' + id);
+            if (p.status !== 'held' || p.checkout_available !== false || p.checkout_url !== null || p.sale_mode !== 'disabled') {
+              throw new Error('MTG listing must remain held and non-purchasable until its own evidence gates pass: ' + id);
             }
+            if (p.commercial_truth && (p.commercial_truth.approval_required !== true || p.commercial_truth.sellable !== false)) {
+              throw new Error('MTG listing commercial truth does not match held state: ' + id);
+            }
+            if (page && !fs.existsSync(page)) throw new Error('Missing buyer route: ' + page);
           }
           const html = fs.readFileSync('mtg/index.html', 'utf8');
-          if (!html.includes('/public/catalog.json')) throw new Error('Root preview catalogue must use tracked public catalogue data');
+          if (!html.includes("CATALOG='/catalog.json'")) throw new Error('Root preview must use the canonical public catalogue');
           const liveHtml = fs.readFileSync('public/mtg/index.html', 'utf8');
-          if (!liveHtml.includes("get('/catalog.json')")) throw new Error('Live public MTG page must load the tracked catalogue.json');
+          if (!liveHtml.includes("CATALOG='/catalog.json'")) throw new Error('Live public MTG page must use the canonical public catalogue');
           for (const page of ['public/mtg/quintorius-field-historian.html', 'public/mtg/dwynen-gilt-leaf-daen.html']) {
             if (!fs.existsSync(page)) throw new Error('Missing deployed public route: ' + page);
           }
-          if (!html.includes('EDH_QUINTORIUS_0002') || !html.includes('EDH_DWYNEN_0003')) throw new Error('Catalogue must prioritize the new decks');
+          if (!html.includes("CATALOG='/catalog.json'") || !html.includes('/^EDH/i')) throw new Error('MTG renderer must discover deck listings from the canonical catalogue');
+          for (const file of ['mtg/index.html', 'public/mtg/index.html']) {
+            const page = fs.readFileSync(file, 'utf8');
+            if (!page.includes("CATALOG='/catalog.json'")) throw new Error('MTG page does not use the canonical public catalogue: ' + file);
+            if (!page.includes("const canPurchase=p=>p.status==='published'&&p.checkout_available===true")) throw new Error('MTG page lacks the canonical checkout gate: ' + file);
+            if (/https:\/\/(?:buy|checkout)\.stripe\.com\//i.test(page)) throw new Error('MTG page exposes a direct Stripe URL: ' + file);
+            const match = page.match(/<script>([\s\S]*?)<\/script>/i);
+            if (!match) throw new Error('MTG page script missing: ' + file);
+            new Function(match[1]);
+          }
           for (const page of ['mtg/quintorius-field-historian.html', 'mtg/dwynen-gilt-leaf-daen.html']) {
             const body = fs.readFileSync(page, 'utf8');
             if (!body.includes('decklist') && !body.includes('decklist')) throw new Error('Missing decklist reference in ' + page);

@@ -19,10 +19,10 @@ jobs:
         working-directory: public
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 24
 
@@ -33,8 +33,8 @@ jobs:
           test -s home.html
           test -s quote-comparison/index.html
           test -s server.js
-          grep -qi 'Evidence-first commerce' home.html
-          grep -qi 'Make the next decision' home.html
+          grep -qi 'Build the factory' home.html
+          grep -qi 'Get paid' home.html
           grep -qi 'Truth Oracle' home.html
           if grep -Eqi 'Delivery Proof Audit|agent-delivery-proof-audit' home.html quote-comparison/index.html; then
             echo 'RETIRED_AUDIT_RESIDUE=FAIL'
@@ -42,6 +42,11 @@ jobs:
           fi
           grep -Eq 'href="(https://dreamledger.org)?/quote-comparison/' home.html
           grep -q 'href="/trust/"' home.html
+          grep -q 'quote-tool' home.html
+          if grep -Eq 'href="/buy/COMMANDER-DECK-DIAGNOSTIC-001' home.html; then
+            echo 'HELD_DIAGNOSTIC_CHECKOUT_BYPASS=FAIL'
+            exit 1
+          fi
           if grep -Ein 'Gauntlet|Economic Court|ELOHIM|BrownEye Cortex|AMPLISSA|COLLECTORSCOAST|SUPABASE_SERVICE_ROLE|STRIPE_SECRET|STRIPE_WEBHOOK|RA_000001' home.html quote-comparison/index.html; then
             echo 'PUBLIC_COPY_SCAN=FAIL'
             exit 1
@@ -58,7 +63,7 @@ jobs:
           npm start > /tmp/dreamledger.log 2>&1 &
           echo $! > /tmp/dreamledger.pid
           ready=0
-          for i in $(seq 1 45); do
+          for _ in $(seq 1 45); do
             if curl -fsS http://127.0.0.1:4173/healthz >/dev/null; then ready=1; break; fi
             sleep 1
           done
@@ -68,7 +73,7 @@ jobs:
           fi
           curl -fsS http://127.0.0.1:4173/ >/tmp/home.html
           curl -fsS http://127.0.0.1:4173/api/products >/tmp/products.json
-          grep -qi 'Make the next decision' /tmp/home.html
+          grep -qi 'Build the factory' /tmp/home.html
           grep -Eq 'href="(https://dreamledger.org)?/quote-comparison/' /tmp/home.html
           grep -q '"products"' /tmp/products.json
           echo 'LOCAL_STOREFRONT_RUNTIME=PASS'
