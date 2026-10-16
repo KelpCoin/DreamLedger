@@ -29,7 +29,7 @@ function writeProof() {
 function patch() {
   let html = fs.readFileSync(SOURCE, 'utf8');
   if (html.includes(MARKER)) {
-    if (/href=["']https:\/\/buy\\.stripe\\.com\//i.test(html)) {
+    if (/href=["']https:\/\/buy\.stripe\.com\//i.test(html)) {
       throw new Error('Held MTG diagnostic must not retain a direct Stripe checkout URL');
     }
     writeProof();
@@ -62,7 +62,7 @@ function patch() {
     );
     html = html.replace('<body class="silo-body">', '<body class="silo-body" '+MARKER+'>');
     if (!html.includes(MARKER)) throw new Error('MTG commerce marker could not be applied');
-    if (/href=["']https:\/\/buy\\.stripe\\.com\//i.test(html)) {
+    if (/href=["']https:\/\/buy\.stripe\.com\//i.test(html)) {
       throw new Error('Held MTG diagnostic must not retain a direct Stripe checkout URL');
     }
     fs.writeFileSync(SOURCE, html, 'utf8');
