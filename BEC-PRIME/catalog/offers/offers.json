@@ -1815,14 +1815,14 @@
         "private_material": "excluded"
       },
       "payment_link_note": "The Stripe link is active, but public checkout remains held until a verified zero-operator fulfillment contract, content-approval policy, buyer delivery proof, and ledger reconciliation are evidenced. An active Stripe URL alone is not authorization.",
-      "version": "offer-v1",
-      "pricing_tier": "snapshot",
+      "checkout_authorized": false,
+      "evidence_status": "UNVERIFIED",
+      "fulfillment_status": "HELD",
       "approval_required": true,
       "checkout_available": false,
       "status": "HELD",
-      "checkout_authorized": false,
-      "evidence_status": "UNVERIFIED",
-      "fulfillment_status": "HELD"
+      "version": "offer-v1",
+      "pricing_tier": "snapshot"
     },
     {
       "offer_id": "OFFER-CMD-DIAG-29-NZD",
@@ -1870,14 +1870,14 @@
         "private_material": "excluded"
       },
       "payment_link_note": "Live Payment Link was read back as inactive on 2026-10-17. Checkout remains held until signed settlement, automated fulfillment, buyer delivery, and ledger reconciliation are proven. Historical approval metadata does not override this hold.",
-      "version": "offer-v1",
-      "pricing_tier": "snapshot",
+      "checkout_authorized": false,
+      "evidence_status": "UNVERIFIED",
+      "fulfillment_status": "HELD",
       "approval_required": true,
       "checkout_available": false,
       "status": "HELD",
-      "checkout_authorized": false,
-      "evidence_status": "UNVERIFIED",
-      "fulfillment_status": "HELD"
+      "version": "offer-v1",
+      "pricing_tier": "snapshot"
     }
   ]
 }
