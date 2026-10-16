@@ -63,7 +63,7 @@ jobs:
           npm start > /tmp/dreamledger.log 2>&1 &
           echo $! > /tmp/dreamledger.pid
           ready=0
-          for i in $(seq 1 45); do
+          for _ in $(seq 1 45); do
             if curl -fsS http://127.0.0.1:4173/healthz >/dev/null; then ready=1; break; fi
             sleep 1
           done
