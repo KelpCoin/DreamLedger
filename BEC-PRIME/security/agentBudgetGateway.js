@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
 
-const RESERVE_LUA = String.raw\`
+const RESERVE_LUA = String.raw`
 -- DLG_RESERVE_V1
 local prior = redis.call('GET', KEYS[3])
 if prior then
@@ -48,9 +48,9 @@ local reservation = cjson.encode({
 })
 redis.call('SET', KEYS[3], reservation, 'EX', ttl)
 return {'RESERVED', tostring(tokens), tostring(used + reserve_micro)}
-\`;
+`;
 
-const SETTLE_LUA = String.raw\`
+const SETTLE_LUA = String.raw`
 -- DLG_SETTLE_V1
 local raw = redis.call('GET', KEYS[3])
 if not raw then return {'RESERVATION_MISSING'} end
@@ -73,9 +73,9 @@ p.over_budget = ((used + delta) > tonumber(p.daily_limit_micro)) or (actual_micr
 redis.call('SET', KEYS[3], cjson.encode(p), 'EX', 604800)
 if p.over_budget then return {'SETTLED_OVER_BUDGET', tostring(used + delta)} end
 return {'SETTLED', tostring(used + delta)}
-\`;
+`;
 
-const CANCEL_LUA = String.raw\`
+const CANCEL_LUA = String.raw`
 -- DLG_CANCEL_V1
 local raw = redis.call('GET', KEYS[3])
 if not raw then return {'RESERVATION_MISSING'} end
@@ -89,9 +89,9 @@ redis.call('HSET', KEYS[1], 'tokens', tostring(tokens))
 p.status = 'CANCELLED'
 redis.call('SET', KEYS[3], cjson.encode(p), 'EX', 604800)
 return {'CANCELLED'}
-\`;
+`;
 
-const UNKNOWN_LUA = String.raw\`
+const UNKNOWN_LUA = String.raw`
 -- DLG_UNKNOWN_V1
 local raw = redis.call('GET', KEYS[3])
 if not raw then return {'RESERVATION_MISSING'} end
@@ -102,7 +102,7 @@ if p.status == 'RESERVED' then
   return {'UNKNOWN_CHARGE'}
 end
 return {'UNCHANGED', p.status}
-\`;
+`;
 
 function sha256(value) {
   return crypto.createHash('sha256').update(value, 'utf8').digest('hex');
