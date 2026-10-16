@@ -19,6 +19,14 @@ on:
       - 'BEC-PRIME/routes/tollRoad.js'
       - 'BEC-PRIME/routes/tollRoad.local-heartbeat.test.js'
       - 'public/server.js'
+      - 'BEC-PRIME/catalog/public-agent-products.source.json'
+      - 'BEC-PRIME/compiler/compile-public-agent-products.js'
+      - 'BEC-PRIME/compiler/compile-public-agent-products.test.js'
+      - 'public/agent-products.json'
+      - 'BEC-PRIME/catalog/public-agent-products.source.json'
+      - 'BEC-PRIME/compiler/compile-public-agent-products.js'
+      - 'BEC-PRIME/compiler/compile-public-agent-products.test.js'
+      - 'public/agent-products.json'
       - 'ops/commerce/**'
       - 'ops/cockpit/**'
       - 'ops/decision/**'
@@ -94,6 +102,8 @@ jobs:
           node --check ops/cockpit/render-cockpit-html.mjs
           node --check BEC-PRIME/scripts/verify-render-stripe-webhook-route.js
           node BEC-PRIME/scripts/verify-render-stripe-webhook-route.js
+          node BEC-PRIME/compiler/compile-public-agent-products.js
+          node --test BEC-PRIME/compiler/compile-public-agent-products.test.js
           node --test BEC-PRIME/routes/tollRoad.local-heartbeat.test.js
           node --check scripts/validate-customer-facing-artifact.js
           node --test scripts/validate-customer-facing-artifact.test.js
