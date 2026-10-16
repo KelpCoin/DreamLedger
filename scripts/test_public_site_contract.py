@@ -15,6 +15,7 @@ MTG = (PUBLIC / "mtg" / "index.html").read_text(encoding="utf-8")
 CATALOGUE = json.loads((ROOT / "public" / "catalog.json").read_text(encoding="utf-8"))
 
 PUBLIC_HTML = list(PUBLIC.rglob("*.html"))
+PUBLIC_TEXT_FILES = [p for p in PUBLIC.rglob("*") if p.is_file() and p.suffix.lower() in {".html", ".js", ".json", ".css", ".xml", ".txt", ".webmanifest"}]
 BUY_PAGES = list((PUBLIC / "buy").rglob("*.html"))
 PRODUCT_PAGES = list((PUBLIC / "products").rglob("*.html"))
 ACTIVE_COMMERCE_PAGES = [
@@ -56,7 +57,7 @@ checks = {
     "no public secret literals": not re.search(r"(?:sk_live_[A-Za-z0-9]+|whsec_[A-Za-z0-9]+)", HOME + TRUST + ABOUT),
     "active commerce surfaces contain no direct Stripe checkout URLs": not any(DIRECT_STRIPE_URL.search(page) for page in ACTIVE_COMMERCE_PAGES),
     "static buy routes never redirect directly to Stripe": not any(DIRECT_STRIPE_URL.search(page.read_text(encoding="utf-8")) for page in BUY_PAGES),
-    "no public HTML page contains a direct Stripe checkout URL": not any(DIRECT_STRIPE_URL.search(page.read_text(encoding="utf-8")) for page in PUBLIC_HTML),
+    "no public asset contains a direct Stripe checkout URL": not any(DIRECT_STRIPE_URL.search(page.read_text(encoding="utf-8", errors="replace")) for page in PUBLIC_TEXT_FILES),
     "product landing pages have no direct buy route": not any(re.search(r"""href=["\']/buy/""", page.read_text(encoding="utf-8"), re.I) for page in PRODUCT_PAGES),
     "canonical held SKUs have checkout disabled and no payment link": all(
         product.get("status") in {"held", "review_required"}
@@ -95,7 +96,7 @@ for target in internal_links:
 checks["internal links map to storefront routes"] = not broken_links
 
 failed = [name for name, ok in checks.items() if not ok]
-public_direct_links = [str(page.relative_to(ROOT)) for page in PUBLIC_HTML if DIRECT_STRIPE_URL.search(page.read_text(encoding="utf-8"))]
+public_direct_links = [str(page.relative_to(ROOT)) for page in PUBLIC_TEXT_FILES if DIRECT_STRIPE_URL.search(page.read_text(encoding="utf-8", errors="replace"))]
 if public_direct_links:
     print("PUBLIC_DIRECT_STRIPE_URLS=" + ", ".join(public_direct_links))
 if broken_links:
