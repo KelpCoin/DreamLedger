@@ -88,17 +88,32 @@
 </footer>
 <script>
 (function(){
- const MANIFEST='/silos/mtg/silo.json',CATALOG='/data/mtg-catalog.json',grid=document.getElementById('grid'),status=document.getElementById('status');
+ const MANIFEST='/silos/mtg/silo.json', CATALOG='/catalog.json';
+ const grid=document.getElementById('grid'), status=document.getElementById('status');
  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  async function json(url){const r=await fetch(url,{cache:'no-store',headers:{Accept:'application/json'}});if(!r.ok)throw new Error(url+' returned '+r.status);return r.json();}
+ function isDeck(p){return Boolean(p)&&(/^EDH/i.test(String(p.id||''))||p.category==='commander-deck');}
  async function start(){
-  let m=null;try{m=await json(MANIFEST);}catch(e){console.warn('MTG manifest unavailable',e);}
-  if(m){if(m.accent)document.documentElement.style.setProperty('--silo-accent',m.accent);if(m.accent_bright)document.documentElement.style.setProperty('--silo-accent-bright',m.accent_bright);if(m.short&&document.getElementById('navShort'))document.getElementById('navShort').textContent=m.short;if(m.tagline&&document.getElementById('tagline'))document.getElementById('tagline').textContent=m.tagline;}
   try{
-   const data=await json((m&&m.catalog)||CATALOG);
-   const decks=(Array.isArray(data.products)?data.products:[]).filter(p=>p&&p.silo==='mtg'&&p.category==='commander-deck'&&p.status==='published'&&Number(p.inventory)>0);
-   if(!decks.length){status.textContent='No verified deck listings are currently available. Inventory appears only when valid listings are present.';grid.innerHTML='';return;}
-   status.textContent=decks.length+' listed deck'+(decks.length===1?'':'s')+'. Confirm availability with the seller before paying.';
-   grid.innerHTML=decks.map(p=>{const price=Number(p.price),claim=p.claim_url||p.detail_url||'/mtg-list';return '<article class="deck"><div class="deck-body"><div class="tag">Physical Commander deck</div><h3>'+esc(p.name)+'</h3><p class="desc">'+esc(p.description||'Details supplied by seller.')+'</p><div class="price">'+(Number.isFinite(price)?'NZ
+   const [m,data]=await Promise.all([json(MANIFEST).catch(()=>null),json(CATALOG)]);
+   if(m){if(m.accent)document.documentElement.style.setProperty('--silo-accent',m.accent);if(m.accent_bright)document.documentElement.style.setProperty('--silo-accent-bright',m.accent_bright);if(m.short&&document.getElementById('navShort'))document.getElementById('navShort').textContent=m.short;if(m.tagline&&document.getElementById('tagline'))document.getElementById('tagline').textContent=m.tagline;}
+   const decks=(Array.isArray(data.products)?data.products:[]).filter(isDeck);
+   if(!decks.length){status.textContent='No deck listings are present in the canonical public catalogue.';grid.innerHTML='';return;}
+   const purchasable=decks.filter(p=>p.status==='published'&&p.checkout_available===true&&typeof p.checkout_url==='string'&&/^https:\/\/(?:buy|checkout)\.stripe\.com\//i.test(p.checkout_url));
+   status.textContent=decks.length+' deck listing'+(decks.length===1?'':'s')+' from the canonical catalogue. '+(purchasable.length?'Only explicitly verified listings may be purchased.':'Checkout is currently held for these listings.');
+   grid.innerHTML=decks.map(p=>{
+    const price=Number(p.price), detail=p.claim_url||p.detail_url||'/mtg/';
+    const held=!(p.status==='published'&&p.checkout_available===true&&typeof p.checkout_url==='string');
+    const state=held?'Currently held':'Available';
+    const action=held
+      ? '<span class="silo-btn silo-btn-line" aria-disabled="true">Checkout held</span>'
+      : '<a class="silo-btn silo-btn-gold" href="'+esc(detail)+'">View listing</a>';
+    return '<article class="deck"><div class="deck-body"><div class="tag">'+state+'</div><h3>'+esc(p.name)+'</h3><p class="desc">'+esc(p.description||'Details supplied by seller.')+'</p>'+(Number.isFinite(price)?'<div class="price">NZ$'+esc(price)+'</div>':'')+'<div class="actions"><a class="silo-btn silo-btn-ghost" href="'+esc(detail)+'">View details</a>'+action+'</div></div></article>';
+   }).join('');
+  }catch(e){status.className='status-bar error';status.textContent=e.message||'Catalogue unavailable';grid.innerHTML='';}
+ }
+ start();
+})();
+</script>
 </body>
 </html>
