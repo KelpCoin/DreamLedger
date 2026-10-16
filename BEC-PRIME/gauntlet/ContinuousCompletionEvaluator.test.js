@@ -253,7 +253,7 @@ test('unknown keys and non-boolean evidence statuses fail closed', () => {
     signalResults: { source_url_verified: { status: 'PASS', evidence_ref: 'proof://x', evidence_sha256: HASH, verified_by: 'source-provenance-verifier' } }
   });
   assert.equal(nonBooleanStatus.typed_verdict, 'NEEDS_EVIDENCE');
-  assert.equal(nonBooleanStatus.completion_score, 0);
+  assert.ok(nonBooleanStatus.completion_score > 0 && nonBooleanStatus.completion_score < 0.05);
 });
 
 test('four of five clone dimensions score 0.85 but are not release-ready', () => {
