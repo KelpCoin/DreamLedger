@@ -12,8 +12,7 @@ const PUBLIC_BASE = (process.env.PUBLIC_BASE_URL || 'https://dreamledger.org').r
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || '';
 const SUPABASE_URL = String(process.env.SUPABASE_URL || '').replace(/\/$/, '');
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
-const STRIPE_PRICE_ID = process.env.MTG_DIAGNOSTIC_STRIPE_PRICE_ID || 'price_1UFFY1EGgEAnUFF9Yq03zIa7';
-const PAYMENT_LINK = 'https://buy.stripe.com/eVqeVdc1T01n1DV3gwdwc30';
+const STRIPE_PRICE_ID = process.env.MTG_DIAGNOSTIC_STRIPE_PRICE_ID || '';
 const PRODUCT_ID = 'COMMANDER-DECK-DIAGNOSTIC-001';
 const OFFER_ID = 'OFFER-CMD-DIAG-29-NZD';
 
@@ -59,7 +58,7 @@ function makeReport(intake,cards,scry){
 async function createIntake(input){
   const cards=parseDecklist(input.decklist);if(cards.length<10)throw new Error('Please supply at least 10 decklist lines.');const intakeId=id();const intake={intake_id:intakeId,product_id:PRODUCT_ID,offer_id:OFFER_ID,commander:String(input.commander||''),strategy:String(input.strategy||''),budget:String(input.budget||''),decklist:String(input.decklist),cards,created_at:new Date().toISOString(),status:'awaiting_payment'};writeJson(path.join(INTAKES,intakeId+'.json'),intake);return intake;}
 function form(params){const out=new URLSearchParams();for(const[k,v]of Object.entries(params))out.set(k,String(v));return out;}
-async function stripeSession(intake){if(!STRIPE_SECRET_KEY)throw new Error('STRIPE_SECRET_KEY is not configured');const sessionParams={'mode':'payment','line_items[0][price]':STRIPE_PRICE_ID,'line_items[0][quantity]':'1','success_url':PUBLIC_BASE+'/mtg/diagnostic-success.html?session_id={CHECKOUT_SESSION_ID}','cancel_url':PUBLIC_BASE+'/mtg?diagnostic_cancelled=1','metadata[product_id]':PRODUCT_ID,'metadata[offer_id]':OFFER_ID,'metadata[silo]':'mtg','metadata[intake_id]':intake.intake_id,'metadata[commerce_version]':'mtg-diagnostic-auto-v1','customer_creation':'always'};const r=await fetch('https://api.stripe.com/v1/checkout/sessions',{method:'POST',headers:{Authorization:'Bearer '+STRIPE_SECRET_KEY,'content-type':'application/x-www-form-urlencoded','Idempotency-Key':'dreamledger-mtg-diagnostic-'+intake.intake_id},body:form(sessionParams)});const t=await r.text();let j;try{j=JSON.parse(t)}catch{j={}}if(!r.ok)throw new Error(j?.error?.message||'Stripe checkout creation failed');return j;}
+async function stripeSession(intake){if(!STRIPE_SECRET_KEY)throw new Error('STRIPE_SECRET_KEY is not configured');if(!STRIPE_PRICE_ID)throw new Error('MTG_DIAGNOSTIC_STRIPE_PRICE_ID is not configured');const sessionParams={'mode':'payment','line_items[0][price]':STRIPE_PRICE_ID,'line_items[0][quantity]':'1','success_url':PUBLIC_BASE+'/mtg/diagnostic-success.html?session_id={CHECKOUT_SESSION_ID}','cancel_url':PUBLIC_BASE+'/mtg?diagnostic_cancelled=1','metadata[product_id]':PRODUCT_ID,'metadata[offer_id]':OFFER_ID,'metadata[silo]':'mtg','metadata[intake_id]':intake.intake_id,'metadata[commerce_version]':'mtg-diagnostic-auto-v1','customer_creation':'always'};const r=await fetch('https://api.stripe.com/v1/checkout/sessions',{method:'POST',headers:{Authorization:'Bearer '+STRIPE_SECRET_KEY,'content-type':'application/x-www-form-urlencoded','Idempotency-Key':'dreamledger-mtg-diagnostic-'+intake.intake_id},body:form(sessionParams)});const t=await r.text();let j;try{j=JSON.parse(t)}catch{j={}}if(!r.ok)throw new Error(j?.error?.message||'Stripe checkout creation failed');return j;}
 async function assertEconomicLedgerReady(){
   if(!SUPABASE_URL||!SUPABASE_SERVICE_ROLE_KEY)throw new Error('Economic ledger unavailable; checkout held until settlement recording is reachable');
   let response;
