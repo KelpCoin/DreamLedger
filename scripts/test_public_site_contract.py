@@ -10,8 +10,35 @@ SERVER = (ROOT / "public" / "server.js").read_text(encoding="utf-8")
 HOME = (ROOT / "public" / "home.html").read_text(encoding="utf-8")
 TRUST = (ROOT / "public" / "trust.html").read_text(encoding="utf-8")
 ABOUT = (ROOT / "public" / "about.html").read_text(encoding="utf-8")
-MTG = (ROOT / "public" / "mtg" / "index.html").read_text(encoding="utf-8")
+PUBLIC = ROOT / "public"
+MTG = (PUBLIC / "mtg" / "index.html").read_text(encoding="utf-8")
 CATALOGUE = json.loads((ROOT / "public" / "catalog.json").read_text(encoding="utf-8"))
+
+BUY_PAGES = list((PUBLIC / "buy").rglob("*.html"))
+PRODUCT_PAGES = list((PUBLIC / "products").rglob("*.html"))
+ACTIVE_COMMERCE_PAGES = [
+    HOME,
+    (PUBLIC / "shop.html").read_text(encoding="utf-8"),
+    (PUBLIC / "money.html").read_text(encoding="utf-8"),
+    (PUBLIC / "billboard.html").read_text(encoding="utf-8"),
+    (PUBLIC / "avatar.html").read_text(encoding="utf-8"),
+    (PUBLIC / "quote-pilot.html").read_text(encoding="utf-8"),
+    MTG,
+    *(p.read_text(encoding="utf-8") for p in BUY_PAGES),
+    *(p.read_text(encoding="utf-8") for p in PRODUCT_PAGES),
+]
+DIRECT_STRIPE_URL = re.compile(r"https://(?:buy|checkout)\\.stripe\\.com/", re.I)
+HELD_SKUS = [
+    "COMMANDER-DECK-DIAGNOSTIC-001",
+    "DREAMLEDGER-BILLBOARD-FOUNDING-001",
+    "DISCORD-WEBHOOK-STARTER-KIT-001",
+    "SELLER-PROFIT-AUDIT-001",
+    "EDH_0001",
+]
+HELD_PRODUCTS = [
+    json.loads((ROOT / "BEC-PRIME" / "catalog" / "products" / f"{sku}.json").read_text(encoding="utf-8"))
+    for sku in HELD_SKUS
+]
 
 checks = {
     "root maps to designed homepage": "'/':'home.html'" in SERVER,
@@ -26,6 +53,19 @@ checks = {
     "about page is present": "DreamLedger" in ABOUT and len(ABOUT) > 1000,
     "no fake customer metrics on homepage": not re.search(r"\b(?:10,000\+ customers|100% uptime|SOC 2 certified|ISO 27001 certified)\b", HOME, re.I),
     "no public secret literals": not re.search(r"(?:sk_live_[A-Za-z0-9]+|whsec_[A-Za-z0-9]+)", HOME + TRUST + ABOUT),
+    "active commerce surfaces contain no direct Stripe checkout URLs": not any(DIRECT_STRIPE_URL.search(page) for page in ACTIVE_COMMERCE_PAGES),
+    "static buy routes never redirect directly to Stripe": not any(DIRECT_STRIPE_URL.search(page.read_text(encoding="utf-8")) for page in BUY_PAGES),
+    "product landing pages have no direct buy route": not any(re.search(r'href=["']/buy/', page.read_text(encoding="utf-8"), re.I) for page in PRODUCT_PAGES),
+    "canonical held SKUs have checkout disabled and no payment link": all(
+        product.get("status") in {"held", "review_required"}
+        and product.get("checkout", {}).get("mode") == "disabled"
+        and product.get("checkout", {}).get("url") is None
+        and product.get("commercial_truth", {}).get("approval_required") is True
+        and product.get("commercial_truth", {}).get("sellable") is False
+        and product.get("commercial_truth", {}).get("payment_surface") is None
+        and not product.get("commercial_truth", {}).get("payment_link")
+        for product in HELD_PRODUCTS
+    ),
 }
 
 route_keys = set(re.findall(r"""['"](/[^'"]*)['"]\s*:""", SERVER))
