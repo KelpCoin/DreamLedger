@@ -34,11 +34,14 @@ jobs:
           const products = catalog.products || [];
           for (const [id, page] of required) {
             const p = products.find(x => x.id === id);
-            if (!p || p.status !== 'published') throw new Error('Missing/unpublished MTG listing: ' + id);
-            if (page && !fs.existsSync(page)) throw new Error('Missing buyer route: ' + page);
-            if (id !== 'EDH_0001' && (p.checkout_available !== false || p.sale_mode !== 'claim_by_message' || !p.claim_url)) {
-              throw new Error('Claim-only deck must not claim direct checkout: ' + id);
+            if (!p) throw new Error('Missing MTG catalogue record: ' + id);
+            if (p.status !== 'held' || p.checkout_available !== false || p.checkout_url !== null || p.sale_mode !== 'disabled') {
+              throw new Error('MTG listing must remain held and non-purchasable until its own evidence gates pass: ' + id);
             }
+            if (p.commercial_truth && (p.commercial_truth.approval_required !== true || p.commercial_truth.sellable !== false)) {
+              throw new Error('MTG listing commercial truth does not match held state: ' + id);
+            }
+            if (page && !fs.existsSync(page)) throw new Error('Missing buyer route: ' + page);
           }
           const html = fs.readFileSync('mtg/index.html', 'utf8');
           if (!html.includes('/public/catalog.json')) throw new Error('Root preview catalogue must use tracked public catalogue data');
