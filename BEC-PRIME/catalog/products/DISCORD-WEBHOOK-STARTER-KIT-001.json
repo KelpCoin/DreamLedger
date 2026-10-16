@@ -7,29 +7,30 @@
   "price": 79,
   "price_unit": "major",
   "currency": "nzd",
-  "inventory": 999,
+  "inventory": 0,
   "inventory_type": "digital",
-  "status": "published",
+  "status": "held",
   "checkout": {
-    "mode": "payment",
-    "url": "/buy.html?sku=DISCORD-WEBHOOK-STARTER-KIT-001",
-    "success_path": "/buy.html",
-    "cancel_path": "/shop.html#digital"
+    "mode": "disabled",
+    "url": null,
+    "success_path": null,
+    "cancel_path": "/shop.html"
   },
   "commercial_truth": {
-    "approval_required": false,
-    "sellable": true,
-    "reason": "Digital kit listed for public CTA; payment path via buy surface.",
-    "payment_surface": "stripe-or-buy-router",
+    "approval_required": true,
+    "sellable": false,
+    "reason": "Held until canonical Gauntlet approval, settlement attribution, fulfillment readiness, and delivery proof are independently verified.",
+    "payment_surface": null,
     "checkoutable_without_connected_account": true
   },
   "fulfillment": {
-    "mode": "digital_download",
-    "delivery_sla_hours": 1,
-    "operator_required": false
+    "mode": "disabled",
+    "delivery_sla_hours": null,
+    "operator_required": true
   },
   "evidence": {
     "status": "awaiting_first_payment",
     "transaction_id": null
-  }
+  },
+  "checkout_available": false
 }
