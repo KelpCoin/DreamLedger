@@ -2,6 +2,8 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
 const {
   validateCatalogProduct,
   validateElohimCandidate,
@@ -160,4 +162,23 @@ test('Elohim candidate with checkout_available true is rejected', () => {
   });
   assert.equal(r.ok, false);
   assert.ok(r.errors.some(e => e.code === 'CHECKOUT_GATE'));
+});
+
+test('uses the declared JSON Schema 2020-12 dialect and rejects wrong field types', () => {
+  const productSchema = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'schemas', 'elohim-product.schema.json'), 'utf8'));
+  const candidateSchema = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'schemas', 'elohim-candidate.schema.json'), 'utf8'));
+  assert.equal(productSchema.$schema, 'https://json-schema.org/draft/2020-12/schema');
+  assert.equal(candidateSchema.$schema, 'https://json-schema.org/draft/2020-12/schema');
+  const result = validateCatalogProduct({
+    id: 'SCHEMA-DIALECT-TEST',
+    name: 'Schema dialect test',
+    price: 29,
+    price_unit: 'major',
+    currency: 'nzd',
+    status: 'draft',
+    silo: 'mtg',
+    checkout_available: 'false'
+  });
+  assert.equal(result.ok, false);
+  assert.ok(result.errors.some(error => error.code === 'SCHEMA' && error.path === '/checkout_available'));
 });
