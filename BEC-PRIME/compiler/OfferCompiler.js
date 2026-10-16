@@ -266,7 +266,7 @@ function compileApprovedOffers(records, capabilities, generatedOffers) {
       // Do not publish an executable payment URL while the canonical product
       // is held, missing, mismatched, or otherwise not explicitly sellable.
       offer.payment_link_url = null;
-      offer.checkout_route = '/mtg/';
+      offer.checkout_route = record.silo === 'mtg' ? '/mtg/' : (record.silo === 'dreamledger' ? '/billboard' : '/shop.html');
       offer.fulfillment_route = null;
     }
     delete offer.approved_by;
