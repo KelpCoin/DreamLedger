@@ -5,6 +5,7 @@ const path = require('path');
 const crypto = require('crypto');
 const edhOneLink = require('../edh/EDHOneLinkRoute');
 const creatorCommerce = require('./creatorCommerce');
+const canonicalCheckoutGate = require('../runtime/canonicalCheckoutGate');
 
 const ROOT = path.join(__dirname, '..');
 const CONFIG_DIR = path.join(ROOT, 'catalog', 'configurator');
@@ -21,6 +22,14 @@ function send(res, status, body) {
 function readJson(file) { return JSON.parse(fs.readFileSync(file, 'utf8')); }
 function product(id) { const file = path.join(PRODUCT_DIR, String(id) + '.json'); return fs.existsSync(file) ? readJson(file) : null; }
 function config(id) { const file = path.join(CONFIG_DIR, String(id) + '.json'); return fs.existsSync(file) ? readJson(file) : null; }
+function dynamicProductGate(p) {
+  try {
+    const registry = readJson(path.join(ROOT, 'fulfillment', 'PRODUCT-FULFILLMENT-REGISTRY.json'));
+    return canonicalCheckoutGate.evaluateCanonicalDynamicCheckoutProduct(p, registry, path.resolve(ROOT, '..'));
+  } catch {
+    return { allowed: false, reasons: ['fulfillment_registry_unavailable'] };
+  }
+}
 function jsonBody(req) {
   return new Promise((resolve, reject) => {
     let raw = '';
@@ -85,7 +94,7 @@ async function handle(req, res, url) {
   const prefix = '/api/mtg/configurator';
   if (req.method === 'GET' && url === prefix + '/decks') {
     const files = fs.existsSync(CONFIG_DIR) ? fs.readdirSync(CONFIG_DIR).filter(name => name.endsWith('.json')) : [];
-    const decks = files.map(name => readJson(path.join(CONFIG_DIR, name))).filter(item => item.status === 'LIVE_CONFIGURABLE').map(item => ({
+    const decks = files.map(name => readJson(path.join(CONFIG_DIR, name))).filter(item => { const p = product(item.deck_id); return item.status === 'LIVE_CONFIGURABLE' && p && dynamicProductGate(p).allowed; }).map(item => ({
       deck_id: item.deck_id, name: item.name, commander: item.commander, theme: item.theme, strategy: item.strategy,
       base_price_minor: item.base_price_minor, currency: item.currency, bracket_target: item.bracket_target,
       testing_status: item.testing_status, inventory_status: item.inventory_status, customization_enabled: true
@@ -100,6 +109,8 @@ async function handle(req, res, url) {
   const p = product(deckId);
   if (!c || !p) return send(res, 404, { error: 'CONFIGURATOR_DECK_NOT_FOUND' });
   if (c.status !== 'LIVE_CONFIGURABLE') return send(res, 403, { error: 'CONFIGURATOR_DECK_NOT_LIVE' });
+  const gate = dynamicProductGate(p);
+  if (!gate.allowed) return send(res, 409, { error: 'CANONICAL_PRODUCT_GATE_CLOSED', reasons: gate.reasons });
   if (p.status !== 'published' || Number(p.inventory || 0) < 1) return send(res, 409, { error: 'BASE_DECK_NOT_AVAILABLE' });
   if (req.method === 'GET' && !action) return send(res, 200, {
     deck_id: c.deck_id, name: c.name, commander: c.commander, theme: c.theme, strategy: c.strategy,
