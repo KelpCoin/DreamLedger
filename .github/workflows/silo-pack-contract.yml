@@ -9,7 +9,7 @@ on:
       - 'package-lock.json'
       - '.github/workflows/silo-pack-contract.yml'
   push:
-    branches: [main]
+    branches: ['**']
     paths:
       - 'CONTROL-PLANE/SILO-PACK-TEMPLATE/**'
       - 'BEC-PRIME/scripts/verify-silo-pack-contract.js'
