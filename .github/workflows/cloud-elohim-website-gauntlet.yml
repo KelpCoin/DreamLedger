@@ -27,10 +27,10 @@ jobs:
         working-directory: BEC-PRIME
     steps:
       - name: Checkout candidate
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 24
           cache: npm
@@ -102,7 +102,7 @@ jobs:
           cat proof/cloud-elohim-gauntlet.json
 
       - name: Upload judgment
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: cloud-elohim-gauntlet-${{ github.run_id }}
           path: proof/cloud-elohim-gauntlet.json
