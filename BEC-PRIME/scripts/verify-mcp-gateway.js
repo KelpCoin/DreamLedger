@@ -16,6 +16,10 @@ function check(name, ok, detail) { checks.push({ name, status: ok ? 'PASS' : 'FA
 function canonical(m) { return JSON.stringify({schema_version:m.schema_version,gateway:m.gateway,transport:m.transport,protocol_version:m.protocol_version,tools:m.tools},null,2)+'\n'; }
 
 check('FILES_GATEWAY', fs.existsSync(GATEWAY), GATEWAY);
+const gatewaySource = fs.existsSync(GATEWAY) ? fs.readFileSync(GATEWAY, 'utf8') : '';
+check('SESSION_CALL_BUDGET_15', /const MAX_CALLS = 15;/.test(gatewaySource), '15 tools/call requests per initialized session');
+check('SESSION_WALLCLOCK_5_MIN', /const MAX_WALL_CLOCK_MS = 5 \* 60 \* 1000;/.test(gatewaySource) && /Date.now\(\) - sessionStartedAt >= MAX_WALL_CLOCK_MS/.test(gatewaySource), 'five-minute deadline enforced before post-initialize work');
+check('CALL_BUDGET_BEFORE_TOOL', /if \(callCount >= MAX_CALLS\)[\s\S]{0,250}callCount \+= 1;[\s\S]{0,150}callTool\(/.test(gatewaySource), 'tool call is denied before callTool executes');
 check('FILES_MANIFEST', fs.existsSync(MANIFEST), MANIFEST);
 check('FILES_POLICY', fs.existsSync(POLICY), POLICY);
 check('FILES_MIRROR', fs.existsSync(MIRROR), MIRROR);
