@@ -36,7 +36,7 @@ async function verifyDeliveryReceipt(receipt, options = {}) {
   if (!requirements || typeof requirements !== 'object') add('trusted_payment_requirements_missing');
   if (!request || typeof request !== 'object') add('trusted_request_context_missing');
   if (body === undefined || body === null) add('response_body_missing');
-  if (typeof options.expectedSellerPublicKey !== 'string' || !options.expectedSellerPublicKey.trim()) add('trusted_seller_key_missing');
+  if (!options.expectedSellerPublicKey || !['string', 'object'].includes(typeof options.expectedSellerPublicKey)) add('trusted_seller_key_missing');
   if (typeof options.verifySettlement !== 'function') add('independent_settlement_verifier_missing');
   if (typeof options.verifyAnchor !== 'function') add('independent_anchor_verifier_missing');
   if (errors.length) return { verified: false, errors };
