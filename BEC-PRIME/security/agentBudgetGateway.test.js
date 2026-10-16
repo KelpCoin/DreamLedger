@@ -7,7 +7,10 @@ const os = require('node:os');
 const path = require('node:path');
 const {
   createAgentBudgetGateway,
-  verifyUsageLedger
+  verifyUsageLedger,
+  RESERVE_LUA,
+  SETTLE_LUA,
+  CANCEL_LUA
 } = require('./agentBudgetGateway');
 
 class MemoryAtomicStore {
@@ -154,6 +157,18 @@ function request(overrides = {}) {
     ...rest
   };
 }
+
+test('Redis Lua uses distinct bucket, budget, and reservation TTLs with no undefined TTL variable', () => {
+  assert.match(RESERVE_LUA, /local bucket_ttl = tonumber\(ARGV\[8\]\)/);
+  assert.match(RESERVE_LUA, /local budget_ttl = tonumber\(ARGV\[9\]\)/);
+  assert.match(RESERVE_LUA, /local reservation_ttl = tonumber\(ARGV\[10\]\)/);
+  assert.doesNotMatch(RESERVE_LUA, /EXPIRE', KEYS\[1\], ttl/);
+  assert.match(RESERVE_LUA, /EXPIRE', KEYS\[1\], bucket_ttl/);
+  assert.match(RESERVE_LUA, /EXPIRE', KEYS\[2\], budget_ttl/);
+  assert.match(RESERVE_LUA, /'EX', reservation_ttl/);
+  assert.match(SETTLE_LUA, /SETTLED_OVER_BUDGET/);
+  assert.match(CANCEL_LUA, /EXISTS', KEYS\[2\]/);
+});
 
 test('valid request reserves first, meters actual usage, and emits hash-chained ledger', async () => {
   const f = fixture();
