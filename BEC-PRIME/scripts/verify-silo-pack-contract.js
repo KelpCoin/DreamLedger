@@ -21,9 +21,36 @@ for (const schemaPath of schemaPaths.slice(2)) {
 const siloSchema = readJson(schemaPaths[0]);
 const validateSilo = ajv.compile(siloSchema);
 const validateBank = ajv.compile(readJson(schemaPaths[1]));
-const silo = readJson('CONTROL-PLANE/SILO-PACK-TEMPLATE/silo.json');
-if (!validateSilo(silo)) {
-  throw new Error(`SILO_TEMPLATE_INVALID: ${ajv.errorsText(validateSilo.errors)}`);
+
+const siloManifestPaths = [
+  'CONTROL-PLANE/SILO-PACK-TEMPLATE/silo.json',
+  'BEC-PRIME/silos/SILO_MTG_COMMANDER/silo.json',
+];
+for (const manifestPath of siloManifestPaths) {
+  const silo = readJson(manifestPath);
+  if (!validateSilo(silo)) {
+    throw new Error(`SILO_MANIFEST_INVALID (${manifestPath}): ${ajv.errorsText(validateSilo.errors)}`);
+  }
+  const refs = {
+    catalog: silo.schemas.catalog,
+    offer: silo.schemas.offer,
+    evidence: silo.schemas.evidence,
+    product: silo.schemas.product,
+    checkout: silo.schemas.checkout,
+    primaryWordBank: silo.word_banks.primary,
+  };
+  for (const [label, relative] of Object.entries(refs)) {
+    if (!fs.existsSync(path.join(root, relative))) {
+      throw new Error(`SILO_REFERENCE_MISSING (${manifestPath}, ${label}): ${relative}`);
+    }
+  }
+  const bank = readJson(silo.word_banks.primary);
+  if (bank.silo_id !== silo.silo_id) {
+    throw new Error(`WORD_BANK_SILO_MISMATCH (${manifestPath}): ${bank.silo_id}`);
+  }
+  if (silo.language_profile.claim_rules.allow_invented_products !== false) {
+    throw new Error(`INVENTED_PRODUCTS_MUST_REMAIN_DISABLED (${manifestPath})`);
+  }
 }
 
 for (const bankPath of [
@@ -36,24 +63,8 @@ for (const bankPath of [
   }
 }
 
-for (const [label, relative] of Object.entries({
-  catalog: silo.schemas.catalog,
-  offer: silo.schemas.offer,
-  evidence: silo.schemas.evidence,
-  product: silo.schemas.product,
-  checkout: silo.schemas.checkout,
-  primaryWordBank: silo.word_banks.primary,
-})) {
-  if (!fs.existsSync(path.join(root, relative))) {
-    throw new Error(`SILO_REFERENCE_MISSING (${label}): ${relative}`);
-  }
-}
-
 const mtgBank = readJson('CONTROL-PLANE/SILO-PACK-TEMPLATE/word-banks/mtg-commander.json');
 if (mtgBank.silo_id !== 'SILO_MTG_COMMANDER') {
   throw new Error('MTG_WORD_BANK_SILO_MISMATCH');
-}
-if (silo.language_profile.claim_rules.allow_invented_products !== false) {
-  throw new Error('INVENTED_PRODUCTS_MUST_REMAIN_DISABLED');
 }
 console.log('PASS: silo manifest, schemas, references, and silo-specific word banks are valid.');
