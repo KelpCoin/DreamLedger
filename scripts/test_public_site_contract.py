@@ -54,6 +54,12 @@ checks = {
         and re.search(r"<button[^>]+disabled", (ROOT / "public" / "buy" / "commander-deck-diagnostic-001" / "index.html").read_text(encoding="utf-8"), re.I)
         and not re.search(r"https://(?:buy|checkout)[.]stripe[.]com/", (ROOT / "public" / "buy" / "commander-deck-diagnostic-001" / "index.html").read_text(encoding="utf-8"), re.I)
     ),
+    "portfolio never promotes held offers as available": (
+        "No offers currently cleared for checkout" in (ROOT / "public" / "portfolio" / "index.html").read_text(encoding="utf-8")
+        and re.search(r"<button[^>]+disabled", (ROOT / "public" / "portfolio" / "index.html").read_text(encoding="utf-8"), re.I)
+        and not re.search(r"https://(?:buy|checkout)[.]stripe[.]com/", (ROOT / "public" / "portfolio" / "index.html").read_text(encoding="utf-8"), re.I)
+        and not re.search(r">Buy now<", (ROOT / "public" / "portfolio" / "index.html").read_text(encoding="utf-8"), re.I)
+    ),
     "held billboard page has no Stripe link and a disabled checkout control": (
         not re.search(r"https://(?:buy|checkout)[.]stripe[.]com/", (ROOT / "public" / "billboard.html").read_text(encoding="utf-8"), re.I)
         and re.search(r"<button[^>]+disabled", (ROOT / "public" / "billboard.html").read_text(encoding="utf-8"), re.I)
