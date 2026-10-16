@@ -55,6 +55,12 @@ function validateCatalog(items) {
   assert(!ids.has('AGENT-PROOF-AUDIT-49'), 'Retired standalone audit listing must not be reintroduced.');
   assert(!items.some(x => x.item_id === 'AGENT-PROOF-AUDIT-49' || x.sku === 'AGENT-PROOF-AUDIT-49'), 'Retired standalone audit SKU must stay absent.');
 
+  const commander = items.filter(x => x.item_id === 'COMMANDER-DECK-DIAGNOSTIC-001');
+  assert(commander.length === 1, 'Exactly one canonical Commander diagnostic product is required.');
+  assert(commander[0].availability === 'review_required', 'Commander diagnostic must remain review_required until fulfillment proof exists.');
+  assert(commander[0].enable_checkout === false, 'Commander diagnostic checkout must remain disabled while the canonical product is held.');
+  assert(!Object.prototype.hasOwnProperty.call(commander[0], 'buy_router'), 'Held Commander diagnostic must not expose a buy router.');
+
   return items;
 }
 
