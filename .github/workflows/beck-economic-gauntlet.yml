@@ -58,6 +58,11 @@ on:
       - 'runtime/humanizer/customer-facing-voice-checkpoint-v1.json'
       - 'BEC-PRIME/routes/tollRoad.js'
       - 'BEC-PRIME/routes/tollRoad.local-heartbeat.test.js'
+      - 'BEC-PRIME/runtime/DeliveryReceiptVerifier.js'
+      - 'BEC-PRIME/runtime/DeliveryReceiptVerifier.test.js'
+      - 'BEC-PRIME/runtime/BeckAuthorityBoundary.test.js'
+      - 'BEC-PRIME/contracts/DELIVERY-RECEIPT-BINDING-CONTRACT-v1.json'
+      - 'BEC-PRIME/package.json'
       - 'public/server.js'
       - 'ops/commerce/**'
       - 'ops/cockpit/**'
@@ -112,6 +117,7 @@ jobs:
           node --test BEC-PRIME/routes/tollRoad.local-heartbeat.test.js
           node --check BEC-PRIME/runtime/DeliveryReceiptVerifier.js
           node --test BEC-PRIME/runtime/DeliveryReceiptVerifier.test.js
+          node --test BEC-PRIME/runtime/BeckAuthorityBoundary.test.js
           node --check scripts/validate-customer-facing-artifact.js
           node --test scripts/validate-customer-facing-artifact.test.js
 
