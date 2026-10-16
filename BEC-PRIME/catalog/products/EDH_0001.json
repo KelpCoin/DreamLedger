@@ -8,25 +8,31 @@
   "currency": "nzd",
   "inventory": 1,
   "inventory_type": "physical",
-  "status": "published",
+  "status": "held",
   "checkout": {
-    "mode": "payment",
-    "success_path": "/checkout/success",
-    "cancel_path": "/mtg"
+    "mode": "disabled",
+    "success_path": null,
+    "cancel_path": "/mtg/",
+    "url": null
   },
   "commercial_truth": {
     "experiment": "EDH-0001-FIRST-SALE",
-    "approval_required": false,
-    "sellable": true,
+    "approval_required": true,
+    "sellable": false,
     "activation_gate": "EXPLICIT_OPERATOR_APPROVAL",
     "activation_timestamp": "2026-08-12T00:00:00.000Z",
-    "payment_surface": "stripe-payment-link",
-    "payment_link": "https://buy.stripe.com/00waEYgbu1Muf0Y2iI9oc0b",
-    "payment_link_id": "plink_1UBRZXJt4ieIQDFzdUP0KL2z"
+    "payment_surface": null,
+    "reason": "Held until canonical Gauntlet approval, settlement attribution, fulfillment readiness, and delivery proof are independently verified."
   },
   "evidence": {
-    "status": "checkout_ready_waiting_for_first_customer_payment",
+    "status": "awaiting_first_payment",
     "transaction_id": null
   },
-  "deployment_trigger": "EDH_0001_FIRST_SALE"
+  "deployment_trigger": "EDH_0001_FIRST_SALE",
+  "checkout_available": false,
+  "fulfillment": {
+    "mode": "manual_physical_dispatch",
+    "delivery_sla_hours": null,
+    "operator_required": true
+  }
 }
