@@ -4,6 +4,6 @@
   "compiler": "WebsiteFaceCompiler",
   "architecture": "website-as-exhaust",
   "registry": "BEC-PRIME/compiler/face-registry.json",
-  "emitted": ["money.html", "home.html", "cash.html"],
-  "rule": "No hand-maintained money/home faces; re-run node BEC-PRIME/compiler/WebsiteFaceCompiler.js"
+  "emitted": ["money.html", "home.html", "shop.html", "start.html", "offers.html", "cash.html"],
+  "rule": "Re-run: node BEC-PRIME/compiler/WebsiteFaceCompiler.js"
 }
