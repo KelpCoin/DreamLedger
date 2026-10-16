@@ -33,12 +33,12 @@ end
 local used = tonumber(redis.call('GET', KEYS[2])) or 0
 if used + reserve_micro > daily_limit then
   redis.call('HSET', KEYS[1], 'tokens', tostring(tokens), 'last_ms', tostring(now))
-  redis.call('EXPIRE', KEYS[1], ttl)
+  redis.call('EXPIRE', KEYS[1], bucket_ttl)
   return {'BUDGET_EXCEEDED', tostring(used), tostring(daily_limit)}
 end
 tokens = tokens - wanted_tokens
 redis.call('HSET', KEYS[1], 'tokens', tostring(tokens), 'last_ms', tostring(now))
-redis.call('EXPIRE', KEYS[1], ttl)
+redis.call('EXPIRE', KEYS[1], bucket_ttl)
 redis.call('INCRBY', KEYS[2], reserve_micro)
 redis.call('EXPIRE', KEYS[2], budget_ttl)
 local reservation = cjson.encode({
@@ -474,5 +474,9 @@ module.exports = {
   appendHashChainedJsonl,
   verifyUsageLedger,
   extractUsage,
-  priceUsageMicroNzd
+  priceUsageMicroNzd,
+  RESERVE_LUA,
+  SETTLE_LUA,
+  CANCEL_LUA,
+  UNKNOWN_LUA
 };
