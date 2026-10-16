@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RESIDUE · Compounding artifact shelf | DreamLedger</title>
+<meta name="description" content="Shelve compounding artifacts before you know what they are worth. Tag, hash, retrieve by rhyme, promote toward a sale.">
+<meta name="bec-compiler" content="manual-novel-app">
+<link rel="canonical" href="https://dreamledger.org/residue.html">
+<style>
+:root{--bg:#07080c;--panel:#10131a;--panel2:#161b26;--ink:#eef1f6;--muted:#93a0b4;--line:#2a3344;--gold:#e0c07a;--mint:#7dceb0;--rose:#e09191;--violet:#a89cf0;--ok:#6bcf9b;--warn:#e0c07a}
+*{box-sizing:border-box;margin:0;padding:0}body{background:radial-gradient(1200px 600px at 10% -10%,#1a2235 0%,transparent 55%),var(--bg);color:var(--ink);min-height:100vh;line-height:1.45;font-family:system-ui,sans-serif}
+a{color:var(--gold);font-weight:700;text-decoration:none}
+.wrap{max-width:1100px;margin:0 auto;padding:20px 16px 80px}
+header{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:center;padding:14px 0 18px;border-bottom:1px solid var(--line);margin-bottom:22px}
+.brand{font-weight:900}.brand span{color:var(--gold)}nav{display:flex;flex-wrap:wrap;gap:10px;font-size:13px}nav a{color:var(--muted);font-weight:600}
+.badge{display:inline-block;font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--violet);border:1px solid #3d3a5c;padding:4px 8px;border-radius:999px;margin-bottom:10px}
+h1{font-size:clamp(1.8rem,5vw,2.6rem);letter-spacing:-.04em;line-height:1.05;margin:8px 0 10px}
+.lead{color:var(--muted);max-width:40em;margin-bottom:18px}
+.grid{display:grid;gap:14px}@media(min-width:880px){.grid.main{grid-template-columns:1.1fr .9fr}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px}
+.card h2{font-size:1rem;margin-bottom:10px}
+label{display:block;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:10px 0 6px}
+input,textarea,select{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:10px 12px;font:inherit}
+textarea{min-height:88px;resize:vertical}
+.row{display:grid;gap:10px}@media(min-width:560px){.row.two{grid-template-columns:1fr 1fr}}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:0 14px;border-radius:11px;border:0;font-weight:800;cursor:pointer;font:inherit}
+.btn.primary{background:linear-gradient(180deg,#efd39a,var(--gold));color:#1a1408}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}
+.btn.mint{background:var(--mint);color:#0a1a14}
+.btn.danger{background:transparent;border:1px solid #5c3030;color:var(--rose)}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.hint{font-size:12px;color:var(--muted);margin-top:8px}
+.list{display:flex;flex-direction:column;gap:10px;max-height:520px;overflow:auto}
+.item{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px;cursor:pointer}
+.item:hover,.item.active{border-color:#6a5a30}
+.item .top{display:flex;justify-content:space-between;gap:8px}
+.item h3{font-size:14px;font-weight:800}
+.meta{font-size:11px;color:var(--muted);margin-top:4px}
+.tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
+.tag{font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px;background:#222836;color:var(--muted);border:1px solid var(--line)}
+.st{font-size:10px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;padding:3px 7px;border-radius:999px;border:1px solid var(--line)}
+.st.shelved{color:var(--warn)}.st.trialed{color:var(--violet)}.st.promoted{color:var(--ok)}.st.productized{color:var(--mint)}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}.toolbar input{flex:1;min-width:160px}
+.empty{color:var(--muted);font-size:13px;padding:16px;text-align:center;border:1px dashed var(--line);border-radius:12px}
+.detail dt{font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:10px}
+.detail dd{margin-top:4px;font-size:14px;white-space:pre-wrap;word-break:break-word}
+.hash{font-family:ui-monospace,monospace;font-size:11px;color:var(--violet)}
+.banner{margin:0 0 16px;padding:12px 14px;border-radius:12px;border:1px solid #3d4a30;background:#121a14;font-size:13px;color:var(--muted)}
+.banner strong{color:var(--mint)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:14px 0}
+@media(max-width:600px){.stats{grid-template-columns:repeat(2,1fr)}}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center}
+.stat b{display:block;font-size:1.25rem;color:var(--gold)}
+.stat span{font-size:10px;color:var(--muted);font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+footer{margin-top:28px;padding-top:16px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
+.pill-row{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 0}
+.pill-row button{font-size:11px;padding:4px 8px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer}
+.pill-row button.on{border-color:var(--gold);color:var(--gold)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <a class="brand" href="/">Dream<span>Ledger</span> · RESIDUE</a>
+  <nav>
+    <a href="/money.html">Pay</a>
+    <a href="/truth-oracle.html">Truth Oracle</a>
+    <a href="/silos/">Silos</a>
+    <a href="/buy/DREAMMEEZ-SUPPORTER-SPROUT">NZ$3.99</a>
+  </nav>
+</header>
+<span class="badge">Novel ecosystem app · figure-eight shelf · local-first</span>
+<h1>Sit on residue until you know what it sells.</h1>
+<p class="lead">RESIDUE is the compounding-artifact shelf for DreamLedger / BECK. Capture half-finished wins, reject reasons, prompts, and weird byproducts. Tag them before you understand them. Retrieve by rhyme. Promote only after a bounded trial. <strong>Nothing here is verified revenue.</strong></p>
+<div class="banner"><strong>Doctrine:</strong> Elohim may create residue. Gauntlet judges promotion. The market judges productized offers. Payment never buys a verdict.</div>
+<div class="stats" id="stats"></div>
+<div class="grid main">
+<section class="card">
+  <h2>Capture residue</h2>
+  <label>Title</label>
+  <input id="title" placeholder="e.g. PRICE_FLOOR reject reasons pack" maxlength="120">
+  <div class="row two">
+    <div><label>Kind</label>
+      <select id="kind">
+        <option value="reject_reasons">Reject reasons</option>
+        <option value="prompt">Prompt / template</option>
+        <option value="scorecard">Scorecard fragment</option>
+        <option value="sop">SOP / checklist</option>
+        <option value="code">Code / config shard</option>
+        <option value="copy">Face / marketing copy</option>
+        <option value="channel">Channel note</option>
+        <option value="pricing">Pricing experiment</option>
+        <option value="unknown">Unknown / weird</option>
+      </select>
+    </div>
+    <div><label>Confidence you understand it</label>
+      <select id="understanding">
+        <option value="0">0 — no idea yet</option>
+        <option value="1">1 — vague</option>
+        <option value="2" selected>2 — partial</option>
+        <option value="3">3 — clear</option>
+        <option value="4">4 — ready to package</option>
+      </select>
+    </div>
+  </div>
+  <label>Body / paste</label>
+  <textarea id="body" placeholder="Raw notes, JSON, prompt, failure log…"></textarea>
+  <label>Tags (comma-separated)</label>
+  <input id="tags" placeholder="mtg, schema, stripe, kill-criteria">
+  <label>Why it existed (one line)</label>
+  <input id="why" placeholder="Failed gauntlet on missing fulfillment path" maxlength="200">
+  <div class="actions">
+    <button class="btn primary" id="btnSave" type="button">Shelve artifact</button>
+    <button class="btn ghost" id="btnClear" type="button">Clear form</button>
+  </div>
+  <p class="hint">Stored in this browser (localStorage). Export JSON to move across machines or into figure-eight fossils.</p>
+</section>
+<section class="card">
+  <h2>Shelf</h2>
+  <div class="toolbar">
+    <input id="q" placeholder="Retrieve by rhyme — tag, phrase, kind…">
+    <button class="btn ghost" id="btnExport" type="button">Export JSON</button>
+    <button class="btn ghost" id="btnImport" type="button">Import</button>
+    <input id="importFile" type="file" accept="application/json,.json" hidden>
+  </div>
+  <div class="pill-row" id="filters">
+    <button type="button" data-f="all" class="on">All</button>
+    <button type="button" data-f="shelved">Shelved</button>
+    <button type="button" data-f="trialed">Trialed</button>
+    <button type="button" data-f="promoted">Promoted</button>
+    <button type="button" data-f="productized">Productized</button>
+    <button type="button" data-f="unknown">Low understanding</button>
+  </div>
+  <div class="list" id="list"></div>
+</section>
+</div>
+<section class="card" id="detailCard" style="margin-top:14px;display:none">
+  <h2>Artifact</h2>
+  <dl class="detail" id="detail"></dl>
+  <div class="actions" id="detailActions"></div>
+  <p class="hint">Promote path: shelved → trialed → promoted → productized. Gauntlet still applies before public revenue claims.</p>
+</section>
+<section class="card" style="margin-top:14px">
+  <h2>Monetise a promoted residue</h2>
+  <p class="hint" style="margin-top:0">When understanding is high and status is promoted, wrap as a thin offer and take payment.</p>
+  <div class="actions">
+    <a class="btn mint" href="/buy/DREAMMEEZ-SUPPORTER-SPROUT">Test rails NZ$3.99</a>
+    <a class="btn ghost" href="/money.html">Money board</a>
+    <a class="btn ghost" href="/buy/DOC-EXTRACT-50">Package as extract NZ$5</a>
+    <a class="btn ghost" href="/truth-oracle.html">Truth Oracle</a>
+  </div>
+</section>
+<footer>RESIDUE · DreamLedger · local-first compounding shelf · not verified revenue · <a href="/">Home</a></footer>
+</div>
+<script>
+(function(){
+  const KEY='dreamledger.residue.v1';
+  const $=id=>document.getElementById(id);
+  async function sha256(text){
+    const buf=await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+    return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,'0')).join('');
+  }
+  function load(){
+    try{const raw=localStorage.getItem(KEY);if(!raw)return[];const p=JSON.parse(raw);return Array.isArray(p.items)?p.items:[]}
+    catch{return[]}
+  }
+  function save(items){
+    localStorage.setItem(KEY, JSON.stringify({schema:'dreamledger/residue-shelf/v1',updated_at:new Date().toISOString(),items}));
+  }
+  let items=load(), activeId=null, filter='all';
+  function stats(){
+    const c={total:items.length,shelved:items.filter(x=>x.status==='shelved').length,unknown:items.filter(x=>Number(x.understanding)<=1).length,productized:items.filter(x=>x.status==='productized').length};
+    $('stats').innerHTML=[['total',c.total],['shelved',c.shelved],['unknown',c.unknown],['productized',c.productized]].map(([k,v])=>`<div class="stat"><b>${v}</b><span>${k}</span></div>`).join('');
+  }
+  function matches(it,q){
+    if(!q)return true;
+    const hay=[it.title,it.body,it.why,it.kind,...(it.tags||[])].join(' ').toLowerCase();
+    return q.toLowerCase().split(/\s+/).filter(Boolean).every(t=>hay.includes(t));
+  }
+  function filtered(){
+    const q=$('q').value.trim();
+    return items.filter(it=>{
+      if(filter==='unknown'&&Number(it.understanding)>1)return false;
+      if(filter!=='all'&&filter!=='unknown'&&it.status!==filter)return false;
+      return matches(it,q);
+    }).sort((a,b)=>String(b.updated_at||b.created_at).localeCompare(String(a.created_at)));
+  }
+  function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+  function renderList(){
+    const rows=filtered();
+    if(!rows.length){$('list').innerHTML='<div class="empty">No residue yet — shelve something unfinished.</div>';return;}
+    $('list').innerHTML=rows.map(it=>`<article class="item ${it.id===activeId?'active':''}" data-id="${it.id}"><div class="top"><h3>${esc(it.title)}</h3><span class="st ${esc(it.status)}">${esc(it.status)}</span></div><div class="meta">${esc(it.kind)} · understand ${esc(it.understanding)}/4 · ${esc((it.created_at||'').slice(0,10))}</div><div class="tags">${(it.tags||[]).slice(0,6).map(t=>`<span class="tag">${esc(t)}</span>`).join('')}</div></article>`).join('');
+    $('list').querySelectorAll('.item').forEach(node=>node.addEventListener('click',()=>{activeId=node.getAttribute('data-id');renderList();renderDetail();}));
+  }
+  function renderDetail(){
+    const it=items.find(x=>x.id===activeId);
+    if(!it){$('detailCard').style.display='none';return;}
+    $('detailCard').style.display='block';
+    $('detail').innerHTML=`<dt>Title</dt><dd>${esc(it.title)}</dd><dt>Status</dt><dd><span class="st ${esc(it.status)}">${esc(it.status)}</span></dd><dt>Kind</dt><dd>${esc(it.kind)}</dd><dt>Understanding</dt><dd>${esc(it.understanding)} / 4</dd><dt>Why it existed</dt><dd>${esc(it.why||'—')}</dd><dt>Tags</dt><dd>${(it.tags||[]).map(esc).join(', ')||'—'}</dd><dt>Content hash</dt><dd class="hash">${esc(it.hash||'—')}</dd><dt>Body</dt><dd>${esc(it.body)}</dd>`;
+    const actions=$('detailActions');actions.innerHTML='';
+    const mk=(label,fn,cls)=>{const b=document.createElement('button');b.type='button';b.className='btn '+(cls||'ghost');b.textContent=label;b.onclick=fn;actions.appendChild(b);};
+    if(it.status==='shelved')mk('Mark trialed',()=>setStatus(it.id,'trialed'),'primary');
+    if(it.status==='trialed')mk('Mark promoted',()=>setStatus(it.id,'promoted'),'primary');
+    if(it.status==='promoted')mk('Mark productized',()=>setStatus(it.id,'productized'),'mint');
+    mk('Delete',()=>{if(confirm('Delete?')){items=items.filter(x=>x.id!==it.id);activeId=null;persist();}},'danger');
+  }
+  function setStatus(id,status){items=items.map(x=>x.id===id?{...x,status,updated_at:new Date().toISOString()}:x);persist();}
+  function persist(){save(items);stats();renderList();renderDetail();}
+  $('btnSave').onclick=async()=>{
+    const title=$('title').value.trim(), body=$('body').value.trim();
+    if(!title||!body){alert('Title and body required.');return;}
+    const tags=$('tags').value.split(',').map(t=>t.trim()).filter(Boolean);
+    const payload={title,body,kind:$('kind').value,understanding:Number($('understanding').value),tags,why:$('why').value.trim()};
+    const hash=await sha256(JSON.stringify(payload));
+    const now=new Date().toISOString();
+    const item={id:'res_'+hash.slice(0,12),...payload,hash,status:'shelved',created_at:now,updated_at:now};
+    items=[item,...items.filter(x=>x.id!==item.id)];activeId=item.id;
+    ['title','body','tags','why'].forEach(id=>$(id).value='');
+    persist();
+  };
+  $('btnClear').onclick=()=>['title','body','tags','why'].forEach(id=>$(id).value='');
+  $('q').oninput=renderList;
+  $('filters').onclick=e=>{const btn=e.target.closest('button[data-f]');if(!btn)return;filter=btn.getAttribute('data-f');$('filters').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===btn));renderList();};
+  $('btnExport').onclick=()=>{const blob=new Blob([JSON.stringify({schema:'dreamledger/residue-shelf/v1',items},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='dreamledger-residue-shelf.json';a.click();URL.revokeObjectURL(a.href);};
+  $('btnImport').onclick=()=>$('importFile').click();
+  $('importFile').onchange=async e=>{const file=e.target.files&&e.target.files[0];if(!file)return;try{const data=JSON.parse(await file.text());const incoming=Array.isArray(data.items)?data.items:Array.isArray(data)?data:[];const byId=new Map(items.map(x=>[x.id,x]));for(const it of incoming){if(it&&it.id)byId.set(it.id,it);}items=[...byId.values()];persist();}catch{alert('Import failed');}e.target.value='';};
+  stats();renderList();
+})();
+</script>
+</body>
+</html>
