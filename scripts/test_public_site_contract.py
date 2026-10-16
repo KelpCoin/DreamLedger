@@ -10,15 +10,18 @@ SERVER = (ROOT / "public" / "server.js").read_text(encoding="utf-8")
 HOME = (ROOT / "public" / "home.html").read_text(encoding="utf-8")
 TRUST = (ROOT / "public" / "trust.html").read_text(encoding="utf-8")
 ABOUT = (ROOT / "public" / "about.html").read_text(encoding="utf-8")
+MTG = (ROOT / "public" / "mtg" / "index.html").read_text(encoding="utf-8")
 CATALOGUE = json.loads((ROOT / "public" / "catalog.json").read_text(encoding="utf-8"))
 
 checks = {
     "root maps to designed homepage": "'/':'home.html'" in SERVER,
     "about route maps to page": "'/about/':'about.html'" in SERVER,
     "trust route maps to page": "'/trust/':'trust.html'" in SERVER,
+    "MTG route serves the catalog instead of redirecting to itself": "'/mtg/':'mtg/index.html'" in SERVER,
     "homepage has responsive viewport": 'name="viewport"' in HOME,
     "homepage has a free quote worksheet": "quote-tool" in HOME and "comparison-template.csv" in HOME,
     "homepage explains browser-local CSV": "No supplier data is uploaded" in HOME,
+    "held diagnostic is visible but non-purchasable": "Commander Deck Diagnostic · NZ$29 · held" in MTG and "Checkout is held" in MTG and "/buy/COMMANDER-DECK-DIAGNOSTIC-001" not in MTG and "buy.stripe.com" not in MTG,
     "trust page defines evidence boundary": "VERIFIED" in TRUST and "UNVERIFIED" in TRUST,
     "about page is present": "DreamLedger" in ABOUT and len(ABOUT) > 1000,
     "no fake customer metrics on homepage": not re.search(r"\b(?:10,000\+ customers|100% uptime|SOC 2 certified|ISO 27001 certified)\b", HOME, re.I),
