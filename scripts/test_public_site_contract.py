@@ -14,6 +14,7 @@ PUBLIC = ROOT / "public"
 MTG = (PUBLIC / "mtg" / "index.html").read_text(encoding="utf-8")
 CATALOGUE = json.loads((ROOT / "public" / "catalog.json").read_text(encoding="utf-8"))
 
+PUBLIC_HTML = list(PUBLIC.rglob("*.html"))
 BUY_PAGES = list((PUBLIC / "buy").rglob("*.html"))
 PRODUCT_PAGES = list((PUBLIC / "products").rglob("*.html"))
 ACTIVE_COMMERCE_PAGES = [
@@ -55,6 +56,7 @@ checks = {
     "no public secret literals": not re.search(r"(?:sk_live_[A-Za-z0-9]+|whsec_[A-Za-z0-9]+)", HOME + TRUST + ABOUT),
     "active commerce surfaces contain no direct Stripe checkout URLs": not any(DIRECT_STRIPE_URL.search(page) for page in ACTIVE_COMMERCE_PAGES),
     "static buy routes never redirect directly to Stripe": not any(DIRECT_STRIPE_URL.search(page.read_text(encoding="utf-8")) for page in BUY_PAGES),
+    "no public HTML page contains a direct Stripe checkout URL": not any(DIRECT_STRIPE_URL.search(page.read_text(encoding="utf-8")) for page in PUBLIC_HTML),
     "product landing pages have no direct buy route": not any(re.search(r"""href=["\']/buy/""", page.read_text(encoding="utf-8"), re.I) for page in PRODUCT_PAGES),
     "canonical held SKUs have checkout disabled and no payment link": all(
         product.get("status") in {"held", "review_required"}
@@ -93,6 +95,9 @@ for target in internal_links:
 checks["internal links map to storefront routes"] = not broken_links
 
 failed = [name for name, ok in checks.items() if not ok]
+public_direct_links = [str(page.relative_to(ROOT)) for page in PUBLIC_HTML if DIRECT_STRIPE_URL.search(page.read_text(encoding="utf-8"))]
+if public_direct_links:
+    print("PUBLIC_DIRECT_STRIPE_URLS=" + ", ".join(public_direct_links))
 if broken_links:
     print("BROKEN_INTERNAL_LINKS=" + ", ".join(sorted(set(broken_links))))
 for name, ok in checks.items():
