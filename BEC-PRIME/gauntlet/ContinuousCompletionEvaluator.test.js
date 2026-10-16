@@ -98,6 +98,34 @@ test('missing evidence scores zero and is never silently credited', () => {
   assert.equal(verdict.missing_evidence.length, 31);
 });
 
+test('a missing signal map is NEEDS_EVIDENCE rather than a fabricated failure', () => {
+  const verdict = evaluateEconomicEvent({
+    candidateId: 'RA_000001',
+    verifiedAt: VERIFIED_AT
+  });
+  assert.equal(verdict.completion_score, 0);
+  assert.equal(verdict.typed_verdict, 'NEEDS_EVIDENCE');
+  assert.equal(verdict.binary_gate_pass, false);
+  assert.equal(verdict.missing_evidence.length, 31);
+});
+
+test('HOLD is used only when all missing evidence is explicitly waiting on an external event', () => {
+  const signals = {};
+  for (const step of ECONOMIC_STEPS.slice(0, 6)) {
+    for (const signal of step.signals) signals[signal] = signalRecord(signal);
+  }
+  const verdict = evaluate({
+    candidateId: 'RA_000001',
+    verifiedAt: VERIFIED_AT,
+    signalResults: signals,
+    waitingOnExternalEvent: true,
+    waitingForSignals: ECONOMIC_STEPS.slice(6).flatMap(step => step.signals)
+  });
+  assert.equal(verdict.completion_score, 0.6);
+  assert.equal(verdict.typed_verdict, 'HOLD');
+  assert.equal(verdict.binary_gate_pass, false);
+});
+
 test('verified steps one through six score 0.60 while attribution remains missing', () => {
   const signals = {};
   for (const step of ECONOMIC_STEPS.slice(0, 6)) {
