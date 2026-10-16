@@ -77,7 +77,10 @@ jobs:
           test -f start.js
           grep -q "/commander-guide" start.js
           grep -q "/agent-commerce" start.js
-          grep -q "Marketplace trust" website/mtg-catalog.html
+          grep -q 'aria-label="Trust anchors"' website/mtg-catalog.html
+          grep -q '<strong>Condition</strong> stated' website/mtg-catalog.html
+          grep -q '<strong>Confirm</strong> then pay' website/mtg-catalog.html
+          echo "MTG_TRUST_ANCHORS=PASS"
           echo "MTG_ROUTE_CONTRACT=PASS"
 
       - name: Website surface checks
