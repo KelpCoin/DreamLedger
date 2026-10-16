@@ -1,0 +1,34 @@
+name: Silo Pack Contract
+
+on:
+  pull_request:
+    paths:
+      - 'CONTROL-PLANE/SILO-PACK-TEMPLATE/**'
+      - 'BEC-PRIME/scripts/verify-silo-pack-contract.js'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/silo-pack-contract.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'CONTROL-PLANE/SILO-PACK-TEMPLATE/**'
+      - 'BEC-PRIME/scripts/verify-silo-pack-contract.js'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/silo-pack-contract.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+      - run: npm ci
+      - run: npm run verify:silo-pack-contract
