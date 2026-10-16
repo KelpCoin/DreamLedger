@@ -10,12 +10,15 @@ if (!(Test-Path $surface)) { throw 'CUBE MTG public surface missing' }
 $m = Get-Content $manifest -Raw | ConvertFrom-Json
 if ($m.silo_name -ne 'mtg') { throw 'Wrong silo' }
 if ($m.isolation -ne $true) { throw 'Isolation flag is false' }
-if ($m.status -ne 'deployed') { throw 'CUBE manifest is not deployed' }
+if ($m.status -ne 'held') { throw 'CUBE MTG diagnostic must remain held until evidence gates pass' }
+if ($m.checkout_state -ne 'disabled') { throw 'CUBE MTG diagnostic checkout must remain disabled' }
+if (!$m.hold_reason) { throw 'CUBE MTG hold reason is missing' }
 if ($m.price_nzd -ne 29) { throw 'Price mismatch' }
 $html = Get-Content $surface -Raw
 $forbidden = @('Amplissa','HappyHomarid','CollectorsCoast','DreamMeez','adult')
 foreach ($token in $forbidden) { if ($html -match [regex]::Escape($token)) { throw "Forbidden token leaked into MTG surface: $token" } }
 if ($html -notmatch 'Commander Deck Diagnostic') { throw 'Diagnostic missing from MTG surface' }
-if ($html -notmatch 'NZ\$29') { throw 'Price missing from MTG surface' }
-if ($html -notmatch '/api/mtg/diagnostic/intake') { throw 'Automated checkout route missing' }
-Write-Host '[PASS] CUBE MTG reskin: manifest + isolation + public surface + automated checkout route'
+if ($html -notmatch 'Currently held') { throw 'Held diagnostic status missing from MTG surface' }
+if ($html -notmatch 'not available for purchase') { throw 'Public held notice missing from MTG surface' }
+if ($html -match '/api/mtg/diagnostic/intake|buy\.stripe\.com|checkout\.stripe\.com|/buy/COMMANDER-DECK-DIAGNOSTIC-001') { throw 'Held diagnostic still exposes a checkout route' }
+Write-Host '[PASS] CUBE MTG reskin: isolated manifest + held checkout + no direct payment bypass'
