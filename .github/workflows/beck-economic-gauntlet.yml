@@ -144,6 +144,8 @@ jobs:
           STRIPE_LIVE_ENABLED: 'false'
         run: |
           npm run validate:economics
+          if ($LASTEXITCODE -ne 0) { throw "Static economics validation failed with exit code $LASTEXITCODE." }
+          & .\scripts\beck-economic-bootstrap.ps1 -SkipInstall
           $validationExit = $LASTEXITCODE
           $gauntletPath = Join-Path $PWD 'proof/commerce/latest-gauntlet-economic-verdict.json'
           if (-not (Test-Path -LiteralPath $gauntletPath)) {
@@ -167,5 +169,8 @@ jobs:
           Write-Host "BOOTSTRAP_EXIT=$validationExit (nonzero is expected while live payment/fulfillment evidence is absent)"
           if ($validationExit -notin @(0,1,2)) {
             throw "Unexpected bootstrap process exit code: $validationExit"
+          }
+          if ($validationExit -eq 1) {
+            throw "Economic bootstrap found a hard failure; inspect the emitted proof and Gauntlet verdict."
           }
           $global:LASTEXITCODE = 0
