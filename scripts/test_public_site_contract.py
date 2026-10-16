@@ -46,6 +46,11 @@ checks = {
     "root maps to designed homepage": "'/':'home.html'" in SERVER,
     "about route maps to page": "'/about/':'about.html'" in SERVER,
     "trust route maps to page": "'/trust/':'trust.html'" in SERVER,
+    "public catalogue route remains transparent while API product feed is checkout-filtered": (
+        "'/catalog.json':'catalog.json'" in SERVER
+        and "p==='/api/offers' || p==='/api/products'" in SERVER
+        and "p==='/api/offers' || p==='/api/products' || p==='/catalog.json'" not in SERVER
+    ),
     "MTG route serves the catalog instead of redirecting to itself": "'/mtg/':'mtg/index.html'" in SERVER,
     "homepage has responsive viewport": 'name="viewport"' in HOME,
     "homepage has a free quote worksheet": "quote-tool" in HOME and "comparison-template.csv" in HOME,
