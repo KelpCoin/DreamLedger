@@ -40,14 +40,18 @@ function Get-HttpResult([string]$Url) {
     try {
         $r = Invoke-WebRequest -Uri $Url -MaximumRedirection 8 -TimeoutSec 20 -UseBasicParsing
         $html = [string]$r.Content
-        $stripeLinks = @([regex]::Matches($html, 'https://buy\.stripe\.com/[A-Za-z0-9]+') | ForEach-Object { $_.Value.TrimEnd('.') } | Select-Object -Unique)
+        $stripeLinks = @([regex]::Matches($html, 'https://(?:buy|checkout)\.stripe\.com/[^\s"''<>]+') | ForEach-Object { $_.Value.TrimEnd(').,;') } | Select-Object -Unique)
         $truthRedirect = $html -match 'truth-oracle\.html'
         $retiredOfferCopy = $html -match 'AGENT-PROOF-AUDIT-49|Agent Delivery Proof Audit|NZ\$49\b|Purchase the audit'
-        return [ordered]@{ url=$Url; status=[int]$r.StatusCode; final_url=[string]$r.BaseResponse.ResponseUri.AbsoluteUri; stripe_links=$stripeLinks; truth_oracle_redirect=[bool]$truthRedirect; retired_offer_copy=[bool]$retiredOfferCopy }
+        $heldOfferCopy = ($html -match 'Offer currently held|Currently held') -and ($html -match 'not available for purchase')
+        $disabledCheckoutControl = ($html -match '<button[^>]+disabled') -and ($html -match 'Checkout held')
+        $finalUrl = [string]$r.BaseResponse.ResponseUri.AbsoluteUri
+        $redirectToStripe = $finalUrl -match '^https://(?:buy|checkout)\.stripe\.com/'
+        return [ordered]@{ url=$Url; status=[int]$r.StatusCode; final_url=$finalUrl; stripe_links=$stripeLinks; redirect_to_stripe=[bool]$redirectToStripe; held_offer_copy=[bool]$heldOfferCopy; disabled_checkout_control=[bool]$disabledCheckoutControl; truth_oracle_redirect=[bool]$truthRedirect; retired_offer_copy=[bool]$retiredOfferCopy }
     } catch {
         $status = 0
         try { if ($_.Exception.Response -and $_.Exception.Response.StatusCode) { $status=[int]$_.Exception.Response.StatusCode } } catch {}
-        return [ordered]@{ url=$Url; status=$status; error=$_.Exception.Message; stripe_links=@(); truth_oracle_redirect=$false; retired_offer_copy=$false }
+        return [ordered]@{ url=$Url; status=$status; error=$_.Exception.Message; stripe_links=@(); redirect_to_stripe=$false; held_offer_copy=$false; disabled_checkout_control=$false; truth_oracle_redirect=$false; retired_offer_copy=$false }
     }
 }
 
@@ -148,6 +152,10 @@ try {
                 $redirected = ([string]$r.final_url -match '/truth-oracle\.html/?$') -or ($r.truth_oracle_redirect -eq $true)
                 $ok = $r.status -ge 200 -and $r.status -lt 400 -and $redirected -and @($r.stripe_links).Count -eq 0 -and -not $r.retired_offer_copy
                 Add-Check $pageName $(if ($ok) {'PASS'} else {'FAIL'}) (($r | ConvertTo-Json -Compress) + '; retired route must redirect to Truth Oracle without an old offer or checkout.')
+            } elseif ($url -eq 'https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001') {
+                $redirectToStripe = $r.redirect_to_stripe -eq $true -or @($r.stripe_links).Count -gt 0
+                $heldRouteSafe = $r.status -eq 200 -and -not $redirectToStripe -and $r.held_offer_copy -eq $true -and $r.disabled_checkout_control -eq $true
+                Add-Check $pageName $(if ($heldRouteSafe) {'PASS'} else {'FAIL'}) (($r | ConvertTo-Json -Compress) + '; held Commander diagnostic must not redirect to Stripe and must show a disabled checkout control.')
             } else {
                 Add-Check $pageName 'DIAGNOSTIC_ONLY' (($r | ConvertTo-Json -Compress) + '; secondary candidate route, not a gate for the Truth Oracle path.')
             }
