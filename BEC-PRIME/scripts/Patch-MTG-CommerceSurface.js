@@ -29,6 +29,9 @@ function writeProof() {
 function patch() {
   let html = fs.readFileSync(SOURCE, 'utf8');
   if (html.includes(MARKER)) {
+    if (/href=["']https:\/\/buy\\.stripe\\.com\//i.test(html)) {
+      throw new Error('Held MTG diagnostic must not retain a direct Stripe checkout URL');
+    }
     writeProof();
     return;
   }
@@ -41,8 +44,31 @@ function patch() {
 
   const start = html.indexOf('function render(items){');
   const end = html.indexOf('async function load(){', start);
-  if (start < 0 || end < 0) throw new Error('MTG render function boundary not found');
 
+  // Current catalogue uses the newer grid/load() template. The legacy render()
+  // patch must not fail or overwrite a newer template. Apply the equivalent
+  // horizontal-card treatment and keep the diagnostic explicitly held.
+  if (start < 0 || end < 0) {
+    if (!html.includes("const grid=document.getElementById('grid')") || !html.includes('async function load(){')) {
+      throw new Error('Unrecognized MTG catalogue template; fail closed without rewriting it');
+    }
+    html = html.replace(
+      '</style>',
+      '.grid{display:flex!important;gap:14px;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;padding:8px 2px 20px;scrollbar-width:thin}.grid .deck{flex:0 0 min(330px,82vw);scroll-snap-align:start}\n</style>'
+    );
+    html = html.replace(
+      '<a class="silo-btn silo-btn-gold" href="https://buy.stripe.com/8x228r1nfg0l3M32csdwc2I">Buy diagnostic</a>',
+      '<span class="silo-btn silo-btn-ghost" aria-disabled="true">Diagnostic currently held pending delivery proof</span>'
+    );
+    html = html.replace('<body class="silo-body">', '<body class="silo-body" '+MARKER+'>');
+    if (!html.includes(MARKER)) throw new Error('MTG commerce marker could not be applied');
+    if (/href=["']https:\/\/buy\\.stripe\\.com\//i.test(html)) {
+      throw new Error('Held MTG diagnostic must not retain a direct Stripe checkout URL');
+    }
+    fs.writeFileSync(SOURCE, html, 'utf8');
+    writeProof();
+    return;
+  }
   const render = String.raw`function render(items){
 const decks=items.filter(isMtg);
 const live=decks.filter(p=>String(p.status).toLowerCase()==='published');
