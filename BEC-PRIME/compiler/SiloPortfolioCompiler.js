@@ -136,10 +136,18 @@ const compiled = eligible.map((offer, index) => {
 let previousProof = null;
 try { previousProof = JSON.parse(fs.readFileSync(PROOF, 'utf8')); } catch {}
 const currentPageNames = new Set(compiled.map(offer => slug(offer.name) + '.html'));
+const previousPageNames = new Set();
 for (const oldOffer of (Array.isArray(previousProof?.offers) ? previousProof.offers : [])) {
   const match = String(oldOffer.canonical_url || '').match(/^\/portfolio\/([a-z0-9-]+\.html)$/);
-  if (!match || currentPageNames.has(match[1])) continue;
-  const stalePath = path.join(OUT_DIR, match[1]);
+  if (match) previousPageNames.add(match[1]);
+}
+for (const oldPath of (Array.isArray(previousProof?.generated?.service_pages) ? previousProof.generated.service_pages : [])) {
+  const name = String(oldPath).replace(/\\/g, '/').split('/').pop();
+  if (/^[a-z0-9-]+\.html$/.test(name)) previousPageNames.add(name);
+}
+for (const name of previousPageNames) {
+  if (currentPageNames.has(name)) continue;
+  const stalePath = path.join(OUT_DIR, name);
   if (fs.existsSync(stalePath)) fs.unlinkSync(stalePath);
 }
 
