@@ -51,6 +51,7 @@ checks = {
         "buy/commander-deck-diagnostic-001/index.html" in SERVER
         and "buy/cmd-diag-29/index.html" in SERVER
         and "This route will not redirect to payment." in (ROOT / "public" / "buy" / "commander-deck-diagnostic-001" / "index.html").read_text(encoding="utf-8")
+        and re.search(r"<button[^>]+disabled", (ROOT / "public" / "buy" / "commander-deck-diagnostic-001" / "index.html").read_text(encoding="utf-8"), re.I)
         and not re.search(r"https://(?:buy|checkout)[.]stripe[.]com/", (ROOT / "public" / "buy" / "commander-deck-diagnostic-001" / "index.html").read_text(encoding="utf-8"), re.I)
     ),
     "public catalogue route remains transparent while API product feed is checkout-filtered": (
