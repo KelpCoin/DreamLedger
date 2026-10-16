@@ -87,7 +87,7 @@ test('missing evidence scores zero and is never silently credited', () => {
   assert.equal(verdict.typed_verdict, 'NEEDS_EVIDENCE');
   assert.equal(verdict.binary_gate_pass, false);
   assert.equal(verdict.verified_economic_outcome, false);
-  assert.equal(verdict.missing_evidence.length, 30);
+  assert.equal(verdict.missing_evidence.length, 31);
 });
 
 test('verified steps one through six score 0.60 while attribution remains missing', () => {
