@@ -91,6 +91,11 @@ function proposeCheckout(args) {
   if (!cart) return { error:'SKU not found' };
   if (silo !== 'CORE' && String(cart.silo || '').toLowerCase() !== String(silo).toLowerCase()) return { error:'Silo access denied' };
   if (Number(cart.price) !== Number(checkout.amount)) return { error:'Price mismatch', expected:Number(cart.price), provided:Number(checkout.amount) };
+  const paymentLink = cart.commercial_truth?.payment_link || cart.checkout?.url || cart.checkout_url || null;
+  const validStripeLink = typeof paymentLink === 'string' && /^https:\/\/(?:buy\.stripe\.com|checkout\.stripe\.com)\//i.test(paymentLink);
+  if (cart.status !== 'published' || cart.commercial_truth?.approval_required !== false || cart.commercial_truth?.sellable !== true || cart.checkout_available !== true || !validStripeLink) {
+    return { error:'Product not authorized for checkout', reason:'canonical_product_gate_closed', checkout:'BLOCKED', capital_authority:'ZERO' };
+  }
   const court = courtEvaluate('CHECKOUT', checkout, silo);
   if (court.decision === 'BLOCKED') return { status:'BLOCKED', court };
   const proposal = { checkout_id:'CHECKOUT-' + crypto.randomUUID(), status:'AWAITING_HUMAN_APPROVAL', silo, checkout, cart_hash:ledger.sha256(cart), court, capital_authority:'ZERO', execution:'BLOCKED', executed:false };
