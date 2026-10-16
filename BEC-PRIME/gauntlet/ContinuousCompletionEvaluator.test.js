@@ -15,6 +15,14 @@ const {
 const HASH = 'a'.repeat(64);
 const VERIFIED_AT = '2026-10-16T08:00:00.000Z';
 
+function evaluate(input) {
+  return evaluateEconomicEvent(input, { verifyEvidence: () => true });
+}
+
+function evaluateClone(input) {
+  return evaluateCloneIsolation(input, { verifyEvidence: () => true });
+}
+
 function signalRecord(signal, status = 'PASS') {
   return {
     status,
@@ -78,7 +86,7 @@ test('the ten economic weights sum to exactly 1 and steps one through six total 
 });
 
 test('missing evidence scores zero and is never silently credited', () => {
-  const verdict = evaluateEconomicEvent({
+  const verdict = evaluate({
     candidateId: 'RA_000001',
     verifiedAt: VERIFIED_AT,
     signalResults: {}
@@ -95,7 +103,7 @@ test('verified steps one through six score 0.60 while attribution remains missin
   for (const step of ECONOMIC_STEPS.slice(0, 6)) {
     for (const signal of step.signals) signals[signal] = signalRecord(signal);
   }
-  const verdict = evaluateEconomicEvent({
+  const verdict = evaluate({
     candidateId: 'RA_000001',
     verifiedAt: VERIFIED_AT,
     signalResults: signals
@@ -108,7 +116,7 @@ test('verified steps one through six score 0.60 while attribution remains missin
 });
 
 test('a 1.00 completion score does not pass the economic gate without independent final-outcome proof', () => {
-  const verdict = evaluateEconomicEvent({
+  const verdict = evaluate({
     candidateId: 'RA_000001',
     verifiedAt: VERIFIED_AT,
     signalResults: allPassSignals()
@@ -120,8 +128,21 @@ test('a 1.00 completion score does not pass the economic gate without independen
   assert.ok(verdict.missing_evidence.includes('final_outcome_independent_verification'));
 });
 
-test('all ten steps and independently verified final outcome are required for PROCEED', () => {
+test('PASS claims without a trusted evidence verifier are quarantined', () => {
   const verdict = evaluateEconomicEvent({
+    candidateId: 'RA_000001',
+    verifiedAt: VERIFIED_AT,
+    signalResults: allPassSignals(),
+    finalOutcome: finalOutcome()
+  });
+  assert.equal(verdict.typed_verdict, 'QUARANTINE');
+  assert.equal(verdict.completion_score, 0);
+  assert.equal(verdict.binary_gate_pass, false);
+  assert.ok(verdict.invalid_evidence.some(value => value.includes('TRUSTED_EVIDENCE_VERIFIER_UNAVAILABLE')));
+});
+
+test('all ten steps and independently verified final outcome are required for PROCEED', () => {
+  const verdict = evaluate({
     candidateId: 'RA_000001',
     verifiedAt: VERIFIED_AT,
     signalResults: allPassSignals(),
@@ -136,7 +157,7 @@ test('all ten steps and independently verified final outcome are required for PR
 test('evidence-backed failed signal returns REPAIR with exact failed key', () => {
   const signals = allPassSignals();
   signals.order_id_resolved = signalRecord('order_id_resolved', 'FAIL');
-  const verdict = evaluateEconomicEvent({
+  const verdict = evaluate({
     candidateId: 'RA_000001',
     verifiedAt: VERIFIED_AT,
     signalResults: signals,
@@ -156,7 +177,7 @@ test('invalid provenance or wrong verifier quarantines the candidate', () => {
     evidence_sha256: HASH,
     verified_by: 'candidate-self-report'
   };
-  const verdict = evaluateEconomicEvent({
+  const verdict = evaluate({
     candidateId: 'RA_000001',
     verifiedAt: VERIFIED_AT,
     signalResults: signals,
@@ -168,7 +189,7 @@ test('invalid provenance or wrong verifier quarantines the candidate', () => {
 });
 
 test('integrity conflict takes priority over ordinary progress', () => {
-  const verdict = evaluateEconomicEvent({
+  const verdict = evaluate({
     candidateId: 'RA_000001',
     verifiedAt: VERIFIED_AT,
     signalResults: allPassSignals(),
@@ -179,7 +200,7 @@ test('integrity conflict takes priority over ordinary progress', () => {
 });
 
 test('fatal defect returns KILL and records the supplied defect', () => {
-  const verdict = evaluateEconomicEvent({
+  const verdict = evaluate({
     candidateId: 'RA_000001',
     verifiedAt: VERIFIED_AT,
     signalResults: {},
@@ -190,7 +211,7 @@ test('fatal defect returns KILL and records the supplied defect', () => {
 });
 
 test('unknown keys and non-boolean evidence statuses fail closed', () => {
-  const extra = evaluateEconomicEvent({
+  const extra = evaluate({
     candidateId: 'RA_000001',
     verifiedAt: VERIFIED_AT,
     signalResults: { source_url_verified: true, fabricated_green_flag: true }
@@ -198,7 +219,7 @@ test('unknown keys and non-boolean evidence statuses fail closed', () => {
   assert.equal(extra.typed_verdict, 'QUARANTINE');
   assert.ok(extra.reason_codes[0].startsWith('UNKNOWN_SIGNAL:'));
 
-  const nonBooleanStatus = evaluateEconomicEvent({
+  const nonBooleanStatus = evaluate({
     candidateId: 'RA_000001',
     verifiedAt: VERIFIED_AT,
     signalResults: { source_url_verified: { status: 'PASS', evidence_ref: 'proof://x', evidence_sha256: HASH, verified_by: 'source-provenance-verifier' } }
@@ -210,7 +231,7 @@ test('unknown keys and non-boolean evidence statuses fail closed', () => {
 test('four of five clone dimensions score 0.85 but are not release-ready', () => {
   const dimensions = allPassCloneDimensions();
   dimensions.checkout_disabled_by_default = cloneDimensionRecord('checkout_disabled_by_default', 'FAIL');
-  const verdict = evaluateCloneIsolation({
+  const verdict = evaluateClone({
     cloneId: 'clone-mtg-002',
     verifiedAt: VERIFIED_AT,
     dimensionResults: dimensions
@@ -223,7 +244,7 @@ test('four of five clone dimensions score 0.85 but are not release-ready', () =>
 });
 
 test('all five clone dimensions require independent release approval before release_ready', () => {
-  const withoutApproval = evaluateCloneIsolation({
+  const withoutApproval = evaluateClone({
     cloneId: 'clone-mtg-003',
     verifiedAt: VERIFIED_AT,
     dimensionResults: allPassCloneDimensions()
@@ -233,7 +254,7 @@ test('all five clone dimensions require independent release approval before rele
   assert.equal(withoutApproval.release_ready, false);
   assert.equal(withoutApproval.typed_verdict, 'NEEDS_EVIDENCE');
 
-  const withApproval = evaluateCloneIsolation({
+  const withApproval = evaluateClone({
     cloneId: 'clone-mtg-003',
     verifiedAt: VERIFIED_AT,
     dimensionResults: allPassCloneDimensions(),
@@ -244,7 +265,7 @@ test('all five clone dimensions require independent release approval before rele
 });
 
 test('missing clone observations do not receive partial credit and request evidence', () => {
-  const verdict = evaluateCloneIsolation({
+  const verdict = evaluateClone({
     cloneId: 'clone-mtg-004',
     verifiedAt: VERIFIED_AT,
     dimensionResults: {
@@ -306,6 +327,6 @@ test('graceful degradation requests more evidence instead of inventing a score',
 
 test('verdict outputs use only the declared typed enum', () => {
   const values = new Set(['PROCEED', 'HOLD', 'REPAIR', 'KILL', 'NEEDS_EVIDENCE', 'QUARANTINE']);
-  assert.ok(values.has(evaluateEconomicEvent({ candidateId: 'RA_000001', verifiedAt: VERIFIED_AT, signalResults: {} }).typed_verdict));
-  assert.ok(values.has(evaluateCloneIsolation({ cloneId: 'clone-mtg-005', verifiedAt: VERIFIED_AT, dimensionResults: {} }).typed_verdict));
+  assert.ok(values.has(evaluate({ candidateId: 'RA_000001', verifiedAt: VERIFIED_AT, signalResults: {} }).typed_verdict));
+  assert.ok(values.has(evaluateClone({ cloneId: 'clone-mtg-005', verifiedAt: VERIFIED_AT, dimensionResults: {} }).typed_verdict));
 });
