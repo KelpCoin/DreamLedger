@@ -12,6 +12,8 @@ test('cloud heartbeat has read-only repository permissions and no deploy or paym
   const workflow = read('.github/workflows/beck-cloud-truth-heartbeat.yml');
   assert.match(workflow, /permissions:\s*\n\s+contents:\s+read/);
   assert.doesNotMatch(workflow, /contents:\s*write|RENDER_API_KEY|api\.stripe\.com|\/deploys/);
+  assert.match(workflow, /SUPABASE_URL:.*https:\/\/wbwgroygjeyukkspnqiy\.supabase\.co/);
+  assert.match(workflow, /SUPABASE_KEY:.*secrets\.SUPABASE_SECRET_KEY.*secrets\.SUPABASE_SERVICE_ROLE_KEY/);
   assert.match(workflow, /public_actions_allowed:false/);
   assert.match(workflow, /financial_actions_allowed:false/);
   assert.match(workflow, /claimed_nzd:0/);
