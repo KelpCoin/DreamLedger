@@ -2,6 +2,7 @@
 // Storefront server — public/ is Render rootDir. Whitelist + safe file fallback.
 const http=require('http'),fs=require('fs'),path=require('path'),{URL}=require('url');
 const commercialCell=require('../BEC-PRIME/routes/commercialCell');
+const canonicalCheckoutGate=require('../BEC-PRIME/runtime/canonicalCheckoutGate');
 const tollRoad=require('../BEC-PRIME/routes/tollRoad');
 const TollRuntime=require('../BEC-PRIME/runtime/TollRoad');
 const PORT=Number(process.env.PORT||10000);
@@ -108,16 +109,32 @@ http.createServer(async (req,res)=>{
   if(req.method==='GET'&&p==='/version'){
     return send(res,200,JSON.stringify({service:'dreamledger-storefront',status:'ok',mtg:'master'}),'application/json; charset=utf-8');
   }
-  if(req.method==='GET' && (p==='/api/offers' || p==='/api/products')){
+  if(req.method==='GET' && (p==='/api/offers' || p==='/api/products' || p==='/catalog.json')){
     try{
-      const catalogue=JSON.parse(fs.readFileSync(path.join(ROOT,'catalog.json'),'utf8'));
-      const source=Array.isArray(catalogue.products)?catalogue.products:[];
-      const listed=source.filter(x=>x&&x.status==='published');
-      if(p==='/api/products'){
-        return send(res,200,JSON.stringify({schema:'dreamledger/products/v1',count:listed.length,products:listed}),'application/json; charset=utf-8');
+      const repoRoot=path.resolve(__dirname,'..');
+      const canonical=canonicalCheckoutGate.loadCanonicalCheckoutableProducts({repoRoot});
+      const listed=canonical.map(canonicalCheckoutGate.toPublicProduct);
+      const commerceStatus=listed.length?'READY':'HOLD_NO_CANONICAL_PRODUCT_PROOF';
+      if(p==='/catalog.json'||p==='/api/products'){
+        return send(res,200,JSON.stringify({schema:'dreamledger/products/v1',count:listed.length,commerce_status:commerceStatus,products:listed}),'application/json; charset=utf-8');
       }
-      return send(res,200,JSON.stringify({schema:'dreamledger/offers/v1',count:listed.length,offers:listed}),'application/json; charset=utf-8');
-    }catch(error){ return send(res,500,JSON.stringify({error:'CATALOG_UNAVAILABLE'}),'application/json; charset=utf-8'); }
+      const offers=canonical.map(product=>({
+        offer_id:product.offer_id||product.id,
+        product_id:product.id,
+        name:product.name,
+        description:product.description||'',
+        price:canonicalCheckoutGate.priceInMajorUnits(product),
+        currency:String(product.currency||'NZD').toUpperCase(),
+        checkout_url:canonicalCheckoutGate.checkoutUrl(product),
+        checkout_available:true,
+        approval_required:false,
+        status:'VERIFIED_AVAILABLE',
+        gauntlet_status:'PASS',
+        fulfillment_status:'READY',
+        silo:product.silo
+      }));
+      return send(res,200,JSON.stringify({schema:'dreamledger/offers/v1',count:offers.length,commerce_status:commerceStatus,offers}),'application/json; charset=utf-8');
+    }catch(error){ return send(res,500,JSON.stringify({error:'CANONICAL_CATALOG_UNAVAILABLE',commerce_status:'HOLD'}),'application/json; charset=utf-8'); }
   }
   if(p.startsWith('/api/toll/v1/')||p.startsWith('/toll/')) return proxyTollToEngine(req,res,p);
   if(p.startsWith('/swarm/')||p.startsWith('/api/swarm')) return proxySwarm(req,res,p);
