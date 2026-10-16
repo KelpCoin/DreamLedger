@@ -405,7 +405,7 @@ buff{display:block;font-size:10px;color:var(--mint)}
       card.innerHTML =
         '<h4>' + item.name + '</h4>' +
         '<p>Web look · game: ' + (item.phinhaven && item.phinhaven.label ? item.phinhaven.label : 'cosmetic') + '</p>' +
-        '<div class="price">Proposed NZ
+         '<div class="price">Proposed NZ$' + item.price_nzd + '</div>' +
         '<span class="buff">' + (item.phinhaven ? item.phinhaven.label : '') + '</span>' +
         '<div class="row"></div>';
       var row = card.querySelector('.row');
@@ -438,9 +438,9 @@ buff{display:block;font-size:10px;color:var(--mint)}
         buy.type = 'button';
         buy.className = 'btn';
         buy.textContent = 'Unlock demo';
-        buy.title = 'Local unlock for demo until Stripe cosmetic checkout is wired for this SKU';
+        buy.title = 'Demo-only local state; paid checkout is held for this SKU';
         buy.onclick = function() {
-          // Demo unlock so try→own→equip loop works before every Stripe SKU is live
+          // Demo-only local state; this creates no paid entitlement.
           state = DreamLedgerAvatar.own(item.id);
           state = DreamLedgerAvatar.equip(item.id);
           tryingId = null;
@@ -514,9 +514,9 @@ buff{display:block;font-size:10px;color:var(--mint)}
         buy.type = 'button';
         buy.className = 'btn';
         buy.textContent = 'Unlock demo';
-        buy.title = 'Local unlock for demo until Stripe cosmetic checkout is wired for this SKU';
+        buy.title = 'Demo-only local state; paid checkout is held for this SKU';
         buy.onclick = function() {
-          // Demo unlock so try→own→equip loop works before every Stripe SKU is live
+          // Demo-only local state; this creates no paid entitlement.
           state = DreamLedgerAvatar.own(item.id);
           state = DreamLedgerAvatar.equip(item.id);
           tryingId = null;
