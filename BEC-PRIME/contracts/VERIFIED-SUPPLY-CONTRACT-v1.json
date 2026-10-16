@@ -1,0 +1,261 @@
+{
+  "schema": "dreamledger/verified-supply-contract/v1",
+  "title": "Verified Supply Contract",
+  "status": "binding",
+  "enforcement": "fail_closed",
+  "branch_scope": "phase-5/prep — additive only; no activation; no merge to main until Phases 0–4 fossils exist",
+  "purpose": "Establish that an offer is backed by real, deliverable supply before it can become sellable inventory. A generated idea is not inventory. Supply verification alone does not authorise checkout.",
+  "reconciles_with": [
+    "existing product / candidate schema",
+    "fulfillment registry",
+    "CUBE clone / silo manifest contracts",
+    "economic-event schema (downstream; does not replace it)"
+  ],
+  "non_goals": [
+    "Does not create orders or record settlements",
+    "Does not replace the Canonical Economic Event Contract",
+    "Does not authorise checkout or public revenue claims",
+    "Does not invent competing evidence systems"
+  ],
+
+  "lifecycle": {
+    "order": [
+      "candidate",
+      "supply_verified",
+      "gauntlet_approved",
+      "activation_approved"
+    ],
+    "rules": [
+      "Supply verification is a necessary gate before sellable inventory.",
+      "Supply verification alone does not authorise checkout.",
+      "Gauntlet and activation remain separate subsequent gates.",
+      "Checkout may only be enabled after activation_approved for that offer on that silo."
+    ]
+  },
+
+  "required_supply_evidence": {
+    "description": "Every physical or digital offer that may become sellable inventory must carry a supply atom with all of the following.",
+    "fields": {
+      "supply_id": {
+        "type": "string",
+        "required": true,
+        "description": "Stable unique identifier for this supply atom."
+      },
+      "canonical_sku": {
+        "type": "string",
+        "required": true,
+        "description": "Must match dreamledger/commerce-sku-contract/v1 allowed key resolution when the offer is sold."
+      },
+      "silo_slug": {
+        "type": "string",
+        "required": true,
+        "description": "Owning silo. Cross-silo supply claims are rejected."
+      },
+      "source_refs": {
+        "type": "array",
+        "items": "string",
+        "required": true,
+        "min_items": 1,
+        "description": "Independent references that support existence and deliverability (URLs, document IDs, inventory system keys, rights filings). Empty array fails."
+      },
+      "ownership_or_rights_basis": {
+        "type": "string",
+        "required": true,
+        "description": "Who may sell or deliver this: owned stock, licensed digital rights, self-produced digital good, or other explicit basis. Vague or missing basis fails."
+      },
+      "quantity_or_capacity": {
+        "type": "object",
+        "required": true,
+        "properties": {
+          "kind": {
+            "enum": ["finite_units", "delivery_capacity", "unlimited_digital_with_rights"]
+          },
+          "available": {
+            "type": "number",
+            "description": "For finite_units or delivery_capacity: non-negative remaining. Zero or exhausted is not sellable."
+          },
+          "unit": {
+            "type": "string",
+            "description": "e.g. units, seats, reports"
+          }
+        }
+      },
+      "fulfillment_method": {
+        "type": "string",
+        "required": true,
+        "description": "How delivery occurs (digital_delivery, physical_ship, human_service, automated_report). Must be consistent with the fulfillment registry."
+      },
+      "price_source": {
+        "type": "string",
+        "required": true,
+        "description": "Where the live Stripe (or other) price is defined. Missing price source blocks sellable status."
+      },
+      "verification_status": {
+        "enum": ["UNVERIFIED", "VERIFIED", "STALE", "CONTRADICTED", "EXHAUSTED", "HOLD"],
+        "required": true,
+        "description": "Only VERIFIED may proceed toward Gauntlet/activation for sellable inventory."
+      },
+      "verified_at": {
+        "type": "string",
+        "format": "date-time",
+        "required_when": "verification_status == VERIFIED"
+      },
+      "expires_at": {
+        "type": "string",
+        "format": "date-time",
+        "required": false,
+        "description": "If set, past expiry forces STALE and HOLD."
+      }
+    }
+  },
+
+  "fail_closed_rules": [
+    {
+      "id": "SUPPLY_MISSING",
+      "condition": "No supply atom or required field missing",
+      "decision": "HOLD",
+      "inventory": "never_invented"
+    },
+    {
+      "id": "SUPPLY_UNVERIFIABLE",
+      "condition": "source_refs empty, unreachable, or do not support the claim",
+      "decision": "HOLD",
+      "inventory": "never_invented"
+    },
+    {
+      "id": "SUPPLY_STALE",
+      "condition": "expires_at in the past or verification older than policy window without re-check",
+      "decision": "HOLD",
+      "set_status": "STALE"
+    },
+    {
+      "id": "SUPPLY_CONTRADICTED",
+      "condition": "Evidence conflicts (quantity vs source, rights vs listing, cross-silo claim)",
+      "decision": "HOLD",
+      "set_status": "CONTRADICTED"
+    },
+    {
+      "id": "SUPPLY_EXHAUSTED",
+      "condition": "finite available <= 0",
+      "decision": "HOLD",
+      "set_status": "EXHAUSTED",
+      "checkout": "must_remain_disabled_for_this_sku"
+    },
+    {
+      "id": "SUPPLY_DUPLICATE_CLAIM",
+      "condition": "Same physical/digital units claimed by two live supply atoms without explicit split",
+      "decision": "HOLD",
+      "both_atoms": "quarantine_until_reconciled"
+    },
+    {
+      "id": "PUBLISHED_IS_NOT_SUPPLY",
+      "condition": "Catalogue field published or inventory_count without a VERIFIED supply atom",
+      "decision": "HOLD",
+      "note": "published + count alone never satisfies this contract"
+    }
+  ],
+
+  "gauntlet_integration": {
+    "quarantine_when": [
+      "verification_status != VERIFIED",
+      "any fail_closed rule triggers HOLD",
+      "fulfillment_method requires human delivery and no capacity evidence"
+    ],
+    "pass_toward_activation_requires": [
+      "verification_status == VERIFIED",
+      "canonical_sku present and known",
+      "silo_slug matches owning silo",
+      "quantity_or_capacity allows at least one delivery",
+      "price_source present",
+      "supply fossil recorded"
+    ]
+  },
+
+  "decision_fossil": {
+    "schema": "dreamledger/verified-supply-decision-fossil/v1",
+    "required_fields": [
+      "fossil_id",
+      "contract_version",
+      "supply_id",
+      "canonical_sku",
+      "silo_slug",
+      "decision",
+      "verification_status",
+      "source_refs",
+      "rule_results",
+      "validator",
+      "occurred_at",
+      "recorded_at"
+    ],
+    "decision_enum": ["PASS", "HOLD", "REPAIR", "KILL"],
+    "example": {
+      "schema": "dreamledger/verified-supply-decision-fossil/v1",
+      "fossil_id": "vsf-...",
+      "contract_version": "dreamledger/verified-supply-contract/v1",
+      "supply_id": "sup-...",
+      "canonical_sku": "EXAMPLE-SKU-001",
+      "silo_slug": "digital_products",
+      "decision": "HOLD",
+      "verification_status": "UNVERIFIED",
+      "source_refs": [],
+      "rule_results": [{ "id": "SUPPLY_MISSING", "triggered": true }],
+      "validator": "supply-gate@phase-5/prep",
+      "occurred_at": "2026-10-16T00:00:00Z",
+      "recorded_at": "2026-10-16T00:00:00Z"
+    }
+  },
+
+  "required_tests": [
+    {
+      "id": "missing_evidence",
+      "input": "offer with no source_refs",
+      "expect": "HOLD"
+    },
+    {
+      "id": "zero_stock",
+      "input": "finite_units available 0",
+      "expect": "HOLD / EXHAUSTED"
+    },
+    {
+      "id": "exhausted_capacity",
+      "input": "delivery_capacity available 0",
+      "expect": "HOLD / EXHAUSTED"
+    },
+    {
+      "id": "duplicate_supply_claims",
+      "input": "two live atoms claiming same units",
+      "expect": "HOLD both"
+    },
+    {
+      "id": "invalid_reference",
+      "input": "source_ref that does not support claim",
+      "expect": "HOLD / UNVERIFIABLE"
+    },
+    {
+      "id": "human_fulfilment_without_capacity",
+      "input": "fulfillment_method human_service without capacity evidence",
+      "expect": "Gauntlet quarantine / HOLD"
+    },
+    {
+      "id": "published_without_supply_atom",
+      "input": "catalogue published true, inventory_count > 0, no VERIFIED supply atom",
+      "expect": "HOLD — not sellable"
+    }
+  ],
+
+  "clone_factory_rule": {
+    "new_shell": "Must start with empty catalogue and zero supply atoms.",
+    "forbidden": "Copying master inventory, supply atoms, or credentials into a clone.",
+    "activation": "New silo may only attach supply atoms that pass this contract for that silo_slug."
+  },
+
+  "adoption": {
+    "first_commit_on": "phase-5/prep",
+    "next_commits": [
+      "canonical economic event contract",
+      "product-envelope tightening",
+      "executable adversarial tests"
+    ],
+    "production": "Not binding on main until reconciled, tested, and Phases 0–4 fossils exist."
+  }
+}
