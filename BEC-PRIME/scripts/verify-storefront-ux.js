@@ -22,8 +22,8 @@ async function main() {
   const html = home.body;
   const required = [
     ['DreamLedger brand', /DreamLedger/i],
-    ['evidence-first commerce positioning', /Evidence-first commerce/i],
-    ['homepage headline', /Make the next decision\s*<span>easier to prove/i],
+    ['receipt-backed commerce positioning', /Free tools stay free\. Paid products settle on Stripe/i],
+    ['homepage headline', /Build the factory\.<br><span>Get paid\./i],
     ['Truth Oracle evidence review link', /href="\/truth-oracle\.html/i],
     ['free worksheet route', /href="(?:https:\/\/dreamledger\.org)?\/quote-comparison\//i],
     ['trust route', /href="\/trust\//i]
