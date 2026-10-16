@@ -139,6 +139,39 @@
     },
     "created_by": {
       "type": "string"
+    },
+    "gauntlet": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "PASS",
+            "HOLD",
+            "FAIL"
+          ]
+        },
+        "test_mode_chain": {
+          "type": "string",
+          "enum": [
+            "PASS",
+            "HOLD",
+            "FAIL"
+          ]
+        },
+        "evidence_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "checked_at": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "status",
+        "test_mode_chain",
+        "evidence_ref"
+      ]
     }
   }
 }
