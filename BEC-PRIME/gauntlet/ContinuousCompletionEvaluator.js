@@ -77,7 +77,7 @@ function validId(value) {
   return typeof value === 'string' && ID_RE.test(value);
 }
 
-function validateEvidenceRecord(record, expectedVerifier) {
+function validateEvidenceRecord(record, expectedVerifier, verifyEvidence) {
   if (!record || typeof record !== 'object' || Array.isArray(record)) {
     return { status: 'UNKNOWN', issue: 'EVIDENCE_RECORD_MISSING' };
   }
@@ -91,6 +91,10 @@ function validateEvidenceRecord(record, expectedVerifier) {
     || record.verified_by !== expectedVerifier) {
     return { status: 'INVALID', issue: 'EVIDENCE_PROVENANCE_INVALID' };
   }
+  if (typeof verifyEvidence !== 'function') return { status: 'INVALID', issue: 'TRUSTED_EVIDENCE_VERIFIER_UNAVAILABLE' };
+  let verified = false;
+  try { verified = verifyEvidence(record, expectedVerifier) === true; } catch (_) { verified = false; }
+  if (!verified) return { status: 'INVALID', issue: 'EVIDENCE_BYTES_OR_ATTESTATION_NOT_VERIFIED' };
   return { status, issue: null };
 }
 
@@ -116,7 +120,8 @@ function makeInvalidRecord(candidateId, reason, verifiedAt) {
   };
 }
 
-function evaluateEconomicEvent(input = {}) {
+function evaluateEconomicEvent(input = {}, options = {}) {
+  const verifyEvidence = options.verifyEvidence;
   const verifiedAt = typeof input.verifiedAt === 'string' ? input.verifiedAt : new Date().toISOString();
   if (!validId(input.candidateId)) return makeInvalidRecord(input.candidateId, 'INVALID_CANDIDATE_ID', verifiedAt);
   if (!input.signalResults || typeof input.signalResults !== 'object' || Array.isArray(input.signalResults)) {
@@ -139,7 +144,7 @@ function evaluateEconomicEvent(input = {}) {
     const stepFailed = [];
     const stepInvalid = [];
     for (const signal of step.signals) {
-      const result = validateEvidenceRecord(input.signalResults[signal], VERIFIER_BY_SIGNAL[signal]);
+      const result = validateEvidenceRecord(input.signalResults[signal], VERIFIER_BY_SIGNAL[signal], verifyEvidence);
       outcomes[signal] = result.status;
       if (result.status === 'PASS') passed += 1;
       else if (result.status === 'FAIL') {
@@ -179,7 +184,7 @@ function evaluateEconomicEvent(input = {}) {
     : [];
 
   const outcome = input.finalOutcome || {};
-  const finalOutcomeRecord = validateEvidenceRecord(outcome, 'economic-outcome-verifier');
+  const finalOutcomeRecord = validateEvidenceRecord(outcome, 'economic-outcome-verifier', verifyEvidence);
   const finalOutcomeVerified = finalOutcomeRecord.status === 'PASS'
     && outcome.verified === true
     && typeof outcome.proof_ref === 'string' && outcome.proof_ref.trim().length > 0
@@ -256,14 +261,15 @@ function evaluateEconomicEvent(input = {}) {
     verified_economic_outcome: economicGatePass,
     next_action: nextAction,
     confidence: 1,
-    confidence_meaning: 'deterministic rule application to provenance-bound evidence records; not a probability estimate',
+    confidence_meaning: 'deterministic rule application after an injected trusted evidence verifier confirms bytes and attestation; not a probability estimate',
     verified_by: 'continuous-completion-evaluator-v1',
     verified_at: verifiedAt,
     reason_codes: reasons
   };
 }
 
-function evaluateCloneIsolation(input = {}) {
+function evaluateCloneIsolation(input = {}, options = {}) {
+  const verifyEvidence = options.verifyEvidence;
   const verifiedAt = typeof input.verifiedAt === 'string' ? input.verifiedAt : new Date().toISOString();
   if (!validId(input.cloneId)) {
     return {
@@ -320,7 +326,7 @@ function evaluateCloneIsolation(input = {}) {
   const failedEvidence = [];
   const invalidEvidence = [];
   for (const dimension of CLONE_DIMENSIONS) {
-    const result = validateEvidenceRecord(input.dimensionResults[dimension.id], 'clone-isolation-verifier');
+    const result = validateEvidenceRecord(input.dimensionResults[dimension.id], 'clone-isolation-verifier', verifyEvidence);
     let earned = 0;
     if (result.status === 'PASS') earned = dimension.weight;
     else if (result.status === 'UNKNOWN') missingEvidence.push(dimension.id);
@@ -336,7 +342,7 @@ function evaluateCloneIsolation(input = {}) {
   }
 
   const allDimensionsPass = ALL_CLONE_DIMENSIONS.every(id => breakdown[id].status === 'PASS');
-  const releaseApproval = validateEvidenceRecord(input.releaseApproval, 'clone-release-verifier');
+  const releaseApproval = validateEvidenceRecord(input.releaseApproval, 'clone-release-verifier', verifyEvidence);
   const releaseApprovalValid = releaseApproval.status === 'PASS'
     && input.releaseApproval.approved === true;
   const releaseReady = allDimensionsPass && releaseApprovalValid;
@@ -379,7 +385,7 @@ function evaluateCloneIsolation(input = {}) {
     release_ready: releaseReady,
     next_action: nextAction,
     confidence: 1,
-    confidence_meaning: 'deterministic rule application to provenance-bound test records; not a probability estimate',
+    confidence_meaning: 'deterministic rule application after an injected trusted evidence verifier confirms bytes and attestation; not a probability estimate',
     verified_by: 'continuous-completion-evaluator-v1',
     verified_at: verifiedAt,
     reason_codes: reasons
