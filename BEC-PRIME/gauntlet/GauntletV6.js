@@ -48,11 +48,24 @@ function run(options = {}) {
     }
 
     if (explicitlyApproved) {
-      if (offer.approval_required !== false) fail(checks, `${prefix}.approval`, 'Explicitly approved offer must have approval_required=false');
-      if (offer.checkout_available !== true) fail(checks, `${prefix}.checkout`, 'Explicitly approved offer must have checkout enabled');
-      if (offer.status !== 'VERIFIED_AVAILABLE') fail(checks, `${prefix}.status`, 'Explicitly approved offer must be VERIFIED_AVAILABLE');
-      pass(checks, `${prefix}.approval`, 'Explicit operator approval record present');
-      pass(checks, `${prefix}.checkout`, 'Checkout enabled only for explicitly approved offer');
+      const intentionallyHeld = offer.approval_required === true
+        && offer.checkout_available === false
+        && ['HELD_CANONICAL_PRODUCT_GATE', 'HELD_STRIPE_LINK_DRIFT'].includes(offer.status)
+        && (offer.payment_link_url === null || offer.payment_link_url === undefined || offer.payment_link_url === '');
+      if (intentionallyHeld) {
+        // An operator approval record does not override the live canonical
+        // product gate. A deliberately held offer is a valid, safe Gauntlet
+        // state and must remain visibly non-purchasable.
+        pass(checks, `${prefix}.approval`, 'Operator record exists; canonical product gate still requires approval');
+        pass(checks, `${prefix}.checkout`, 'Checkout remains disabled while canonical gate is closed');
+        pass(checks, `${prefix}.status`, `Explicitly held by ${offer.status}`);
+      } else {
+        if (offer.approval_required !== false) fail(checks, `${prefix}.approval`, 'Checkout-enabled approved offer must have approval_required=false');
+        if (offer.checkout_available !== true) fail(checks, `${prefix}.checkout`, 'Checkout-enabled approved offer must have checkout enabled');
+        if (offer.status !== 'VERIFIED_AVAILABLE') fail(checks, `${prefix}.status`, 'Checkout-enabled approved offer must be VERIFIED_AVAILABLE');
+        pass(checks, `${prefix}.approval`, 'Explicit operator approval record present');
+        pass(checks, `${prefix}.checkout`, 'Checkout enabled only for explicitly approved offer');
+      }
     } else {
       if (offer.approval_required !== true) fail(checks, `${prefix}.approval`, 'Human approval gate must remain locked');
       if (offer.checkout_available !== false) fail(checks, `${prefix}.checkout`, 'Checkout must remain disabled until approval');
