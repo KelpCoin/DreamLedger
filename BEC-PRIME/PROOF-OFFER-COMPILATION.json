@@ -1,5 +1,6 @@
 {
   "type": "dreamledger-offer-compilation-proof",
+  "schema": "compiler/schemas/offer.schema.json",
   "status": "PARTIAL",
   "compiler": "offer-compiler-v1",
   "generated_at": null,
@@ -8,7 +9,6 @@
   "approved_offers_sha256": "0a730c535af494db2a31f6b6bcf6599016e384d82d9f24a6c3074b0b1108b106",
   "source": "catalog/ip-capabilities.json",
   "approval_source": "catalog/offers/approved.json",
-  "schema": "compiler/schemas/offer.schema.json",
   "counts": {
     "capabilities": 17,
     "candidates": 35,
@@ -60,8 +60,8 @@
   "approval_required_for_generated_offers": true,
   "checkout_disabled_for_generated_offers": true,
   "approved_checkout_enabled_only_by_explicit_record": true,
+  "held_approved_offers_disabled": true,
   "silo_integrity": true,
   "deterministic_ids": true,
-  "deterministic_proof": true,
-  "held_approved_offers_disabled": true
+  "deterministic_proof": true
 }
