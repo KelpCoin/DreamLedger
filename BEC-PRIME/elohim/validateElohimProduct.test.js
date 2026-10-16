@@ -25,6 +25,50 @@ test('valid catalog product passes', () => {
   assert.equal(r.price_major_nzd, 5);
 });
 
+test('legacy catalog-only silo remains provenance-only and non-publishable', () => {
+  const r = validateCatalogProduct({
+    id: 'BILLBOARD-LARGE',
+    name: 'Legacy billboard listing',
+    price: 349,
+    price_unit: 'major',
+    currency: 'nzd',
+    status: 'catalog_only',
+    silo: 'billboard',
+    inventory: 0,
+    checkout_available: false,
+    checkout: { mode: 'disabled', url: null },
+    commercial_truth: { approval_required: true, sellable: false }
+  });
+  assert.equal(r.ok, true);
+  assert.ok(r.warnings.some(w => w.code === 'LEGACY_SILO_NON_PUBLISHABLE'));
+  assert.equal(validateElohimCandidate({
+    id: 'NEW-LEGACY-SILO',
+    name: 'Must not create in legacy silo',
+    silo: 'billboard',
+    price_proposal_nzd: [29],
+    approval_required: true,
+    checkout_available: false,
+    created_by: 'ELOHIM'
+  }).ok, false);
+});
+
+test('archived catalog records remain valid without becoming sellable', () => {
+  const r = validateCatalogProduct({
+    id: 'ARCHIVED-TEST',
+    name: 'Archived record',
+    price: 49,
+    currency: 'nzd',
+    status: 'archived',
+    silo: 'commerce',
+    checkout_available: false,
+    checkout: { mode: 'disabled', url: null },
+    commercial_truth: { approval_required: true, sellable: false }
+  });
+  assert.equal(r.ok, true);
+  assert.equal(r.silo, null);
+  assert.ok(r.warnings.some(w => w.code === 'LEGACY_SILO_NON_PUBLISHABLE'));
+});
+
 test('checkout_available without Stripe URL fails', () => {
   const r = validateCatalogProduct({
     id: 'BAD-CHECKOUT',
