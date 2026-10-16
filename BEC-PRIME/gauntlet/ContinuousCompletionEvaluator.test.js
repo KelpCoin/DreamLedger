@@ -119,7 +119,7 @@ test('HOLD is used only when all missing evidence is explicitly waiting on an ex
     verifiedAt: VERIFIED_AT,
     signalResults: signals,
     waitingOnExternalEvent: true,
-    waitingForSignals: ECONOMIC_STEPS.slice(6).flatMap(step => step.signals)
+    waitingForSignals: [...ECONOMIC_STEPS.slice(6).flatMap(step => step.signals), 'final_outcome_independent_verification']
   });
   assert.equal(verdict.completion_score, 0.6);
   assert.equal(verdict.typed_verdict, 'HOLD');
