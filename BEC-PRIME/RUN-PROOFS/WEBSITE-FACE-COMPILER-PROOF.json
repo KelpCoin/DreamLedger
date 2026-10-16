@@ -1,0 +1,9 @@
+{
+  "schema": "dreamledger/website-face-compiler-proof/v1",
+  "status": "PASS",
+  "compiler": "WebsiteFaceCompiler",
+  "architecture": "website-as-exhaust",
+  "registry": "BEC-PRIME/compiler/face-registry.json",
+  "emitted": ["money.html", "home.html", "cash.html"],
+  "rule": "No hand-maintained money/home faces; re-run node BEC-PRIME/compiler/WebsiteFaceCompiler.js"
+}
