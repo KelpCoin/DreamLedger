@@ -9,6 +9,7 @@ const PROOF_DIR = path.join(ROOT, 'RUN-PROOFS');
 const UNIVERSAL = path.join(ROOT, 'compiler', 'UniversalCompiler.js');
 const SPEC_DIR = path.join(ROOT, 'compiler', 'universal-specs');
 const PACKAGE = path.join(ROOT, 'package.json');
+const PUBLIC_FACES = path.join(ROOT, 'scripts', 'compile-public-faces.js');
 
 function die(message, code = 1) {
   console.error('[BEC] ' + message);
@@ -29,7 +30,7 @@ function runNpm(script) {
 }
 
 function usage() {
-  console.log(`BEC local control plane\n\nUsage:\n  bec compile                         Compile all existing BEC targets\n  bec compile website [id]            Compile universal website target(s)\n  bec compile game [id]               Compile universal game target(s)\n  bec compile app [id]                Compile universal app target(s)\n  bec website [id]                    Compile universal website target(s)\n  bec game [id]                       Compile universal game target(s)\n  bec app [id]                        Compile universal app target(s)\n  bec verify                          Run compiler + commercial verification\n  bec status                          Print available compiler surfaces\n\nNo external AI or service is required for compilation.`);
+  console.log(`BEC local/cloud control plane\n\nUsage:\n  bec compile                         Compile all existing BEC targets\n  bec compile website [id]            Compile universal website target(s)\n  bec website [id]                    Universal website + public face exhaust\n  bec faces                           WebsiteFaceCompiler + SiloFaceCompiler only\n  bec game [id]                       Compile universal game target(s)\n  bec app [id]                        Compile universal app target(s)\n  bec verify                          Run compiler + commercial verification\n  bec status                          Print available compiler surfaces\n\nNo external AI is required for compilation.`);
 }
 
 function loadCompiler() {
@@ -53,6 +54,15 @@ function selectSpecs(target, requestedId) {
   throw new Error('No universal compiler spec matched: ' + requestedId + ' (target=' + (target || 'any') + ')');
 }
 
+function compilePublicFaces() {
+  if (!fs.existsSync(PUBLIC_FACES)) {
+    console.warn('[BEC] compile-public-faces.js missing — skip face exhaust');
+    return null;
+  }
+  runNode(PUBLIC_FACES);
+  return { status: 'PASS', script: 'scripts/compile-public-faces.js' };
+}
+
 function status() {
   const compiler = loadCompiler();
   const packageJson = JSON.parse(fs.readFileSync(PACKAGE, 'utf8'));
@@ -61,7 +71,8 @@ function status() {
     status: 'READY',
     entrypoint: 'BEC-PRIME/bec.cmd',
     compiler: 'BEC-PRIME/compiler/UniversalCompiler.js',
-    targets: ['website', 'game', 'app'],
+    public_faces: 'BEC-PRIME/scripts/compile-public-faces.js',
+    targets: ['website', 'game', 'app', 'faces'],
     game_profiles: ['basic', 'kelplantis-mvp'],
     universal_specs: specs.map(x => ({ id: x.spec.id, target: x.spec.target, name: x.spec.name })),
     npm_compile: Boolean(packageJson.scripts && packageJson.scripts.compile),
@@ -88,6 +99,7 @@ function compileUniversal() {
 
 function verify() {
   const result = compileUniversal();
+  compilePublicFaces();
   runNpm('verify:production-contract');
   runNpm('verify:mcp-security');
   runNpm('verify:mcp');
@@ -100,6 +112,7 @@ function verify() {
     compiler: result.compiler,
     targets: result.targets_supported,
     specs_compiled: result.specs_compiled,
+    public_faces: true,
     verification: ['verify:production-contract', 'verify:mcp-security', 'verify:mcp'],
     universal_proof: 'RUN-PROOFS/UNIVERSAL-COMPILER-PROOF.json'
   };
@@ -112,15 +125,21 @@ const args = process.argv.slice(2);
 const command = (args[0] || 'status').toLowerCase();
 try {
   if (command === 'status') status();
+  else if (command === 'faces') compilePublicFaces();
   else if (command === 'compile') {
     if (!args[1]) runNpm('compile');
     else {
       const target = args[1].toLowerCase();
       if (!['website','game','app'].includes(target)) throw new Error('Compile target must be website, game, or app.');
       compileSelected(target, args[2] || null);
+      if (target === 'website') compilePublicFaces();
     }
   }
-  else if (command === 'website' || command === 'game' || command === 'app') compileSelected(command, args[1] || null);
+  else if (command === 'website') {
+    compileSelected('website', args[1] || null);
+    compilePublicFaces();
+  }
+  else if (command === 'game' || command === 'app') compileSelected(command, args[1] || null);
   else if (command === 'verify') verify();
   else { usage(); die('Unknown command: ' + command, 2); }
 } catch (err) {
