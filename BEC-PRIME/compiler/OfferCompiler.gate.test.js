@@ -31,4 +31,12 @@ test('operator approval cannot override a closed canonical product gate', () => 
   assert.equal(commander.status, 'HELD_CANONICAL_PRODUCT_GATE');
   assert.equal(commander.checkout_available, false);
   assert.equal(commander.payment_link_url, null);
+
+  const billboard = result.approved.find(x => x.offer_id === 'OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001');
+  assert.ok(billboard);
+  assert.equal(billboard.status, 'HELD_CANONICAL_PRODUCT_GATE');
+  assert.equal(billboard.approval_required, true);
+  assert.equal(billboard.checkout_available, false);
+  assert.equal(billboard.payment_link_url, null);
+  assert.equal(billboard.fulfillment_route, null);
 });
