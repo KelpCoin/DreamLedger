@@ -9,7 +9,7 @@
   "scripts": {
     "start": "node -r ./lib/commercePaymentContractPreload.js -r ./lib/marketplacePreload.js -r ./lib/boundaryRuntimePreload.js -r ./lib/authRuntimePreload.js -r ./lib/mtgRoutePreload.js -r ./lib/publicCheckoutPreload.js -r ./lib/billboardWebhookPreload.js -r ./lib/liveRouteCompatibility.js start.js",
     "build": "npm install --omit=dev --no-audit --no-fund && node -e \"require('ajv'); console.log('AJV_RUNTIME_OK')\" && npm run compile",
-    "test": "node --test elohim/validateElohimProduct.test.js gauntlet/GauntletV6.test.js runtime/canonicalCheckoutGate.test.js runtime/DeliveryReceiptVerifier.test.js scripts/test-mvp-policy.js scripts/test-toll-probe-single-use.js runtime/AgentBridgeEventLedger.test.js runtime/LocalLMStudioAdapter.test.js ledger/Verifier.test.js scripts/mtg-condition-contract.test.js",
+    "test": "node --test elohim/validateElohimProduct.test.js gauntlet/GauntletV6.test.js runtime/canonicalCheckoutGate.test.js runtime/DeliveryReceiptVerifier.test.js runtime/BeckAuthorityBoundary.test.js scripts/test-mvp-policy.js scripts/test-toll-probe-single-use.js runtime/AgentBridgeEventLedger.test.js runtime/LocalLMStudioAdapter.test.js ledger/Verifier.test.js scripts/mtg-condition-contract.test.js",
     "test:trend-flywheel": "node --test trends/TrendFlywheel.test.js",
     "test:truth-oracle": "node --test scripts/test-truth-oracle-economic.js",
     "test:revenue-pipeline": "node --test scripts/test-revenue-pipeline.js",
@@ -106,7 +106,8 @@
     "runtime:once": "powershell -NoProfile -ExecutionPolicy Bypass -File ../runtime/777/Start-BEC-Runtime.ps1 -Once",
     "runtime:install": "powershell -NoProfile -ExecutionPolicy Bypass -File ../runtime/777/Start-BEC-Runtime.ps1 -Install",
     "syndicate:tumblr": "node scripts/sync-evergreen-to-tumblr.js",
-    "test:delivery-receipts": "node --test runtime/DeliveryReceiptVerifier.test.js"
+    "test:delivery-receipts": "node --test runtime/DeliveryReceiptVerifier.test.js",
+    "test:beck-boundaries": "node --test runtime/BeckAuthorityBoundary.test.js"
   },
   "dependencies": {
     "ajv": "^8.17.1",
