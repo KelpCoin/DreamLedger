@@ -158,7 +158,10 @@
         const detail=p.detail_url||'/mtg/';
         const inv=Number(p.inventory)>0;
         const stock=inv?'<span class="stock">In stock</span>':'<span class="stock out">—</span>';
-        const cond=p.condition?('<span>'+esc(p.condition)+'</span>'):'';
+        const kind=String(p.product_kind||p.category||p.inventory_type||'').toLowerCase();
+        const conditionEligible=['single','single-card','mtg-single','physical-single'].includes(kind);
+        const cond=conditionEligible&&typeof p.condition==='string'&&p.condition.trim()
+          ? '<span>'+esc(p.condition.trim())+'</span>' : '';
         const cmd=p.commander?('<span>'+esc(p.commander)+'</span>'):'';
         const buy=inv
           ? '<a class="buy" href="'+esc(detail)+'">See cards &amp; buy · NZ$'+price+'</a>'
