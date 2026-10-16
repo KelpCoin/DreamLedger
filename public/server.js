@@ -110,13 +110,15 @@ http.createServer(async (req,res)=>{
   if(req.method==='GET'&&p==='/version'){
     return send(res,200,JSON.stringify({service:'dreamledger-storefront',status:'ok',mtg:'master'}),'application/json; charset=utf-8');
   }
-  if(req.method==='GET' && (p==='/api/offers' || p==='/api/products' || p==='/catalog.json')){
+  // /catalog.json is the transparent public catalogue, including held listings.
+  // The API endpoints below expose only products cleared by the canonical checkout gate.
+  if(req.method==='GET' && (p==='/api/offers' || p==='/api/products')){
     try{
       const repoRoot=path.resolve(__dirname,'..');
       const canonical=canonicalCheckoutGate.loadCanonicalCheckoutableProducts({repoRoot});
       const listed=canonical.map(canonicalCheckoutGate.toPublicProduct);
       const commerceStatus=listed.length?'READY':'HOLD_NO_CANONICAL_PRODUCT_PROOF';
-      if(p==='/catalog.json'||p==='/api/products'){
+      if(p==='/api/products'){
         return send(res,200,JSON.stringify({schema:'dreamledger/products/v1',count:listed.length,commerce_status:commerceStatus,products:listed}),'application/json; charset=utf-8');
       }
       const offers=canonical.map(product=>({
