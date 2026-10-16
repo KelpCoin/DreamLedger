@@ -86,6 +86,48 @@ async function proxyTollToEngine(req,res,p){
     return send(res,502,JSON.stringify({error:'toll_engine_unavailable'}),'application/json; charset=utf-8');
   }
 }
+function canonicalCheckoutUrl(listing){
+  if(!listing || listing.status!=='published' || listing.checkout_available!==true) return null;
+  if(typeof listing.id!=='string' || !/^[A-Za-z0-9._-]+$/.test(listing.id)) return null;
+  const publicUrl=String(listing.checkout_url||'');
+  if(!/^https:\/\/(?:buy\.stripe\.com|checkout\.stripe\.com)\//i.test(publicUrl)) return null;
+  const base=path.join(ROOT,'..','BEC-PRIME');
+  const productPath=path.join(base,'catalog','products',listing.id+'.json');
+  const registryPath=path.join(base,'fulfillment','PRODUCT-FULFILLMENT-REGISTRY.json');
+  try{
+    const product=JSON.parse(fs.readFileSync(productPath,'utf8'));
+    const registry=JSON.parse(fs.readFileSync(registryPath,'utf8'));
+    const entries=registry&&registry.entries&&typeof registry.entries==='object'?registry.entries:{};
+    const fulfillment=entries[product.offer_id]||entries[listing.offer_id]||entries[product.id]||null;
+    const canonicalUrl=product.commercial_truth?.payment_link||product.checkout?.url||product.checkout_url||null;
+    const canonicalPrice=Number(product.price);
+    const priceUnit=String(product.price_unit||'major').toLowerCase();
+    const normalizedPrice=(priceUnit==='minor'||priceUnit==='cents')?canonicalPrice/100:canonicalPrice;
+    const publicPrice=Number(listing.price);
+    const priceMatches=Number.isFinite(normalizedPrice)&&Number.isFinite(publicPrice)&&Math.abs(normalizedPrice-publicPrice)<0.000001;
+    const inventoryOkay=!Object.prototype.hasOwnProperty.call(product,'inventory')||(Number.isFinite(Number(product.inventory))&&Number(product.inventory)>=1);
+    const gateOpen=product.status==='published'
+      && product.commercial_truth?.approval_required===false
+      && product.commercial_truth?.sellable===true
+      && product.checkout?.mode!=='disabled'
+      && inventoryOkay
+      && fulfillment?.ready===true
+      && fulfillment?.operator_required===false
+      && canonicalUrl===publicUrl
+      && String(product.currency||'').toLowerCase()===String(listing.currency||'').toLowerCase()
+      && priceMatches;
+    return gateOpen?publicUrl:null;
+  }catch{return null;}
+}
+function canonicalPublishedProducts(source){
+  return source.filter(p=>p&&p.status==='published'&&canonicalCheckoutUrl(p))
+    .map(p=>({...p,checkout_url:canonicalCheckoutUrl(p),checkout_available:true,commercial_truth:{...(p.commercial_truth||{}),approval_required:false,sellable:true}}));
+}
+function heldCheckoutHtml(pathname){
+  const title='Checkout currently held | DreamLedger';
+  const target=String(pathname||'').replace(/[&<>"]/g,'');
+  return '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,follow"><title>'+title+'</title></head><body style="font:16px/1.6 system-ui,sans-serif;max-width:720px;margin:12vh auto;padding:24px;color:#20242b"><main><h1>Checkout currently held</h1><p>This product is not currently available to purchase. DreamLedger will only open checkout after canonical approval, payment attribution, fulfillment and delivery proof have been independently verified.</p><p><a href="/tools/free.html">Explore free tools</a> · <a href="/trust/">Evidence standard</a></p><small>Offer route: '+target+'</small></main></body></html>';
+}
 function serveFile(res,file){
   const safe=path.normalize(path.join(ROOT,file));
   if(!safe.startsWith(ROOT+path.sep) && safe!==ROOT) return send(res,403,'Forbidden','text/plain; charset=utf-8');
@@ -110,13 +152,27 @@ http.createServer(async (req,res)=>{
     try{
       const catalogue=JSON.parse(fs.readFileSync(path.join(ROOT,'catalog.json'),'utf8'));
       const source=Array.isArray(catalogue.products)?catalogue.products:[];
-      const listed=source.filter(x=>x&&x.status==='published');
+      const listed=canonicalPublishedProducts(source);
       if(p==='/api/products'){
         return send(res,200,JSON.stringify({schema:'dreamledger/products/v1',count:listed.length,products:listed}),'application/json; charset=utf-8');
       }
       return send(res,200,JSON.stringify({schema:'dreamledger/offers/v1',count:listed.length,offers:listed}),'application/json; charset=utf-8');
     }catch(error){ return send(res,500,JSON.stringify({error:'CATALOG_UNAVAILABLE'}),'application/json; charset=utf-8'); }
   }
+  if((req.method==='GET'||req.method==='HEAD')&&(p==='/buy'||p.startsWith('/buy/'))){
+    const suffix=p.replace(/^\/buy\/?/,'').toLowerCase();
+    try{
+      const catalogue=JSON.parse(fs.readFileSync(path.join(ROOT,'catalog.json'),'utf8'));
+      const products=Array.isArray(catalogue.products)?catalogue.products:[];
+      const normalize=v=>String(v||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+      const listing=products.find(x=>normalize(x.id)===normalize(suffix)||normalize(x.sku)===normalize(suffix));
+      const checkout=listing?canonicalCheckoutUrl(listing):null;
+      if(checkout){res.statusCode=302;res.setHeader('Location',checkout);res.setHeader('Cache-Control','no-store');return res.end();}
+    }catch(error){console.error(JSON.stringify({buy_route_gate_failed:true,path:p,error:String(error&&error.message||error)}));}
+    return send(res,200,heldCheckoutHtml(p),'text/html; charset=utf-8');
+  }
+  if(req.method==='GET'&&p==='/q/billboard'){res.statusCode=302;res.setHeader('Location','/billboard.html');res.setHeader('Cache-Control','no-store');return res.end();}
+  if(req.method==='GET'&&p==='/q/cmd-diag'){res.statusCode=302;res.setHeader('Location','/buy/commander-deck-diagnostic-001/');res.setHeader('Cache-Control','no-store');return res.end();}
   if(p.startsWith('/api/toll')||p.startsWith('/toll/')) return proxyTollToEngine(req,res,p);
   if(p.startsWith('/swarm/')||p.startsWith('/api/swarm')) return proxySwarm(req,res,p);
   if(p.startsWith('/api/commercial/') || p==='/api/webhooks/stripe'){
