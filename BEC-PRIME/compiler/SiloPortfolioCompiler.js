@@ -240,7 +240,7 @@ const publicIndex = `<!doctype html>
 <html lang="en-NZ"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="${portfolioRobots}"><link rel="canonical" href="https://dreamledger.org/portfolio/">
 <title>DreamLedger Commercial Portfolio</title>
-<meta name="description" content="Current DreamLedger commercial inventory ranked by the trend-aware portfolio compiler.">
+<meta name="description" content="${compiled.length ? 'Current DreamLedger commercial inventory ranked by the trend-aware portfolio compiler.' : 'No DreamLedger offers are currently cleared for checkout.'}">
 <style>
 body{margin:0;background:#080a0d;color:#f5f3eb;font:16px/1.55 system-ui}.wrap{max-width:1100px;margin:auto;padding:32px 20px 70px}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:16px}.card{border:1px solid #303541;background:#151820;border-radius:18px;padding:22px}.hold{border-color:#665c40}
@@ -281,7 +281,7 @@ function page(offer) {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="robots" content="index,follow">
+<meta name="robots" content="${portfolioRobots}">
 <link rel="canonical" href="/portfolio/${slug(offer.name)}.html">
 <title>${title} | DreamLedger</title>
 <meta name="description" content="${esc(offer.problem)}">
@@ -360,7 +360,7 @@ h1{font-size:44px;line-height:1.05}
 <main class="wrap">
 <p class="eyebrow">ONE COMMERCE SUBSTRATE · MULTIPLE OFFERS</p>
 <h1>DreamLedger Commercial Portfolio</h1>
-<p>Live commercial offers compiled from the existing approved-offer catalog. Each offer resolves to its canonical page and existing Stripe livemode checkout.</p>
+<p>${compiled.length ? 'Live offers that pass the canonical product and fulfillment gates are listed here.' : 'No offers are currently cleared for checkout. All candidate inventory remains held until the evidence gates pass.'}</p>
 <div class="grid">${cards || noOffersMessage}</div>
 <p class="eyebrow">The portfolio compiler does not create economic claims. Settlement, fulfillment and verification remain governed by the existing commerce and evidence machinery.</p>
 </main>
