@@ -84,9 +84,15 @@ function compile() {
       schemaQuarantineIds.push(p.id);
     }
 
+    const paymentLink = p.commercial_truth?.payment_link || p.checkout?.url || p.checkout_url || null;
+    const validStripePaymentLink = typeof paymentLink === 'string'
+      && /^https:\/\/(?:buy\.stripe\.com|checkout\.stripe\.com)\//i.test(paymentLink);
     const checkoutAvailable = schema.ok
       && p.status === 'published'
       && p.commercial_truth?.approval_required === false
+      && p.commercial_truth?.sellable === true
+      && p.checkout_available === true
+      && validStripePaymentLink
       && inventoryPositive(p)
       && f.ready;
 
@@ -119,7 +125,7 @@ function compile() {
       pricing_strategy: 'fixed',
       payment_adapter: 'stripe',
       checkout_route: p.checkout?.mode === 'payment_link' ? 'stripe_payment_link' : '/api/offer-checkout/create',
-      checkout_url: p.commercial_truth?.payment_link || null,
+      checkout_url: validStripePaymentLink ? paymentLink : null,
       approval_required: p.commercial_truth?.approval_required === true,
       checkout_available: checkoutAvailable,
       status,
