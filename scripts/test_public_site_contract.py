@@ -18,7 +18,7 @@ checks = {
     "trust route maps to page": "'/trust/':'trust.html'" in SERVER,
     "homepage has responsive viewport": 'name="viewport"' in HOME,
     "homepage has a free quote worksheet": "quote-tool" in HOME and "comparison-template.csv" in HOME,
-    "homepage explains browser-local CSV": "No supplier data was uploaded" in HOME,
+    "homepage explains browser-local CSV": "No supplier data is uploaded" in HOME,
     "trust page defines evidence boundary": "VERIFIED" in TRUST and "UNVERIFIED" in TRUST,
     "about page is present": "DreamLedger" in ABOUT and len(ABOUT) > 1000,
     "no fake customer metrics on homepage": not re.search(r"\b(?:10,000\+ customers|100% uptime|SOC 2 certified|ISO 27001 certified)\b", HOME, re.I),
