@@ -68,12 +68,16 @@ async function proxyTollToEngine(req,res,p){
   try{
     const chunks=[]; let size=0;
     if(!['GET','HEAD'].includes(req.method)){
-      for await(const chunk of req){ size+=chunk.length; if(size>1024*1024)return send(res,413,JSON.stringify({error:'request_too_large'}),'application/json; charset=utf-8'); chunks.push(chunk); }
+      const limit=(p==='/api/webhooks/stripe'||p==='/webhook')?5*1024*1024:1024*1024;
+      for await(const chunk of req){ size+=chunk.length; if(size>limit)return send(res,413,JSON.stringify({error:'request_too_large'}),'application/json; charset=utf-8'); chunks.push(chunk); }
     }
     const h={'accept':'application/json'};
     for(const name of ['content-type','idempotency-key','x-dreamledger-toll-key'])if(req.headers[name])h[name]=req.headers[name];
     // The local BECK heartbeat uses its own scoped bearer token. Forward it only for that route.
     if(p==='/api/toll/v1/local-heartbeat'&&req.headers.authorization)h.authorization=req.headers.authorization;
+    if((p==='/api/webhooks/stripe'||p==='/webhook')&&req.headers['stripe-signature'])h['stripe-signature']=req.headers['stripe-signature'];
+    if(p==='/api/commercial/claim'&&req.headers['x-dreamledger-agent-token'])h['x-dreamledger-agent-token']=req.headers['x-dreamledger-agent-token'];
+    if(p==='/api/commercial/reconcile'&&req.headers['x-dreamledger-reconcile-token'])h['x-dreamledger-reconcile-token']=req.headers['x-dreamledger-reconcile-token'];
     if(ENGINE_INTERNAL_API_KEY)h['x-api-key']=ENGINE_INTERNAL_API_KEY;
     const target=ENGINE_INTERNAL_URL+(req.url||p);
     const upstream=await fetch(target,{method:req.method,headers:h,body:chunks.length?Buffer.concat(chunks):undefined,redirect:'manual'});
