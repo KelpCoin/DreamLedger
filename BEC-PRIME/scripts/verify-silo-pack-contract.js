@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const Ajv2020 = require('ajv/dist/2020');
 
-const root = path.resolve(__dirname, '..', '..', '..');
+const root = path.resolve(__dirname, '..', '..');
 const readJson = (relative) => JSON.parse(fs.readFileSync(path.join(root, relative), 'utf8'));
 const ajv = new Ajv2020({ allErrors: true, strict: true, validateFormats: false });
 
