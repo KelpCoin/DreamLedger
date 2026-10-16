@@ -18,6 +18,19 @@ on:
       - 'runtime/humanizer/customer-facing-voice-checkpoint-v1.json'
       - 'BEC-PRIME/routes/tollRoad.js'
       - 'BEC-PRIME/routes/tollRoad.local-heartbeat.test.js'
+      - 'BEC-PRIME/runtime/canonicalCheckoutGate.js'
+      - 'BEC-PRIME/runtime/canonicalCheckoutGate.test.js'
+      - 'BEC-PRIME/routes/mtgConfigurator.js'
+      - 'BEC-PRIME/routes/commercialCell.js'
+      - 'render.yaml'
+      - 'scripts/test_public_site_contract.py'
+      - 'public/catalog.json'
+      - 'public/buy/**'
+      - 'public/products/**'
+      - 'public/money.html'
+      - 'public/shop.html'
+      - 'public/quote-pilot.html'
+      - 'public/avatar.html'
       - 'BEC-PRIME/runtime/DeliveryReceiptVerifier.js'
       - 'BEC-PRIME/runtime/DeliveryReceiptVerifier.test.js'
       - 'BEC-PRIME/runtime/BeckAuthorityBoundary.test.js'
@@ -62,6 +75,19 @@ on:
       - 'runtime/humanizer/customer-facing-voice-checkpoint-v1.json'
       - 'BEC-PRIME/routes/tollRoad.js'
       - 'BEC-PRIME/routes/tollRoad.local-heartbeat.test.js'
+      - 'BEC-PRIME/runtime/canonicalCheckoutGate.js'
+      - 'BEC-PRIME/runtime/canonicalCheckoutGate.test.js'
+      - 'BEC-PRIME/routes/mtgConfigurator.js'
+      - 'BEC-PRIME/routes/commercialCell.js'
+      - 'render.yaml'
+      - 'scripts/test_public_site_contract.py'
+      - 'public/catalog.json'
+      - 'public/buy/**'
+      - 'public/products/**'
+      - 'public/money.html'
+      - 'public/shop.html'
+      - 'public/quote-pilot.html'
+      - 'public/avatar.html'
       - 'BEC-PRIME/runtime/DeliveryReceiptVerifier.js'
       - 'BEC-PRIME/runtime/DeliveryReceiptVerifier.test.js'
       - 'BEC-PRIME/runtime/BeckAuthorityBoundary.test.js'
@@ -126,6 +152,13 @@ jobs:
           node --test BEC-PRIME/runtime/DeliveryReceiptVerifier.test.js
           node --test BEC-PRIME/runtime/BeckAuthorityBoundary.test.js
           node --test BEC-PRIME/lib/mtgDiagnosticCheckoutGate.test.js
+          node --test BEC-PRIME/runtime/canonicalCheckoutGate.test.js
+          node --check BEC-PRIME/routes/mtgConfigurator.js
+          node --check BEC-PRIME/routes/mtgDiagnostic.js
+          node --check BEC-PRIME/routes/commercialCell.js
+          node --check BEC-PRIME/start.js
+          node --check public/server.js
+          node BEC-PRIME/scripts/verify-render-stripe-webhook-route.js
           node --check scripts/validate-customer-facing-artifact.js
           node --test scripts/validate-customer-facing-artifact.test.js
 
