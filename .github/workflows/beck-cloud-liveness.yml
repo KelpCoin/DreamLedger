@@ -35,7 +35,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          code="$(curl --silent --show-error --retry 2 --retry-delay 3 --retry-all-errors --output \"$RUNNER_TEMP/version.json\" --write-out '%{http_code}' --max-time 20 https://dreamledger.org/version)"
+          code="$(curl --silent --show-error --retry 2 --retry-delay 3 --retry-all-errors --output "$RUNNER_TEMP/version.json" --write-out '%{http_code}' --max-time 20 https://dreamledger.org/version)"
           test "$code" = "200"
           node -e "const fs=require('fs');const v=JSON.parse(fs.readFileSync(process.argv[1],'utf8'));if(v.service!=='dreamledger-storefront'||v.status!=='ok')process.exit(1)" "$RUNNER_TEMP/version.json"
           echo "public_version_http=$code"
