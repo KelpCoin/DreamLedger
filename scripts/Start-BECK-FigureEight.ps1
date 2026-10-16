@@ -24,8 +24,22 @@ function Probe-Cloud([string]$Name,[string]$Url) {
   try {
     $r=Invoke-WebRequest -Uri $Url -Method GET -UseBasicParsing -TimeoutSec 8
     $status=[int]$r.StatusCode
-    Add-Check $Cloud $Name $(if($status -ge 200 -and $status -lt 300){'PASS'}else{'BLOCKED'}) ("HTTP "+$status)
-    return [ordered]@{name=$Name;url=$Url;http_status=$status}
+    $semanticStatus=$null
+    if($Name -eq 'cloud.local_heartbeat_route'){
+      try{
+        $json=$r.Content|ConvertFrom-Json
+        $semanticStatus=[string]$json.status
+        if($semanticStatus -ne 'ONLINE'){
+          Add-Check $Cloud $Name 'BLOCKED' ("HTTP "+$status+"; endpoint status="+$semanticStatus)
+          return [ordered]@{name=$Name;url=$Url;http_status=$status;endpoint_status=$semanticStatus}
+        }
+      }catch{
+        Add-Check $Cloud $Name 'BLOCKED' 'HTTP response did not contain a parseable local-heartbeat status.'
+        return [ordered]@{name=$Name;url=$Url;http_status=$status;detail='invalid_status_body'}
+      }
+    }
+    Add-Check $Cloud $Name $(if($status -ge 200 -and $status -lt 300){'PASS'}else{'BLOCKED'}) ("HTTP "+$status+$(if($semanticStatus){'; status='+$semanticStatus}else{''}))
+    return [ordered]@{name=$Name;url=$Url;http_status=$status;endpoint_status=$semanticStatus}
   } catch {
     $status=0
     try{$status=[int]$_.Exception.Response.StatusCode}catch{}
