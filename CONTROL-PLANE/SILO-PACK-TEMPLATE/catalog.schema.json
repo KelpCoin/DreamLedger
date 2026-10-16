@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dreamledger.org/schemas/silo-catalog-v1.schema.json",
+  "title": "DreamLedger Silo Catalog",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "silo_id",
+    "products"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "silo-catalog-v1"
+    },
+    "silo_id": {
+      "type": "string",
+      "minLength": 2
+    },
+    "products": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "sku_id",
+          "title",
+          "price_nzd",
+          "status",
+          "deliverable",
+          "evidence_status"
+        ],
+        "properties": {
+          "sku_id": {
+            "type": "string",
+            "pattern": "^[A-Z0-9][A-Z0-9_-]{1,63}$"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 2000
+          },
+          "price_nzd": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "currency": {
+            "const": "NZD"
+          },
+          "status": {
+            "enum": [
+              "draft",
+              "held",
+              "active",
+              "retired"
+            ]
+          },
+          "deliverable": {
+            "type": "object",
+            "required": [
+              "type",
+              "description"
+            ],
+            "properties": {
+              "type": {
+                "enum": [
+                  "pdf",
+                  "zip",
+                  "report",
+                  "digital_access",
+                  "physical",
+                  "service"
+                ]
+              },
+              "description": {
+                "type": "string",
+                "minLength": 1
+              },
+              "artifact_ref": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "additionalProperties": false
+          },
+          "evidence_status": {
+            "enum": [
+              "UNVERIFIED",
+              "VERIFIED",
+              "TEST",
+              "SIMULATED",
+              "INTERNAL",
+              "UNMATCHED"
+            ]
+          },
+          "checkout_url": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uri"
+          },
+          "stripe_price_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}
