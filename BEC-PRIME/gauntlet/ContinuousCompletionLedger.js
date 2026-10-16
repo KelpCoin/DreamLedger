@@ -20,8 +20,17 @@ function safeEvidenceRefs(input) {
       refs.push(record.evidence_ref.trim());
     }
   }
+  const dimensions = input && input.dimensionResults && typeof input.dimensionResults === 'object'
+    ? Object.values(input.dimensionResults) : [];
+  for (const record of dimensions) {
+    if (record && typeof record.evidence_ref === 'string' && record.evidence_ref.trim()) {
+      refs.push(record.evidence_ref.trim());
+    }
+  }
   const outcome = input && input.finalOutcome;
   if (outcome && typeof outcome.proof_ref === 'string' && outcome.proof_ref.trim()) refs.push(outcome.proof_ref.trim());
+  const releaseApproval = input && input.releaseApproval;
+  if (releaseApproval && typeof releaseApproval.evidence_ref === 'string' && releaseApproval.evidence_ref.trim()) refs.push(releaseApproval.evidence_ref.trim());
   return [...new Set(refs)].sort();
 }
 
