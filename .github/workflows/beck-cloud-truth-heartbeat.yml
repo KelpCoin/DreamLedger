@@ -18,7 +18,7 @@ jobs:
     timeout-minutes: 8
     env:
       BASE_URL: https://dreamledger.org
-      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_URL: ${{ vars.SUPABASE_URL || secrets.SUPABASE_URL || 'https://wbwgroygjeyukkspnqiy.supabase.co' }}
       SUPABASE_KEY: ${{ secrets.SUPABASE_SECRET_KEY || secrets.SUPABASE_SERVICE_ROLE_KEY }}
     steps:
       - uses: actions/checkout@v4
