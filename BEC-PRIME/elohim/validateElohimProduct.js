@@ -10,6 +10,7 @@ const fs = require('fs');
 
 const ALLOWED_SILOS = Object.freeze(['mtg', 'crypto', 'media_music', 'digital_products', 'dreamledger']);
 const PUBLISHABLE_SILOS = Object.freeze(['mtg', 'crypto', 'media_music', 'digital_products']);
+const LEGACY_CATALOG_SILOS = Object.freeze(['commerce','billboard','dreamiez','digital','dreamiez-beauty','silo_dreamiez','seller_tools','silo_dreamledger','cinema','digital-products','dreammeez','account']);
 
 const PRICE_FLOORS_NZD = Object.freeze({
   mtg: 3,
@@ -114,8 +115,15 @@ function validateCatalogProduct(product, options = {}) {
     if (!product.silo) push(errors, 'REQUIRED', 'silo is required', '/silo');
   }
 
+  const rawSilo = String(product.silo || '').trim().toLowerCase();
   const silo = normalizeSilo(product.silo);
-  if (!silo) {
+  if (!silo && LEGACY_CATALOG_SILOS.includes(rawSilo)) {
+    // Legacy catalog entries remain valid for provenance and can never be
+    // activated by this validator. Checkout compiler requires an exact
+    // canonical publishable silo, an explicit Stripe link, inventory, and
+    // fulfillment readiness.
+    warnings.push({ code: 'LEGACY_SILO_NON_PUBLISHABLE', message: `Legacy silo "${product.silo}" is retained for provenance but cannot be published by the canonical silo factory.`, path: '/silo' });
+  } else if (!silo) {
     push(errors, 'SILO', `silo must be one of ${ALLOWED_SILOS.join(', ')}`, '/silo');
   } else if (requirePublishable && !PUBLISHABLE_SILOS.includes(silo)) {
     push(errors, 'SILO_HOST', 'dreamledger host silo is not a cloneable commercial silo; map to digital_products or another allowed silo', '/silo');
