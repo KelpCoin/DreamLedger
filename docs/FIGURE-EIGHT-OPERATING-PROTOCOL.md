@@ -79,3 +79,11 @@ Output mode automates repetitive work. Learning mode asks the operator to predic
 This branch is a draft PR and has not been deployed. The observed Render event stream shows repeated `pipeline_minutes_exhausted` failures for DreamLedger1; the public website and gateway have also been observed failing deployment for the same reason. CI checks for the current draft also show existing repository drift in MTG condition/render assertions and public storefront assertions. Treat those as live blockers until each is fixed and the relevant check passes; do not merge merely because some individual contracts pass.
 
 Verified external revenue remains **NZ$0.00** until the full independent economic chain is evidenced.
+
+## Delivery receipt binding (offline verifier only)
+
+`BEC-PRIME/runtime/DeliveryReceiptVerifier.js` implements the internal `dreamledger/delivery-receipt/v1` binding contract. It checks the payment-requirements hash against both the receipt and a trusted quote; binds request method, URL and parameters; binds response bytes to the delivery status; verifies the seller signature against a caller-supplied trusted key; and requires injected independent settlement and anchor verifiers. Missing verifiers fail closed.
+
+The matching contract and adversarial tests are `BEC-PRIME/contracts/DELIVERY-RECEIPT-BINDING-CONTRACT-v1.json` and `BEC-PRIME/runtime/DeliveryReceiptVerifier.test.js`. Test fixtures use generated keys and stub settlement/anchor callbacks only to exercise the verifier contract. They are not live chain evidence, not a Stripe test transaction, and not RA_000001.
+
+This is an internal receipt-binding implementation, not a claim of official x402 extension conformance. Do not wire it to checkout or count its test receipts as revenue until a trusted seller-key registry, independent settlement verifier, and real anchor verifier are integrated and exercised against a genuine test-mode transaction. A signed receipt alone never proves settlement or delivery.
