@@ -45,6 +45,8 @@ Object.assign(PUBLIC_FILES,{"/b2b-marketplace.html":"b2b.html","/auctions.html":
 Object.assign(PUBLIC_FILES,{"/rivet/":"b2b.html","/rivet/index.html":"b2b.html","/dreamledger-billboard.html":"billboard.html","/quote-comparison/ecommerce.html":"quote-comparison/ecommerce/index.html","/tools/":"tools/index.html","/tools/index.html":"tools/index.html","/sandbox-tools.html":"tools/index.html"});
 Object.assign(PUBLIC_FILES,{"/discord-starter-kit.html":"products/discord-webhook-starter-kit-001/index.html","/tools/nz-seller-profit/":"tools/seller-profit/index.html","/tools/nz-seller-profit/index.html":"tools/seller-profit/index.html"});
 Object.assign(PUBLIC_FILES,{
+  "/money.html":"money.html",
+  "/comparison-template.csv":"comparison-template.csv",
   "/silos/mtg/silo.json":"silos/mtg/silo.json",
   "/data/mtg-catalog.json":"data/mtg-catalog.json",
   "/data/decklists/quintorius.json":"data/decklists/quintorius.json",
