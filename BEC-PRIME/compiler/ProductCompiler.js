@@ -88,6 +88,7 @@ function compile() {
     const validStripePaymentLink = typeof paymentLink === 'string'
       && /^https:\/\/(?:buy\.stripe\.com|checkout\.stripe\.com)\//i.test(paymentLink);
     const checkoutAvailable = schema.ok
+      && ['mtg', 'crypto', 'media_music', 'digital_products'].includes(p.silo)
       && p.status === 'published'
       && p.commercial_truth?.approval_required === false
       && p.commercial_truth?.sellable === true
