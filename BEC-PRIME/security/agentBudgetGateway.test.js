@@ -120,7 +120,12 @@ function fixture(options = {}) {
       tri_llm_critic: { dailyBudgetNzd: 0.0001, bucketCapacityTokens: 100, refillTokensPerSecond: 1 }
     },
     ledgerPath: path.join(directory, 'usage.jsonl'),
-    clock
+    clock,
+    estimateInputTokens: (request) => {
+      const message = Array.isArray(request?.messages) ? request.messages.find((item) => item?.role === 'user') : null;
+      if (!message || typeof message.content !== 'string') throw new Error('Test tokenizer cannot count request');
+      return message.content.length;
+    }
   };
   return {
     gateway: createAgentBudgetGateway({ ...base, ...options }),
@@ -131,11 +136,14 @@ function fixture(options = {}) {
 }
 
 function request(overrides = {}) {
+  const { inputTokens: requestedTestTokenCount = 10, request: suppliedRequest, ...rest } = overrides;
   return {
     agentId: 'investigator',
     modelId: 'model-a',
-    request: { model: 'model-a', messages: [{ role: 'user', content: 'test prompt' }] },
-    inputTokens: 10,
+    request: suppliedRequest || {
+      model: 'model-a',
+      messages: [{ role: 'user', content: 'x'.repeat(requestedTestTokenCount) }]
+    },
     maxOutputTokens: 10,
     idempotencyKey: 'job-001',
     invoke: async () => ({
@@ -143,7 +151,7 @@ function request(overrides = {}) {
       usage: { prompt_tokens: 10, completion_tokens: 5 },
       choices: [{ message: { content: 'test answer' } }]
     }),
-    ...overrides
+    ...rest
   };
 }
 
@@ -172,6 +180,24 @@ test('hard daily budget rejects locally before provider invocation', async () =>
   assert.equal(result.reason, 'BUDGET_EXCEEDED');
   assert.equal(called, 0);
   assert.equal(fs.existsSync(f.ledgerPath), false);
+});
+
+test('unavailable trusted input tokenizer fails before provider invocation', async () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'dreamledger-agent-budget-no-tokenizer-'));
+  assert.throws(() => createAgentBudgetGateway({
+    priceTable: { 'model-a': { inputNzdPerMillion: 1, outputNzdPerMillion: 1 } },
+    agentPolicies: { investigator: { dailyBudgetNzd: 1, bucketCapacityTokens: 100, refillTokensPerSecond: 1 } },
+    ledgerPath: path.join(directory, 'usage.jsonl')
+  }), /Trusted model-specific estimateInputTokens function is required/);
+
+  const f = fixture({
+    estimateInputTokens: () => { throw new Error('tokenizer unavailable'); }
+  });
+  let called = 0;
+  const result = await f.gateway.execute(request({ invoke: async () => { called++; return {}; } }));
+  assert.equal(result.status, 503);
+  assert.equal(result.reason, 'INPUT_TOKEN_ESTIMATION_FAILED_PROVIDER_NOT_CALLED');
+  assert.equal(called, 0);
 });
 
 test('unknown model pricing fails closed before provider invocation', async () => {
