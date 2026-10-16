@@ -97,20 +97,19 @@
   {
     "item_id": "COMMANDER-DECK-DIAGNOSTIC-001",
     "title": "Commander Deck Diagnostic",
-    "description": "First-pass Commander deck structure review. Sold inside the Magic silo.",
+    "description": "Commander deck structure review.",
     "url": "https://dreamledger.org/mtg",
     "brand": "DreamLedger",
     "seller_name": "DreamLedger",
     "seller_url": "https://dreamledger.org/",
     "price": "29 NZD",
-    "availability": "available",
+    "availability": "review_required",
     "sku": "COMMANDER-DECK-DIAGNOSTIC-001",
     "category": "Magic silo",
-    "buy_router": "https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001",
     "one_time_purchase": true,
     "subscription": false,
     "enable_search": true,
-    "enable_checkout": true,
+    "enable_checkout": false,
     "silo": "mtg"
   }
 ]
