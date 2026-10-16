@@ -27,9 +27,9 @@ $compiledById = @{}
 $gateCode = @'
 const fs = require("node:fs");
 const { evaluateCanonicalProduct } = require("./runtime/canonicalCheckoutGate.js");
-const productPath = process.env.DL_PRODUCT_PATH;
-const registryPath = process.env.DL_FULFILLMENT_REGISTRY_PATH;
-const repoRoot = process.env.DL_REPO_ROOT;
+const productPath = process.argv[1];
+const registryPath = process.argv[2];
+const repoRoot = process.argv[3];
 if (!productPath || !registryPath || !repoRoot) throw new Error("canonical gate inputs are incomplete");
 const product = JSON.parse(fs.readFileSync(productPath, "utf8"));
 const registry = JSON.parse(fs.readFileSync(registryPath, "utf8"));
@@ -78,23 +78,15 @@ foreach ($record in $approvedRecords) {
         continue
     }
 
-    $priorProduct = $env:DL_PRODUCT_PATH
-    $priorRegistry = $env:DL_FULFILLMENT_REGISTRY_PATH
-    $priorRepoRoot = $env:DL_REPO_ROOT
     try {
-        $env:DL_PRODUCT_PATH = (Resolve-Path -LiteralPath $productFile).Path
-        $env:DL_FULFILLMENT_REGISTRY_PATH = (Resolve-Path -LiteralPath $registryFile).Path
-        $env:DL_REPO_ROOT = $repoRoot
-        $gateJson = & node -e $gateCode
+        $resolvedProduct = (Resolve-Path -LiteralPath $productFile).Path
+        $resolvedRegistry = (Resolve-Path -LiteralPath $registryFile).Path
+        $gateJson = & node -e $gateCode $resolvedProduct $resolvedRegistry $repoRoot
         if ($LASTEXITCODE -ne 0) { throw "canonical product gate returned exit code $LASTEXITCODE" }
         $gate = $gateJson | ConvertFrom-Json
     } catch {
         $errors.Add("$($id): canonical product gate could not be evaluated: $($_.Exception.Message)")
         continue
-    } finally {
-        if ($null -eq $priorProduct) { Remove-Item Env:DL_PRODUCT_PATH -ErrorAction SilentlyContinue } else { $env:DL_PRODUCT_PATH = $priorProduct }
-        if ($null -eq $priorRegistry) { Remove-Item Env:DL_FULFILLMENT_REGISTRY_PATH -ErrorAction SilentlyContinue } else { $env:DL_FULFILLMENT_REGISTRY_PATH = $priorRegistry }
-        if ($null -eq $priorRepoRoot) { Remove-Item Env:DL_REPO_ROOT -ErrorAction SilentlyContinue } else { $env:DL_REPO_ROOT = $priorRepoRoot }
     }
 
     $gateOpen = $gate.allowed -eq $true
