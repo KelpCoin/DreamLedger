@@ -13,6 +13,7 @@ ABOUT = (ROOT / "public" / "about.html").read_text(encoding="utf-8")
 PUBLIC = ROOT / "public"
 MTG = (PUBLIC / "mtg" / "index.html").read_text(encoding="utf-8")
 CATALOGUE = json.loads((ROOT / "public" / "catalog.json").read_text(encoding="utf-8"))
+PUBLIC_PRODUCTS_BY_ID = {p.get("id"): p for p in CATALOGUE.get("products", [])}
 
 PUBLIC_HTML = list(PUBLIC.rglob("*.html"))
 PUBLIC_TEXT_FILES = [p for p in PUBLIC.rglob("*") if p.is_file() and p.suffix.lower() in {".html", ".js", ".json", ".css", ".xml", ".txt", ".webmanifest"}]
@@ -72,6 +73,21 @@ checks = {
         and product.get("commercial_truth", {}).get("sellable") is False
         and product.get("commercial_truth", {}).get("payment_surface") is None
         and not product.get("commercial_truth", {}).get("payment_link")
+        for product in HELD_PRODUCTS
+    ),
+    "public catalogue preserves canonical held SKU state": all(
+        (public_product := PUBLIC_PRODUCTS_BY_ID.get(product["id"])) is not None
+        and public_product.get("status") in {"held", "review_required"}
+        and public_product.get("checkout_available") is False
+        and public_product.get("checkout_url") is None
+        and (
+            "commercial_truth" not in public_product
+            or (
+                public_product["commercial_truth"].get("approval_required") is True
+                and public_product["commercial_truth"].get("sellable") is False
+                and public_product["commercial_truth"].get("payment_surface") is None
+            )
+        )
         for product in HELD_PRODUCTS
     ),
 }
