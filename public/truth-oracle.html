@@ -3,201 +3,132 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Truth Oracle | Evidence tools & tiers | DreamLedger</title>
-<meta name="description" content="Truth Oracle: free claim checks and evidence tools, plus optional depth and review tiers. Payment never improves a truth verdict.">
+<title>Truth Oracle · Progressive transparency | DreamLedger</title>
+<meta name="description" content="Free magnet tools. Progressive transparency tiers. Paid depth never changes a verdict.">
+<meta name="bec-compiler" content="WebsiteFaceCompiler">
 <link rel="canonical" href="https://dreamledger.org/truth-oracle.html">
 <style>
-:root{color-scheme:dark;--bg:#090d12;--line:#2c3947;--ink:#f4f7fa;--muted:#b2bfca;--mint:#a9f2d0}
-*{box-sizing:border-box}
-body{margin:0;background:radial-gradient(circle at 80% 0,#1b3540 0,transparent 35%),var(--bg);color:var(--ink);font:16px/1.65 system-ui,sans-serif}
-a{color:var(--mint)}
-.wrap{width:min(960px,calc(100% - 28px));margin:auto}
+:root{color-scheme:dark;--bg:#090d12;--line:#2c3947;--ink:#f4f7fa;--muted:#b2bfca;--mint:#a9f2d0;--gold:#e1b85b;--panel:#121a23}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 80% 0,#1b3540 0,transparent 35%),var(--bg);color:var(--ink);font:16px/1.65 system-ui,sans-serif}
+a{color:var(--mint)}.wrap{width:min(960px,calc(100% - 28px));margin:auto}
 .nav{display:flex;justify-content:space-between;gap:16px;padding:20px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
-.nav a{color:var(--muted);text-decoration:none;margin-left:10px;font-size:14px}
-.nav a:hover{color:var(--mint)}
-.hero{padding:46px 0 25px}
-.eyebrow{font-size:11px;font-weight:850;letter-spacing:.14em;text-transform:uppercase;color:var(--mint)}
-h1{font-size:clamp(40px,7vw,68px);line-height:1;letter-spacing:-.06em;margin:12px 0 18px}
-h2{font-size:clamp(26px,4vw,36px);line-height:1.1;letter-spacing:-.04em;margin:0 0 12px}
-h3{margin:0 0 8px}
-.muted{color:var(--muted)}
-section{padding:24px 0}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.card{padding:18px;border:1px solid var(--line);border-radius:15px;background:#121a23}
-.card p{color:var(--muted);font-size:14px;margin:0 0 10px}
+.nav a{color:var(--muted);text-decoration:none;margin-left:12px;font-size:14px;font-weight:700}
+.hero{padding:46px 0 25px}.eyebrow{font-size:11px;font-weight:850;letter-spacing:.14em;text-transform:uppercase;color:var(--mint)}
+h1{font-size:clamp(36px,7vw,60px);line-height:1;letter-spacing:-.06em;margin:12px 0 18px}
+h2{font-size:clamp(22px,4vw,32px);line-height:1.1;letter-spacing:-.04em;margin:0 0 12px}
+h3{margin:0 0 8px}.muted{color:var(--muted)}section{padding:24px 0}
+.badge{display:inline-block;font-size:10px;padding:4px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted);margin-bottom:12px}
+.tiers{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin:18px 0}
+.tier{padding:18px;border:1px solid var(--line);border-radius:15px;background:var(--panel);display:flex;flex-direction:column;gap:8px}
+.tier.free{border-color:#315f50}.tier.magnet{border-color:#5a6a40}.tier.paid{border-color:#6a5a30}
+.tier .price{font-size:1.4rem;font-weight:900;color:var(--gold)}
+.tier ul{margin:0;padding-left:18px;color:var(--muted);font-size:14px;flex:1}
+.btn{display:inline-block;padding:11px 15px;border-radius:9px;background:var(--mint);color:#08130e;font-weight:800;text-decoration:none;text-align:center}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}
 .step{padding:15px;margin:9px 0;border:1px solid var(--line);border-radius:12px;background:#0e151d}
 .step p{margin:5px 0 0;color:var(--muted);font-size:14px}
-.template{white-space:pre-wrap;padding:17px;border:1px solid var(--line);border-radius:13px;background:#0e151d;color:var(--muted);font-size:14px}
-.leads{display:grid;gap:10px}
-.lead{padding:15px;border:1px solid var(--line);border-radius:12px;background:#0e151d}
-.lead p{font-size:14px;color:var(--muted)}
-.pill{display:inline-block;font-size:10px;font-weight:850;letter-spacing:.08em;border:1px solid #596a7d;border-radius:99px;padding:3px 8px;margin:0 4px 6px 0;color:var(--muted)}
-.pill.free{border-color:var(--mint);color:var(--mint)}
-.btn{display:inline-block;padding:11px 15px;border-radius:9px;background:var(--mint);color:#08130e;font-weight:800;text-decoration:none;margin:4px 8px 4px 0}
-.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}
-.tiers{display:grid;gap:12px;margin-top:16px}
-@media(min-width:720px){.tiers{grid-template-columns:repeat(3,1fr)}}
-.tier{padding:20px;border:1px solid var(--line);border-radius:16px;display:flex;flex-direction:column;background:#121a23}
-.tier h3{font-size:1.15rem}
-.tier .price{font-size:1.4rem;font-weight:800;margin:8px 0 12px}
-.tier ul{margin:0 0 14px 1.1em;padding:0;color:var(--muted);font-size:14px;flex:1}
-.tier li{margin-bottom:6px}
-.rule{border:1px solid var(--line);border-radius:14px;padding:16px;background:#0e151d;color:var(--muted);font-size:14px;margin:18px 0}
+.template{white-space:pre-wrap;padding:17px;border:1px solid var(--line);border-radius:13px;background:#0e151d;color:var(--muted);font-size:13px}
+.rule{padding:18px;border:1px solid var(--line);border-radius:15px;background:var(--panel);margin:12px 0}
 footer{border-top:1px solid var(--line);margin-top:25px;padding:23px 0 35px;color:var(--muted);font-size:12px}
-@media(max-width:700px){.grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <div class="wrap">
 <header class="nav">
-  <a href="/" style="color:var(--ink);font-weight:800;margin:0">DreamLedger</a>
-  <nav>
-    <a href="/tools/claim-check.html">Claim check</a>
-    <a href="/tools/free.html">Free tools</a>
-    <a href="/quote-comparison/">Quotes</a>
+  <a href="/" style="color:var(--ink);font-weight:800">DreamLedger</a>
+  <div>
+    <a href="/money.html">Pay</a>
     <a href="/truth-oracle-field-guide.html">Field guide</a>
-  </nav>
+    <a href="/silos/">Silos</a>
+  </div>
 </header>
 <main>
 <section class="hero">
+  <span class="badge">progressive transparency · free magnet → paid depth</span>
   <div class="eyebrow">Truth Oracle</div>
-  <h1>Check the evidence. Keep uncertainty visible.</h1>
-  <p class="muted">Record what is claimed, trace the source, surface contradictions, and leave gaps visible. Free tools need no account. Optional tiers add depth and structured review — they never change the underlying truth rules.</p>
-  <p>
-    <a class="btn" href="#record">Free claim record</a>
-    <a class="btn ghost" href="/tools/claim-check.html">Interactive claim check</a>
-    <a class="btn ghost" href="#tiers">Tiers</a>
-  </p>
+  <h1>Evidence stays free.<br>Depth can be paid.<br><span style="color:var(--mint)">Verdicts are never for sale.</span></h1>
+  <p class="muted">Progressive transparency: anyone can use the free claim-check tools. Higher tiers add structure, delivery, and time — never a better grade for a fee.</p>
 </section>
-
-<section id="tiers">
-  <div class="eyebrow">Access tiers</div>
-  <h2>One Oracle. Clear tiers.</h2>
-  <p class="muted">Orders, structured reviews, and evidence packs sit here — not as separate one-off products. Same verdict rules at every level.</p>
-  <div class="rule"><strong style="color:var(--ink)">Core rule:</strong> You cannot pay to make reality look better. You can pay for more structure, history, or a prepared review of material you supply. The assessment labels (SUPPORTED, UNVERIFIED, UNKNOWN, and so on) follow the evidence, not the tier.</div>
-
+<section>
+  <h2>Transparency tiers</h2>
   <div class="tiers">
-    <article class="tier">
-      <span class="pill free">FREE</span>
-      <h3>Public tools</h3>
+    <article class="tier free">
+      <h3>Free · Magnet</h3>
       <div class="price">NZ$0</div>
       <ul>
-        <li>Claim-check template and interactive worksheet</li>
-        <li>Five-check field guide</li>
-        <li>Supplier quote comparison (browser-only)</li>
-        <li>NZBN lookup and public research leads</li>
-        <li>Ticker and free magnets</li>
+        <li>Claim record template</li>
+        <li>Source-checking guide</li>
+        <li>Public research leads (when published)</li>
+        <li>Unknowns stay visible</li>
       </ul>
-      <p><a class="btn" href="/tools/claim-check.html">Start free</a></p>
+      <a class="btn ghost" href="#free-tools">Use free tools</a>
     </article>
-    <article class="tier">
-      <span class="pill">DEPTH</span>
-      <h3>Depth</h3>
-      <div class="price">From NZ$4.99<span class="muted" style="font-size:14px;font-weight:600"> / month</span></div>
+    <article class="tier magnet">
+      <h3>Structured · Assisted</h3>
+      <div class="price">From NZ$5</div>
       <ul>
-        <li>Everything in Free</li>
-        <li>Saved filters and longer history on public feeds</li>
-        <li>Silo-tagged alerts when available</li>
-        <li>Convenience only — same truth labels as Free</li>
+        <li>Same rules as free</li>
+        <li>Guided worksheet / extraction</li>
+        <li>Faster packaging of evidence</li>
+        <li>Still no paid verdict change</li>
       </ul>
-      <p class="muted" style="font-size:13px;margin:0 0 12px">Depth access opens when checkout and account linking are ready. Until then, use Free tools in full.</p>
-      <p><a class="btn ghost" href="#record">Use free tools now</a></p>
+      <a class="btn ghost" href="/buy/DOC-EXTRACT-50">Document extract NZ$5</a>
     </article>
-    <article class="tier">
-      <span class="pill">REVIEW</span>
-      <h3>Structured review</h3>
-      <div class="price">From NZ$49<span class="muted" style="font-size:14px;font-weight:600"> · per review</span></div>
+    <article class="tier paid">
+      <h3>Human-gated report</h3>
+      <div class="price">Quoted</div>
       <ul>
-        <li>One claim or public artifact you nominate</li>
-        <li>Up to five acceptance criteria you define</li>
-        <li>Criterion-level findings: pass, fail, or needs human review</li>
-        <li>Sources, gaps, and limitations kept visible</li>
-        <li>Replaces standalone audit-order product pages</li>
+        <li>PASS / FAIL / NEEDS HUMAN REVIEW</li>
+        <li>Each criterion cites evidence</li>
+        <li>Inaccessible sources marked unknown</li>
+        <li>Payment never improves the grade</li>
       </ul>
-      <p class="muted" style="font-size:13px;margin:0 0 12px">Review is a Truth Oracle tier, not a separate consultancy SKU. Purchase opens when intake and delivery are ready; Free tools remain available either way.</p>
-      <p><a class="btn ghost" href="#how-review">How review works</a></p>
+      <a class="btn ghost" href="/money.html">See cash board</a>
     </article>
   </div>
 </section>
-
-<section id="how-review">
-  <div class="eyebrow">Structured review</div>
-  <h2>What a review covers</h2>
-  <p class="muted">When the Review tier is open, you supply one public URL or bounded file and up to five clear criteria. The result is a structured record — not a guarantee that claims in the artifact are true worldwide.</p>
-  <div class="step"><h3>In scope</h3><p>One accessible public source or file; criteria written so a reviewer can decide what evidence would satisfy each one.</p></div>
-  <div class="step"><h3>Out of scope</h3><p>Private systems without access, unlimited criteria, legal or financial advice, or any promise that payment improves the verdict.</p></div>
-  <div class="step"><h3>Outcome labels</h3><p>Each criterion is marked pass, fail, or needs human review, with the supporting passage or the gap explained.</p></div>
+<section id="free-tools">
+  <h2>Free tools (always on)</h2>
+  <div class="step"><h3>1. Write the claim</h3><p>One sentence. Who benefits if it is believed?</p></div>
+  <div class="step"><h3>2. List sources</h3><p>URL, date, what it actually supports — not what you hope it supports.</p></div>
+  <div class="step"><h3>3. Mark unknowns</h3><p>Missing data stays missing. Do not fill gaps with confidence.</p></div>
+  <div class="step"><h3>4. Verdict language</h3><p>Supported / contradicted / insufficient evidence. Avoid false certainty.</p></div>
+  <pre class="template">CLAIM:
+SOURCE 1 (url, date, supports):
+SOURCE 2:
+UNKNOWN / NOT CHECKED:
+VERDICT: supported | contradicted | insufficient
+CONFIDENCE: low | medium | high
+PAYMENT INFLUENCE: none (required)</pre>
 </section>
-
-<section class="card" id="supplier-comparison">
-  <div class="eyebrow">Free · Procurement</div>
-  <h2>Compare supplier quotes</h2>
-  <p class="muted">Browser-only worksheet for up to five quotes. Unknown fields stay unknown. Lowest total is not automatically best value.</p>
-  <p><a class="btn" href="/quote-comparison/">Open quote comparison</a></p>
-</section>
-
 <section>
-  <div class="grid">
-    <article class="card"><h3>Verify</h3><p>Separate direct evidence from summaries, assumptions, and forecasts.</p></article>
-    <article class="card"><h3>Trace</h3><p>Keep the original source, date, exact passage, and scope.</p></article>
-    <article class="card"><h3>Challenge</h3><p>Look for exclusions, stale details, contradictions, and missing evidence.</p></article>
-  </div>
+  <h2>Hard rules</h2>
+  <div class="rule"><h3>Progressive transparency</h3>
+    <p class="muted">Higher tiers buy <strong>time, packaging, and delivery</strong>. They do not buy a greener light. A paid report can still return FAIL or NEEDS HUMAN REVIEW.</p></div>
+  <div class="rule"><h3>Economic truth</h3>
+    <p class="muted">A listing is not a sale. Telemetry is not revenue. Only settled payment + fulfillment + independent evidence supports VERIFIED economic claims.</p></div>
+  <div class="rule"><h3>Gauntlet / Elohim</h3>
+    <p class="muted">Elohim may propose scorecards and candidates. The gauntlet judges. Neither may declare verified revenue without external evidence.</p></div>
 </section>
-
 <section>
-  <div class="eyebrow">Free field guide</div>
-  <h2>Five checks before trusting a commercial claim</h2>
-  <div class="step"><h3>1. Find the original source.</h3><p>Prefer source documents, official terms, and underlying data over reposts.</p></div>
-  <div class="step"><h3>2. Check the date and scope.</h3><p>Record when it was published and which market, version, or group it covers.</p></div>
-  <div class="step"><h3>3. Separate fact from interpretation.</h3><p>Quote the exact evidence. Label estimates and opinions separately.</p></div>
-  <div class="step"><h3>4. Look for disconfirming evidence.</h3><p>Search for exclusions, corrections, and independent confirmation.</p></div>
-  <div class="step"><h3>5. Match evidence to the decision.</h3><p>A claim can be true but irrelevant. Check what happens if it is wrong.</p></div>
-  <p><a href="/truth-oracle-field-guide.html">Open the standalone guide →</a></p>
-</section>
-
-<section id="record">
-  <div class="eyebrow">Reusable template</div>
-  <h2>Claim-check record</h2>
-  <p class="muted">Copy into your notes, or use the <a href="/tools/claim-check.html">interactive claim check</a>. A record is not proof by itself.</p>
-  <div class="template">CLAIM:
-ORIGINAL SOURCE / URL:
-SOURCE DATE:
-EXACT SUPPORTING PASSAGE:
-CONTRADICTING EVIDENCE:
-MISSING INFORMATION:
-CURRENT ASSESSMENT: UNVERIFIED / SUPPORTED / CONTRADICTED / STALE / UNKNOWN
-NEXT CHECK:
-LIMITATION: What this evidence does not establish.</div>
-</section>
-
-<section>
-  <div class="eyebrow">Public research leads</div>
-  <h2>Research to investigate</h2>
-  <p class="muted">Published leads for further investigation — not verified demand or commercial outcomes.</p>
-  <div id="leads" class="leads"><p class="muted">Loading public records…</p></div>
-</section>
-
-<section class="card">
-  <h3>Evidence rules</h3>
-  <p class="muted">A source link is not independent confirmation. A public listing is not a sale. An empty feed is not evidence. Conclusions should stay traceable, dated, and explicit about unknowns. Educational use only — not professional legal, financial, or procurement advice.</p>
+  <h2>Public research leads</h2>
+  <p class="muted" id="leads">Loading public feed when available…</p>
 </section>
 </main>
-<footer>
-DreamLedger · Truth Oracle · <a href="/">Home</a> · <a href="/tools/free.html">Free tools</a> · <a href="/trust/">Evidence standard</a>
-</footer>
+<footer>DreamLedger · Truth Oracle · progressive transparency · <a href="/">Home</a> · <a href="/money.html">Pay</a></footer>
 </div>
 <script>
 (function(){
-const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-fetch('/data/economic-pulse.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error();return r.json()}).then(d=>{
-  const rows=Array.isArray(d.signals)?d.signals:[],el=document.getElementById('leads');
-  if(!rows.length){el.innerHTML='<p class="muted">No public research leads are currently published.</p>';return;}
-  el.innerHTML=rows.slice(0,8).map(x=>{
-    const url=typeof x.url==='string'&&/^https:\/\//.test(x.url)?x.url:'';
-    const route=typeof x.public_route==='string'&&x.public_route.startsWith('/')?x.public_route:'';
-    return '<article class="lead"><span class="pill">'+esc(x.status||'UNVERIFIED')+'</span><h3>'+esc(x.title||'Untitled research lead')+'</h3><p>'+esc(x.summary||'Published lead for further investigation.')+'</p><p>Source: '+esc(x.source||'Not supplied')+' · Observed: '+esc(x.observed_at||'Unknown')+'</p>'+(url?'<a href="'+esc(url)+'" target="_blank" rel="noopener noreferrer">Original source ↗</a>':'')+(route?' · <a href="'+esc(route)+'">Record details ↗</a>':'')+'</article>';
-  }).join('');
-}).catch(()=>document.getElementById('leads').innerHTML='<p class="muted">The public record feed is unavailable. No claims are inferred from missing data.</p>');
+  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const el=document.getElementById('leads');
+  fetch('/data/economic-pulse.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error();return r.json()}).then(d=>{
+    const rows=Array.isArray(d.signals)?d.signals:[];
+    if(!rows.length){el.innerHTML='No public research leads are currently published. An empty feed is not evidence of absence of problems — only that nothing is published here.';return;}
+    el.innerHTML=rows.slice(0,8).map(x=>{
+      const url=typeof x.url==='string'&&/^https:\/\//.test(x.url)?x.url:'';
+      return '<article class="step"><span class="badge">'+esc(x.status||'UNVERIFIED')+'</span><h3>'+esc(x.title||'Untitled')+'</h3><p>'+esc(x.summary||'')+'</p>'+(url?'<a href="'+esc(url)+'" target="_blank" rel="noopener">Source ↗</a>':'');
+    }).join('');
+  }).catch(()=>{el.textContent='Public lead feed unavailable. No claims inferred from missing data.';});
 })();
 </script>
 </body>
