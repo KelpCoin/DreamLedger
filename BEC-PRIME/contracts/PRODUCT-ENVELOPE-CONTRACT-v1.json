@@ -1,0 +1,181 @@
+{
+  "schema": "dreamledger/product-envelope-contract/v1",
+  "title": "Canonical Product Envelope Tightening Contract",
+  "status": "binding",
+  "enforcement": "fail_closed",
+  "branch_scope": "phase-5/prep — additive contract only; no activation; no merge to main until Phases 0–4 evidence fossils exist",
+  "purpose": "Tighten the existing product and Elohim-candidate envelopes without creating a competing product schema. This contract defines the cross-schema invariants every product candidate and sellable product must satisfy.",
+  "reconciles_with": [
+    "BEC-PRIME/schemas/elohim-product.schema.json",
+    "BEC-PRIME/schemas/elohim-candidate.schema.json",
+    "BEC-PRIME/contracts/VERIFIED-SUPPLY-CONTRACT-v1.json",
+    "BEC-PRIME/contracts/CANONICAL-ECONOMIC-EVENT-CONTRACT-v1.json",
+    "BEC-PRIME/fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json",
+    "existing commerce SKU contract and CUBE clone contracts"
+  ],
+  "non_goals": [
+    "Does not replace or fork existing product or candidate JSON Schemas",
+    "Does not create inventory, assert rights, or infer demand",
+    "Does not create Stripe products, prices, payment links, orders, or checkout sessions",
+    "Does not authorise publication, checkout, silo activation, or revenue claims",
+    "Does not permit a schema-valid record to bypass supply verification, Gauntlet, activation approval, the CSO, settlement, fulfillment, delivery, or independent verification"
+  ],
+  "envelope_invariants": {
+    "identity": {
+      "product_id": "Stable non-empty product identifier; immutable after external references exist.",
+      "canonical_sku": "A single canonical SKU is required before sellable status. Null, blank, unknown, duplicate, or conflicting SKU values fail closed.",
+      "silo_slug": "Exactly one owning silo. The product envelope silo and verified supply silo must match; cross-silo reuse is rejected.",
+      "name": "Non-empty human-readable name. Name similarity is not identity and must not be used to merge distinct products automatically."
+    },
+    "price": {
+      "candidate_price": "A proposal only; it is not a live price and must never be rendered as a purchasable price.",
+      "sellable_price": "Must resolve to exactly one authoritative price source for the canonical SKU, with an explicit currency and unambiguous unit convention.",
+      "existing_product_price_unit": "When the existing product schema uses price, price_unit must be present and valid. The values major, minor, and cents must not be silently mixed or guessed; the authoritative adapter must normalize them before checkout.",
+      "currency": "Must be a supported ISO 4217 currency code represented consistently at the boundary. Existing schema support for NZD/nzd does not imply support for other currencies.",
+      "conflict": "Multiple price proposals, conflicting catalog/processor amounts, missing unit, unsupported currency, or an absent authoritative price source forces HOLD."
+    },
+    "lifecycle": {
+      "candidate": "Generated or imported ideas remain candidates; they are not inventory and cannot expose active checkout.",
+      "supply_verified": "Requires a current VERIFIED supply atom satisfying VERIFIED-SUPPLY-CONTRACT-v1.",
+      "gauntlet_approved": "Requires a recorded Gauntlet decision fossil for the exact product, SKU, silo, price source, and supply atom.",
+      "activation_approved": "Requires a separate explicit activation approval fossil for the exact product and silo after prior gates pass.",
+      "published": "Publication is presentation state only. It cannot imply supply, checkout readiness, settlement, delivery, or revenue.",
+      "checkout_enabled": "Permitted only when supply verification, Gauntlet approval, activation approval, authoritative price resolution, fulfillment-registry readiness, and CSO routing are all independently evidenced. Missing or stale evidence means disabled."
+    },
+    "clone_isolation": {
+      "new_silo_shell": "Must start with an empty product catalog and no sellable supply atoms.",
+      "forbidden_inheritance": [
+        "live inventory or capacity claims",
+        "verified supply decisions or evidence fossils from another silo",
+        "Stripe product IDs, price IDs, payment links, webhook secrets, or credentials",
+        "activation approvals, checkout-enabled flags, or buyer/order/payment records",
+        "revenue totals or verification decisions"
+      ],
+      "allowed_inheritance": [
+        "schema references",
+        "contract versions",
+        "non-secret templates",
+        "disabled example records explicitly labelled TEST or SIMULATED"
+      ]
+    }
+  },
+  "fail_closed_rules": [
+    {
+      "id": "PRODUCT_ID_MISSING_OR_DUPLICATE",
+      "condition": "Product identity is absent, malformed, or duplicates another active canonical product identity without an explicit reviewed alias",
+      "decision": "HOLD"
+    },
+    {
+      "id": "CANONICAL_SKU_MISSING_OR_CONFLICTED",
+      "condition": "A product is proposed as sellable without one valid canonical SKU, or catalog, supply, and event SKU values disagree",
+      "decision": "HOLD"
+    },
+    {
+      "id": "SILO_MISMATCH",
+      "condition": "Product silo differs from supply atom, approved activation scope, or attributed economic event",
+      "decision": "HOLD"
+    },
+    {
+      "id": "PRICE_AMBIGUOUS_OR_CONFLICTED",
+      "condition": "Price has no explicit currency/unit/authoritative source, or candidate, catalog, and processor prices conflict",
+      "decision": "HOLD"
+    },
+    {
+      "id": "CANDIDATE_AS_INVENTORY",
+      "condition": "A generated candidate or proposed price is treated as verified stock, service capacity, or a live purchasable offer",
+      "decision": "HOLD"
+    },
+    {
+      "id": "PUBLISHED_WITHOUT_VERIFIED_SUPPLY",
+      "condition": "Product is published or shows an inventory count without a matching current VERIFIED supply atom",
+      "decision": "HOLD"
+    },
+    {
+      "id": "CHECKOUT_WITHOUT_ALL_GATES",
+      "condition": "Checkout is enabled before supply verification, Gauntlet, activation approval, authoritative price, fulfillment readiness, and canonical settlement routing are evidenced",
+      "decision": "HOLD"
+    },
+    {
+      "id": "CLONE_INHERITS_LIVE_STATE",
+      "condition": "New silo clone contains inherited inventory, supply proof, credentials, Stripe identifiers, checkout state, orders, or revenue totals",
+      "decision": "REJECT_CLONE"
+    },
+    {
+      "id": "SCHEMA_VALIDATION_AS_AUTHORITY",
+      "condition": "Schema validity is used as a substitute for external evidence or any downstream approval gate",
+      "decision": "HOLD"
+    }
+  ],
+  "required_decision_fossil": {
+    "schema": "dreamledger/product-envelope-decision-fossil/v1",
+    "required_fields": [
+      "fossil_id",
+      "contract_version",
+      "product_id",
+      "canonical_sku",
+      "silo_slug",
+      "decision",
+      "rule_ids_checked",
+      "source_refs",
+      "evaluated_at",
+      "evaluated_by"
+    ],
+    "decision_enum": [
+      "HOLD",
+      "REJECT",
+      "CANDIDATE_ONLY",
+      "PASS_TO_SUPPLY_VERIFICATION",
+      "PASS_TO_GAUNTLET",
+      "PASS_TO_ACTIVATION_REVIEW"
+    ],
+    "rules": [
+      "A PASS decision advances only to the named next gate and never skips a gate.",
+      "A fossil must identify the exact envelope version or content hash evaluated.",
+      "A fossil with missing source references, unresolved conflicts, or stale evidence is invalid and cannot authorise progression.",
+      "Decision fossils are append-only; corrections create a new fossil linked to the superseded fossil."
+    ]
+  },
+  "adversarial_test_hooks": [
+    {
+      "id": "missing_canonical_sku",
+      "expected": "HOLD"
+    },
+    {
+      "id": "duplicate_product_identity",
+      "expected": "HOLD"
+    },
+    {
+      "id": "cross_silo_supply_reference",
+      "expected": "HOLD"
+    },
+    {
+      "id": "candidate_price_rendered_as_live",
+      "expected": "HOLD"
+    },
+    {
+      "id": "price_unit_missing_or_ambiguous",
+      "expected": "HOLD"
+    },
+    {
+      "id": "catalog_processor_price_mismatch",
+      "expected": "HOLD"
+    },
+    {
+      "id": "published_without_verified_supply",
+      "expected": "HOLD"
+    },
+    {
+      "id": "checkout_enabled_without_activation_fossil",
+      "expected": "HOLD"
+    },
+    {
+      "id": "clone_inherits_stripe_or_supply_state",
+      "expected": "REJECT_CLONE"
+    },
+    {
+      "id": "schema_valid_but_evidence_missing",
+      "expected": "HOLD"
+    }
+  ],
+  "next_step": "Implement executable adversarial tests against the existing schemas and these invariants. Test preparation does not authorise activation, checkout, production writes, or merge."
+}
