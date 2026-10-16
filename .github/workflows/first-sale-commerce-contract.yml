@@ -31,25 +31,22 @@ jobs:
           jq empty public/catalog.json
           jq empty BEC-PRIME/autonomy/OFFERS.json
 
-      - name: Verify configured checkout and honest delivery status
+      - name: Verify canonical hold and honest delivery status
         shell: bash
         run: |
           set -euo pipefail
           CATALOG='public/catalog.json'
-          WORKFLOW='.github/workflows/create-payment-link.yml'
           PRODUCT_ID='DISCORD-WEBHOOK-STARTER-KIT-001'
 
           test "$(jq -r --arg id "$PRODUCT_ID" '.products[] | select(.id == $id) | .price' "$CATALOG")" = '79'
           test "$(jq -r --arg id "$PRODUCT_ID" '.products[] | select(.id == $id) | .currency' "$CATALOG")" = 'nzd'
-          test "$(jq -r --arg id "$PRODUCT_ID" '.products[] | select(.id == $id) | .checkout_available' "$CATALOG")" = 'true'
+          test "$(jq -r --arg id "$PRODUCT_ID" '.products[] | select(.id == $id) | .status' "$CATALOG")" = 'held'
+          test "$(jq -r --arg id "$PRODUCT_ID" '.products[] | select(.id == $id) | .checkout_available' "$CATALOG")" = 'false'
           test "$(jq -r --arg id "$PRODUCT_ID" '.products[] | select(.id == $id) | .delivery_test_status' "$CATALOG")" = 'UNVERIFIED'
-          jq -e --arg id "$PRODUCT_ID" '.products[] | select(.id == $id) | (.checkout_url | startswith("https://buy.stripe.com/"))' "$CATALOG"
+          test "$(jq -r --arg id "$PRODUCT_ID" '.products[] | select(.id == $id) | .checkout_url' "$CATALOG")" = 'null'
+          jq -e --arg id "$PRODUCT_ID" '.products[] | select(.id == $id) | .commercial_truth.approval_required == true and .commercial_truth.sellable == false and .commercial_truth.payment_surface == null' "$CATALOG"
 
-          grep -F -- 'PRODUCT_NAME="Discord Webhook Starter Kit"' "$WORKFLOW"
-          grep -F -- 'PRICE_NZD="79"' "$WORKFLOW"
-          grep -F -- 'secrets.STRIPE_SECRET_KEY' "$WORKFLOW"
-          grep -F -- 'payment_links' "$WORKFLOW"
-          grep -F -- 'https://buy.stripe.com/' "$WORKFLOW"
+          echo 'PASS: Discord Webhook Starter Kit is visible in the catalog but checkout remains held until delivery evidence is verified.'
 
       - name: Secret hygiene guard
         shell: bash
