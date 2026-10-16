@@ -1,0 +1,8 @@
+{
+  "schema": "dreamledger/silo-face-compiler-proof/v1",
+  "status": "PASS",
+  "count": 500,
+  "out": "public/data/silo-face-registry.json",
+  "faces": ["public/silo.html", "public/silos/index.html", "public/mtg/", "public/truth-oracle.html"],
+  "rule": "shell_candidate ≠ live market"
+}
