@@ -30,12 +30,12 @@
       "pricing_strategy": "fixed",
       "refund_rules": "Apply the published checkout policy; delivery is not represented as complete before verified fulfillment.",
       "payment_adapter": "stripe",
-      "payment_link_url": "https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w",
+      "payment_link_url": null,
       "payment_link_status": "ACTIVE_LIVEMODE",
       "payment_link_id": "plink_LIVE_TILE_BUY_ROUTER_ALIGNED",
       "image_addon_price_nzd": 100,
-      "checkout_route": "stripe_payment_link",
-      "fulfillment_route": "supabase_billboard_webhook -> finite_allocation -> manual_review -> publication",
+      "checkout_route": "/billboard",
+      "fulfillment_route": null,
       "proof_of_delivery": "stripe_payment_record + billboard_placement_record + published_canvas_state",
       "scarcity": {
         "canvas_pixels": 1000000,
@@ -58,7 +58,10 @@
       },
       "approved_by": "operator",
       "approved_at": "2026-08-27",
-      "payment_link_note": "Aligned 2026-09-25 to live /buy/DREAMLEDGER-BILLBOARD-FOUNDING-001 redirect"
+      "payment_link_note": "The historical Stripe link remains active at the provider but is not exposed by this held offer. Deactivation requires an authorized Stripe operation.",
+      "approval_required": true,
+      "checkout_available": false,
+      "status": "HELD"
     },
     {
       "offer_id": "OFFER-CMD-DIAG-29-NZD",
