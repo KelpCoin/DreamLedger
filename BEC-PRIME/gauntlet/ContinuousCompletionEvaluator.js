@@ -78,9 +78,8 @@ function validId(value) {
 }
 
 function validateEvidenceRecord(record, expectedVerifier, verifyEvidence) {
-  if (!record || typeof record !== 'object' || Array.isArray(record)) {
-    return { status: 'UNKNOWN', issue: 'EVIDENCE_RECORD_MISSING' };
-  }
+  if (record === undefined || record === null) return { status: 'UNKNOWN', issue: 'EVIDENCE_RECORD_MISSING' };
+  if (typeof record !== 'object' || Array.isArray(record)) return { status: 'INVALID', issue: 'EVIDENCE_RECORD_NOT_OBJECT' };
   const status = record.status;
   if (!['PASS', 'FAIL', 'UNKNOWN'].includes(status)) {
     return { status: 'INVALID', issue: 'INVALID_EVIDENCE_STATUS' };
@@ -184,13 +183,13 @@ function evaluateEconomicEvent(input = {}, options = {}) {
     ? input.repairableDefects.filter(value => typeof value === 'string' && value.length > 0)
     : [];
 
-  const outcome = input.finalOutcome || {};
+  const outcome = input.finalOutcome;
   const finalOutcomeRecord = validateEvidenceRecord(outcome, 'economic-outcome-verifier', verifyEvidence);
   const finalOutcomeVerified = finalOutcomeRecord.status === 'PASS'
-    && outcome.verified === true
-    && typeof outcome.proof_ref === 'string' && outcome.proof_ref.trim().length > 0
-    && outcome.settlement_reconciled === true
-    && outcome.reversals_checked === true;
+    && outcome?.verified === true
+    && typeof outcome?.proof_ref === 'string' && outcome.proof_ref.trim().length > 0
+    && outcome?.settlement_reconciled === true
+    && outcome?.reversals_checked === true;
 
   if (finalOutcomeRecord.status === 'INVALID') invalidEvidence.push('finalOutcome:' + finalOutcomeRecord.issue);
   if (finalOutcomeRecord.status !== 'PASS' || !finalOutcomeVerified) {
@@ -262,9 +261,9 @@ function evaluateEconomicEvent(input = {}, options = {}) {
     final_outcome_evidence: {
       independently_verified: finalOutcomeVerified,
       verifier: finalOutcomeRecord.status === 'PASS' ? outcome.verified_by : null,
-      proof_ref_present: typeof outcome.proof_ref === 'string' && outcome.proof_ref.trim().length > 0,
-      settlement_reconciled: outcome.settlement_reconciled === true,
-      reversals_checked: outcome.reversals_checked === true
+      proof_ref_present: typeof outcome?.proof_ref === 'string' && outcome.proof_ref.trim().length > 0,
+      settlement_reconciled: outcome?.settlement_reconciled === true,
+      reversals_checked: outcome?.reversals_checked === true
     },
     binary_gate_pass: economicGatePass,
     verified_economic_outcome: economicGatePass,
