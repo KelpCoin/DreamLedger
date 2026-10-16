@@ -52,6 +52,6 @@ fetch('/api/products',{cache:'no-store'}).then(function(r){return r.json()}).the
 </body></html>
 +esc(Number(p.price||0))+'</div><a class="btn" href="'+esc(p.checkout_url)+'" rel="noopener noreferrer">Pay on Stripe</a></article>';
   }).join('')+'</div>';
-}).catch(function(){document.getElementById('products').innerHTML='<p class="empty"><a href="/buy/DREAMMEEZ-SUPPORTER-SPROUT">Pay NZ$3.99 on Stripe</a></p>';});
+}).catch(function(){document.getElementById('products').innerHTML='<p class="empty">Checkout status is unavailable, so purchase actions remain held. Please retry later.</p>';});
 </script>
 </body></html>
