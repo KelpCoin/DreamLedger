@@ -15,6 +15,15 @@ function isStripeUrl(value) {
   }
 }
 
+function priceInMajorUnits(product) {
+  const value = Number(product?.price);
+  if (!Number.isFinite(value) || value <= 0) return null;
+  const unit = String(product?.price_unit || '').toLowerCase();
+  if (unit === 'major') return value;
+  if (unit === 'minor' || unit === 'cents') return value / 100;
+  return null;
+}
+
 function positiveInventory(product) {
   return [product.inventory, product.inventory_units, product.inventory_pixels]
     .some(value => Number.isFinite(Number(value)) && Number(value) > 0);
@@ -60,6 +69,7 @@ function evaluateCanonicalProduct(product, registry, repoRoot) {
   if (!['stripe', 'payment_link'].includes(product.checkout?.mode)) reasons.push('checkout_mode_not_canonical');
   if (!isStripeUrl(checkoutUrl(product))) reasons.push('stripe_payment_link_missing_or_invalid');
   if (!positiveInventory(product)) reasons.push('inventory_not_positive');
+  if (priceInMajorUnits(product) === null) reasons.push('price_unit_missing_or_invalid');
 
   const entry = registry?.entries?.[product.id]
     || (product.offer_id && registry?.entries?.[product.offer_id])
@@ -104,8 +114,8 @@ function toPublicProduct(product) {
     silo: product.silo,
     name: product.name,
     description: product.description || '',
-    price: Number(product.price),
-    price_unit: product.price_unit || 'major',
+    price: priceInMajorUnits(product),
+    price_unit: 'major',
     currency: String(product.currency || 'NZD').toUpperCase(),
     inventory: Number(product.inventory ?? product.inventory_units ?? product.inventory_pixels),
     status: 'published',
@@ -122,6 +132,7 @@ module.exports = {
   PUBLISHABLE_SILOS,
   isStripeUrl,
   checkoutUrl,
+  priceInMajorUnits,
   evaluateCanonicalProduct,
   loadCanonicalCheckoutableProducts,
   toPublicProduct
