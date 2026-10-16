@@ -47,6 +47,12 @@ checks = {
     "root maps to designed homepage": "'/':'home.html'" in SERVER,
     "about route maps to page": "'/about/':'about.html'" in SERVER,
     "trust route maps to page": "'/trust/':'trust.html'" in SERVER,
+    "held Commander buy aliases map to a no-checkout page": (
+        "buy/commander-deck-diagnostic-001/index.html" in SERVER
+        and "buy/cmd-diag-29/index.html" in SERVER
+        and "This route will not redirect to payment." in (ROOT / "public" / "buy" / "commander-deck-diagnostic-001" / "index.html").read_text(encoding="utf-8")
+        and not re.search(r"https://(?:buy|checkout)\\.stripe\\.com/", (ROOT / "public" / "buy" / "commander-deck-diagnostic-001" / "index.html").read_text(encoding="utf-8"), re.I)
+    ),
     "public catalogue route remains transparent while API product feed is checkout-filtered": (
         "'/catalog.json':'catalog.json'" in SERVER
         and "p==='/api/offers' || p==='/api/products'" in SERVER
