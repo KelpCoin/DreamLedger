@@ -278,6 +278,7 @@ async function handle(req,res,path){
     if(typeof body.ts!=='string'||!Number.isFinite(Date.parse(body.ts))) return send(res,400,{error:'valid_iso8601_ts_required'});
     const sourceTs=Date.parse(body.ts),now=Date.now();
     if(sourceTs<now-10*60*1000||sourceTs>now+5*60*1000) return send(res,400,{error:'heartbeat_timestamp_stale_or_future'});
+    if(latestLocalHeartbeat && sourceTs<=Date.parse(latestLocalHeartbeat.source_ts)) return send(res,409,{error:'heartbeat_timestamp_replayed_or_out_of_order'});
     if(typeof body.lm_studio!=='boolean') return send(res,400,{error:'lm_studio_boolean_required'});
     if(body.tri_llm!=null&&typeof body.tri_llm!=='boolean') return send(res,400,{error:'tri_llm_must_be_boolean'});
     const capacity=body.capacity==null?(body.lm_studio?'available':'offline'):String(body.capacity);
