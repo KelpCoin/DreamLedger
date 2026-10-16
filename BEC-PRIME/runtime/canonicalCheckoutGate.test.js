@@ -5,7 +5,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
-const { evaluateCanonicalProduct } = require('./canonicalCheckoutGate');
+const { evaluateCanonicalProduct, evaluateCanonicalDynamicCheckoutProduct } = require('./canonicalCheckoutGate');
 
 function fixture() {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'canonical-checkout-gate-'));
@@ -97,6 +97,36 @@ test('rejects proof paths that escape the repository root', () => {
     f.product.gauntlet.evidence_ref = '../../outside.json';
     const result = evaluateCanonicalProduct(f.product, f.registry, f.root);
     assert.equal(result.allowed, false);
+    assert.ok(result.reasons.includes('product_checkout_proof_missing_or_invalid'));
+  } finally {
+    fs.rmSync(f.root, { recursive: true, force: true });
+  }
+});
+
+test('allows dynamic checkout only with canonical publication, fulfillment, and linked proof', () => {
+  const f = fixture();
+  try {
+    f.product.checkout.mode = 'payment';
+    delete f.product.checkout.url;
+    delete f.product.commercial_truth.payment_link;
+    const result = evaluateCanonicalDynamicCheckoutProduct(f.product, f.registry, f.root);
+    assert.equal(result.allowed, true);
+    assert.equal(result.checkout_url, null);
+  } finally {
+    fs.rmSync(f.root, { recursive: true, force: true });
+  }
+});
+
+test('blocks a published dynamic-checkout product when fulfillment is held or proof is absent', () => {
+  const f = fixture();
+  try {
+    f.product.checkout.mode = 'payment';
+    f.product.checkout_available = true;
+    f.registry.entries['TEST-001'].ready = false;
+    delete f.product.gauntlet;
+    const result = evaluateCanonicalDynamicCheckoutProduct(f.product, f.registry, f.root);
+    assert.equal(result.allowed, false);
+    assert.ok(result.reasons.includes('fulfillment_contract_not_ready'));
     assert.ok(result.reasons.includes('product_checkout_proof_missing_or_invalid'));
   } finally {
     fs.rmSync(f.root, { recursive: true, force: true });
