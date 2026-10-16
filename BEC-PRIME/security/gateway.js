@@ -13,10 +13,12 @@ const MANIFEST_PATH = path.join(__dirname, 'mcp-gateway-manifest.json');
 const PROOF_DIR = path.join(ROOT, 'data', 'proofs');
 const PROTOCOL_VERSION = '2025-11-25';
 const MAX_MESSAGE_BYTES = 262144;
-const MAX_CALLS = 100;
+const MAX_CALLS = 15;
+const MAX_WALL_CLOCK_MS = 5 * 60 * 1000;
 let initialized = false;
 let clientIdentity = null;
 let callCount = 0;
+let sessionStartedAt = null;
 
 const TOOL_PERMISSIONS = Object.freeze({
   dl_read_cartridge: 'READ_ONLY',
@@ -125,15 +127,15 @@ function handle(req) {
     loadManifest();
     const ci=params.clientInfo || {};
     if(!ci.name) return respond(req,null,{code:-32602,message:'clientInfo.name required'});
-    clientIdentity={name:String(ci.name),version:String(ci.version || '')}; initialized=true;
+    clientIdentity={name:String(ci.name),version:String(ci.version || '')}; initialized=true; sessionStartedAt=Date.now();
     ledger.appendEvent({event_type:'MCP_INITIALIZED',actor:{type:'mcp-client',id:clientIdentity.name},payload:{client:clientIdentity,manifest_hash:loadManifest().manifest_hash},result:'PASS'});
     return respond(req,{protocolVersion:PROTOCOL_VERSION,capabilities:{tools:{}},serverInfo:{name:'dreamledger-gateway',version:'1.2.0'}});
   }
   if(!initialized) return respond(req,null,{code:-32002,message:'Initialize first'});
   if(method === 'initialized') return respond(req,{});
-  if(++callCount > MAX_CALLS) return respond(req,null,{code:-32000,message:'Session quota exceeded'});
+  if (!Number.isFinite(sessionStartedAt) || Date.now() - sessionStartedAt >= MAX_WALL_CLOCK_MS) return respond(req,null,{code:-32000,message:'Session wall-clock deadline exceeded; fail closed'});
   if(method === 'tools/list') return respond(req,{tools:loadManifest().tools.map(t=>({name:t.name,description:t.description,inputSchema:{type:'object'}}))});
-  if(method === 'tools/call') { try { return respond(req,{content:[{type:'text',text:JSON.stringify(callTool(String(params.name || ''),{...(params.arguments || {})}) )}]}); } catch(e) { return respond(req,null,{code:-32000,message:e.message}); } }
+  if(method === 'tools/call') { if (callCount >= MAX_CALLS) return respond(req,null,{code:-32000,message:'Session tool-call budget exceeded; fail closed'}); callCount += 1; try { return respond(req,{content:[{type:'text',text:JSON.stringify(callTool(String(params.name || ''),{...(params.arguments || {})}) )}]}); } catch(e) { return respond(req,null,{code:-32000,message:e.message}); } }
   return respond(req,null,{code:-32601,message:'Method not found'});
 }
 
