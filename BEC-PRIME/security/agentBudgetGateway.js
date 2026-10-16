@@ -251,20 +251,28 @@ class RedisAtomicBudgetStore {
 }
 
 function createAgentBudgetGateway(options = {}) {
-  const { redis, store: suppliedStore, priceTable, agentPolicies, ledgerPath, clock = Date.now } = options;
+  const { redis, store: suppliedStore, priceTable, agentPolicies, ledgerPath, clock = Date.now, estimateInputTokens } = options;
+  if (typeof estimateInputTokens !== 'function') throw new Error('Trusted model-specific estimateInputTokens function is required');
   if (!priceTable || typeof priceTable !== 'object') throw new Error('Explicit price table is required');
   if (!agentPolicies || typeof agentPolicies !== 'object') throw new Error('Explicit per-agent policies are required');
   if (typeof ledgerPath !== 'string' || !path.isAbsolute(ledgerPath)) throw new Error('An absolute usage ledger path is required');
   const store = suppliedStore || new RedisAtomicBudgetStore(redis, clock);
 
   async function execute(input) {
-    const { agentId, modelId, request, inputTokens, maxOutputTokens, idempotencyKey, invoke } = input || {};
+    const { agentId, modelId, request, maxOutputTokens, idempotencyKey, invoke } = input || {};
     if (!safeId(agentId) || !safeId(modelId) || !safeId(idempotencyKey)) {
       return { status: 400, allowed: false, reason: 'INVALID_IDENTITY_OR_IDEMPOTENCY_KEY' };
     }
-    if (!request || typeof request !== 'object' || !Number.isInteger(inputTokens) || inputTokens < 0
+    if (!request || typeof request !== 'object'
       || !Number.isInteger(maxOutputTokens) || maxOutputTokens <= 0 || typeof invoke !== 'function') {
       return { status: 400, allowed: false, reason: 'INVALID_REQUEST_CONTRACT' };
+    }
+    let inputTokenCount;
+    try { inputTokenCount = estimateInputTokens(request, modelId); } catch (_) {
+      return { status: 503, allowed: false, reason: 'INPUT_TOKEN_ESTIMATION_FAILED_PROVIDER_NOT_CALLED' };
+    }
+    if (!Number.isInteger(inputTokenCount) || inputTokenCount < 0) {
+      return { status: 503, allowed: false, reason: 'INPUT_TOKEN_ESTIMATION_UNAVAILABLE_PROVIDER_NOT_CALLED' };
     }
     const policy = agentPolicies[agentId];
     const price = priceTable[modelId];
@@ -275,14 +283,14 @@ function createAgentBudgetGateway(options = {}) {
       || (price.cachedInputNzdPerMillion !== undefined && !finiteNonNegative(price.cachedInputNzdPerMillion))) {
       return { status: 503, allowed: false, reason: 'MISSING_OR_INVALID_BUDGET_POLICY_OR_PRICE' };
     }
-    const reservedTokens = inputTokens + maxOutputTokens;
+    const reservedTokens = inputTokenCount + maxOutputTokens;
     if (reservedTokens > policy.bucketCapacityTokens) {
       return { status: 429, allowed: false, reason: 'REQUEST_EXCEEDS_TOKEN_BUCKET_CAPACITY' };
     }
     const worstCaseInputRate = Math.max(price.inputNzdPerMillion, price.cachedInputNzdPerMillion ?? price.inputNzdPerMillion);
-    const reservedMicroNzd = Math.ceil(inputTokens * worstCaseInputRate + maxOutputTokens * price.outputNzdPerMillion);
+    const reservedMicroNzd = Math.ceil(inputTokenCount * worstCaseInputRate + maxOutputTokens * price.outputNzdPerMillion);
     const dailyLimitMicroNzd = toMicroNzd(policy.dailyBudgetNzd);
-    const requestHash = sha256(JSON.stringify({ modelId, request, inputTokens, maxOutputTokens }));
+    const requestHash = sha256(JSON.stringify({ modelId, request, inputTokenCount, maxOutputTokens }));
     const nowMs = clock();
     const utcDate = new Date(nowMs).toISOString().slice(0, 10);
     let reservation;
@@ -314,7 +322,7 @@ function createAgentBudgetGateway(options = {}) {
       model_id: modelId,
       idempotency_key_hash: sha256(idempotencyKey),
       request_hash: requestHash,
-      input_tokens_estimated: inputTokens,
+      input_tokens_estimated: inputTokenCount,
       output_tokens_reserved: maxOutputTokens,
       reserved_tokens: reservedTokens,
       reserved_cost_nzd: nzdFromMicro(reservedMicroNzd),
