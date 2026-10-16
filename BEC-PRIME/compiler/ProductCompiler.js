@@ -119,7 +119,7 @@ function compile() {
       pricing_strategy: 'fixed',
       payment_adapter: 'stripe',
       checkout_route: p.checkout?.mode === 'payment_link' ? 'stripe_payment_link' : '/api/offer-checkout/create',
-      checkout_url: p.commercial_truth?.payment_link || null,
+      checkout_url: checkoutAvailable ? (p.commercial_truth?.payment_link || null) : null,
       approval_required: p.commercial_truth?.approval_required === true,
       checkout_available: checkoutAvailable,
       status,
