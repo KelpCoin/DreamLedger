@@ -24,23 +24,114 @@ $approvedRecords = @($approvedCatalog.approved)
 $compiledRecords = @($offers.offers)
 $compiledById = @{}
 
-$gateCode = @'
-const fs = require("node:fs");
-const { evaluateCanonicalProduct } = require("./runtime/canonicalCheckoutGate.js");
-const payload = JSON.parse(fs.readFileSync(0, "utf8"));
-const productPath = payload.product_path;
-const registryPath = payload.registry_path;
-const repoRoot = payload.repo_root;
-if (!productPath || !registryPath || !repoRoot) throw new Error("canonical gate inputs are incomplete");
-const product = JSON.parse(fs.readFileSync(productPath, "utf8"));
-const registry = JSON.parse(fs.readFileSync(registryPath, "utf8"));
-const result = evaluateCanonicalProduct(product, registry, repoRoot);
-process.stdout.write(JSON.stringify({
-  allowed: result.allowed === true,
-  reasons: Array.isArray(result.reasons) ? result.reasons : [],
-  checkout_url: result.checkout_url || null
-}));
-'@
+function Get-CanonicalProductGate {
+    param(
+        [Parameter(Mandatory=$true)][object]$Product,
+        [Parameter(Mandatory=$true)][object]$Registry,
+        [Parameter(Mandatory=$true)][string]$RepositoryRoot
+    )
+
+    $reasons = New-Object System.Collections.Generic.List[string]
+    if ($Product.status -ne 'published') { $reasons.Add('product_not_published') }
+    if ([string]$Product.silo -notin @('mtg', 'crypto', 'media_music', 'digital_products')) { $reasons.Add('silo_not_canonical_publishable') }
+    if ($Product.commercial_truth.approval_required -ne $false) { $reasons.Add('operator_approval_gate_closed') }
+    if ($Product.commercial_truth.sellable -ne $true) { $reasons.Add('commercial_sellable_not_true') }
+    if ($Product.checkout_available -ne $true) { $reasons.Add('checkout_not_explicitly_enabled') }
+    if ([string]$Product.checkout.mode -notin @('stripe', 'payment_link')) { $reasons.Add('checkout_mode_not_canonical') }
+
+    $paymentLink = $null
+    if (-not [string]::IsNullOrWhiteSpace([string]$Product.commercial_truth.payment_link)) {
+        $paymentLink = [string]$Product.commercial_truth.payment_link
+    } elseif (-not [string]::IsNullOrWhiteSpace([string]$Product.checkout.url)) {
+        $paymentLink = [string]$Product.checkout.url
+    } elseif (-not [string]::IsNullOrWhiteSpace([string]$Product.checkout_url)) {
+        $paymentLink = [string]$Product.checkout_url
+    }
+    $validStripeLink = $false
+    if (-not [string]::IsNullOrWhiteSpace($paymentLink)) {
+        try {
+            $uri = [System.Uri]$paymentLink
+            $validStripeLink = $uri.Scheme -eq 'https' -and $uri.Host -in @('buy.stripe.com', 'checkout.stripe.com')
+        } catch {
+            $validStripeLink = $false
+        }
+    }
+    if (-not $validStripeLink) { $reasons.Add('stripe_payment_link_missing_or_invalid') }
+
+    $inventoryValues = @($Product.inventory, $Product.inventory_units, $Product.inventory_pixels)
+    $positiveInventory = $false
+    foreach ($value in $inventoryValues) {
+        $parsedInventory = 0.0
+        if ([double]::TryParse([string]$value, [ref]$parsedInventory) -and $parsedInventory -gt 0) {
+            $positiveInventory = $true
+            break
+        }
+    }
+    if (-not $positiveInventory) { $reasons.Add('inventory_not_positive') }
+
+    $price = 0.0
+    $priceValid = [double]::TryParse([string]$Product.price, [ref]$price) -and $price -gt 0
+    $priceUnit = ([string]$Product.price_unit).ToLowerInvariant()
+    if (-not $priceValid -or $priceUnit -notin @('major', 'minor', 'cents')) {
+        $reasons.Add('price_unit_missing_or_invalid')
+    }
+
+    $entry = $null
+    if ($Registry.entries) {
+        $entryProperty = $Registry.entries.PSObject.Properties | Where-Object { $_.Name -eq [string]$Product.id } | Select-Object -First 1
+        if ($entryProperty) {
+            $entry = $entryProperty.Value
+        } elseif (-not [string]::IsNullOrWhiteSpace([string]$Product.offer_id)) {
+            $offerEntryProperty = $Registry.entries.PSObject.Properties | Where-Object { $_.Name -eq [string]$Product.offer_id } | Select-Object -First 1
+            if ($offerEntryProperty) { $entry = $offerEntryProperty.Value }
+        }
+    }
+    if (-not $entry -or $entry.ready -ne $true -or $entry.operator_required -ne $false) {
+        $reasons.Add('fulfillment_contract_not_ready')
+    }
+    if ($entry -and $entry.canonical_product_id -and $entry.canonical_product_id -ne $Product.id) {
+        $reasons.Add('fulfillment_product_mismatch')
+    }
+
+    if ($Product.gauntlet.status -ne 'PASS') { $reasons.Add('product_gauntlet_not_pass') }
+    if ($Product.gauntlet.test_mode_chain -ne 'PASS') { $reasons.Add('test_mode_chain_not_pass') }
+
+    $proofValid = $false
+    $reference = [string]$Product.gauntlet.evidence_ref
+    if (-not [string]::IsNullOrWhiteSpace($reference) -and -not [System.IO.Path]::IsPathRooted($reference)) {
+        $rootPath = [System.IO.Path]::GetFullPath($RepositoryRoot)
+        $proofPath = [System.IO.Path]::GetFullPath((Join-Path $rootPath $reference))
+        $rootPrefix = $rootPath.TrimEnd([System.IO.Path]::DirectorySeparatorChar, [System.IO.Path]::AltDirectorySeparatorChar) + [System.IO.Path]::DirectorySeparatorChar
+        if ($proofPath.StartsWith($rootPrefix, [System.StringComparison]::OrdinalIgnoreCase) -and (Test-Path -LiteralPath $proofPath -PathType Leaf)) {
+            try {
+                $proof = Get-Content -Raw -LiteralPath $proofPath | ConvertFrom-Json
+                $chain = $proof.test_mode_chain
+                $proofValid = (
+                    $proof.schema -eq 'dreamledger/product-checkout-proof/v1' -and
+                    $proof.product_id -eq $Product.id -and
+                    $proof.verdict -eq 'PASS' -and
+                    $chain.checkout -eq 'PASS' -and
+                    $chain.settlement -eq 'PASS' -and
+                    $chain.attribution -eq 'PASS' -and
+                    $chain.fulfillment -eq 'PASS' -and
+                    $chain.delivery -eq 'PASS'
+                )
+            } catch {
+                $proofValid = $false
+            }
+        }
+    }
+    if (-not $proofValid) { $reasons.Add('product_checkout_proof_missing_or_invalid') }
+
+    return [pscustomobject]@{
+        allowed = ($reasons.Count -eq 0)
+        reasons = @($reasons)
+        checkout_url = if ($validStripeLink) { $paymentLink } else { $null }
+    }
+}
+
+
+
 
 if ($offers.schema -ne 'BEC-PRIME/OFFER-CATALOG/v1') { $errors.Add('offers schema mismatch') }
 if ($offers.compiler -ne 'offer-compiler-v1') { $errors.Add('compiler version mismatch') }
@@ -80,14 +171,9 @@ foreach ($record in $approvedRecords) {
     }
 
     try {
-        $payload = [ordered]@{
-            product_path = (Resolve-Path -LiteralPath $productFile).Path
-            registry_path = (Resolve-Path -LiteralPath $registryFile).Path
-            repo_root = $repoRoot
-        } | ConvertTo-Json -Compress
-        $gateJson = $payload | & node -e $gateCode
-        if ($LASTEXITCODE -ne 0) { throw "canonical product gate returned exit code $LASTEXITCODE" }
-        $gate = $gateJson | ConvertFrom-Json
+        $product = Get-Content -Raw -LiteralPath $productFile | ConvertFrom-Json
+        $registry = Get-Content -Raw -LiteralPath $registryFile | ConvertFrom-Json
+        $gate = Get-CanonicalProductGate -Product $product -Registry $registry -RepositoryRoot $repoRoot
     } catch {
         $errors.Add("$($id): canonical product gate could not be evaluated: $($_.Exception.Message)")
         continue
