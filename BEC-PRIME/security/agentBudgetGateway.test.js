@@ -80,7 +80,9 @@ class MemoryAtomicStore {
     bucket.tokens = Math.min(p.bucketCapacityTokens, Math.max(0, bucket.tokens + p.reservedTokens - actualTokens));
     this.buckets.set(p.bucketKey, bucket);
     p.statusInternal = 'SETTLED';
-    return { status: (this.daily.get(p.dailyKey) || 0) > p.dailyLimitMicroNzd ? 'SETTLED_OVER_BUDGET' : 'SETTLED' };
+    const overBudget = (this.daily.get(p.dailyKey) || 0) > p.dailyLimitMicroNzd
+      || actualMicroNzd > p.reservedMicroNzd || actualTokens > p.reservedTokens;
+    return { status: overBudget ? 'SETTLED_OVER_BUDGET' : 'SETTLED' };
   }
 
   async cancel(reservation) {
@@ -247,6 +249,32 @@ test('tampering with a JSONL record breaks the ledger hash chain', async () => {
   const raw = fs.readFileSync(f.ledgerPath, 'utf8').replace('"cost_nzd":0.000015', '"cost_nzd":9.99');
   fs.writeFileSync(f.ledgerPath, raw, 'utf8');
   assert.equal(verifyUsageLedger(f.ledgerPath).ok, false);
+});
+
+test('ledger tampering stops later calls before provider invocation', async () => {
+  const f = fixture();
+  await f.gateway.execute(request());
+  const raw = fs.readFileSync(f.ledgerPath, 'utf8').replace('"cost_nzd":0.000015', '"cost_nzd":8.88');
+  fs.writeFileSync(f.ledgerPath, raw, 'utf8');
+  let calls = 0;
+  const result = await f.gateway.execute(request({
+    idempotencyKey: 'job-after-tamper',
+    invoke: async () => { calls++; return { usage: { input_tokens: 10, output_tokens: 5 } }; }
+  }));
+  assert.equal(result.status, 503);
+  assert.equal(result.reason, 'USAGE_LEDGER_PREWRITE_FAILED_PROVIDER_NOT_CALLED');
+  assert.equal(calls, 0);
+});
+
+test('actual usage above reservation halts the agent after recording the overrun', async () => {
+  const f = fixture();
+  const result = await f.gateway.execute(request({
+    inputTokens: 10,
+    maxOutputTokens: 10,
+    invoke: async () => ({ usage: { input_tokens: 10, output_tokens: 11 } })
+  }));
+  assert.equal(result.status, 429);
+  assert.equal(result.reason, 'PROVIDER_USAGE_EXCEEDED_RESERVATION_OR_DAILY_BUDGET_STOP_AGENT');
 });
 
 test('cached input uses the explicitly priced cached-token rate', async () => {
