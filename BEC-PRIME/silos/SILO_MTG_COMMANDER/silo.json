@@ -1,0 +1,93 @@
+{
+  "schema": "dreamledger/silo-pack/v1",
+  "silo_id": "SILO_MTG_COMMANDER",
+  "display_name": "Magic: The Gathering Commander Marketplace",
+  "purpose": "A Commander deck and singles discovery surface with evidence-aware listing details. Physical listings use seller inquiry routes; the digital Commander Diagnostic remains held until payment, fulfillment, and delivery are proven.",
+  "fee_rate_percent": 0,
+  "skin": {
+    "theme": "dark-card-table",
+    "accent": "gold",
+    "layout": "horizontal-card-rail"
+  },
+  "commerce": {
+    "spine": "DreamLedger canonical product, checkout, and evidence registry",
+    "proof_schema": "CONTROL-PLANE/SILO-PACK-TEMPLATE/evidence.schema.json",
+    "scale_rule": "Clone only from verified source manifests. Never invent inventory, card legality, tournament outcomes, or checkout availability.",
+    "checkout_default": false
+  },
+  "offers": [],
+  "surfaces": [
+    {
+      "route": "/mtg/",
+      "kind": "catalog",
+      "source": "data/mtg-catalog.json"
+    },
+    {
+      "route": "/mtg/jon-irenicus-shattered-one.html",
+      "kind": "listing-detail",
+      "source": "public/catalog.json"
+    },
+    {
+      "route": "/mtg/diagnostic.html",
+      "kind": "digital-service",
+      "status": "held"
+    }
+  ],
+  "language_profile": {
+    "locale": "en-NZ",
+    "tone": [
+      "domain-native",
+      "clear",
+      "evidence-led",
+      "non-promotional"
+    ],
+    "audience": "Commander deck owners and collectors in Aotearoa New Zealand and global online players",
+    "preferred_terms": [
+      "Commander deck",
+      "decklist",
+      "mana curve",
+      "colour identity",
+      "card legality",
+      "synergy analysis",
+      "upgrade suggestions",
+      "listing availability"
+    ],
+    "avoid_terms": [
+      "official Magic: The Gathering service",
+      "guaranteed win rate",
+      "verified winning deck",
+      "tournament proven",
+      "guaranteed value"
+    ],
+    "claim_rules": {
+      "require_evidence_for_performance_claims": true,
+      "allow_invented_products": false,
+      "require_price_disclosure": true,
+      "required_disclosures": [
+        "Do not imply Wizards of the Coast endorsement or affiliation.",
+        "State the format and source date for card-legality claims.",
+        "Confirm physical inventory and shipping with the seller before payment.",
+        "Do not describe the Commander Deck Diagnostic as available while its checkout or fulfillment gates are held."
+      ]
+    }
+  },
+  "word_banks": {
+    "primary": "CONTROL-PLANE/SILO-PACK-TEMPLATE/word-banks/mtg-commander.json",
+    "overrides": []
+  },
+  "schemas": {
+    "catalog": "CONTROL-PLANE/SILO-PACK-TEMPLATE/catalog.schema.json",
+    "offer": "BEC-PRIME/compiler/schemas/offer.schema.json",
+    "evidence": "CONTROL-PLANE/SILO-PACK-TEMPLATE/evidence.schema.json",
+    "product": "BEC-PRIME/schemas/elohim-product.schema.json",
+    "checkout": "contracts/agent-protocol/v1/economic-event.schema.json"
+  },
+  "forbidden": [
+    "invented_products",
+    "invented_inventory",
+    "unverified_performance_claims",
+    "false_affiliation",
+    "checkout_bypass",
+    "unverified_legality_claims"
+  ]
+}
