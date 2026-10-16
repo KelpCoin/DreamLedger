@@ -1,0 +1,51 @@
+{
+  "schema": "DREAMLEDGER/MACHINE-COMMERCE-PROOF/v1",
+  "observed_at": "2026-10-06",
+  "scoreboard": {
+    "verified_external_revenue_nzd": 0,
+    "settled_external_payments": 0,
+    "independent_external_buyers": 0,
+    "paid_fulfilled_orders": 0
+  },
+  "first_dollar_frontier": "EXTERNAL_PAYMENT_RAIL_CONFIGURATION",
+  "live_offer": {
+    "sku": "QUOTE-COMPARE-49",
+    "price_nzd": 49,
+    "checkout": "https://buy.stripe.com/14AdN97LD6pLfuLdVadwc32",
+    "public_surface": "https://dreamledger.org/quote-comparison/",
+    "status": "VERIFIED_AVAILABLE"
+  },
+  "existing_authority": {
+    "artifact": ".github/acquisition/approved-dispatch.json",
+    "authorization_mode": "ELOHIM_GAUNTLET_BRIDGED_ONE_SHOT",
+    "offer": "CMD-DIAG-29",
+    "dispatch_target": "configured-discord-channel"
+  },
+  "existing_dispatch_blocker": {
+    "workflow": ".github/workflows/acquire-catalog-discord.yml",
+    "blocker": "DISCORD_WEBHOOK missing",
+    "classification": "EXTERNAL_BLOCKED"
+  },
+  "new_primitive": {
+    "branch": "machine-commerce-prime",
+    "files": [
+      "machine-commerce/quote-verifier/package.json",
+      "machine-commerce/quote-verifier/quote-verifier.js",
+      "machine-commerce/quote-verifier/quote-verifier.test.js",
+      "machine-commerce/quote-verifier/server.js",
+      "machine-commerce/quote-verifier/README.md"
+    ],
+    "price_usdc": 0.02,
+    "network": "eip155:8453",
+    "payment_scheme": "exact",
+    "discovery": "x402 Bazaar extension",
+    "runtime_blocker": "PAY_TO not configured"
+  },
+  "external_validation": {
+    "x402_bazaar": "live discovery layer",
+    "agentoracle": "live x402 verification merchant; current public site advertises $0.09/verification while SKALE launch material documents $0.02 on Base/SKALE routes",
+    "factorium": "live health; 14 attestations, 3 verifiers, 0 transactions, 0 volume"
+  },
+  "economic_truth": "UNVERIFIED",
+  "no_revenue_claim": true
+}
