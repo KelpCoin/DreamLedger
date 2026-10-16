@@ -68,12 +68,16 @@ async function main() {
   if (brokenClaim.length) {
     throw new Error('claim-by-message products missing valid claim URL: ' + brokenClaim.map(product => product.id).join(', '));
   }
-  if (!purchasable.length) {
-    throw new Error('no published product has a valid checkout or claim route');
+  if (!purchasable.length && parsed.commerce_status !== 'HOLD_NO_CANONICAL_PRODUCT_PROOF') {
+    throw new Error('no purchasable products and the API did not report the required canonical proof hold');
+  }
+  if (purchasable.length === 0 && published.length > 0) {
+    throw new Error('published products exist but none are authorized for checkout');
   }
 
   console.log(JSON.stringify({
-    status: 'PASS',
+    status: purchasable.length ? 'PASS' : 'PASS_WITH_COMMERCE_HOLD',
+    commerce_gate: purchasable.length ? 'READY' : 'BLOCKED_NO_CANONICAL_PRODUCT_PROOF',
     timestamp_utc: new Date().toISOString(),
     homepage_status: home.status,
     products_status: products.status,
