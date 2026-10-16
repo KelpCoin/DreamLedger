@@ -14,13 +14,14 @@ const schemaPaths = [
   'CONTROL-PLANE/SILO-PACK-TEMPLATE/catalog.schema.json',
   'CONTROL-PLANE/SILO-PACK-TEMPLATE/evidence.schema.json',
 ];
-for (const schemaPath of schemaPaths) {
+for (const schemaPath of schemaPaths.slice(2)) {
   ajv.compile(readJson(schemaPath));
 }
 
 const siloSchema = readJson(schemaPaths[0]);
-const silo = readJson('CONTROL-PLANE/SILO-PACK-TEMPLATE/silo.json');
 const validateSilo = ajv.compile(siloSchema);
+const validateBank = ajv.compile(readJson(schemaPaths[1]));
+const silo = readJson('CONTROL-PLANE/SILO-PACK-TEMPLATE/silo.json');
 if (!validateSilo(silo)) {
   throw new Error(`SILO_TEMPLATE_INVALID: ${ajv.errorsText(validateSilo.errors)}`);
 }
@@ -30,7 +31,6 @@ for (const bankPath of [
   'CONTROL-PLANE/SILO-PACK-TEMPLATE/word-banks/mtg-commander.json',
 ]) {
   const bank = readJson(bankPath);
-  const validateBank = ajv.compile(readJson(schemaPaths[1]));
   if (!validateBank(bank)) {
     throw new Error(`WORD_BANK_INVALID (${bankPath}): ${ajv.errorsText(validateBank.errors)}`);
   }
