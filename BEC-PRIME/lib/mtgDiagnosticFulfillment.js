@@ -2,6 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const canonicalCheckoutGate = require('../runtime/canonicalCheckoutGate');
 
 const ROOT = path.join(__dirname, '..');
 const DATA = path.resolve(process.env.MTG_DIAGNOSTIC_DATA_DIR || path.join(ROOT, 'data', 'mtg-diagnostics'));
@@ -76,6 +77,9 @@ async function assertEconomicLedgerReady(){
   if(!offerId)throw new Error('Canonical economic offer unavailable; checkout held');
 }
 async function createCheckout(input){
+  const repoRoot=path.resolve(__dirname,'../..');
+  const checkoutable=canonicalCheckoutGate.loadCanonicalCheckoutableProducts({repoRoot});
+  if(!checkoutable.some(product=>product.id===PRODUCT_ID))throw Object.assign(new Error('CANONICAL_PRODUCT_HELD: checkout remains disabled until the canonical product gate and test-mode proof pass'),{statusCode:409});
   if(!STRIPE_SECRET_KEY)throw new Error('STRIPE_SECRET_KEY is not configured');
   await assertEconomicLedgerReady();
   const intake=await createIntake(input);
