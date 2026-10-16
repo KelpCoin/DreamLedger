@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { evaluateCanonicalProduct } = require('../runtime/canonicalCheckoutGate');
 const crypto = require('crypto');
 const Ajv = require('ajv');
 
@@ -205,10 +206,18 @@ function canonicalProductGate(productId) {
   } catch {
     return { open: false, reason: 'canonical_product_missing', paymentLink: null };
   }
-  const paymentLink = product.checkout?.url || product.commercial_truth?.payment_link || product.checkout_url || null;
+  const paymentLink = product.commercial_truth?.payment_link || product.checkout?.url || product.checkout_url || null;
   const validStripeLink = typeof paymentLink === 'string'
     && /^https:\/\/(?:buy\.stripe\.com|checkout\.stripe\.com)\//i.test(paymentLink);
-  const open = product.status === 'published'
+  let registry = null;
+  try {
+    registry = JSON.parse(fs.readFileSync(path.join(ROOT, 'fulfillment', 'PRODUCT-FULFILLMENT-REGISTRY.json'), 'utf8'));
+  } catch {
+    return { open: false, reason: 'fulfillment_registry_missing', paymentLink: null, product };
+  }
+  const proofGate = evaluateCanonicalProduct(product, registry, path.join(ROOT, '..'));
+  const open = proofGate.allowed
+    && product.status === 'published'
     && product.commercial_truth?.approval_required === false
     && product.commercial_truth?.sellable === true
     && product.checkout_available === true
@@ -216,8 +225,8 @@ function canonicalProductGate(productId) {
     && validStripeLink;
   return {
     open,
-    reason: open ? null : 'canonical_product_gate_closed',
-    paymentLink,
+    reason: open ? null : (proofGate.reasons?.[0] || 'canonical_product_gate_closed'),
+    paymentLink: open ? paymentLink : null,
     product
   };
 }
