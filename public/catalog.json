@@ -198,11 +198,28 @@
       "description": "Billboard preview only. Paid placement checkout is temporarily held while secure intake and live inventory reservation are repaired. No purchase is accepted from the current billboard page.",
       "price": 50,
       "currency": "nzd",
-      "status": "published",
+      "status": "held",
       "checkout_available": false,
       "checkout_url": null,
       "category": "public-placements",
-      "availability": "review_required"
+      "availability": "review_required",
+      "sale_mode": "disabled",
+      "commercial_truth": {
+        "approval_required": true,
+        "sellable": false,
+        "reason": "Held until the canonical product Gauntlet, test-mode settlement, attribution, fulfillment, and delivery proof are independently verified.",
+        "payment_surface": null
+      },
+      "fulfillment": {
+        "status": "not_verified",
+        "ready": false
+      },
+      "gauntlet": {
+        "status": "NOT_VERIFIED",
+        "test_mode_chain": "NOT_VERIFIED",
+        "checkout_authorized": false,
+        "evidence_ref": null
+      }
     },
     {
       "id": "COMMANDER-DECK-DIAGNOSTIC-001",
@@ -254,7 +271,7 @@
       "description": "Edward Kenway Pirate/Vehicle Commander deck. Public listing price: NZ$230. The connected live Stripe Payment Link currently charges NZ$400, so purchase is held until price and payment link are reconciled. This listing is visible for transparency but is not purchasable.",
       "price": 230,
       "currency": "nzd",
-      "status": "published",
+      "status": "held",
       "checkout_available": false,
       "checkout_url": null,
       "sku": "EDH-EDWARD-KENWAY-PACIN-ON-THE-PLANK-001",
@@ -272,7 +289,24 @@
       "patron_url": "https://patreon.com/happyhomarid",
       "category": "mtg",
       "availability": "review_required",
-      "checkout_hold_reason": "Live Stripe checkout charges NZ$400 while public listing is NZ$230; checkout remains held until parity is restored."
+      "checkout_hold_reason": "Live Stripe checkout charges NZ$400 while public listing is NZ$230; checkout remains held until parity is restored.",
+      "sale_mode": "disabled",
+      "commercial_truth": {
+        "approval_required": true,
+        "sellable": false,
+        "reason": "Held until the canonical product Gauntlet, test-mode settlement, attribution, fulfillment, and delivery proof are independently verified.",
+        "payment_surface": null
+      },
+      "fulfillment": {
+        "status": "not_verified",
+        "ready": false
+      },
+      "gauntlet": {
+        "status": "NOT_VERIFIED",
+        "test_mode_chain": "NOT_VERIFIED",
+        "checkout_authorized": false,
+        "evidence_ref": null
+      }
     },
     {
       "id": "EDH_QUINTORIUS_0002",
@@ -283,14 +317,14 @@
       "price": 90,
       "currency": "nzd",
       "inventory": 1,
-      "status": "published",
+      "status": "held",
       "seller": "Biggie",
       "condition": "Seller reports fully sleeved; extensively playtested",
       "fulfillment_method": "physical_delivery",
       "image_url": null,
       "checkout_available": false,
       "checkout_url": null,
-      "sale_mode": "claim_by_message",
+      "sale_mode": "disabled",
       "claim_url": "/mtg/quintorius-field-historian.html",
       "decklist_url": "https://manabox.app/decks/AZ4-aMxndkWrpKZVph4TSA",
       "metadata": {
@@ -316,13 +350,26 @@
         "payment_note": "DM to claim. Listing-specific online checkout not yet enabled."
       },
       "commercial_truth": {
-        "approval_required": false,
+        "approval_required": true,
         "checkout_available": false,
         "fulfillment_required": true,
         "evidence_required": true,
-        "payment_link": null
+        "payment_link": null,
+        "sellable": false,
+        "reason": "Held until the canonical product Gauntlet, test-mode settlement, attribution, fulfillment, and delivery proof are independently verified.",
+        "payment_surface": null
       },
-      "default_offer_id": "EDH_QUINTORIUS_0002"
+      "default_offer_id": "EDH_QUINTORIUS_0002",
+      "fulfillment": {
+        "status": "not_verified",
+        "ready": false
+      },
+      "gauntlet": {
+        "status": "NOT_VERIFIED",
+        "test_mode_chain": "NOT_VERIFIED",
+        "checkout_authorized": false,
+        "evidence_ref": null
+      }
     },
     {
       "id": "EDH_DWYNEN_0003",
@@ -333,14 +380,14 @@
       "price": 90,
       "currency": "nzd",
       "inventory": 1,
-      "status": "published",
+      "status": "held",
       "seller": "HappyHomarid",
       "condition": "Seller reports sleeved and extensively playtested",
       "fulfillment_method": "physical_delivery",
       "image_url": null,
       "checkout_available": false,
       "checkout_url": null,
-      "sale_mode": "claim_by_message",
+      "sale_mode": "disabled",
       "claim_url": "/mtg/dwynen-gilt-leaf-daen.html",
       "decklist_url": "https://manabox.app/decks/AZ46QrurcOObBGF6V5oWTA",
       "metadata": {
@@ -366,13 +413,26 @@
         "payment_note": "DM to claim. Listing-specific online checkout not yet enabled."
       },
       "commercial_truth": {
-        "approval_required": false,
+        "approval_required": true,
         "checkout_available": false,
         "fulfillment_required": true,
         "evidence_required": true,
-        "payment_link": null
+        "payment_link": null,
+        "sellable": false,
+        "reason": "Held until the canonical product Gauntlet, test-mode settlement, attribution, fulfillment, and delivery proof are independently verified.",
+        "payment_surface": null
       },
-      "default_offer_id": "EDH_DWYNEN_0003"
+      "default_offer_id": "EDH_DWYNEN_0003",
+      "fulfillment": {
+        "status": "not_verified",
+        "ready": false
+      },
+      "gauntlet": {
+        "status": "NOT_VERIFIED",
+        "test_mode_chain": "NOT_VERIFIED",
+        "checkout_authorized": false,
+        "evidence_ref": null
+      }
     },
     {
       "id": "DREAMLEDGER-DOOH-CAMPAIGN-500",
@@ -503,13 +563,30 @@
       "description": "Free browser-side supplier quote comparison worksheet. Paid comparison service temporarily unavailable while intake, persistence, and fulfillment are verified.",
       "price": 49,
       "currency": "nzd",
-      "status": "published",
+      "status": "held",
       "checkout_available": false,
       "checkout_url": null,
       "payment_link_id": "plink_1UKq77EGgEAnUFF9KOr1SuUY",
       "stripe_price_id": "price_1UKq73EGgEAnUFF92KC3fkh5",
       "category": "procurement-tools",
-      "availability": "review_required"
+      "availability": "review_required",
+      "sale_mode": "disabled",
+      "commercial_truth": {
+        "approval_required": true,
+        "sellable": false,
+        "reason": "Held until the canonical product Gauntlet, test-mode settlement, attribution, fulfillment, and delivery proof are independently verified.",
+        "payment_surface": null
+      },
+      "fulfillment": {
+        "status": "not_verified",
+        "ready": false
+      },
+      "gauntlet": {
+        "status": "NOT_VERIFIED",
+        "test_mode_chain": "NOT_VERIFIED",
+        "checkout_authorized": false,
+        "evidence_ref": null
+      }
     },
     {
       "id": "DOC-EXTRACT-50",
@@ -702,10 +779,10 @@
       "currency": "nzd",
       "inventory": 1,
       "inventory_type": "physical",
-      "status": "published",
+      "status": "held",
       "checkout_available": false,
       "checkout_url": null,
-      "sale_mode": "claim_by_message",
+      "sale_mode": "disabled",
       "claim_url": "mailto:hello@dreamledger.org?subject=Claim%20Jon%20Irenicus%20Commander%20Deck&body=I%27d%20like%20to%20claim%20the%20Jon%20Irenicus%2C%20Shattered%20One%20Commander%20deck%20(NZ%24220%2C%20or%20NZ%24200%20for%20Patreon%20members).%20Please%20confirm%20availability%20and%20shipping.",
       "detail_url": "/mtg/jon-irenicus-shattered-one.html",
       "decklist_url": "https://manabox.app/decks/AZ2BaCy-c-a8MpZUUcgxqw",
@@ -716,11 +793,24 @@
       "patron_url": "https://patreon.com/happyhomarid",
       "shipping": "Free shipping within Aotearoa New Zealand",
       "commercial_truth": {
-        "approval_required": false,
+        "approval_required": true,
         "checkout_available": false,
         "fulfillment_required": true,
         "evidence_required": true,
-        "payment_link": null
+        "payment_link": null,
+        "sellable": false,
+        "reason": "Held until the canonical product Gauntlet, test-mode settlement, attribution, fulfillment, and delivery proof are independently verified.",
+        "payment_surface": null
+      },
+      "fulfillment": {
+        "status": "not_verified",
+        "ready": false
+      },
+      "gauntlet": {
+        "status": "NOT_VERIFIED",
+        "test_mode_chain": "NOT_VERIFIED",
+        "checkout_authorized": false,
+        "evidence_ref": null
       }
     }
   ]
