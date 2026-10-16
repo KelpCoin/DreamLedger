@@ -1,6 +1,6 @@
 {
   "schema": "dreamledger/agent-commerce/v6",
-  "updated": "2026-10-11",
+  "updated": "2026-10-17",
   "purpose": "Public product discovery and purchase information for people and AI assistants.",
   "storefront": "https://dreamledger.org/",
   "human_shop_horizontal": "https://dreamledger.org/shop.html",
@@ -52,102 +52,136 @@
       "checkout_url": null,
       "status": "REVIEW_REQUIRED",
       "fulfillment": "held_until_secure_intake_and_inventory_reservation_verified",
-      "note": "Public checkout is intentionally held until secure intake, live inventory reservation, signed-webhook handling and delivery evidence are verified."
+      "note": "Checkout is held until the canonical payment, attribution, fulfillment and delivery evidence gates are independently verified.",
+      "checkout_available": false,
+      "approval_required": true
     },
     {
       "product_id": "COMMANDER-DECK-DIAGNOSTIC-001",
       "name": "Commander Deck Diagnostic",
       "price_nzd": 29,
-      "buy_router": "https://dreamledger.org/mtg/diagnostic.html",
-      "checkout_url": "https://dreamledger.org/mtg/diagnostic.html",
-      "status": "LISTED",
+      "buy_router": "https://dreamledger.org/buy/commander-deck-diagnostic-001/",
+      "checkout_url": null,
+      "status": "REVIEW_REQUIRED",
       "loop": "LOOP-CMD-DIAG-29",
-      "note": "First-party decklist intake creates a one-time Checkout Session only while the canonical economic ledger is reachable. Do not treat checkout creation as payment or delivery proof."
+      "note": "Checkout is held until the canonical payment, attribution, fulfillment and delivery evidence gates are independently verified.",
+      "checkout_available": false,
+      "approval_required": true
     },
     {
       "product_id": "DREAMMEEZ-SUPPORTER-SPROUT",
       "name": "DreamMeez Supporter — Sprout",
       "price_nzd": 3.99,
       "buy_router": "https://dreamledger.org/buy/DREAMMEEZ-SUPPORTER-SPROUT",
-      "checkout_url": "https://buy.stripe.com/3cI5kDfe5cO9gyP5oEdwc2M",
-      "status": "LISTED",
-      "loop": "LOOP-SPROUT-3.99"
+      "checkout_url": null,
+      "status": "REVIEW_REQUIRED",
+      "loop": "LOOP-SPROUT-3.99",
+      "checkout_available": false,
+      "approval_required": true,
+      "note": "Checkout is held until canonical settlement, attribution, fulfillment and delivery evidence pass the release gate."
     },
     {
       "product_id": "DREAMMEEZ-SUPPORTER-GLOW",
       "name": "DreamMeez Supporter — Glow",
       "price_nzd": 5.99,
       "buy_router": "https://dreamledger.org/buy/DREAMMEEZ-SUPPORTER-GLOW",
-      "checkout_url": "https://buy.stripe.com/5kQfZh5Dv9BXciz5oEdwc2N",
-      "status": "LISTED"
+      "checkout_url": null,
+      "status": "REVIEW_REQUIRED",
+      "checkout_available": false,
+      "approval_required": true,
+      "note": "Checkout is held until canonical settlement, attribution, fulfillment and delivery evidence pass the release gate."
     },
     {
       "product_id": "DREAMMEEZ-SUPPORTER-DEPTH",
       "name": "DreamMeez Supporter — Depth",
       "price_nzd": 9.99,
       "buy_router": "https://dreamledger.org/buy/DREAMMEEZ-SUPPORTER-DEPTH",
-      "checkout_url": "https://buy.stripe.com/8x2dR93vnaG1gyPg3idwc2O",
-      "status": "LISTED"
+      "checkout_url": null,
+      "status": "REVIEW_REQUIRED",
+      "checkout_available": false,
+      "approval_required": true,
+      "note": "Checkout is held until canonical settlement, attribution, fulfillment and delivery evidence pass the release gate."
     },
     {
       "product_id": "DREAMMEEZ-COSMIC-HOODIE-001",
       "name": "DreamMeez Cosmic Hoodie",
       "price_nzd": 5,
       "buy_router": "https://dreamledger.org/buy/DREAMMEEZ-COSMIC-HOODIE-001",
-      "checkout_url": "https://buy.stripe.com/aFa14nd5XdSdeqH5oEdwc2J",
-      "status": "LISTED"
+      "checkout_url": null,
+      "status": "REVIEW_REQUIRED",
+      "checkout_available": false,
+      "approval_required": true,
+      "note": "Checkout is held until canonical settlement, attribution, fulfillment and delivery evidence pass the release gate."
     },
     {
       "product_id": "DREAMMEEZ-CAPE-001",
       "name": "DreamMeez Cape",
       "price_nzd": 10,
       "buy_router": "https://dreamledger.org/buy/DREAMMEEZ-CAPE-001",
-      "checkout_url": "https://buy.stripe.com/cNi5kDaXP7tP0zR2csdwc2K",
-      "status": "LISTED"
+      "checkout_url": null,
+      "status": "REVIEW_REQUIRED",
+      "checkout_available": false,
+      "approval_required": true,
+      "note": "Checkout is held until canonical settlement, attribution, fulfillment and delivery evidence pass the release gate."
     },
     {
       "product_id": "DREAMMEEZ-CHROME-BOOTS-001",
       "name": "DreamMeez Chrome Boots",
       "price_nzd": 9,
       "buy_router": "https://dreamledger.org/buy/DREAMMEEZ-CHROME-BOOTS-001",
-      "checkout_url": "https://buy.stripe.com/3cI5kDgi97tP3M37wMdwc2L",
-      "status": "LISTED"
+      "checkout_url": null,
+      "status": "REVIEW_REQUIRED",
+      "checkout_available": false,
+      "approval_required": true,
+      "note": "Checkout is held until canonical settlement, attribution, fulfillment and delivery evidence pass the release gate."
     },
     {
       "product_id": "KELP-FLOOR1-001",
       "name": "Kelplantis Floor 1 Access Pass",
       "price_nzd": 19,
       "buy_router": "https://dreamledger.org/buy/KELP-FLOOR1-001",
-      "checkout_url": "https://buy.stripe.com/aFa3cvea16pLbevbN2dwc2P",
-      "status": "LISTED",
-      "loop": "LOOP-KELP-FLOOR1-19"
+      "checkout_url": null,
+      "status": "REVIEW_REQUIRED",
+      "loop": "LOOP-KELP-FLOOR1-19",
+      "checkout_available": false,
+      "approval_required": true,
+      "note": "Checkout is held until canonical settlement, attribution, fulfillment and delivery evidence pass the release gate."
     },
     {
       "product_id": "SELLER-PROFIT-AUDIT-001",
       "name": "Seller Profit Audit",
       "price_nzd": 29,
       "buy_router": "https://dreamledger.org/buy/SELLER-PROFIT-AUDIT-001",
-      "checkout_url": "https://buy.stripe.com/8x2bJ17LD3dzeqH8AQdwc2S",
-      "status": "LISTED",
-      "loop": "LOOP-SELLER-AUDIT-29"
+      "checkout_url": null,
+      "status": "REVIEW_REQUIRED",
+      "loop": "LOOP-SELLER-AUDIT-29",
+      "checkout_available": false,
+      "approval_required": true,
+      "note": "Checkout is held until canonical settlement, attribution, fulfillment and delivery evidence pass the release gate."
     },
     {
       "product_id": "DISCORD-WEBHOOK-STARTER-KIT-001",
       "name": "Discord Webhook Starter Kit",
       "price_nzd": 79,
       "buy_router": "https://dreamledger.org/buy/DISCORD-WEBHOOK-STARTER-KIT-001",
-      "checkout_url": "https://buy.stripe.com/4gMcN56HzaG1dmDeZedwc1n",
-      "status": "LISTED",
-      "loop": "LOOP-DISCORD-KIT-79"
+      "checkout_url": null,
+      "status": "REVIEW_REQUIRED",
+      "loop": "LOOP-DISCORD-KIT-79",
+      "checkout_available": false,
+      "approval_required": true,
+      "note": "Checkout is held until canonical settlement, attribution, fulfillment and delivery evidence pass the release gate."
     },
     {
       "product_id": "ACNC-CHARITY-DD-99",
       "name": "ACNC Charity Due Diligence Report",
       "price_nzd": 99,
       "buy_router": "https://dreamledger.org/buy/ACNC-CHARITY-DD-99",
-      "checkout_url": "https://buy.stripe.com/28E5kD9TLeWhgyP04kdwc2Y",
-      "status": "LISTED",
-      "loop": "LOOP-ACNC-DD-99"
+      "checkout_url": null,
+      "status": "REVIEW_REQUIRED",
+      "loop": "LOOP-ACNC-DD-99",
+      "checkout_available": false,
+      "approval_required": true,
+      "note": "Checkout is held until canonical settlement, attribution, fulfillment and delivery evidence pass the release gate."
     },
     {
       "product_id": "EDH_0001",
