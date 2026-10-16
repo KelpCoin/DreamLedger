@@ -84,6 +84,30 @@ function evaluateCanonicalProduct(product, registry, repoRoot) {
   return { allowed: reasons.length === 0, reasons, checkout_url: checkoutUrl(product) };
 }
 
+function evaluateCanonicalDynamicCheckoutProduct(product, registry, repoRoot) {
+  const reasons = [];
+  if (!product || typeof product !== 'object') return { allowed: false, reasons: ['product_not_object'] };
+  if (product.status !== 'published') reasons.push('product_not_published');
+  if (!PUBLISHABLE_SILOS.has(product.silo)) reasons.push('silo_not_canonical_publishable');
+  if (product.commercial_truth?.approval_required !== false) reasons.push('operator_approval_gate_closed');
+  if (product.commercial_truth?.sellable !== true) reasons.push('commercial_sellable_not_true');
+  if (product.checkout_available !== true) reasons.push('checkout_not_explicitly_enabled');
+  if (!['payment', 'stripe', 'checkout_session'].includes(product.checkout?.mode)) reasons.push('dynamic_checkout_mode_not_canonical');
+  if (!positiveInventory(product)) reasons.push('inventory_not_positive');
+  if (priceInMajorUnits(product) === null) reasons.push('price_unit_missing_or_invalid');
+
+  const entry = registry?.entries?.[product.id]
+    || (product.offer_id && registry?.entries?.[product.offer_id])
+    || null;
+  if (!entry || entry.ready !== true || entry.operator_required !== false) reasons.push('fulfillment_contract_not_ready');
+  if (entry?.canonical_product_id && entry.canonical_product_id !== product.id) reasons.push('fulfillment_product_mismatch');
+  if (product.gauntlet?.status !== 'PASS') reasons.push('product_gauntlet_not_pass');
+  if (product.gauntlet?.test_mode_chain !== 'PASS') reasons.push('test_mode_chain_not_pass');
+  if (!proofPasses(product, repoRoot)) reasons.push('product_checkout_proof_missing_or_invalid');
+
+  return { allowed: reasons.length === 0, reasons, checkout_url: null, checkout_mode: product.checkout?.mode || null };
+}
+
 function loadCanonicalCheckoutableProducts(options = {}) {
   const repoRoot = path.resolve(options.repoRoot || path.join(__dirname, '..', '..'));
   const productsDir = path.join(repoRoot, 'BEC-PRIME', 'catalog', 'products');
@@ -134,6 +158,7 @@ module.exports = {
   checkoutUrl,
   priceInMajorUnits,
   evaluateCanonicalProduct,
+  evaluateCanonicalDynamicCheckoutProduct,
   loadCanonicalCheckoutableProducts,
   toPublicProduct
 };
