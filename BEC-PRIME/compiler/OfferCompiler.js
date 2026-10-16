@@ -212,7 +212,7 @@ function canonicalProductGate(productId) {
     && product.commercial_truth?.approval_required === false
     && product.commercial_truth?.sellable === true
     && product.checkout_available === true
-    && product.checkout?.mode === 'stripe'
+    && ['stripe', 'payment_link'].includes(product.checkout?.mode)
     && validStripeLink;
   return {
     open,
@@ -297,7 +297,7 @@ function compile() {
     schema: 'BEC-PRIME/OFFER-CATALOG/v1',
     compiler: OFFER_VERSION,
     source: 'catalog/ip-capabilities.json',
-    approval_rule: 'All generated offers remain approval-gated and checkout-disabled until explicitly approved in catalog/offers/approved.json.',
+    approval_rule: 'Generated offers remain held until explicitly approved and the canonical product is published, sellable, checkout-enabled, and link-matched.',
     counts: {
       capabilities: capabilities.length,
       candidates: generated.candidates.length,
