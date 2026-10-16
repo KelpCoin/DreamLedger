@@ -50,7 +50,7 @@ function loadRoutes(registry){
   try{if(fs.existsSync(APPROVED)){const approved=readJson(APPROVED);
     for(const o of approved.approved||[]){const link=o.payment_link_url||o.payment_link;if(!routeEligible(o,o.product_id,link))continue;
       const id='APPROVED-'+(o.product_id||o.offer_id);if(byId[id])continue;
-      byId[id]={id,name:o.name,price_nzd:Number(o.price),href:link,tag:o.silo||'approved'};}}
+      byId[id]={id,name:o.name,price_nzd:Number(o.price),href:link,tag:o.silo||'approved'};}}}
   catch(_){}
   return byId;
 }
