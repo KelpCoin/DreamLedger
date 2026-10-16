@@ -1,0 +1,44 @@
+name: BEC Public Faces Compile
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'BEC-PRIME/compiler/face-registry.json'
+      - 'BEC-PRIME/compiler/WebsiteFaceCompiler.js'
+      - 'BEC-PRIME/compiler/SiloFaceCompiler.js'
+      - 'BEC-PRIME/scripts/compile-public-faces.js'
+      - '.github/workflows/bec-public-faces.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: bec-public-faces
+  cancel-in-progress: true
+
+jobs:
+  faces:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Compile public faces + silo registry
+        run: node BEC-PRIME/scripts/compile-public-faces.js
+      - name: Commit exhaust
+        run: |
+          set -euo pipefail
+          git config user.name "BEC-PRIME Compiler"
+          git config user.email "bec-prime@users.noreply.github.com"
+          git add public/money.html public/home.html public/shop.html public/start.html public/offers.html public/cash.html \
+            public/truth-oracle.html public/silo.html public/silos/index.html public/data/silo-face-registry.json \
+            BEC-PRIME/RUN-PROOFS/WEBSITE-FACE-COMPILER-PROOF.json BEC-PRIME/RUN-PROOFS/SILO-FACE-COMPILER-PROOF.json || true
+          if git diff --cached --quiet; then
+            echo "No face changes."
+            exit 0
+          fi
+          git commit -m "chore: BEC public face exhaust"
+          git push origin HEAD:main

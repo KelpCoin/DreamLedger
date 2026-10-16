@@ -1,1 +1,7 @@
-{"release":"2026-10-16-monetize","money":"/money.html","cash_redirect":"/cash.html","shop":"/shop.html","buy_sprout":"/buy/DREAMMEEZ-SUPPORTER-SPROUT","note":"Deploy main to refresh HTML; /buy routes already live"}
+{
+  "release": "2026-10-17-bec-faces",
+  "storefront": "marketplace-v19-until-deploy",
+  "faces": ["money", "home", "shop", "start", "offers", "truth-oracle", "silo", "silos"],
+  "buy_live": true,
+  "deploy": "Render Manual Deploy or RENDER_API_KEY"
+}
