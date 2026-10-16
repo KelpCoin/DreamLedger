@@ -23,5 +23,36 @@
     "parallel_ledger",
     "revenue_from_traffic",
     "fake_inventory"
-  ]
+  ],
+  "language_profile": {
+    "locale": "en-NZ",
+    "tone": [
+      "clear",
+      "evidence-led",
+      "domain-native"
+    ],
+    "audience": "Define per silo in the clone manifest",
+    "preferred_terms": [],
+    "avoid_terms": [],
+    "claim_rules": {
+      "require_evidence_for_performance_claims": true,
+      "allow_invented_products": false,
+      "require_price_disclosure": true,
+      "required_disclosures": [
+        "State when product availability or checkout is unverified.",
+        "Do not imply third-party affiliation without evidence."
+      ]
+    }
+  },
+  "word_banks": {
+    "primary": "CONTROL-PLANE/SILO-PACK-TEMPLATE/word-banks/default.json",
+    "overrides": []
+  },
+  "schemas": {
+    "catalog": "CONTROL-PLANE/SILO-PACK-TEMPLATE/catalog.schema.json",
+    "offer": "BEC-PRIME/compiler/schemas/offer.schema.json",
+    "evidence": "CONTROL-PLANE/SILO-PACK-TEMPLATE/evidence.schema.json",
+    "product": "BEC-PRIME/schemas/elohim-product.schema.json",
+    "checkout": "contracts/agent-protocol/v1/economic-event.schema.json"
+  }
 }
