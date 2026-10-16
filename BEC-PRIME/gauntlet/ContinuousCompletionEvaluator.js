@@ -124,8 +124,9 @@ function evaluateEconomicEvent(input = {}, options = {}) {
   const verifyEvidence = options.verifyEvidence;
   const verifiedAt = typeof input.verifiedAt === 'string' ? input.verifiedAt : new Date().toISOString();
   if (!validId(input.candidateId)) return makeInvalidRecord(input.candidateId, 'INVALID_CANDIDATE_ID', verifiedAt);
-  if (!input.signalResults || typeof input.signalResults !== 'object' || Array.isArray(input.signalResults)) {
-    return makeInvalidRecord(input.candidateId, 'SIGNAL_RESULTS_OBJECT_REQUIRED', verifiedAt);
+  if (input.signalResults === undefined || input.signalResults === null) input = { ...input, signalResults: {} };
+  if (typeof input.signalResults !== 'object' || Array.isArray(input.signalResults)) {
+    return makeInvalidRecord(input.candidateId, 'SIGNAL_RESULTS_OBJECT_INVALID', verifiedAt);
   }
 
   const unknownKeys = Object.keys(input.signalResults).filter(key => !ALL_ECONOMIC_SIGNALS.includes(key));
@@ -226,6 +227,14 @@ function evaluateEconomicEvent(input = {}, options = {}) {
       ...repairableDefects.map(value => 'REPAIRABLE:' + value),
       ...failedEvidence.map(value => 'EVIDENCE_CHECK_FAILED:' + value)
     ];
+  } else if (input.waitingOnExternalEvent === true
+    && Array.isArray(input.waitingForSignals)
+    && input.waitingForSignals.length > 0
+    && missingEvidence.length > 0
+    && missingEvidence.every(signal => input.waitingForSignals.includes(signal))) {
+    typedVerdict = 'HOLD';
+    nextAction = 'wait_for_declared_external_event_without_retrying_paid_actions';
+    reasons = ['AWAITING_DECLARED_EXTERNAL_EVIDENCE'];
   } else if (missingEvidence.length) {
     typedVerdict = 'NEEDS_EVIDENCE';
     nextAction = 'dispatch_bounded_evidence_gathering_for_missing_signals';
