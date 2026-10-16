@@ -27,9 +27,10 @@ $compiledById = @{}
 $gateCode = @'
 const fs = require("node:fs");
 const { evaluateCanonicalProduct } = require("./runtime/canonicalCheckoutGate.js");
-const productPath = process.argv[1];
-const registryPath = process.argv[2];
-const repoRoot = process.argv[3];
+const payload = JSON.parse(fs.readFileSync(0, "utf8"));
+const productPath = payload.product_path;
+const registryPath = payload.registry_path;
+const repoRoot = payload.repo_root;
 if (!productPath || !registryPath || !repoRoot) throw new Error("canonical gate inputs are incomplete");
 const product = JSON.parse(fs.readFileSync(productPath, "utf8"));
 const registry = JSON.parse(fs.readFileSync(registryPath, "utf8"));
@@ -79,9 +80,12 @@ foreach ($record in $approvedRecords) {
     }
 
     try {
-        $resolvedProduct = (Resolve-Path -LiteralPath $productFile).Path
-        $resolvedRegistry = (Resolve-Path -LiteralPath $registryFile).Path
-        $gateJson = & node -e $gateCode $resolvedProduct $resolvedRegistry $repoRoot
+        $payload = [ordered]@{
+            product_path = (Resolve-Path -LiteralPath $productFile).Path
+            registry_path = (Resolve-Path -LiteralPath $registryFile).Path
+            repo_root = $repoRoot
+        } | ConvertTo-Json -Compress
+        $gateJson = $payload | & node -e $gateCode
         if ($LASTEXITCODE -ne 0) { throw "canonical product gate returned exit code $LASTEXITCODE" }
         $gate = $gateJson | ConvertFrom-Json
     } catch {
