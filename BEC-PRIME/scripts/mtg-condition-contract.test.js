@@ -50,9 +50,12 @@ test('static root publication contains the manifest-driven MTG master paths', ()
   ]) assert.equal(fs.existsSync(path.join(root, p)), true, p + ' must exist at the static publish root');
   const master = read('mtg/index.html');
   const published = read('public/mtg/index.html');
-  assert.match(master, /\/data\/mtg-catalog\.json/);
-  assert.match(published, /\/data\/mtg-catalog\.json/);
+  assert.match(master, /CATALOG='\/catalog\.json'/);
+  assert.match(published, /CATALOG='\/catalog\.json'/);
+  assert.match(master, /const canPurchase=p=>p\.status==='published'&&p\.checkout_available===true/);
+  assert.match(published, /const canPurchase=p=>p\.status==='published'&&p\.checkout_available===true/);
+  assert.doesNotMatch(master, /https:\/\/(?:buy|checkout)\.stripe\.com\//i);
+  assert.doesNotMatch(published, /https:\/\/(?:buy|checkout)\.stripe\.com\//i);
   const manifest = json('silos/mtg/silo.json');
-  assert.equal(typeof manifest.catalog, 'string');
-  assert.ok(manifest.catalog.length > 0);
+  assert.equal(manifest.catalog, '/catalog.json');
 });
