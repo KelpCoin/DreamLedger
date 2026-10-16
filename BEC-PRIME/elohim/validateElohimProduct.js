@@ -28,23 +28,29 @@ function loadSchema(name) {
 
 let _ajvValidateProduct = null;
 let _ajvValidateCandidate = null;
+let _ajvInitializationError = null;
 
 function getAjvValidators() {
   if (_ajvValidateProduct && _ajvValidateCandidate) {
     return { product: _ajvValidateProduct, candidate: _ajvValidateCandidate };
   }
-  let Ajv2020;
+  if (_ajvInitializationError) return { error: _ajvInitializationError };
   try {
-    // Both Elohim schemas declare JSON Schema draft 2020-12. The default
-    // "ajv" export targets draft-07 and throws before validation can run.
-    Ajv2020 = require('ajv/dist/2020');
-  } catch (_) {
-    return null;
+    // Both schemas declare draft 2020-12. Use the explicit dialect engine;
+    // never silently validate these schemas with the draft-07 default export.
+    const Ajv2020 = require('ajv/dist/2020.js');
+    const ajv = new Ajv2020({
+      allErrors: true,
+      strict: false,
+      validateSchema: false
+    });
+    _ajvValidateProduct = ajv.compile(loadSchema('elohim-product.schema.json'));
+    _ajvValidateCandidate = ajv.compile(loadSchema('elohim-candidate.schema.json'));
+    return { product: _ajvValidateProduct, candidate: _ajvValidateCandidate };
+  } catch (error) {
+    _ajvInitializationError = error instanceof Error ? error.message : String(error);
+    return { error: _ajvInitializationError };
   }
-  const ajv = new Ajv2020({ allErrors: true, strict: false });
-  _ajvValidateProduct = ajv.compile(loadSchema('elohim-product.schema.json'));
-  _ajvValidateCandidate = ajv.compile(loadSchema('elohim-candidate.schema.json'));
-  return { product: _ajvValidateProduct, candidate: _ajvValidateCandidate };
 }
 
 function push(errors, code, message, pathHint) {
@@ -98,21 +104,15 @@ function validateCatalogProduct(product, options = {}) {
   }
 
   const ajvPair = getAjvValidators();
-  if (ajvPair) {
+  if (ajvPair.error) {
+    push(errors, 'SCHEMA_ENGINE_UNAVAILABLE', `JSON Schema 2020-12 validation unavailable: ${ajvPair.error}`);
+  } else {
     const valid = ajvPair.product(product);
     if (!valid) {
       for (const e of ajvPair.product.errors || []) {
         push(errors, 'SCHEMA', `${e.instancePath || '/'} ${e.message}`, e.instancePath || null);
       }
     }
-  } else {
-    // Minimal fallback without ajv
-    if (!product.id) push(errors, 'REQUIRED', 'id is required', '/id');
-    if (!product.name) push(errors, 'REQUIRED', 'name is required', '/name');
-    if (product.price === undefined || product.price === null) push(errors, 'REQUIRED', 'price is required', '/price');
-    if (!product.currency) push(errors, 'REQUIRED', 'currency is required', '/currency');
-    if (!product.status) push(errors, 'REQUIRED', 'status is required', '/status');
-    if (!product.silo) push(errors, 'REQUIRED', 'silo is required', '/silo');
   }
 
   const rawSilo = String(product.silo || '').trim().toLowerCase();
@@ -188,7 +188,9 @@ function validateElohimCandidate(candidate) {
   }
 
   const ajvPair = getAjvValidators();
-  if (ajvPair) {
+  if (ajvPair.error) {
+    push(errors, 'SCHEMA_ENGINE_UNAVAILABLE', `JSON Schema 2020-12 validation unavailable: ${ajvPair.error}`);
+  } else {
     const valid = ajvPair.candidate(candidate);
     if (!valid) {
       for (const e of ajvPair.candidate.errors || []) {
