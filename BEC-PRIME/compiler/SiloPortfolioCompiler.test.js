@@ -56,9 +56,17 @@ test('portfolio compiler treats zero checkoutable offers as a valid held state',
     assert.doesNotMatch(compiledIndex, /https:\/\/(?:buy|checkout)\.stripe\.com\//i);
 
     const activeNames = new Set(catalog.offers.map(offer => path.basename(offer.canonical_url)));
+    const oldNames = new Set();
     for (const oldOffer of (Array.isArray(previousProof?.offers) ? previousProof.offers : [])) {
       const oldName = path.basename(String(oldOffer.canonical_url || ''));
-      if (!oldName || activeNames.has(oldName)) continue;
+      if (oldName.endsWith('.html')) oldNames.add(oldName);
+    }
+    for (const oldPath of (Array.isArray(previousProof?.generated?.service_pages) ? previousProof.generated.service_pages : [])) {
+      const oldName = String(oldPath).replace(/\\/g, '/').split('/').pop();
+      if (oldName && oldName.endsWith('.html')) oldNames.add(oldName);
+    }
+    for (const oldName of oldNames) {
+      if (activeNames.has(oldName)) continue;
       assert.equal(fs.existsSync(path.join(PORTFOLIO_DIR, oldName)), false, 'stale checkout page must be removed: ' + oldName);
     }
   }
