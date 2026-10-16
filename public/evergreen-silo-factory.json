@@ -9,7 +9,7 @@
       "route": "/silos/construction-subcontractor-quotes",
       "state": "LIVE_ADAPTER",
       "fulfillment": "SUPPLIER_QUOTE_COMPARISON",
-      "checkout_url": "https://buy.stripe.com/14AdR97LD6pLfuLdVadwc32"
+      "checkout_url": null
     },
     {
       "slug": "it-hardware-quotes",
@@ -18,7 +18,7 @@
       "route": "/silos/it-hardware-quotes",
       "state": "LIVE_ADAPTER",
       "fulfillment": "SUPPLIER_QUOTE_COMPARISON",
-      "checkout_url": "https://buy.stripe.com/14AdR97LD6pLfuLdVadwc32"
+      "checkout_url": null
     },
     {
       "slug": "freight-quotes",
@@ -27,7 +27,7 @@
       "route": "/silos/freight-quotes",
       "state": "LIVE_ADAPTER",
       "fulfillment": "SUPPLIER_QUOTE_COMPARISON",
-      "checkout_url": "https://buy.stripe.com/14AdR97LD6pLfuLdVadwc32"
+      "checkout_url": null
     },
     {
       "slug": "manufacturing-supplier-quotes",
@@ -36,7 +36,7 @@
       "route": "/silos/manufacturing-supplier-quotes",
       "state": "LIVE_ADAPTER",
       "fulfillment": "SUPPLIER_QUOTE_COMPARISON",
-      "checkout_url": "https://buy.stripe.com/14AdR97LD6pLfuLdVadwc32"
+      "checkout_url": null
     },
     {
       "slug": "marketing-agency-quotes",
@@ -45,7 +45,7 @@
       "route": "/silos/marketing-agency-quotes",
       "state": "LIVE_ADAPTER",
       "fulfillment": "SUPPLIER_QUOTE_COMPARISON",
-      "checkout_url": "https://buy.stripe.com/14AdR97LD6pLfuLdVadwc32"
+      "checkout_url": null
     },
     {
       "slug": "event-vendor-quotes",
@@ -54,7 +54,7 @@
       "route": "/silos/event-vendor-quotes",
       "state": "LIVE_ADAPTER",
       "fulfillment": "SUPPLIER_QUOTE_COMPARISON",
-      "checkout_url": "https://buy.stripe.com/14AdR97LD6pLfuLdVadwc32"
+      "checkout_url": null
     },
     {
       "slug": "fleet-repair-quotes",
@@ -63,7 +63,7 @@
       "route": "/silos/fleet-repair-quotes",
       "state": "LIVE_ADAPTER",
       "fulfillment": "SUPPLIER_QUOTE_COMPARISON",
-      "checkout_url": "https://buy.stripe.com/14AdR97LD6pLfuLdVadwc32"
+      "checkout_url": null
     },
     {
       "slug": "saas-vendor-quotes",
@@ -72,7 +72,7 @@
       "route": "/silos/saas-vendor-quotes",
       "state": "LIVE_ADAPTER",
       "fulfillment": "SUPPLIER_QUOTE_COMPARISON",
-      "checkout_url": "https://buy.stripe.com/14AdR97LD6pLfuLdVadwc32"
+      "checkout_url": null
     },
     {
       "slug": "professional-services-quotes",
@@ -81,7 +81,7 @@
       "route": "/silos/professional-services-quotes",
       "state": "LIVE_ADAPTER",
       "fulfillment": "SUPPLIER_QUOTE_COMPARISON",
-      "checkout_url": "https://buy.stripe.com/14AdR97LD6pLfuLdVadwc32"
+      "checkout_url": null
     },
     {
       "slug": "supplier-price-list-comparison",
@@ -90,7 +90,7 @@
       "route": "/silos/supplier-price-list-comparison",
       "state": "LIVE_ADAPTER",
       "fulfillment": "SUPPLIER_QUOTE_COMPARISON",
-      "checkout_url": "https://buy.stripe.com/14AdR97LD6pLfuLdVadwc32"
+      "checkout_url": null
     }
   ],
   "pain_vectors": [
