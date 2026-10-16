@@ -17,9 +17,11 @@ function writeProof() {
     route: '/mtg',
     aliases: ['/mtg', '/mtg/', '/MTG', '/MTG/'],
     inventory_endpoint: '/api/products',
-    checkout_endpoint: '/api/offer-checkout/create',
+    checkout_endpoint: null,
+    listing_detail_route: true,
+    diagnostic_checkout: 'HELD_PENDING_DELIVERY_PROOF',
     horizontal_catalogue: true,
-    displays: ['image', 'name', 'price_nzd', 'availability', 'buy_button', 'condition_for_verified_singles_only'],
+    displays: ['image', 'name', 'price_nzd', 'availability', 'listing_detail_link', 'condition_for_verified_singles_only'],
     generated_at: new Date().toISOString()
   };
   fs.writeFileSync(PROOF, JSON.stringify(proof, null, 2) + '\n', 'utf8');
