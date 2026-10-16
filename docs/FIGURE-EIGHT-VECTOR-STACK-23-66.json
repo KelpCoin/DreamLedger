@@ -452,12 +452,12 @@
       ],
       "layer": "authorization_and_transparency",
       "status": "NOT_PROVEN",
-      "source_maturity": "Active individual IETF Internet-Draft draft-hawkins-scitt-attested-agent-payment-01, published 15 August 2026 and expiring 16 February 2027. It is work in progress and not endorsed or finalized by the IETF.",
+      "source_maturity": "The specific draft-hawkins-scitt-attested-agent-payment submission has a formal discontinuation notice in its current revision. Its authors state that the concepts are being consolidated into IETF SCITT and x402 work. Do not implement or claim this named submission as an active interoperable protocol. General SCITT specifications remain separately versioned work.",
       "acceptance": [
-        "Pin the draft revision, statement schema and transparency-service profile.",
-        "Bind the authorization scope to the exact agent/software identity, principal, budget, asset, amount, payee, purpose and expiry.",
-        "Validate the hardware-attestation trust chain and the SCITT inclusion/consistency evidence.",
-        "An attested authorization is not itself evidence that a processor settled money or that a deliverable was received.",
+        "Do not pin the discontinued agent-payment submission as the protocol authority; pin the specific active SCITT and x402 specifications and their revisions before adapter work.",
+        "Bind authorization scope to exact agent/software identity, principal, budget, asset, amount, payee, purpose and expiry.",
+        "Validate the chosen hardware-attestation trust chain and transparency-log inclusion/consistency proofs only where the pinned profile requires them.",
+        "An attested authorization or transparency-log statement is not itself evidence that a processor settled money or that a deliverable was received.",
         "Revocation, stale statements, wrong scope and untrusted attestation roots fail closed."
       ],
       "failure_state": "HOLD_SCITT_ATTESTATION_UNVERIFIED",
@@ -472,16 +472,20 @@
       ],
       "layer": "identity_and_discovery",
       "status": "NOT_PROVEN",
-      "source_maturity": "AIB and AIR were presented as project names, but a pinned primary specification, schema version and interoperability tests were not independently verified in this review.",
+      "source_maturity": "The AIR repository is an identifiable open-source project, not an established cross-protocol standard; the current behavior dimension is a placeholder and must not be treated as validated reputation. The AIB project was not independently pinned to a primary specification and conformance suite. Keep both unproven and separate their future adapters.",
       "acceptance": [
-        "Locate primary sources and pin credential schemas before claiming AIB or AIR interoperability.",
+        "For AIR, pin an immutable repository commit, credential schema, scoring version and test vectors; do not consume placeholder behavior scores as evidence.",
+        "For AIB, locate and pin its primary specification, license, credential schema and interoperability tests before claiming conformance.",
         "Verify issuer, subject, signature, expiry, audience, capability scope and revocation independently.",
         "Portable identity must not automatically convey execution rights, spending authority, reputation or human consent.",
         "Cross-protocol identity mappings are tested against issuer mismatch, revoked passport, replay and scope escalation.",
         "Only evidence-backed identity and trust claims are exported; unsupported fields remain unknown."
       ],
       "failure_state": "HOLD_AGENT_IDENTITY_PROFILE_UNVERIFIED",
-      "external_source": null
+      "external_source": null,
+      "external_sources": [
+        "https://github.com/AgentIdentityRegistry/agent-identity-registry"
+      ]
     },
     {
       "id": "CAP-AER1-EXECUTION-RECEIPT",
@@ -529,16 +533,17 @@
       ],
       "layer": "delegation_authority",
       "status": "NOT_PROVEN",
-      "source_maturity": "The named HDP protocol's primary specification, authoring body, version and test vectors were not independently located in this review; treat it as a requirement concept until the source is pinned.",
+      "source_maturity": "Active individual IETF Internet-Draft draft-helixar-hdp-agentic-delegation-03, dated 6 October 2026 and expiring 9 April 2027. This is work in progress, not a finalized IETF standard. The draft provides provenance/tamper-evidence semantics; it is not runtime enforcement and a signed hop does not prove agent consent or that an action actually executed.",
       "acceptance": [
+        "Pin draft-helixar-hdp-agentic-delegation-03 and test vectors before claiming conformance.",
         "Each delegation binds human principal, purpose, allowed actions, limits, expiry and revocation handle.",
-        "Every agent-to-agent delegation hop is signed and linked to its parent grant.",
-        "Downstream actions cannot widen the parent's scope, spending limit or expiry.",
+        "Every agent-to-agent delegation hop is signed and linked to its parent grant; signatures prove the signed claim, not agent consent or execution by themselves.",
+        "Downstream actions cannot widen the parent's scope, spending limit or expiry; the runtime separately enforces authority.",
         "Revocation propagates through cached and delegated grants within a measured limit.",
         "The verifier traces each action to an authorized root mandate without exposing unnecessary personal data."
       ],
       "failure_state": "HOLD_DELEGATION_CHAIN_UNVERIFIED",
-      "external_source": null
+      "external_source": "https://datatracker.ietf.org/doc/draft-helixar-hdp-agentic-delegation/03"
     },
     {
       "id": "CAP-PROOF-CARRYING-ACTIONS",
