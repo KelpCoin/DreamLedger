@@ -1,0 +1,44 @@
+{
+  "schema_version": "dreamledger/silo-manifest/v1",
+  "slug": "replace-with-silo-slug",
+  "title": "Replace with silo title",
+  "description": "Scope and buyer problem for this silo, backed by source evidence.",
+  "lifecycle": "INGEST_ONLY",
+  "source_policy": {
+    "require_source_ref": true,
+    "require_source_sha256": true,
+    "rights_review_required": true,
+    "invented_products_allowed": false
+  },
+  "product_gate": {
+    "gauntlet_pass_required": true,
+    "required_seed_checks": [
+      "schema_valid",
+      "source_provenance",
+      "buyer_hypothesis",
+      "silo_boundary",
+      "rights_and_privacy",
+      "duplicate_sku",
+      "truth_boundary"
+    ],
+    "required_product_checks": [
+      "demand_evidence",
+      "price_integrity",
+      "unit_economics",
+      "fulfillment_test",
+      "delivery_receipt"
+    ]
+  },
+  "elohim_refinement": {
+    "enabled": true,
+    "suggestions_are_non_mutating": true,
+    "changes_require_new_gauntlet_run": true
+  },
+  "commerce": {
+    "live_checkout_enabled": false,
+    "requires_human_commercial_approval": true,
+    "fulfillment_contract_required": true,
+    "payment_links_active_on_creation": true,
+    "default_checkout_state": "HOLD"
+  }
+}
