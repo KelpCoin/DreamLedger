@@ -67,9 +67,11 @@ Deno.serve(async(req)=>{
  const normalizedResolvedSku=resolvedSku && resolvedSku.key!=="marketplace_listing_id" ? normalizeCanonicalSku(resolvedSku.value) : "";
  const canonicalOfferIds=COMMERCE_SKU_CONTRACT.canonical_offer_ids as Record<string,string>;
  const canonicalCommanderOfferId="OFFER-CMD-DIAG-29-NZD";
- if(normalizedResolvedSku===COMMANDER_CANONICAL_SKU && String(metadata.offer_id||"").trim()!==canonicalCommanderOfferId){
+ const observedOfferId=String(metadata.offer_id||"").trim();
+ const isCommanderOffer=normalizedResolvedSku===COMMANDER_CANONICAL_SKU || canonicalOfferIds[observedOfferId]===canonicalCommanderOfferId;
+ if(isCommanderOffer && observedOfferId!==canonicalCommanderOfferId){
    const timestamp=new Date().toISOString();
-   const evidence={schema:SKU_CONTRACT_VERSION,action:"handler_enforced",event_id:eventId,outcome:"OFFER_CONTRACT_VIOLATION",reason:"NON_CANONICAL_COMMANDER_OFFER_ID",metadata_before:metadata,metadata_after:metadata,resolved_key:resolvedSku?.key||null,resolved_value:resolvedSku?.rawValue||null,expected_offer_id:canonicalCommanderOfferId,observed_offer_id:String(metadata.offer_id||""),timestamp,result:"FAIL"};
+   const evidence={schema:SKU_CONTRACT_VERSION,action:"handler_enforced",event_id:eventId,outcome:"OFFER_CONTRACT_VIOLATION",reason:"NON_CANONICAL_COMMANDER_OFFER_ID",metadata_before:metadata,metadata_after:metadata,resolved_key:resolvedSku?.key||null,resolved_value:resolvedSku?.rawValue||null,expected_offer_id:canonicalCommanderOfferId,observed_offer_id:observedOfferId,timestamp,result:"FAIL"};
    const {error:evidenceError}=await supabase.from("stripe_webhook_events").update({processed:true,processed_at:timestamp,processing_outcome:evidence.outcome,payload:{...event,_commerce_offer_contract:evidence}}).eq("event_id",eventId);
    if(evidenceError)return new Response("offer evidence persistence failed",{status:500});
    return Response.json({received:true,rejected:true,event_id:eventId,...evidence},{status:400});
