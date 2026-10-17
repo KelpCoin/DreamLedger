@@ -10,10 +10,10 @@
 <style>
 :root{ --silo-name:"Magic"; --silo-accent:#d8b56b; --silo-accent-bright:#e8c87a; }
 .hero{padding:36px 0 20px}
-.grid{display:grid;gap:14px;grid-template-columns:1fr}
+.grid{display:flex;gap:14px;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;padding:10px 2px 22px;scrollbar-width:thin}
 @media(min-width:640px){.grid{grid-template-columns:1fr 1fr}}
 @media(min-width:960px){.grid{grid-template-columns:1fr 1fr 1fr}}
-.deck{background:var(--silo-surface);border:1px solid var(--silo-line);border-radius:var(--silo-radius);padding:0;overflow:hidden;display:flex;flex-direction:column}
+.deck{flex:0 0 min(330px,82vw);scroll-snap-align:start;background:var(--silo-surface);border:1px solid var(--silo-line);border-radius:var(--silo-radius);padding:0;overflow:hidden;display:flex;flex-direction:column}
 .deck-body{padding:18px 18px 16px;display:flex;flex-direction:column;flex:1}
 .deck .tag{font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--silo-accent);margin-bottom:6px}
 .deck h3{font-family:var(--silo-serif);font-size:1.3rem;font-weight:400;margin:0 0 6px;letter-spacing:-.02em;line-height:1.15}
@@ -88,17 +88,47 @@
 </footer>
 <script>
 (function(){
- const MANIFEST='/silos/mtg/silo.json',CATALOG='/data/mtg-catalog.json',grid=document.getElementById('grid'),status=document.getElementById('status');
- const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- async function json(url){const r=await fetch(url,{cache:'no-store',headers:{Accept:'application/json'}});if(!r.ok)throw new Error(url+' returned '+r.status);return r.json();}
- async function start(){
-  let m=null;try{m=await json(MANIFEST);}catch(e){console.warn('MTG manifest unavailable',e);}
-  if(m){if(m.accent)document.documentElement.style.setProperty('--silo-accent',m.accent);if(m.accent_bright)document.documentElement.style.setProperty('--silo-accent-bright',m.accent_bright);if(m.short&&document.getElementById('navShort'))document.getElementById('navShort').textContent=m.short;if(m.tagline&&document.getElementById('tagline'))document.getElementById('tagline').textContent=m.tagline;}
-  try{
-   const data=await json((m&&m.catalog)||CATALOG);
-   const decks=(Array.isArray(data.products)?data.products:[]).filter(p=>p&&p.silo==='mtg'&&p.category==='commander-deck'&&p.status==='published'&&Number(p.inventory)>0);
-   if(!decks.length){status.textContent='No verified deck listings are currently available. Inventory appears only when valid listings are present.';grid.innerHTML='';return;}
-   status.textContent=decks.length+' listed deck'+(decks.length===1?'':'s')+'. Confirm availability with the seller before paying.';
-   grid.innerHTML=decks.map(p=>{const price=Number(p.price),claim=p.claim_url||p.detail_url||'/mtg-list';return '<article class="deck"><div class="deck-body"><div class="tag">Physical Commander deck</div><h3>'+esc(p.name)+'</h3><p class="desc">'+esc(p.description||'Details supplied by seller.')+'</p><div class="price">'+(Number.isFinite(price)?'NZ
+  const grid=document.getElementById('grid');
+  const status=document.getElementById('status');
+  const wanted=new Set(['EDH_0001','EDH_QUINTORIUS_0002','EDH_DWYNEN_0003']);
+  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  async function get(url){
+    const r=await fetch(url,{cache:'no-store',headers:{Accept:'application/json'}});
+    if(!r.ok) throw new Error(url+' returned '+r.status);
+    return r.json();
+  }
+  async function loadCatalogue(){
+    try { return await get('/public/catalog.json'); }
+    catch(first) { return await get('/catalog.json'); }
+  }
+  async function start(){
+    try {
+      const data=await loadCatalogue();
+      const products=(Array.isArray(data.products)?data.products:[]).filter(p=>p&&wanted.has(p.id)&&p.status==='published');
+      if(!products.length){
+        status.textContent='No seller-listed Commander decks are available in the tracked catalogue.';
+        grid.innerHTML='';
+        return;
+      }
+      status.textContent=products.length+' seller-listed Commander decks. Confirm availability before paying.';
+      grid.innerHTML=products.map(p=>{
+        const price=Number(p.price);
+        const priceText=Number.isFinite(price)?'NZ$'+price.toFixed(2):'Price requires confirmation';
+        const inventory=Number(p.inventory);
+        const availability=Number.isFinite(inventory)&&inventory>0?'Seller-listed quantity: '+inventory+'. Confirm availability before paying.':'Availability requires seller confirmation.';
+        const claimable=p.sale_mode==='claim_by_message'&&p.checkout_available===false&&typeof p.claim_url==='string'&&p.claim_url.length>0;
+        const hold=typeof p.checkout_hold_reason==='string'&&p.checkout_hold_reason.trim()?p.checkout_hold_reason:'Online checkout is not enabled for this listing.';
+        const action=claimable?'<a class="see" href="'+esc(p.claim_url)+'">View listing and request</a>':'<p class="compare">'+esc(hold)+'</p>';
+        return '<article class="deck"><div class="deck-banner"><span>Commander deck</span></div><div class="deck-body"><div class="tag">Physical listing</div><h3>'+esc(p.name)+'</h3><p class="desc">'+esc(p.description||'Details supplied by seller.')+'</p><p class="compare">'+esc(availability)+'</p><div class="price">'+priceText+'</div><div class="actions">'+action+'</div></div></article>';
+      }).join('');
+    } catch(e) {
+      status.className='status-bar error';
+      status.textContent=e.message||'Catalogue load failed';
+      grid.innerHTML='';
+    }
+  }
+  start();
+})();
+</script>
 </body>
 </html>
