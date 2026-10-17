@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Estimate New Zealand annual income tax, ACC earners' levy, and take-home pay from gross salary using the 2026–27 tax brackets.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://dreamledger.org/nz-calculators/paye/">
+<title>NZ PAYE & Take-Home Pay Estimator | DreamLedger</title>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"NZ PAYE & Take-Home Pay Estimator","url":"https://dreamledger.org/nz-calculators/paye/","applicationCategory":"FinanceApplication","operatingSystem":"Any","description":"A browser-based estimate of New Zealand annual income tax, ACC earners' levy, and take-home pay for the 2026–27 tax year.","offers":{"@type":"Offer","price":"0","priceCurrency":"NZD"}}</script>
+<style>
+:root{color-scheme:dark;--bg:#0b1118;--panel:#121c27;--line:#2b3a49;--ink:#f4f7fa;--muted:#aebac7;--accent:#9ce6c6;--warn:#ffd08a}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,sans-serif}main{max-width:960px;margin:auto;padding:24px 18px 72px}a{color:var(--accent)}header{border-bottom:1px solid var(--line);padding-bottom:15px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}.eyebrow{margin-top:34px;color:var(--accent);font-weight:900;font-size:.75rem;letter-spacing:.14em;text-transform:uppercase}h1{font-size:clamp(2.4rem,7vw,4.6rem);letter-spacing:-.06em;line-height:.96;margin:10px 0 16px}h2{margin-top:0}.muted{color:var(--muted)}.layout{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-top:24px}.card{border:1px solid var(--line);background:var(--panel);border-radius:14px;padding:20px}.field{display:block;margin:14px 0}.field span{display:block;font-weight:800;font-size:.88rem;margin-bottom:6px}.field input,.field select{width:100%;padding:12px;border-radius:9px;border:1px solid var(--line);background:#081019;color:var(--ink);font:inherit}.button{display:inline-flex;padding:11px 15px;border-radius:9px;border:1px solid var(--line);background:#1a2938;color:var(--ink);font:inherit;font-weight:850;cursor:pointer}.primary{background:var(--accent);color:#07130e;border-color:var(--accent)}.results{margin-top:15px}.big{font-size:clamp(2rem,5vw,3.1rem);font-weight:900;letter-spacing:-.04em;color:var(--accent)}.line{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}.line:last-child{border-bottom:0}.line strong{text-align:right}.notice{border-left:3px solid var(--warn);padding:10px 13px;background:#211d14;color:#f6e5bf;font-size:.88rem}.small{font-size:.82rem}.footer{border-top:1px solid var(--line);margin-top:24px;padding-top:18px}.brackets{width:100%;border-collapse:collapse}.brackets td,.brackets th{text-align:left;padding:9px;border-bottom:1px solid var(--line)}.brackets th{font-size:.83rem;color:var(--muted)}@media(max-width:690px){.layout{grid-template-columns:1fr}}
+</style>
+</head>
+<body><main>
+<header><a href="/">DreamLedger</a><span class="muted small">Free calculator · no account</span></header>
+<div class="eyebrow">New Zealand · 2026–27 tax year</div>
+<h1>What might your take-home pay be?</h1>
+<p class="muted">Estimate annual income tax and the ACC earners’ levy from gross employment income, then see an equivalent weekly, fortnightly, or monthly amount. Calculations run in your browser.</p>
+<section class="layout">
+<article class="card">
+<h2>Your income</h2>
+<label class="field"><span>Gross annual salary or wages (NZD)</span><input id="income" type="number" min="0" max="100000000" step="0.01" value="65000" inputmode="decimal"></label>
+<label class="field"><span>Show estimate per</span><select id="period"><option value="52">Week</option><option value="26">Fortnight</option><option value="12">Month</option><option value="1">Year</option></select></label>
+<button class="button primary" id="calculate">Calculate estimate</button>
+<p class="muted small">Uses the standard main-income tax brackets and ACC levy only. No income is sent to a server by this calculator.</p>
+</article>
+<article class="card">
+<h2>Your estimate</h2>
+<div class="muted small">Estimated take-home after income tax and ACC</div>
+<div id="net" class="big" aria-live="polite">$49,000.00</div>
+<div id="breakdown" class="results"></div>
+</article>
+</section>
+<section class="card" style="margin-top:15px">
+<h2>Rates used</h2>
+<p class="muted small">New Zealand individual income-tax brackets currently published for income from 1 April 2025, and the ACC earners’ levy applying from 1 April 2026 to 31 March 2027.</p>
+<table class="brackets"><thead><tr><th>Annual taxable income</th><th>Marginal tax rate</th></tr></thead><tbody><tr><td>$0–$15,600</td><td>10.5%</td></tr><tr><td>$15,601–$53,500</td><td>17.5%</td></tr><tr><td>$53,501–$78,100</td><td>30%</td></tr><tr><td>$78,101–$180,000</td><td>33%</td></tr><tr><td>Over $180,000</td><td>39%</td></tr></tbody></table>
+<p class="small muted">ACC earners’ levy: 1.75% of earnings up to $156,641, maximum $2,741.22 for this tax year.</p>
+<p class="small">Official references: <a href="https://www.ird.govt.nz/en/income-tax/income-tax-for-individuals/tax-codes-and-tax-rates-for-individuals/tax-rates-for-individuals" rel="noopener">IRD income tax rates</a> · <a href="https://www.ird.govt.nz/acclevy" rel="noopener">IRD ACC earners’ levy</a> · <a href="https://www.ird.govt.nz/paye-calculator" rel="noopener">Official IRD PAYE calculator</a>.</p>
+</section>
+<div class="notice" style="margin-top:15px"><strong>Important:</strong> this is an estimate, not an official PAYE calculation. It excludes Independent Earner Tax Credit and other tax credits, KiwiSaver, student-loan deductions, secondary income, tailored tax codes, payroll rounding, and other deductions. It assumes your input is annual taxable employment income. For an actual payslip estimate, use the official IRD calculator.</div>
+<section class="card" style="margin-top:15px"><h2>More free tools</h2><p><a href="/margin-calculator/">International profit margin calculator</a> · <a href="/quote-comparison/">Supplier quote comparison worksheet</a> · <a href="/truth-oracle.html">Truth Oracle</a></p></section>
+<footer class="footer muted small">This page provides general information only and is not tax advice. Tax rules can change; check current Inland Revenue guidance before relying on an estimate.</footer>
+</main>
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const money=n=>new Intl.NumberFormat('en-NZ',{style:'currency',currency:'NZD',minimumFractionDigits:2,maximumFractionDigits:2}).format(n);
+function incomeTax(x){if(x<=0)return 0;if(x<=15600)return x*.105;if(x<=53500)return x*.175-1092;if(x<=78100)return x*.30-7779.5;if(x<=180000)return x*.33-10122.5;return x*.39-20922.5;}
+function calculate(){const raw=$('income').value;const income=Number(raw);if(raw===''||!Number.isFinite(income)||income<0||income>100000000){$('net').textContent='Enter a valid income';$('breakdown').replaceChildren();return;}const tax=incomeTax(income);const acc=Math.min(income,156641)*.0175;const net=income-tax-acc;const div=Number($('period').value)||52;const rows=[['Gross income',income],['Estimated income tax',-tax],['ACC earners’ levy',-acc],['Estimated take-home',net]];const el=document.createDocumentFragment();rows.forEach((r,i)=>{const d=document.createElement('div');d.className='line';const l=document.createElement('span');l.textContent=r[0];const v=document.createElement('strong');v.textContent=(r[1]<0?'−':'')+money(Math.abs(r[1])/div);d.append(l,v);el.appendChild(d);});const rate=income>0?(tax+acc)/income*100:0;const effective=document.createElement('div');effective.className='line';const name=document.createElement('span');name.textContent='Effective tax + ACC rate';const value=document.createElement('strong');value.textContent=rate.toFixed(2)+'%';effective.append(name,value);el.appendChild(effective);$('net').textContent=money(net/div);$('breakdown').replaceChildren(el);}
+$('calculate').addEventListener('click',calculate);$('period').addEventListener('change',calculate);$('income').addEventListener('input',calculate);calculate();
+})();
+</script>
+</body></html>
