@@ -1,0 +1,13 @@
+{
+  "actorSpecification": 1,
+  "name": "supplier-feed-diff",
+  "title": "Supplier Feed Diff and SKU Price Review",
+  "description": "Compare two authorized CSV snapshots in the Actor runtime. Detect SKU additions/removals, duplicates, same-currency price changes and currency mismatches. No scraping or live-system writes.",
+  "version": "0.1.0",
+  "meta": {
+    "templateId": "python-start"
+  },
+  "input": "./input_schema.json",
+  "readme": "../README.md",
+  "dockerfile": "./Dockerfile"
+}

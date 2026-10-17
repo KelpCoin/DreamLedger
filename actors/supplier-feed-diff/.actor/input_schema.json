@@ -1,0 +1,16 @@
+{
+  "title": "Supplier Feed Diff Input",
+  "type": "object",
+  "schemaVersion": 1,
+  "properties": {
+    "authorizedDataUse": {"title":"I confirm I am authorized to process both snapshots","type":"boolean","description":"Must be true. Do not upload data you are not permitted to process.","editor":"checkbox","default":false},
+    "baselineCsv": {"title":"Baseline CSV snapshot","type":"string","description":"Paste the earlier authorized CSV snapshot. No URL fetching is performed.","editor":"textarea","prefill":"sku,price,currency\nSKU-001,10.00,NZD\nSKU-002,5.50,NZD\n"},
+    "currentCsv": {"title":"Current CSV snapshot","type":"string","description":"Paste the newer authorized CSV snapshot. No URL fetching is performed.","editor":"textarea","prefill":"sku,price,currency\nSKU-001,11.00,NZD\nSKU-003,7.25,NZD\n"},
+    "skuField": {"title":"SKU column","type":"string","default":"sku","editor":"textfield"},
+    "priceField": {"title":"Price column","type":"string","default":"price","editor":"textfield"},
+    "currencyField": {"title":"Currency column","type":"string","default":"currency","editor":"textfield"},
+    "maxRows": {"title":"Maximum rows per snapshot","type":"integer","minimum":1,"maximum":50000,"default":10000,"editor":"number"},
+    "maxInputBytes": {"title":"Maximum input bytes per snapshot","type":"integer","minimum":1,"maximum":5000000,"default":2000000,"editor":"number"}
+  },
+  "required": ["authorizedDataUse","baselineCsv","currentCsv"]
+}
