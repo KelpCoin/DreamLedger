@@ -64,6 +64,16 @@ Deno.serve(async(req)=>{
  }
  if((eventType==="payment_intent.succeeded" || eventType==="checkout.session.async_payment_succeeded") && session.payment_status!=="paid")return new Response("settlement event is not paid",{status:409}); if(currency!=="NZD")return new Response("unexpected currency",{status:400});
  const resolvedSku=resolveCanonicalSku(metadata);
+ const normalizedResolvedSku=resolvedSku && resolvedSku.key!=="marketplace_listing_id" ? normalizeCanonicalSku(resolvedSku.value) : "";
+ const canonicalOfferIds=COMMERCE_SKU_CONTRACT.canonical_offer_ids as Record<string,string>;
+ const canonicalCommanderOfferId="OFFER-CMD-DIAG-29-NZD";
+ if(normalizedResolvedSku===COMMANDER_CANONICAL_SKU && String(metadata.offer_id||"").trim()!==canonicalCommanderOfferId){
+   const timestamp=new Date().toISOString();
+   const evidence={schema:SKU_CONTRACT_VERSION,action:"handler_enforced",event_id:eventId,outcome:"OFFER_CONTRACT_VIOLATION",reason:"NON_CANONICAL_COMMANDER_OFFER_ID",metadata_before:metadata,metadata_after:metadata,resolved_key:resolvedSku?.key||null,resolved_value:resolvedSku?.rawValue||null,expected_offer_id:canonicalCommanderOfferId,observed_offer_id:String(metadata.offer_id||""),timestamp,result:"FAIL"};
+   const {error:evidenceError}=await supabase.from("stripe_webhook_events").update({processed:true,processed_at:timestamp,processing_outcome:evidence.outcome,payload:{...event,_commerce_offer_contract:evidence}}).eq("event_id",eventId);
+   if(evidenceError)return new Response("offer evidence persistence failed",{status:500});
+   return Response.json({received:true,rejected:true,event_id:eventId,...evidence},{status:400});
+ }
  if(!resolvedSku){
    const timestamp=new Date().toISOString();
    const evidence={schema:SKU_CONTRACT_VERSION,action:"handler_enforced",event_id:eventId,outcome:"SKU_CONTRACT_VIOLATION",reason:"NO_ALLOWED_IDENTIFIER_KEY",metadata_before:metadata,metadata_after:metadata,resolved_key:null,resolved_value:null,timestamp,result:"FAIL"};
