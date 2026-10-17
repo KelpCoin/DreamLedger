@@ -41,7 +41,15 @@ function patch() {
 
   const start = html.indexOf('function render(items){');
   const end = html.indexOf('async function load(){', start);
-  if (start < 0 || end < 0) throw new Error('MTG render function boundary not found');
+  if (start < 0 || end < 0) {
+    if (html.includes('conditionEligible') && html.includes('async function load(){')) {
+      html = html.replace('<body class="silo-body">', '<body class="silo-body" '+MARKER+'>');
+      fs.writeFileSync(SOURCE, html, 'utf8');
+      writeProof();
+      return;
+    }
+    throw new Error('MTG render function boundary not found; source contract is unrecognized');
+  }
 
   const render = String.raw`function render(items){
 const decks=items.filter(isMtg);
