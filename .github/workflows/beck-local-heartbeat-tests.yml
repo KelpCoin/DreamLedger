@@ -1,0 +1,48 @@
+name: BECK Local Heartbeat Contract
+
+on:
+  push:
+    branches:
+      - beck-local-heartbeat-endpoint-20261018
+    paths:
+      - 'BEC-PRIME/routes/tollRoad.js'
+      - 'BEC-PRIME/routes/tollRoad.localHeartbeat.test.js'
+      - 'BEC-PRIME/scripts/Run-BECKLocalHeartbeat.ps1'
+      - 'package.json'
+      - '.github/workflows/beck-local-heartbeat-tests.yml'
+      - '.github/workflows/beck-cloud-truth-heartbeat.yml'
+  pull_request:
+    paths:
+      - 'BEC-PRIME/routes/tollRoad.js'
+      - 'BEC-PRIME/routes/tollRoad.localHeartbeat.test.js'
+      - 'package.json'
+      - '.github/workflows/beck-local-heartbeat-tests.yml'
+      - '.github/workflows/beck-cloud-truth-heartbeat.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  local-heartbeat-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install package dependencies (repository has no npm lockfile)
+        run: npm install --no-save --package-lock=false --ignore-scripts --no-audit --no-fund
+      - name: Check local heartbeat route syntax
+        run: node --check BEC-PRIME/routes/tollRoad.js
+      - name: Test heartbeat authentication, input validation, TTL, and rate limit
+        run: npm run test:beck-local-heartbeat
+
+  local-runner-syntax:
+    runs-on: windows-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Parse runner without executing it
+        shell: pwsh
+        run: $null = [scriptblock]::Create((Get-Content -Raw -LiteralPath 'BEC-PRIME/scripts/Run-BECKLocalHeartbeat.ps1'))
