@@ -207,7 +207,57 @@ function meterResult(key, service, extra){
   return Object.assign({schema:'dreamledger/toll-metered-result/v1',key_id:key.key_id,service,accepted:true,economic_truth_unchanged:true,received_at:new Date().toISOString()},extra||{});
 }
 
+const LOCAL_HEARTBEAT_TTL_MS=300000;
+const LOCAL_HEARTBEAT_MIN_INTERVAL_MS=5000;
+let latestLocalHeartbeat=null;
+let lastLocalHeartbeatAcceptedAt=0;
+
+function localHeartbeatAuthorized(req){
+  const expected=String(process.env.LOCAL_HEARTBEAT_TOKEN||'');
+  const supplied=String(req.headers.authorization||'').match(/^Bearer (.+)$/i)?.[1]||'';
+  if(!expected||!supplied)return false;
+  const a=crypto.createHash('sha256').update(supplied).digest();
+  const b=crypto.createHash('sha256').update(expected).digest();
+  return crypto.timingSafeEqual(a,b);
+}
+
 async function handle(req,res,path){
+  if(path==='/api/toll/v1/local-heartbeat'&&req.method==='POST'){
+    if(!localHeartbeatAuthorized(req))return send(res,process.env.LOCAL_HEARTBEAT_TOKEN?401:503,{error:process.env.LOCAL_HEARTBEAT_TOKEN?'invalid_local_heartbeat_token':'local_heartbeat_not_configured'});
+    let body;
+    try{body=await readJson(req);}catch(error){return send(res,error.statusCode||400,{error:error.message||'invalid_json'});}
+    const ts=Date.parse(String(body.ts||''));
+    if(!Number.isFinite(ts))return send(res,400,{error:'valid_ts_required'});
+    const age=Date.now()-ts;
+    if(age>600000||age< -300000)return send(res,400,{error:'heartbeat_timestamp_out_of_window'});
+    if(typeof body.lm_studio!=='boolean')return send(res,400,{error:'lm_studio_boolean_required'});
+    if(body.tri_llm!==undefined&&typeof body.tri_llm!=='boolean')return send(res,400,{error:'tri_llm_must_be_boolean'});
+    if(body.capacity!==undefined&&!['available','busy','offline'].includes(body.capacity))return send(res,400,{error:'invalid_capacity'});
+    const now=Date.now();
+    if(now-lastLocalHeartbeatAcceptedAt<LOCAL_HEARTBEAT_MIN_INTERVAL_MS)return send(res,429,{error:'heartbeat_rate_limited',retry_after_ms:LOCAL_HEARTBEAT_MIN_INTERVAL_MS-(now-lastLocalHeartbeatAcceptedAt)});
+    const models=Array.isArray(body.models)?body.models.slice(0,20).map(x=>String(x).replace(/[^A-Za-z0-9._:/@-]/g,'').slice(0,120)).filter(Boolean):[];
+    const record={
+      schema:'dreamledger/local-heartbeat/v1',
+      host:String(body.host||'local-agent').replace(/[^A-Za-z0-9._-]/g,'').slice(0,80)||'local-agent',
+      ts:new Date(ts).toISOString(),
+      received_at:new Date(now).toISOString(),
+      expires_at:new Date(now+LOCAL_HEARTBEAT_TTL_MS).toISOString(),
+      lm_studio:body.lm_studio,
+      tri_llm:body.tri_llm===true,
+      capacity:body.capacity||'available',
+      models,
+      source:'authenticated_local_report',
+      proves_only:'Authenticated sender reported local readiness at received_at; not independent verification of model quality, commerce, or revenue.'
+    };
+    latestLocalHeartbeat=record;
+    lastLocalHeartbeatAcceptedAt=now;
+    return send(res,200,{status:'ACCEPTED',received_at:record.received_at,ttl_seconds:LOCAL_HEARTBEAT_TTL_MS/1000,local_heartbeat:record});
+  }
+
+  if(path==='/api/toll/v1/local-heartbeat'&&req.method==='GET'){
+    const fresh=latestLocalHeartbeat&&Date.parse(latestLocalHeartbeat.expires_at)>Date.now();
+    return send(res,200,{schema:'dreamledger/local-heartbeat-status/v1',status:fresh?'FRESH':'NOT_CONNECTED',ttl_seconds:fresh?Math.max(0,Math.floor((Date.parse(latestLocalHeartbeat.expires_at)-Date.now())/1000)):0,heartbeat:fresh?latestLocalHeartbeat:null,financial_authority:false,revenue_claimed_nzd:0});
+  }
   if(path==='/api/toll/v1/manifest'&&req.method==='GET')return send(res,200,Toll.publicManifest([{id:'ROAD-METER-10000',route:'/api/toll/v1/roads/{road_id}',scope:'road',status:'CATALOGUED_PENDING_DURABLE_QUOTA_LEDGER',checkout_configured:false,price_nzd:null,proposed_price_nzd:RoadFactory.ROAD_PRICE_NZD,description:'10,000 logical road IDs. Paid execution remains disabled until durable per-key quota accounting is available.',road_instances:RoadFactory.ROAD_COUNT,calls_per_pack:null,proposed_calls_per_pack:RoadFactory.CALLS_PER_ROAD,checkout_route:null,catalog_endpoint:'/api/toll/v1/roads?offset=0&limit=100'}]));
 
   if(path==='/api/toll/v1/roads'&&req.method==='GET'){
