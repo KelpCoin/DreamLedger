@@ -87,7 +87,7 @@ body{padding-bottom:calc(5.2rem + var(--sb))}
     <h1>B2B procurement tools</h1>
     <p class="lead">Explore supplier enquiries, wholesale listings, and quote comparison. The listed platform success fee on peer-to-peer B2B sales is <strong style="color:var(--ok)">0%</strong>; optional tools have separate prices.</p>
     <div class="ctas">
-      <a class="btn ok" href="#rfq">Request supplier interest</a>
+      <a class="btn ok" href="#rfq">Save RFQ draft</a>
       <a class="btn gold" href="/sell.html">Wholesale listings paused</a>
       <a class="btn line" href="https://buy.stripe.com/bJe7sL7LD4hDeqH04kdwc3e">Quote comparison NZ$49</a>
     </div>
@@ -168,9 +168,9 @@ body{padding-bottom:calc(5.2rem + var(--sb))}
           <input id="region" name="region" required placeholder="e.g. Auckland"/>
         </div>
       </div>
-      <button class="btn ok" type="submit" style="width:100%;margin-top:1rem">Submit RFQ · free</button>
-      <p class="note">An RFQ is a request, not a guarantee of supplier response. Platform success fee remains 0% on peer B2B sales.</p>
-      <p class="status" id="status">RFQ saved. Reference will appear here.</p>
+      <button class="btn ok" type="submit" style="width:100%;margin-top:1rem">Save RFQ draft on this device</button>
+      <p class="note">This form currently saves a draft only in this browser. It does not submit the RFQ to DreamLedger or contact suppliers. Do not enter confidential or sensitive business data here. Platform success fee remains 0% on peer B2B sales.</p>
+      <p class="status" id="status">Draft status will appear here.</p>
     </form>
   </section>
 
@@ -214,7 +214,7 @@ body{padding-bottom:calc(5.2rem + var(--sb))}
 (function(){
   var form=document.getElementById('rfqForm');
   var status=document.getElementById('status');
-  form.addEventMarketplace statusener('submit',function(e){
+  form.addEventListener('submit',function(e){
     e.preventDefault();
     var data=Object.fromEntries(new FormData(form).entries());
     data.id='RFQ-'+Date.now();
@@ -227,8 +227,8 @@ body{padding-bottom:calc(5.2rem + var(--sb))}
       all.unshift(data);
       localStorage.setItem(key,JSON.stringify(all.slice(0,50)));
     }catch(_){}
-    status.textContent='RFQ accepted · ref '+data.id+' · stored for matching';
-    status.classMarketplace status.add('show');
+    status.textContent='Draft saved on this device · ref '+data.id+' · not sent to DreamLedger or suppliers. Supplier matching is not connected yet.';
+    status.classList.add('show');
     form.reset();
   });
 })();
