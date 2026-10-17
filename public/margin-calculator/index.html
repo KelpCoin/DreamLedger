@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Calculate product profit, contribution margin, markup, selling fees, and break-even price in your chosen currency. Free, local browser calculator.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://dreamledger.org/margin-calculator/">
+<title>Profit Margin & Markup Calculator | DreamLedger</title>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Profit Margin and Markup Calculator","url":"https://dreamledger.org/margin-calculator/","applicationCategory":"BusinessApplication","operatingSystem":"Any","description":"Calculate profit per item, net contribution margin, markup, and break-even selling price after variable costs and percentage fees.","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+<style>
+:root{color-scheme:dark;--bg:#0b1118;--panel:#121c27;--line:#2b3a49;--ink:#f4f7fa;--muted:#aebac7;--accent:#9ce6c6;--warn:#ffd08a}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,sans-serif}main{max-width:980px;margin:auto;padding:24px 18px 72px}a{color:var(--accent)}header{border-bottom:1px solid var(--line);padding-bottom:15px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}.eyebrow{margin-top:34px;color:var(--accent);font-weight:900;font-size:.75rem;letter-spacing:.14em;text-transform:uppercase}h1{font-size:clamp(2.4rem,7vw,4.6rem);letter-spacing:-.06em;line-height:.96;margin:10px 0 16px}h2{margin-top:0}.muted{color:var(--muted)}.layout{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-top:24px}.card{border:1px solid var(--line);background:var(--panel);border-radius:14px;padding:20px}.field{display:block;margin:13px 0}.field span{display:block;font-weight:800;font-size:.87rem;margin-bottom:6px}.field input,.field select{width:100%;padding:11px;border-radius:9px;border:1px solid var(--line);background:#081019;color:var(--ink);font:inherit}.fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}.big{font-size:clamp(2rem,5vw,3.1rem);font-weight:900;letter-spacing:-.04em;color:var(--accent);overflow-wrap:anywhere}.line{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}.line:last-child{border-bottom:0}.line strong{text-align:right}.small{font-size:.82rem}.warn{color:var(--warn)}.notice{border-left:3px solid var(--accent);padding:10px 13px;background:#101d25}.button{display:inline-flex;padding:10px 14px;border-radius:9px;border:1px solid var(--line);background:#1a2938;color:var(--ink);font:inherit;font-weight:850;cursor:pointer}.primary{background:var(--accent);color:#07130e;border-color:var(--accent)}.footer{border-top:1px solid var(--line);margin-top:24px;padding-top:18px}@media(max-width:700px){.layout{grid-template-columns:1fr}.fields{grid-template-columns:1fr}}
+</style>
+</head>
+<body><main>
+<header><a href="/">DreamLedger</a><span class="muted small">Free calculator · no account</span></header>
+<div class="eyebrow">Global · ecommerce · small business</div>
+<h1>Know your margin before you price.</h1>
+<p class="muted">Estimate profit after variable costs and percentage selling fees. Compare margin with markup and calculate a break-even price in your chosen currency. All calculations happen in your browser.</p>
+<section class="layout">
+<article class="card"><h2>Enter your numbers</h2>
+<label class="field"><span>Currency (labels only, no conversion)</span><select id="currency"><option value="USD">USD · US dollar</option><option value="NZD">NZD · New Zealand dollar</option><option value="AUD">AUD · Australian dollar</option><option value="CAD">CAD · Canadian dollar</option><option value="GBP">GBP · British pound</option><option value="EUR">EUR · euro</option><option value="SGD">SGD · Singapore dollar</option><option value="INR">INR · Indian rupee</option><option value="JPY">JPY · Japanese yen</option></select></label>
+<div class="fields">
+<label class="field"><span>Selling price per unit</span><input id="price" type="number" min="0" step="any" value="50" inputmode="decimal"></label>
+<label class="field"><span>Product cost per unit</span><input id="cost" type="number" min="0" step="any" value="20" inputmode="decimal"></label>
+<label class="field"><span>Shipping / fulfillment per unit</span><input id="shipping" type="number" min="0" step="any" value="5" inputmode="decimal"></label>
+<label class="field"><span>Other variable cost per unit</span><input id="other" type="number" min="0" step="any" value="0" inputmode="decimal"></label>
+<label class="field"><span>Percentage fees on sale (%)</span><input id="fee" type="number" min="0" max="99.99" step="0.01" value="3" inputmode="decimal"></label>
+<label class="field"><span>Fixed fee per unit / order</span><input id="fixed" type="number" min="0" step="any" value="0.30" inputmode="decimal"></label>
+<label class="field"><span>Units sold (for totals)</span><input id="units" type="number" min="0" max="100000000" step="1" value="1" inputmode="numeric"></label>
+<label class="field"><span>Target margin (%)</span><input id="target" type="number" min="0" max="99.99" step="0.5" value="30" inputmode="decimal"></label>
+</div><button class="button" id="reset">Reset example</button>
+</article>
+<article class="card"><h2>Your results</h2><div class="muted small">Contribution profit after entered variable costs and fees</div><div class="big" id="profit" aria-live="polite">$23.20</div><div id="results"></div><p class="muted small">A positive margin does not include fixed overhead, income tax, returns, or costs you have not entered.</p></article>
+</section>
+<section class="notice small" style="margin-top:15px">Formula: contribution profit = selling price − product cost − shipping/fulfillment − other variable costs − percentage fee − fixed fee. Margin is profit ÷ selling price. Markup is profit ÷ cost. Currency selection only changes the label; it does not perform foreign-exchange conversion.</section>
+<section class="card" style="margin-top:15px"><h2>Next step</h2><p class="muted">For supplier cost evidence, use the <a href="/quote-comparison/">free Supplier Quote Comparison worksheet</a>. To check claims against source material, visit <a href="/truth-oracle.html">Truth Oracle</a>.</p></section>
+<footer class="footer muted small">For planning only. Results depend on the accuracy of your inputs and are not accounting, tax, or investment advice.</footer>
+</main>
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const defaults={currency:'USD',price:50,cost:20,shipping:5,other:0,fee:3,fixed:.30,units:1,target:30};
+const names={price:'Selling price per unit',cost:'Product cost per unit',shipping:'Shipping / fulfillment per unit',other:'Other variable cost per unit',fee:'Percentage fee',fixed:'Fixed fee',units:'Units sold',target:'Target margin'};
+function val(id){const s=$(id).value;if(s==='')return NaN;return Number(s);}
+function money(n){const c=$('currency').value;try{return new Intl.NumberFormat('en-US',{style:'currency',currency:c,minimumFractionDigits:2,maximumFractionDigits:2}).format(n);}catch(_){return c+' '+n.toFixed(2);}}
+function row(label,value){const d=document.createElement('div');d.className='line';const l=document.createElement('span');l.textContent=label;const v=document.createElement('strong');v.textContent=value;d.append(l,v);return d;}
+function calculate(){const price=val('price'),cost=val('cost'),shipping=val('shipping'),other=val('other'),fee=val('fee'),fixed=val('fixed'),units=val('units'),target=val('target');const numeric={price,cost,shipping,other,fee,fixed,units,target};let error='';for(const [k,v] of Object.entries(numeric)){if(!Number.isFinite(v)||v<0){error=names[k]+' must be a non-negative number.';break;}}if(!error&&(price>1e9||cost>1e9||shipping>1e9||other>1e9||fixed>1e9||units>1e8||fee>=100||target>=100||!Number.isInteger(units))){error='Keep amounts within the allowed limits, use whole units, and keep fee and target margin below 100%.';}if(error){$('profit').textContent='Check inputs';$('results').textContent=error;return;}
+const feeRate=fee/100;const base=cost+shipping+other+fixed;const feeAmount=price*feeRate;const profit=price-base-feeAmount;const margin=price>0?profit/price*100:null;const markup=base>0?profit/base*100:null;const breakEven=(1-feeRate)>0?base/(1-feeRate):null;const denominator=1-feeRate-target/100;const targetPrice=denominator>0?base/denominator:null;const frag=document.createDocumentFragment();const fmtPct=n=>n===null?'Not defined':n.toFixed(2)+'%';frag.append(row('Gross profit before selling fees',money(price-cost-shipping-other)));frag.append(row('Percentage fee',money(feeAmount)));frag.append(row('Total entered variable cost',money(base+feeAmount)));frag.append(row('Contribution profit per unit',(profit<0?'−':'')+money(Math.abs(profit))));frag.append(row('Contribution margin',fmtPct(margin)));frag.append(row('Markup on entered costs',fmtPct(markup)));frag.append(row('Break-even selling price',money(breakEven)));frag.append(row('Price for '+target.toFixed(1)+'% target margin',targetPrice===null?'Not possible with these fee/margin inputs':money(targetPrice)));frag.append(row('Contribution profit for '+units.toLocaleString()+' units',(profit<0?'−':'')+money(Math.abs(profit*units))));$('profit').textContent=(profit<0?'−':'')+money(Math.abs(profit));$('results').replaceChildren(frag);}
+for(const id of ['currency','price','cost','shipping','other','fee','fixed','units','target'])$(id).addEventListener('input',calculate);
+$('reset').addEventListener('click',()=>{Object.entries(defaults).forEach(([k,v])=>$(k).value=String(v));calculate();});
+calculate();
+})();
+</script>
+</body></html>
