@@ -4,6 +4,16 @@ const url=Deno.env.get("SUPABASE_URL")!,key=Deno.env.get("SUPABASE_SERVICE_ROLE_
 const db=createClient(url,key,{auth:{persistSession:false,autoRefreshToken:false}});
 const out=(x:unknown,s=200)=>new Response(JSON.stringify(x),{status:s,headers:{"content-type":"application/json"}});
 async function sha(s:string){const d=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s));return Array.from(new Uint8Array(d)).map(b=>b.toString(16).padStart(2,"0")).join("")}
+function errorInfo(e:unknown){
+ if(e && typeof e==="object"){
+  const v=e as Record<string,unknown>, out:Record<string,string>={};
+  for(const k of ["name","message","code","details","hint","status","statusCode"]){
+   if(v[k]!==undefined && v[k]!==null)out[k]=String(v[k]).slice(0,600);
+  }
+  if(Object.keys(out).length)return out;
+ }
+ return {message:String(e).slice(0,600)};
+}
 async function auth(req:Request){
   const configuredHash="0ffd7cc415931d74fa53f3fe9d10a9f6b3800605ef60d0f9b5acb774daefc2e0";
   const dedicated=(req.headers.get("x-cube-heartbeat-secret")||"").trim();
@@ -20,7 +30,7 @@ function lines(s:string){return Math.max(0,(s.match(/\n/g)||[]).length)}
 async function runCloudGauntlet(){try{const r=await fetch(url+"/functions/v1/cube-controller",{method:"POST",headers:{Authorization:"Bearer "+key,apikey:key,"Content-Type":"application/json"},body:JSON.stringify({run_reason:"scheduled_777_heartbeat"})});const t=await r.text();let body:any;try{body=JSON.parse(t)}catch{body={raw:t.slice(0,1200)}}return {status:r.status,ok:r.ok,body}}catch(e){return {status:"DEGRADED",ok:false,error:String(e)}}}
 let lastControllerResult:any=null;
 Deno.serve(async req=>{try{
- if(req.method==="GET" && new URL(req.url).pathname.endsWith("/healthz"))return out({status:"healthy",function:"economic-radar-heartbeat",version:26,revenue_claimed:false});
+ if(req.method==="GET" && new URL(req.url).pathname.endsWith("/healthz"))return out({status:"healthy",function:"economic-radar-heartbeat",version:27,revenue_claimed:false});
  if(req.method!=="POST")return out({error:"POST_REQUIRED"},405);
  if(!await auth(req))return out({error:"SERVICE_ROLE_REQUIRED"},403);
  let body:any={}; try{body=await req.json()}catch{}
@@ -97,4 +107,4 @@ Deno.serve(async req=>{try{
  const run=await db.from("cube_radar_runs").insert({started_at:started,finished_at:finished,status:"COMPLETED",feeds_seen:1,signals_ingested:1,signals_qualified:signal?1:0,matches_created:signal?1:0,tests_selected:0,external_actions:0,errors:0,degraded:false,evidence:{source:"ACNC_REGISTER",source_url:sourceUrl,snapshot_hash:hash,row_count:lines(csv),new_signal:Boolean(signal),external_action_performed:false,revenue_claimed:false}}).select("run_id").single();
  if(run.error)throw run.error;
  return out({ok:true,new_signal:Boolean(signal),signal_id:signal?.id||null,run_id:run.data?.run_id||null,row_count:lines(csv),consumer_result,controller_result,external_action_performed:false,revenue_claimed:false});
-}catch(e){console.error("economic-radar-heartbeat failure",String(e));return out({ok:false,degraded:true,error:String(e),controller_result:lastControllerResult,heartbeat_persisted:false,external_action_performed:false,revenue_claimed:false},500)}});
+}catch(e){const problem=errorInfo(e);console.error("economic-radar-heartbeat failure",JSON.stringify(problem));return out({ok:false,degraded:true,error:problem,controller_result:lastControllerResult,heartbeat_persisted:false,external_action_performed:false,revenue_claimed:false},500)}});
