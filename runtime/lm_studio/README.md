@@ -4,23 +4,47 @@ This is a local-only integration. The repository change does not install softwar
 
 ## What is implemented in this branch
 
-- `local_cortex_lmstudio_ingest.py` prefers the official `lmstudio` Python SDK for structured demand-signal classification. If the SDK, server, model, or schema response fails, the existing deterministic heuristic fallback is preserved and the failure is recorded.
-- `beck_lmstudio_sdk.py` provides structured response parsing, honest latency/token telemetry, and a bounded `.act()` entry point.
-- `.act()` exposes only three read-only local tools: search local fixtures, summarize local run artifact counts, and preview lexical hints. Tool calls are serialized, tool-call budget is capped, and the round callback aborts after the configured round limit. It does not provide shell, arbitrary file writes, web search, payment, publishing, or authoritative ledger mutation.
+- `local_cortex_lmstudio_ingest.py` classifies demand signals with LM Studio and sends candidate results through the existing Gauntlet adapter.
+- `local_quote_resonance_bridge.py` watches a local intake folder for PDFs whose filenames contain `quote`, hashes each file, extracts text with pypdf, requests schema-constrained JSON from LM Studio, validates the result, and records a local artifact.
+- Duplicate source hashes are skipped. Invalid inputs or model outputs are recorded in the quarantine directory rather than marked successful.
+- The quote bridge writes a heartbeat and uses explicit request timeouts. It does not upload source PDFs, create checkout sessions, publish results, or write to the authoritative revenue ledger.
+- `beck_lmstudio_sdk.py` provides structured response parsing, honest latency/token telemetry, and a bounded read-only `.act()` entry point.
 - `bec_mcp_server.py` is a read-only MCP server for local runtime status and local signal fixtures.
-- `mcp.json.example` is a template only. It must be reviewed and copied to the LM Studio user configuration directory manually; no existing user configuration is overwritten.
 - `evals/classify/golden.jsonl` contains synthetic labeled examples. They are evaluation fixtures, not observed market demand.
-- `evals/evaluate.py` computes exact-match accuracy and per-field mismatch counts from saved predictions. It does not contact a model or network.
 
-## Local activation (Windows)
+## Local quote bridge
 
-From the DreamLedger repository root, run:
+Install the local runtime dependencies from the repository root:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\runtime\lm_studio\Install-BECK-LMStudio.ps1
+python -m pip install -r .\runtime\lm_studio\requirements.txt
 ```
 
-Then ensure LM Studio is installed and a model is already available. The SDK may load the model named by `LM_STUDIO_MODEL`, or use the current loaded model when that variable is empty. The runtime does not download a model automatically.
+Ensure LM Studio's OpenAI-compatible server is enabled and a model is loaded. The default endpoint is `http://127.0.0.1:1234`. Override it with `$env:LM_STUDIO_BASE_URL` if needed; set `$env:LM_STUDIO_MODEL` only when you want to pin an exact model ID.
+
+Run one scan:
+
+```powershell
+python .\runtime\lm_studio\local_quote_resonance_bridge.py --once
+```
+
+Run the watcher, which sleeps between scans while no matching files are present:
+
+```powershell
+python .\runtime\lm_studio\local_quote_resonance_bridge.py
+```
+
+Drop a PDF with `quote` in its filename into `runtime\lm_studio\intake\`. Validated artifacts are written to `runtime\lm_studio\quote_runs\`; rejected inputs/results are recorded in `runtime\lm_studio\quote_quarantine\`. The source PDF remains in intake. A scanned/image-only PDF is quarantined because OCR is deliberately not enabled in this first bounded bridge.
+
+Run the bridge tests:
+
+```powershell
+python -m unittest runtime.lm_studio.test_local_quote_resonance_bridge
+```
+
+**Activation and proof limitation:** committing these files does not start a Windows process. The bridge is not considered active until it is run on the user's machine and a heartbeat plus a valid artifact are observed. It does not prove demand, payment, or revenue.
+
+## Existing local signal path
 
 To test a single signal after installation:
 
