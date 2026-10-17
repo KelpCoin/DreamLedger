@@ -12,9 +12,7 @@ const required = [
   'compiled/website/truth-oracle.html',
   'compiled/website/truth-oracle.json',
   'compiled/website/transparency-policy.json',
-  'catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json',
-  'catalog/offers/approved.json',
-  'catalog/featured-offer.json'
+  'catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json'
 ];
 
 for (const rel of required) {
@@ -35,51 +33,17 @@ function readJson(rel) {
 }
 
 const product = readJson('catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json');
-const approved = readJson('catalog/offers/approved.json');
-const featured = readJson('catalog/featured-offer.json');
-
-const offer = (approved.approved || []).find(
-  x => x && x.offer_id === 'OFFER-CMD-DIAG-29-NZD'
-);
-
-if (!offer) errors.push('CANONICAL_OFFER_MISSING');
-
-if (product.price !== 29 || featured.price !== 29 || offer?.price !== 29) {
-  errors.push('PRICE_DRIFT');
-}
+const diagnostic = readJson('catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json');
 
 if (
-  product.id !== 'COMMANDER-DECK-DIAGNOSTIC-001' ||
-  featured.product_id !== product.id ||
-  offer?.product_id !== product.id
+  diagnostic.id !== 'COMMANDER-DECK-DIAGNOSTIC-001' ||
+  diagnostic.status !== 'held' ||
+  diagnostic.inventory !== 0 ||
+  diagnostic.checkout?.mode !== 'disabled' ||
+  diagnostic.commercial_truth?.approval_required !== true ||
+  diagnostic.commercial_truth?.sellable !== false
 ) {
-  errors.push('IDENTITY_DRIFT');
-}
-
-if (
-  product.sku !== 'CMD-DIAG-29' ||
-  featured.sku !== 'CMD-DIAG-29' ||
-  offer?.product_sku !== 'CMD-DIAG-29'
-) {
-  errors.push('SKU_DRIFT');
-}
-
-const paymentLink = product.commercial_truth?.payment_link || '';
-
-if (
-  product.commercial_truth?.payment_link !== paymentLink ||
-  featured.payment_link_url !== paymentLink ||
-  offer?.payment_link_url !== paymentLink
-) {
-  errors.push('STRIPE_LINK_DRIFT');
-}
-
-if (offer && offer.payment_link_status !== 'ACTIVE_LIVEMODE') {
-  errors.push('STRIPE_LINK_NOT_LIVEMODE');
-}
-
-if (product.commercial_truth?.approval_required !== false || product.commercial_truth?.sellable !== true) {
-  errors.push('PRODUCT_NOT_SELLABLE');
+  errors.push('HELD_DIAGNOSTIC_BOUNDARY_BREACH');
 }
 
 const homepageFile = path.join(root, 'compiled/website/index.html');
@@ -109,11 +73,11 @@ const result = {
   schema: 'BEC-PRIME/PRODUCTION-CONTRACT/v3',
   status: errors.length ? 'FAIL' : 'PASS',
   checked_at: new Date().toISOString(),
-  canonical_offer: {
-    offer_id: 'OFFER-CMD-DIAG-29-NZD',
-    sku: 'CMD-DIAG-29',
-    price_nzd: 29,
-    payment_link_status: offer?.payment_link_status || null
+  commercial_priority: {
+    commander_diagnostic: 'HELD_NOT_A_REVENUE_PLAN',
+    checkout: 'DISABLED',
+    inventory: 0,
+    next_gate: 'INDEPENDENT_BUYER_SETTLEMENT_AND_VERIFIED_DELIVERY'
   },
   excluded_surfaces: ['cinema', 'private-adult-boundary'],
   errors

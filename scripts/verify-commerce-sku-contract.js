@@ -15,6 +15,11 @@ need(contract.schema === 'dreamledger/commerce-sku-contract/v1', 'contract schem
 need(JSON.stringify(contract.allowed_metadata_keys) === JSON.stringify(['sku_id','sku','marketplace_listing_id']), 'allowed identifiers must be exhaustive and in priority order');
 need(JSON.stringify(contract.key_priority) === JSON.stringify(contract.allowed_metadata_keys), 'key_priority must match allowed_metadata_keys');
 need(contract.offer_mappings['CMD-DIAG-29'] === 'COMMANDER-DECK-DIAGNOSTIC-001', 'Commander mapping must be pinned');
+need(contract.canonical_offer_ids['CMD-DIAG-29'] === 'OFFER-CMD-DIAG-29-NZD', 'public Commander SKU must resolve to canonical offer ID');
+need(contract.canonical_offer_ids['MTG_CMD_DIAG_001'] === 'OFFER-CMD-DIAG-29-NZD', 'legacy Stripe price offer alias must normalize to canonical offer ID');
+need(producer.includes("form.set('metadata[offer_id]', canonicalOfferId)"), 'Checkout Session metadata must emit canonical offer ID');
+need(producer.includes("form.set('payment_intent_data[metadata][offer_id]', canonicalOfferId)"), 'PaymentIntent metadata must emit canonical offer ID');
+need(webhook.includes('NON_CANONICAL_COMMANDER_OFFER_ID') && webhook.includes('OFFER_CONTRACT_VIOLATION'), 'settlement must fail closed on noncanonical Commander offer attribution');
 need(contract.known_canonical_skus.includes('COMMANDER-DECK-DIAGNOSTIC-001'), 'canonical Commander SKU must be known');
 need(contract.known_canonical_skus.includes('TOLL-PROBE-50C'), 'known TOLL probe SKU must remain explicitly registered');
 need(shared.includes('COMMERCE_SKU_CONTRACT.key_priority') && shared.includes('normalizeCanonicalSku') && shared.includes('resolveCanonicalSku'), 'one shared resolver must implement the contract');
