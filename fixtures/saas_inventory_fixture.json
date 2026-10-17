@@ -1,0 +1,30 @@
+{
+  "schema_version": "BEC-SAAS-LEAKAGE-FIXTURE-1.0",
+  "fixture_status": "SYNTHETIC_OFFLINE_TEST_ONLY",
+  "snapshot_id": "fixture_saas_github_enterprise_v1",
+  "client_metadata": {
+    "client_id": "cli_fixture_partner_alpha",
+    "corporate_domain": "partnercorp.com",
+    "auth_context": "SYNTHETIC_FIXTURE_ONLY"
+  },
+  "billing_contract": {
+    "provider": "github_enterprise",
+    "seat_license_cost_nzd": 31.50,
+    "currency": "NZD",
+    "total_licenses_paid": 150,
+    "billing_period": "MONTHLY"
+  },
+  "reconciliation_policy": {
+    "inactivity_threshold_days": 60,
+    "require_active_license_assignment": true,
+    "require_billing_member": true,
+    "do_not_extrapolate_unobserved_seats": true
+  },
+  "observed_resource_usage": [
+    { "user_id": "uid_001", "email": "alice@partnercorp.com", "days_since_last_commit": 2, "active_license_assignment": true, "billing_member": true },
+    { "user_id": "uid_002", "email": "bob@partnercorp.com", "days_since_last_commit": 142, "active_license_assignment": true, "billing_member": true },
+    { "user_id": "uid_003", "email": "charlie@partnercorp.com", "days_since_last_commit": 89, "active_license_assignment": true, "billing_member": true },
+    { "user_id": "uid_004", "email": "dev_test_acc@partnercorp.com", "days_since_last_commit": 365, "active_license_assignment": true, "billing_member": true },
+    { "user_id": "uid_005", "email": "ex_employee_9@partnercorp.com", "days_since_last_commit": 180, "active_license_assignment": true, "billing_member": true }
+  ]
+}
