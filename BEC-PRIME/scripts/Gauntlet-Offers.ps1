@@ -17,7 +17,7 @@ foreach ($record in $approvedRecords) {
 }
 
 $errors = 0
-$requiredFields = @('offer_id','capability_id','name','problem','input','output','delivery_mechanism','deliverable','target_buyer','eligibility','constraints','price','currency','refund_rules','payment_adapter','checkout_route','fulfillment_route','approval_required','checkout_available','status','proof_of_delivery','verification_rules','provenance')
+$requiredFields = @('offer_id','capability_id','name','problem','input','output','delivery_mechanism','deliverable','target_buyer','eligibility','constraints','price','currency','refund_rules','payment_adapter','checkout_route','approval_required','checkout_available','status','proof_of_delivery','verification_rules','provenance')
 
 foreach ($offer in @($offers.offers)) {
     foreach ($field in $requiredFields) {
