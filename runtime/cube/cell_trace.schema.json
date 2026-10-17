@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dreamledger.org/runtime/cube/cell-trace/v1",
+  "title": "DreamLedger CUBE Cell Trace v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "trace_schema_version",
+    "cell_id",
+    "execution_id",
+    "task_id",
+    "output_hash",
+    "deliverable"
+  ],
+  "properties": {
+    "schema": { "const": "dreamledger/cube/cell-trace/v1" },
+    "trace_schema_version": { "const": 1 },
+    "cell_id": { "type": "string", "minLength": 1 },
+    "execution_id": { "type": "string", "minLength": 1 },
+    "task_id": { "type": "string", "minLength": 1 },
+    "input_hashes": { "type": "array", "items": { "type": "string" } },
+    "claim": { "type": "string" },
+    "claim_type": { "type": "string" },
+    "evidence_refs": { "type": "array", "items": { "type": "string" } },
+    "artifact_refs": { "type": "array", "items": { "type": "string" } },
+    "assumptions": { "type": "array", "items": { "type": "string" } },
+    "exceptions": { "type": "array", "items": { "type": "string" } },
+    "confidence": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+    "tool_events": { "type": "array", "items": { "type": "object" } },
+    "parent_trace_id": { "type": ["string", "null"] },
+    "previous_receipt_hash": { "type": ["string", "null"] },
+    "hop_count": { "type": "integer", "minimum": 0, "maximum": 16 },
+    "output_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "deliverable": { "type": "object", "minProperties": 1 }
+  }
+}
