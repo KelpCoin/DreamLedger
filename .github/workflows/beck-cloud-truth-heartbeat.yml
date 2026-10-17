@@ -143,7 +143,34 @@ jobs:
             cat /tmp/insert.json || true
             exit 1
           fi
-          node -e 'const fs=require("fs");const p=JSON.parse(fs.readFileSync("proof/beck/latest-cloud-heartbeat-row.json","utf8"));const out={schema:"BECK-CLOUD-PERSISTENCE/v1",persisted:true,agent_id:p.agent_id,seq:p.seq,heartbeat_id:p.heartbeat_id,current_hash:p.current_hash,previous_hash:p.previous_hash};fs.writeFileSync("proof/beck/latest-cloud-persistence.json",JSON.stringify(out,null,2)+"\n");console.log(JSON.stringify(out,null,2))'
+          heartbeat_id="$(node -e 'const fs=require("fs");const p=JSON.parse(fs.readFileSync("proof/beck/latest-cloud-heartbeat-row.json","utf8"));process.stdout.write(p.heartbeat_id)')"
+          readback_code="$(curl -sS --max-time 30 -o /tmp/readback.json -w '%{http_code}' \\
+            "${auth_headers[@]}" \\
+            "$base/rest/v1/cortex_heartbeat?select=heartbeat_id,seq,current_hash,previous_hash&heartbeat_id=eq.$heartbeat_id&limit=1" || true)"
+          if [ "$readback_code" != "200" ]; then
+            echo "Supabase heartbeat read-back failed: HTTP $readback_code"
+            cat /tmp/readback.json || true
+            exit 1
+          fi
+          node <<'NODE'
+          const fs=require('fs');
+          const wanted=JSON.parse(fs.readFileSync('proof/beck/latest-cloud-heartbeat-row.json','utf8'));
+          const rows=JSON.parse(fs.readFileSync('/tmp/readback.json','utf8'));
+          if(!Array.isArray(rows)||rows.length!==1) {
+            console.error('Heartbeat read-back did not return exactly one row');
+            process.exit(1);
+          }
+          const got=rows[0];
+          for(const k of ['heartbeat_id','seq','current_hash','previous_hash']) {
+            if(String(got[k])!==String(wanted[k])) {
+              console.error('Heartbeat read-back mismatch for '+k);
+              process.exit(1);
+            }
+          }
+          const out={schema:'BECK-CLOUD-PERSISTENCE/v1',persisted:true,readback_verified:true,agent_id:wanted.agent_id,seq:wanted.seq,heartbeat_id:wanted.heartbeat_id,current_hash:wanted.current_hash,previous_hash:wanted.previous_hash,readback_row:got};
+          fs.writeFileSync('proof/beck/latest-cloud-persistence.json',JSON.stringify(out,null,2)+'\\n');
+          console.log(JSON.stringify({persisted:out.persisted,readback_verified:out.readback_verified,agent_id:out.agent_id,seq:out.seq,heartbeat_id:out.heartbeat_id,current_hash:out.current_hash},null,2));
+          NODE
 
       - name: Record heartbeat persistence outcome
         if: always()
@@ -160,13 +187,18 @@ jobs:
           let p={schema:'BECK-CLOUD-HEARTBEAT/v1',proof_type:'CLOUD_RUNTIME_HEARTBEAT',agent_id:'cloud-beck',status:'CLOUD_DEGRADED'};
           try { p=JSON.parse(fs.readFileSync(path,'utf8')); } catch {}
           const outcome=process.env.PERSISTENCE_OUTCOME||'unknown';
-          p.database_persistence={status:outcome==='success'?'PERSISTED':'FAILED_OR_SKIPPED',workflow_step_outcome:outcome};
-          if(outcome!=='success') p.status='CLOUD_DEGRADED';
+          const persistencePath='proof/beck/latest-cloud-persistence.json';
+          let prior={};
+          try { prior=JSON.parse(fs.readFileSync(persistencePath,'utf8')); } catch {}
+          const readbackVerified=prior.readback_verified===true;
+          const persisted=outcome==='success' && readbackVerified;
+          p.database_persistence={status:persisted?'PERSISTED_AND_READ_BACK':'FAILED_OR_UNVERIFIED',workflow_step_outcome:outcome,readback_verified:readbackVerified};
+          if(!persisted) p.status='CLOUD_DEGRADED';
           p.observed_at_utc=p.observed_at_utc||new Date().toISOString();
-          fs.writeFileSync(path,JSON.stringify(p,null,2)+'\n');
-          const record={schema:'BECK-CLOUD-PERSISTENCE/v1',persisted:outcome==='success',workflow_step_outcome:outcome,agent_id:p.agent_id,observed_at_utc:p.observed_at_utc};
-          fs.writeFileSync('proof/beck/latest-cloud-persistence.json',JSON.stringify(record,null,2)+'\n');
-          console.log(JSON.stringify(record,null,2));
+          fs.writeFileSync(path,JSON.stringify(p,null,2)+'\\n');
+          const record={...prior,schema:'BECK-CLOUD-PERSISTENCE/v1',persisted,readback_verified:readbackVerified,workflow_step_outcome:outcome,agent_id:p.agent_id,observed_at_utc:p.observed_at_utc};
+          fs.writeFileSync(persistencePath,JSON.stringify(record,null,2)+'\\n');
+          console.log(JSON.stringify({schema:record.schema,persisted:record.persisted,readback_verified:record.readback_verified,workflow_step_outcome:record.workflow_step_outcome,agent_id:record.agent_id,observed_at_utc:record.observed_at_utc},null,2));
           NODE
 
       - name: Upload cloud proof
