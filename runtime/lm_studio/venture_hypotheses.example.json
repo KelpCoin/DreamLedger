@@ -1,0 +1,41 @@
+[
+  {
+    "id": "VENTURE-001",
+    "name": "Supplier quote normalization",
+    "problem_statement": "Procurement teams spend time manually comparing supplier quotes whose scope, tax basis, currency, delivery, and payment terms differ.",
+    "target_buyer": "Small and midsize procurement or operations teams handling recurring supplier quotes",
+    "proposed_price_nzd": 49,
+    "evidence_state": "UNVERIFIED",
+    "evidence_refs": [],
+    "h_scores": {"problem_intensity": 8, "economic_buyer": 8, "market_size": 8, "willingness_to_pay_roi": 7},
+    "e_scores": {"problem_intensity": 1, "economic_buyer": 1, "market_size": 1, "willingness_to_pay_roi": 1},
+    "scale_scores": {"must_have_resonance": 7, "gtm_unit_economics": 6, "defensibility": 6, "retention_expansion": 6, "timing_catalysts": 7, "capital_intensity_liquidity": 9},
+    "next_test": "Offer a free sample comparison and measure attributable external purchase completion; do not treat page views or unpaid checkouts as validation."
+  },
+  {
+    "id": "VENTURE-002",
+    "name": "Agentic commerce remediation blueprint",
+    "problem_statement": "A merchant needs a bounded, evidence-led review of one AI-assisted commerce journey and a prioritized remediation plan.",
+    "target_buyer": "E-commerce or platform owner evaluating agent-driven discovery, authorization, checkout, and fulfilment",
+    "proposed_price_nzd": 149,
+    "evidence_state": "UNVERIFIED",
+    "evidence_refs": ["https://dreamledger.org/agentic-commerce-remediation-blueprint.html"],
+    "h_scores": {"problem_intensity": 7, "economic_buyer": 7, "market_size": 8, "willingness_to_pay_roi": 7},
+    "e_scores": {"problem_intensity": 1, "economic_buyer": 1, "market_size": 1, "willingness_to_pay_roi": 1},
+    "scale_scores": {"must_have_resonance": 7, "gtm_unit_economics": 5, "defensibility": 6, "retention_expansion": 5, "timing_catalysts": 8, "capital_intensity_liquidity": 9},
+    "next_test": "Improve inbound discovery and use the existing fixed-scope offer. Verify buyer attribution, settlement, delivery, and acceptance before promoting."
+  },
+  {
+    "id": "VENTURE-003",
+    "name": "Truth Oracle claim checker",
+    "problem_statement": "A user needs a quick, source-linked way to inspect a claim and distinguish supported, contradicted, stale, and unknown statements.",
+    "target_buyer": "Operators and teams who need evidence checks before publishing or acting",
+    "proposed_price_nzd": 9,
+    "evidence_state": "UNVERIFIED",
+    "evidence_refs": [],
+    "h_scores": {"problem_intensity": 6, "economic_buyer": 5, "market_size": 8, "willingness_to_pay_roi": 5},
+    "e_scores": {"problem_intensity": 1, "economic_buyer": 1, "market_size": 1, "willingness_to_pay_roi": 1},
+    "scale_scores": {"must_have_resonance": 6, "gtm_unit_economics": 6, "defensibility": 7, "retention_expansion": 6, "timing_catalysts": 7, "capital_intensity_liquidity": 9},
+    "next_test": "Keep as a queue candidate only; low buyer and willingness-to-pay H-scores block build work until a sharper paid use case is identified."
+  }
+]
