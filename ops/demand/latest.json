@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-17T13:45:40.758875+00:00",
+  "generated_at": "2026-10-17T17:13:35.664353+00:00",
   "max_active": 12,
   "active": [
     {
@@ -16,7 +16,7 @@
         {
           "source": "github",
           "query": "Supabase RLS production security",
-          "count": 74370
+          "count": 74525
         },
         {
           "source": "hackernews",
@@ -31,12 +31,12 @@
         {
           "source": "github",
           "query": "Supabase PostgreSQL production problems",
-          "count": 2703
+          "count": 2706
         },
         {
           "source": "hackernews",
           "query": "Supabase PostgreSQL production problems",
-          "count": 3
+          "count": 9
         },
         {
           "source": "stackoverflow",
@@ -44,7 +44,7 @@
           "count": 1
         }
       ],
-      "score": 77680
+      "score": 77844
     },
     {
       "slug": "ai-saas-verification",
@@ -75,7 +75,7 @@
         {
           "source": "github",
           "query": "AI software production verification",
-          "count": 63718
+          "count": 63772
         },
         {
           "source": "hackernews",
@@ -88,7 +88,7 @@
           "count": 0
         }
       ],
-      "score": 67348
+      "score": 67402
     },
     {
       "slug": "stripe-reconciliation",
@@ -104,7 +104,7 @@
         {
           "source": "github",
           "query": "stripe reconciliation production",
-          "count": 16512
+          "count": 16549
         },
         {
           "source": "hackernews",
@@ -119,7 +119,7 @@
         {
           "source": "github",
           "query": "stripe webhook duplicate payment",
-          "count": 27120
+          "count": 27173
         },
         {
           "source": "hackernews",
@@ -132,7 +132,7 @@
           "count": 1
         }
       ],
-      "score": 44136
+      "score": 44226
     },
     {
       "slug": "webhook-reliability",
@@ -163,7 +163,7 @@
         {
           "source": "github",
           "query": "webhook duplicate events idempotency",
-          "count": 31124
+          "count": 31141
         },
         {
           "source": "hackernews",
@@ -176,7 +176,7 @@
           "count": 1
         }
       ],
-      "score": 32280
+      "score": 32297
     },
     {
       "slug": "discord-automation",
@@ -192,12 +192,12 @@
         {
           "source": "github",
           "query": "Discord webhook automation",
-          "count": 13720
+          "count": 13730
         },
         {
           "source": "hackernews",
           "query": "Discord webhook automation",
-          "count": 7
+          "count": 10
         },
         {
           "source": "stackoverflow",
@@ -207,12 +207,12 @@
         {
           "source": "github",
           "query": "Discord Stripe integration",
-          "count": 8303
+          "count": 8306
         },
         {
           "source": "hackernews",
           "query": "Discord Stripe integration",
-          "count": 10
+          "count": 11
         },
         {
           "source": "stackoverflow",
@@ -220,7 +220,7 @@
           "count": 0
         }
       ],
-      "score": 22541
+      "score": 22558
     },
     {
       "slug": "digital-offer-audit",
@@ -236,7 +236,7 @@
         {
           "source": "github",
           "query": "digital product offer conversion audit",
-          "count": 16802
+          "count": 16801
         },
         {
           "source": "hackernews",
@@ -251,7 +251,7 @@
         {
           "source": "github",
           "query": "landing page checkout conversion problems",
-          "count": 2408
+          "count": 2416
         },
         {
           "source": "hackernews",
@@ -264,7 +264,7 @@
           "count": 1
         }
       ],
-      "score": 19718
+      "score": 19725
     },
     {
       "slug": "small-saas-healthcheck",
@@ -324,12 +324,12 @@
         {
           "source": "github",
           "query": "QR code landing page business",
-          "count": 4360
+          "count": 4365
         },
         {
           "source": "hackernews",
           "query": "QR code landing page business",
-          "count": 4
+          "count": 3
         },
         {
           "source": "stackoverflow",
@@ -352,7 +352,7 @@
           "count": 0
         }
       ],
-      "score": 4684
+      "score": 4688
     },
     {
       "slug": "payment-attribution",
@@ -368,7 +368,7 @@
         {
           "source": "github",
           "query": "Stripe payment attribution checkout metadata",
-          "count": 2639
+          "count": 2651
         },
         {
           "source": "hackernews",
@@ -383,7 +383,7 @@
         {
           "source": "github",
           "query": "Stripe conversion attribution problems",
-          "count": 471
+          "count": 475
         },
         {
           "source": "hackernews",
@@ -396,7 +396,7 @@
           "count": 1
         }
       ],
-      "score": 3614
+      "score": 3630
     },
     {
       "slug": "production-incident-pack",
@@ -546,7 +546,7 @@
         {
           "source": "github",
           "query": "Supabase RLS production security",
-          "count": 74370
+          "count": 74525
         },
         {
           "source": "hackernews",
@@ -561,12 +561,12 @@
         {
           "source": "github",
           "query": "Supabase PostgreSQL production problems",
-          "count": 2703
+          "count": 2706
         },
         {
           "source": "hackernews",
           "query": "Supabase PostgreSQL production problems",
-          "count": 3
+          "count": 9
         },
         {
           "source": "stackoverflow",
@@ -574,7 +574,7 @@
           "count": 1
         }
       ],
-      "score": 77680
+      "score": 77844
     },
     {
       "slug": "ai-saas-verification",
@@ -605,7 +605,7 @@
         {
           "source": "github",
           "query": "AI software production verification",
-          "count": 63718
+          "count": 63772
         },
         {
           "source": "hackernews",
@@ -618,7 +618,7 @@
           "count": 0
         }
       ],
-      "score": 67348
+      "score": 67402
     },
     {
       "slug": "stripe-reconciliation",
@@ -634,7 +634,7 @@
         {
           "source": "github",
           "query": "stripe reconciliation production",
-          "count": 16512
+          "count": 16549
         },
         {
           "source": "hackernews",
@@ -649,7 +649,7 @@
         {
           "source": "github",
           "query": "stripe webhook duplicate payment",
-          "count": 27120
+          "count": 27173
         },
         {
           "source": "hackernews",
@@ -662,7 +662,7 @@
           "count": 1
         }
       ],
-      "score": 44136
+      "score": 44226
     },
     {
       "slug": "webhook-reliability",
@@ -693,7 +693,7 @@
         {
           "source": "github",
           "query": "webhook duplicate events idempotency",
-          "count": 31124
+          "count": 31141
         },
         {
           "source": "hackernews",
@@ -706,7 +706,7 @@
           "count": 1
         }
       ],
-      "score": 32280
+      "score": 32297
     },
     {
       "slug": "discord-automation",
@@ -722,12 +722,12 @@
         {
           "source": "github",
           "query": "Discord webhook automation",
-          "count": 13720
+          "count": 13730
         },
         {
           "source": "hackernews",
           "query": "Discord webhook automation",
-          "count": 7
+          "count": 10
         },
         {
           "source": "stackoverflow",
@@ -737,12 +737,12 @@
         {
           "source": "github",
           "query": "Discord Stripe integration",
-          "count": 8303
+          "count": 8306
         },
         {
           "source": "hackernews",
           "query": "Discord Stripe integration",
-          "count": 10
+          "count": 11
         },
         {
           "source": "stackoverflow",
@@ -750,7 +750,7 @@
           "count": 0
         }
       ],
-      "score": 22541
+      "score": 22558
     },
     {
       "slug": "digital-offer-audit",
@@ -766,7 +766,7 @@
         {
           "source": "github",
           "query": "digital product offer conversion audit",
-          "count": 16802
+          "count": 16801
         },
         {
           "source": "hackernews",
@@ -781,7 +781,7 @@
         {
           "source": "github",
           "query": "landing page checkout conversion problems",
-          "count": 2408
+          "count": 2416
         },
         {
           "source": "hackernews",
@@ -794,7 +794,7 @@
           "count": 1
         }
       ],
-      "score": 19718
+      "score": 19725
     },
     {
       "slug": "small-saas-healthcheck",
@@ -854,12 +854,12 @@
         {
           "source": "github",
           "query": "QR code landing page business",
-          "count": 4360
+          "count": 4365
         },
         {
           "source": "hackernews",
           "query": "QR code landing page business",
-          "count": 4
+          "count": 3
         },
         {
           "source": "stackoverflow",
@@ -882,7 +882,7 @@
           "count": 0
         }
       ],
-      "score": 4684
+      "score": 4688
     },
     {
       "slug": "payment-attribution",
@@ -898,7 +898,7 @@
         {
           "source": "github",
           "query": "Stripe payment attribution checkout metadata",
-          "count": 2639
+          "count": 2651
         },
         {
           "source": "hackernews",
@@ -913,7 +913,7 @@
         {
           "source": "github",
           "query": "Stripe conversion attribution problems",
-          "count": 471
+          "count": 475
         },
         {
           "source": "hackernews",
@@ -926,7 +926,7 @@
           "count": 1
         }
       ],
-      "score": 3614
+      "score": 3630
     },
     {
       "slug": "production-incident-pack",
