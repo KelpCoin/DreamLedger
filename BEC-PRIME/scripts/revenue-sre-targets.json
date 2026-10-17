@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "description": "Read-only HTTP checks for existing public magnet routes. Draft magnets remain explicitly disabled until merged and verified live.",
+  "timeout_ms": 10000,
+  "retry_delay_ms": 1000,
+  "max_response_bytes": 2000000,
+  "allowed_hosts": [
+    "dreamledger.org",
+    "www.dreamledger.org",
+    "dreamledger1.onrender.com",
+    "dreamledger-silo-gateway.onrender.com"
+  ],
+  "targets": [
+    {
+      "id": "public-homepage",
+      "name": "DreamLedger homepage",
+      "url": "https://dreamledger.org/",
+      "severity": "critical",
+      "expected_status": [200],
+      "expected_any_text": ["DreamLedger", "Dream Ledger"],
+      "expected_content_types": ["text/html"],
+      "enabled": true
+    },
+    {
+      "id": "truth-oracle",
+      "name": "Truth Oracle free evidence tool",
+      "url": "https://dreamledger.org/truth-oracle.html",
+      "severity": "high",
+      "expected_status": [200],
+      "expected_any_text": ["Truth Oracle"],
+      "expected_content_types": ["text/html"],
+      "enabled": true
+    },
+    {
+      "id": "supplier-quote-comparison",
+      "name": "Free supplier quote comparison worksheet",
+      "url": "https://dreamledger.org/quote-comparison/",
+      "severity": "high",
+      "expected_status": [200],
+      "expected_any_text": ["Compare the quotes.", "Supplier Quote Comparison"],
+      "expected_content_types": ["text/html"],
+      "enabled": true
+    },
+    {
+      "id": "robots-txt",
+      "name": "Search crawler policy",
+      "url": "https://dreamledger.org/robots.txt",
+      "severity": "medium",
+      "expected_status": [200],
+      "expected_any_text": ["Sitemap:"],
+      "expected_content_types": ["text/plain"],
+      "enabled": true
+    },
+    {
+      "id": "sitemap-xml",
+      "name": "Public sitemap",
+      "url": "https://dreamledger.org/sitemap.xml",
+      "severity": "medium",
+      "expected_status": [200],
+      "expected_any_text": ["<urlset"],
+      "expected_content_types": ["application/xml", "text/xml"],
+      "enabled": true
+    },
+    {
+      "id": "llms-txt",
+      "name": "AI-crawler orientation file",
+      "url": "https://dreamledger.org/llms.txt",
+      "severity": "medium",
+      "expected_status": [200],
+      "expected_any_text": ["DreamLedger"],
+      "expected_content_types": ["text/plain"],
+      "enabled": true
+    },
+    {
+      "id": "dreamledger1-runtime",
+      "name": "DreamLedger1 application runtime health",
+      "url": "https://dreamledger1.onrender.com/healthz",
+      "severity": "critical",
+      "expected_status": [200],
+      "enabled": true
+    },
+    {
+      "id": "supplier-feed-checker",
+      "name": "Supplier Feed Checker",
+      "url": "https://dreamledger.org/supplier-feed-checker/",
+      "severity": "high",
+      "expected_status": [200],
+      "expected_any_text": ["Spot the feed changes."],
+      "expected_content_types": ["text/html"],
+      "enabled": false,
+      "disabled_reason": "Source is in draft PR #759. Enable only after merge and production route verification."
+    },
+    {
+      "id": "nz-paye-calculator",
+      "name": "NZ PAYE estimator",
+      "url": "https://dreamledger.org/nz-calculators/paye/",
+      "severity": "high",
+      "expected_status": [200],
+      "expected_any_text": ["NZ PAYE", "take-home pay"],
+      "expected_content_types": ["text/html"],
+      "enabled": false,
+      "disabled_reason": "Source is in draft PR #760. Enable only after merge and production route verification."
+    },
+    {
+      "id": "international-margin-calculator",
+      "name": "International margin calculator",
+      "url": "https://dreamledger.org/margin-calculator/",
+      "severity": "high",
+      "expected_status": [200],
+      "expected_any_text": ["Know your margin", "Profit Margin"],
+      "expected_content_types": ["text/html"],
+      "enabled": false,
+      "disabled_reason": "Source is in draft PR #760. Enable only after merge and production route verification."
+    }
+  ]
+}
