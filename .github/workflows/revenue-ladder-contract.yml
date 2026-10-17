@@ -1,0 +1,21 @@
+name: Revenue Ladder Contract
+on:
+  pull_request:
+    paths:
+      - 'ops/cube-swarm/revenue-ladder-10.json'
+      - 'ops/cube-swarm/silo-definitions/**'
+      - 'ops/cube-swarm/validate-revenue-ladder.mjs'
+      - 'public/catalog.json'
+      - '.github/workflows/revenue-ladder-contract.yml'
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Validate offer definitions and fail-closed catalog
+        run: node ops/cube-swarm/validate-revenue-ladder.mjs

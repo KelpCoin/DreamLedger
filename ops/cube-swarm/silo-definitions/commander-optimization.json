@@ -1,0 +1,84 @@
+{
+  "schema_version": "dreamledger/cube-swarm-silo-definition/v1",
+  "silo_id": "commander-optimization",
+  "name": "Commander Optimization",
+  "category": "mtg-services",
+  "lifecycle": "CANDIDATE",
+  "commercial_contract": {
+    "product_id": "MTG-COMMANDER-OPTIMIZATION-999",
+    "sku": "MTG-COMMANDER-OPTIMIZATION-999",
+    "currency": "NZD",
+    "amount_minor": 99900,
+    "checkout_status": "NOT_CONFIGURED",
+    "fulfillment_input": "/silos/commander-optimization/input",
+    "fulfillment_api": "/api/revenue-ladder/fulfill",
+    "evidence_required": [
+      "stripe_session_live_paid",
+      "canonical_sku_amount_currency_match",
+      "order_created",
+      "decklist_accepted",
+      "optimization_report_sha256",
+      "delivery_confirmed",
+      "truth_oracle_reconciled"
+    ]
+  },
+  "carousel_card": {
+    "title": "Commander Optimization",
+    "description": "A strategy-aware, prioritised Commander tuning plan based on one supplied decklist, constraints, and source-backed card facts.",
+    "cta_label": "Offer in preparation",
+    "cta_action": "disabled",
+    "cta_target": null,
+    "visible": false,
+    "position": 3
+  },
+  "isolation": {
+    "compute": "SHARED_WORKER",
+    "database_strategy": "SHARED_TENANT_SCOPED",
+    "database_name": null,
+    "database_id": null,
+    "r2_bucket": "marketplace-fulfillment",
+    "r2_prefix": "silos/commander-optimization/",
+    "cross_silo_customer_data": false
+  },
+  "routes": [
+    "/silos/commander-optimization/",
+    "/api/revenue-ladder/commander-optimization/input",
+    "/api/revenue-ladder/fulfill"
+  ],
+  "build_contract": {
+    "status": "PLANNED_NOT_BUILT",
+    "task_issue": "https://github.com/KelpCoin/DreamLedger/issues/713",
+    "public_route_path": "public/silos/commander-optimization/index.html",
+    "library_module_path": "BEC-PRIME/lib/commanderOptimization.js",
+    "route_module_path": "BEC-PRIME/routes/revenueLadderOffer.js",
+    "route_module_status": "SHARED_ROUTE_REQUIRED",
+    "supabase_function_slug": "revenue-ladder-fulfillment",
+    "supabase_function_status": "PLANNED_NOT_DEPLOYED",
+    "shared_sku_dispatch_required": true,
+    "source_parity_required": true,
+    "production_publish_allowed": false,
+    "output_contract": "A strategy-aware, prioritised Commander tuning plan based on one supplied decklist, constraints, and source-backed card facts.",
+    "supabase_function_path": "supabase/functions/revenue-ladder-fulfillment/index.ts",
+    "function_source_parity_required": true
+  },
+  "source_evidence": {
+    "price_source": "User-provided offer ladder dated 2026-10-14; this records target pricing, not demand or willingness-to-pay evidence.",
+    "source_refs": [
+      "public/catalog.json",
+      "public/silo-clone-manifest.json",
+      "public/silo-template.html",
+      "BEC-PRIME/lib/revenueLedger.js",
+      "BEC-PRIME/lib/marketplacePolicy.js",
+      "BEC-PRIME/routes/commercialCell.js",
+      "supabase/functions/silo-factory/index.ts",
+      "supabase/functions/silo-orchestrator/index.ts"
+    ],
+    "source_hashing": "BUILD_WORKER_MUST_COMPUTE_SHA256_AT_EXECUTION",
+    "external_claims_policy": "Every material factual claim in a delivered report must cite a retrievable source; missing evidence is reported as unknown."
+  },
+  "provisioning": {
+    "mode": "DRY_RUN_ONLY",
+    "deploy_allowed": false,
+    "reason": "Candidate definition only. Do not enable checkout or production provision until source-backed deliverables, shared payment/fulfillment parity, end-to-end payment evidence, and human deployment approval are present."
+  }
+}

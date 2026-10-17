@@ -1,0 +1,85 @@
+{
+  "schema_version": "dreamledger/cube-swarm-silo-definition/v1",
+  "silo_id": "mtg-saas",
+  "name": "MTG SaaS",
+  "category": "mtg-saas",
+  "lifecycle": "CANDIDATE",
+  "commercial_contract": {
+    "product_id": "MTG-SAAS-99-MONTH",
+    "sku": "MTG-SAAS-99-MONTH",
+    "currency": "NZD",
+    "amount_minor": 9900,
+    "billing_interval": "month",
+    "checkout_status": "NOT_CONFIGURED",
+    "fulfillment_input": "/silos/mtg-saas/input",
+    "fulfillment_api": "/api/revenue-ladder/fulfill",
+    "evidence_required": [
+      "stripe_subscription_active",
+      "canonical_sku_amount_currency_match",
+      "entitlement_granted",
+      "renewal_event_verified",
+      "cancellation_revoke_verified",
+      "service_artifact_sha256",
+      "truth_oracle_reconciled"
+    ]
+  },
+  "carousel_card": {
+    "title": "MTG SaaS",
+    "description": "A recurring MTG inventory/pricing/condition toolkit with explicit usage limits, account entitlement, cancellation and data-handling terms.",
+    "cta_label": "Offer in preparation",
+    "cta_action": "disabled",
+    "cta_target": null,
+    "visible": false,
+    "position": 9
+  },
+  "isolation": {
+    "compute": "SHARED_WORKER",
+    "database_strategy": "SHARED_TENANT_SCOPED",
+    "database_name": null,
+    "database_id": null,
+    "r2_bucket": "marketplace-fulfillment",
+    "r2_prefix": "silos/mtg-saas/",
+    "cross_silo_customer_data": false
+  },
+  "routes": [
+    "/silos/mtg-saas/",
+    "/api/revenue-ladder/mtg-saas/input",
+    "/api/revenue-ladder/fulfill"
+  ],
+  "build_contract": {
+    "status": "PLANNED_NOT_BUILT",
+    "task_issue": "https://github.com/KelpCoin/DreamLedger/issues/719",
+    "public_route_path": "public/silos/mtg-saas/index.html",
+    "library_module_path": "BEC-PRIME/lib/mtgSaaSSubscription.js",
+    "route_module_path": "BEC-PRIME/routes/revenueLadderOffer.js",
+    "route_module_status": "SHARED_ROUTE_REQUIRED",
+    "supabase_function_slug": "revenue-ladder-fulfillment",
+    "supabase_function_status": "PLANNED_NOT_DEPLOYED",
+    "shared_sku_dispatch_required": true,
+    "source_parity_required": true,
+    "production_publish_allowed": false,
+    "output_contract": "A recurring MTG inventory/pricing/condition toolkit with explicit usage limits, account entitlement, cancellation and data-handling terms.",
+    "supabase_function_path": "supabase/functions/revenue-ladder-fulfillment/index.ts",
+    "function_source_parity_required": true
+  },
+  "source_evidence": {
+    "price_source": "User-provided offer ladder dated 2026-10-14; this records target pricing, not demand or willingness-to-pay evidence.",
+    "source_refs": [
+      "public/catalog.json",
+      "public/silo-clone-manifest.json",
+      "public/silo-template.html",
+      "BEC-PRIME/lib/revenueLedger.js",
+      "BEC-PRIME/lib/marketplacePolicy.js",
+      "BEC-PRIME/routes/commercialCell.js",
+      "supabase/functions/silo-factory/index.ts",
+      "supabase/functions/silo-orchestrator/index.ts"
+    ],
+    "source_hashing": "BUILD_WORKER_MUST_COMPUTE_SHA256_AT_EXECUTION",
+    "external_claims_policy": "Every material factual claim in a delivered report must cite a retrievable source; missing evidence is reported as unknown."
+  },
+  "provisioning": {
+    "mode": "DRY_RUN_ONLY",
+    "deploy_allowed": false,
+    "reason": "Candidate definition only. Do not enable checkout or production provision until source-backed deliverables, shared payment/fulfillment parity, end-to-end payment evidence, and human deployment approval are present."
+  }
+}
