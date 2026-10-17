@@ -20,7 +20,7 @@ function lines(s:string){return Math.max(0,(s.match(/\n/g)||[]).length)}
 async function runCloudGauntlet(){try{const r=await fetch(url+"/functions/v1/cube-controller",{method:"POST",headers:{Authorization:"Bearer "+key,apikey:key,"Content-Type":"application/json"},body:JSON.stringify({run_reason:"scheduled_777_heartbeat"})});const t=await r.text();let body:any;try{body=JSON.parse(t)}catch{body={raw:t.slice(0,1200)}}return {status:r.status,ok:r.ok,body}}catch(e){return {status:"DEGRADED",ok:false,error:String(e)}}}
 let lastControllerResult:any=null;
 Deno.serve(async req=>{try{
- if(req.method==="GET" && new URL(req.url).pathname.endsWith("/healthz"))return out({status:"healthy",function:"economic-radar-heartbeat",version:25,revenue_claimed:false});
+ if(req.method==="GET" && new URL(req.url).pathname.endsWith("/healthz"))return out({status:"healthy",function:"economic-radar-heartbeat",version:26,revenue_claimed:false});
  if(req.method!=="POST")return out({error:"POST_REQUIRED"},405);
  if(!await auth(req))return out({error:"SERVICE_ROLE_REQUIRED"},403);
  let body:any={}; try{body=await req.json()}catch{}
@@ -97,4 +97,4 @@ Deno.serve(async req=>{try{
  const run=await db.from("cube_radar_runs").insert({started_at:started,finished_at:finished,status:"COMPLETED",feeds_seen:1,signals_ingested:1,signals_qualified:signal?1:0,matches_created:signal?1:0,tests_selected:0,external_actions:0,errors:0,degraded:false,evidence:{source:"ACNC_REGISTER",source_url:sourceUrl,snapshot_hash:hash,row_count:lines(csv),new_signal:Boolean(signal),external_action_performed:false,revenue_claimed:false}}).select("run_id").single();
  if(run.error)throw run.error;
  return out({ok:true,new_signal:Boolean(signal),signal_id:signal?.id||null,run_id:run.data?.run_id||null,row_count:lines(csv),consumer_result,controller_result,external_action_performed:false,revenue_claimed:false});
-}catch(e){const controllerOk=lastControllerResult?.ok===true;return out({ok:controllerOk,degraded:true,error:String(e),controller_result:lastControllerResult,external_action_performed:false,revenue_claimed:false},controllerOk?200:500)}});
+}catch(e){console.error("economic-radar-heartbeat failure",String(e));return out({ok:false,degraded:true,error:String(e),controller_result:lastControllerResult,heartbeat_persisted:false,external_action_performed:false,revenue_claimed:false},500)}});
