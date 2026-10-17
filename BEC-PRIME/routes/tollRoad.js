@@ -254,10 +254,6 @@ async function handle(req,res,path){
     return send(res,200,{status:'ACCEPTED',received_at:record.received_at,ttl_seconds:LOCAL_HEARTBEAT_TTL_MS/1000,local_heartbeat:record});
   }
 
-  if(path==='/api/toll/v1/local-heartbeat'&&req.method==='GET'){
-    const fresh=latestLocalHeartbeat&&Date.parse(latestLocalHeartbeat.expires_at)>Date.now();
-    return send(res,200,{schema:'dreamledger/local-heartbeat-status/v1',status:fresh?'FRESH':'NOT_CONNECTED',ttl_seconds:fresh?Math.max(0,Math.floor((Date.parse(latestLocalHeartbeat.expires_at)-Date.now())/1000)):0,heartbeat:fresh?latestLocalHeartbeat:null,financial_authority:false,revenue_claimed_nzd:0});
-  }
   if(path==='/api/toll/v1/manifest'&&req.method==='GET')return send(res,200,Toll.publicManifest([{id:'ROAD-METER-10000',route:'/api/toll/v1/roads/{road_id}',scope:'road',status:'CATALOGUED_PENDING_DURABLE_QUOTA_LEDGER',checkout_configured:false,price_nzd:null,proposed_price_nzd:RoadFactory.ROAD_PRICE_NZD,description:'10,000 logical road IDs. Paid execution remains disabled until durable per-key quota accounting is available.',road_instances:RoadFactory.ROAD_COUNT,calls_per_pack:null,proposed_calls_per_pack:RoadFactory.CALLS_PER_ROAD,checkout_route:null,catalog_endpoint:'/api/toll/v1/roads?offset=0&limit=100'}]));
 
   if(path==='/api/toll/v1/roads'&&req.method==='GET'){
