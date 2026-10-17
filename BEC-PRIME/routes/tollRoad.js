@@ -226,6 +226,7 @@ async function handle(req,res,path){
     if(!localHeartbeatAuthorized(req))return send(res,process.env.LOCAL_HEARTBEAT_TOKEN?401:503,{error:process.env.LOCAL_HEARTBEAT_TOKEN?'invalid_local_heartbeat_token':'local_heartbeat_not_configured'});
     let body;
     try{body=await readJson(req);}catch(error){return send(res,error.statusCode||400,{error:error.message||'invalid_json'});}
+    if(!body||typeof body!=='object'||Array.isArray(body))return send(res,400,{error:'json_object_required'});
     const ts=Date.parse(String(body.ts||''));
     if(!Number.isFinite(ts))return send(res,400,{error:'valid_ts_required'});
     const age=Date.now()-ts;
