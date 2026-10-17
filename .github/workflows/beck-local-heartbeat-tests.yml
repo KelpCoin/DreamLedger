@@ -7,6 +7,7 @@ on:
     paths:
       - 'BEC-PRIME/routes/tollRoad.js'
       - 'BEC-PRIME/routes/tollRoad.localHeartbeat.test.js'
+      - 'BEC-PRIME/scripts/Run-BECKLocalHeartbeat.ps1'
       - 'package.json'
       - '.github/workflows/beck-local-heartbeat-tests.yml'
       - '.github/workflows/beck-cloud-truth-heartbeat.yml'
