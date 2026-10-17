@@ -30,8 +30,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Install locked dependencies
-        run: npm ci
+      - name: Install package dependencies (repository has no npm lockfile)
+        run: npm install --no-save --package-lock=false --ignore-scripts --no-audit --no-fund
       - name: Check local heartbeat route syntax
         run: node --check BEC-PRIME/routes/tollRoad.js
       - name: Test heartbeat authentication, input validation, TTL, and rate limit
