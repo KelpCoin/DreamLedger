@@ -17,9 +17,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 8
     env:
-      BASE_URL: https://dreamledger.org
-      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-      SUPABASE_KEY: ${{ secrets.SUPABASE_SECRET_KEY || secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      BASE_URL: https://dreamledger1.onrender.com
+      PUBLIC_URL: https://dreamledger.org
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL || 'https://wbwgroygjeyukkspnqiy.supabase.co' }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -33,12 +35,15 @@ jobs:
           mkdir -p proof/beck
           now="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           sha="$(git rev-parse HEAD)"
-          health_code="$(curl -sS -o /tmp/health.json -w '%{http_code}' --max-time 20 "$BASE_URL/healthz" || true)"
-          version_code="$(curl -sS -o /tmp/version.json -w '%{http_code}' --max-time 20 "$BASE_URL/version" || true)"
+          health_code="$(curl -sS -H 'Accept: application/json' --retry 2 --retry-all-errors --retry-delay 2 --connect-timeout 10 --max-time 60 -o /tmp/health.json -w '%{http_code}' "$BASE_URL/healthz" || true)"
+          version_code="$(curl -sS -H 'Accept: application/json' --retry 2 --retry-all-errors --retry-delay 2 --connect-timeout 10 --max-time 60 -o /tmp/version.json -w '%{http_code}' "$BASE_URL/version" || true)"
+          public_site_code="$(curl -sS --retry 2 --retry-all-errors --retry-delay 2 --connect-timeout 10 --max-time 60 -o /tmp/public-site.html -w '%{http_code}' "$PUBLIC_URL/" || true)"
           health_ok=false
           version_ok=false
+          public_site_ok=false
           [ "$health_code" = "200" ] && health_ok=true
           [ "$version_code" = "200" ] && version_ok=true
+          [ "$public_site_code" = "200" ] && public_site_ok=true
           live_sha=""
           if [ "$version_ok" = true ]; then
             live_sha="$(node -e 'const x=require("/tmp/version.json");process.stdout.write(String(x.commit||x.sha||x.version_sha||x.git_sha||""))' 2>/dev/null || true)"
@@ -46,9 +51,9 @@ jobs:
           deploy_match=false
           [ -n "$live_sha" ] && [ "$live_sha" = "$sha" ] && deploy_match=true
           overall=false
-          [ "$health_ok" = true ] && [ "$version_ok" = true ] && [ "$deploy_match" = true ] && overall=true
+          [ "$health_ok" = true ] && [ "$version_ok" = true ] && [ "$public_site_ok" = true ] && [ "$deploy_match" = true ] && overall=true
           mkdir -p proof/beck
-          export NOW="$now" EXPECTED_SHA="$sha" HEALTH_CODE="$health_code" VERSION_CODE="$version_code" LIVE_SHA="$live_sha" HEALTH_OK="$health_ok" VERSION_OK="$version_ok" DEPLOY_MATCH="$deploy_match" OVERALL="$overall"
+          export NOW="$now" EXPECTED_SHA="$sha" HEALTH_CODE="$health_code" VERSION_CODE="$version_code" PUBLIC_SITE_CODE="$public_site_code" PUBLIC_SITE_OK="$public_site_ok" LIVE_SHA="$live_sha" HEALTH_OK="$health_ok" VERSION_OK="$version_ok" DEPLOY_MATCH="$deploy_match" OVERALL="$overall"
           node <<'NODE'
           const fs=require('fs');
           const p={
@@ -58,12 +63,15 @@ jobs:
             observed_at_utc:process.env.NOW,
             github_sha:process.env.EXPECTED_SHA,
             production:{
-              base_url:process.env.BASE_URL,
+              api_base_url:process.env.BASE_URL,
+              public_site_base_url:process.env.PUBLIC_URL,
               health_http:Number(process.env.HEALTH_CODE),
               version_http:Number(process.env.VERSION_CODE),
+              public_site_http:Number(process.env.PUBLIC_SITE_CODE),
               live_sha:process.env.LIVE_SHA||null,
               health_ok:process.env.HEALTH_OK==='true',
               version_ok:process.env.VERSION_OK==='true',
+              public_site_ok:process.env.PUBLIC_SITE_OK==='true',
               deployment_matches_main:process.env.DEPLOY_MATCH==='true'
             },
             status:process.env.OVERALL==='true'?'CLOUD_ENDPOINTS_RESPOND':'CLOUD_DEGRADED',
@@ -76,17 +84,28 @@ jobs:
           NODE
 
       - name: Persist hash-linked heartbeat in Supabase
+        id: persist_heartbeat
         shell: bash
         run: |
           set -euo pipefail
           test -n "$SUPABASE_URL"
+          # Modern sb_secret_ keys must be sent as apikey only, never as Authorization: Bearer.
+          # Prefer the modern secret key; fall back to legacy service_role JWT only if absent.
+          SUPABASE_KEY="${SUPABASE_SECRET_KEY:-}"
+          if [ -z "$SUPABASE_KEY" ]; then
+            SUPABASE_KEY="${SUPABASE_SERVICE_ROLE_KEY:-}"
+          fi
           test -n "$SUPABASE_KEY"
+          auth_headers=(-H "apikey: $SUPABASE_KEY")
+          if [[ "$SUPABASE_KEY" != sb_secret_* ]]; then
+            auth_headers+=(-H "Authorization: Bearer $SUPABASE_KEY")
+          fi
           base="${SUPABASE_URL%/}"
           agent='cloud-beck'
           previous='GENESIS'
           seq=1
           code="$(curl -sS --max-time 20 -o /tmp/previous.json -w '%{http_code}' \
-            -H "apikey: $SUPABASE_KEY" -H "Authorization: Bearer $SUPABASE_KEY" \
+            "${auth_headers[@]}" \
             "$base/rest/v1/cortex_heartbeat?select=seq,current_hash&agent_id=eq.cloud-beck&order=seq.desc&limit=1" || true)"
           if [ "$code" = "200" ]; then
             read -r seq previous < <(node -e 'const x=require("/tmp/previous.json");if(x.length){console.log(Number(x[0].seq)+1,x[0].current_hash||"GENESIS")}else console.log(1,"GENESIS")')
@@ -116,7 +135,7 @@ jobs:
           NODE
           insert_code="$(curl -sS --max-time 30 -o /tmp/insert.json -w '%{http_code}' \
             -X POST "$base/rest/v1/cortex_heartbeat" \
-            -H "apikey: $SUPABASE_KEY" -H "Authorization: Bearer $SUPABASE_KEY" \
+            "${auth_headers[@]}" \
             -H 'Content-Type: application/json' -H 'Prefer: return=representation' \
             --data-binary @proof/beck/latest-cloud-heartbeat-row.json || true)"
           if [ "$insert_code" != "201" ] && [ "$insert_code" != "200" ]; then
@@ -125,6 +144,30 @@ jobs:
             exit 1
           fi
           node -e 'const fs=require("fs");const p=JSON.parse(fs.readFileSync("proof/beck/latest-cloud-heartbeat-row.json","utf8"));const out={schema:"BECK-CLOUD-PERSISTENCE/v1",persisted:true,agent_id:p.agent_id,seq:p.seq,heartbeat_id:p.heartbeat_id,current_hash:p.current_hash,previous_hash:p.previous_hash};fs.writeFileSync("proof/beck/latest-cloud-persistence.json",JSON.stringify(out,null,2)+"\n");console.log(JSON.stringify(out,null,2))'
+
+      - name: Record heartbeat persistence outcome
+        if: always()
+        env:
+          PERSISTENCE_OUTCOME: ${{ steps.persist_heartbeat.outcome }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p proof/beck
+          export PERSISTENCE_OUTCOME
+          node <<'NODE'
+          const fs=require('fs');
+          const path='proof/beck/latest-cloud-heartbeat.json';
+          let p={schema:'BECK-CLOUD-HEARTBEAT/v1',proof_type:'CLOUD_RUNTIME_HEARTBEAT',agent_id:'cloud-beck',status:'CLOUD_DEGRADED'};
+          try { p=JSON.parse(fs.readFileSync(path,'utf8')); } catch {}
+          const outcome=process.env.PERSISTENCE_OUTCOME||'unknown';
+          p.database_persistence={status:outcome==='success'?'PERSISTED':'FAILED_OR_SKIPPED',workflow_step_outcome:outcome};
+          if(outcome!=='success') p.status='CLOUD_DEGRADED';
+          p.observed_at_utc=p.observed_at_utc||new Date().toISOString();
+          fs.writeFileSync(path,JSON.stringify(p,null,2)+'\n');
+          const record={schema:'BECK-CLOUD-PERSISTENCE/v1',persisted:outcome==='success',workflow_step_outcome:outcome,agent_id:p.agent_id,observed_at_utc:p.observed_at_utc};
+          fs.writeFileSync('proof/beck/latest-cloud-persistence.json',JSON.stringify(record,null,2)+'\n');
+          console.log(JSON.stringify(record,null,2));
+          NODE
 
       - name: Upload cloud proof
         if: always()
