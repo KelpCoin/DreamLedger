@@ -20,7 +20,8 @@ jobs:
       BASE_URL: https://dreamledger1.onrender.com
       PUBLIC_URL: https://dreamledger.org
       SUPABASE_URL: ${{ secrets.SUPABASE_URL || 'https://wbwgroygjeyukkspnqiy.supabase.co' }}
-      SUPABASE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY || secrets.SUPABASE_SECRET_KEY }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -88,13 +89,22 @@ jobs:
         run: |
           set -euo pipefail
           test -n "$SUPABASE_URL"
+          # Modern sb_secret_ keys must be sent as apikey only, never as Authorization: Bearer.
+          SUPABASE_KEY="${SUPABASE_SERVICE_ROLE_KEY:-}"
+          if [ -z "$SUPABASE_KEY" ]; then
+            SUPABASE_KEY="${SUPABASE_SECRET_KEY:-}"
+          fi
           test -n "$SUPABASE_KEY"
+          auth_headers=(-H "apikey: $SUPABASE_KEY")
+          if [[ "$SUPABASE_KEY" != sb_secret_* ]]; then
+            auth_headers+=(-H "Authorization: Bearer $SUPABASE_KEY")
+          fi
           base="${SUPABASE_URL%/}"
           agent='cloud-beck'
           previous='GENESIS'
           seq=1
           code="$(curl -sS --max-time 20 -o /tmp/previous.json -w '%{http_code}' \
-            -H "apikey: $SUPABASE_KEY" -H "Authorization: Bearer $SUPABASE_KEY" \
+            "${auth_headers[@]}" \
             "$base/rest/v1/cortex_heartbeat?select=seq,current_hash&agent_id=eq.cloud-beck&order=seq.desc&limit=1" || true)"
           if [ "$code" = "200" ]; then
             read -r seq previous < <(node -e 'const x=require("/tmp/previous.json");if(x.length){console.log(Number(x[0].seq)+1,x[0].current_hash||"GENESIS")}else console.log(1,"GENESIS")')
@@ -124,7 +134,7 @@ jobs:
           NODE
           insert_code="$(curl -sS --max-time 30 -o /tmp/insert.json -w '%{http_code}' \
             -X POST "$base/rest/v1/cortex_heartbeat" \
-            -H "apikey: $SUPABASE_KEY" -H "Authorization: Bearer $SUPABASE_KEY" \
+            "${auth_headers[@]}" \
             -H 'Content-Type: application/json' -H 'Prefer: return=representation' \
             --data-binary @proof/beck/latest-cloud-heartbeat-row.json || true)"
           if [ "$insert_code" != "201" ] && [ "$insert_code" != "200" ]; then
