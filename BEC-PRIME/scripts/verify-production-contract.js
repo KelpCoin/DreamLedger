@@ -64,24 +64,32 @@ if (
   errors.push('SKU_DRIFT');
 }
 
-const paymentLink = product.commercial_truth?.payment_link || '';
+const paymentLink = product.commercial_truth?.payment_link || null;
 
 if (
-  product.commercial_truth?.payment_link !== paymentLink ||
-  featured.payment_link_url !== paymentLink ||
-  offer?.payment_link_url !== paymentLink
+  paymentLink !== (featured.payment_link_url || null) ||
+  paymentLink !== (offer?.payment_link_url || null)
 ) {
   errors.push('STRIPE_LINK_DRIFT');
 }
 
-if (offer && offer.payment_link_status !== 'ACTIVE_LIVEMODE') {
-  errors.push('STRIPE_LINK_NOT_LIVEMODE');
+if (
+  product.status !== 'held' ||
+  product.checkout?.mode !== 'disabled' ||
+  product.checkout?.url !== null ||
+  product.commercial_truth?.approval_required !== true ||
+  product.commercial_truth?.sellable !== false ||
+  product.fulfillment?.mode !== 'disabled' ||
+  featured.payment_link_status !== 'INACTIVE' ||
+  featured.public_visibility !== 'held' ||
+  featured.checkout_authorized !== false ||
+  featured.checkout_url !== null ||
+  offer?.payment_link_status !== 'INACTIVE' ||
+  offer?.checkout_authorized !== false ||
+  offer?.fulfillment_status !== 'HELD'
+) {
+  errors.push('CHECKOUT_HOLD_DRIFT');
 }
-
-if (product.commercial_truth?.approval_required !== false || product.commercial_truth?.sellable !== true) {
-  errors.push('PRODUCT_NOT_SELLABLE');
-}
-
 const homepageFile = path.join(root, 'compiled/website/index.html');
 
 if (fs.existsSync(homepageFile)) {

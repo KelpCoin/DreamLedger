@@ -15,7 +15,6 @@
       "currency": "NZD",
       "status": "published",
       "inventory": 1,
-      "condition": "Sleeved · playtested",
       "silo": "mtg",
       "category": "commander-deck",
       "sale_mode": "claim_by_message",
@@ -23,7 +22,8 @@
       "detail_url": "/mtg/quintorius-field-historian.html",
       "claim_url": "mailto:hello@dreamledger.org?subject=Buy%20Quintorius%20Commander%20deck%20NZ%2490&body=I%20want%20to%20buy%20the%20Quintorius%20Commander%20deck%20(NZ%2490%2C%20free%20NZ%20shipping).",
       "decklist_url": "https://manabox.app/decks/AZ4-aMxndkWrpKZVph4TSA",
-      "commander": "Quintorius, Field Historian"
+      "commander": "Quintorius, Field Historian",
+      "deck_state": "Sleeved · playtested"
     },
     {
       "id": "EDH_DWYNEN_0003",
@@ -35,13 +35,13 @@
       "currency": "NZD",
       "status": "published",
       "inventory": 1,
-      "condition": "Sleeved · playtested",
       "silo": "mtg",
       "category": "commander-deck",
       "sale_mode": "claim_by_message",
       "checkout_available": false,
       "detail_url": "/mtg/",
-      "commander": "Dwynen, Gilt-Leaf Daen"
+      "commander": "Dwynen, Gilt-Leaf Daen",
+      "deck_state": "Sleeved · playtested"
     },
     {
       "id": "EDH_0001",
@@ -52,12 +52,12 @@
       "currency": "NZD",
       "status": "published",
       "inventory": 1,
-      "condition": "Sleeved",
       "silo": "mtg",
       "category": "commander-deck",
       "sale_mode": "claim_by_message",
       "checkout_available": false,
-      "detail_url": "/mtg/"
+      "detail_url": "/mtg/",
+      "deck_state": "Sleeved"
     },
     {
       "id": "EDH_JON_IRENICUS_0004",
@@ -68,13 +68,13 @@
       "currency": "NZD",
       "status": "published",
       "inventory": 1,
-      "condition": "Sleeved · playtested",
       "silo": "mtg",
       "category": "commander-deck",
       "sale_mode": "claim_by_message",
       "checkout_available": false,
       "detail_url": "/mtg/",
-      "commander": "Jon Irenicus, the Exile"
+      "commander": "Jon Irenicus, the Exile",
+      "deck_state": "Sleeved · playtested"
     },
     {
       "id": "MTG-SINGLE-PLACEHOLDER",

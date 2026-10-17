@@ -26,7 +26,10 @@ jobs:
         with:
           node-version: 24
 
-      - name: Assert committed customer storefront
+      - name: Compile customer storefront from canonical registry
+        run: node ../BEC-PRIME/compiler/WebsiteFaceCompiler.js
+
+      - name: Assert compiled customer storefront
         shell: bash
         run: |
           set -euo pipefail

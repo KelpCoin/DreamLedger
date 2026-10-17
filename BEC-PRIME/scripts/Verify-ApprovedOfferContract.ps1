@@ -49,9 +49,21 @@ foreach ($record in $approvedRecords) {
         continue
     }
     $offer = $compiledById[$id]
-    if ($offer.approval_required -ne $false) { $errors.Add("${id}: approval_required must be false") }
-    if ($offer.checkout_available -ne $true) { $errors.Add("${id}: checkout_available must be true") }
-    if ($offer.status -ne 'VERIFIED_AVAILABLE') { $errors.Add("${id}: status must be VERIFIED_AVAILABLE") }
+    $authorized = ($record.checkout_authorized -eq $true) -and ($record.evidence_status -eq 'VERIFIED') -and ($record.fulfillment_status -eq 'VERIFIED_AUTOMATED') -and ($record.payment_link_status -eq 'ACTIVE_LIVEMODE') -and (-not [string]::IsNullOrWhiteSpace([string]$record.payment_link_url))
+
+    if ($authorized) {
+        if ($offer.approval_required -ne $false) { $errors.Add("${id}: authorized offer must have approval_required=false") }
+        if ($offer.checkout_available -ne $true) { $errors.Add("${id}: authorized offer must have checkout_available=true") }
+        if ($offer.status -ne 'VERIFIED_AVAILABLE') { $errors.Add("${id}: authorized offer status must be VERIFIED_AVAILABLE") }
+        if ([string]$offer.payment_link_url -ne [string]$record.payment_link_url) { $errors.Add("${id}: authorized payment link mismatch") }
+    } else {
+        if ($offer.approval_required -ne $true) { $errors.Add("${id}: held offer must have approval_required=true") }
+        if ($offer.checkout_available -ne $false) { $errors.Add("${id}: held offer must have checkout_available=false") }
+        if ($offer.status -ne 'HELD') { $errors.Add("${id}: held offer status must be HELD") }
+        if ($null -ne $offer.payment_link_url -and -not [string]::IsNullOrWhiteSpace([string]$offer.payment_link_url)) { $errors.Add("${id}: held offer must not expose payment_link_url") }
+        if ($offer.checkout_route -ne 'held_pending_evidence') { $errors.Add("${id}: held checkout route must be held_pending_evidence") }
+        if ($offer.fulfillment_route -ne 'held_pending_evidence') { $errors.Add("${id}: held fulfillment route must be held_pending_evidence") }
+    }
     if ($offer.silo -ne $record.silo) { $errors.Add("${id}: silo mismatch between approved source and compiled catalog") }
     if ([double]$offer.price -ne [double]$record.price) { $errors.Add("${id}: price mismatch between approved source and compiled catalog") }
     if ([string]$offer.currency -ne [string]$record.currency) { $errors.Add("${id}: currency mismatch between approved source and compiled catalog") }
@@ -81,7 +93,9 @@ $proof = [ordered]@{
     approved_count = $approvedRecords.Count
     compiled_count = $compiledRecords.Count
     approved_offer_ids = @($approvedRecords | ForEach-Object { $_.offer_id })
-    contract = 'every approved source record must exist in offers.json as VERIFIED_AVAILABLE and checkoutable'
+    contract = 'every approved source record must compile to an evidence-authorized checkout or a held non-checkoutable offer'
 }
 $proof | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $proofFile -Encoding UTF8
-Write-Host "PASS: $($approvedRecords.Count) approved offer records are present and checkoutable in compiled catalog." -ForegroundColor Green
+$checkoutableCount = @($compiledRecords | Where-Object { $_.checkout_available -eq $true }).Count
+$heldCount = @($compiledRecords | Where-Object { $_.status -eq 'HELD' }).Count
+Write-Host "PASS: $($approvedRecords.Count) approved records compiled; checkoutable=$checkoutableCount, held=$heldCount." -ForegroundColor Green

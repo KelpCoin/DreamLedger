@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dreamledger.org/schemas/silo-word-bank-v1.schema.json",
+  "title": "DreamLedger Silo Word Bank",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "silo_id",
+    "locale",
+    "terms"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "silo-word-bank-v1"
+    },
+    "silo_id": {
+      "type": "string",
+      "minLength": 2
+    },
+    "locale": {
+      "type": "string",
+      "pattern": "^[a-z]{2}(-[A-Z]{2})?$"
+    },
+    "terms": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "term",
+          "category",
+          "status",
+          "claim_class"
+        ],
+        "properties": {
+          "term": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "category": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "enum": [
+              "preferred",
+              "allowed",
+              "avoid",
+              "deprecated"
+            ]
+          },
+          "claim_class": {
+            "enum": [
+              "neutral",
+              "feature",
+              "performance",
+              "financial",
+              "legal",
+              "affiliation"
+            ]
+          },
+          "notes": {
+            "type": "string"
+          },
+          "evidence_ref": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "variants": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "uniqueItems": true
+    }
+  },
+  "additionalProperties": false
+}
