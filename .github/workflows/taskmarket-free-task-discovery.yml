@@ -1,0 +1,72 @@
+name: TaskMarket Free-Task Discovery (No Spend)
+
+on:
+  schedule:
+    - cron: '0 12 * * *'
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'ops/workers/taskmarket-no-spend-worker.mjs'
+      - 'ops/workers/jobs/taskmarket-no-spend-worker.test.mjs'
+      - '.github/workflows/taskmarket-free-task-discovery.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: taskmarket-no-spend-discovery
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Test no-spend policy and task classification
+        run: node --test ops/workers/jobs/taskmarket-no-spend-worker.test.mjs
+
+  discover:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      TASKMARKET_HOME: ${{ runner.temp }}/taskmarket-empty-home
+      TASKMARKET_API_URL: https://api.taskmarket.dev
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install pinned TaskMarket CLI
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --prefix "${RUNNER_TEMP}/taskmarket-cli" --no-save @lucid-agents/taskmarket@1.17.2
+          test -x "${RUNNER_TEMP}/taskmarket-cli/node_modules/.bin/taskmarket"
+      - name: Read public tasks only
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$TASKMARKET_HOME"
+          export PATH="${RUNNER_TEMP}/taskmarket-cli/node_modules/.bin:$PATH"
+          if [ -e "$TASKMARKET_HOME/keystore.json" ]; then
+            echo "Unexpected wallet keystore in isolated discovery home; stopping."
+            exit 3
+          fi
+          taskmarket task list --status open --mode bounty --limit 20 > "${RUNNER_TEMP}/taskmarket-tasks.json"
+          node ops/workers/taskmarket-no-spend-worker.mjs --input "${RUNNER_TEMP}/taskmarket-tasks.json" --output proof/taskmarket/latest-discovery.json
+          if [ -e "$TASKMARKET_HOME/keystore.json" ]; then
+            echo "Read-only discovery unexpectedly created a wallet; stopping."
+            exit 3
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: taskmarket-no-spend-discovery
+          path: proof/taskmarket/latest-discovery.json
+          if-no-files-found: error
+          retention-days: 7
