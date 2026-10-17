@@ -1,0 +1,70 @@
+name: First-Dollar Economic Gate
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  schedule:
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: first-dollar-economic-gate-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  structural-and-economic-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      # First validation gate after checkout: fail the job before runtime checks.
+      - name: Validate workflow structure with actionlint
+        uses: reviewdog/action-actionlint@v1
+        with:
+          actionlint_flags: -color
+          fail_on_error: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax-check economic gate
+        run: node --check ops/commerce/first-dollar-economic-gate.mjs
+      - name: Run read-only economic gate
+        id: economic_gate
+        env:
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          ACNC_OFFER_ID: ${{ vars.ACNC_OFFER_ID }}
+          ACNC_STRIPE_PRICE_ID: price_1UKAu0EGgEAnUFF9OrBC80OU
+          ACNC_STRIPE_PAYMENT_LINK_ID: plink_1UKAu6EGgEAnUFF93oLQlZiR
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_ECONOMIC_EVIDENCE_URL: ${{ secrets.SUPABASE_ECONOMIC_EVIDENCE_URL }}
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_SERVER_URL: ${{ github.server_url }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          DL_CLIENT_REFERENCE_ID: ${{ vars.DL_CLIENT_REFERENCE_ID }}
+        shell: bash
+        run: |
+          set +e
+          node ops/commerce/first-dollar-economic-gate.mjs
+          rc=$?
+          echo "gate_exit_code=$rc" >> "$GITHUB_OUTPUT"
+          if [ "$rc" -eq 6 ]; then
+            echo "Technical evidence passed; independent live-buyer evidence remains informational and unverified."
+            exit 0
+          fi
+          exit "$rc"
+      - name: Upload economic gate evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: first-dollar-economic-gate-${{ github.run_id }}
+          path: proof/commerce/latest-economic-validation.json
+          if-no-files-found: warn
+          retention-days: 30
