@@ -34,7 +34,7 @@ function getAjvValidators() {
   }
   let Ajv;
   try {
-    Ajv = require('ajv');
+    Ajv = require('ajv/dist/2020');
   } catch (_)
   {
     return null;
