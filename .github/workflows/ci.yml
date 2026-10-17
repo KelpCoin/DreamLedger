@@ -42,6 +42,9 @@ jobs:
       - name: Marketplace listing contract fixtures
         run: node ../webapp/agentic-commerce/marketplace-listing.contract.test.js
 
+      - name: TaskMarket no-spend worker policy tests
+        run: node --test ../ops/workers/jobs/taskmarket-no-spend-worker.test.mjs
+
       - name: Public observatory link contract
         shell: bash
         run: |
