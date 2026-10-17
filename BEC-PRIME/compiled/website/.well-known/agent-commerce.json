@@ -1,25 +1,42 @@
 {
   "schema": "dreamledger/agent-commerce/v3",
-  "updated": "2026-10-08",
+  "updated": "2026-10-13",
   "purpose": "Machine-readable B2B and agent-commerce contract for discovery, comparison and authorized checkout.",
   "marketplace": {
     "human": "https://dreamledger.org/marketplace.html",
     "b2b": "https://dreamledger.org/b2b",
-    "machine_contract": "https://dreamledger.org/.well-known/dreamledger-marketplace.json"
+    "machine_contract": "https://dreamledger.org/.well-known/dreamledger-marketplace.json",
+    "transaction_api": "https://dreamledger.org/api/marketplace/v1/discovery"
   },
   "capabilities": [
     "discover_b2b_supply",
     "discover_checkout_ready_offers",
     "compare_opportunities",
     "handoff_to_human_authorization",
-    "follow_existing_stripe_checkout"
+    "follow_existing_stripe_checkout",
+    "discover_b2b_listings",
+    "submit_buyer_rfqs",
+    "submit_supplier_offers",
+    "record_agent_purchase_intent",
+    "human_approved_offer_acceptance",
+    "evidence_linked_delivery_acceptance",
+    "append_only_transaction_ledger",
+    "discover_timed_auctions",
+    "submit_human_authorized_bids"
   ],
   "endpoints": {
     "marketplace_snapshot": "https://dreamledger.org/api/b2b/marketplace",
     "offers": "https://dreamledger.org/api/offers",
     "products": "https://dreamledger.org/api/products",
     "commerce_contract": "https://dreamledger.org/agent-commerce.json",
-    "marketplace_contract": "https://dreamledger.org/.well-known/dreamledger-marketplace.json"
+    "marketplace_contract": "https://dreamledger.org/.well-known/dreamledger-marketplace.json",
+    "unified_discovery": "https://dreamledger.org/api/marketplace/v1/discovery",
+    "marketplace_status": "https://dreamledger.org/api/marketplace/v1/status",
+    "listings": "https://dreamledger.org/api/marketplace/v1/listings",
+    "rfqs": "https://dreamledger.org/api/marketplace/v1/rfqs",
+    "agent_intents": "https://dreamledger.org/api/marketplace/v1/agent-intents",
+    "ledger": "https://dreamledger.org/api/marketplace/v1/ledger",
+    "auctions": "https://dreamledger.org/api/marketplace/v1/auctions"
   },
   "authorization": {
     "required": [
@@ -28,9 +45,12 @@
       "payment",
       "external_account_actions"
     ],
-    "autonomous_spend": false
+    "autonomous_spend": false,
+    "human_approval_required_for_offer_acceptance": true,
+    "no_autonomous_spend_without_buyer_authorization": true,
+    "agent_intent_is_not_execution": true
   },
-  "truth_boundary": "Discovery, listing, checkout creation and order creation are not revenue. VERIFIED requires independent external settlement plus attribution, fulfillment and evidence.",
+  "truth_boundary": "Listings, RFQs, agent intents, checkout sessions and internal ledger events are not revenue. Verified revenue requires independent buyer, settled external payment, fulfillment, delivery evidence and reconciliation.",
   "monetization": [
     "direct_offer_checkout",
     "quote_comparison",
