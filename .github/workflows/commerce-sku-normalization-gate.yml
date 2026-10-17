@@ -1,0 +1,54 @@
+name: First-dollar SKU handoff contract
+
+on:
+  pull_request:
+    paths:
+      - "BEC-PRIME/routes/commercialCell.js"
+      - "BEC-PRIME/scripts/test-commercial-cell-sku-normalization.js"
+      - "supabase/functions/marketplace-diagnostic-input/index.ts"
+      - "supabase/functions/marketplace-diagnostic-delivery/index.ts"
+      - ".github/workflows/deploy-supabase-edge-functions.yml"
+      - "package.json"
+      - ".github/workflows/commerce-sku-normalization-gate.yml"
+  push:
+    branches: [main]
+    paths:
+      - "BEC-PRIME/routes/commercialCell.js"
+      - "BEC-PRIME/scripts/test-commercial-cell-sku-normalization.js"
+      - "supabase/functions/marketplace-diagnostic-input/index.ts"
+      - "supabase/functions/marketplace-diagnostic-delivery/index.ts"
+      - ".github/workflows/deploy-supabase-edge-functions.yml"
+      - "package.json"
+      - ".github/workflows/commerce-sku-normalization-gate.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sku-normalization:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Test payment-link SKU aliases
+        run: node BEC-PRIME/scripts/test-commercial-cell-sku-normalization.js
+      - name: Validate scoped Supabase deployment workflow
+        run: |
+          python -m pip install --disable-pip-version-check --quiet PyYAML
+          python - <<'PY'
+          import pathlib
+          import yaml
+          workflow = yaml.safe_load(pathlib.Path(".github/workflows/deploy-supabase-edge-functions.yml").read_text(encoding="utf-8"))
+          jobs = workflow["jobs"]
+          assert {"changes", "preflight", "deploy", "deploy-mtg-deck-catalog", "deploy-dreammeez-cosmetic-checkout", "deploy-marketplace-diagnostic-delivery", "deploy-marketplace-diagnostic-input"} <= set(jobs)
+          source = pathlib.Path(".github/workflows/deploy-supabase-edge-functions.yml").read_text(encoding="utf-8")
+          for table in ("marketplace_orders", "marketplace_fulfillments", "revenue_orders", "event_ledger", "revenue_entitlements", "fulfillment_requests"):
+              assert table in source, f"missing read-only preflight for {table}"
+          assert "needs: [changes, preflight]" in source
+          assert "if: needs.changes.outputs.diagnostic_input == 'true'" in source
+          print("PASS: Supabase deployments are path-scoped and require healthy commerce tables.")
+          PY

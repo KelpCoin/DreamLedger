@@ -1,0 +1,33 @@
+'use strict';
+
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const { normalizeMarketplaceSku } = require('../routes/commercialCell');
+const commercialCellSource = fs.readFileSync(path.resolve(__dirname, '../routes/commercialCell.js'), 'utf8');
+assert.match(commercialCellSource, /const sku = normalizeMarketplaceSku\(/);
+const inputFunction = fs.readFileSync(path.resolve(__dirname, '../../supabase/functions/marketplace-diagnostic-input/index.ts'), 'utf8');
+const deliveryFunction = fs.readFileSync(path.resolve(__dirname, '../../supabase/functions/marketplace-diagnostic-delivery/index.ts'), 'utf8');
+assert.ok(inputFunction.includes('rawSku==="CMD-DIAG-29"?"COMMANDER-DECK-DIAGNOSTIC-001":rawSku'));
+assert.ok(inputFunction.includes('session.livemode!==true||session.payment_status!=="paid"'));
+assert.ok(inputFunction.includes('cache-control":"no-store, private'));
+assert.ok(inputFunction.includes('submission failed; please retry'));
+assert.ok(inputFunction.includes('session.metadata?.dreamledger_sku||session.metadata?.sku_id'));
+assert.ok(deliveryFunction.includes('eq("checkout_session_id",sessionId).eq("listing_id",listingId)'));
+assert.ok(deliveryFunction.includes('session.payment_status!=="paid"'));
+assert.ok(deliveryFunction.includes('Referrer-Policy":"no-referrer'));
+assert.ok(deliveryFunction.includes('Cache-Control":"no-store, private'));
+
+const cases = [
+  ['COMMANDER-DECK-DIAGNOSTIC-001', 'COMMANDER-DECK-DIAGNOSTIC-001'],
+  ['CMD-DIAG-29', 'COMMANDER-DECK-DIAGNOSTIC-001'],
+  ['MTG_CMD_DIAG_001', 'MTG_CMD_DIAG_001'],
+  ['OFFER-CMD-DIAG-29-NZD', 'OFFER-CMD-DIAG-29-NZD'],
+  ['QUOTE-COMPARE-49', 'QUOTE-COMPARE-49'],
+  ['', ''],
+];
+
+for (const [input, expected] of cases) {
+  assert.equal(normalizeMarketplaceSku(input), expected, 'normalization for ' + input);
+}
+console.log('PASS: Commander diagnostic aliases normalize to the canonical marketplace listing SKU.');
