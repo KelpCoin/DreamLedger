@@ -37,3 +37,12 @@ jobs:
         run: node --check BEC-PRIME/routes/tollRoad.js
       - name: Test heartbeat authentication, input validation, TTL, and rate limit
         run: npm run test:beck-local-heartbeat
+
+  local-runner-syntax:
+    runs-on: windows-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Parse runner without executing it
+        shell: pwsh
+        run: $null = [scriptblock]::Create((Get-Content -Raw -LiteralPath 'BEC-PRIME/scripts/Run-BECKLocalHeartbeat.ps1'))
