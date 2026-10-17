@@ -20,6 +20,8 @@ jobs:
           node --check BEC-PRIME/start.js
       - name: Contract test
         run: node BEC-PRIME/scripts/test-mtg-diagnostic.js
+      - name: Held Commander surface regression
+        run: node BEC-PRIME/scripts/verify-commander-held-surface.js
       - name: Product and fulfillment contract
         shell: pwsh
         run: |
