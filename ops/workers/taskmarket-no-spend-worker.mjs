@@ -12,7 +12,7 @@ const PUBLIC_API = 'https://api.taskmarket.dev';
 const MAX_AUTOMATED_SPEND_USD = 0;
 const MAX_AUTOMATED_SUBMISSIONS = 0;
 
-function extractTasks(payload) {
+export function extractTasks(payload) {
   const candidates = [
     payload,
     payload?.data,
