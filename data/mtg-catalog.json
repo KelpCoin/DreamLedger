@@ -3,7 +3,7 @@
   "silo": "mtg",
   "currency": "NZD",
   "shipping": "Free shipping within Aotearoa New Zealand unless noted.",
-  "updated": "2026-10-14",
+  "updated": "2026-10-18",
   "products": [
     {
       "id": "EDH_QUINTORIUS_0002",
@@ -110,6 +110,40 @@
           "mtgsale"
         ],
         "payment_note": "DM to claim. Online checkout is not enabled for this listing."
+      }
+    },
+    {
+      "id": "EDH_MISERY_MEMORIAL_0005",
+      "sku": "EDH-MISERY-MEMORIAL-005",
+      "name": "Misery Memorial — Commander deck",
+      "description": "A slow, tightening control strategy that pressures opponents over time, manages resources and wins by setting the pace of the game.",
+      "price": 180,
+      "patreon_price": 160,
+      "currency": "NZD",
+      "status": "published",
+      "inventory": 1,
+      "silo": "mtg",
+      "category": "commander-deck",
+      "sale_mode": "claim_by_message",
+      "checkout_available": false,
+      "detail_url": "/mtg/misery-memorial.html",
+      "claim_url": "mailto:hello@dreamledger.org?subject=Request%20to%20claim%20Misery%20Memorial%20Commander%20deck",
+      "decklist_url": "https://manabox.app/decks/AZxBiO89e6yUuV34ClkZFg",
+      "commander": null,
+      "metadata": {
+        "archetype": "The Custodian",
+        "strategy": "Play the long game, apply incremental pressure, manage tempo and resources, discourage reckless plays, and close once opponents are exhausted.",
+        "patron_price_nzd": 160,
+        "patron_url": "https://patreon.com/happyhomarid",
+        "shipping": "Free shipping within Aotearoa New Zealand",
+        "tags": [
+          "mtg",
+          "magicthegathering",
+          "mtgcommander",
+          "mtgnz",
+          "meatiestmagic"
+        ],
+        "payment_note": "Request to claim. Online checkout is not enabled for this listing."
       }
     }
   ]
