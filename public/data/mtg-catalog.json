@@ -3,7 +3,7 @@
   "silo": "mtg",
   "currency": "NZD",
   "shipping": "Free shipping within Aotearoa New Zealand unless noted.",
-  "updated": "2026-10-14",
+  "updated": "2026-10-18",
   "products": [
     {
       "id": "EDH_QUINTORIUS_0002",
@@ -90,6 +90,26 @@
       "sale_mode": "claim_by_message",
       "checkout_available": false,
       "detail_url": "/mtg-list"
+    },
+    {
+      "id": "EDH_MISERY_MEMORIAL_0005",
+      "sku": "EDH-MISERY-MEMORIAL-005",
+      "name": "Misery Memorial — Commander deck",
+      "description": "A patient, long-game Commander strategy built around incremental pressure, tempo control and resource management.",
+      "price": 180,
+      "patreon_price": 160,
+      "currency": "NZD",
+      "status": "published",
+      "inventory": 1,
+      "condition": "Seller details to be confirmed before purchase",
+      "silo": "mtg",
+      "category": "commander-deck",
+      "sale_mode": "claim_by_message",
+      "checkout_available": false,
+      "detail_url": "/mtg/misery-memorial.html",
+      "claim_url": "mailto:hello@dreamledger.org?subject=Request%20to%20claim%20Misery%20Memorial%20Commander%20deck",
+      "decklist_url": "https://manabox.app/decks/AZxBiO89e6yUuV34ClkZFg",
+      "commander": null
     }
   ]
 }
