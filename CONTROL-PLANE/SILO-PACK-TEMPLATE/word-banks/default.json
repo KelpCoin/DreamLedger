@@ -1,0 +1,46 @@
+{
+  "schema_version": "silo-word-bank-v1",
+  "silo_id": "SILO_EXAMPLE",
+  "locale": "en-NZ",
+  "terms": [
+    {
+      "term": "digital deliverable",
+      "category": "offer",
+      "status": "preferred",
+      "claim_class": "feature"
+    },
+    {
+      "term": "evidence status",
+      "category": "trust",
+      "status": "preferred",
+      "claim_class": "neutral"
+    },
+    {
+      "term": "verified",
+      "category": "trust",
+      "status": "allowed",
+      "claim_class": "performance",
+      "notes": "Use only when the specific verification evidence is attached.",
+      "evidence_ref": null
+    },
+    {
+      "term": "guaranteed results",
+      "category": "claims",
+      "status": "avoid",
+      "claim_class": "performance"
+    },
+    {
+      "term": "official partner",
+      "category": "affiliation",
+      "status": "avoid",
+      "claim_class": "affiliation"
+    },
+    {
+      "term": "limited stock",
+      "category": "scarcity",
+      "status": "avoid",
+      "claim_class": "financial",
+      "notes": "Only use when inventory data independently proves scarcity."
+    }
+  ]
+}

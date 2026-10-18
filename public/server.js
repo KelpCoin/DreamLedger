@@ -16,6 +16,8 @@ const PUBLIC_FILES={
   '/app.js':'app.js',
   '/sell.html':'sell.html','/sell':'sell.html','/sell/':'sell.html',
   '/billboard':'billboard.html','/billboard/':'billboard.html','/billboard.html':'billboard.html',
+  '/buy/COMMANDER-DECK-DIAGNOSTIC-001':'products/commander-deck-diagnostic-001/index.html','/buy/COMMANDER-DECK-DIAGNOSTIC-001/':'products/commander-deck-diagnostic-001/index.html',
+  '/products/commander-deck-diagnostic-001':'products/commander-deck-diagnostic-001/index.html','/products/commander-deck-diagnostic-001/':'products/commander-deck-diagnostic-001/index.html','/products/commander-deck-diagnostic-001/index.html':'products/commander-deck-diagnostic-001/index.html',
   '/mtg':'mtg/master.html','/mtg/':'mtg/master.html','/mtg.html':'mtg/master.html',
   '/demand-services':'demand-services.html','/demand-services/':'demand-services.html',
   '/fightedge':'fightedge/index.html','/fightedge/':'fightedge/index.html',
@@ -45,6 +47,8 @@ Object.assign(PUBLIC_FILES,{"/b2b-marketplace.html":"b2b.html","/auctions.html":
 Object.assign(PUBLIC_FILES,{"/rivet/":"b2b.html","/rivet/index.html":"b2b.html","/dreamledger-billboard.html":"billboard.html","/quote-comparison/ecommerce.html":"quote-comparison/ecommerce/index.html","/tools/":"tools/index.html","/tools/index.html":"tools/index.html","/sandbox-tools.html":"tools/index.html"});
 Object.assign(PUBLIC_FILES,{"/discord-starter-kit.html":"products/discord-webhook-starter-kit-001/index.html","/tools/nz-seller-profit/":"tools/seller-profit/index.html","/tools/nz-seller-profit/index.html":"tools/seller-profit/index.html"});
 Object.assign(PUBLIC_FILES,{
+  "/money.html":"money.html",
+  "/comparison-template.csv":"comparison-template.csv",
   "/silos/mtg/silo.json":"silos/mtg/silo.json",
   "/data/mtg-catalog.json":"data/mtg-catalog.json",
   "/data/decklists/quintorius.json":"data/decklists/quintorius.json",
@@ -117,7 +121,7 @@ http.createServer(async (req,res)=>{
       return send(res,200,JSON.stringify({schema:'dreamledger/offers/v1',count:listed.length,offers:listed}),'application/json; charset=utf-8');
     }catch(error){ return send(res,500,JSON.stringify({error:'CATALOG_UNAVAILABLE'}),'application/json; charset=utf-8'); }
   }
-  if(p.startsWith('/api/toll')||p.startsWith('/toll/')) return proxyTollToEngine(req,res,p);
+  if(p.startsWith('/api/toll/v1/')||p.startsWith('/toll/')) return proxyTollToEngine(req,res,p);
   if(p.startsWith('/swarm/')||p.startsWith('/api/swarm')) return proxySwarm(req,res,p);
   if(p.startsWith('/api/commercial/') || p==='/api/webhooks/stripe'){
     try{

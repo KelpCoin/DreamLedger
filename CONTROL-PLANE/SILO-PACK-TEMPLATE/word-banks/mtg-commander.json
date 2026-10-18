@@ -1,0 +1,73 @@
+{
+  "schema_version": "silo-word-bank-v1",
+  "silo_id": "SILO_MTG_COMMANDER",
+  "locale": "en-NZ",
+  "terms": [
+    {
+      "term": "Commander deck",
+      "category": "product",
+      "status": "preferred",
+      "claim_class": "neutral",
+      "notes": "Use for the 100-card singleton format; do not imply official affiliation."
+    },
+    {
+      "term": "decklist",
+      "category": "input",
+      "status": "preferred",
+      "claim_class": "neutral"
+    },
+    {
+      "term": "mana curve",
+      "category": "analysis",
+      "status": "preferred",
+      "claim_class": "feature"
+    },
+    {
+      "term": "colour identity",
+      "category": "rules",
+      "status": "preferred",
+      "claim_class": "feature",
+      "notes": "Use NZ/UK spelling in prose."
+    },
+    {
+      "term": "card legality",
+      "category": "rules",
+      "status": "preferred",
+      "claim_class": "feature",
+      "notes": "State the format and rules data date when making legality claims."
+    },
+    {
+      "term": "synergy analysis",
+      "category": "analysis",
+      "status": "preferred",
+      "claim_class": "feature"
+    },
+    {
+      "term": "upgrade suggestions",
+      "category": "output",
+      "status": "preferred",
+      "claim_class": "feature"
+    },
+    {
+      "term": "verified winning deck",
+      "category": "performance claim",
+      "status": "avoid",
+      "claim_class": "performance",
+      "notes": "Do not use without independently sourced tournament evidence."
+    },
+    {
+      "term": "official Magic: The Gathering service",
+      "category": "affiliation",
+      "status": "avoid",
+      "claim_class": "affiliation",
+      "notes": "Do not imply endorsement or affiliation."
+    },
+    {
+      "term": "guaranteed win rate",
+      "category": "performance claim",
+      "status": "avoid",
+      "claim_class": "performance",
+      "notes": "Unsupported guarantee."
+    }
+  ]
+}

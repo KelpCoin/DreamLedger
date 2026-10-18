@@ -1,0 +1,212 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dreamledger.org/schemas/silo-pack-v1.schema.json",
+  "title": "DreamLedger Silo Pack",
+  "type": "object",
+  "required": [
+    "schema",
+    "silo_id",
+    "display_name",
+    "purpose",
+    "skin",
+    "commerce",
+    "offers",
+    "surfaces",
+    "language_profile",
+    "word_banks",
+    "schemas",
+    "forbidden"
+  ],
+  "properties": {
+    "schema": {
+      "const": "dreamledger/silo-pack/v1"
+    },
+    "silo_id": {
+      "type": "string",
+      "pattern": "^[A-Z0-9][A-Z0-9_-]{1,63}$"
+    },
+    "display_name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120
+    },
+    "fee_rate_percent": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "purpose": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1000
+    },
+    "skin": {
+      "type": "object"
+    },
+    "commerce": {
+      "type": "object",
+      "required": [
+        "spine",
+        "proof_schema",
+        "scale_rule",
+        "checkout_default"
+      ],
+      "properties": {
+        "spine": {
+          "type": "string",
+          "minLength": 1
+        },
+        "proof_schema": {
+          "type": "string",
+          "minLength": 1
+        },
+        "scale_rule": {
+          "type": "string",
+          "minLength": 1
+        },
+        "checkout_default": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": true
+    },
+    "offers": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "surfaces": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "language_profile": {
+      "type": "object",
+      "required": [
+        "locale",
+        "tone",
+        "audience",
+        "preferred_terms",
+        "avoid_terms",
+        "claim_rules"
+      ],
+      "properties": {
+        "locale": {
+          "type": "string",
+          "pattern": "^[a-z]{2}(-[A-Z]{2})?$"
+        },
+        "tone": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "audience": {
+          "type": "string",
+          "minLength": 1
+        },
+        "preferred_terms": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "avoid_terms": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "claim_rules": {
+          "type": "object",
+          "required": [
+            "require_evidence_for_performance_claims",
+            "allow_invented_products"
+          ],
+          "properties": {
+            "require_evidence_for_performance_claims": {
+              "const": true
+            },
+            "allow_invented_products": {
+              "const": false
+            },
+            "require_price_disclosure": {
+              "type": "boolean"
+            },
+            "required_disclosures": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "word_banks": {
+      "type": "object",
+      "required": [
+        "primary",
+        "overrides"
+      ],
+      "properties": {
+        "primary": {
+          "type": "string",
+          "minLength": 1
+        },
+        "overrides": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "schemas": {
+      "type": "object",
+      "required": [
+        "catalog",
+        "offer",
+        "evidence"
+      ],
+      "properties": {
+        "catalog": {
+          "type": "string",
+          "minLength": 1
+        },
+        "offer": {
+          "type": "string",
+          "minLength": 1
+        },
+        "evidence": {
+          "type": "string",
+          "minLength": 1
+        },
+        "product": {
+          "type": "string"
+        },
+        "checkout": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "forbidden": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    }
+  },
+  "additionalProperties": false
+}

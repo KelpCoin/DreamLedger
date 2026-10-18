@@ -1,0 +1,88 @@
+# First-dollar recovery and production safety audit
+Date: 2026-10-17
+Status: HOLD for live checkout activation. No revenue event is claimed.
+
+## Findings from live Supabase function inventory
+
+The project `wbwgroygjeyukkspnqiy` has active deployed functions:
+- `marketplace-diagnostic-delivery` v11
+- `marketplace-diagnostic-input` v6
+- `marketplace-diagnostic-verify` v4
+- `stripe-revenue-41104f355d6878cdd6d1f9dc` v28
+- Several older `dreamledger-stripe-webhook*` functions also remain active.
+
+The current repository main branch did not contain source files at the expected paths for the three marketplace diagnostic functions. Deployed source must be recovered into version control before a controlled deployment can be reproduced. Do not infer that a function is absent from production because its source is absent from GitHub.
+
+## Actual Commander diagnostic contract
+
+1. The delivery URL is a **paid-order intake page**, not proof that the final diagnostic report was delivered. It retrieves the Checkout Session from Stripe, requires `livemode=true` and `payment_status=paid`, requires `metadata.marketplace_listing_id`, then looks up a matching `marketplace_orders` row before presenting the decklist form.
+2. The input function re-retrieves the Checkout Session, checks `payment_status=paid`, checks the expected diagnostic SKU metadata, finds a `marketplace_fulfillments` row, and calls `marketplace_submit_diagnostic_input`.
+3. The verifier checks that an artifact exists in private storage, recomputes SHA-256, and calls `marketplace_complete_diagnostic_fulfillment` with the lease token and worker identity.
+4. The canonical revenue webhook records payment attribution and queues a fulfillment request, but returns `ra000001_promoted:false`. That is the correct non-promotion posture while fulfillment and evidence remain unverified.
+
+A successful payment redirect or a queued fulfillment request is not the complete paid-to-delivered chain. Do not count the first-dollar event until settlement, attribution, successful artifact fulfillment, buyer delivery, and the canonical ledger reconciliation all agree.
+
+## Critical problems in the pasted `setup_schema_and_cron.sql` / `stripe-webhook/index.ts` blueprint
+
+**Do not execute the pasted blueprint in production.** It is not safe as written:
+- The four `FOR ALL USING (true)` policies omit a restrictive `TO service_role` clause and would permit broad row access to any role granted table access. RLS policy names do not themselves restrict a policy to service role.
+- The webhook defaults missing `amount_total` to 4900 and missing buyer email to `anonymous_buyer`; financial records must never be fabricated from defaults.
+- It does not require `session.payment_status === "paid"`, live mode, expected currency, or SKU/price attribution before writing the payment.
+- It does not verify that the checkout session belongs to the intended product or account.
+- It upserts the payment but unconditionally inserts a fossil receipt, so Stripe retries can create duplicate receipts.
+- It ignores the fossil insert error and can return a success status without a receipt.
+- The hash includes a newly generated timestamp, making repeated processing of the same event produce a different hash.
+- It labels the event `RA_000001_SETTLED_AND_LOCKED` before verifying fulfillment and delivery. This contradicts DreamLedger's evidence gate.
+- The cron function contains a placeholder URL and no secret-authenticated request contract. Do not schedule it until the target function and authentication are configured.
+- Creating a generic `public.payments` table risks a parallel ledger beside the existing `revenue_orders`, `event_ledger`, `economic_events`, and reconciliation tables. Reuse the canonical ledger rather than introducing another.
+
+## Safe repair sequence
+
+1. Recover and version the deployed diagnostic function sources.
+2. Confirm current environment configuration without printing secret values.
+3. Test with Stripe test-mode events and a non-production Supabase target. Test invalid signature, unpaid session, wrong currency, wrong SKU/amount, duplicate event, failed DB write, and fulfillment retry.
+4. Confirm that event idempotency, order creation, entitlement, fulfillment request, artifact hash, delivery proof, and reconciliation are durable and consistent.
+5. Only then update the live webhook route. Keep the current route intact until the replacement is proven; do not enable two competing canonical settlement paths.
+6. Re-enable the existing Payment Link only after its listing metadata, catalog price, and complete fulfillment route match.
+7. Run a new production acceptance check against the deployed commit SHA and actual health routes.
+8. Promote `RA_000001` only from reconciled external payment plus fulfillment and delivery evidence.
+
+## Silo contract additions
+
+The template now defines:
+- `language_profile`: locale, tone, audience, preferred/avoided terminology, and claim rules.
+- `word_banks`: a primary silo bank plus explicit override files.
+- `schemas`: independent catalog, offer, product, checkout, and evidence schema references.
+- `allow_invented_products=false` and evidence requirements for performance claims.
+
+These are source-controlled contracts. They do not mean each existing silo has been migrated or validated yet. Clone-time validation must be wired into the factory and its tests before treating the new contract as enforced.
+
+## Source drift recovered in this branch
+
+The three deployed Commander diagnostic functions have been copied from the live Supabase function registry into the normal `supabase/functions/` source paths in this branch:
+- delivery v11
+- input v6
+- verify v4
+
+The deployed canonical revenue webhook v28 and older `dreamledger-stripe-webhook-v3` v13 have been snapshotted under `ops/recovered-production/` for comparison. The canonical webhook source in `supabase/functions/stripe-revenue-41104f355d6878cdd6d1f9dc/index.ts` on main is not byte-identical to deployed v28. Treat this as source drift. Do not overwrite the active production version with main until the differences are reviewed and tests pass.
+
+This branch intentionally does not deploy functions, alter Stripe endpoint routing, enable a Payment Link, or change production tables. Those are live-money actions and remain gated on test-mode evidence.
+
+## Public surface and compiler defects found during repair
+
+- The Commander diagnostic's approved-offer record still labelled its Stripe Payment Link `ACTIVE_LIVEMODE`, even though live Stripe read-back showed the link inactive. This record now marks the link `INACTIVE`, checkout unauthorized, and fulfillment held.
+- The public product detail page still claimed “Live Stripe checkout” and showed a Buy button even though the buy router already displayed a hold page. The public detail page and MTG landing page now show a hold notice and no diagnostic checkout CTA.
+- The CUBE MTG manifest and verifier previously said the diagnostic was deployed and demanded an automated checkout route, conflicting with the canonical product's held state. They now test the held state and reject checkout bypasses.
+- `Patch-MTG-CommerceSurface.js` expected a legacy `render(items)` function that no longer exists in the current template, so production compilation failed with `MTG render function boundary not found`. The current template is now supported without destructive text replacement, the catalog gets a horizontal card rail, and the diagnostic CTA remains held.
+- `WebsiteFaceCompiler` previously emitted registry entries and approved Stripe links without checking canonical product/fulfillment gates. It now requires explicit checkout authorization, VERIFIED evidence, VERIFIED_AUTOMATED fulfillment, active live link status, a matching published/sellable NZD product, finite positive inventory, and a ready zero-operator fulfillment registry entry. All current face-registry routes remain unauthorized until their individual gates are evidenced. Empty public offer pages now explain that no checkout-enabled offers are currently published.
+- The home face is now a free-tool discovery surface with quote comparison, Truth Oracle, and trust links rather than an unverified direct-payment CTA. The e-commerce smoke workflow compiles the public face from the canonical registry before testing it.
+- CI identified the Ajv dialect mismatch: Elohim product schemas declare JSON Schema 2020-12 but the validator used Ajv's draft-07 default export. The validator now loads `ajv/dist/2020.js`.
+- The first silo-contract CI run failed due duplicate schema registration; that defect was corrected, and run [38909464704](https://github.com/KelpCoin/DreamLedger/actions/runs/38909464704) passed. The later compiler, public-surface, and MTG hold-contract changes are being checked by the current branch's new workflow runs. Do not call them green until those runs finish.
+
+## Latest branch head follow-up
+
+- Added an actual MTG Commander silo manifest at `BEC-PRIME/silos/SILO_MTG_COMMANDER/silo.json`, wired to the MTG word bank and explicit catalog, offer, evidence, product, and checkout schema references. The silo contract verifier now validates both the reusable template and this concrete MTG instance.
+- The canonical MTG listing data now points Jon Irenicus claim requests through its existing listing page rather than exposing a `mailto:` URI as the API claim URL. The listing page itself still offers the seller inquiry path.
+- The public face compiler now emits the required headline emphasis and a visible hold notice when no route clears the gates. The MTG public-surface workflow compiles the canonical face registry before checking homepage tokens.
+- Updated the production-contract verifier to regard the inactive Commander link plus disabled checkout as the correct held state, not a failed requirement to keep an inactive link live.
+- Latest source branch head when this note was written: `7947f24b3746094a3703f6db29e352ab12a6240c`. Silo Pack Contract, E-Commerce Smoke, MTG Diagnostic Fulfillment Gate, Offer Catalog Contract, and DreamLedger build have new runs queued or running against the current head; do not merge until the relevant latest runs finish. Earlier E-Commerce Smoke passed on an earlier head, CUBE Marketplace Gate passed on an earlier head, Security Baseline passed on an earlier head, and production-check passed on an earlier head. Those earlier passes do not replace the latest-head checks.

@@ -197,6 +197,44 @@ function runGauntlet(candidates, capabilities) {
   return { passed, rejected };
 }
 
+function canonicalCheckoutReady(record) {
+  const id = String(record.product_id || '');
+  if (!/^[A-Z0-9][A-Z0-9_-]{1,127}$/i.test(id)) return false;
+  const productPath = path.join(ROOT, 'catalog', 'products', id + '.json');
+  const fulfillmentPath = path.join(ROOT, 'fulfillment', 'PRODUCT-FULFILLMENT-REGISTRY.json');
+  if (!fs.existsSync(productPath) || !fs.existsSync(fulfillmentPath)) return false;
+  let product, fulfillmentRegistry;
+  try {
+    product = JSON.parse(fs.readFileSync(productPath, 'utf8'));
+    fulfillmentRegistry = JSON.parse(fs.readFileSync(fulfillmentPath, 'utf8'));
+  } catch (_) { return false; }
+
+  const price = Number(product.price);
+  const priceMajor = ['minor', 'cents'].includes(String(product.price_unit || 'major').toLowerCase()) ? price / 100 : price;
+  const link = record.payment_link_url;
+  const productLink = product.commercial_truth?.payment_link || product.checkout?.url || product.checkout_url || null;
+  const fulfillment = product.fulfillment || product.fulfilment;
+  const contract = fulfillmentRegistry.entries?.[id];
+
+  if (product.id !== id || product.status !== 'published' || product.commercial_truth?.sellable !== true
+    || product.commercial_truth?.approval_required !== false || !Number.isFinite(Number(product.inventory))
+    || Number(product.inventory) <= 0 || !Number.isFinite(priceMajor) || Math.abs(priceMajor - Number(record.price)) > 0.005
+    || String(product.currency || '').toLowerCase() !== 'nzd') return false;
+  if (typeof link !== 'string' || !/^https:\/\/buy\.stripe\.com\//i.test(link) || link !== productLink) return false;
+  if (!fulfillment || fulfillment.operator_required !== false
+    || ['disabled', 'manual_pdf', 'manual', 'manual_review'].includes(String(fulfillment.mode || '').toLowerCase())) return false;
+  if (!contract || contract.ready !== true || contract.operator_required !== false) return false;
+  return true;
+}
+
+function checkoutAuthorized(record) {
+  return record.checkout_authorized === true
+    && record.evidence_status === 'VERIFIED'
+    && record.fulfillment_status === 'VERIFIED_AUTOMATED'
+    && record.payment_link_status === 'ACTIVE_LIVEMODE'
+    && canonicalCheckoutReady(record);
+}
+
 function compileApprovedOffers(records, capabilities, generatedOffers) {
   const byId = new Map(capabilities.map(c => [c.id, c]));
   const generatedIds = new Set(generatedOffers.map(o => o.offer_id));
@@ -214,19 +252,24 @@ function compileApprovedOffers(records, capabilities, generatedOffers) {
     if (record.approved_by !== 'operator') { errors.push({ offer_id: record.offer_id, errors: ['explicit_operator_approval_required'] }); continue; }
     if (approved.some(o => o.offer_id === record.offer_id)) { errors.push({ offer_id: record.offer_id, errors: ['duplicate_approved_offer_id'] }); continue; }
     if (generatedIds.has(record.offer_id)) {
-      // Explicit operator approval intentionally overrides the generated, locked candidate
-      // with the same offer ID. The approved record becomes the sole canonical public offer.
+      // The approved record replaces its generated candidate, but cannot bypass checkout evidence gates.
     }
 
+    const enabled = checkoutAuthorized(record);
     const offer = {
       ...record,
       version: 'offer-v1',
       pricing_strategy: record.pricing_strategy || 'fixed',
       pricing_tier: record.pricing_tier || 'snapshot',
-      approval_required: false,
-      checkout_available: true,
-      status: 'VERIFIED_AVAILABLE'
+      approval_required: !enabled,
+      checkout_available: enabled,
+      status: enabled ? 'VERIFIED_AVAILABLE' : 'HELD'
     };
+    if (!enabled) {
+      offer.payment_link_url = null;
+      offer.checkout_route = 'held_pending_evidence';
+      offer.fulfillment_route = 'held_pending_evidence';
+    }
     delete offer.approved_by;
     delete offer.approved_at;
     approved.push(offer);
@@ -285,7 +328,8 @@ function compile() {
     rejected_offer_ids: allRejected.map(item => item.offer_id || item.candidate?.offer_id || item.capability_id || null),
     approval_required_for_generated_offers: gauntlet.passed.every(o => o.approval_required === true),
     checkout_disabled_for_generated_offers: gauntlet.passed.every(o => o.checkout_available === false),
-    approved_checkout_enabled_only_by_explicit_record: approvedResult.approved.every(o => o.checkout_available === true && o.approval_required === false),
+    approved_checkout_enabled_only_by_explicit_record: approvedResult.approved.every(o => !o.checkout_available || (o.checkout_authorized === true && o.evidence_status === 'VERIFIED' && o.fulfillment_status === 'VERIFIED_AUTOMATED')),
+    held_approved_offers_disabled: approvedResult.approved.filter(o => o.status === 'HELD').every(o => o.checkout_available === false && o.approval_required === true),
     silo_integrity: finalOffers.every(o => byCapability(capabilities, o.capability_id)?.silo === o.silo),
     deterministic_ids: new Set(finalOffers.map(o => o.offer_id)).size === finalOffers.length,
     deterministic_proof: true
