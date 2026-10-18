@@ -76,6 +76,14 @@ function compile() {
   if (!master.includes('@import url("/assets/dl-design-tokens.css");')) fail('master silo stylesheet must import the generated token artifact first');
   if (!master.includes('--silo-bg:var(--dl-color-surface-base)')) fail('master silo must map its base surface to the token contract');
   if (!master.includes('html body .grid')) fail('master silo must include the enterprise-grid override');
+  const gridCssFile = path.join(ROOT, 'public', 'assets', 'dl-enterprise-grid.css');
+  if (!fs.existsSync(gridCssFile)) fail('enterprise grid stylesheet missing');
+  if (!fs.readFileSync(gridCssFile, 'utf8').includes('@import url("/assets/dl-design-tokens.css");')) fail('enterprise grid must import generated tokens');
+  for (const file of [path.join(ROOT, 'index.html'), path.join(ROOT, 'public', 'index.html')]) {
+    const html = fs.readFileSync(file, 'utf8');
+    if (!html.includes('href="/assets/dl-enterprise-grid.css"')) fail(path.relative(ROOT, file) + ' must load the enterprise grid stylesheet');
+    if (!html.includes('class="dl-enterprise"')) fail(path.relative(ROOT, file) + ' body must opt into the enterprise design layer');
+  }
   return css;
 }
 function main() {
