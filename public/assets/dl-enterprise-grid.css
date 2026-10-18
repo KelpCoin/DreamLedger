@@ -40,7 +40,7 @@ body.dl-enterprise .card .tag.free { color: var(--dl-color-accent-light); }
 body.dl-enterprise .money { padding: var(--dl-spacing-space-6); }
 body.dl-enterprise .btn { min-height: 48px; border-radius: var(--dl-border-radius-sm); border-color: var(--dl-color-border-default); color: var(--dl-color-text-primary); font-family: var(--dl-typography-font-family-sans); }
 body.dl-enterprise .btn.primary,
-body.dl-enterprise .btn.gold { background: var(--dl-color-accent-primary); border-color: var(--dl-color-accent-primary); color: #07150D; }
+body.dl-enterprise .btn.gold { background: var(--dl-color-accent-primary); border-color: var(--dl-color-accent-primary); color: var(--dl-color-text-on-accent); }
 body.dl-enterprise input,
 body.dl-enterprise textarea,
 body.dl-enterprise select,
