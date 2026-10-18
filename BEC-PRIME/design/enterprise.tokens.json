@@ -11,7 +11,8 @@
     "text": {
       "primary": { "$value": { "colorSpace": "srgb", "components": [0.9137, 0.9137, 0.9137], "alpha": 1, "hex": "#E9E9E9" } },
       "secondary": { "$value": { "colorSpace": "srgb", "components": [0.7176, 0.7176, 0.7176], "alpha": 1, "hex": "#B7B7B7" } },
-      "muted": { "$value": { "colorSpace": "srgb", "components": [0.5725, 0.5725, 0.5725], "alpha": 1, "hex": "#929292" } }
+      "muted": { "$value": { "colorSpace": "srgb", "components": [0.5725, 0.5725, 0.5725], "alpha": 1, "hex": "#929292" } },
+      "on-accent": { "$value": { "colorSpace": "srgb", "components": [0.0275, 0.0824, 0.051], "alpha": 1, "hex": "#07150D" } }
     },
     "border": {
       "default": { "$value": { "colorSpace": "srgb", "components": [0.1882, 0.1882, 0.1882], "alpha": 1, "hex": "#303030" } },
