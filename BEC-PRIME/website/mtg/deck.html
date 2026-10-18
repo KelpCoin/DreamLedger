@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en-NZ" data-silo="mtg">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Commander deck | DreamLedger Magic</title>
+  <meta name="description" content="Review a Commander deck listing, decklist, price and shipping details on DreamLedger Magic.">
+  <meta name="theme-color" content="#090b10">
+  <link rel="stylesheet" href="/assets/silo-master.css">
+  <style>
+    .detail{max-width:900px;margin:0 auto;padding:28px 16px 90px}
+    .detail-hero{padding:24px 0}
+    .detail-panel{padding:20px;border:1px solid var(--silo-line);background:var(--silo-surface);border-radius:18px;margin:16px 0}
+    .detail-price{font-size:2rem;font-weight:850;letter-spacing:-.035em}
+    .detail-grid{display:grid;grid-template-columns:1fr;gap:12px}
+    @media(min-width:700px){.detail-grid{grid-template-columns:1fr 1fr}}
+    .detail-meta{padding:14px;border:1px solid var(--silo-line);border-radius:12px}
+    .detail-meta strong{display:block;color:var(--silo-accent);font-size:11px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:5px}
+    .detail-form{display:grid;gap:12px}
+    .detail-form label{display:grid;gap:6px;font-size:13px;font-weight:700}
+    .detail-form input,.detail-form textarea{font:inherit;color:var(--silo-ink);background:var(--silo-surface-2);border:1px solid var(--silo-line);border-radius:10px;padding:12px;width:100%}
+    .detail-form textarea{min-height:110px;resize:vertical}
+    .detail-note{font-size:12px;color:var(--silo-muted);line-height:1.5}
+    .detail-status{margin-top:10px;font-size:13px;color:var(--silo-muted)}
+    .detail-story p{line-height:1.7}
+    .detail-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+    .promoted-badge{display:inline-block;background:#f2d58d;color:#17140d;border-radius:999px;padding:4px 9px;font-size:11px;font-weight:900;letter-spacing:.04em}
+  </style>
+</head>
+<body class="silo-body">
+<header class="silo-hdr"><div class="silo-hdr-inner">
+  <a class="silo-logo" href="/mtg/"><span class="silo-logo-mark" aria-hidden="true">◇</span><span>Dream<em>Ledger</em> · Magic</span></a>
+  <nav class="silo-nav" aria-label="Magic marketplace">
+    <a href="/mtg/">All decks</a>
+    <a href="/mtg-list">List free</a>
+    <a href="/register">Join free</a>
+  </nav>
+</div></header>
+<main class="detail">
+  <p><a href="/mtg/">← Back to all decks</a></p>
+  <section class="detail-hero">
+    <p class="silo-eyebrow">Physical Commander deck · New Zealand</p>
+    <h1 class="silo-display" id="title">Loading deck…</h1>
+    <p class="silo-lead" id="summary">Loading listing details…</p>
+    <div id="promoted-slot" aria-live="polite"></div>
+    <div class="detail-actions" id="primary-actions"></div>
+  </section>
+  <section class="detail-panel">
+    <div class="detail-price" id="price"></div>
+    <p id="shipping"></p>
+    <p id="patron-price"></p>
+    <div class="detail-grid">
+      <div class="detail-meta"><strong>Condition</strong><span id="condition"></span></div>
+      <div class="detail-meta"><strong>What's included</strong><span id="included"></span></div>
+      <div class="detail-meta"><strong>Stock</strong><span id="stock"></span></div>
+      <div class="detail-meta"><strong>Purchase status</strong><span id="purchase-status"></span></div>
+    </div>
+    <div id="decklist-actions" class="detail-actions"></div>
+  </section>
+  <section class="detail-panel detail-story" id="story" hidden>
+    <h2>Deck overview</h2>
+    <div id="story-content"></div>
+    <p id="archetype"></p>
+  </section>
+  <section class="detail-panel" id="request-panel">
+    <p class="silo-eyebrow">Purchase request · no payment taken here</p>
+    <h2>Request to purchase</h2>
+    <p class="detail-note">This listing does not have an approved online checkout. Send a request so the seller can confirm stock, exact contents, condition and shipping before payment. Submitting opens your email application; it does not send automatically or take payment.</p>
+    <form id="request-form" class="detail-form">
+      <label for="buyer-name">Your name<input id="buyer-name" name="name" autocomplete="name" required maxlength="120"></label>
+      <label for="buyer-email">Your email<input id="buyer-email" name="email" type="email" autocomplete="email" required maxlength="200"></label>
+      <label for="buyer-message">Message<textarea id="buyer-message" name="message" required maxlength="2000">Hi, I’m interested in this deck. Please confirm availability, condition, exact contents and shipping before I pay.</textarea></label>
+      <button class="silo-btn silo-btn-gold" type="submit">Prepare purchase request</button>
+    </form>
+    <p id="form-status" class="detail-status" role="status" aria-live="polite"></p>
+  </section>
+  <footer class="detail-note">Listing information is seller-supplied. Please confirm the physical deck, contents and delivery terms before payment. A listing, request or checkout start is not evidence of a sale.</footer>
+</main>
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+  const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const params=new URLSearchParams(location.search);
+  const id=params.get('id');
+  const form=$('request-form');
+  let product=null;
+  function setText(id,value){$(id).textContent=value||'Confirm with seller before payment.';}
+  function render(p){
+    product=p;
+    document.title=(p.name||'Commander deck')+' | DreamLedger Magic';
+    setText('title',p.name);
+    setText('summary',p.description);
+    setText('price',Number.isFinite(Number(p.price))?'NZ$'+Number(p.price).toLocaleString('en-NZ',{minimumFractionDigits:2,maximumFractionDigits:2}):'Price to be confirmed');
+    setText('shipping',p.shipping||'Free shipping within Aotearoa New Zealand, unless the seller confirms otherwise.');
+    setText('condition',p.condition);
+    setText('included',p.included_items);
+    setText('stock',Number(p.inventory)>0?'Listed as available; confirm stock with seller.':'No stock currently listed.');
+    const isPromoted=p.is_promoted===true;
+    $('promoted-slot').innerHTML=isPromoted?'<span class="promoted-badge">Promoted</span>':'';
+    const link=typeof p.decklist_url==='string'&&/^https:\/\//.test(p.decklist_url)?p.decklist_url:null;
+    $('decklist-actions').innerHTML=link?'<a class="silo-btn silo-btn-ghost" href="'+esc(link)+'" target="_blank" rel="noopener noreferrer">View full decklist ↗</a>':'';
+    if(Array.isArray(p.story)&&p.story.length){
+      $('story').hidden=false;
+      $('story-content').innerHTML=p.story.map(line=>'<p>'+esc(line)+'</p>').join('');
+    }
+    if(p.archetype)setText('archetype','Player archetype: '+p.archetype);
+    const hasApprovedLink=p.checkout_available===true&&typeof p.payment_link==='string'&&/^https:\/\/buy\.stripe\.com\//.test(p.payment_link);
+    if(hasApprovedLink){
+      $('purchase-status').textContent='Approved online checkout is listed for this product.';
+      $('primary-actions').innerHTML='<a class="silo-btn silo-btn-gold" href="'+esc(p.payment_link)+'">Continue to secure checkout</a>';
+      $('request-panel').hidden=true;
+    }else{
+      $('purchase-status').textContent='Online checkout is not enabled. Request seller confirmation first.';
+      $('primary-actions').innerHTML='<a class="silo-btn silo-btn-gold" href="#request-panel">Request to purchase</a><a class="silo-btn silo-btn-ghost" href="/mtg/">Browse other decks</a>';
+      $('request-panel').hidden=false;
+    }
+    const patron=Number(p.patreon_price);
+    $('patron-price').textContent=Number.isFinite(patron)&&patron>0?'Patreon subscriber price: NZ$'+patron.toLocaleString('en-NZ',{minimumFractionDigits:2,maximumFractionDigits:2})+'. Seller confirmation required.':'';
+  }
+  $('request-form').addEventListener('submit',function(event){
+    event.preventDefault();
+    if(!product)return;
+    const name=$('buyer-name').value.trim(),email=$('buyer-email').value.trim(),message=$('buyer-message').value.trim();
+    if(!name||!email||!message){$('form-status').textContent='Complete all fields before preparing your request.';return;}
+    const subject='Purchase request: '+product.name;
+    const body='Name: '+name+'\nEmail: '+email+'\nProduct: '+product.name+' ('+product.id+')\nListing: '+location.href+'\n\nMessage:\n'+message;
+    $('form-status').textContent='Your email application should open with the request. Review it and press Send there; DreamLedger has not received the request yet.';
+    location.href='mailto:hello@dreamledger.org?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
+  });
+  async function start(){
+    if(!id){$('title').textContent='Deck not specified';$('summary').textContent='Return to the MTG catalogue and select a deck.';$('request-panel').hidden=true;return;}
+    try{
+      const r=await fetch('/data/mtg-catalog.json',{cache:'no-store',headers:{Accept:'application/json'}});
+      if(!r.ok)throw new Error('Catalogue unavailable ('+r.status+').');
+      const data=await r.json();
+      const p=(data.products||[]).find(item=>item.id===id&&item.category==='commander-deck');
+      if(!p)throw new Error('That deck listing could not be found.');
+      render(p);
+    }catch(error){$('title').textContent='Deck listing unavailable';$('summary').textContent=error.message||'Please return to the catalogue.';$('request-panel').hidden=true;}
+  }
+  start();
+})();
+</script>
+</body>
+</html>
