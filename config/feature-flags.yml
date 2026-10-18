@@ -1,0 +1,23 @@
+version: 1
+environment: review
+flags:
+  paid_visibility:
+    enabled: false
+    default: false
+    description: Optional paid placement. Keep disabled until payment and fulfillment verification are live.
+    requirements:
+      tenant_plan_field: featured_listings
+      tenant_plan_value: true
+      verified_payment: true
+      verified_fulfillment: true
+  a2a_x402:
+    enabled: false
+    default: false
+    description: 2 percent service fee applies only to verified x402 machine-to-machine settlements.
+    requirements:
+      payment_verification: implemented
+      settlement_verification: implemented
+      sha256_receipt: implemented
+notes:
+  - Free browsing, listing creation, and B2B participation do not depend on paid_visibility.
+  - This file is declarative configuration only; it does not activate Stripe, x402, or production infrastructure.

@@ -3,8 +3,50 @@
   "silo": "mtg",
   "currency": "NZD",
   "shipping": "Free shipping within Aotearoa New Zealand unless noted.",
-  "updated": "2026-10-14",
+  "updated": "2026-10-18",
   "products": [
+    {
+      "id": "EDH_0001",
+      "sku": "EDH-EDWARD-KENWAY-PACIN-ON-THE-PLANK-001",
+      "name": "Edward Kenway – Pacin’ On The Plank — Commander deck",
+      "description": "Grixis Pirate/Vehicle Commander deck built around treasure generation, stealing cards, Pirates, Assassins and Vehicles. Physical Commander deck.",
+      "price": 230,
+      "patreon_price": 200,
+      "currency": "NZD",
+      "status": "published",
+      "inventory": 1,
+      "condition": "Physical deck; condition grade to be confirmed with seller before payment.",
+      "silo": "mtg",
+      "category": "commander-deck",
+      "sale_mode": "request_to_purchase",
+      "checkout_available": false,
+      "payment_link": null,
+      "detail_url": "/mtg/deck.html?id=EDH_0001",
+      "claim_url": "mailto:hello@dreamledger.org?subject=Purchase%20request%3A%20Edward%20Kenway%20%E2%80%93%20Pacin%E2%80%99%20On%20The%20Plank%20%E2%80%94%20Commander%20deck&body=Hi%2C%20I%20am%20interested%20in%20Edward%20Kenway%20%E2%80%93%20Pacin%E2%80%99%20On%20The%20Plank%20%E2%80%94%20Commander%20deck.%20Please%20confirm%20stock%2C%20condition%2C%20exact%20contents%20and%20shipping%20before%20I%20pay.",
+      "decklist_url": "https://manabox.app/decks/AZ5j98lSddyD5z5e5scYCw",
+      "commander": "Edward Kenway",
+      "archetype": "Engine architect / value grinder",
+      "shipping": "Free shipping within Aotearoa New Zealand.",
+      "included_items": "Physical deck as represented by the linked ManaBox list. Please confirm exact contents and any tokens, dice, or accessories with the seller before payment.",
+      "story": [],
+      "visibility": {
+        "default": "organic",
+        "is_promoted": false
+      },
+      "metadata": {
+        "tags": [
+          "mtg",
+          "magicthegathering",
+          "commander",
+          "mtgnz",
+          "grixis",
+          "pirates",
+          "vehicles"
+        ],
+        "patreon_price_nzd": 200,
+        "patreon_url": "https://patreon.com/happyhomarid"
+      }
+    },
     {
       "id": "EDH_QUINTORIUS_0002",
       "sku": "EDH-QUINTORIUS",
@@ -15,15 +57,22 @@
       "currency": "NZD",
       "status": "published",
       "inventory": 1,
-      "condition": "Sleeved · playtested",
       "silo": "mtg",
       "category": "commander-deck",
-      "sale_mode": "claim_by_message",
+      "sale_mode": "request_to_purchase",
       "checkout_available": false,
-      "detail_url": "/mtg/quintorius-field-historian.html",
+      "detail_url": "/mtg/deck.html?id=EDH_QUINTORIUS_0002",
       "claim_url": "mailto:hello@dreamledger.org?subject=Buy%20Quintorius%20Commander%20deck%20NZ%2490&body=I%20want%20to%20buy%20the%20Quintorius%20Commander%20deck%20(NZ%2490%2C%20free%20NZ%20shipping).",
       "decklist_url": "https://manabox.app/decks/AZ4-aMxndkWrpKZVph4TSA",
-      "commander": "Quintorius, Field Historian"
+      "commander": "Quintorius, Field Historian",
+      "payment_link": null,
+      "condition": "Sleeved · playtested (seller-reported)",
+      "included_items": "Physical deck as represented by the linked ManaBox list. Please confirm exact contents and any tokens, dice, or accessories with the seller before payment.",
+      "shipping": "Free shipping within Aotearoa New Zealand.",
+      "visibility": {
+        "default": "organic",
+        "is_promoted": false
+      }
     },
     {
       "id": "EDH_DWYNEN_0003",
@@ -35,61 +84,273 @@
       "currency": "NZD",
       "status": "published",
       "inventory": 1,
-      "condition": "Sleeved · playtested",
       "silo": "mtg",
       "category": "commander-deck",
-      "sale_mode": "claim_by_message",
+      "sale_mode": "request_to_purchase",
       "checkout_available": false,
-      "detail_url": "/mtg/",
-      "commander": "Dwynen, Gilt-Leaf Daen"
-    },
-    {
-      "id": "EDH_0001",
-      "sku": "EDH-STARTER",
-      "name": "Commander starter — physical deck",
-      "description": "Physical Commander deck for sale in NZ.",
-      "price": 90,
-      "currency": "NZD",
-      "status": "published",
-      "inventory": 1,
-      "condition": "Sleeved",
-      "silo": "mtg",
-      "category": "commander-deck",
-      "sale_mode": "claim_by_message",
-      "checkout_available": false,
-      "detail_url": "/mtg/"
+      "detail_url": "/mtg/deck.html?id=EDH_DWYNEN_0003",
+      "claim_url": "mailto:hello@dreamledger.org?subject=Buy%20Dwynen%20Commander%20deck%20NZ%2490&body=I%20want%20to%20buy%20the%20Dwynen%20Elf%20tribal%20Commander%20deck%20(NZ%2490%2C%20free%20NZ%20shipping).",
+      "commander": "Dwynen, Gilt-Leaf Daen",
+      "payment_link": null,
+      "condition": "Sleeved · playtested (seller-reported)",
+      "included_items": "Physical deck as represented by the linked ManaBox list. Please confirm exact contents and any tokens, dice, or accessories with the seller before payment.",
+      "shipping": "Free shipping within Aotearoa New Zealand.",
+      "visibility": {
+        "default": "organic",
+        "is_promoted": false
+      }
     },
     {
       "id": "EDH_JON_IRENICUS_0004",
-      "sku": "EDH-JON-IRENICUS",
-      "name": "Jon Irenicus — Commander deck",
-      "description": "Physical Commander deck for sale in NZ.",
-      "price": 90,
+      "sku": "EDH-JON-IRENICUS-SHATTERED-ONE-004",
+      "name": "Jon Irenicus, Shattered One – Give Them the Problem",
+      "description": "Chaotic Dimir Commander deck built around gifting opponents dangerous or restrictive creatures they are forced to keep.",
+      "price": 220,
+      "patreon_price": 200,
       "currency": "NZD",
       "status": "published",
       "inventory": 1,
-      "condition": "Sleeved · playtested",
+      "condition": "Fully sleeved and rigorously playtested (seller-reported).",
       "silo": "mtg",
       "category": "commander-deck",
-      "sale_mode": "claim_by_message",
+      "sale_mode": "request_to_purchase",
       "checkout_available": false,
-      "detail_url": "/mtg/",
-      "commander": "Jon Irenicus, the Exile"
+      "payment_link": null,
+      "detail_url": "/mtg/deck.html?id=EDH_JON_IRENICUS_0004",
+      "claim_url": "mailto:hello@dreamledger.org?subject=Purchase%20request%3A%20Jon%20Irenicus%2C%20Shattered%20One%20%E2%80%93%20Give%20Them%20the%20Problem&body=Hi%2C%20I%20am%20interested%20in%20Jon%20Irenicus%2C%20Shattered%20One%20%E2%80%93%20Give%20Them%20the%20Problem.%20Please%20confirm%20stock%2C%20condition%2C%20exact%20contents%20and%20shipping%20before%20I%20pay.",
+      "decklist_url": "https://manabox.app/decks/AZ2BaCy-c-a8MpZUUcgxqw",
+      "commander": "Jon Irenicus, Shattered One",
+      "archetype": "Table Politician (Chaotic)",
+      "shipping": "Free shipping within Aotearoa New Zealand.",
+      "included_items": "Physical deck as represented by the linked ManaBox list. Please confirm exact contents and any tokens, dice, or accessories with the seller before payment.",
+      "story": [
+        "You give your opponents creatures which make their game worse and they’re forced to keep them. That’s the whole hook. Steel Golem shuts off their creature plays. Grid Monitor does the same. Flesh Reaver chunks their life every time they use it. Then you pass something like Archfiend of the Dross across the table and they’re suddenly on a clock they didn’t ask for. Tick, tick… you lose.",
+        "You’re not necessarily attacking or committing much to the board. Somehow, everyone else is taking damage, missing plays, or stuck managing something you handed them.",
+        "You don’t rush this deck. Set up, draw, make land drops, maybe keep Phyrexian Arena ticking along. Then Jon lands, and from that point on every creature has a destination.",
+        "Switcheroo, Shifting Loyalties and Modify Memory mean nothing stays solved. Assault Suit and Grafted Wargear make combat decisions awkward after the handoff. Crystal Shard lets you pull something back and send it somewhere worse.",
+        "You’re not closing the game yourself. You’re making sure nobody else gets to play well enough to close it either."
+      ],
+      "visibility": {
+        "default": "organic",
+        "is_promoted": false
+      },
+      "metadata": {
+        "tags": [
+          "mtg",
+          "magicthegathering",
+          "commander",
+          "mtgnz",
+          "dimir",
+          "jonirenicus"
+        ],
+        "patreon_price_nzd": 200,
+        "patreon_url": "https://patreon.com/happyhomarid"
+      }
     },
     {
-      "id": "MTG-SINGLE-PLACEHOLDER",
-      "sku": "MTG-SINGLE",
-      "name": "Singles — list free",
-      "description": "Peer singles via /mtg-list. Not a stocked SKU.",
-      "price": 0,
+      "id": "EDH_ALTAIR_0005",
+      "sku": "EDH-ALTAIR-IBN-LA-AHAD-005",
+      "name": "Altaïr Ibn-La’Ahad — Assassin Commander Deck",
+      "description": "Assassin-themed Commander deck built around memory-counter recursion, targeted assassinations, and precise combat triggers.",
+      "price": 750,
+      "patreon_price": 700,
       "currency": "NZD",
-      "status": "draft",
+      "status": "published",
+      "inventory": 1,
+      "condition": "Condition grade to be confirmed with seller before payment.",
+      "silo": "mtg",
+      "category": "commander-deck",
+      "sale_mode": "request_to_purchase",
+      "checkout_available": false,
+      "payment_link": null,
+      "detail_url": "/mtg/deck.html?id=EDH_ALTAIR_0005",
+      "claim_url": "mailto:hello@dreamledger.org?subject=Purchase%20request%3A%20Alta%C3%AFr%20Ibn-La%E2%80%99Ahad%20%E2%80%94%20Assassin%20Commander%20Deck&body=Hi%2C%20I%20am%20interested%20in%20Alta%C3%AFr%20Ibn-La%E2%80%99Ahad%20%E2%80%94%20Assassin%20Commander%20Deck.%20Please%20confirm%20stock%2C%20condition%2C%20exact%20contents%20and%20shipping%20before%20I%20pay.",
+      "decklist_url": "https://manabox.app/decks/AZyJop4MeM2G4nGGKcIaIQ",
+      "commander": "Altaïr Ibn-La’Ahad",
+      "archetype": "Tactical Pilot · Engine Architect · Theme Loyalist",
+      "shipping": "Free shipping within Aotearoa New Zealand.",
+      "included_items": "Physical deck as represented by the linked ManaBox list. Please confirm exact contents and any tokens, dice, or accessories with the seller before payment.",
+      "story": [
+        "Happy Friday, fuckers.",
+        "Ninjas are hot shit right now, and the Ninja Turtles are the cool kids on the block, but Assassins endure. Free running is an immensely underappreciated mechanic that may never be printed again because it’s that strong. Altaïr uses memory-counter recursion, targeted assassinations and precise combat triggers to turn every move into meaningful board pressure. This deck doesn’t explode in a turn. It shapes the game quietly, surgically, and efficiently.",
+        "Mirror Box allows for some really silly, funny plays. Cards like Legion Loyalty, Cadric, Helm of the Host, Blade of Selves and The Animus can leave opponents hurting.",
+        "Piloting Altaïr is rooftop-level free-running: spot the opening, line up the target and execute with precision. Timing and sequencing matter, and the deck rewards careful, deliberate plays over brute force."
+      ],
+      "visibility": {
+        "default": "organic",
+        "is_promoted": false
+      },
+      "metadata": {
+        "tags": [
+          "mtg",
+          "magicthegathering",
+          "commander",
+          "mtgnz",
+          "assassins",
+          "altair"
+        ],
+        "patreon_price_nzd": 700,
+        "patreon_url": "https://patreon.com/happyhomarid"
+      }
+    },
+    {
+      "id": "EDH_KWAIN_0006",
+      "sku": "EDH-KWAIN-ITINERANT-MEDDLER-006",
+      "name": "Kwain, Itinerant Meddler — Commander Deck",
+      "description": "A covert-building political deck that uses table diplomacy to develop a rabbit board and then turn it into decisive pressure.",
+      "price": 650,
+      "patreon_price": 630,
+      "currency": "NZD",
+      "status": "published",
+      "inventory": 1,
+      "condition": "Condition grade to be confirmed with seller before payment.",
+      "silo": "mtg",
+      "category": "commander-deck",
+      "sale_mode": "request_to_purchase",
+      "checkout_available": false,
+      "payment_link": null,
+      "detail_url": "/mtg/deck.html?id=EDH_KWAIN_0006",
+      "claim_url": "mailto:hello@dreamledger.org?subject=Purchase%20request%3A%20Kwain%2C%20Itinerant%20Meddler%20%E2%80%94%20Commander%20Deck&body=Hi%2C%20I%20am%20interested%20in%20Kwain%2C%20Itinerant%20Meddler%20%E2%80%94%20Commander%20Deck.%20Please%20confirm%20stock%2C%20condition%2C%20exact%20contents%20and%20shipping%20before%20I%20pay.",
+      "decklist_url": "https://manabox.app/decks/AZwC74YkciOejUNewhkqdA",
+      "commander": "Kwain, Itinerant Meddler",
+      "archetype": "The Covert Builder",
+      "shipping": "Free shipping within Aotearoa New Zealand.",
+      "included_items": "Physical deck as represented by the linked ManaBox list. Please confirm exact contents and any tokens, dice, or accessories with the seller before payment.",
+      "story": [
+        "This deck plays with a soft political posture that keeps early pressure off while it develops a board that can rapidly annihilate.",
+        "Kwain allows each player to draw a card and gain a life, which naturally lowers tension and encourages momentum. It doesn’t announce itself as the primary threat. Instead, that sly generosity buys time to assemble pieces quietly.",
+        "At its core, this is a hare-apparent deck. If left alone to develop it can get out of hand quickly. The commander’s political edge helps blur threat assessment just long enough to establish position. The early turns feel cooperative; the midgame layers presence without overextending; then the board is suddenly overrun with rabbits.",
+        "This deck was stress-tested extensively over a few months. In one session, Caleb and Lilly put Josh and Luke through their paces. Even with Luke using his signature XL deck, Caleb and Lilly decimated Josh and Luke. Caleb said, “I wanted to play every card, it was sick.”",
+        "The Covert Builder plays beneath the surface, manages threat perception, and accelerates only once protection and position are secured."
+      ],
+      "visibility": {
+        "default": "organic",
+        "is_promoted": false
+      },
+      "metadata": {
+        "tags": [
+          "mtg",
+          "magicthegathering",
+          "commander",
+          "mtgnz",
+          "azorius",
+          "rabbits",
+          "politics"
+        ],
+        "patreon_price_nzd": 630,
+        "patreon_url": "https://patreon.com/happyhomarid"
+      }
+    },
+    {
+      "id": "EDH_ERRANT_GIADA_0007",
+      "sku": "EDH-ERRANT-AND-GIADA-007",
+      "name": "Errant & Giada — Commander Deck",
+      "description": "A quiet, reactive deck that plays from the top of the library at instant speed and wins through tempo, information and disciplined timing.",
+      "price": 300,
+      "patreon_price": 280,
+      "currency": "NZD",
+      "status": "published",
+      "inventory": 1,
+      "condition": "Condition grade to be confirmed with seller before payment.",
+      "silo": "mtg",
+      "category": "commander-deck",
+      "sale_mode": "request_to_purchase",
+      "checkout_available": false,
+      "payment_link": null,
+      "detail_url": "/mtg/deck.html?id=EDH_ERRANT_GIADA_0007",
+      "claim_url": "mailto:hello@dreamledger.org?subject=Purchase%20request%3A%20Errant%20%26%20Giada%20%E2%80%94%20Commander%20Deck&body=Hi%2C%20I%20am%20interested%20in%20Errant%20%26%20Giada%20%E2%80%94%20Commander%20Deck.%20Please%20confirm%20stock%2C%20condition%2C%20exact%20contents%20and%20shipping%20before%20I%20pay.",
+      "decklist_url": "https://manabox.app/decks/AZxbYgvadNaViMnOa-I3lA",
+      "commander": "Errant and Giada",
+      "archetype": "The Flash Architect",
+      "shipping": "Free shipping within Aotearoa New Zealand.",
+      "included_items": "Physical deck as represented by the linked ManaBox list. Please confirm exact contents and any tokens, dice, or accessories with the seller before payment.",
+      "story": [
+        "This deck plays with a quiet, reactive playstyle that allows you to play the top card of your library if it has flash or flying. It doesn’t explode onto the board or obviously declare itself the threat. Instead, it develops patiently while holding mana open and advancing at instant speed during opponents’ turns.",
+        "A land drop and a passed turn is often all it needs to stay on a winning trajectory. Over time, the incremental advantage compounds and opponents realise they’re playing into your timing, not theirs.",
+        "This deck suits players who value position over spectacle. You spend early turns observing, absorbing information, and choosing precise moments to respond. Once the game develops, open mana represents real consequences. This is disciplined control that tightens as the game goes on.",
+        "The Flash Architect plays for control of tempo and information rather than raw speed. It wins by leveraging timing, discouraging overextension, and closing once opponents are stretched thin."
+      ],
+      "visibility": {
+        "default": "organic",
+        "is_promoted": false
+      },
+      "metadata": {
+        "tags": [
+          "mtg",
+          "magicthegathering",
+          "commander",
+          "mtgnz",
+          "flash",
+          "flying",
+          "tempo",
+          "control"
+        ],
+        "patreon_price_nzd": 280,
+        "patreon_url": "https://patreon.com/happyhomarid"
+      }
+    },
+    {
+      "id": "EDH_MISERY_MEMORIAL_0008",
+      "sku": "EDH-MISERY-MEMORIAL-008",
+      "name": "Misery Memorial — Commander Deck",
+      "description": "A slow, tightening long-game strategy that pressures opponents incrementally and wins through resource and tempo control.",
+      "price": 180,
+      "patreon_price": 160,
+      "currency": "NZD",
+      "status": "published",
+      "inventory": 1,
+      "condition": "Condition grade to be confirmed with seller before payment.",
+      "silo": "mtg",
+      "category": "commander-deck",
+      "sale_mode": "request_to_purchase",
+      "checkout_available": false,
+      "payment_link": null,
+      "detail_url": "/mtg/deck.html?id=EDH_MISERY_MEMORIAL_0008",
+      "claim_url": "mailto:hello@dreamledger.org?subject=Purchase%20request%3A%20Misery%20Memorial%20%E2%80%94%20Commander%20Deck&body=Hi%2C%20I%20am%20interested%20in%20Misery%20Memorial%20%E2%80%94%20Commander%20Deck.%20Please%20confirm%20stock%2C%20condition%2C%20exact%20contents%20and%20shipping%20before%20I%20pay.",
+      "decklist_url": "https://manabox.app/decks/AZxBiO89e6yUuV34ClkZFg",
+      "commander": null,
+      "archetype": "The Custodian",
+      "shipping": "Free shipping within Aotearoa New Zealand.",
+      "included_items": "Physical deck as represented by the linked ManaBox list. Please confirm exact contents and any tokens, dice, or accessories with the seller before payment.",
+      "story": [
+        "This deck has a slow tightening grip. It’s a recurring nightmare for your opponents. It doesn’t announce itself as a threat. Playing a land for turn, or two, is all the push it needs to incrementally pressure opponents through the course of the game.",
+        "This deck suits players who are comfortable playing the long game. You’ll need to sit there and whittle away at your opponents’ life totals for a while. The strategy is rarely perceived as passive once the game develops. The table will not treat it as a docile standing strategy.",
+        "The Custodian plays for control of tempo and resources rather than speed. It absorbs information, intervenes when it matters, discourages reckless plays and closes once opponents are exhausted."
+      ],
+      "visibility": {
+        "default": "organic",
+        "is_promoted": false
+      },
+      "metadata": {
+        "tags": [
+          "mtg",
+          "magicthegathering",
+          "commander",
+          "mtgnz",
+          "control",
+          "long-game",
+          "tempo"
+        ],
+        "patreon_price_nzd": 160,
+        "patreon_url": "https://patreon.com/happyhomarid"
+      }
+    },
+    {
+      "id": "COMMANDER-DECK-DIAGNOSTIC-001",
+      "sku": "CMD-DIAG-29",
+      "name": "Commander Deck Diagnostic",
+      "description": "Held. Digital service, not a physical card or deck. Not currently offered for purchase.",
+      "price": 29,
+      "currency": "NZD",
+      "status": "held",
       "inventory": 0,
       "silo": "mtg",
-      "category": "single",
-      "sale_mode": "claim_by_message",
+      "category": "digital-service",
+      "sale_mode": "checkout",
       "checkout_available": false,
-      "detail_url": "/mtg-list"
+      "detail_url": "/buy/COMMANDER-DECK-DIAGNOSTIC-001",
+      "commander": null
     }
-  ]
+  ],
+  "commercial_policy": "config/commercial-rules.json"
 }

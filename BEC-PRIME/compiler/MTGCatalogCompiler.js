@@ -10,6 +10,8 @@ const ASSET_SOURCE = path.join(ROOT, 'website', 'assets');
 const OUT_DIR = path.join(ROOT, 'compiled', 'website', 'mtg');
 const ASSET_OUT = path.join(ROOT, 'compiled', 'website', 'assets');
 const OUT = path.join(OUT_DIR, 'index.html');
+const DECK_SOURCE = path.join(ROOT, 'website', 'mtg', 'deck.html');
+const DECK_OUT = path.join(OUT_DIR, 'deck.html');
 const PROOF = path.join(ROOT, 'PROOF-MTG-CATALOG-COMPILATION.json');
 
 function sha256File(file) {
@@ -21,6 +23,8 @@ function compile() {
   fs.mkdirSync(OUT_DIR, { recursive: true });
   fs.mkdirSync(ASSET_OUT, { recursive: true });
   fs.copyFileSync(SOURCE, OUT);
+  if (!fs.existsSync(DECK_SOURCE)) throw new Error('MTG deck detail template missing');
+  fs.copyFileSync(DECK_SOURCE, DECK_OUT);
 
   if (fs.existsSync(ASSET_SOURCE)) {
     for (const name of fs.readdirSync(ASSET_SOURCE)) {
@@ -35,6 +39,9 @@ function compile() {
     status: 'PASS',
     source: 'BEC-PRIME/website/mtg-catalog.html',
     output: 'BEC-PRIME/compiled/website/mtg/index.html',
+    deck_template_source: 'BEC-PRIME/website/mtg/deck.html',
+    deck_template_output: 'BEC-PRIME/compiled/website/mtg/deck.html',
+    checkout_default: false,
     asset_source: 'BEC-PRIME/website/assets',
     asset_output: 'BEC-PRIME/compiled/website/assets',
     catalog_sha256: sha256File(OUT),

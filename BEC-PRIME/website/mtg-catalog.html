@@ -51,6 +51,13 @@
 .panel li{margin:6px 0}
 .compare{font-size:12px;color:var(--silo-dim);margin-top:10px;line-height:1.45}
 .foot-note{font-size:12px;color:var(--silo-dim);margin-top:28px;line-height:1.45;max-width:42em}
+
+.listing-tabs{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+.listing-tabs button{appearance:none;border:1px solid var(--silo-line);border-radius:999px;background:var(--silo-surface);color:var(--silo-muted);padding:9px 14px;min-height:40px;font:inherit;font-size:12px;font-weight:800;cursor:pointer}
+.listing-tabs button[aria-pressed="true"]{background:var(--silo-accent);border-color:var(--silo-accent);color:#14120c}
+.listing-tabs button:focus-visible{outline:3px solid var(--silo-accent-bright);outline-offset:3px}
+.promoted-badge{display:inline-block;border-radius:999px;background:var(--silo-accent);color:#14120c;padding:4px 8px;font-size:10px;font-weight:900;letter-spacing:.06em}
+
 </style>
 </head>
 <body class="silo-body">
@@ -63,6 +70,7 @@
     <a href="/mtg-list">Sell single</a>
     <a href="#decks">Decks</a>
     <a href="#how">How it works</a>
+    <a href="#visibility">Visibility options</a>
     <a href="/register">Join free</a>
     <a class="silo-cta" href="/mtg-list">List free</a>
   </nav>
@@ -72,7 +80,7 @@
     <p class="silo-eyebrow">Magic: The Gathering · New Zealand</p>
     <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px">
       <span class="silo-pill silo-pill-gold">Singles first</span>
-      <span class="silo-pill silo-pill-ok">0% success fee</span>
+      <span class="silo-pill silo-pill-ok">0% H2H / B2B fee</span>
       <span class="silo-pill">Full card grids</span>
       <span class="silo-pill">Confirm before pay</span>
     </div>
@@ -99,9 +107,27 @@
     </div>
   </section>
   <section class="silo-section" id="decks">
-    <div class="silo-section-h"><h2 class="silo-h2">Decks for sale</h2></div>
-    <div id="status" class="status-bar">Loading inventory…</div>
+    <div class="silo-section-h"><h2 class="silo-h2">Commander decks</h2></div>
+    <nav class="listing-tabs" aria-label="Filter deck listings">
+      <button type="button" data-filter="all" aria-pressed="true">All</button>
+      <button type="button" data-filter="decklists" aria-pressed="false">Decklists</button>
+      <button type="button" data-filter="inventory" aria-pressed="false">Available inventory</button>
+    </nav>
+    <p class="compare">Browsing and listing are free. Listings below are request-to-purchase unless a product explicitly shows an approved secure checkout. Confirm physical condition and contents before payment.</p>
+    <div id="status" class="status-bar" role="status" aria-live="polite">Loading inventory…</div>
     <div id="grid" class="grid" role="list"></div>
+  </section>
+  <section class="silo-section" id="visibility">
+    <div class="diag">
+      <p class="silo-eyebrow">Optional · Seller visibility</p>
+      <h2 class="silo-h2" style="margin:0 0 8px">Keep listings free. Boost only by choice.</h2>
+      <p style="color:var(--silo-muted);margin:0 0 12px">Free organic listings and B2B participation are available across every silo. Paid visibility is a separate optional offer, never a fee for joining or selling.</p>
+      <ul>
+        <li><strong>Featured Listing · NZ$10</strong> for 7 days at the top of search results.</li>
+        <li><strong>Premium Spotlight · NZ$25</strong> for 7 days in homepage/category placement.</li>
+      </ul>
+      <p class="compare">Paid visibility checkout is disabled in this release while payment verification, expiry, and placement-delivery proof are completed. No listing is promoted or charged in the meantime. Promoted badges appear only after a trusted server response explicitly marks a listing as promoted.</p>
+    </div>
   </section>
   <section class="silo-section">
     <div class="split">
@@ -114,15 +140,10 @@
         </ul>
         <p class="compare">We optimise for “see the cards, then deal” — not for matching every feature of US marketplaces on day one.</p>
       </div>
-      <div class="diag">
-        <p class="silo-eyebrow">Platform tool · not cardboard</p>
-        <h2 class="silo-h2" style="margin:0 0 8px">Commander diagnostic · NZ$29</h2>
-        <p style="color:var(--silo-muted);margin:0 0 14px;max-width:36em">Digital structure review. Settles on Stripe. Separate from peer singles and decks.</p>
-        <a class="silo-btn silo-btn-gold" href="https://buy.stripe.com/8x228r1nfg0l3M32csdwc2I">Buy diagnostic</a>
-      </div>
+
     </div>
   </section>
-  <p class="foot-note">DreamLedger Magic is the reference silo shell. Inventory stays empty until supply is verified. Clone only via cube → gauntlet → publish approval.</p>
+  <p class="foot-note">DreamLedger Magic keeps browsing, listing creation, and B2B participation free. Human-to-human marketplace fees are 0%. Machine-to-machine fees apply only to verified x402 transactions, once enabled. Checkout and paid visibility remain locked until their payment and fulfillment paths are verified.</p>
 </main>
 <footer class="silo-footer silo-wrap">
   <a href="/">Home</a>
@@ -137,36 +158,66 @@
   const MANIFEST='/silos/mtg/silo.json';
   const grid=document.getElementById('grid');
   const status=document.getElementById('status');
+  const tabs=[...document.querySelectorAll('[data-filter]')];
+  let products=[];
+  let activeFilter='all';
   function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-  function isPhysical(p){return p.category==='commander-deck'||/^EDH/i.test(p.id||'');}
+  function isPhysical(p){return p&&p.category==='commander-deck'&&p.status==='published';}
+  function eligible(p){
+    if(activeFilter==='decklists')return typeof p.decklist_url==='string'&&/^https:\/\//.test(p.decklist_url);
+    if(activeFilter==='inventory')return Number(p.inventory)>0;
+    return true;
+  }
+  function approvedCheckout(p){
+    return p.checkout_available===true
+      && p.commercial_truth&&p.commercial_truth.checkout_authorized===true
+      && p.commercial_truth.payment_verified===true
+      && p.commercial_truth.fulfillment_verified===true
+      && typeof p.payment_link==='string'
+      && /^https:\/\/buy\.stripe\.com\//.test(p.payment_link);
+  }
+  function render(){
+    const items=products.filter(eligible);
+    if(!items.length){
+      status.textContent=activeFilter==='decklists'?'No decklists are linked yet.':'No listings match this filter.';
+      grid.innerHTML='';
+      return;
+    }
+    status.textContent=items.length+' deck listing'+(items.length===1?'':'s')+' · free to browse · confirm availability before payment';
+    grid.innerHTML=items.map(p=>{
+      const price=Number(p.price);
+      const detail=p.detail_url||'/mtg/';
+      const inStock=Number(p.inventory)>0;
+      const stock=inStock?'<span class="stock">Listed available · confirm stock</span>':'<span class="stock out">Unavailable</span>';
+      const cond=p.condition?'<span>'+esc(p.condition)+'</span>':'';
+      const commander=p.commander?'<span>'+esc(p.commander)+'</span>':'';
+      const badge=p.is_promoted===true?'<span class="promoted-badge">Promoted</span>':'';
+      const patron=Number(p.patreon_price)>0?'<p class="compare">Patreon subscriber price: NZ$'+Number(p.patreon_price).toLocaleString('en-NZ')+'</p>':'';
+      const mainAction=approvedCheckout(p)
+        ?'<a class="buy" href="'+esc(p.payment_link)+'">Secure checkout · NZ$'+esc(price.toLocaleString('en-NZ'))+'</a>'
+        :'<a class="buy" href="'+esc(detail)+'">View deck &amp; request</a>';
+      const decklist=typeof p.decklist_url==='string'&&/^https:\/\//.test(p.decklist_url)
+        ?'<a class="see" href="'+esc(p.decklist_url)+'" target="_blank" rel="noopener noreferrer">Open decklist ↗</a>'
+        :'';
+      return '<article class="deck" role="listitem" data-has-decklist="'+(decklist?'true':'false')+'" data-inventory="'+(inStock?'true':'false')+'"><div class="deck-banner"><span>Commander</span>'+stock+'</div><div class="deck-body"><div class="tag">'+(p.commander?esc(p.commander):'Commander deck')+'</div>'+badge+'<h3>'+esc(p.name)+'</h3><p class="desc">'+esc(p.description||'Description supplied by seller.')+'</p><div class="meta">'+commander+cond+'<span>Free NZ shipping</span></div><div class="price">NZ$'+(Number.isFinite(price)?esc(price.toLocaleString('en-NZ')):'Price to be confirmed')+'</div>'+patron+'<div class="actions">'+mainAction+decklist+'</div></div></article>';
+    }).join('');
+  }
+  tabs.forEach(tab=>tab.addEventListener('click',()=>{
+    activeFilter=tab.dataset.filter||'all';
+    tabs.forEach(other=>other.setAttribute('aria-pressed',String(other===tab)));
+    render();
+  }));
   async function load(){
     try{
-      try{ await fetch(MANIFEST,{cache:'no-store'}); }catch(e){}
-      const r=await fetch(CATALOG,{cache:'no-store'});
-      if(!r.ok) throw new Error('Catalogue unavailable ('+r.status+'). Deploy may still be syncing.');
-      const data=await r.json();
-      const decks=(data.products||[]).filter(isPhysical);
-      if(!decks.length){
-        status.textContent='No verified deck supply listed yet. List a single free while inventory is verified.';
-        grid.innerHTML='';
-        return;
-      }
-      status.textContent=decks.length+' deck'+(decks.length===1?'':'s')+' · open a listing for the full card grid';
-      grid.innerHTML=decks.map(p=>{
-        const price=Number(p.price)||0;
-        const detail=p.detail_url||'/mtg/';
-        const inv=Number(p.inventory)>0;
-        const stock=inv?'<span class="stock">In stock</span>':'<span class="stock out">—</span>';
-        const cond=p.condition?('<span>'+esc(p.condition)+'</span>'):'';
-        const cmd=p.commander?('<span>'+esc(p.commander)+'</span>'):'';
-        const buy=inv
-          ? '<a class="buy" href="'+esc(detail)+'">See cards &amp; buy · NZ$'+price+'</a>'
-          : '<a class="buy" href="'+esc(detail)+'" style="opacity:.65">View listing</a>';
-        return '<article class="deck" role="listitem"><div class="deck-banner"><span>Commander</span>'+stock+'</div><div class="deck-body"><div class="tag">'+(p.commander?esc(p.commander):'EDH')+'</div><h3>'+esc(p.name)+'</h3><p class="desc">'+esc(p.description||'')+'</p><div class="meta">'+cmd+cond+'<span>NZ shipping noted on listing</span></div><div class="price">NZ$'+price+'</div><div class="actions">'+buy+'<a class="see" href="'+esc(detail)+'">Open full card grid</a></div></div></article>';
-      }).join('');
-    }catch(e){
+      try{await fetch(MANIFEST,{cache:'no-store'});}catch(e){}
+      const response=await fetch(CATALOG,{cache:'no-store',headers:{Accept:'application/json'}});
+      if(!response.ok)throw new Error('Catalogue unavailable ('+response.status+').');
+      const data=await response.json();
+      products=(Array.isArray(data.products)?data.products:[]).filter(isPhysical);
+      render();
+    }catch(error){
       status.className='status-bar error';
-      status.textContent=e.message||'Load failed';
+      status.textContent=error.message||'Inventory could not be loaded.';
     }
   }
   load();
