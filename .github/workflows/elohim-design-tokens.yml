@@ -8,6 +8,9 @@ on:
       - "BEC-PRIME/compiler/DesignTokenCompiler.js"
       - "public/assets/dl-design-tokens.css"
       - "public/assets/silo-master.css"
+      - "public/assets/dl-enterprise-grid.css"
+      - "index.html"
+      - "public/index.html"
       - ".github/workflows/elohim-design-tokens.yml"
   pull_request:
     paths:
@@ -15,6 +18,9 @@ on:
       - "BEC-PRIME/compiler/DesignTokenCompiler.js"
       - "public/assets/dl-design-tokens.css"
       - "public/assets/silo-master.css"
+      - "public/assets/dl-enterprise-grid.css"
+      - "index.html"
+      - "public/index.html"
       - ".github/workflows/elohim-design-tokens.yml"
   workflow_dispatch:
 
