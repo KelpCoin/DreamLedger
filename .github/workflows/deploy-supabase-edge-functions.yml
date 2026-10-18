@@ -13,7 +13,48 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      stripe: ${{ steps.detect.outputs.stripe }}
+      mtg: ${{ steps.detect.outputs.mtg }}
+      dreammeez: ${{ steps.detect.outputs.dreammeez }}
+      heartbeat: ${{ steps.detect.outputs.heartbeat }}
+    steps:
+      - name: Checkout change range
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Identify changed function only
+        id: detect
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.before }}
+          HEAD_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
+            printf 'stripe=true\nmtg=true\ndreammeez=true\nheartbeat=true\n' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if [[ -z "$BASE_SHA" || "$BASE_SHA" =~ ^0+$ ]]; then
+            BASE_SHA="$(git rev-parse "$HEAD_SHA^")"
+          fi
+          changed="$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")"
+          printf '%s\n' "$changed"
+          has_path() { grep -Eq "$1" <<< "$changed"; }
+          has_path '^supabase/functions/stripe-revenue-41104f355d6878cdd6d1f9dc/' && stripe=true || stripe=false
+          has_path '^supabase/functions/mtg-deck-catalog/' && mtg=true || mtg=false
+          has_path '^supabase/functions/dreammeez-cosmetic-checkout/' && dreammeez=true || dreammeez=false
+          has_path '^supabase/functions/economic-radar-heartbeat/' && heartbeat=true || heartbeat=false
+          printf 'stripe=%s\nmtg=%s\ndreammeez=%s\nheartbeat=%s\n' "$stripe" "$mtg" "$dreammeez" "$heartbeat" >> "$GITHUB_OUTPUT"
+
   deploy:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.stripe == 'true'
     runs-on: ubuntu-latest
     environment: production
     permissions:
@@ -68,6 +109,8 @@ jobs:
           echo "Deployed Supabase function ${FUNCTION_NAME} from commit ${GITHUB_SHA}"
 
   deploy-mtg-deck-catalog:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.mtg == 'true'
     runs-on: ubuntu-latest
     environment: production
     permissions:
@@ -105,6 +148,8 @@ jobs:
           body="$(curl --fail --silent --show-error --retry 5 --retry-delay 2 "${FUNCTION_URL}")"
           echo "${body}" | grep -F 'DREAMLEDGER/MTG-DECK-CATALOG/v1'
   deploy-dreammeez-cosmetic-checkout:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.dreammeez == 'true'
     runs-on: ubuntu-latest
     environment: production
     permissions:
@@ -144,3 +189,52 @@ jobs:
           test "${code}" = "401"
           grep -F 'authorization required' /tmp/body
 
+
+  deploy-economic-radar-heartbeat:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.heartbeat == 'true'
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: read
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      PROJECT_ID: wbwgroygjeyukkspnqiy
+      FUNCTION_NAME: economic-radar-heartbeat
+      FUNCTION_URL: https://wbwgroygjeyukkspnqiy.supabase.co/functions/v1/economic-radar-heartbeat
+    steps:
+      - name: Checkout exact release commit
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Install Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Validate heartbeat source and safety contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s "supabase/functions/${FUNCTION_NAME}/index.ts"
+          grep -F 'HEARTBEAT_RECORDED' "supabase/functions/${FUNCTION_NAME}/index.ts"
+          grep -F 'IDEMPOTENCY_KEY_REQUIRED' "supabase/functions/${FUNCTION_NAME}/index.ts"
+          grep -F 'x-cube-heartbeat-secret' "supabase/functions/${FUNCTION_NAME}/index.ts"
+          grep -F 'revenue_claimed:false' "supabase/functions/${FUNCTION_NAME}/index.ts"
+      - name: Deploy heartbeat Edge Function with in-handler authentication
+        shell: bash
+        run: |
+          set -euo pipefail
+          supabase functions deploy "${FUNCTION_NAME}" --project-ref "${PROJECT_ID}" --no-verify-jwt
+      - name: Verify deployed liveness endpoint
+        shell: bash
+        run: |
+          set -euo pipefail
+          body="$(curl --fail --silent --show-error --retry 5 --retry-delay 2 "${FUNCTION_URL}/healthz")"
+          echo "$body"
+          echo "$body" | grep -F '"status":"healthy"'
+          echo "$body" | grep -F '"function":"economic-radar-heartbeat"'
+      - name: Record deployment identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "Deployed ${FUNCTION_NAME} from commit ${GITHUB_SHA}; verify_jwt=false; healthz readback passed."
