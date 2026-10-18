@@ -84,7 +84,7 @@ function demandNotesFromSurface(loop, surface) {
     detail: 'surface_ok ' + surface.url,
     observed_at: TS,
   });
-  if (lower.includes('nz {
+  if (/\bNZ\s*\$?\s*\d|\bNZD\s*\d/i.test(body)) {
     notes.push({
       schema: 'BEC-PRIME/DEMAND-NOTE/v1',
       signal: 'D-SEARCH',
