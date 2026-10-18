@@ -1,0 +1,69 @@
+{
+  "$schema": "https://dreamledger.org/schemas/commercial-rules/v1.json",
+  "schema_version": "dreamledger/commercial-rules/v1",
+  "status": "REVIEW_ONLY_NOT_LIVE",
+  "principles": {
+    "browsing": {
+      "price_nzd": 0,
+      "requires_auth": false
+    },
+    "listing_creation": {
+      "price_nzd": 0,
+      "requires_subscription": false,
+      "default_limit": 50
+    },
+    "b2b_participation": {
+      "price_nzd": 0,
+      "platform_fee_bps": 0,
+      "hidden_cross_silo_fees": false
+    }
+  },
+  "transaction_channels": {
+    "human_to_human": {
+      "platform_fee_bps": 0,
+      "label": "Free peer-to-peer marketplace",
+      "status": "POLICY_ACTIVE_CHECKOUT_REMAINS_GATED"
+    },
+    "machine_to_machine": {
+      "platform_fee_bps": 200,
+      "label": "2% A2A service fee",
+      "payment_processor": "x402_usdc",
+      "receipt": "sha256",
+      "status": "DISABLED_UNTIL_PAYMENT_VERIFICATION_AND_SETTLEMENT_ARE_IMPLEMENTED"
+    }
+  },
+  "paid_visibility": {
+    "enabled_by_default": false,
+    "requires_explicit_tenant_entitlement": true,
+    "requires_verified_payment": true,
+    "requires_verified_fulfillment": true,
+    "badge_field": "is_promoted",
+    "tiers": [
+      {
+        "id": "featured",
+        "price_nzd": 10,
+        "duration_days": 7,
+        "label": "Featured Listing",
+        "description": "Appears at the top of search results for 7 days."
+      },
+      {
+        "id": "premium",
+        "price_nzd": 25,
+        "duration_days": 7,
+        "label": "Premium Spotlight",
+        "description": "Highlighted card on the homepage and category."
+      }
+    ],
+    "checkout_status": "DISABLED_PENDING_VERIFIED_PAYMENT_AND_DELIVERY_PATH"
+  },
+  "invariants": [
+    "Browsing and listing creation remain free across every silo.",
+    "B2B participation has no mandatory platform, listing, or cross-silo fee.",
+    "Human-to-human marketplace transactions have a 0 basis-point platform fee.",
+    "The 2% fee applies only to machine-to-machine x402 transactions after the settlement verifier is implemented and enabled.",
+    "Paid visibility is a separate optional offer and is disabled by default.",
+    "A Promoted or Sponsored badge may render only when a trusted server response explicitly returns is_promoted=true.",
+    "No checkout is enabled solely by a catalogue field or the presence of a payment URL.",
+    "A product remains non-checkoutable until payment verification and its actual fulfillment path have been independently verified."
+  ]
+}
