@@ -120,7 +120,7 @@
           "identity_status": {
             "enum": [
               "USER_SUPPLIED",
-              "Scryfall_RESOLVED",
+              "SCRYFALL_RESOLVED",
               "AMBIGUOUS",
               "UNRESOLVED",
               "SAMPLE_INPUT"
@@ -163,6 +163,7 @@
           "source_kind",
           "retrieved_at_utc",
           "capture_sha256",
+          "capture_text",
           "capture_representation",
           "source_currency",
           "price_basis",
