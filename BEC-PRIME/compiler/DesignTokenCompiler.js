@@ -73,6 +73,9 @@ function compile() {
   ];
   const css = lines.join('\n');
   const master = fs.readFileSync(MASTER_CSS, 'utf8');
+  const packageJson = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
+  if (packageJson.scripts?.['compile:design'] !== 'node BEC-PRIME/compiler/DesignTokenCompiler.js --write') fail('root package must expose compile:design');
+  if (!packageJson.scripts?.compile?.includes('npm run compile:design &&')) fail('root compile pipeline must run design compilation');
   if (!master.includes('@import url("/assets/dl-design-tokens.css");')) fail('master silo stylesheet must import the generated token artifact first');
   if (!master.includes('--silo-bg:var(--dl-color-surface-base)')) fail('master silo must map its base surface to the token contract');
   if (!master.includes('html body .grid')) fail('master silo must include the enterprise-grid override');
