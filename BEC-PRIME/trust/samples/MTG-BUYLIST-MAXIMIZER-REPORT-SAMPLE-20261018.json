@@ -1,0 +1,2008 @@
+{
+  "schema_version": "dreamledger/mtg-buylist-maximizer-report/v1",
+  "report_id": "MTG-BUYLIST-MAXIMIZER-SAMPLE-20261018-001",
+  "status": "INCOMPLETE",
+  "created_at_utc": "2026-10-18T05:32:43.061Z",
+  "input_origin": "SYNTHETIC_SAMPLE",
+  "silo": "mtg",
+  "currency": "NZD",
+  "input_cards": [
+    {
+      "input_card_id": "sample-card-01",
+      "card_name": "Sol Ring",
+      "set_name": "Secret Lair Drop",
+      "set_code": "sld",
+      "collector_number": "IFIYW-5",
+      "language": "English",
+      "quantity": 1,
+      "condition": "UNKNOWN",
+      "finish": "UNKNOWN",
+      "identity_status": "SAMPLE_INPUT",
+      "identity_source_url": null,
+      "identity_retrieved_at_utc": null,
+      "identity_response_sha256": null
+    },
+    {
+      "input_card_id": "sample-card-02",
+      "card_name": "Arcane Signet",
+      "set_name": "Commander Legends: Battle for Baldur's Gate",
+      "set_code": "lcc",
+      "collector_number": "299",
+      "language": "English",
+      "quantity": 1,
+      "condition": "UNKNOWN",
+      "finish": "UNKNOWN",
+      "identity_status": "SAMPLE_INPUT",
+      "identity_source_url": null,
+      "identity_retrieved_at_utc": null,
+      "identity_response_sha256": null
+    },
+    {
+      "input_card_id": "sample-card-03",
+      "card_name": "Command Tower",
+      "set_name": "Magic 2025 promos",
+      "set_code": "pw25",
+      "collector_number": "17",
+      "language": "English",
+      "quantity": 1,
+      "condition": "UNKNOWN",
+      "finish": "UNKNOWN",
+      "identity_status": "SAMPLE_INPUT",
+      "identity_source_url": null,
+      "identity_retrieved_at_utc": null,
+      "identity_response_sha256": null
+    },
+    {
+      "input_card_id": "sample-card-04",
+      "card_name": "Lightning Bolt",
+      "set_name": "Revised Edition",
+      "set_code": "3ed",
+      "collector_number": "162",
+      "language": "English",
+      "quantity": 1,
+      "condition": "UNKNOWN",
+      "finish": "UNKNOWN",
+      "identity_status": "SAMPLE_INPUT",
+      "identity_source_url": null,
+      "identity_retrieved_at_utc": null,
+      "identity_response_sha256": null
+    },
+    {
+      "input_card_id": "sample-card-05",
+      "card_name": "Counterspell (Borderless)",
+      "set_name": "Secret Lair Drop",
+      "set_code": "sld",
+      "collector_number": "2497",
+      "language": "English",
+      "quantity": 1,
+      "condition": "UNKNOWN",
+      "finish": "UNKNOWN",
+      "identity_status": "SAMPLE_INPUT",
+      "identity_source_url": null,
+      "identity_retrieved_at_utc": null,
+      "identity_response_sha256": null
+    },
+    {
+      "input_card_id": "sample-card-06",
+      "card_name": "Swords to Plowshares",
+      "set_name": "The List",
+      "set_code": "plst",
+      "collector_number": "C16-78",
+      "language": "English",
+      "quantity": 1,
+      "condition": "UNKNOWN",
+      "finish": "UNKNOWN",
+      "identity_status": "SAMPLE_INPUT",
+      "identity_source_url": null,
+      "identity_retrieved_at_utc": null,
+      "identity_response_sha256": null
+    },
+    {
+      "input_card_id": "sample-card-07",
+      "card_name": "Cultivate",
+      "set_name": "Warhammer 40,000 Commander",
+      "set_code": "40k",
+      "collector_number": "211",
+      "language": "English",
+      "quantity": 1,
+      "condition": "UNKNOWN",
+      "finish": "UNKNOWN",
+      "identity_status": "SAMPLE_INPUT",
+      "identity_source_url": null,
+      "identity_retrieved_at_utc": null,
+      "identity_response_sha256": null
+    },
+    {
+      "input_card_id": "sample-card-08",
+      "card_name": "Beast Within (Borderless)",
+      "set_name": "Secret Lair Drop",
+      "set_code": "sld",
+      "collector_number": "2671",
+      "language": "English",
+      "quantity": 1,
+      "condition": "UNKNOWN",
+      "finish": "UNKNOWN",
+      "identity_status": "SAMPLE_INPUT",
+      "identity_source_url": null,
+      "identity_retrieved_at_utc": null,
+      "identity_response_sha256": null
+    },
+    {
+      "input_card_id": "sample-card-09",
+      "card_name": "Path to Exile",
+      "set_name": "Duel Decks: Venser vs. Koth",
+      "set_code": "ddi",
+      "collector_number": "23",
+      "language": "English",
+      "quantity": 1,
+      "condition": "UNKNOWN",
+      "finish": "UNKNOWN",
+      "identity_status": "SAMPLE_INPUT",
+      "identity_source_url": null,
+      "identity_retrieved_at_utc": null,
+      "identity_response_sha256": null
+    },
+    {
+      "input_card_id": "sample-card-10",
+      "card_name": "Smothering Tithe (Anime Borderless)",
+      "set_name": "Wilds of Eldraine: Enchanting Tales",
+      "set_code": "wot",
+      "collector_number": "67",
+      "language": "English",
+      "quantity": 1,
+      "condition": "UNKNOWN",
+      "finish": "UNKNOWN",
+      "identity_status": "SAMPLE_INPUT",
+      "identity_source_url": null,
+      "identity_retrieved_at_utc": null,
+      "identity_response_sha256": null
+    },
+    {
+      "input_card_id": "sample-card-11",
+      "card_name": "Teferi's Protection (Borderless)",
+      "set_name": "Marvel Universe",
+      "set_code": "mar",
+      "collector_number": "51",
+      "language": "English",
+      "quantity": 1,
+      "condition": "UNKNOWN",
+      "finish": "UNKNOWN",
+      "identity_status": "SAMPLE_INPUT",
+      "identity_source_url": null,
+      "identity_retrieved_at_utc": null,
+      "identity_response_sha256": null
+    },
+    {
+      "input_card_id": "sample-card-12",
+      "card_name": "Fierce Guardianship (Showcase)",
+      "set_name": "Avatar: The Last Airbender Eternal",
+      "set_code": "tle",
+      "collector_number": "307",
+      "language": "English",
+      "quantity": 1,
+      "condition": "UNKNOWN",
+      "finish": "UNKNOWN",
+      "identity_status": "SAMPLE_INPUT",
+      "identity_source_url": null,
+      "identity_retrieved_at_utc": null,
+      "identity_response_sha256": null
+    },
+    {
+      "input_card_id": "sample-card-13",
+      "card_name": "Swiftfoot Boots",
+      "set_name": "Commander 2016",
+      "set_code": "c16",
+      "collector_number": "276",
+      "language": "English",
+      "quantity": 1,
+      "condition": "UNKNOWN",
+      "finish": "UNKNOWN",
+      "identity_status": "SAMPLE_INPUT",
+      "identity_source_url": null,
+      "identity_retrieved_at_utc": null,
+      "identity_response_sha256": null
+    },
+    {
+      "input_card_id": "sample-card-14",
+      "card_name": "Arcane Denial (Borderless)",
+      "set_name": "Secret Lair Drop",
+      "set_code": "sld",
+      "collector_number": "2489",
+      "language": "English",
+      "quantity": 1,
+      "condition": "UNKNOWN",
+      "finish": "UNKNOWN",
+      "identity_status": "SAMPLE_INPUT",
+      "identity_source_url": null,
+      "identity_retrieved_at_utc": null,
+      "identity_response_sha256": null
+    },
+    {
+      "input_card_id": "sample-card-15",
+      "card_name": "Llanowar Elves",
+      "set_name": "Magic 2011",
+      "set_code": "m11",
+      "collector_number": "184",
+      "language": "English",
+      "quantity": 1,
+      "condition": "UNKNOWN",
+      "finish": "UNKNOWN",
+      "identity_status": "SAMPLE_INPUT",
+      "identity_source_url": null,
+      "identity_retrieved_at_utc": null,
+      "identity_response_sha256": null
+    },
+    {
+      "input_card_id": "sample-card-16",
+      "card_name": "Emeritus of Woe // Demonic Tutor",
+      "set_name": "Secrets of Strixhaven",
+      "set_code": "sos",
+      "collector_number": "80",
+      "language": "English",
+      "quantity": 1,
+      "condition": "UNKNOWN",
+      "finish": "UNKNOWN",
+      "identity_status": "SAMPLE_INPUT",
+      "identity_source_url": null,
+      "identity_retrieved_at_utc": null,
+      "identity_response_sha256": null
+    },
+    {
+      "input_card_id": "sample-card-17",
+      "card_name": "Esper Sentinel (The List)",
+      "set_name": "The List",
+      "set_code": "plst",
+      "collector_number": "MH2-12",
+      "language": "English",
+      "quantity": 1,
+      "condition": "UNKNOWN",
+      "finish": "UNKNOWN",
+      "identity_status": "SAMPLE_INPUT",
+      "identity_source_url": null,
+      "identity_retrieved_at_utc": null,
+      "identity_response_sha256": null
+    },
+    {
+      "input_card_id": "sample-card-18",
+      "card_name": "Orcish Bowmasters",
+      "set_name": "The Hobbit Commander",
+      "set_code": "hoc",
+      "collector_number": "59",
+      "language": "English",
+      "quantity": 1,
+      "condition": "UNKNOWN",
+      "finish": "UNKNOWN",
+      "identity_status": "SAMPLE_INPUT",
+      "identity_source_url": null,
+      "identity_retrieved_at_utc": null,
+      "identity_response_sha256": null
+    },
+    {
+      "input_card_id": "sample-card-19",
+      "card_name": "Sheoldred, the Apocalypse (Showcase)",
+      "set_name": "Dominaria United",
+      "set_code": "dmu",
+      "collector_number": "331",
+      "language": "English",
+      "quantity": 1,
+      "condition": "UNKNOWN",
+      "finish": "UNKNOWN",
+      "identity_status": "SAMPLE_INPUT",
+      "identity_source_url": null,
+      "identity_retrieved_at_utc": null,
+      "identity_response_sha256": null
+    },
+    {
+      "input_card_id": "sample-card-20",
+      "card_name": "Ragavan, Nimble Pilferer (Borderless)",
+      "set_name": "Final Fantasy Commander",
+      "set_code": "fca",
+      "collector_number": "43",
+      "language": "English",
+      "quantity": 1,
+      "condition": "UNKNOWN",
+      "finish": "UNKNOWN",
+      "identity_status": "SAMPLE_INPUT",
+      "identity_source_url": null,
+      "identity_retrieved_at_utc": null,
+      "identity_response_sha256": null
+    }
+  ],
+  "sources": [
+    {
+      "source_id": "src-card-01",
+      "vendor": "CardRouter",
+      "source_url": "https://cardrouter.com/best-buylist-prices/mtg/sld/sol-ring/IFIYW-5",
+      "source_kind": "BUYLIST_AGGREGATOR",
+      "retrieved_at_utc": "2026-10-18T05:32:43.035Z",
+      "http_etag": null,
+      "http_last_modified": null,
+      "http_status": null,
+      "capture_sha256": "1d1fb540c5ef7375bcab67f94be806e1c8b973b4b57187d86a0e5cb280d989c9",
+      "capture_representation": "EXTRACTED_TEXT_UTF8",
+      "source_currency": "UNKNOWN",
+      "price_basis": "UNKNOWN",
+      "coverage_status": "CARD_LEVEL_PRICES_AVAILABLE",
+      "excerpt": "Sol Ring (SLD #IFIYW-5) — Sell for $7.50 to Card Kingdom\n\n# Best Selling Prices for Sol Ring\n\nSecret Lair Drop (SLD)\n\n#IFIYW-5\n\nTCGPlayer buy links are affiliate links with no cost to you. Affiliate links never change our recommendation.\n\n### Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $6.50 | $6.50 | 1 |\n| LP | $5.20 | $5.20 | 1 |\n| MP | $4.55 | $4.55 | 1 |\n| HP | $3.25 | $3.25 | 1 |\n\n### Foil Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $7.50 | $7.50 | 1 |\n| LP | $5.63 | $5.63 | 1 |\n| MP | $3.75 | $3.75 | 1 |\n| HP | $2.25 | $2.25 | 1 |\n\n### 30-Day Price History$0.50\n\nPrice trend for Sol Ring (Near-mint condition)\n\n### 180-Day Buylist Price Range\n\nNM - Last 6 months\n\nLow\n\n$5.50\n\nCurrent\n\n$6.50\n\nHigh\n\n$9.75\n\nThe current price is near the 180-day low\n\nPrice range: $4.25(77% variation)\n\n### Why Our Prices Are Better\n\nUnlike single-vendor buylist pages, we compare prices across multiple major vendors including Card Kingdom, Star City Games, Strike Zone, Abu Games, Mythic, a",
+      "capture_text": "# Best Selling Prices for Sol Ring\n\nSecret Lair Drop (SLD)\n\n#IFIYW-5\n\nTCGPlayer buy links are affiliate links with no cost to you. Affiliate links never change our recommendation.\n\n### Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $6.50 | $6.50 | 1 |\n| LP | $5.20 | $5.20 | 1 |\n| MP | $4.55 | $4.55 | 1 |\n| HP | $3.25 | $3.25 | 1 |\n\n### Foil Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $7.50 | $7.50 | 1 |\n| LP | $5.63 | $5.63 | 1 |\n| MP | $3.75 | $3.75 | 1 |\n| HP | $2.25 | $2.25 | 1 |\n\n### 30-Day Price History$0.50\n\nPrice trend for Sol Ring (Near-mint condition)\n\n### 180-Day Buylist Price Range\n\nNM - Last 6 months\n\nLow\n\n$5.50\n\nCurrent\n\n$6.50\n\nHigh\n\n$9.75\n\nThe current price is near the 180-day low\n\nPrice range: $4.25(77% variation)\n\n### Why Our Prices Are Better\n\nUnlike single-vendor buylist pages, we compare prices across multiple major vendors including Card Kingdom, Star City Games, Strike Zone, Abu Games, Mythic, and more to find you the absolute best price for your Sol Ring.\n\n* • Up to 20% higher payouts compared to selling to just one vendor\n* • Real-time price comparison across 4+ major buylist vendors\n* • Condition-specific pricing for NM, LP, MP, HP, and DMG cards\n* • Updated daily to ensure you get current market rates\n\n### Other Printings of Sol Ring\n\n30th Anniversary Edition\n\n#428\n\nCrimson Vow Commander\n\n#168\n\nSecret Lair Drop\n\n#2417\n\nTales of Middle-earth Commander\n\n#284\n\nThe List\n\n#CMD-261\n\nJudge Gift Cards 2005\n\n#3\n\nUnlimited Edition\n\n#270\n\nTales of Middle-earth Commander\n\n#410z\n\nThe Zeta Set\n\n#356\n\nTales of Middle-earth Commander\n\n#408z\n\nFinal Fantasy Commander\n\n#359\n\nAetherdrift Commander\n\n#57\n\nSecret Lair Drop\n\n#2672\n\nLorwyn Eclipsed Commander\n\n#58\n\nCommander 2017\n\n#223\n\nSecret Lair Drop\n\n#2093\n\nCommander Anthology Volume II\n\n#217\n\nTarkir: Dragonstorm Commander\n\n#106",
+      "notes": [
+        "Promoted page headline: Sol Ring (SLD #IFIYW-5) — Sell for $7.50 to Card Kingdom",
+        "First NM row, if extracted: | NM | $6.50 | $6.50 | 1 |",
+        "CardRouter is an aggregator, not the underlying vendor's official sell-cart confirmation.",
+        "Currency is displayed as '$' in the extracted page without an ISO code; USD is provisional only from the US vendor context.",
+        "Multiple condition/price blocks are present; finish and the corresponding headline need direct confirmation.",
+        "Promoted headline price differs from the first NM row on the captured page; quarantined from net calculations."
+      ]
+    },
+    {
+      "source_id": "src-card-02",
+      "vendor": "CardRouter",
+      "source_url": "https://cardrouter.com/best-buylist-prices/mtg/lcc/arcane-signet/299",
+      "source_kind": "BUYLIST_AGGREGATOR",
+      "retrieved_at_utc": "2026-10-18T05:32:43.035Z",
+      "http_etag": null,
+      "http_last_modified": null,
+      "http_status": null,
+      "capture_sha256": "661cb193e3808ed78b278aeba93bdad0ccc9ffbcb93080149f12fbe7b36edead",
+      "capture_representation": "EXTRACTED_TEXT_UTF8",
+      "source_currency": "UNKNOWN",
+      "price_basis": "UNKNOWN",
+      "coverage_status": "CARD_LEVEL_PRICES_AVAILABLE",
+      "excerpt": "Arcane Signet (LCC #299) — Sell for $0.90 to Mythic\n\n# Best Selling Prices for Arcane Signet\n\nThe Lost Caverns of Ixalan Commander (LCC)\n\n#299\n\nTCGPlayer buy links are affiliate links with no cost to you. Affiliate links never change our recommendation.\n\n### Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $0.90 | $0.90 | 1 |\n| LP | $0.79 | $0.79 | 1 |\n| MP | $0.58 | $0.58 | 1 |\n| HP | $0.52 | $0.34 | 2 |\n| DMG | $0.37 | $0.37 | 1 |\n\n### 30-Day Price History$0.50\n\nPrice trend for Arcane Signet (Near-mint condition)\n\n### 180-Day Buylist Price Range\n\nNM - Last 6 months\n\nLow\n\n$0.08\n\nCurrent\n\n$0.90\n\nHigh\n\n$1.08\n\nThe current price is near the 180-day high\n\nPrice range: $1.00(1250% variation)\n\n### Why Our Prices Are Better\n\nUnlike single-vendor buylist pages, we compare prices across multiple major vendors including Card Kingdom, Star City Games, Strike Zone, Abu Games, Mythic, and more to find you the absolute best price for your Arcane Signet.\n\n* • Up to 20% higher payouts compared to selling to just one vendor\n* • Real-time price comparison across 4+ major bu",
+      "capture_text": "# Best Selling Prices for Arcane Signet\n\nThe Lost Caverns of Ixalan Commander (LCC)\n\n#299\n\nTCGPlayer buy links are affiliate links with no cost to you. Affiliate links never change our recommendation.\n\n### Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $0.90 | $0.90 | 1 |\n| LP | $0.79 | $0.79 | 1 |\n| MP | $0.58 | $0.58 | 1 |\n| HP | $0.52 | $0.34 | 2 |\n| DMG | $0.37 | $0.37 | 1 |\n\n### 30-Day Price History$0.50\n\nPrice trend for Arcane Signet (Near-mint condition)\n\n### 180-Day Buylist Price Range\n\nNM - Last 6 months\n\nLow\n\n$0.08\n\nCurrent\n\n$0.90\n\nHigh\n\n$1.08\n\nThe current price is near the 180-day high\n\nPrice range: $1.00(1250% variation)\n\n### Why Our Prices Are Better\n\nUnlike single-vendor buylist pages, we compare prices across multiple major vendors including Card Kingdom, Star City Games, Strike Zone, Abu Games, Mythic, and more to find you the absolute best price for your Arcane Signet.\n\n* • Up to 20% higher payouts compared to selling to just one vendor\n* • Real-time price comparison across 4+ major buylist vendors\n* • Condition-specific pricing for NM, LP, MP, HP, and DMG cards\n* • Updated daily to ensure you get current market rates\n\n### Other Printings of Arcane Signet\n\nSecret Lair Drop\n\n#1919\n\nWarhammer 40,000 Commander\n\n#229★\n\nNeon Dynasty Commander\n\n#144\n\nWarhammer 40,000 Commander\n\n#227★\n\nPhyrexia: All Will Be One Commander\n\n#125\n\nOutlaws of Thunder Junction Commander\n\n#252\n\nSecret Lair Drop\n\n#7065\n\nCrimson Vow Commander\n\n#159\n\nSecret Lair Drop\n\n#820★\n\nReality Fracture Commander\n\n#20\n\nSecret Lair Drop\n\n#201\n\nNew Capenna Commander\n\n#360\n\nFoundations Commander\n\n#1\n\nCommander 2020\n\n#237\n\nSecret Lair Drop\n\n#1492\n\nDoctor Who\n\n#239\n\nFinal Fantasy Commander\n\n#333\n\nAvatar: The Last Airbender Eternal\n\n#315",
+      "notes": [
+        "Promoted page headline: Arcane Signet (LCC #299) — Sell for $0.90 to Mythic",
+        "First NM row, if extracted: | NM | $0.90 | $0.90 | 1 |",
+        "CardRouter is an aggregator, not the underlying vendor's official sell-cart confirmation.",
+        "Currency is displayed as '$' in the extracted page without an ISO code; USD is provisional only from the US vendor context.",
+        "Condition and finish still require confirmation in the underlying vendor sell cart.",
+        "No calculations are made from the headline amount."
+      ]
+    },
+    {
+      "source_id": "src-card-03",
+      "vendor": "CardRouter",
+      "source_url": "https://cardrouter.com/best-buylist-prices/mtg/pw25/command-tower/17",
+      "source_kind": "BUYLIST_AGGREGATOR",
+      "retrieved_at_utc": "2026-10-18T05:32:43.035Z",
+      "http_etag": null,
+      "http_last_modified": null,
+      "http_status": null,
+      "capture_sha256": "9a545c7ccec15f4d5a6a074760aae3e5bcad41e03980a911323af9975f119ea3",
+      "capture_representation": "EXTRACTED_TEXT_UTF8",
+      "source_currency": "UNKNOWN",
+      "price_basis": "UNKNOWN",
+      "coverage_status": "CARD_LEVEL_PRICES_AVAILABLE",
+      "excerpt": "Command Tower (PW25 #17) — Sell for $8.47 to Mythic\n\n# Best Selling Prices for Command Tower\n\nWizards Play Network 2025 (PW25)\n\n#17\n\nTCGPlayer buy links are affiliate links with no cost to you. Affiliate links never change our recommendation.\n\n### Foil Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $8.47 | $6.32 | 2 |\n| LP | $6.10 | $4.66 | 2 |\n| MP | $5.42 | $3.56 | 2 |\n| HP | $1.58 | $1.48 | 2 |\n\n### 30-Day Price History$0.03\n\nPrice trend for Command Tower (Near-mint condition)\n\nNo price range data available for this condition.\n\n### Why Our Prices Are Better\n\nUnlike single-vendor buylist pages, we compare prices across multiple major vendors including Card Kingdom, Star City Games, Strike Zone, Abu Games, Mythic, and more to find you the absolute best price for your Command Tower.\n\n* • Up to 20% higher payouts compared to selling to just one vendor\n* • Real-time price comparison across 4+ major buylist vendors\n* • Condition-specific pricing for NM, LP, MP, HP, and DMG cards\n* • Updated daily to ensure you get current market rates\n\n### Other Printings o",
+      "capture_text": "# Best Selling Prices for Command Tower\n\nWizards Play Network 2025 (PW25)\n\n#17\n\nTCGPlayer buy links are affiliate links with no cost to you. Affiliate links never change our recommendation.\n\n### Foil Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $8.47 | $6.32 | 2 |\n| LP | $6.10 | $4.66 | 2 |\n| MP | $5.42 | $3.56 | 2 |\n| HP | $1.58 | $1.48 | 2 |\n\n### 30-Day Price History$0.03\n\nPrice trend for Command Tower (Near-mint condition)\n\nNo price range data available for this condition.\n\n### Why Our Prices Are Better\n\nUnlike single-vendor buylist pages, we compare prices across multiple major vendors including Card Kingdom, Star City Games, Strike Zone, Abu Games, Mythic, and more to find you the absolute best price for your Command Tower.\n\n* • Up to 20% higher payouts compared to selling to just one vendor\n* • Real-time price comparison across 4+ major buylist vendors\n* • Condition-specific pricing for NM, LP, MP, HP, and DMG cards\n* • Updated daily to ensure you get current market rates\n\n### Other Printings of Command Tower\n\nDoctor Who\n\n#856\n\nDoctor Who\n\n#264\n\nSecret Lair Drop\n\n#806\n\nSecret Lair Drop\n\n#7191\n\nTeenage Mutant Ninja Turtles Eternal\n\n#63\n\nSecret Lair Drop\n\n#7029\n\nThe List\n\n#OTC-280\n\nThe Brothers' War Commander\n\n#178\n\nCommander 2020\n\n#264\n\nFallout\n\n#787\n\nSecret Lair Drop\n\n#7064\n\nWarhammer 40,000 Commander\n\n#272\n\nEdge of Eternities Commander\n\n#59\n\nCommander Collection: Black\n\n#8\n\nSecret Lair Drop\n\n#7012\n\nDoctor Who\n\n#266\n\nSecret Lair Drop\n\n#7067\n\nTarkir: Dragonstorm Commander\n\n#107",
+      "notes": [
+        "Promoted page headline: Command Tower (PW25 #17) — Sell for $8.47 to Mythic",
+        "First NM row, if extracted: | NM | $8.47 | $6.32 | 2 |",
+        "CardRouter is an aggregator, not the underlying vendor's official sell-cart confirmation.",
+        "Currency is displayed as '$' in the extracted page without an ISO code; USD is provisional only from the US vendor context.",
+        "Condition and finish still require confirmation in the underlying vendor sell cart.",
+        "No calculations are made from the headline amount."
+      ]
+    },
+    {
+      "source_id": "src-card-04",
+      "vendor": "CardRouter",
+      "source_url": "https://cardrouter.com/best-buylist-prices/mtg/3ed/lightning-bolt/162",
+      "source_kind": "BUYLIST_AGGREGATOR",
+      "retrieved_at_utc": "2026-10-18T05:32:43.035Z",
+      "http_etag": null,
+      "http_last_modified": null,
+      "http_status": null,
+      "capture_sha256": "e62af3e376379e85e489b63a8cf446b2bd4acac7aa6947589507d0e902fea7f3",
+      "capture_representation": "EXTRACTED_TEXT_UTF8",
+      "source_currency": "UNKNOWN",
+      "price_basis": "UNKNOWN",
+      "coverage_status": "CARD_LEVEL_PRICES_AVAILABLE",
+      "excerpt": "Lightning Bolt (3ED #162) — Sell for $1.97 to Mythic\n\n# Best Selling Prices for Lightning Bolt\n\nRevised Edition (3ED)\n\n#162\n\nTCGPlayer buy links are affiliate links with no cost to you. Affiliate links never change our recommendation.\n\n### Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $1.97 | $1.27 | 3 |\n| LP | $1.65 | $1.24 | 2 |\n| MP | $1.09 | $0.97 | 2 |\n| HP | $0.96 | $0.75 | 2 |\n| DMG | $0.82 | $0.82 | 1 |\n\n### 30-Day Price History$0.04\n\nPrice trend for Lightning Bolt (Near-mint condition)\n\n### 180-Day Buylist Price Range\n\nNM - Last 6 months\n\nLow\n\n$0.50\n\nCurrent\n\n$1.97\n\nHigh\n\n$2.36\n\nThe current price is near the 180-day high\n\nPrice range: $1.86(372% variation)\n\n### Why Our Prices Are Better\n\nUnlike single-vendor buylist pages, we compare prices across multiple major vendors including Card Kingdom, Star City Games, Strike Zone, Abu Games, Mythic, and more to find you the absolute best price for your Lightning Bolt.\n\n* • Up to 20% higher payouts compared to selling to just one vendor\n* • Real-time price comparison across 4+ major buylist vendors\n* • ",
+      "capture_text": "# Best Selling Prices for Lightning Bolt\n\nRevised Edition (3ED)\n\n#162\n\nTCGPlayer buy links are affiliate links with no cost to you. Affiliate links never change our recommendation.\n\n### Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $1.97 | $1.27 | 3 |\n| LP | $1.65 | $1.24 | 2 |\n| MP | $1.09 | $0.97 | 2 |\n| HP | $0.96 | $0.75 | 2 |\n| DMG | $0.82 | $0.82 | 1 |\n\n### 30-Day Price History$0.04\n\nPrice trend for Lightning Bolt (Near-mint condition)\n\n### 180-Day Buylist Price Range\n\nNM - Last 6 months\n\nLow\n\n$0.50\n\nCurrent\n\n$1.97\n\nHigh\n\n$2.36\n\nThe current price is near the 180-day high\n\nPrice range: $1.86(372% variation)\n\n### Why Our Prices Are Better\n\nUnlike single-vendor buylist pages, we compare prices across multiple major vendors including Card Kingdom, Star City Games, Strike Zone, Abu Games, Mythic, and more to find you the absolute best price for your Lightning Bolt.\n\n* • Up to 20% higher payouts compared to selling to just one vendor\n* • Real-time price comparison across 4+ major buylist vendors\n* • Condition-specific pricing for NM, LP, MP, HP, and DMG cards\n* • Updated daily to ensure you get current market rates\n\n### Other Printings of Lightning Bolt\n\nJumpstart\n\n#342\n\nFoundations Commander\n\n#163\n\nThe List\n\n#E01-54\n\nMagic 2010\n\n#146\n\nPro Tour Collector Set\n\n#et208\n\nSecret Lair Drop\n\n#1743\n\nModern Masters 2015\n\n#122\n\nThe Zeta Set\n\n#63\n\nThe List\n\n#A25-141\n\nCommander Legends: Battle for Baldur's Gate\n\n#401\n\nFourth Edition\n\n#208\n\nDouble Masters 2022\n\n#361\n\nSecret Lair Drop\n\n#IFIYW-2\n\nSecret Lair Drop\n\n#85\n\n30th Anniversary Edition\n\n#454\n\nMagicFest 2019\n\n#1\n\nSecret Lair Drop\n\n#2579\n\nPremium Deck Series: Fire and Lightning\n\n#17",
+      "notes": [
+        "Promoted page headline: Lightning Bolt (3ED #162) — Sell for $1.97 to Mythic",
+        "First NM row, if extracted: | NM | $1.97 | $1.27 | 3 |",
+        "CardRouter is an aggregator, not the underlying vendor's official sell-cart confirmation.",
+        "Currency is displayed as '$' in the extracted page without an ISO code; USD is provisional only from the US vendor context.",
+        "Condition and finish still require confirmation in the underlying vendor sell cart.",
+        "No calculations are made from the headline amount."
+      ]
+    },
+    {
+      "source_id": "src-card-05",
+      "vendor": "CardRouter",
+      "source_url": "https://cardrouter.com/best-buylist-prices/mtg/sld/counterspell/2497",
+      "source_kind": "BUYLIST_AGGREGATOR",
+      "retrieved_at_utc": "2026-10-18T05:32:43.035Z",
+      "http_etag": null,
+      "http_last_modified": null,
+      "http_status": null,
+      "capture_sha256": "1e66617258c72ba797c47d0920a2a574424fcbedc79c787a0d7cb1e8b881d97d",
+      "capture_representation": "EXTRACTED_TEXT_UTF8",
+      "source_currency": "UNKNOWN",
+      "price_basis": "UNKNOWN",
+      "coverage_status": "CARD_LEVEL_PRICES_AVAILABLE",
+      "excerpt": "Counterspell (Borderless) (SLD) — Sell for $6.00\n\n# Best Selling Prices for Counterspell (Borderless)\n\nSecret Lair Drop (SLD)\n\n#2497\n\nTCGPlayer buy links are affiliate links with no cost to you. Affiliate links never change our recommendation.\n\n### Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $6.00 | $5.00 | 3 |\n| LP | $4.80 | $4.03 | 2 |\n| MP | $4.20 | $4.20 | 1 |\n| HP | $3.00 | $2.33 | 2 |\n\n### Foil Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $5.50 | $4.75 | 3 |\n| LP | $4.13 | $3.42 | 2 |\n| MP | $2.75 | $2.75 | 1 |\n| HP | $1.65 | $1.43 | 2 |\n\n### 30-Day Price History$1.00\n\nPrice trend for Counterspell (Near-mint condition)\n\n### 180-Day Buylist Price Range\n\nNM - Last 6 months\n\nLow\n\n$2.00\n\nCurrent\n\n$6.00\n\nHigh\n\n$8.50\n\nThe current price is in the middle range\n\nPrice range: $6.50(325% variation)\n\n### Why Our Prices Are Better\n\nUnlike single-vendor buylist pages, we compare prices across multiple major vendors including Card Kingdom, Star City Games, Strike Zone, Abu Games,",
+      "capture_text": "# Best Selling Prices for Counterspell (Borderless)\n\nSecret Lair Drop (SLD)\n\n#2497\n\nTCGPlayer buy links are affiliate links with no cost to you. Affiliate links never change our recommendation.\n\n### Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $6.00 | $5.00 | 3 |\n| LP | $4.80 | $4.03 | 2 |\n| MP | $4.20 | $4.20 | 1 |\n| HP | $3.00 | $2.33 | 2 |\n\n### Foil Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $5.50 | $4.75 | 3 |\n| LP | $4.13 | $3.42 | 2 |\n| MP | $2.75 | $2.75 | 1 |\n| HP | $1.65 | $1.43 | 2 |\n\n### 30-Day Price History$1.00\n\nPrice trend for Counterspell (Near-mint condition)\n\n### 180-Day Buylist Price Range\n\nNM - Last 6 months\n\nLow\n\n$2.00\n\nCurrent\n\n$6.00\n\nHigh\n\n$8.50\n\nThe current price is in the middle range\n\nPrice range: $6.50(325% variation)\n\n### Why Our Prices Are Better\n\nUnlike single-vendor buylist pages, we compare prices across multiple major vendors including Card Kingdom, Star City Games, Strike Zone, Abu Games, Mythic, and more to find you the absolute best price for your Counterspell.\n\n* • Up to 20% higher payouts compared to selling to just one vendor\n* • Real-time price comparison across 4+ major buylist vendors\n* • Condition-specific pricing for NM, LP, MP, HP, and DMG cards\n* • Updated daily to ensure you get current market rates\n\n### Other Printings of Counterspell\n\nGame Night: Free-for-All\n\n#25\n\nPro Tour Collector Set\n\n#shr65\n\nSeventh Edition\n\n#67★\n\nMedia and Collaboration Promos\n\n#2025-15\n\nFourth Edition Foreign Black Border\n\n#65\n\nFourth Edition\n\n#65\n\nMagicFest 2026\n\n#5\n\nThe List\n\n#A25-50\n\nSeventh Edition\n\n#67\n\nBattle Royale Box Set\n\n#15\n\nModern Horizons 2\n\n#267\n\nMarvel Universe\n\n#52\n\nSecret Lair Drop\n\n#331\n\nCommander Legends\n\n#395\n\nWorld Championship Decks 1998\n\n#rb57\n\nSecret Lair Drop\n\n#1933\n\nWorld Championship Decks 2002\n\n#cr67\n\nDuel Decks: Jace vs. Chandra\n\n#24",
+      "notes": [
+        "Promoted page headline: Counterspell (Borderless) (SLD) — Sell for $6.00",
+        "First NM row, if extracted: | NM | $6.00 | $5.00 | 3 |",
+        "CardRouter is an aggregator, not the underlying vendor's official sell-cart confirmation.",
+        "Currency is displayed as '$' in the extracted page without an ISO code; USD is provisional only from the US vendor context.",
+        "Multiple condition/price blocks are present; finish and the corresponding headline need direct confirmation.",
+        "No calculations are made from the headline amount."
+      ]
+    },
+    {
+      "source_id": "src-card-06",
+      "vendor": "CardRouter",
+      "source_url": "https://cardrouter.com/best-buylist-prices/mtg/plst/swords-to-plowshares/C16-78",
+      "source_kind": "BUYLIST_AGGREGATOR",
+      "retrieved_at_utc": "2026-10-18T05:32:43.035Z",
+      "http_etag": null,
+      "http_last_modified": null,
+      "http_status": null,
+      "capture_sha256": "53180fc54551614082b44ed6d9ea493d523a5651a62b1cf24ab9be84df066b93",
+      "capture_representation": "EXTRACTED_TEXT_UTF8",
+      "source_currency": "UNKNOWN",
+      "price_basis": "UNKNOWN",
+      "coverage_status": "CARD_LEVEL_PRICES_AVAILABLE",
+      "excerpt": "Swords to Plowshares (PLST) — Sell for $0.77 to ABU Games\n\n# Best Selling Prices for Swords to Plowshares\n\nThe List (PLST)\n\n#C16-78\n\nTCGPlayer buy links are affiliate links with no cost to you. Affiliate links never change our recommendation.\n\n### Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $0.77 | $0.76 | 2 |\n| LP | $0.60 | $0.58 | 2 |\n| MP | $0.53 | $0.53 | 1 |\n| HP | $0.49 | $0.42 | 2 |\n\n### 30-Day Price History$1.05\n\nPrice trend for Swords to Plowshares (Near-mint condition)\n\n### 180-Day Buylist Price Range\n\nNM - Last 6 months\n\nLow\n\n$0.40\n\nCurrent\n\n$0.77\n\nHigh\n\n$2.00\n\nThe current price is near the 180-day low\n\nPrice range: $1.60(400% variation)\n\n### Why Our Prices Are Better\n\nUnlike single-vendor buylist pages, we compare prices across multiple major vendors including Card Kingdom, Star City Games, Strike Zone, Abu Games, Mythic, and more to find you the absolute best price for your Swords to Plowshares.\n\n* • Up to 20% higher payouts compared to selling to just one vendor\n* • Real-time price comparison across 4+ major buylist vendors\n* • Condition",
+      "capture_text": "# Best Selling Prices for Swords to Plowshares\n\nThe List (PLST)\n\n#C16-78\n\nTCGPlayer buy links are affiliate links with no cost to you. Affiliate links never change our recommendation.\n\n### Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $0.77 | $0.76 | 2 |\n| LP | $0.60 | $0.58 | 2 |\n| MP | $0.53 | $0.53 | 1 |\n| HP | $0.49 | $0.42 | 2 |\n\n### 30-Day Price History$1.05\n\nPrice trend for Swords to Plowshares (Near-mint condition)\n\n### 180-Day Buylist Price Range\n\nNM - Last 6 months\n\nLow\n\n$0.40\n\nCurrent\n\n$0.77\n\nHigh\n\n$2.00\n\nThe current price is near the 180-day low\n\nPrice range: $1.60(400% variation)\n\n### Why Our Prices Are Better\n\nUnlike single-vendor buylist pages, we compare prices across multiple major vendors including Card Kingdom, Star City Games, Strike Zone, Abu Games, Mythic, and more to find you the absolute best price for your Swords to Plowshares.\n\n* • Up to 20% higher payouts compared to selling to just one vendor\n* • Real-time price comparison across 4+ major buylist vendors\n* • Condition-specific pricing for NM, LP, MP, HP, and DMG cards\n* • Updated daily to ensure you get current market rates\n\n### Other Printings of Swords to Plowshares\n\nSecret Lair Drop\n\n#2167\n\nPhyrexia: All Will Be One Commander\n\n#89\n\nMarch of the Machine Commander\n\n#211\n\nPro Tour Collector Set\n\n#mj52\n\nSecret Lair Drop\n\n#1021\n\nSecret Lair Drop\n\n#1627★\n\nDoctor Who\n\n#803\n\nSecret Lair Drop\n\n#2125\n\nJudge Gift Cards 2013\n\n#1\n\nCommander 2016\n\n#78\n\n30th Anniversary Edition\n\n#40\n\nMidnight Hunt Commander\n\n#94\n\nWarhammer 40,000 Commander\n\n#190★\n\nDominaria Remastered\n\n#31\n\nNeon Dynasty Commander\n\n#89\n\nThe Lost Caverns of Ixalan Commander\n\n#137\n\nIce Age\n\n#54\n\nSecrets of Strixhaven Commander\n\n#179",
+      "notes": [
+        "Promoted page headline: Swords to Plowshares (PLST) — Sell for $0.77 to ABU Games",
+        "First NM row, if extracted: | NM | $0.77 | $0.76 | 2 |",
+        "CardRouter is an aggregator, not the underlying vendor's official sell-cart confirmation.",
+        "Currency is displayed as '$' in the extracted page without an ISO code; USD is provisional only from the US vendor context.",
+        "Condition and finish still require confirmation in the underlying vendor sell cart.",
+        "No calculations are made from the headline amount."
+      ]
+    },
+    {
+      "source_id": "src-card-07",
+      "vendor": "CardRouter",
+      "source_url": "https://cardrouter.com/best-buylist-prices/mtg/40k/cultivate/211",
+      "source_kind": "BUYLIST_AGGREGATOR",
+      "retrieved_at_utc": "2026-10-18T05:32:43.035Z",
+      "http_etag": null,
+      "http_last_modified": null,
+      "http_status": null,
+      "capture_sha256": "3f8b7dae1b4ed5c64c432f75a685c029c844b24c452f560d2db80f2859025811",
+      "capture_representation": "EXTRACTED_TEXT_UTF8",
+      "source_currency": "UNKNOWN",
+      "price_basis": "UNKNOWN",
+      "coverage_status": "CARD_LEVEL_PRICES_AVAILABLE",
+      "excerpt": "Cultivate (40K #211) — Sell for $0.25 to Star City Games\n\n# Best Selling Prices for Cultivate\n\nWarhammer 40,000 Commander (40K)\n\n#211\n\nTCGPlayer buy links are affiliate links with no cost to you. Affiliate links never change our recommendation.\n\n### Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $0.25 | $0.24 | 2 |\n| LP | $0.06 | $0.06 | 2 |\n| MP | $0.05 | $0.05 | 1 |\n| HP | $0.01 | $0.01 | 2 |\n\n### 30-Day Price History$0.13\n\nPrice trend for Cultivate (Near-mint condition)\n\n### 180-Day Buylist Price Range\n\nNM - Last 6 months\n\nLow\n\n$0.07\n\nCurrent\n\n$0.25\n\nHigh\n\n$1.05\n\nThe current price is near the 180-day low\n\nPrice range: $0.98(1400% variation)\n\n### Why Our Prices Are Better\n\nUnlike single-vendor buylist pages, we compare prices across multiple major vendors including Card Kingdom, Star City Games, Strike Zone, Abu Games, Mythic, and more to find you the absolute best price for your Cultivate.\n\n* • Up to 20% higher payouts compared to selling to just one vendor\n* • Real-time price comparison across 4+ major buylist vendors\n* • Condition-specific pricing f",
+      "capture_text": "# Best Selling Prices for Cultivate\n\nWarhammer 40,000 Commander (40K)\n\n#211\n\nTCGPlayer buy links are affiliate links with no cost to you. Affiliate links never change our recommendation.\n\n### Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $0.25 | $0.24 | 2 |\n| LP | $0.06 | $0.06 | 2 |\n| MP | $0.05 | $0.05 | 1 |\n| HP | $0.01 | $0.01 | 2 |\n\n### 30-Day Price History$0.13\n\nPrice trend for Cultivate (Near-mint condition)\n\n### 180-Day Buylist Price Range\n\nNM - Last 6 months\n\nLow\n\n$0.07\n\nCurrent\n\n$0.25\n\nHigh\n\n$1.05\n\nThe current price is near the 180-day low\n\nPrice range: $0.98(1400% variation)\n\n### Why Our Prices Are Better\n\nUnlike single-vendor buylist pages, we compare prices across multiple major vendors including Card Kingdom, Star City Games, Strike Zone, Abu Games, Mythic, and more to find you the absolute best price for your Cultivate.\n\n* • Up to 20% higher payouts compared to selling to just one vendor\n* • Real-time price comparison across 4+ major buylist vendors\n* • Condition-specific pricing for NM, LP, MP, HP, and DMG cards\n* • Updated daily to ensure you get current market rates\n\n### Other Printings of Cultivate\n\nThe List\n\n#NCC-285\n\nCommander 2021\n\n#187\n\nStrixhaven Mystical Archive\n\n#114\n\nTeenage Mutant Ninja Turtles Eternal\n\n#50\n\nFinal Fantasy Commander\n\n#300\n\nFallout\n\n#196\n\nFriday Night Magic 2011\n\n#8\n\nJumpstart 2022\n\n#644\n\nTarkir: Dragonstorm Commander\n\n#253\n\nCore Set 2021\n\n#317\n\nSecrets of Strixhaven Commander\n\n#265\n\nNew Capenna Commander\n\n#285\n\nPlanechase 2012\n\n#62\n\nDoctor Who\n\n#821\n\nThe List\n\n#LCC-235\n\nThe List\n\n#C18-138\n\nCommander 2017\n\n#147\n\nBloomburrow Commander\n\n#212",
+      "notes": [
+        "Promoted page headline: Cultivate (40K #211) — Sell for $0.25 to Star City Games",
+        "First NM row, if extracted: | NM | $0.25 | $0.24 | 2 |",
+        "CardRouter is an aggregator, not the underlying vendor's official sell-cart confirmation.",
+        "Currency is displayed as '$' in the extracted page without an ISO code; USD is provisional only from the US vendor context.",
+        "Condition and finish still require confirmation in the underlying vendor sell cart.",
+        "No calculations are made from the headline amount."
+      ]
+    },
+    {
+      "source_id": "src-card-08",
+      "vendor": "CardRouter",
+      "source_url": "https://cardrouter.com/best-buylist-prices/mtg/sld/beast-within/2671",
+      "source_kind": "BUYLIST_AGGREGATOR",
+      "retrieved_at_utc": "2026-10-18T05:32:43.035Z",
+      "http_etag": null,
+      "http_last_modified": null,
+      "http_status": null,
+      "capture_sha256": "a9a733b5eef5408cebba73efe64131bc1baf769efd8b2d2d978a16589f995975",
+      "capture_representation": "EXTRACTED_TEXT_UTF8",
+      "source_currency": "UNKNOWN",
+      "price_basis": "UNKNOWN",
+      "coverage_status": "CARD_LEVEL_PRICES_AVAILABLE",
+      "excerpt": "Beast Within (Borderless) (SLD) — Sell for $4.00\n\n# Best Selling Prices for Beast Within (Borderless)\n\nSecret Lair Drop (SLD)\n\n#2671\n\nTCGPlayer buy links are affiliate links with no cost to you. Affiliate links never change our recommendation.\n\n### Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $3.20 | $3.13 | 2 |\n| LP | $2.56 | $2.54 | 2 |\n| MP | $2.24 | $2.24 | 1 |\n| HP | $1.60 | $1.40 | 2 |\n\n### Foil Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $4.00 | $3.50 | 2 |\n| LP | $3.00 | $2.50 | 2 |\n| MP | $2.00 | $2.00 | 1 |\n| HP | $1.20 | $0.97 | 2 |\n\n### 30-Day Price History$0.20\n\nPrice trend for Beast Within (Near-mint condition)\n\n### 180-Day Buylist Price Range\n\nNM - Last 6 months\n\nLow\n\n$1.20\n\nCurrent\n\n$3.20\n\nHigh\n\n$5.20\n\nThe current price is in the middle range\n\nPrice range: $4.00(333% variation)\n\n### Why Our Prices Are Better\n\nUnlike single-vendor buylist pages, we compare prices across multiple major vendors including Card Kingdom, Star City Games, Strike Zone, Abu Games,",
+      "capture_text": "# Best Selling Prices for Beast Within (Borderless)\n\nSecret Lair Drop (SLD)\n\n#2671\n\nTCGPlayer buy links are affiliate links with no cost to you. Affiliate links never change our recommendation.\n\n### Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $3.20 | $3.13 | 2 |\n| LP | $2.56 | $2.54 | 2 |\n| MP | $2.24 | $2.24 | 1 |\n| HP | $1.60 | $1.40 | 2 |\n\n### Foil Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $4.00 | $3.50 | 2 |\n| LP | $3.00 | $2.50 | 2 |\n| MP | $2.00 | $2.00 | 1 |\n| HP | $1.20 | $0.97 | 2 |\n\n### 30-Day Price History$0.20\n\nPrice trend for Beast Within (Near-mint condition)\n\n### 180-Day Buylist Price Range\n\nNM - Last 6 months\n\nLow\n\n$1.20\n\nCurrent\n\n$3.20\n\nHigh\n\n$5.20\n\nThe current price is in the middle range\n\nPrice range: $4.00(333% variation)\n\n### Why Our Prices Are Better\n\nUnlike single-vendor buylist pages, we compare prices across multiple major vendors including Card Kingdom, Star City Games, Strike Zone, Abu Games, Mythic, and more to find you the absolute best price for your Beast Within.\n\n* • Up to 20% higher payouts compared to selling to just one vendor\n* • Real-time price comparison across 4+ major buylist vendors\n* • Condition-specific pricing for NM, LP, MP, HP, and DMG cards\n* • Updated daily to ensure you get current market rates\n\n### Other Printings of Beast Within\n\nMarvel Universe\n\n#75\n\nThe List\n\n#LCC-233\n\nThe List\n\n#NPH-103\n\nDoctor Who\n\n#228\n\nWizards Play Network 2023\n\n#3\n\nStarter Commander Decks\n\n#172\n\nNeon Dynasty Commander\n\n#114\n\nForgotten Realms Commander\n\n#152\n\nCommander 2016\n\n#141\n\nEdge of Eternities Commander\n\n#93\n\nThe Lost Caverns of Ixalan Commander\n\n#233\n\nDominaria United Commander\n\n#129\n\nFoundations Commander\n\n#190\n\nPlanechase Anthology\n\n#57\n\nMidnight Hunt Commander\n\n#133\n\nPhyrexia: All Will Be One Commander\n\n#104\n\nCommander 2020\n\n#168\n\nBloomburrow Commander\n\n#206",
+      "notes": [
+        "Promoted page headline: Beast Within (Borderless) (SLD) — Sell for $4.00",
+        "First NM row, if extracted: | NM | $3.20 | $3.13 | 2 |",
+        "CardRouter is an aggregator, not the underlying vendor's official sell-cart confirmation.",
+        "Currency is displayed as '$' in the extracted page without an ISO code; USD is provisional only from the US vendor context.",
+        "Multiple condition/price blocks are present; finish and the corresponding headline need direct confirmation.",
+        "Promoted headline price differs from the first NM row on the captured page; quarantined from net calculations."
+      ]
+    },
+    {
+      "source_id": "src-card-09",
+      "vendor": "CardRouter",
+      "source_url": "https://cardrouter.com/best-buylist-prices/mtg/ddi/path-to-exile/23",
+      "source_kind": "BUYLIST_AGGREGATOR",
+      "retrieved_at_utc": "2026-10-18T05:32:43.035Z",
+      "http_etag": null,
+      "http_last_modified": null,
+      "http_status": null,
+      "capture_sha256": "c62203fa6150c2396962ab7fd834f8ef4fb787c82d526ee1f52d1e41b3cba58c",
+      "capture_representation": "EXTRACTED_TEXT_UTF8",
+      "source_currency": "UNKNOWN",
+      "price_basis": "UNKNOWN",
+      "coverage_status": "CARD_LEVEL_PRICES_AVAILABLE",
+      "excerpt": "Path to Exile (DDI #23) — Sell for $3.16 to Mythic\n\n# Best Selling Prices for Path to Exile\n\nDuel Decks: Venser vs. Koth (DDI)\n\n#23\n\nTCGPlayer buy links are affiliate links with no cost to you. Affiliate links never change our recommendation.\n\n### Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $3.16 | $1.58 | 4 |\n| LP | $1.48 | $1.20 | 3 |\n| MP | $1.33 | $1.26 | 2 |\n| HP | $1.23 | $0.77 | 3 |\n| DMG | $0.98 | $0.98 | 1 |\n\n### 30-Day Price History$1.41\n\nPrice trend for Path to Exile (Near-mint condition)\n\n### 180-Day Buylist Price Range\n\nNM - Last 6 months\n\nLow\n\n$0.50\n\nCurrent\n\n$3.16\n\nHigh\n\n$3.20\n\nThe current price is near the 180-day high\n\nPrice range: $2.70(540% variation)\n\n### Why Our Prices Are Better\n\nUnlike single-vendor buylist pages, we compare prices across multiple major vendors including Card Kingdom, Star City Games, Strike Zone, Abu Games, Mythic, and more to find you the absolute best price for your Path to Exile.\n\n* • Up to 20% higher payouts compared to selling to just one vendor\n* • Real-time price comparison across 4+ major buylist vendor",
+      "capture_text": "# Best Selling Prices for Path to Exile\n\nDuel Decks: Venser vs. Koth (DDI)\n\n#23\n\nTCGPlayer buy links are affiliate links with no cost to you. Affiliate links never change our recommendation.\n\n### Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $3.16 | $1.58 | 4 |\n| LP | $1.48 | $1.20 | 3 |\n| MP | $1.33 | $1.26 | 2 |\n| HP | $1.23 | $0.77 | 3 |\n| DMG | $0.98 | $0.98 | 1 |\n\n### 30-Day Price History$1.41\n\nPrice trend for Path to Exile (Near-mint condition)\n\n### 180-Day Buylist Price Range\n\nNM - Last 6 months\n\nLow\n\n$0.50\n\nCurrent\n\n$3.16\n\nHigh\n\n$3.20\n\nThe current price is near the 180-day high\n\nPrice range: $2.70(540% variation)\n\n### Why Our Prices Are Better\n\nUnlike single-vendor buylist pages, we compare prices across multiple major vendors including Card Kingdom, Star City Games, Strike Zone, Abu Games, Mythic, and more to find you the absolute best price for your Path to Exile.\n\n* • Up to 20% higher payouts compared to selling to just one vendor\n* • Real-time price comparison across 4+ major buylist vendors\n* • Condition-specific pricing for NM, LP, MP, HP, and DMG cards\n* • Updated daily to ensure you get current market rates\n\n### Other Printings of Path to Exile\n\nAssassin's Creed\n\n#178\n\nJumpstart\n\n#127\n\nBloomburrow Commander\n\n#147\n\nMystery Booster 2\n\n#15\n\nDCI Promos\n\n#24\n\nTeenage Mutant Hero Turtles Source Material\n\n#1\n\nThe Zeta Set\n\n#249\n\nSecret Lair Drop\n\n#477\n\nCommander Masters\n\n#49\n\nFallout\n\n#169\n\nAssassin's Creed\n\n#81\n\nThe List\n\n#BLC-147\n\nDouble Masters 2022\n\n#23\n\nModern Event Deck 2014\n\n#3\n\nFinal Fantasy Commander\n\n#248\n\nSignature Spellbook: Gideon\n\n#3\n\nArchenemy\n\n#4\n\nOutlaws of Thunder Junction Commander\n\n#85",
+      "notes": [
+        "Promoted page headline: Path to Exile (DDI #23) — Sell for $3.16 to Mythic",
+        "First NM row, if extracted: | NM | $3.16 | $1.58 | 4 |",
+        "CardRouter is an aggregator, not the underlying vendor's official sell-cart confirmation.",
+        "Currency is displayed as '$' in the extracted page without an ISO code; USD is provisional only from the US vendor context.",
+        "Condition and finish still require confirmation in the underlying vendor sell cart.",
+        "No calculations are made from the headline amount."
+      ]
+    },
+    {
+      "source_id": "src-card-10",
+      "vendor": "CardRouter",
+      "source_url": "https://cardrouter.com/best-buylist-prices/mtg/wot/smothering-tithe/67",
+      "source_kind": "BUYLIST_AGGREGATOR",
+      "retrieved_at_utc": "2026-10-18T05:32:43.035Z",
+      "http_etag": null,
+      "http_last_modified": null,
+      "http_status": null,
+      "capture_sha256": "5fa1a749c74f6be9101ba767ec7add97fbfc6912992524937b650b5709ced236",
+      "capture_representation": "EXTRACTED_TEXT_UTF8",
+      "source_currency": "UNKNOWN",
+      "price_basis": "UNKNOWN",
+      "coverage_status": "CARD_LEVEL_PRICES_AVAILABLE",
+      "excerpt": "Smothering Tithe (Anime Borderless) (WOT) — Sell for $320.00\n\n# Best Selling Prices for Smothering Tithe (Anime Borderless)\n\nWilds of Eldraine: Enchanting Tales (WOT)\n\n#67\n\nTCGPlayer buy links are affiliate links with no cost to you. Affiliate links never change our recommendation.\n\n### Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $150.00 | $132.01 | 5 |\n| LP | $135.00 | $90.52 | 4 |\n| MP | $120.00 | $96.02 | 2 |\n| HP | $70.00 | $50.78 | 3 |\n\n### Foil Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $320.00 | $267.79 | 4 |\n| LP | $243.75 | $182.87 | 4 |\n| MP | $162.50 | $156.81 | 2 |\n| HP | $131.15 | $99.57 | 3 |\n\n### 30-Day Price History$1.07\n\nPrice trend for Smothering Tithe (Near-mint condition)\n\n### 180-Day Buylist Price Range\n\nNM - Last 6 months\n\nLow\n\n$90.00\n\nCurrent\n\n$150.00\n\nHigh\n\n$160.00\n\nThe current price is near the 180-day high\n\nPrice range: $70.00(78% variation)\n\n### Why Our Prices Are Better\n\nUnlike single-vendor buylist pages, we compare prices across multiple m",
+      "capture_text": "# Best Selling Prices for Smothering Tithe (Anime Borderless)\n\nWilds of Eldraine: Enchanting Tales (WOT)\n\n#67\n\nTCGPlayer buy links are affiliate links with no cost to you. Affiliate links never change our recommendation.\n\n### Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $150.00 | $132.01 | 5 |\n| LP | $135.00 | $90.52 | 4 |\n| MP | $120.00 | $96.02 | 2 |\n| HP | $70.00 | $50.78 | 3 |\n\n### Foil Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $320.00 | $267.79 | 4 |\n| LP | $243.75 | $182.87 | 4 |\n| MP | $162.50 | $156.81 | 2 |\n| HP | $131.15 | $99.57 | 3 |\n\n### 30-Day Price History$1.07\n\nPrice trend for Smothering Tithe (Near-mint condition)\n\n### 180-Day Buylist Price Range\n\nNM - Last 6 months\n\nLow\n\n$90.00\n\nCurrent\n\n$150.00\n\nHigh\n\n$160.00\n\nThe current price is near the 180-day high\n\nPrice range: $70.00(78% variation)\n\n### Why Our Prices Are Better\n\nUnlike single-vendor buylist pages, we compare prices across multiple major vendors including Card Kingdom, Star City Games, Strike Zone, Abu Games, Mythic, and more to find you the absolute best price for your Smothering Tithe.\n\n* • Up to 20% higher payouts compared to selling to just one vendor\n* • Real-time price comparison across 4+ major buylist vendors\n* • Condition-specific pricing for NM, LP, MP, HP, and DMG cards\n* • Updated daily to ensure you get current market rates\n\n### Other Printings of Smothering Tithe\n\nCommander Masters\n\n#693\n\nRavnica Allegiance\n\n#22\n\nDouble Masters 2022\n\n#423\n\nDouble Masters 2022\n\n#31\n\nWilds of Eldraine: Enchanting Tales\n\n#87\n\nWilds of Eldraine: Enchanting Tales\n\n#13\n\nRavnica Allegiance Promos\n\n#22p\n\nSecret Lair Drop\n\n#7009\n\nCommander Masters\n\n#57\n\nCommander Masters\n\n#473\n\nDouble Masters 2022\n\n#342\n\nJudge Gift Cards 2022\n\n#5",
+      "notes": [
+        "Promoted page headline: Smothering Tithe (Anime Borderless) (WOT) — Sell for $320.00",
+        "First NM row, if extracted: | NM | $150.00 | $132.01 | 5 |",
+        "CardRouter is an aggregator, not the underlying vendor's official sell-cart confirmation.",
+        "Currency is displayed as '$' in the extracted page without an ISO code; USD is provisional only from the US vendor context.",
+        "Multiple condition/price blocks are present; finish and the corresponding headline need direct confirmation.",
+        "Promoted headline price differs from the first NM row on the captured page; quarantined from net calculations."
+      ]
+    },
+    {
+      "source_id": "src-card-11",
+      "vendor": "CardRouter",
+      "source_url": "https://cardrouter.com/best-buylist-prices/mtg/mar/teferis-protection/51",
+      "source_kind": "BUYLIST_AGGREGATOR",
+      "retrieved_at_utc": "2026-10-18T05:32:43.020Z",
+      "http_etag": null,
+      "http_last_modified": null,
+      "http_status": null,
+      "capture_sha256": "96c1936bcd4ddb23731a0504e055dcefe28201a62663d63e593ed047948f62ad",
+      "capture_representation": "EXTRACTED_TEXT_UTF8",
+      "source_currency": "UNKNOWN",
+      "price_basis": "UNKNOWN",
+      "coverage_status": "CARD_LEVEL_PRICES_AVAILABLE",
+      "excerpt": "Teferi's Protection (Borderless) (MAR) — Sell for $27.00\n\n# Best Selling Prices for Teferi's Protection (Borderless)\n\nMarvel Universe (MAR)\n\n#51\n\nTCGPlayer buy links are affiliate links with no cost to you. Affiliate links never change our recommendation.\n\n### Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $27.00 | $22.34 | 3 |\n| LP | $22.95 | $16.65 | 3 |\n| MP | $20.25 | $20.25 | 1 |\n| HP | $17.55 | $15.03 | 2 |\n\n### Foil Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $25.00 | $22.63 | 3 |\n| LP | $18.75 | $15.95 | 3 |\n| MP | $12.50 | $12.50 | 1 |\n| HP | $11.90 | $8.72 | 3 |\n\n### 30-Day Price History $1.00\n\nPrice trend for Teferi's Protection (Near-mint condition)\n\n### 180-Day Buylist Price Range\n\nNM  - Last 6 months\n\nLow\n\n$15.37\n\nCurrent\n\n$27.00\n\nHigh\n\n$28.00\n\nThe current price is near the 180-day high\n\nPrice range: $12.63(82% variation)\n\n### Why Our Prices Are Better\n\nUnlike single-vendor buylist pages, we compare prices across multiple major vendors including Card Kingdom,",
+      "capture_text": "# Best Selling Prices for Teferi's Protection (Borderless)\n\nMarvel Universe (MAR)\n\n#51\n\nTCGPlayer buy links are affiliate links with no cost to you. Affiliate links never change our recommendation.\n\n### Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $27.00 | $22.34 | 3 |\n| LP | $22.95 | $16.65 | 3 |\n| MP | $20.25 | $20.25 | 1 |\n| HP | $17.55 | $15.03 | 2 |\n\n### Foil Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $25.00 | $22.63 | 3 |\n| LP | $18.75 | $15.95 | 3 |\n| MP | $12.50 | $12.50 | 1 |\n| HP | $11.90 | $8.72 | 3 |\n\n### 30-Day Price History $1.00\n\nPrice trend for Teferi's Protection (Near-mint condition)\n\n### 180-Day Buylist Price Range\n\nNM  - Last 6 months\n\nLow\n\n$15.37\n\nCurrent\n\n$27.00\n\nHigh\n\n$28.00\n\nThe current price is near the 180-day high\n\nPrice range: $12.63(82% variation)\n\n### Why Our Prices Are Better\n\nUnlike single-vendor buylist pages, we compare prices across multiple major vendors including Card Kingdom, Star City Games, Strike Zone, Abu Games, Mythic, and more to find you the absolute best price for your Teferi's Protection.\n\n* • **Up to 20% higher payouts** compared to selling to just one vendor\n* • **Real-time price comparison** across 4+ major buylist vendors\n* • **Condition-specific pricing** for NM, LP, MP, HP, and DMG cards\n* • **Updated daily** to ensure you get current market rates",
+      "notes": [
+        "Promoted page headline: Teferi's Protection (Borderless) (MAR) — Sell for $27.00",
+        "First NM row, if extracted: | NM | $27.00 | $22.34 | 3 |",
+        "CardRouter is an aggregator, not the underlying vendor's official sell-cart confirmation.",
+        "Currency is displayed as '$' in the extracted page without an ISO code; USD is provisional only from the US vendor context.",
+        "Multiple condition/price blocks are present; finish and the corresponding headline need direct confirmation.",
+        "No calculations are made from the headline amount."
+      ]
+    },
+    {
+      "source_id": "src-card-12",
+      "vendor": "CardRouter",
+      "source_url": "https://cardrouter.com/best-buylist-prices/mtg/tle/fierce-guardianship/307",
+      "source_kind": "BUYLIST_AGGREGATOR",
+      "retrieved_at_utc": "2026-10-18T05:32:43.020Z",
+      "http_etag": null,
+      "http_last_modified": null,
+      "http_status": null,
+      "capture_sha256": "3671b3d57df1edc11a82a71bac83bd4c0000fa56d552ff284e22bc9d906acba6",
+      "capture_representation": "EXTRACTED_TEXT_UTF8",
+      "source_currency": "UNKNOWN",
+      "price_basis": "UNKNOWN",
+      "coverage_status": "CARD_LEVEL_PRICES_AVAILABLE",
+      "excerpt": "Fierce Guardianship (Showcase) (TLE) — Sell for $57.00\n\n# Best Selling Prices for Fierce Guardianship (Showcase)\n\nAvatar: The Last Airbender Eternal (TLE)\n\n#307\n\nTCGPlayer buy links are affiliate links with no cost to you. Affiliate links never change our recommendation.\n\n### Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $57.00 | $47.13 | 4 |\n| LP | $48.45 | $34.82 | 3 |\n| MP | $42.75 | $42.75 | 1 |\n| HP | $37.05 | $29.39 | 3 |\n\n### 30-Day Price History $9.00\n\nPrice trend for Fierce Guardianship (Near-mint condition)\n\n### 180-Day Buylist Price Range\n\nNM  - Last 6 months\n\nLow\n\n$28.64\n\nCurrent\n\n$57.00\n\nHigh\n\n$59.00\n\nThe current price is near the 180-day high\n\nPrice range: $30.36(106% variation)\n\n### Why Our Prices Are Better\n\nUnlike single-vendor buylist pages, we compare prices across multiple major vendors including Card Kingdom, Star City Games, Strike Zone, Abu Games, Mythic, and more to find you the absolute best price for your Fierce Guardianship.\n\n* • **Up to 20% higher payouts** compared to selling to just one vendor\n* • **Real-time price comparis",
+      "capture_text": "# Best Selling Prices for Fierce Guardianship (Showcase)\n\nAvatar: The Last Airbender Eternal (TLE)\n\n#307\n\nTCGPlayer buy links are affiliate links with no cost to you. Affiliate links never change our recommendation.\n\n### Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $57.00 | $47.13 | 4 |\n| LP | $48.45 | $34.82 | 3 |\n| MP | $42.75 | $42.75 | 1 |\n| HP | $37.05 | $29.39 | 3 |\n\n### 30-Day Price History $9.00\n\nPrice trend for Fierce Guardianship (Near-mint condition)\n\n### 180-Day Buylist Price Range\n\nNM  - Last 6 months\n\nLow\n\n$28.64\n\nCurrent\n\n$57.00\n\nHigh\n\n$59.00\n\nThe current price is near the 180-day high\n\nPrice range: $30.36(106% variation)\n\n### Why Our Prices Are Better\n\nUnlike single-vendor buylist pages, we compare prices across multiple major vendors including Card Kingdom, Star City Games, Strike Zone, Abu Games, Mythic, and more to find you the absolute best price for your Fierce Guardianship.\n\n* • **Up to 20% higher payouts** compared to selling to just one vendor\n* • **Real-time price comparison** across 4+ major buylist vendors\n* • **Condition-specific pricing** for NM, LP, MP, HP, and DMG cards\n* • **Updated daily** to ensure you get current market rates\n\n### Other Printings of Fierce Guardianship",
+      "notes": [
+        "Promoted page headline: Fierce Guardianship (Showcase) (TLE) — Sell for $57.00",
+        "First NM row, if extracted: | NM | $57.00 | $47.13 | 4 |",
+        "CardRouter is an aggregator, not the underlying vendor's official sell-cart confirmation.",
+        "Currency is displayed as '$' in the extracted page without an ISO code; USD is provisional only from the US vendor context.",
+        "Condition and finish still require confirmation in the underlying vendor sell cart.",
+        "No calculations are made from the headline amount."
+      ]
+    },
+    {
+      "source_id": "src-card-13",
+      "vendor": "CardRouter",
+      "source_url": "https://cardrouter.com/best-buylist-prices/mtg/c16/swiftfoot-boots/276",
+      "source_kind": "BUYLIST_AGGREGATOR",
+      "retrieved_at_utc": "2026-10-18T05:32:43.020Z",
+      "http_etag": null,
+      "http_last_modified": null,
+      "http_status": null,
+      "capture_sha256": "f5f7f20821a8677feef86dc93729aa501d4be4f550b16c49671acc063f3c1195",
+      "capture_representation": "EXTRACTED_TEXT_UTF8",
+      "source_currency": "UNKNOWN",
+      "price_basis": "UNKNOWN",
+      "coverage_status": "CARD_LEVEL_PRICES_AVAILABLE",
+      "excerpt": "Swiftfoot Boots (C16) — Sell for $1.50 to Star City Games\n\n# Best Selling Prices for Swiftfoot Boots\n\nCommander 2016 (C16)\n\n#276\n\nTCGPlayer buy links are affiliate links with no cost to you. Affiliate links never change our recommendation.\n\n### Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $1.50 | $1.32 | 4 |\n| LP | $1.08 | $0.98 | 4 |\n| MP | $0.95 | $0.90 | 2 |\n| HP | $0.71 | $0.55 | 4 |\n\n### 30-Day Price History$0.45\n\nPrice trend for Swiftfoot Boots (Near-mint condition)\n\n### 180-Day Buylist Price Range\n\nNM - Last 6 months\n\nLow\n\n$0.65\n\nCurrent\n\n$1.50\n\nHigh\n\n$2.25\n\nThe current price is in the middle range\n\nPrice range: $1.60(246% variation)\n\n### Why Our Prices Are Better\n\nUnlike single-vendor buylist pages, we compare prices across multiple major vendors including Card Kingdom, Star City Games, Strike Zone, Abu Games, Mythic, and more to find you the absolute best price for your Swiftfoot Boots.\n\n* • Up to 20% higher payouts compared to selling to just one vendor\n* • Real-time price comparison across 4+ major buylist vendors\n* • Condition-specific pric",
+      "capture_text": "# Best Selling Prices for Swiftfoot Boots\n\nCommander 2016 (C16)\n\n#276\n\nTCGPlayer buy links are affiliate links with no cost to you. Affiliate links never change our recommendation.\n\n### Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $1.50 | $1.32 | 4 |\n| LP | $1.08 | $0.98 | 4 |\n| MP | $0.95 | $0.90 | 2 |\n| HP | $0.71 | $0.55 | 4 |\n\n### 30-Day Price History$0.45\n\nPrice trend for Swiftfoot Boots (Near-mint condition)\n\n### 180-Day Buylist Price Range\n\nNM - Last 6 months\n\nLow\n\n$0.65\n\nCurrent\n\n$1.50\n\nHigh\n\n$2.25\n\nThe current price is in the middle range\n\nPrice range: $1.60(246% variation)\n\n### Why Our Prices Are Better\n\nUnlike single-vendor buylist pages, we compare prices across multiple major vendors including Card Kingdom, Star City Games, Strike Zone, Abu Games, Mythic, and more to find you the absolute best price for your Swiftfoot Boots.\n\n* • Up to 20% higher payouts compared to selling to just one vendor\n* • Real-time price comparison across 4+ major buylist vendors\n* • Condition-specific pricing for NM, LP, MP, HP, and DMG cards\n* • Updated daily to ensure you get current market rates\n\n### Other Printings of Swiftfoot Boots\n\nThe List\n\n#BLC-286\n\nCommander 2017\n\n#226\n\nCrimson Vow Commander\n\n#169\n\nCommander 2018\n\n#225\n\nCommander 2013\n\n#263\n\nNeon Dynasty Commander\n\n#163\n\nMystery Booster: Commander Edition\n\n#77\n\nCommander Legends: Battle for Baldur's Gate\n\n#339\n\nBloomburrow Commander\n\n#286\n\nFinal Fantasy Commander\n\n#361\n\nCommander Anthology Volume II\n\n#223\n\nMidnight Hunt Commander\n\n#163\n\nCommander Anthology\n\n#233\n\nThe Brothers' War Retro Artifacts\n\n#58\n\nFoundations\n\n#258\n\nKaldheim Commander\n\n#105\n\nMarvel Super Heroes Commander\n\n#216\n\nSecret Lair Drop\n\n#606",
+      "notes": [
+        "Promoted page headline: Swiftfoot Boots (C16) — Sell for $1.50 to Star City Games",
+        "First NM row, if extracted: | NM | $1.50 | $1.32 | 4 |",
+        "CardRouter is an aggregator, not the underlying vendor's official sell-cart confirmation.",
+        "Currency is displayed as '$' in the extracted page without an ISO code; USD is provisional only from the US vendor context.",
+        "Condition and finish still require confirmation in the underlying vendor sell cart.",
+        "No calculations are made from the headline amount."
+      ]
+    },
+    {
+      "source_id": "src-card-14",
+      "vendor": "CardRouter",
+      "source_url": "https://cardrouter.com/best-buylist-prices/mtg/sld/arcane-denial/2489",
+      "source_kind": "BUYLIST_AGGREGATOR",
+      "retrieved_at_utc": "2026-10-18T05:32:43.020Z",
+      "http_etag": null,
+      "http_last_modified": null,
+      "http_status": null,
+      "capture_sha256": "9aa9679985abcb68dc34fa0c84b2c2a99259601c08430a0d7ddd9679da67d53f",
+      "capture_representation": "EXTRACTED_TEXT_UTF8",
+      "source_currency": "UNKNOWN",
+      "price_basis": "UNKNOWN",
+      "coverage_status": "CARD_LEVEL_PRICES_AVAILABLE",
+      "excerpt": "Arcane Denial (Borderless) (SLD) — Sell for $7.50\n\n# Best Selling Prices for Arcane Denial (Borderless)\n\nSecret Lair Drop (SLD)\n\n#2489\n\nTCGPlayer buy links are affiliate links with no cost to you. Affiliate links never change our recommendation.\n\n### Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $4.60 | $3.80 | 3 |\n| LP | $3.68 | $3.29 | 2 |\n| MP | $3.22 | $3.22 | 1 |\n| HP | $2.30 | $1.87 | 2 |\n\n### Foil Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $7.50 | $5.75 | 3 |\n| LP | $5.63 | $4.75 | 2 |\n| MP | $3.75 | $3.75 | 1 |\n| HP | $2.25 | $1.83 | 2 |\n\n### 30-Day Price History$0.90\n\nPrice trend for Arcane Denial (Near-mint condition)\n\n### 180-Day Buylist Price Range\n\nNM - Last 6 months\n\nLow\n\n$2.00\n\nCurrent\n\n$4.60\n\nHigh\n\n$7.50\n\nThe current price is in the middle range\n\nPrice range: $5.50(275% variation)\n\n### Why Our Prices Are Better\n\nUnlike single-vendor buylist pages, we compare prices across multiple major vendors including Card Kingdom, Star City Games, Strike Zone, Abu Gam",
+      "capture_text": "# Best Selling Prices for Arcane Denial (Borderless)\n\nSecret Lair Drop (SLD)\n\n#2489\n\nTCGPlayer buy links are affiliate links with no cost to you. Affiliate links never change our recommendation.\n\n### Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $4.60 | $3.80 | 3 |\n| LP | $3.68 | $3.29 | 2 |\n| MP | $3.22 | $3.22 | 1 |\n| HP | $2.30 | $1.87 | 2 |\n\n### Foil Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $7.50 | $5.75 | 3 |\n| LP | $5.63 | $4.75 | 2 |\n| MP | $3.75 | $3.75 | 1 |\n| HP | $2.25 | $1.83 | 2 |\n\n### 30-Day Price History$0.90\n\nPrice trend for Arcane Denial (Near-mint condition)\n\n### 180-Day Buylist Price Range\n\nNM - Last 6 months\n\nLow\n\n$2.00\n\nCurrent\n\n$4.60\n\nHigh\n\n$7.50\n\nThe current price is in the middle range\n\nPrice range: $5.50(275% variation)\n\n### Why Our Prices Are Better\n\nUnlike single-vendor buylist pages, we compare prices across multiple major vendors including Card Kingdom, Star City Games, Strike Zone, Abu Games, Mythic, and more to find you the absolute best price for your Arcane Denial.\n\n* • Up to 20% higher payouts compared to selling to just one vendor\n* • Real-time price comparison across 4+ major buylist vendors\n* • Condition-specific pricing for NM, LP, MP, HP, and DMG cards\n* • Updated daily to ensure you get current market rates\n\n### Other Printings of Arcane Denial\n\nCommander 2016\n\n#83\n\nTales of Middle-earth Commander\n\n#184\n\nFinal Fantasy Regional Promos\n\n#J2\n\nSecrets of Strixhaven Commander\n\n#187\n\nMarvel Super Heroes Commander\n\n#147\n\nCommander 2013\n\n#28\n\nThe List\n\n#OTC-89\n\nCommander Legends\n\n#393\n\nCommander Anthology\n\n#30\n\nDuskmourn: House of Horror Commander\n\n#110\n\nSecret Lair Drop\n\n#1545★\n\nAlliances\n\n#22b\n\nThe List\n\n#CMA-30\n\nModern Horizons 3 Commander\n\n#176\n\nCommander Legends\n\n#630\n\nAetherdrift Commander\n\n#70\n\nCrimson Vow Commander\n\n#102\n\nAlliances\n\n#22a",
+      "notes": [
+        "Promoted page headline: Arcane Denial (Borderless) (SLD) — Sell for $7.50",
+        "First NM row, if extracted: | NM | $4.60 | $3.80 | 3 |",
+        "CardRouter is an aggregator, not the underlying vendor's official sell-cart confirmation.",
+        "Currency is displayed as '$' in the extracted page without an ISO code; USD is provisional only from the US vendor context.",
+        "Multiple condition/price blocks are present; finish and the corresponding headline need direct confirmation.",
+        "Promoted headline price differs from the first NM row on the captured page; quarantined from net calculations."
+      ]
+    },
+    {
+      "source_id": "src-card-15",
+      "vendor": "CardRouter",
+      "source_url": "https://cardrouter.com/best-buylist-prices/mtg/m11/llanowar-elves/184",
+      "source_kind": "BUYLIST_AGGREGATOR",
+      "retrieved_at_utc": "2026-10-18T05:32:43.020Z",
+      "http_etag": null,
+      "http_last_modified": null,
+      "http_status": null,
+      "capture_sha256": "c66b966d861fc50495f0348884382f53463265346174aba21b47d9c32540ff64",
+      "capture_representation": "EXTRACTED_TEXT_UTF8",
+      "source_currency": "UNKNOWN",
+      "price_basis": "UNKNOWN",
+      "coverage_status": "CARD_LEVEL_PRICES_AVAILABLE",
+      "excerpt": "Llanowar Elves (M11 #184) — Sell for $2.50 to Mythic\n\n# Best Selling Prices for Llanowar Elves\n\nMagic 2011 (M11)\n\n#184\n\nTCGPlayer buy links are affiliate links with no cost to you. Affiliate links never change our recommendation.\n\n### Foil Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $2.50 | $1.25 | 3 |\n| LP | $0.93 | $0.58 | 3 |\n| MP | $0.81 | $0.81 | 1 |\n| HP | $0.17 | $0.14 | 2 |\n\n### 30-Day Price History$0.02\n\nPrice trend for Llanowar Elves (Near-mint condition)\n\nNo price range data available for this condition.\n\n### Why Our Prices Are Better\n\nUnlike single-vendor buylist pages, we compare prices across multiple major vendors including Card Kingdom, Star City Games, Strike Zone, Abu Games, Mythic, and more to find you the absolute best price for your Llanowar Elves.\n\n* • Up to 20% higher payouts compared to selling to just one vendor\n* • Real-time price comparison across 4+ major buylist vendors\n* • Condition-specific pricing for NM, LP, MP, HP, and DMG cards\n* • Updated daily to ensure you get current market rates\n\n### Other Printings of Llanowar ",
+      "capture_text": "# Best Selling Prices for Llanowar Elves\n\nMagic 2011 (M11)\n\n#184\n\nTCGPlayer buy links are affiliate links with no cost to you. Affiliate links never change our recommendation.\n\n### Foil Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $2.50 | $1.25 | 3 |\n| LP | $0.93 | $0.58 | 3 |\n| MP | $0.81 | $0.81 | 1 |\n| HP | $0.17 | $0.14 | 2 |\n\n### 30-Day Price History$0.02\n\nPrice trend for Llanowar Elves (Near-mint condition)\n\nNo price range data available for this condition.\n\n### Why Our Prices Are Better\n\nUnlike single-vendor buylist pages, we compare prices across multiple major vendors including Card Kingdom, Star City Games, Strike Zone, Abu Games, Mythic, and more to find you the absolute best price for your Llanowar Elves.\n\n* • Up to 20% higher payouts compared to selling to just one vendor\n* • Real-time price comparison across 4+ major buylist vendors\n* • Condition-specific pricing for NM, LP, MP, HP, and DMG cards\n* • Updated daily to ensure you get current market rates\n\n### Other Printings of Llanowar Elves\n\nWorld Championship Decks 2002\n\n#shh253\n\nLimited Edition Alpha\n\n#210\n\nFoundations Commander\n\n#213\n\nWorld Championship Decks 2001\n\n#jt253\n\nRevised Edition\n\n#211\n\nDuel Decks: Elves vs. Goblins\n\n#9\n\nEternal Masters\n\n#175\n\nFifth Edition\n\n#313\n\nSecret Lair Drop\n\n#1129\n\nFoundations Jumpstart\n\n#149\n\nPro Tour Collector Set\n\n#bl261\n\nAnthologies\n\n#59\n\nGame Night\n\n#46\n\nCommander 2014\n\n#204\n\nSummer Magic / Edgar\n\n#211\n\nSecret Lair Drop\n\n#800\n\nBeatdown Box Set\n\n#58\n\nSeventh Edition\n\n#253",
+      "notes": [
+        "Promoted page headline: Llanowar Elves (M11 #184) — Sell for $2.50 to Mythic",
+        "First NM row, if extracted: | NM | $2.50 | $1.25 | 3 |",
+        "CardRouter is an aggregator, not the underlying vendor's official sell-cart confirmation.",
+        "Currency is displayed as '$' in the extracted page without an ISO code; USD is provisional only from the US vendor context.",
+        "Condition and finish still require confirmation in the underlying vendor sell cart.",
+        "No calculations are made from the headline amount."
+      ]
+    },
+    {
+      "source_id": "src-card-16",
+      "vendor": "CardRouter",
+      "source_url": "https://cardrouter.com/best-buylist-prices/mtg/sos/emeritus-of-woe-demonic-tutor/80",
+      "source_kind": "BUYLIST_AGGREGATOR",
+      "retrieved_at_utc": "2026-10-18T05:32:43.020Z",
+      "http_etag": null,
+      "http_last_modified": null,
+      "http_status": null,
+      "capture_sha256": "c9224fb5d074be557a502b904073954a57386351e75fee433d5b48f4e95f2dc6",
+      "capture_representation": "EXTRACTED_TEXT_UTF8",
+      "source_currency": "UNKNOWN",
+      "price_basis": "UNKNOWN",
+      "coverage_status": "CARD_LEVEL_PRICES_AVAILABLE",
+      "excerpt": "Emeritus of Woe // Demonic Tutor (SOS) — Sell for $9.74\n\n# Best Selling Prices for Emeritus of Woe // Demonic Tutor\n\nSecrets of Strixhaven (SOS)\n\n#80\n\nTCGPlayer buy links are affiliate links with no cost to you. Affiliate links never change our recommendation.\n\n### Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $9.74 | $7.55 | 3 |\n| LP | $7.20 | $5.50 | 3 |\n| MP | $6.44 | $6.35 | 2 |\n| HP | $4.50 | $2.72 | 3 |\n\n### Foil Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $8.04 | $7.34 | 4 |\n| LP | $6.10 | $5.62 | 3 |\n| MP | $5.42 | $4.47 | 2 |\n| HP | $2.40 | $2.04 | 3 |\n\n### 30-Day Price History $0.88\n\nPrice trend for Emeritus of Woe // Demonic Tutor (Near-mint condition)\n\n### 180-Day Buylist Price Range\n\nNM  - Last 6 months\n\nLow\n\n$4.00\n\nCurrent\n\n$9.74\n\nHigh\n\n$9.74\n\nThe current price is near the 180-day high\n\nPrice range: $5.74(144% variation)\n\n### Why Our Prices Are Better\n\nUnlike single-vendor buylist pages, we compare prices across multiple major vendors including Card Kingdom,",
+      "capture_text": "# Best Selling Prices for Emeritus of Woe // Demonic Tutor\n\nSecrets of Strixhaven (SOS)\n\n#80\n\nTCGPlayer buy links are affiliate links with no cost to you. Affiliate links never change our recommendation.\n\n### Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $9.74 | $7.55 | 3 |\n| LP | $7.20 | $5.50 | 3 |\n| MP | $6.44 | $6.35 | 2 |\n| HP | $4.50 | $2.72 | 3 |\n\n### Foil Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $8.04 | $7.34 | 4 |\n| LP | $6.10 | $5.62 | 3 |\n| MP | $5.42 | $4.47 | 2 |\n| HP | $2.40 | $2.04 | 3 |\n\n### 30-Day Price History $0.88\n\nPrice trend for Emeritus of Woe // Demonic Tutor (Near-mint condition)\n\n### 180-Day Buylist Price Range\n\nNM  - Last 6 months\n\nLow\n\n$4.00\n\nCurrent\n\n$9.74\n\nHigh\n\n$9.74\n\nThe current price is near the 180-day high\n\nPrice range: $5.74(144% variation)\n\n### Why Our Prices Are Better\n\nUnlike single-vendor buylist pages, we compare prices across multiple major vendors including Card Kingdom, Star City Games, Strike Zone, Abu Games, Mythic, and more to find you the absolute best price for your Emeritus of Woe // Demonic Tutor.\n\n* • **Up to 20% higher payouts** compared to selling to just one vendor\n* • **Real-time price comparison** across 4+ major buylist vendors\n* • **Condition-specific pricing** for NM, LP, MP, HP, and DMG cards\n* • **Updated daily** to ensure you get current market rates\n\n### Other Printings of Emeritus of Woe // Demonic Tutor",
+      "notes": [
+        "Promoted page headline: Emeritus of Woe // Demonic Tutor (SOS) — Sell for $9.74",
+        "First NM row, if extracted: | NM | $9.74 | $7.55 | 3 |",
+        "CardRouter is an aggregator, not the underlying vendor's official sell-cart confirmation.",
+        "Currency is displayed as '$' in the extracted page without an ISO code; USD is provisional only from the US vendor context.",
+        "Multiple condition/price blocks are present; finish and the corresponding headline need direct confirmation.",
+        "No calculations are made from the headline amount."
+      ]
+    },
+    {
+      "source_id": "src-card-17",
+      "vendor": "CardRouter",
+      "source_url": "https://cardrouter.com/best-buylist-prices/mtg/plst/esper-sentinel/MH2-12",
+      "source_kind": "BUYLIST_AGGREGATOR",
+      "retrieved_at_utc": "2026-10-18T05:32:43.020Z",
+      "http_etag": null,
+      "http_last_modified": null,
+      "http_status": null,
+      "capture_sha256": "2a1fcd1bf2d7a7cdfdc42a64e25874c2135987245cceae9c632ebeae13839ba9",
+      "capture_representation": "EXTRACTED_TEXT_UTF8",
+      "source_currency": "UNKNOWN",
+      "price_basis": "UNKNOWN",
+      "coverage_status": "CARD_LEVEL_PRICES_AVAILABLE",
+      "excerpt": "Esper Sentinel (PLST #MH2-12) — Sell for $52.53 to Mythic\n\n# Best Selling Prices for Esper Sentinel\n\nThe List (PLST)\n\n#MH2-12\n\nTCGPlayer buy links are affiliate links with no cost to you. Affiliate links never change our recommendation.\n\n### Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $52.53 | $45.63 | 3 |\n| LP | $41.65 | $38.28 | 2 |\n| MP | $36.75 | $33.97 | 2 |\n| HP | $31.85 | $24.06 | 2 |\n\n### 30-Day Price History $0.17\n\nPrice trend for Esper Sentinel (Near-mint condition)\n\n### 180-Day Buylist Price Range\n\nNM  - Last 6 months\n\nLow\n\n$32.00\n\nCurrent\n\n$52.53\n\nHigh\n\n$56.00\n\nThe current price is near the 180-day high\n\nPrice range: $24.00(75% variation)\n\n### Why Our Prices Are Better\n\nUnlike single-vendor buylist pages, we compare prices across multiple major vendors including Card Kingdom, Star City Games, Strike Zone, Abu Games, Mythic, and more to find you the absolute best price for your Esper Sentinel.\n\n* • **Up to 20% higher payouts** compared to selling to just one vendor\n* • **Real-time price comparison** across 4+ major buylist vendors\n* • **Con",
+      "capture_text": "# Best Selling Prices for Esper Sentinel\n\nThe List (PLST)\n\n#MH2-12\n\nTCGPlayer buy links are affiliate links with no cost to you. Affiliate links never change our recommendation.\n\n### Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $52.53 | $45.63 | 3 |\n| LP | $41.65 | $38.28 | 2 |\n| MP | $36.75 | $33.97 | 2 |\n| HP | $31.85 | $24.06 | 2 |\n\n### 30-Day Price History $0.17\n\nPrice trend for Esper Sentinel (Near-mint condition)\n\n### 180-Day Buylist Price Range\n\nNM  - Last 6 months\n\nLow\n\n$32.00\n\nCurrent\n\n$52.53\n\nHigh\n\n$56.00\n\nThe current price is near the 180-day high\n\nPrice range: $24.00(75% variation)\n\n### Why Our Prices Are Better\n\nUnlike single-vendor buylist pages, we compare prices across multiple major vendors including Card Kingdom, Star City Games, Strike Zone, Abu Games, Mythic, and more to find you the absolute best price for your Esper Sentinel.\n\n* • **Up to 20% higher payouts** compared to selling to just one vendor\n* • **Real-time price comparison** across 4+ major buylist vendors\n* • **Condition-specific pricing** for NM, LP, MP, HP, and DMG cards\n* • **Updated daily** to ensure you get current market rates\n\n### Other Printings of Esper Sentinel",
+      "notes": [
+        "Promoted page headline: Esper Sentinel (PLST #MH2-12) — Sell for $52.53 to Mythic",
+        "First NM row, if extracted: | NM | $52.53 | $45.63 | 3 |",
+        "CardRouter is an aggregator, not the underlying vendor's official sell-cart confirmation.",
+        "Currency is displayed as '$' in the extracted page without an ISO code; USD is provisional only from the US vendor context.",
+        "Condition and finish still require confirmation in the underlying vendor sell cart.",
+        "No calculations are made from the headline amount."
+      ]
+    },
+    {
+      "source_id": "src-card-18",
+      "vendor": "CardRouter",
+      "source_url": "https://cardrouter.com/best-buylist-prices/mtg/hoc/orcish-bowmasters/59",
+      "source_kind": "BUYLIST_AGGREGATOR",
+      "retrieved_at_utc": "2026-10-18T05:32:43.020Z",
+      "http_etag": null,
+      "http_last_modified": null,
+      "http_status": null,
+      "capture_sha256": "e1769d97aeb7669ad6d86630e06acdd4b475f60343c9a3f10d5f66e37d3245ea",
+      "capture_representation": "EXTRACTED_TEXT_UTF8",
+      "source_currency": "UNKNOWN",
+      "price_basis": "UNKNOWN",
+      "coverage_status": "CARD_LEVEL_PRICES_AVAILABLE",
+      "excerpt": "Orcish Bowmasters (HOC) — Sell for $110.00\n\n# Best Selling Prices for Orcish Bowmasters\n\nThe Hobbit Commander (HOC)\n\n#59\n\nTCGPlayer buy links are affiliate links with no cost to you. Affiliate links never change our recommendation.\n\n### Foil Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $110.00 | $93.61 | 2 |\n| LP | $90.00 | $65.76 | 2 |\n| HP | $60.00 | $53.25 | 2 |\n\n### 30-Day Price History\n\nPrice trend for Orcish Bowmasters (Near-mint condition)\n\nNo price history data available\n\nNo price range data available for this condition.\n\n### Why Our Prices Are Better\n\nUnlike single-vendor buylist pages, we compare prices across multiple major vendors including Card Kingdom, Star City Games, Strike Zone, Abu Games, Mythic, and more to find you the absolute best price for your Orcish Bowmasters.\n\n* • **Up to 20% higher payouts** compared to selling to just one vendor\n* • **Real-time price comparison** across 4+ major buylist vendors\n* • **Condition-specific pricing** for NM, LP, MP, HP, and DMG cards\n* • **Updated daily** to ensure you get current market rates",
+      "capture_text": "# Best Selling Prices for Orcish Bowmasters\n\nThe Hobbit Commander (HOC)\n\n#59\n\nTCGPlayer buy links are affiliate links with no cost to you. Affiliate links never change our recommendation.\n\n### Foil Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $110.00 | $93.61 | 2 |\n| LP | $90.00 | $65.76 | 2 |\n| HP | $60.00 | $53.25 | 2 |\n\n### 30-Day Price History\n\nPrice trend for Orcish Bowmasters (Near-mint condition)\n\nNo price history data available\n\nNo price range data available for this condition.\n\n### Why Our Prices Are Better\n\nUnlike single-vendor buylist pages, we compare prices across multiple major vendors including Card Kingdom, Star City Games, Strike Zone, Abu Games, Mythic, and more to find you the absolute best price for your Orcish Bowmasters.\n\n* • **Up to 20% higher payouts** compared to selling to just one vendor\n* • **Real-time price comparison** across 4+ major buylist vendors\n* • **Condition-specific pricing** for NM, LP, MP, HP, and DMG cards\n* • **Updated daily** to ensure you get current market rates",
+      "notes": [
+        "Promoted page headline: Orcish Bowmasters (HOC) — Sell for $110.00",
+        "First NM row, if extracted: | NM | $110.00 | $93.61 | 2 |",
+        "CardRouter is an aggregator, not the underlying vendor's official sell-cart confirmation.",
+        "Currency is displayed as '$' in the extracted page without an ISO code; USD is provisional only from the US vendor context.",
+        "Condition and finish still require confirmation in the underlying vendor sell cart.",
+        "No calculations are made from the headline amount."
+      ]
+    },
+    {
+      "source_id": "src-card-19",
+      "vendor": "CardRouter",
+      "source_url": "https://cardrouter.com/best-buylist-prices/mtg/dmu/sheoldred-the-apocalypse/331",
+      "source_kind": "BUYLIST_AGGREGATOR",
+      "retrieved_at_utc": "2026-10-18T05:32:43.020Z",
+      "http_etag": null,
+      "http_last_modified": null,
+      "http_status": null,
+      "capture_sha256": "00d0c1d2ef64df6e72fcdefce2615b777ebd73e90a444cb23b59c061393cb37e",
+      "capture_representation": "EXTRACTED_TEXT_UTF8",
+      "source_currency": "UNKNOWN",
+      "price_basis": "UNKNOWN",
+      "coverage_status": "CARD_LEVEL_PRICES_AVAILABLE",
+      "excerpt": "Sheoldred, the Apocalypse (Showcase… (DMU) — Sell for $90.00\n\n# Best Selling Prices for Sheoldred, the Apocalypse (Showcase) (Textured Foil)\n\nDominaria United (DMU)\n\n#331\n\nTCGPlayer buy links are affiliate links with no cost to you. Affiliate links never change our recommendation.\n\n### Foil Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $90.00 | $74.34 | 2 |\n| LP | $75.00 | $52.18 | 2 |\n| HP | $48.00 | $39.28 | 3 |\n\n### 30-Day Price History\n\nPrice trend for Sheoldred, the Apocalypse (Near-mint condition)\n\nNo price range data available for this condition.\n\n### Why Our Prices Are Better\n\nUnlike single-vendor buylist pages, we compare prices across multiple major vendors including Card Kingdom, Star City Games, Strike Zone, Abu Games, Mythic, and more to find you the absolute best price for your Sheoldred, the Apocalypse.\n\n* • **Up to 20% higher payouts** compared to selling to just one vendor\n* • **Real-time price comparison** across 4+ major buylist vendors\n* • **Condition-specific pricing** for NM, LP, MP, HP, and DMG cards\n* • **Updated daily** to ensur",
+      "capture_text": "# Best Selling Prices for Sheoldred, the Apocalypse (Showcase) (Textured Foil)\n\nDominaria United (DMU)\n\n#331\n\nTCGPlayer buy links are affiliate links with no cost to you. Affiliate links never change our recommendation.\n\n### Foil Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $90.00 | $74.34 | 2 |\n| LP | $75.00 | $52.18 | 2 |\n| HP | $48.00 | $39.28 | 3 |\n\n### 30-Day Price History\n\nPrice trend for Sheoldred, the Apocalypse (Near-mint condition)\n\nNo price range data available for this condition.\n\n### Why Our Prices Are Better\n\nUnlike single-vendor buylist pages, we compare prices across multiple major vendors including Card Kingdom, Star City Games, Strike Zone, Abu Games, Mythic, and more to find you the absolute best price for your Sheoldred, the Apocalypse.\n\n* • **Up to 20% higher payouts** compared to selling to just one vendor\n* • **Real-time price comparison** across 4+ major buylist vendors\n* • **Condition-specific pricing** for NM, LP, MP, HP, and DMG cards\n* • **Updated daily** to ensure you get current market rates\n\n### Other Printings of Sheoldred, the Apocalypse",
+      "notes": [
+        "Promoted page headline: Sheoldred, the Apocalypse (Showcase… (DMU) — Sell for $90.00",
+        "First NM row, if extracted: | NM | $90.00 | $74.34 | 2 |",
+        "CardRouter is an aggregator, not the underlying vendor's official sell-cart confirmation.",
+        "Currency is displayed as '$' in the extracted page without an ISO code; USD is provisional only from the US vendor context.",
+        "Condition and finish still require confirmation in the underlying vendor sell cart.",
+        "No calculations are made from the headline amount."
+      ]
+    },
+    {
+      "source_id": "src-card-20",
+      "vendor": "CardRouter",
+      "source_url": "https://cardrouter.com/best-buylist-prices/mtg/fca/ragavan-nimble-pilferer/43",
+      "source_kind": "BUYLIST_AGGREGATOR",
+      "retrieved_at_utc": "2026-10-18T05:32:43.020Z",
+      "http_etag": null,
+      "http_last_modified": null,
+      "http_status": null,
+      "capture_sha256": "cf99020fc7c9f0fc5fc4bc8947ae0c7398daf272d5771c3618eb0fb126556c15",
+      "capture_representation": "EXTRACTED_TEXT_UTF8",
+      "source_currency": "UNKNOWN",
+      "price_basis": "UNKNOWN",
+      "coverage_status": "CARD_LEVEL_PRICES_AVAILABLE",
+      "excerpt": "Ragavan, Nimble Pilferer (Borderle… (FCA) — Sell for $115.00\n\n# Best Selling Prices for Ragavan, Nimble Pilferer (Borderless)\n\nFinal Fantasy: Through the Ages (FCA)\n\n#43\n\nTCGPlayer buy links are affiliate links with no cost to you. Affiliate links never change our recommendation.\n\n### Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $25.00 | $21.88 | 3 |\n| LP | $20.00 | $16.94 | 3 |\n| MP | $15.40 | $15.40 | 1 |\n| HP | $12.00 | $11.48 | 3 |\n\n### Foil Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $115.00 | $99.31 | 3 |\n| LP | $86.25 | $69.96 | 3 |\n| MP | $57.50 | $57.50 | 1 |\n| HP | $46.50 | $40.13 | 3 |\n\n### 30-Day Price History\n\nPrice trend for Ragavan, Nimble Pilferer (Near-mint condition)\n\n### 180-Day Buylist Price Range\n\nNM  - Last 6 months\n\nLow\n\n$18.53\n\nCurrent\n\n$25.00\n\nHigh\n\n$35.00\n\nThe current price is in the middle range\n\nPrice range: $16.47(89% variation)\n\n### Why Our Prices Are Better\n\nUnlike single-vendor buylist pages, we compare prices across multiple major vendors",
+      "capture_text": "# Best Selling Prices for Ragavan, Nimble Pilferer (Borderless)\n\nFinal Fantasy: Through the Ages (FCA)\n\n#43\n\nTCGPlayer buy links are affiliate links with no cost to you. Affiliate links never change our recommendation.\n\n### Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $25.00 | $21.88 | 3 |\n| LP | $20.00 | $16.94 | 3 |\n| MP | $15.40 | $15.40 | 1 |\n| HP | $12.00 | $11.48 | 3 |\n\n### Foil Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $115.00 | $99.31 | 3 |\n| LP | $86.25 | $69.96 | 3 |\n| MP | $57.50 | $57.50 | 1 |\n| HP | $46.50 | $40.13 | 3 |\n\n### 30-Day Price History\n\nPrice trend for Ragavan, Nimble Pilferer (Near-mint condition)\n\n### 180-Day Buylist Price Range\n\nNM  - Last 6 months\n\nLow\n\n$18.53\n\nCurrent\n\n$25.00\n\nHigh\n\n$35.00\n\nThe current price is in the middle range\n\nPrice range: $16.47(89% variation)\n\n### Why Our Prices Are Better\n\nUnlike single-vendor buylist pages, we compare prices across multiple major vendors including Card Kingdom, Star City Games, Strike Zone, Abu Games, Mythic, and more to find you the absolute best price for your Ragavan, Nimble Pilferer.\n\n* • **Up to 20% higher payouts** compared to selling to just one vendor\n* • **Real-time price comparison** across 4+ major buylist vendors\n* • **Condition-specific pricing** for NM, LP, MP, HP, and DMG cards\n* • **Updated daily** to ensure you get current market rates",
+      "notes": [
+        "Promoted page headline: Ragavan, Nimble Pilferer (Borderle… (FCA) — Sell for $115.00",
+        "First NM row, if extracted: | NM | $25.00 | $21.88 | 3 |",
+        "CardRouter is an aggregator, not the underlying vendor's official sell-cart confirmation.",
+        "Currency is displayed as '$' in the extracted page without an ISO code; USD is provisional only from the US vendor context.",
+        "Multiple condition/price blocks are present; finish and the corresponding headline need direct confirmation.",
+        "Promoted headline price differs from the first NM row on the captured page; quarantined from net calculations."
+      ]
+    },
+    {
+      "source_id": "src-cardrouter-buylist-terms",
+      "vendor": "CardRouter",
+      "source_url": "https://cardrouter.com/buylists",
+      "source_kind": "BUYLIST_AGGREGATOR",
+      "retrieved_at_utc": "2026-10-18T05:32:43.052Z",
+      "http_etag": null,
+      "http_last_modified": null,
+      "http_status": null,
+      "capture_sha256": "2ee36928288c4ba39142d95992a7438830791e376c77d09a378fe1ad21e5d7eb",
+      "capture_representation": "EXTRACTED_TEXT_UTF8",
+      "source_currency": "UNKNOWN",
+      "price_basis": "TERMS_ONLY",
+      "coverage_status": "TERMS_ONLY",
+      "excerpt": "# Every MTG buylist CardRouter prices\n\nWe re-read each of these 5 buylists several times a day and route your cards to whichever shop pays most for them. Open a shop to see what it is buying, what it pays on top for store credit and how to send it your cards.\n\n| Shop | Cards priced | Coverage | Store credit bonus | Minimum order | Prices updated | Buylist |\n| --- | --- | --- | --- | --- | --- | --- |\n| Card Kingdom **Cards priced** 60,661 **Coverage** 100% **Store credit bonus** +30% **Minimum order** None **Prices updated** about 12 hours ago | 60,661 | 100% | +30% | None | about 12 hours ago | Visit the Card Kingdom buylist |\n| Star City Games **Cards priced** 37,553 **Coverage** 100% **Store credit bonus** +30% **Minimum order** None **Prices updated** about 11 hours ago | 37,553 | 100% | +30% | None | about 11 hours ago | Visit the Star City Games buylist |\n| ABU Games **Cards priced** 22,672 **Coverage** 100% **Store credit bonus** +15% **Minimum order** $10.00 **Prices updated** about 11 hours ago | 22,672 | 100% | +15% | $10.00 | about 11 hours ago | Visit the ABU Games buylist |\n| Mythic **Cards priced** 57,682 **Coverage** ",
+      "capture_text": "# Every MTG buylist CardRouter prices\n\nWe re-read each of these 5 buylists several times a day and route your cards to whichever shop pays most for them. Open a shop to see what it is buying, what it pays on top for store credit and how to send it your cards.\n\n| Shop | Cards priced | Coverage | Store credit bonus | Minimum order | Prices updated | Buylist |\n| --- | --- | --- | --- | --- | --- | --- |\n| Card Kingdom **Cards priced** 60,661 **Coverage** 100% **Store credit bonus** +30% **Minimum order** None **Prices updated** about 12 hours ago | 60,661 | 100% | +30% | None | about 12 hours ago | Visit the Card Kingdom buylist |\n| Star City Games **Cards priced** 37,553 **Coverage** 100% **Store credit bonus** +30% **Minimum order** None **Prices updated** about 11 hours ago | 37,553 | 100% | +30% | None | about 11 hours ago | Visit the Star City Games buylist |\n| ABU Games **Cards priced** 22,672 **Coverage** 100% **Store credit bonus** +15% **Minimum order** $10.00 **Prices updated** about 11 hours ago | 22,672 | 100% | +15% | $10.00 | about 11 hours ago | Visit the ABU Games buylist |\n| Mythic **Cards priced** 57,682 **Coverage** 100% **Store credit bonus** +20% **Minimum order** None **Prices updated** about 14 hours ago | 57,682 | 100% | +20% | None | about 14 hours ago | Visit the Mythic buylist |\n| Strike Zone Online **Cards priced** 15,317 **Coverage** 100% **Store credit bonus** +0% **Minimum order** $15.00 **Prices updated** about 12 hours ago | 15,317 | 100% | +0% | $15.00 | about 12 hours ago | Visit the Strike Zone Online buylist |\n\nStore credit bonuses and minimum orders are the terms we hold on file for each shop. Verify them with the shop before you ship.",
+      "notes": [
+        "Public aggregate terms / minimum orders / store-credit bonuses. No card-level price quotes from this page."
+      ]
+    },
+    {
+      "source_id": "src-starcity-bulk",
+      "vendor": "Star City Games",
+      "source_url": "https://sellyourcards.starcitygames.com/mtg/bulk",
+      "source_kind": "OFFICIAL_BUYLIST",
+      "retrieved_at_utc": "2026-10-18T05:32:43.052Z",
+      "http_etag": null,
+      "http_last_modified": null,
+      "http_status": null,
+      "capture_sha256": "6ad1350534fe1c9fadb63d60d8fcd71639930e1d1e258f2bae60b147c1dbf048",
+      "capture_representation": "EXTRACTED_TEXT_UTF8",
+      "source_currency": "USD",
+      "price_basis": "BULK_RATE",
+      "coverage_status": "BULK_ONLY",
+      "excerpt": "# Magic: The Gathering Bulk List\n\nSell unspecified cards in small or large quantities based on rarity. We accept English cards in Near Mint and Played condition without shuffle creases as bulk. Add your bulk card quantities to the cart in bulk by using the categories below.\n\n## Magic Mythic Rare\n\nExcludes Unfinity, Unstable, and Unsanctioned\n\nBulk NM/PL\n\n$0.25\n\nUSD\n\n## Magic Rare\n\nExcludes Unfinity, Unstable, and Unsanctioned\n\nBulk NM/PL\n\n$0.08\n\nUSD\n\n## Magic Foil Common/Uncommon\n\nExcludes Unfinity, Unstable, and Unsanctioned\n\nBulk NM/PL\n\n$0.02\n\nUSD\n\n## Magic Foil Basic Land\n\nBulk NM/PL\n\n$0.010\n\nUSD\n\n$10\n\n/1000\n\n## Magic Foil Rare/Mythic Rare\n\nExcludes Unfinity, Unstable, and Mystery Booster\n\nBulk NM/PL\n\n$0.10\n\nUSD\n\n## Magic Common/Uncommon\n\nExcludes Unfinity, Unstable, and Unsanctioned\n\nBulk NM/PL\n\n$0.008\n\nUSD\n\n$8\n\n/1000\n\n## Magic Basic Land\n\nBulk NM/PL\n\n$0.015\n\nUSD\n\n$15\n\n/1000\n\n## Magic Promo\n\nBulk NM/PL\n\n$0.03\n\nUSD\n\n## Magic Unstable\n\nOnly Unfinity, Unstable, and Unsanctioned non-foil Rare/Mythic rare cards\n\nBulk NM/PL\n\n$0.001\n\nUSD\n\n$1\n\n/1000\n\n## Magic Art Cards\n\nBulk NM/PL\n\n$0.001\n\nUSD\n\n$1\n\n/1000\n\n## Magic Tokens\n\nBulk NM/PL\n\n$0",
+      "capture_text": "# Magic: The Gathering Bulk List\n\nSell unspecified cards in small or large quantities based on rarity. We accept English cards in Near Mint and Played condition without shuffle creases as bulk. Add your bulk card quantities to the cart in bulk by using the categories below.\n\n## Magic Mythic Rare\n\nExcludes Unfinity, Unstable, and Unsanctioned\n\nBulk NM/PL\n\n$0.25\n\nUSD\n\n## Magic Rare\n\nExcludes Unfinity, Unstable, and Unsanctioned\n\nBulk NM/PL\n\n$0.08\n\nUSD\n\n## Magic Foil Common/Uncommon\n\nExcludes Unfinity, Unstable, and Unsanctioned\n\nBulk NM/PL\n\n$0.02\n\nUSD\n\n## Magic Foil Basic Land\n\nBulk NM/PL\n\n$0.010\n\nUSD\n\n$10\n\n/1000\n\n## Magic Foil Rare/Mythic Rare\n\nExcludes Unfinity, Unstable, and Mystery Booster\n\nBulk NM/PL\n\n$0.10\n\nUSD\n\n## Magic Common/Uncommon\n\nExcludes Unfinity, Unstable, and Unsanctioned\n\nBulk NM/PL\n\n$0.008\n\nUSD\n\n$8\n\n/1000\n\n## Magic Basic Land\n\nBulk NM/PL\n\n$0.015\n\nUSD\n\n$15\n\n/1000\n\n## Magic Promo\n\nBulk NM/PL\n\n$0.03\n\nUSD\n\n## Magic Unstable\n\nOnly Unfinity, Unstable, and Unsanctioned non-foil Rare/Mythic rare cards\n\nBulk NM/PL\n\n$0.001\n\nUSD\n\n$1\n\n/1000\n\n## Magic Art Cards\n\nBulk NM/PL\n\n$0.001\n\nUSD\n\n$1\n\n/1000\n\n## Magic Tokens\n\nBulk NM/PL\n\n$0.001\n\nUSD\n\n$1\n\n/1000\n\nYou are not logged in!\n\nYou must log in before you can::\n\n* Add items to your Sell Cart\n* Track the status of your Sell Requests\n* Use the CSV Upload page",
+      "notes": [
+        "Official bulk rates are visible in USD, but bulk categories are not interchangeable with individual print-specific singles."
+      ]
+    },
+    {
+      "source_id": "src-abugames-terms",
+      "vendor": "ABU Games",
+      "source_url": "https://abugames.com/buylist",
+      "source_kind": "OFFICIAL_POLICY_OR_TERMS",
+      "retrieved_at_utc": "2026-10-18T05:32:43.052Z",
+      "http_etag": null,
+      "http_last_modified": null,
+      "http_status": null,
+      "capture_sha256": "2562bdef44967165782b7b1d03c78e6d5f57c5d8b13925e1eaa7af21b59d2f0e",
+      "capture_representation": "EXTRACTED_TEXT_UTF8",
+      "source_currency": "UNKNOWN",
+      "price_basis": "TERMS_ONLY",
+      "coverage_status": "TERMS_ONLY",
+      "excerpt": "New at ABU\nStrategy\nContact\nBoise Store\nCondition Guide\nMTG Edition Guide\nCash Rewards Program\nMy Account\nMagic the Gathering\nTable Top Games\nGaming Supplies\nSpecialty Items\nMy Account\nNew at ABU\nStrategy\nContact\nBoise Store\nCondition Guide\nEdition Guide\nRewards Program\nBuylist\nMagic Singles\nMagic Packs\nMagic Tokens\nTable Top Games\nGaming Supplies\nSpecialty Items\nBuylist\n0\n( 0 ) -\n$0.00 / $0.00\n(0) ITEMS IN BUYLIST\nTOTAL\n$0.00 / $0.00\nView My Cart\nMagic the Gathering\nTable Top Games\nGaming Supplies\nSpecialty Items\nMenu\n×\nSorry We're Out of Stock\nLog in or Sign up and you'll be the first to know when it's get in.\nLog in\nDon't have an account?\nSign up\n×\nLog in to add to your Wishlist\nlogin\nDon't have an account?\nSign Up\n×\nHow would you like to proceed?\nIf you had a previous account, use your email to log in.\nLog in to your account :\nlogin\nDon't have an account?\nSign Up\n×\nHow would you like to proceed?\nIf you had a previous account, use your email to log in.\nLog in to your account :\nlogin\nDon't have an account?\nSign Up\n×\nLog in to your account\nIf you had a previous account, use your email to log in.\nlogin\nFORGOT PASSWORD\nDon't have an ",
+      "capture_text": "New at ABU\nStrategy\nContact\nBoise Store\nCondition Guide\nMTG Edition Guide\nCash Rewards Program\nMy Account\nMagic the Gathering\nTable Top Games\nGaming Supplies\nSpecialty Items\nMy Account\nNew at ABU\nStrategy\nContact\nBoise Store\nCondition Guide\nEdition Guide\nRewards Program\nBuylist\nMagic Singles\nMagic Packs\nMagic Tokens\nTable Top Games\nGaming Supplies\nSpecialty Items\nBuylist\n0\n( 0 ) -\n$0.00 / $0.00\n(0) ITEMS IN BUYLIST\nTOTAL\n$0.00 / $0.00\nView My Cart\nMagic the Gathering\nTable Top Games\nGaming Supplies\nSpecialty Items\nMenu\n×\nSorry We're Out of Stock\nLog in or Sign up and you'll be the first to know when it's get in.\nLog in\nDon't have an account?\nSign up\n×\nLog in to add to your Wishlist\nlogin\nDon't have an account?\nSign Up\n×\nHow would you like to proceed?\nIf you had a previous account, use your email to log in.\nLog in to your account :\nlogin\nDon't have an account?\nSign Up\n×\nHow would you like to proceed?\nIf you had a previous account, use your email to log in.\nLog in to your account :\nlogin\nDon't have an account?\nSign Up\n×\nLog in to your account\nIf you had a previous account, use your email to log in.\nlogin\nFORGOT PASSWORD\nDon't have an account?\nSIGN UP\nAdd new address\nSELECT COUNTRY\nUnited States\n----\nAfghanistan\nÅland Islands\nAlbania\nAlgeria\nAmerican Samoa\nAndorra\nAngola\nAnguilla\nAntarctica\nAntigua and Barbuda\nArgentina\nArmenia\nAruba\nAustralia\nAustria\nAzerbaijan\nBahamas\nBahrain\nBangladesh\nBarbados\nBelarus\nBelgium\nBelize\nBenin\nBermuda\nBhutan\nBolivia\nBosnia and Herzegovina\nBotswana\nBouvet Island\nBrazil\nBritish Indian Ocean Territory\nBrunei Darussalam\nBulgaria\nBurkina Faso\nBurundi\nCambodia\nCameroon\nCanada\nCape Verde\nCayman Islands\nCentral African Republic\nChad\nChile\nChina\nChristmas Island\nCocos (Keeling) Islands\nColombia\nComoros\nCongo\nCongo, The Democratic Republic of the\nCook Islands\nCosta Rica\nCote D'Ivoire\nCroatia\nCuba\nCyprus\nCzech Republic\nDenmark\nDjibouti\nDominica\nDominican Republic\nEcuador\nEgypt\nEl Salvador\nEquatorial Guinea\nEritrea\nEstonia\nEthiopia\nFalkland Islands (Malvinas)\nFaroe Islands\nFiji\nFinland\nFrance\nFrench Guiana\nFrench Polynesia\nFrench Southern Territories\nGabon\nGambia\nGeorgia\nGermany\nGhana\nGibraltar\nGreece\nGreenland\nGrenada\nGuadeloupe\nGuam\nGuatemala\nGuernsey\nGuinea\nGuinea-Bissau\nGuyana\nHaiti\nHeard Island and Mcdonald Islands\nHoly See (Vatican City State)\nHonduras\nHong Kong\nHungary\nIceland\nIndia\nIndonesia\nIran, Islamic Republic Of\nIraq\nIreland\nIsle of Man\nIsrael\nItaly\nJamaica\nJapan\nJersey\nJordan\nKazakhstan\nKenya\nKiribati\nKorea, Democratic People'S Republic of\nKorea, Republic of\nKuwait\nKyrgyzstan\nLao People'S Democratic Republic\nLatvia\nLebanon\nLesotho\nLiberia\nLibyan Arab Jamahiriya\nLiechtenstein\nLithuania\nLuxembourg\nMacao\nMacedonia, The Former Yugoslav Republic of\nMadagascar\nMalawi\nMalaysia\nMaldives\nMali\nMalta\nMarshall Islands\nMartinique\nMauritania\nMauritius\nMayotte\nMexico\nMicronesia, Federated States of\nMoldova, Republic of\nMonaco\nMongolia\nMontserrat\nMorocco\nMozambique\nMyanmar\nNamibia\nNauru\nNepal\nNetherlands\nNetherlands Antilles\nNew Caledonia\nNew Zealand\nNicaragua\nNiger\nNigeria\nNiue\nNorfolk Island\nNorthern Mariana Islands\nNorway\nOman\nPakistan\nPalau\nPalestinian Territory, Occupied\nPanama\nPapua New Guinea\nParaguay\nPeru\nPhilippines\nPitcairn\nPoland\nPortugal\nPuerto Rico\nQatar\nReunion\nRomania\nRussian Federation\nRWANDA\nSaint Helena\nSaint Kitts and Nevis\nSaint Lucia\nSaint Pierre and Miquelon\nSaint Vincent and the Grenadines\nSamoa\nSan Marino\nSao Tome and Principe\nSaudi Arabia\nSenegal\nSerbia and Montenegro\nSeychelles\nSierra Leone\nSingapore\nSlovakia\nSlovenia\nSolomon Islands\nSomalia\nSouth Africa\nSouth Georgia and the South Sandwich Islands\nSpain\nSri Lanka\nSudan\nSuriname\nSvalbard and Jan Mayen\nSwaziland\nSweden\nSwitzerland\nSyrian Arab Republic\nTaiwan, Province of China\nTajikistan\nTanzania, United Republic of\nThailand\nTimor-Leste\nTogo\nTokelau\nTonga\nTrinidad and Tobago\nTunisia\nTurkey\nTurkmenistan\nTurks and Caicos Islands\nTuvalu\nUganda\nUkraine\nUnited Arab Emirates\nUnited Kingdom\nUnited States\nUnited States Minor Outlying Islands\nUruguay\nUzbekistan\nVanuatu\nVenezuela\nViet Nam\nVirgin Islands, British\nVirgin Islands, U.S.\nWallis and Futuna\nWestern Sahara\nYemen\nZambia\nZimbabwe\nBilling\nShipping\nEdit address\nSELECT COUNTRY\nUnited States\n----\nAfghanistan\nÅland Islands\nAlbania\nAlgeria\nAmerican Samoa\nAndorra\nAngola\nAnguilla\nAntarctica\nAntigua and Barbuda\nArgentina\nArmenia\nAruba\nAustralia\nAustria\nAzerbaijan\nBahamas\nBahrain\nBangladesh\nBarbados\nBelarus\nBelgium\nBelize\nBenin\nBermuda\nBhutan\nBolivia\nBosnia and Herzegovina\nBotswana\nBouvet Island\nBrazil\nBritish Indian Ocean Territory\nBrunei Darussalam\nBulgaria\nBurkina Faso\nBurundi\nCambodia\nCameroon\nCanada\nCape Verde\nCayman Islands\nCentral African Republic\nChad\nChile\nChina\nChristmas Island\nCocos (Keeling) Islands\nColombia\nComoros\nCongo\nCongo, The Democratic Republic of the\nCook Islands\nCosta Rica\nCote D'Ivoire\nCroatia\nCuba\nCyprus\nCzech Republic\nDenmark\nDjibouti\nDominica\nDominican Republic\nEcuador\nEgypt\nEl Salvador\nEquatorial Guinea\nEritrea\nEstonia\nEthiopia\nFalkland Islands (Malvinas)\nFaroe Islands\nFiji\nFinland\nFrance\nFrench Guiana\nFrench Polynesia\nFrench Southern Territories\nGabon\nGambia\nGeorgia\nGermany\nGhana\nGibraltar\nGreece\nGreenland\nGrenada\nGuadeloupe\nGuam\nGuatemala\nGuernsey\nGuinea\nGuinea-Bissau\nGuyana\nHaiti\nHeard Island and Mcdonald Islands\nHoly See (Vatican City State)\nHonduras\nHong Kong\nHungary\nIceland\nIndia\nIndonesia\nIran, Islamic Republic Of\nIraq\nIreland\nIsle of Man\nIsrael\nItaly\nJamaica\nJapan\nJersey\nJordan\nKazakhstan\nKenya\nKiribati\nKorea, Democratic People'S Republic of\nKorea, Republic of\nKuwait\nKyrgyzstan\nLao People'S Democratic Republic\nLatvia\nLebanon\nLesotho\nLiberia\nLibyan Arab Jamahiriya\nLiechtenstein\nLithuania\nLuxembourg\nMacao\nMacedonia, The Former Yugoslav Republic of\nMadagascar\nMalawi\nMalaysia\nMaldives\nMali\nMalta\nMarshall Islands\nMartinique\nMauritania\nMauritius\nMayotte\nMexico\nMicronesia, Federated States of\nMoldova, Republic of\nMonaco\nMongolia\nMontserrat\nMorocco\nMozambique\nMyanmar\nNamibia\nNauru\nNepal\nNetherlands\nNetherlands Antilles\nNew Caledonia\nNew Zealand\nNicaragua\nNiger\nNigeria\nNiue\nNorfolk Island\nNorthern Mariana Islands\nNorway\nOman\nPakistan\nPalau\nPalestinian Territory, Occupied\nPanama\nPapua New Guinea\nParaguay\nPeru\nPhilippines\nPitcairn\nPoland\nPortugal\nPuerto Rico\nQatar\nReunion\nRomania\nRussian Federation\nRWANDA\nSaint Helena\nSaint Kitts and Nevis\nSaint Lucia\nSaint Pierre and Miquelon\nSaint Vincent and the Grenadines\nSamoa\nSan Marino\nSao Tome and Principe\nSaudi Arabia\nSenegal\nSerbia and Montenegro\nSeychelles\nSierra Leone\nSingapore\nSlovakia\nSlovenia\nSolomon Islands\nSomalia\nSouth Africa\nSouth Georgia and the South Sandwich Islands\nSpain\nSri Lanka\nSudan\nSuriname\nSvalbard and Jan Mayen\nSwaziland\nSweden\nSwitzerland\nSyrian Arab Republic\nTaiwan, Province of China\nTajikistan\nTanzania, United Republic of\nThailand\nTimor-Leste\nTogo\nTokelau\nTonga\nTrinidad and Tobago\nTunisia\nTurkey\nTurkmenistan\nTurks and Caicos Islands\nTuvalu\nUganda\nUkraine\nUnited Arab Emirates\nUnited Kingdom\nUnited States\nUnited States Minor Outlying Islands\nUruguay\nUzbekistan\nVanuatu\nVenezuela\nViet Nam\nVirgin Islands, British\nVirgin Islands, U.S.\nWallis and Futuna\nWestern Sahara\nYemen\nZambia\nZimbabwe\nBilling\nShipping\nConfirm Delete\nAre you sure you want to delete this?\nConfirm Empty Shopping Cart\nAre you sure you want to clear the shopping cart?\nConfirm Empty Buylist Cart\nAre you sure you want to clear the buylist cart?\nHide Filtering\nSingles\nPacks\nFilter Results\nReset\nCard Name\nMagic Edition\nCard Style\nRarity\nLanguage\nBuy List Cash Price\nBuy List Trade Price\nReset Filters\nExpand Filters\nReset Filters\nPrice: High to Low\nPrice: Low to High\nName\nCollector Number\nSwitch to Desktop View",
+      "notes": [
+        "Public page exposes terms and a buylist UI but this capture did not expose current card-level prices."
+      ]
+    }
+  ],
+  "offers": [
+    {
+      "offer_id": "offer-01",
+      "input_card_id": "sample-card-01",
+      "vendor": "Card Kingdom",
+      "quote_status": "ESTIMATE_ONLY",
+      "source_id": "src-card-01",
+      "source_url": "https://cardrouter.com/best-buylist-prices/mtg/sld/sol-ring/IFIYW-5",
+      "retrieved_at_utc": "2026-10-18T05:32:43.035Z",
+      "response_sha256": "1d1fb540c5ef7375bcab67f94be806e1c8b973b4b57187d86a0e5cb280d989c9",
+      "matched_card_name": "Sol Ring",
+      "set_or_printing_match": "EXACT",
+      "finish_match": "UNCONFIRMED",
+      "price": {
+        "amount": 7.5,
+        "currency": "USD",
+        "basis": "OTHER",
+        "condition": "UNKNOWN",
+        "quantity_limit": null
+      },
+      "condition_rule": {
+        "rule_text": "Multiple price blocks exist; don't apply a markdown until the requested printing and finish are vendor-confirmed.",
+        "rule_source_url": null,
+        "applied_adjustment_pct": null,
+        "applied_adjustment_status": "UNKNOWN"
+      },
+      "shipping_assumption": {
+        "amount": null,
+        "currency": "UNKNOWN",
+        "basis": "UNKNOWN",
+        "source_url": null,
+        "notes": "No outbound NZ shipping cost or seller-specific postage quote captured."
+      },
+      "fx": null,
+      "net_estimate": {
+        "amount_nzd": null,
+        "status": "NOT_CALCULABLE",
+        "formula": "Not calculated: source currency is provisional, cash-vs-credit basis/finish/condition and direct vendor quote are unconfirmed; shipping, minimum order and NZD FX are not priced.",
+        "excluded_costs": [
+          "NZD FX conversion",
+          "Shipping to vendor",
+          "Insurance and packaging",
+          "Condition markdowns",
+          "Vendor minimum order",
+          "Cash-vs-store-credit terms"
+        ]
+      },
+      "evidence_excerpt": "Sol Ring (SLD #IFIYW-5) — Sell for $7.50 to Card Kingdom\n\n# Best Selling Prices for Sol Ring\n\nSecret Lair Drop (SLD)\n\n#IFIYW-5\n\nTCGPlayer buy links are affiliate links with no cost to you. Affiliate links never change our recommendation.\n\n### Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $6.50 | $6.50 | 1 |\n| LP | $5.20 | $5.20 | 1 |\n| MP | $4.55 | $4.55 | 1 |\n| HP | $3.25 | $3.25 | 1 |\n\n### Foil Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $7.50 | $7.50 | 1 |\n| LP | $5.63 | $5.63 | 1 |\n| MP | $3.75 | $3.75 | 1 |\n| HP | $2.25 | $2.25 | 1 |\n\n### 30-Day Price History$0.50\n\nPrice trend for Sol Ring (Near-mint condition)\n\n### 180-Day Buylist Price Range\n\nNM - Last 6 months\n\nLow\n\n$5.50\n\nCurrent\n\n$6.50\n\nHigh\n\n$9.75\n\nThe current price is near the 180-day low\n\nPrice range: $4.25(77% variation)\n\n### Why Our Prices Are Better\n\nUnlike single-vendor buylist pages, we compare prices across multiple major vendors including Card Kingdom, Star City Games, Strike Zone, Abu Games, Mythic, a",
+      "caveats": [
+        "CardRouter is an aggregator, not the underlying vendor's official sell-cart confirmation.",
+        "Currency is displayed as '$' in the extracted page without an ISO code; USD is provisional only from the US vendor context.",
+        "Multiple condition/price blocks are present; finish and the corresponding headline need direct confirmation.",
+        "Promoted headline price differs from the first NM row on the captured page; quarantined from net calculations.",
+        "This headline observation is not a binding offer and is not an executable trade price."
+      ]
+    },
+    {
+      "offer_id": "offer-02",
+      "input_card_id": "sample-card-02",
+      "vendor": "Mythic",
+      "quote_status": "ESTIMATE_ONLY",
+      "source_id": "src-card-02",
+      "source_url": "https://cardrouter.com/best-buylist-prices/mtg/lcc/arcane-signet/299",
+      "retrieved_at_utc": "2026-10-18T05:32:43.035Z",
+      "response_sha256": "661cb193e3808ed78b278aeba93bdad0ccc9ffbcb93080149f12fbe7b36edead",
+      "matched_card_name": "Arcane Signet",
+      "set_or_printing_match": "EXACT",
+      "finish_match": "UNCONFIRMED",
+      "price": {
+        "amount": 0.9,
+        "currency": "USD",
+        "basis": "OTHER",
+        "condition": "UNKNOWN",
+        "quantity_limit": null
+      },
+      "condition_rule": {
+        "rule_text": "Aggregated condition table observed; condition-adjusted cash payout not independently confirmed.",
+        "rule_source_url": null,
+        "applied_adjustment_pct": null,
+        "applied_adjustment_status": "UNKNOWN"
+      },
+      "shipping_assumption": {
+        "amount": null,
+        "currency": "UNKNOWN",
+        "basis": "UNKNOWN",
+        "source_url": null,
+        "notes": "No outbound NZ shipping cost or seller-specific postage quote captured."
+      },
+      "fx": null,
+      "net_estimate": {
+        "amount_nzd": null,
+        "status": "NOT_CALCULABLE",
+        "formula": "Not calculated: source currency is provisional, cash-vs-credit basis/finish/condition and direct vendor quote are unconfirmed; shipping, minimum order and NZD FX are not priced.",
+        "excluded_costs": [
+          "NZD FX conversion",
+          "Shipping to vendor",
+          "Insurance and packaging",
+          "Condition markdowns",
+          "Vendor minimum order",
+          "Cash-vs-store-credit terms"
+        ]
+      },
+      "evidence_excerpt": "Arcane Signet (LCC #299) — Sell for $0.90 to Mythic\n\n# Best Selling Prices for Arcane Signet\n\nThe Lost Caverns of Ixalan Commander (LCC)\n\n#299\n\nTCGPlayer buy links are affiliate links with no cost to you. Affiliate links never change our recommendation.\n\n### Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $0.90 | $0.90 | 1 |\n| LP | $0.79 | $0.79 | 1 |\n| MP | $0.58 | $0.58 | 1 |\n| HP | $0.52 | $0.34 | 2 |\n| DMG | $0.37 | $0.37 | 1 |\n\n### 30-Day Price History$0.50\n\nPrice trend for Arcane Signet (Near-mint condition)\n\n### 180-Day Buylist Price Range\n\nNM - Last 6 months\n\nLow\n\n$0.08\n\nCurrent\n\n$0.90\n\nHigh\n\n$1.08\n\nThe current price is near the 180-day high\n\nPrice range: $1.00(1250% variation)\n\n### Why Our Prices Are Better\n\nUnlike single-vendor buylist pages, we compare prices across multiple major vendors including Card Kingdom, Star City Games, Strike Zone, Abu Games, Mythic, and more to find you the absolute best price for your Arcane Signet.\n\n* • Up to 20% higher payouts compared to selling to just one vendor\n* • Real-time price comparison across 4+ major bu",
+      "caveats": [
+        "CardRouter is an aggregator, not the underlying vendor's official sell-cart confirmation.",
+        "Currency is displayed as '$' in the extracted page without an ISO code; USD is provisional only from the US vendor context.",
+        "Condition and finish still require confirmation in the underlying vendor sell cart.",
+        "No calculations are made from the headline amount.",
+        "This headline observation is not a binding offer and is not an executable trade price."
+      ]
+    },
+    {
+      "offer_id": "offer-03",
+      "input_card_id": "sample-card-03",
+      "vendor": "Mythic",
+      "quote_status": "ESTIMATE_ONLY",
+      "source_id": "src-card-03",
+      "source_url": "https://cardrouter.com/best-buylist-prices/mtg/pw25/command-tower/17",
+      "retrieved_at_utc": "2026-10-18T05:32:43.035Z",
+      "response_sha256": "9a545c7ccec15f4d5a6a074760aae3e5bcad41e03980a911323af9975f119ea3",
+      "matched_card_name": "Command Tower",
+      "set_or_printing_match": "EXACT",
+      "finish_match": "UNCONFIRMED",
+      "price": {
+        "amount": 8.47,
+        "currency": "USD",
+        "basis": "OTHER",
+        "condition": "UNKNOWN",
+        "quantity_limit": null
+      },
+      "condition_rule": {
+        "rule_text": "Aggregated condition table observed; condition-adjusted cash payout not independently confirmed.",
+        "rule_source_url": null,
+        "applied_adjustment_pct": null,
+        "applied_adjustment_status": "UNKNOWN"
+      },
+      "shipping_assumption": {
+        "amount": null,
+        "currency": "UNKNOWN",
+        "basis": "UNKNOWN",
+        "source_url": null,
+        "notes": "No outbound NZ shipping cost or seller-specific postage quote captured."
+      },
+      "fx": null,
+      "net_estimate": {
+        "amount_nzd": null,
+        "status": "NOT_CALCULABLE",
+        "formula": "Not calculated: source currency is provisional, cash-vs-credit basis/finish/condition and direct vendor quote are unconfirmed; shipping, minimum order and NZD FX are not priced.",
+        "excluded_costs": [
+          "NZD FX conversion",
+          "Shipping to vendor",
+          "Insurance and packaging",
+          "Condition markdowns",
+          "Vendor minimum order",
+          "Cash-vs-store-credit terms"
+        ]
+      },
+      "evidence_excerpt": "Command Tower (PW25 #17) — Sell for $8.47 to Mythic\n\n# Best Selling Prices for Command Tower\n\nWizards Play Network 2025 (PW25)\n\n#17\n\nTCGPlayer buy links are affiliate links with no cost to you. Affiliate links never change our recommendation.\n\n### Foil Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $8.47 | $6.32 | 2 |\n| LP | $6.10 | $4.66 | 2 |\n| MP | $5.42 | $3.56 | 2 |\n| HP | $1.58 | $1.48 | 2 |\n\n### 30-Day Price History$0.03\n\nPrice trend for Command Tower (Near-mint condition)\n\nNo price range data available for this condition.\n\n### Why Our Prices Are Better\n\nUnlike single-vendor buylist pages, we compare prices across multiple major vendors including Card Kingdom, Star City Games, Strike Zone, Abu Games, Mythic, and more to find you the absolute best price for your Command Tower.\n\n* • Up to 20% higher payouts compared to selling to just one vendor\n* • Real-time price comparison across 4+ major buylist vendors\n* • Condition-specific pricing for NM, LP, MP, HP, and DMG cards\n* • Updated daily to ensure you get current market rates\n\n### Other Printings o",
+      "caveats": [
+        "CardRouter is an aggregator, not the underlying vendor's official sell-cart confirmation.",
+        "Currency is displayed as '$' in the extracted page without an ISO code; USD is provisional only from the US vendor context.",
+        "Condition and finish still require confirmation in the underlying vendor sell cart.",
+        "No calculations are made from the headline amount.",
+        "This headline observation is not a binding offer and is not an executable trade price."
+      ]
+    },
+    {
+      "offer_id": "offer-04",
+      "input_card_id": "sample-card-04",
+      "vendor": "Mythic",
+      "quote_status": "ESTIMATE_ONLY",
+      "source_id": "src-card-04",
+      "source_url": "https://cardrouter.com/best-buylist-prices/mtg/3ed/lightning-bolt/162",
+      "retrieved_at_utc": "2026-10-18T05:32:43.035Z",
+      "response_sha256": "e62af3e376379e85e489b63a8cf446b2bd4acac7aa6947589507d0e902fea7f3",
+      "matched_card_name": "Lightning Bolt",
+      "set_or_printing_match": "EXACT",
+      "finish_match": "UNCONFIRMED",
+      "price": {
+        "amount": 1.97,
+        "currency": "USD",
+        "basis": "OTHER",
+        "condition": "UNKNOWN",
+        "quantity_limit": null
+      },
+      "condition_rule": {
+        "rule_text": "Aggregated condition table observed; condition-adjusted cash payout not independently confirmed.",
+        "rule_source_url": null,
+        "applied_adjustment_pct": null,
+        "applied_adjustment_status": "UNKNOWN"
+      },
+      "shipping_assumption": {
+        "amount": null,
+        "currency": "UNKNOWN",
+        "basis": "UNKNOWN",
+        "source_url": null,
+        "notes": "No outbound NZ shipping cost or seller-specific postage quote captured."
+      },
+      "fx": null,
+      "net_estimate": {
+        "amount_nzd": null,
+        "status": "NOT_CALCULABLE",
+        "formula": "Not calculated: source currency is provisional, cash-vs-credit basis/finish/condition and direct vendor quote are unconfirmed; shipping, minimum order and NZD FX are not priced.",
+        "excluded_costs": [
+          "NZD FX conversion",
+          "Shipping to vendor",
+          "Insurance and packaging",
+          "Condition markdowns",
+          "Vendor minimum order",
+          "Cash-vs-store-credit terms"
+        ]
+      },
+      "evidence_excerpt": "Lightning Bolt (3ED #162) — Sell for $1.97 to Mythic\n\n# Best Selling Prices for Lightning Bolt\n\nRevised Edition (3ED)\n\n#162\n\nTCGPlayer buy links are affiliate links with no cost to you. Affiliate links never change our recommendation.\n\n### Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $1.97 | $1.27 | 3 |\n| LP | $1.65 | $1.24 | 2 |\n| MP | $1.09 | $0.97 | 2 |\n| HP | $0.96 | $0.75 | 2 |\n| DMG | $0.82 | $0.82 | 1 |\n\n### 30-Day Price History$0.04\n\nPrice trend for Lightning Bolt (Near-mint condition)\n\n### 180-Day Buylist Price Range\n\nNM - Last 6 months\n\nLow\n\n$0.50\n\nCurrent\n\n$1.97\n\nHigh\n\n$2.36\n\nThe current price is near the 180-day high\n\nPrice range: $1.86(372% variation)\n\n### Why Our Prices Are Better\n\nUnlike single-vendor buylist pages, we compare prices across multiple major vendors including Card Kingdom, Star City Games, Strike Zone, Abu Games, Mythic, and more to find you the absolute best price for your Lightning Bolt.\n\n* • Up to 20% higher payouts compared to selling to just one vendor\n* • Real-time price comparison across 4+ major buylist vendors\n* • ",
+      "caveats": [
+        "CardRouter is an aggregator, not the underlying vendor's official sell-cart confirmation.",
+        "Currency is displayed as '$' in the extracted page without an ISO code; USD is provisional only from the US vendor context.",
+        "Condition and finish still require confirmation in the underlying vendor sell cart.",
+        "No calculations are made from the headline amount.",
+        "This headline observation is not a binding offer and is not an executable trade price."
+      ]
+    },
+    {
+      "offer_id": "offer-05",
+      "input_card_id": "sample-card-05",
+      "vendor": "CardRouter aggregate; underlying provider not explicit",
+      "quote_status": "ESTIMATE_ONLY",
+      "source_id": "src-card-05",
+      "source_url": "https://cardrouter.com/best-buylist-prices/mtg/sld/counterspell/2497",
+      "retrieved_at_utc": "2026-10-18T05:32:43.035Z",
+      "response_sha256": "1e66617258c72ba797c47d0920a2a574424fcbedc79c787a0d7cb1e8b881d97d",
+      "matched_card_name": "Counterspell (Borderless)",
+      "set_or_printing_match": "EXACT",
+      "finish_match": "UNCONFIRMED",
+      "price": {
+        "amount": 6,
+        "currency": "USD",
+        "basis": "OTHER",
+        "condition": "UNKNOWN",
+        "quantity_limit": null
+      },
+      "condition_rule": {
+        "rule_text": "Multiple price blocks exist; don't apply a markdown until the requested printing and finish are vendor-confirmed.",
+        "rule_source_url": null,
+        "applied_adjustment_pct": null,
+        "applied_adjustment_status": "UNKNOWN"
+      },
+      "shipping_assumption": {
+        "amount": null,
+        "currency": "UNKNOWN",
+        "basis": "UNKNOWN",
+        "source_url": null,
+        "notes": "No outbound NZ shipping cost or seller-specific postage quote captured."
+      },
+      "fx": null,
+      "net_estimate": {
+        "amount_nzd": null,
+        "status": "NOT_CALCULABLE",
+        "formula": "Not calculated: source currency is provisional, cash-vs-credit basis/finish/condition and direct vendor quote are unconfirmed; shipping, minimum order and NZD FX are not priced.",
+        "excluded_costs": [
+          "NZD FX conversion",
+          "Shipping to vendor",
+          "Insurance and packaging",
+          "Condition markdowns",
+          "Vendor minimum order",
+          "Cash-vs-store-credit terms"
+        ]
+      },
+      "evidence_excerpt": "Counterspell (Borderless) (SLD) — Sell for $6.00\n\n# Best Selling Prices for Counterspell (Borderless)\n\nSecret Lair Drop (SLD)\n\n#2497\n\nTCGPlayer buy links are affiliate links with no cost to you. Affiliate links never change our recommendation.\n\n### Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $6.00 | $5.00 | 3 |\n| LP | $4.80 | $4.03 | 2 |\n| MP | $4.20 | $4.20 | 1 |\n| HP | $3.00 | $2.33 | 2 |\n\n### Foil Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $5.50 | $4.75 | 3 |\n| LP | $4.13 | $3.42 | 2 |\n| MP | $2.75 | $2.75 | 1 |\n| HP | $1.65 | $1.43 | 2 |\n\n### 30-Day Price History$1.00\n\nPrice trend for Counterspell (Near-mint condition)\n\n### 180-Day Buylist Price Range\n\nNM - Last 6 months\n\nLow\n\n$2.00\n\nCurrent\n\n$6.00\n\nHigh\n\n$8.50\n\nThe current price is in the middle range\n\nPrice range: $6.50(325% variation)\n\n### Why Our Prices Are Better\n\nUnlike single-vendor buylist pages, we compare prices across multiple major vendors including Card Kingdom, Star City Games, Strike Zone, Abu Games,",
+      "caveats": [
+        "CardRouter is an aggregator, not the underlying vendor's official sell-cart confirmation.",
+        "Currency is displayed as '$' in the extracted page without an ISO code; USD is provisional only from the US vendor context.",
+        "Multiple condition/price blocks are present; finish and the corresponding headline need direct confirmation.",
+        "No calculations are made from the headline amount.",
+        "This headline observation is not a binding offer and is not an executable trade price."
+      ]
+    },
+    {
+      "offer_id": "offer-06",
+      "input_card_id": "sample-card-06",
+      "vendor": "ABU Games",
+      "quote_status": "ESTIMATE_ONLY",
+      "source_id": "src-card-06",
+      "source_url": "https://cardrouter.com/best-buylist-prices/mtg/plst/swords-to-plowshares/C16-78",
+      "retrieved_at_utc": "2026-10-18T05:32:43.035Z",
+      "response_sha256": "53180fc54551614082b44ed6d9ea493d523a5651a62b1cf24ab9be84df066b93",
+      "matched_card_name": "Swords to Plowshares",
+      "set_or_printing_match": "EXACT",
+      "finish_match": "UNCONFIRMED",
+      "price": {
+        "amount": 0.77,
+        "currency": "USD",
+        "basis": "OTHER",
+        "condition": "UNKNOWN",
+        "quantity_limit": null
+      },
+      "condition_rule": {
+        "rule_text": "Aggregated condition table observed; condition-adjusted cash payout not independently confirmed.",
+        "rule_source_url": null,
+        "applied_adjustment_pct": null,
+        "applied_adjustment_status": "UNKNOWN"
+      },
+      "shipping_assumption": {
+        "amount": null,
+        "currency": "UNKNOWN",
+        "basis": "UNKNOWN",
+        "source_url": null,
+        "notes": "No outbound NZ shipping cost or seller-specific postage quote captured."
+      },
+      "fx": null,
+      "net_estimate": {
+        "amount_nzd": null,
+        "status": "NOT_CALCULABLE",
+        "formula": "Not calculated: source currency is provisional, cash-vs-credit basis/finish/condition and direct vendor quote are unconfirmed; shipping, minimum order and NZD FX are not priced.",
+        "excluded_costs": [
+          "NZD FX conversion",
+          "Shipping to vendor",
+          "Insurance and packaging",
+          "Condition markdowns",
+          "Vendor minimum order",
+          "Cash-vs-store-credit terms"
+        ]
+      },
+      "evidence_excerpt": "Swords to Plowshares (PLST) — Sell for $0.77 to ABU Games\n\n# Best Selling Prices for Swords to Plowshares\n\nThe List (PLST)\n\n#C16-78\n\nTCGPlayer buy links are affiliate links with no cost to you. Affiliate links never change our recommendation.\n\n### Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $0.77 | $0.76 | 2 |\n| LP | $0.60 | $0.58 | 2 |\n| MP | $0.53 | $0.53 | 1 |\n| HP | $0.49 | $0.42 | 2 |\n\n### 30-Day Price History$1.05\n\nPrice trend for Swords to Plowshares (Near-mint condition)\n\n### 180-Day Buylist Price Range\n\nNM - Last 6 months\n\nLow\n\n$0.40\n\nCurrent\n\n$0.77\n\nHigh\n\n$2.00\n\nThe current price is near the 180-day low\n\nPrice range: $1.60(400% variation)\n\n### Why Our Prices Are Better\n\nUnlike single-vendor buylist pages, we compare prices across multiple major vendors including Card Kingdom, Star City Games, Strike Zone, Abu Games, Mythic, and more to find you the absolute best price for your Swords to Plowshares.\n\n* • Up to 20% higher payouts compared to selling to just one vendor\n* • Real-time price comparison across 4+ major buylist vendors\n* • Condition",
+      "caveats": [
+        "CardRouter is an aggregator, not the underlying vendor's official sell-cart confirmation.",
+        "Currency is displayed as '$' in the extracted page without an ISO code; USD is provisional only from the US vendor context.",
+        "Condition and finish still require confirmation in the underlying vendor sell cart.",
+        "No calculations are made from the headline amount.",
+        "This headline observation is not a binding offer and is not an executable trade price."
+      ]
+    },
+    {
+      "offer_id": "offer-07",
+      "input_card_id": "sample-card-07",
+      "vendor": "Star City Games",
+      "quote_status": "ESTIMATE_ONLY",
+      "source_id": "src-card-07",
+      "source_url": "https://cardrouter.com/best-buylist-prices/mtg/40k/cultivate/211",
+      "retrieved_at_utc": "2026-10-18T05:32:43.035Z",
+      "response_sha256": "3f8b7dae1b4ed5c64c432f75a685c029c844b24c452f560d2db80f2859025811",
+      "matched_card_name": "Cultivate",
+      "set_or_printing_match": "EXACT",
+      "finish_match": "UNCONFIRMED",
+      "price": {
+        "amount": 0.25,
+        "currency": "USD",
+        "basis": "OTHER",
+        "condition": "UNKNOWN",
+        "quantity_limit": null
+      },
+      "condition_rule": {
+        "rule_text": "Aggregated condition table observed; condition-adjusted cash payout not independently confirmed.",
+        "rule_source_url": null,
+        "applied_adjustment_pct": null,
+        "applied_adjustment_status": "UNKNOWN"
+      },
+      "shipping_assumption": {
+        "amount": null,
+        "currency": "UNKNOWN",
+        "basis": "UNKNOWN",
+        "source_url": null,
+        "notes": "No outbound NZ shipping cost or seller-specific postage quote captured."
+      },
+      "fx": null,
+      "net_estimate": {
+        "amount_nzd": null,
+        "status": "NOT_CALCULABLE",
+        "formula": "Not calculated: source currency is provisional, cash-vs-credit basis/finish/condition and direct vendor quote are unconfirmed; shipping, minimum order and NZD FX are not priced.",
+        "excluded_costs": [
+          "NZD FX conversion",
+          "Shipping to vendor",
+          "Insurance and packaging",
+          "Condition markdowns",
+          "Vendor minimum order",
+          "Cash-vs-store-credit terms"
+        ]
+      },
+      "evidence_excerpt": "Cultivate (40K #211) — Sell for $0.25 to Star City Games\n\n# Best Selling Prices for Cultivate\n\nWarhammer 40,000 Commander (40K)\n\n#211\n\nTCGPlayer buy links are affiliate links with no cost to you. Affiliate links never change our recommendation.\n\n### Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $0.25 | $0.24 | 2 |\n| LP | $0.06 | $0.06 | 2 |\n| MP | $0.05 | $0.05 | 1 |\n| HP | $0.01 | $0.01 | 2 |\n\n### 30-Day Price History$0.13\n\nPrice trend for Cultivate (Near-mint condition)\n\n### 180-Day Buylist Price Range\n\nNM - Last 6 months\n\nLow\n\n$0.07\n\nCurrent\n\n$0.25\n\nHigh\n\n$1.05\n\nThe current price is near the 180-day low\n\nPrice range: $0.98(1400% variation)\n\n### Why Our Prices Are Better\n\nUnlike single-vendor buylist pages, we compare prices across multiple major vendors including Card Kingdom, Star City Games, Strike Zone, Abu Games, Mythic, and more to find you the absolute best price for your Cultivate.\n\n* • Up to 20% higher payouts compared to selling to just one vendor\n* • Real-time price comparison across 4+ major buylist vendors\n* • Condition-specific pricing f",
+      "caveats": [
+        "CardRouter is an aggregator, not the underlying vendor's official sell-cart confirmation.",
+        "Currency is displayed as '$' in the extracted page without an ISO code; USD is provisional only from the US vendor context.",
+        "Condition and finish still require confirmation in the underlying vendor sell cart.",
+        "No calculations are made from the headline amount.",
+        "This headline observation is not a binding offer and is not an executable trade price."
+      ]
+    },
+    {
+      "offer_id": "offer-08",
+      "input_card_id": "sample-card-08",
+      "vendor": "CardRouter aggregate; underlying provider not explicit",
+      "quote_status": "ESTIMATE_ONLY",
+      "source_id": "src-card-08",
+      "source_url": "https://cardrouter.com/best-buylist-prices/mtg/sld/beast-within/2671",
+      "retrieved_at_utc": "2026-10-18T05:32:43.035Z",
+      "response_sha256": "a9a733b5eef5408cebba73efe64131bc1baf769efd8b2d2d978a16589f995975",
+      "matched_card_name": "Beast Within (Borderless)",
+      "set_or_printing_match": "EXACT",
+      "finish_match": "UNCONFIRMED",
+      "price": {
+        "amount": 4,
+        "currency": "USD",
+        "basis": "OTHER",
+        "condition": "UNKNOWN",
+        "quantity_limit": null
+      },
+      "condition_rule": {
+        "rule_text": "Multiple price blocks exist; don't apply a markdown until the requested printing and finish are vendor-confirmed.",
+        "rule_source_url": null,
+        "applied_adjustment_pct": null,
+        "applied_adjustment_status": "UNKNOWN"
+      },
+      "shipping_assumption": {
+        "amount": null,
+        "currency": "UNKNOWN",
+        "basis": "UNKNOWN",
+        "source_url": null,
+        "notes": "No outbound NZ shipping cost or seller-specific postage quote captured."
+      },
+      "fx": null,
+      "net_estimate": {
+        "amount_nzd": null,
+        "status": "NOT_CALCULABLE",
+        "formula": "Not calculated: source currency is provisional, cash-vs-credit basis/finish/condition and direct vendor quote are unconfirmed; shipping, minimum order and NZD FX are not priced.",
+        "excluded_costs": [
+          "NZD FX conversion",
+          "Shipping to vendor",
+          "Insurance and packaging",
+          "Condition markdowns",
+          "Vendor minimum order",
+          "Cash-vs-store-credit terms"
+        ]
+      },
+      "evidence_excerpt": "Beast Within (Borderless) (SLD) — Sell for $4.00\n\n# Best Selling Prices for Beast Within (Borderless)\n\nSecret Lair Drop (SLD)\n\n#2671\n\nTCGPlayer buy links are affiliate links with no cost to you. Affiliate links never change our recommendation.\n\n### Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $3.20 | $3.13 | 2 |\n| LP | $2.56 | $2.54 | 2 |\n| MP | $2.24 | $2.24 | 1 |\n| HP | $1.60 | $1.40 | 2 |\n\n### Foil Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $4.00 | $3.50 | 2 |\n| LP | $3.00 | $2.50 | 2 |\n| MP | $2.00 | $2.00 | 1 |\n| HP | $1.20 | $0.97 | 2 |\n\n### 30-Day Price History$0.20\n\nPrice trend for Beast Within (Near-mint condition)\n\n### 180-Day Buylist Price Range\n\nNM - Last 6 months\n\nLow\n\n$1.20\n\nCurrent\n\n$3.20\n\nHigh\n\n$5.20\n\nThe current price is in the middle range\n\nPrice range: $4.00(333% variation)\n\n### Why Our Prices Are Better\n\nUnlike single-vendor buylist pages, we compare prices across multiple major vendors including Card Kingdom, Star City Games, Strike Zone, Abu Games,",
+      "caveats": [
+        "CardRouter is an aggregator, not the underlying vendor's official sell-cart confirmation.",
+        "Currency is displayed as '$' in the extracted page without an ISO code; USD is provisional only from the US vendor context.",
+        "Multiple condition/price blocks are present; finish and the corresponding headline need direct confirmation.",
+        "Promoted headline price differs from the first NM row on the captured page; quarantined from net calculations.",
+        "This headline observation is not a binding offer and is not an executable trade price."
+      ]
+    },
+    {
+      "offer_id": "offer-09",
+      "input_card_id": "sample-card-09",
+      "vendor": "Mythic",
+      "quote_status": "ESTIMATE_ONLY",
+      "source_id": "src-card-09",
+      "source_url": "https://cardrouter.com/best-buylist-prices/mtg/ddi/path-to-exile/23",
+      "retrieved_at_utc": "2026-10-18T05:32:43.035Z",
+      "response_sha256": "c62203fa6150c2396962ab7fd834f8ef4fb787c82d526ee1f52d1e41b3cba58c",
+      "matched_card_name": "Path to Exile",
+      "set_or_printing_match": "EXACT",
+      "finish_match": "UNCONFIRMED",
+      "price": {
+        "amount": 3.16,
+        "currency": "USD",
+        "basis": "OTHER",
+        "condition": "UNKNOWN",
+        "quantity_limit": null
+      },
+      "condition_rule": {
+        "rule_text": "Aggregated condition table observed; condition-adjusted cash payout not independently confirmed.",
+        "rule_source_url": null,
+        "applied_adjustment_pct": null,
+        "applied_adjustment_status": "UNKNOWN"
+      },
+      "shipping_assumption": {
+        "amount": null,
+        "currency": "UNKNOWN",
+        "basis": "UNKNOWN",
+        "source_url": null,
+        "notes": "No outbound NZ shipping cost or seller-specific postage quote captured."
+      },
+      "fx": null,
+      "net_estimate": {
+        "amount_nzd": null,
+        "status": "NOT_CALCULABLE",
+        "formula": "Not calculated: source currency is provisional, cash-vs-credit basis/finish/condition and direct vendor quote are unconfirmed; shipping, minimum order and NZD FX are not priced.",
+        "excluded_costs": [
+          "NZD FX conversion",
+          "Shipping to vendor",
+          "Insurance and packaging",
+          "Condition markdowns",
+          "Vendor minimum order",
+          "Cash-vs-store-credit terms"
+        ]
+      },
+      "evidence_excerpt": "Path to Exile (DDI #23) — Sell for $3.16 to Mythic\n\n# Best Selling Prices for Path to Exile\n\nDuel Decks: Venser vs. Koth (DDI)\n\n#23\n\nTCGPlayer buy links are affiliate links with no cost to you. Affiliate links never change our recommendation.\n\n### Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $3.16 | $1.58 | 4 |\n| LP | $1.48 | $1.20 | 3 |\n| MP | $1.33 | $1.26 | 2 |\n| HP | $1.23 | $0.77 | 3 |\n| DMG | $0.98 | $0.98 | 1 |\n\n### 30-Day Price History$1.41\n\nPrice trend for Path to Exile (Near-mint condition)\n\n### 180-Day Buylist Price Range\n\nNM - Last 6 months\n\nLow\n\n$0.50\n\nCurrent\n\n$3.16\n\nHigh\n\n$3.20\n\nThe current price is near the 180-day high\n\nPrice range: $2.70(540% variation)\n\n### Why Our Prices Are Better\n\nUnlike single-vendor buylist pages, we compare prices across multiple major vendors including Card Kingdom, Star City Games, Strike Zone, Abu Games, Mythic, and more to find you the absolute best price for your Path to Exile.\n\n* • Up to 20% higher payouts compared to selling to just one vendor\n* • Real-time price comparison across 4+ major buylist vendor",
+      "caveats": [
+        "CardRouter is an aggregator, not the underlying vendor's official sell-cart confirmation.",
+        "Currency is displayed as '$' in the extracted page without an ISO code; USD is provisional only from the US vendor context.",
+        "Condition and finish still require confirmation in the underlying vendor sell cart.",
+        "No calculations are made from the headline amount.",
+        "This headline observation is not a binding offer and is not an executable trade price."
+      ]
+    },
+    {
+      "offer_id": "offer-10",
+      "input_card_id": "sample-card-10",
+      "vendor": "CardRouter aggregate; underlying provider not explicit",
+      "quote_status": "ESTIMATE_ONLY",
+      "source_id": "src-card-10",
+      "source_url": "https://cardrouter.com/best-buylist-prices/mtg/wot/smothering-tithe/67",
+      "retrieved_at_utc": "2026-10-18T05:32:43.035Z",
+      "response_sha256": "5fa1a749c74f6be9101ba767ec7add97fbfc6912992524937b650b5709ced236",
+      "matched_card_name": "Smothering Tithe (Anime Borderless)",
+      "set_or_printing_match": "EXACT",
+      "finish_match": "UNCONFIRMED",
+      "price": {
+        "amount": 320,
+        "currency": "USD",
+        "basis": "OTHER",
+        "condition": "UNKNOWN",
+        "quantity_limit": null
+      },
+      "condition_rule": {
+        "rule_text": "Multiple price blocks exist; don't apply a markdown until the requested printing and finish are vendor-confirmed.",
+        "rule_source_url": null,
+        "applied_adjustment_pct": null,
+        "applied_adjustment_status": "UNKNOWN"
+      },
+      "shipping_assumption": {
+        "amount": null,
+        "currency": "UNKNOWN",
+        "basis": "UNKNOWN",
+        "source_url": null,
+        "notes": "No outbound NZ shipping cost or seller-specific postage quote captured."
+      },
+      "fx": null,
+      "net_estimate": {
+        "amount_nzd": null,
+        "status": "NOT_CALCULABLE",
+        "formula": "Not calculated: source currency is provisional, cash-vs-credit basis/finish/condition and direct vendor quote are unconfirmed; shipping, minimum order and NZD FX are not priced.",
+        "excluded_costs": [
+          "NZD FX conversion",
+          "Shipping to vendor",
+          "Insurance and packaging",
+          "Condition markdowns",
+          "Vendor minimum order",
+          "Cash-vs-store-credit terms"
+        ]
+      },
+      "evidence_excerpt": "Smothering Tithe (Anime Borderless) (WOT) — Sell for $320.00\n\n# Best Selling Prices for Smothering Tithe (Anime Borderless)\n\nWilds of Eldraine: Enchanting Tales (WOT)\n\n#67\n\nTCGPlayer buy links are affiliate links with no cost to you. Affiliate links never change our recommendation.\n\n### Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $150.00 | $132.01 | 5 |\n| LP | $135.00 | $90.52 | 4 |\n| MP | $120.00 | $96.02 | 2 |\n| HP | $70.00 | $50.78 | 3 |\n\n### Foil Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $320.00 | $267.79 | 4 |\n| LP | $243.75 | $182.87 | 4 |\n| MP | $162.50 | $156.81 | 2 |\n| HP | $131.15 | $99.57 | 3 |\n\n### 30-Day Price History$1.07\n\nPrice trend for Smothering Tithe (Near-mint condition)\n\n### 180-Day Buylist Price Range\n\nNM - Last 6 months\n\nLow\n\n$90.00\n\nCurrent\n\n$150.00\n\nHigh\n\n$160.00\n\nThe current price is near the 180-day high\n\nPrice range: $70.00(78% variation)\n\n### Why Our Prices Are Better\n\nUnlike single-vendor buylist pages, we compare prices across multiple m",
+      "caveats": [
+        "CardRouter is an aggregator, not the underlying vendor's official sell-cart confirmation.",
+        "Currency is displayed as '$' in the extracted page without an ISO code; USD is provisional only from the US vendor context.",
+        "Multiple condition/price blocks are present; finish and the corresponding headline need direct confirmation.",
+        "Promoted headline price differs from the first NM row on the captured page; quarantined from net calculations.",
+        "This headline observation is not a binding offer and is not an executable trade price."
+      ]
+    },
+    {
+      "offer_id": "offer-11",
+      "input_card_id": "sample-card-11",
+      "vendor": "CardRouter aggregate; underlying provider not explicit",
+      "quote_status": "ESTIMATE_ONLY",
+      "source_id": "src-card-11",
+      "source_url": "https://cardrouter.com/best-buylist-prices/mtg/mar/teferis-protection/51",
+      "retrieved_at_utc": "2026-10-18T05:32:43.020Z",
+      "response_sha256": "96c1936bcd4ddb23731a0504e055dcefe28201a62663d63e593ed047948f62ad",
+      "matched_card_name": "Teferi's Protection (Borderless)",
+      "set_or_printing_match": "EXACT",
+      "finish_match": "UNCONFIRMED",
+      "price": {
+        "amount": 27,
+        "currency": "USD",
+        "basis": "OTHER",
+        "condition": "UNKNOWN",
+        "quantity_limit": null
+      },
+      "condition_rule": {
+        "rule_text": "Multiple price blocks exist; don't apply a markdown until the requested printing and finish are vendor-confirmed.",
+        "rule_source_url": null,
+        "applied_adjustment_pct": null,
+        "applied_adjustment_status": "UNKNOWN"
+      },
+      "shipping_assumption": {
+        "amount": null,
+        "currency": "UNKNOWN",
+        "basis": "UNKNOWN",
+        "source_url": null,
+        "notes": "No outbound NZ shipping cost or seller-specific postage quote captured."
+      },
+      "fx": null,
+      "net_estimate": {
+        "amount_nzd": null,
+        "status": "NOT_CALCULABLE",
+        "formula": "Not calculated: source currency is provisional, cash-vs-credit basis/finish/condition and direct vendor quote are unconfirmed; shipping, minimum order and NZD FX are not priced.",
+        "excluded_costs": [
+          "NZD FX conversion",
+          "Shipping to vendor",
+          "Insurance and packaging",
+          "Condition markdowns",
+          "Vendor minimum order",
+          "Cash-vs-store-credit terms"
+        ]
+      },
+      "evidence_excerpt": "Teferi's Protection (Borderless) (MAR) — Sell for $27.00\n\n# Best Selling Prices for Teferi's Protection (Borderless)\n\nMarvel Universe (MAR)\n\n#51\n\nTCGPlayer buy links are affiliate links with no cost to you. Affiliate links never change our recommendation.\n\n### Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $27.00 | $22.34 | 3 |\n| LP | $22.95 | $16.65 | 3 |\n| MP | $20.25 | $20.25 | 1 |\n| HP | $17.55 | $15.03 | 2 |\n\n### Foil Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $25.00 | $22.63 | 3 |\n| LP | $18.75 | $15.95 | 3 |\n| MP | $12.50 | $12.50 | 1 |\n| HP | $11.90 | $8.72 | 3 |\n\n### 30-Day Price History $1.00\n\nPrice trend for Teferi's Protection (Near-mint condition)\n\n### 180-Day Buylist Price Range\n\nNM  - Last 6 months\n\nLow\n\n$15.37\n\nCurrent\n\n$27.00\n\nHigh\n\n$28.00\n\nThe current price is near the 180-day high\n\nPrice range: $12.63(82% variation)\n\n### Why Our Prices Are Better\n\nUnlike single-vendor buylist pages, we compare prices across multiple major vendors including Card Kingdom,",
+      "caveats": [
+        "CardRouter is an aggregator, not the underlying vendor's official sell-cart confirmation.",
+        "Currency is displayed as '$' in the extracted page without an ISO code; USD is provisional only from the US vendor context.",
+        "Multiple condition/price blocks are present; finish and the corresponding headline need direct confirmation.",
+        "No calculations are made from the headline amount.",
+        "This headline observation is not a binding offer and is not an executable trade price."
+      ]
+    },
+    {
+      "offer_id": "offer-12",
+      "input_card_id": "sample-card-12",
+      "vendor": "CardRouter aggregate; underlying provider not explicit",
+      "quote_status": "ESTIMATE_ONLY",
+      "source_id": "src-card-12",
+      "source_url": "https://cardrouter.com/best-buylist-prices/mtg/tle/fierce-guardianship/307",
+      "retrieved_at_utc": "2026-10-18T05:32:43.020Z",
+      "response_sha256": "3671b3d57df1edc11a82a71bac83bd4c0000fa56d552ff284e22bc9d906acba6",
+      "matched_card_name": "Fierce Guardianship (Showcase)",
+      "set_or_printing_match": "EXACT",
+      "finish_match": "UNCONFIRMED",
+      "price": {
+        "amount": 57,
+        "currency": "USD",
+        "basis": "OTHER",
+        "condition": "UNKNOWN",
+        "quantity_limit": null
+      },
+      "condition_rule": {
+        "rule_text": "Aggregated condition table observed; condition-adjusted cash payout not independently confirmed.",
+        "rule_source_url": null,
+        "applied_adjustment_pct": null,
+        "applied_adjustment_status": "UNKNOWN"
+      },
+      "shipping_assumption": {
+        "amount": null,
+        "currency": "UNKNOWN",
+        "basis": "UNKNOWN",
+        "source_url": null,
+        "notes": "No outbound NZ shipping cost or seller-specific postage quote captured."
+      },
+      "fx": null,
+      "net_estimate": {
+        "amount_nzd": null,
+        "status": "NOT_CALCULABLE",
+        "formula": "Not calculated: source currency is provisional, cash-vs-credit basis/finish/condition and direct vendor quote are unconfirmed; shipping, minimum order and NZD FX are not priced.",
+        "excluded_costs": [
+          "NZD FX conversion",
+          "Shipping to vendor",
+          "Insurance and packaging",
+          "Condition markdowns",
+          "Vendor minimum order",
+          "Cash-vs-store-credit terms"
+        ]
+      },
+      "evidence_excerpt": "Fierce Guardianship (Showcase) (TLE) — Sell for $57.00\n\n# Best Selling Prices for Fierce Guardianship (Showcase)\n\nAvatar: The Last Airbender Eternal (TLE)\n\n#307\n\nTCGPlayer buy links are affiliate links with no cost to you. Affiliate links never change our recommendation.\n\n### Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $57.00 | $47.13 | 4 |\n| LP | $48.45 | $34.82 | 3 |\n| MP | $42.75 | $42.75 | 1 |\n| HP | $37.05 | $29.39 | 3 |\n\n### 30-Day Price History $9.00\n\nPrice trend for Fierce Guardianship (Near-mint condition)\n\n### 180-Day Buylist Price Range\n\nNM  - Last 6 months\n\nLow\n\n$28.64\n\nCurrent\n\n$57.00\n\nHigh\n\n$59.00\n\nThe current price is near the 180-day high\n\nPrice range: $30.36(106% variation)\n\n### Why Our Prices Are Better\n\nUnlike single-vendor buylist pages, we compare prices across multiple major vendors including Card Kingdom, Star City Games, Strike Zone, Abu Games, Mythic, and more to find you the absolute best price for your Fierce Guardianship.\n\n* • **Up to 20% higher payouts** compared to selling to just one vendor\n* • **Real-time price comparis",
+      "caveats": [
+        "CardRouter is an aggregator, not the underlying vendor's official sell-cart confirmation.",
+        "Currency is displayed as '$' in the extracted page without an ISO code; USD is provisional only from the US vendor context.",
+        "Condition and finish still require confirmation in the underlying vendor sell cart.",
+        "No calculations are made from the headline amount.",
+        "This headline observation is not a binding offer and is not an executable trade price."
+      ]
+    },
+    {
+      "offer_id": "offer-13",
+      "input_card_id": "sample-card-13",
+      "vendor": "Star City Games",
+      "quote_status": "ESTIMATE_ONLY",
+      "source_id": "src-card-13",
+      "source_url": "https://cardrouter.com/best-buylist-prices/mtg/c16/swiftfoot-boots/276",
+      "retrieved_at_utc": "2026-10-18T05:32:43.020Z",
+      "response_sha256": "f5f7f20821a8677feef86dc93729aa501d4be4f550b16c49671acc063f3c1195",
+      "matched_card_name": "Swiftfoot Boots",
+      "set_or_printing_match": "EXACT",
+      "finish_match": "UNCONFIRMED",
+      "price": {
+        "amount": 1.5,
+        "currency": "USD",
+        "basis": "OTHER",
+        "condition": "UNKNOWN",
+        "quantity_limit": null
+      },
+      "condition_rule": {
+        "rule_text": "Aggregated condition table observed; condition-adjusted cash payout not independently confirmed.",
+        "rule_source_url": null,
+        "applied_adjustment_pct": null,
+        "applied_adjustment_status": "UNKNOWN"
+      },
+      "shipping_assumption": {
+        "amount": null,
+        "currency": "UNKNOWN",
+        "basis": "UNKNOWN",
+        "source_url": null,
+        "notes": "No outbound NZ shipping cost or seller-specific postage quote captured."
+      },
+      "fx": null,
+      "net_estimate": {
+        "amount_nzd": null,
+        "status": "NOT_CALCULABLE",
+        "formula": "Not calculated: source currency is provisional, cash-vs-credit basis/finish/condition and direct vendor quote are unconfirmed; shipping, minimum order and NZD FX are not priced.",
+        "excluded_costs": [
+          "NZD FX conversion",
+          "Shipping to vendor",
+          "Insurance and packaging",
+          "Condition markdowns",
+          "Vendor minimum order",
+          "Cash-vs-store-credit terms"
+        ]
+      },
+      "evidence_excerpt": "Swiftfoot Boots (C16) — Sell for $1.50 to Star City Games\n\n# Best Selling Prices for Swiftfoot Boots\n\nCommander 2016 (C16)\n\n#276\n\nTCGPlayer buy links are affiliate links with no cost to you. Affiliate links never change our recommendation.\n\n### Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $1.50 | $1.32 | 4 |\n| LP | $1.08 | $0.98 | 4 |\n| MP | $0.95 | $0.90 | 2 |\n| HP | $0.71 | $0.55 | 4 |\n\n### 30-Day Price History$0.45\n\nPrice trend for Swiftfoot Boots (Near-mint condition)\n\n### 180-Day Buylist Price Range\n\nNM - Last 6 months\n\nLow\n\n$0.65\n\nCurrent\n\n$1.50\n\nHigh\n\n$2.25\n\nThe current price is in the middle range\n\nPrice range: $1.60(246% variation)\n\n### Why Our Prices Are Better\n\nUnlike single-vendor buylist pages, we compare prices across multiple major vendors including Card Kingdom, Star City Games, Strike Zone, Abu Games, Mythic, and more to find you the absolute best price for your Swiftfoot Boots.\n\n* • Up to 20% higher payouts compared to selling to just one vendor\n* • Real-time price comparison across 4+ major buylist vendors\n* • Condition-specific pric",
+      "caveats": [
+        "CardRouter is an aggregator, not the underlying vendor's official sell-cart confirmation.",
+        "Currency is displayed as '$' in the extracted page without an ISO code; USD is provisional only from the US vendor context.",
+        "Condition and finish still require confirmation in the underlying vendor sell cart.",
+        "No calculations are made from the headline amount.",
+        "This headline observation is not a binding offer and is not an executable trade price."
+      ]
+    },
+    {
+      "offer_id": "offer-14",
+      "input_card_id": "sample-card-14",
+      "vendor": "CardRouter aggregate; underlying provider not explicit",
+      "quote_status": "ESTIMATE_ONLY",
+      "source_id": "src-card-14",
+      "source_url": "https://cardrouter.com/best-buylist-prices/mtg/sld/arcane-denial/2489",
+      "retrieved_at_utc": "2026-10-18T05:32:43.020Z",
+      "response_sha256": "9aa9679985abcb68dc34fa0c84b2c2a99259601c08430a0d7ddd9679da67d53f",
+      "matched_card_name": "Arcane Denial (Borderless)",
+      "set_or_printing_match": "EXACT",
+      "finish_match": "UNCONFIRMED",
+      "price": {
+        "amount": 7.5,
+        "currency": "USD",
+        "basis": "OTHER",
+        "condition": "UNKNOWN",
+        "quantity_limit": null
+      },
+      "condition_rule": {
+        "rule_text": "Multiple price blocks exist; don't apply a markdown until the requested printing and finish are vendor-confirmed.",
+        "rule_source_url": null,
+        "applied_adjustment_pct": null,
+        "applied_adjustment_status": "UNKNOWN"
+      },
+      "shipping_assumption": {
+        "amount": null,
+        "currency": "UNKNOWN",
+        "basis": "UNKNOWN",
+        "source_url": null,
+        "notes": "No outbound NZ shipping cost or seller-specific postage quote captured."
+      },
+      "fx": null,
+      "net_estimate": {
+        "amount_nzd": null,
+        "status": "NOT_CALCULABLE",
+        "formula": "Not calculated: source currency is provisional, cash-vs-credit basis/finish/condition and direct vendor quote are unconfirmed; shipping, minimum order and NZD FX are not priced.",
+        "excluded_costs": [
+          "NZD FX conversion",
+          "Shipping to vendor",
+          "Insurance and packaging",
+          "Condition markdowns",
+          "Vendor minimum order",
+          "Cash-vs-store-credit terms"
+        ]
+      },
+      "evidence_excerpt": "Arcane Denial (Borderless) (SLD) — Sell for $7.50\n\n# Best Selling Prices for Arcane Denial (Borderless)\n\nSecret Lair Drop (SLD)\n\n#2489\n\nTCGPlayer buy links are affiliate links with no cost to you. Affiliate links never change our recommendation.\n\n### Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $4.60 | $3.80 | 3 |\n| LP | $3.68 | $3.29 | 2 |\n| MP | $3.22 | $3.22 | 1 |\n| HP | $2.30 | $1.87 | 2 |\n\n### Foil Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $7.50 | $5.75 | 3 |\n| LP | $5.63 | $4.75 | 2 |\n| MP | $3.75 | $3.75 | 1 |\n| HP | $2.25 | $1.83 | 2 |\n\n### 30-Day Price History$0.90\n\nPrice trend for Arcane Denial (Near-mint condition)\n\n### 180-Day Buylist Price Range\n\nNM - Last 6 months\n\nLow\n\n$2.00\n\nCurrent\n\n$4.60\n\nHigh\n\n$7.50\n\nThe current price is in the middle range\n\nPrice range: $5.50(275% variation)\n\n### Why Our Prices Are Better\n\nUnlike single-vendor buylist pages, we compare prices across multiple major vendors including Card Kingdom, Star City Games, Strike Zone, Abu Gam",
+      "caveats": [
+        "CardRouter is an aggregator, not the underlying vendor's official sell-cart confirmation.",
+        "Currency is displayed as '$' in the extracted page without an ISO code; USD is provisional only from the US vendor context.",
+        "Multiple condition/price blocks are present; finish and the corresponding headline need direct confirmation.",
+        "Promoted headline price differs from the first NM row on the captured page; quarantined from net calculations.",
+        "This headline observation is not a binding offer and is not an executable trade price."
+      ]
+    },
+    {
+      "offer_id": "offer-15",
+      "input_card_id": "sample-card-15",
+      "vendor": "Mythic",
+      "quote_status": "ESTIMATE_ONLY",
+      "source_id": "src-card-15",
+      "source_url": "https://cardrouter.com/best-buylist-prices/mtg/m11/llanowar-elves/184",
+      "retrieved_at_utc": "2026-10-18T05:32:43.020Z",
+      "response_sha256": "c66b966d861fc50495f0348884382f53463265346174aba21b47d9c32540ff64",
+      "matched_card_name": "Llanowar Elves",
+      "set_or_printing_match": "EXACT",
+      "finish_match": "UNCONFIRMED",
+      "price": {
+        "amount": 2.5,
+        "currency": "USD",
+        "basis": "OTHER",
+        "condition": "UNKNOWN",
+        "quantity_limit": null
+      },
+      "condition_rule": {
+        "rule_text": "Aggregated condition table observed; condition-adjusted cash payout not independently confirmed.",
+        "rule_source_url": null,
+        "applied_adjustment_pct": null,
+        "applied_adjustment_status": "UNKNOWN"
+      },
+      "shipping_assumption": {
+        "amount": null,
+        "currency": "UNKNOWN",
+        "basis": "UNKNOWN",
+        "source_url": null,
+        "notes": "No outbound NZ shipping cost or seller-specific postage quote captured."
+      },
+      "fx": null,
+      "net_estimate": {
+        "amount_nzd": null,
+        "status": "NOT_CALCULABLE",
+        "formula": "Not calculated: source currency is provisional, cash-vs-credit basis/finish/condition and direct vendor quote are unconfirmed; shipping, minimum order and NZD FX are not priced.",
+        "excluded_costs": [
+          "NZD FX conversion",
+          "Shipping to vendor",
+          "Insurance and packaging",
+          "Condition markdowns",
+          "Vendor minimum order",
+          "Cash-vs-store-credit terms"
+        ]
+      },
+      "evidence_excerpt": "Llanowar Elves (M11 #184) — Sell for $2.50 to Mythic\n\n# Best Selling Prices for Llanowar Elves\n\nMagic 2011 (M11)\n\n#184\n\nTCGPlayer buy links are affiliate links with no cost to you. Affiliate links never change our recommendation.\n\n### Foil Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $2.50 | $1.25 | 3 |\n| LP | $0.93 | $0.58 | 3 |\n| MP | $0.81 | $0.81 | 1 |\n| HP | $0.17 | $0.14 | 2 |\n\n### 30-Day Price History$0.02\n\nPrice trend for Llanowar Elves (Near-mint condition)\n\nNo price range data available for this condition.\n\n### Why Our Prices Are Better\n\nUnlike single-vendor buylist pages, we compare prices across multiple major vendors including Card Kingdom, Star City Games, Strike Zone, Abu Games, Mythic, and more to find you the absolute best price for your Llanowar Elves.\n\n* • Up to 20% higher payouts compared to selling to just one vendor\n* • Real-time price comparison across 4+ major buylist vendors\n* • Condition-specific pricing for NM, LP, MP, HP, and DMG cards\n* • Updated daily to ensure you get current market rates\n\n### Other Printings of Llanowar ",
+      "caveats": [
+        "CardRouter is an aggregator, not the underlying vendor's official sell-cart confirmation.",
+        "Currency is displayed as '$' in the extracted page without an ISO code; USD is provisional only from the US vendor context.",
+        "Condition and finish still require confirmation in the underlying vendor sell cart.",
+        "No calculations are made from the headline amount.",
+        "This headline observation is not a binding offer and is not an executable trade price."
+      ]
+    },
+    {
+      "offer_id": "offer-16",
+      "input_card_id": "sample-card-16",
+      "vendor": "CardRouter aggregate; underlying provider not explicit",
+      "quote_status": "ESTIMATE_ONLY",
+      "source_id": "src-card-16",
+      "source_url": "https://cardrouter.com/best-buylist-prices/mtg/sos/emeritus-of-woe-demonic-tutor/80",
+      "retrieved_at_utc": "2026-10-18T05:32:43.020Z",
+      "response_sha256": "c9224fb5d074be557a502b904073954a57386351e75fee433d5b48f4e95f2dc6",
+      "matched_card_name": "Emeritus of Woe // Demonic Tutor",
+      "set_or_printing_match": "EXACT",
+      "finish_match": "UNCONFIRMED",
+      "price": {
+        "amount": 9.74,
+        "currency": "USD",
+        "basis": "OTHER",
+        "condition": "UNKNOWN",
+        "quantity_limit": null
+      },
+      "condition_rule": {
+        "rule_text": "Multiple price blocks exist; don't apply a markdown until the requested printing and finish are vendor-confirmed.",
+        "rule_source_url": null,
+        "applied_adjustment_pct": null,
+        "applied_adjustment_status": "UNKNOWN"
+      },
+      "shipping_assumption": {
+        "amount": null,
+        "currency": "UNKNOWN",
+        "basis": "UNKNOWN",
+        "source_url": null,
+        "notes": "No outbound NZ shipping cost or seller-specific postage quote captured."
+      },
+      "fx": null,
+      "net_estimate": {
+        "amount_nzd": null,
+        "status": "NOT_CALCULABLE",
+        "formula": "Not calculated: source currency is provisional, cash-vs-credit basis/finish/condition and direct vendor quote are unconfirmed; shipping, minimum order and NZD FX are not priced.",
+        "excluded_costs": [
+          "NZD FX conversion",
+          "Shipping to vendor",
+          "Insurance and packaging",
+          "Condition markdowns",
+          "Vendor minimum order",
+          "Cash-vs-store-credit terms"
+        ]
+      },
+      "evidence_excerpt": "Emeritus of Woe // Demonic Tutor (SOS) — Sell for $9.74\n\n# Best Selling Prices for Emeritus of Woe // Demonic Tutor\n\nSecrets of Strixhaven (SOS)\n\n#80\n\nTCGPlayer buy links are affiliate links with no cost to you. Affiliate links never change our recommendation.\n\n### Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $9.74 | $7.55 | 3 |\n| LP | $7.20 | $5.50 | 3 |\n| MP | $6.44 | $6.35 | 2 |\n| HP | $4.50 | $2.72 | 3 |\n\n### Foil Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $8.04 | $7.34 | 4 |\n| LP | $6.10 | $5.62 | 3 |\n| MP | $5.42 | $4.47 | 2 |\n| HP | $2.40 | $2.04 | 3 |\n\n### 30-Day Price History $0.88\n\nPrice trend for Emeritus of Woe // Demonic Tutor (Near-mint condition)\n\n### 180-Day Buylist Price Range\n\nNM  - Last 6 months\n\nLow\n\n$4.00\n\nCurrent\n\n$9.74\n\nHigh\n\n$9.74\n\nThe current price is near the 180-day high\n\nPrice range: $5.74(144% variation)\n\n### Why Our Prices Are Better\n\nUnlike single-vendor buylist pages, we compare prices across multiple major vendors including Card Kingdom,",
+      "caveats": [
+        "CardRouter is an aggregator, not the underlying vendor's official sell-cart confirmation.",
+        "Currency is displayed as '$' in the extracted page without an ISO code; USD is provisional only from the US vendor context.",
+        "Multiple condition/price blocks are present; finish and the corresponding headline need direct confirmation.",
+        "No calculations are made from the headline amount.",
+        "This headline observation is not a binding offer and is not an executable trade price."
+      ]
+    },
+    {
+      "offer_id": "offer-17",
+      "input_card_id": "sample-card-17",
+      "vendor": "Mythic",
+      "quote_status": "ESTIMATE_ONLY",
+      "source_id": "src-card-17",
+      "source_url": "https://cardrouter.com/best-buylist-prices/mtg/plst/esper-sentinel/MH2-12",
+      "retrieved_at_utc": "2026-10-18T05:32:43.020Z",
+      "response_sha256": "2a1fcd1bf2d7a7cdfdc42a64e25874c2135987245cceae9c632ebeae13839ba9",
+      "matched_card_name": "Esper Sentinel (The List)",
+      "set_or_printing_match": "EXACT",
+      "finish_match": "UNCONFIRMED",
+      "price": {
+        "amount": 52.53,
+        "currency": "USD",
+        "basis": "OTHER",
+        "condition": "UNKNOWN",
+        "quantity_limit": null
+      },
+      "condition_rule": {
+        "rule_text": "Aggregated condition table observed; condition-adjusted cash payout not independently confirmed.",
+        "rule_source_url": null,
+        "applied_adjustment_pct": null,
+        "applied_adjustment_status": "UNKNOWN"
+      },
+      "shipping_assumption": {
+        "amount": null,
+        "currency": "UNKNOWN",
+        "basis": "UNKNOWN",
+        "source_url": null,
+        "notes": "No outbound NZ shipping cost or seller-specific postage quote captured."
+      },
+      "fx": null,
+      "net_estimate": {
+        "amount_nzd": null,
+        "status": "NOT_CALCULABLE",
+        "formula": "Not calculated: source currency is provisional, cash-vs-credit basis/finish/condition and direct vendor quote are unconfirmed; shipping, minimum order and NZD FX are not priced.",
+        "excluded_costs": [
+          "NZD FX conversion",
+          "Shipping to vendor",
+          "Insurance and packaging",
+          "Condition markdowns",
+          "Vendor minimum order",
+          "Cash-vs-store-credit terms"
+        ]
+      },
+      "evidence_excerpt": "Esper Sentinel (PLST #MH2-12) — Sell for $52.53 to Mythic\n\n# Best Selling Prices for Esper Sentinel\n\nThe List (PLST)\n\n#MH2-12\n\nTCGPlayer buy links are affiliate links with no cost to you. Affiliate links never change our recommendation.\n\n### Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $52.53 | $45.63 | 3 |\n| LP | $41.65 | $38.28 | 2 |\n| MP | $36.75 | $33.97 | 2 |\n| HP | $31.85 | $24.06 | 2 |\n\n### 30-Day Price History $0.17\n\nPrice trend for Esper Sentinel (Near-mint condition)\n\n### 180-Day Buylist Price Range\n\nNM  - Last 6 months\n\nLow\n\n$32.00\n\nCurrent\n\n$52.53\n\nHigh\n\n$56.00\n\nThe current price is near the 180-day high\n\nPrice range: $24.00(75% variation)\n\n### Why Our Prices Are Better\n\nUnlike single-vendor buylist pages, we compare prices across multiple major vendors including Card Kingdom, Star City Games, Strike Zone, Abu Games, Mythic, and more to find you the absolute best price for your Esper Sentinel.\n\n* • **Up to 20% higher payouts** compared to selling to just one vendor\n* • **Real-time price comparison** across 4+ major buylist vendors\n* • **Con",
+      "caveats": [
+        "CardRouter is an aggregator, not the underlying vendor's official sell-cart confirmation.",
+        "Currency is displayed as '$' in the extracted page without an ISO code; USD is provisional only from the US vendor context.",
+        "Condition and finish still require confirmation in the underlying vendor sell cart.",
+        "No calculations are made from the headline amount.",
+        "This headline observation is not a binding offer and is not an executable trade price."
+      ]
+    },
+    {
+      "offer_id": "offer-18",
+      "input_card_id": "sample-card-18",
+      "vendor": "CardRouter aggregate; underlying provider not explicit",
+      "quote_status": "ESTIMATE_ONLY",
+      "source_id": "src-card-18",
+      "source_url": "https://cardrouter.com/best-buylist-prices/mtg/hoc/orcish-bowmasters/59",
+      "retrieved_at_utc": "2026-10-18T05:32:43.020Z",
+      "response_sha256": "e1769d97aeb7669ad6d86630e06acdd4b475f60343c9a3f10d5f66e37d3245ea",
+      "matched_card_name": "Orcish Bowmasters",
+      "set_or_printing_match": "EXACT",
+      "finish_match": "UNCONFIRMED",
+      "price": {
+        "amount": 110,
+        "currency": "USD",
+        "basis": "OTHER",
+        "condition": "UNKNOWN",
+        "quantity_limit": null
+      },
+      "condition_rule": {
+        "rule_text": "Aggregated condition table observed; condition-adjusted cash payout not independently confirmed.",
+        "rule_source_url": null,
+        "applied_adjustment_pct": null,
+        "applied_adjustment_status": "UNKNOWN"
+      },
+      "shipping_assumption": {
+        "amount": null,
+        "currency": "UNKNOWN",
+        "basis": "UNKNOWN",
+        "source_url": null,
+        "notes": "No outbound NZ shipping cost or seller-specific postage quote captured."
+      },
+      "fx": null,
+      "net_estimate": {
+        "amount_nzd": null,
+        "status": "NOT_CALCULABLE",
+        "formula": "Not calculated: source currency is provisional, cash-vs-credit basis/finish/condition and direct vendor quote are unconfirmed; shipping, minimum order and NZD FX are not priced.",
+        "excluded_costs": [
+          "NZD FX conversion",
+          "Shipping to vendor",
+          "Insurance and packaging",
+          "Condition markdowns",
+          "Vendor minimum order",
+          "Cash-vs-store-credit terms"
+        ]
+      },
+      "evidence_excerpt": "Orcish Bowmasters (HOC) — Sell for $110.00\n\n# Best Selling Prices for Orcish Bowmasters\n\nThe Hobbit Commander (HOC)\n\n#59\n\nTCGPlayer buy links are affiliate links with no cost to you. Affiliate links never change our recommendation.\n\n### Foil Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $110.00 | $93.61 | 2 |\n| LP | $90.00 | $65.76 | 2 |\n| HP | $60.00 | $53.25 | 2 |\n\n### 30-Day Price History\n\nPrice trend for Orcish Bowmasters (Near-mint condition)\n\nNo price history data available\n\nNo price range data available for this condition.\n\n### Why Our Prices Are Better\n\nUnlike single-vendor buylist pages, we compare prices across multiple major vendors including Card Kingdom, Star City Games, Strike Zone, Abu Games, Mythic, and more to find you the absolute best price for your Orcish Bowmasters.\n\n* • **Up to 20% higher payouts** compared to selling to just one vendor\n* • **Real-time price comparison** across 4+ major buylist vendors\n* • **Condition-specific pricing** for NM, LP, MP, HP, and DMG cards\n* • **Updated daily** to ensure you get current market rates",
+      "caveats": [
+        "CardRouter is an aggregator, not the underlying vendor's official sell-cart confirmation.",
+        "Currency is displayed as '$' in the extracted page without an ISO code; USD is provisional only from the US vendor context.",
+        "Condition and finish still require confirmation in the underlying vendor sell cart.",
+        "No calculations are made from the headline amount.",
+        "This headline observation is not a binding offer and is not an executable trade price."
+      ]
+    },
+    {
+      "offer_id": "offer-19",
+      "input_card_id": "sample-card-19",
+      "vendor": "CardRouter aggregate; underlying provider not explicit",
+      "quote_status": "ESTIMATE_ONLY",
+      "source_id": "src-card-19",
+      "source_url": "https://cardrouter.com/best-buylist-prices/mtg/dmu/sheoldred-the-apocalypse/331",
+      "retrieved_at_utc": "2026-10-18T05:32:43.020Z",
+      "response_sha256": "00d0c1d2ef64df6e72fcdefce2615b777ebd73e90a444cb23b59c061393cb37e",
+      "matched_card_name": "Sheoldred, the Apocalypse (Showcase)",
+      "set_or_printing_match": "EXACT",
+      "finish_match": "UNCONFIRMED",
+      "price": {
+        "amount": 90,
+        "currency": "USD",
+        "basis": "OTHER",
+        "condition": "UNKNOWN",
+        "quantity_limit": null
+      },
+      "condition_rule": {
+        "rule_text": "Aggregated condition table observed; condition-adjusted cash payout not independently confirmed.",
+        "rule_source_url": null,
+        "applied_adjustment_pct": null,
+        "applied_adjustment_status": "UNKNOWN"
+      },
+      "shipping_assumption": {
+        "amount": null,
+        "currency": "UNKNOWN",
+        "basis": "UNKNOWN",
+        "source_url": null,
+        "notes": "No outbound NZ shipping cost or seller-specific postage quote captured."
+      },
+      "fx": null,
+      "net_estimate": {
+        "amount_nzd": null,
+        "status": "NOT_CALCULABLE",
+        "formula": "Not calculated: source currency is provisional, cash-vs-credit basis/finish/condition and direct vendor quote are unconfirmed; shipping, minimum order and NZD FX are not priced.",
+        "excluded_costs": [
+          "NZD FX conversion",
+          "Shipping to vendor",
+          "Insurance and packaging",
+          "Condition markdowns",
+          "Vendor minimum order",
+          "Cash-vs-store-credit terms"
+        ]
+      },
+      "evidence_excerpt": "Sheoldred, the Apocalypse (Showcase… (DMU) — Sell for $90.00\n\n# Best Selling Prices for Sheoldred, the Apocalypse (Showcase) (Textured Foil)\n\nDominaria United (DMU)\n\n#331\n\nTCGPlayer buy links are affiliate links with no cost to you. Affiliate links never change our recommendation.\n\n### Foil Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $90.00 | $74.34 | 2 |\n| LP | $75.00 | $52.18 | 2 |\n| HP | $48.00 | $39.28 | 3 |\n\n### 30-Day Price History\n\nPrice trend for Sheoldred, the Apocalypse (Near-mint condition)\n\nNo price range data available for this condition.\n\n### Why Our Prices Are Better\n\nUnlike single-vendor buylist pages, we compare prices across multiple major vendors including Card Kingdom, Star City Games, Strike Zone, Abu Games, Mythic, and more to find you the absolute best price for your Sheoldred, the Apocalypse.\n\n* • **Up to 20% higher payouts** compared to selling to just one vendor\n* • **Real-time price comparison** across 4+ major buylist vendors\n* • **Condition-specific pricing** for NM, LP, MP, HP, and DMG cards\n* • **Updated daily** to ensur",
+      "caveats": [
+        "CardRouter is an aggregator, not the underlying vendor's official sell-cart confirmation.",
+        "Currency is displayed as '$' in the extracted page without an ISO code; USD is provisional only from the US vendor context.",
+        "Condition and finish still require confirmation in the underlying vendor sell cart.",
+        "No calculations are made from the headline amount.",
+        "This headline observation is not a binding offer and is not an executable trade price."
+      ]
+    },
+    {
+      "offer_id": "offer-20",
+      "input_card_id": "sample-card-20",
+      "vendor": "CardRouter aggregate; underlying provider not explicit",
+      "quote_status": "ESTIMATE_ONLY",
+      "source_id": "src-card-20",
+      "source_url": "https://cardrouter.com/best-buylist-prices/mtg/fca/ragavan-nimble-pilferer/43",
+      "retrieved_at_utc": "2026-10-18T05:32:43.020Z",
+      "response_sha256": "cf99020fc7c9f0fc5fc4bc8947ae0c7398daf272d5771c3618eb0fb126556c15",
+      "matched_card_name": "Ragavan, Nimble Pilferer (Borderless)",
+      "set_or_printing_match": "EXACT",
+      "finish_match": "UNCONFIRMED",
+      "price": {
+        "amount": 115,
+        "currency": "USD",
+        "basis": "OTHER",
+        "condition": "UNKNOWN",
+        "quantity_limit": null
+      },
+      "condition_rule": {
+        "rule_text": "Multiple price blocks exist; don't apply a markdown until the requested printing and finish are vendor-confirmed.",
+        "rule_source_url": null,
+        "applied_adjustment_pct": null,
+        "applied_adjustment_status": "UNKNOWN"
+      },
+      "shipping_assumption": {
+        "amount": null,
+        "currency": "UNKNOWN",
+        "basis": "UNKNOWN",
+        "source_url": null,
+        "notes": "No outbound NZ shipping cost or seller-specific postage quote captured."
+      },
+      "fx": null,
+      "net_estimate": {
+        "amount_nzd": null,
+        "status": "NOT_CALCULABLE",
+        "formula": "Not calculated: source currency is provisional, cash-vs-credit basis/finish/condition and direct vendor quote are unconfirmed; shipping, minimum order and NZD FX are not priced.",
+        "excluded_costs": [
+          "NZD FX conversion",
+          "Shipping to vendor",
+          "Insurance and packaging",
+          "Condition markdowns",
+          "Vendor minimum order",
+          "Cash-vs-store-credit terms"
+        ]
+      },
+      "evidence_excerpt": "Ragavan, Nimble Pilferer (Borderle… (FCA) — Sell for $115.00\n\n# Best Selling Prices for Ragavan, Nimble Pilferer (Borderless)\n\nFinal Fantasy: Through the Ages (FCA)\n\n#43\n\nTCGPlayer buy links are affiliate links with no cost to you. Affiliate links never change our recommendation.\n\n### Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $25.00 | $21.88 | 3 |\n| LP | $20.00 | $16.94 | 3 |\n| MP | $15.40 | $15.40 | 1 |\n| HP | $12.00 | $11.48 | 3 |\n\n### Foil Prices\n\nCurrent buylist prices by condition\n\n| Condition | Best Price | Avg Price | Vendors |\n| --- | --- | --- | --- |\n| NM | $115.00 | $99.31 | 3 |\n| LP | $86.25 | $69.96 | 3 |\n| MP | $57.50 | $57.50 | 1 |\n| HP | $46.50 | $40.13 | 3 |\n\n### 30-Day Price History\n\nPrice trend for Ragavan, Nimble Pilferer (Near-mint condition)\n\n### 180-Day Buylist Price Range\n\nNM  - Last 6 months\n\nLow\n\n$18.53\n\nCurrent\n\n$25.00\n\nHigh\n\n$35.00\n\nThe current price is in the middle range\n\nPrice range: $16.47(89% variation)\n\n### Why Our Prices Are Better\n\nUnlike single-vendor buylist pages, we compare prices across multiple major vendors",
+      "caveats": [
+        "CardRouter is an aggregator, not the underlying vendor's official sell-cart confirmation.",
+        "Currency is displayed as '$' in the extracted page without an ISO code; USD is provisional only from the US vendor context.",
+        "Multiple condition/price blocks are present; finish and the corresponding headline need direct confirmation.",
+        "Promoted headline price differs from the first NM row on the captured page; quarantined from net calculations.",
+        "This headline observation is not a binding offer and is not an executable trade price."
+      ]
+    }
+  ],
+  "best_net": {
+    "status": "NO_COMPARABLE_QUOTES",
+    "vendor_allocation": [],
+    "total_estimated_net_nzd": null,
+    "single_vendor_baseline_nzd": null,
+    "incremental_gain_nzd": null,
+    "incremental_gain_pct": null,
+    "comparison_basis": "No recommendation or total is calculated. These 20 rows are a synthetic fixture, not a customer's inventory. CardRouter pages provide aggregated headline prices, but exact cash-vs-credit basis, corresponding printing/finish, price currency, condition markdowns, shipment minimums, shipping, and NZD FX were not jointly verified at the underlying vendors.",
+    "optimizer_status": "INSUFFICIENT_DATA"
+  },
+  "caveats": [
+    "SYNTHETIC SAMPLE ONLY. This is not a customer's collection, a sell quote, or a trade recommendation.",
+    "capture_sha256 hashes the exact extracted page text string stored in sources[].capture_text, encoded as UTF-8. It is not a hash of the origin server's raw HTTP bytes.",
+    "CardRouter is a buylist aggregator; every headline observation must be reconfirmed in the underlying vendor sell cart before a user relies on it.",
+    "The per-card CardRouter pages show '$' without an ISO currency label in the captured extraction. USD is provisionally assumed for observation only; no NZD conversion has been done.",
+    "Several pages expose multiple condition or price blocks; headline amounts may not be the same finish/condition as the first NM table row. The report intentionally quarantines all net estimates until direct confirmation.",
+    "Star City Games public bulk rates were captured as category-level evidence, not substituted for individual-print quotes. ABU Games page text in this capture did not expose current item-level prices.",
+    "Shipping to US vendors, minimum sell-cart values, quantity limits, condition markdowns, currency conversion, tax treatment, fees, and payout timing are not included in any total.",
+    "Price captures prove what text was captured at a timestamp, not that a vendor will honour the price, accept the exact card/condition, or execute a sale."
+  ],
+  "human_review": {
+    "required": true,
+    "status": "PENDING",
+    "reviewer_id": null,
+    "reviewed_at_utc": null,
+    "notes": "Review printings, finishes, currency and direct vendor quotes before any customer-facing recommendation."
+  },
+  "delivery": {
+    "status": "NOT_DELIVERED",
+    "delivery_reference": null,
+    "delivered_at_utc": null,
+    "content_sha256": null
+  }
+}
