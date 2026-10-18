@@ -2,7 +2,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import Stripe from "npm:stripe@22";
 const url=Deno.env.get("SUPABASE_URL")||""; const serviceRole=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")||"";
-const admin=createClient(url,serviceRole);
+const admin=createClient(url,serviceRole,{global:{headers:{"User-Agent":"dreamledger-consumer/1.0"}}});
 function pickStripeApiKey(apiKey: unknown, secretKey: unknown): string | null {
  const primary = typeof apiKey === "string" ? apiKey.trim() : "";
  if (primary.length > 0) return primary;
