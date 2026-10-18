@@ -1,0 +1,141 @@
+{
+  "method": "Browning Method Pillarstone",
+  "version": "1.0",
+  "run_id": "",
+  "created_at_utc": "",
+  "task": "",
+  "user_outcome": "",
+  "repository": "KelpCoin/DreamLedger",
+  "branch": "",
+  "candidate_sha": "",
+  "scope": {
+    "included_paths": [],
+    "excluded_paths": [],
+    "acceptance_criteria": []
+  },
+  "handover": {
+    "next_smallest_safe_action": "",
+    "human_approvals_required": [],
+    "durable_record_uri": ""
+  },
+  "build": {
+    "builder_model": "UNVERIFIED",
+    "changed_paths": [],
+    "patch_reference": "",
+    "tests_added": []
+  },
+  "atomization": [
+    {
+      "component": "",
+      "invariants": [],
+      "failure_modes": [],
+      "test_refs": []
+    }
+  ],
+  "adversarial_review": {
+    "reviewer": "UNVERIFIED",
+    "independent_from_builder": false,
+    "model_diversity_verified": false,
+    "findings": [],
+    "uninspected_areas": []
+  },
+  "salvage": {
+    "actions": [],
+    "rejected_approaches": [],
+    "regression_tests": []
+  },
+  "checks": [
+    {
+      "name": "",
+      "command_or_workflow": "",
+      "tested_sha": "",
+      "status": "UNVERIFIED",
+      "evidence_uri": "",
+      "notes": ""
+    }
+  ],
+  "readiness": {
+    "dimensions": [
+      {
+        "name": "Functional correctness and acceptance tests",
+        "weight": 20,
+        "score_0_to_5": null,
+        "status": "UNVERIFIED",
+        "evidence": []
+      },
+      {
+        "name": "Security, privacy, and authorization",
+        "weight": 15,
+        "score_0_to_5": null,
+        "status": "UNVERIFIED",
+        "evidence": []
+      },
+      {
+        "name": "Reliability, idempotency, and failure recovery",
+        "weight": 15,
+        "score_0_to_5": null,
+        "status": "UNVERIFIED",
+        "evidence": []
+      },
+      {
+        "name": "Data integrity and economic-truth invariants",
+        "weight": 15,
+        "score_0_to_5": null,
+        "status": "UNVERIFIED",
+        "evidence": []
+      },
+      {
+        "name": "Observability and retrievable evidence",
+        "weight": 10,
+        "score_0_to_5": null,
+        "status": "UNVERIFIED",
+        "evidence": []
+      },
+      {
+        "name": "Maintainability, simplicity, and backward compatibility",
+        "weight": 10,
+        "score_0_to_5": null,
+        "status": "UNVERIFIED",
+        "evidence": []
+      },
+      {
+        "name": "Deployment, rollback, and operational readiness",
+        "weight": 10,
+        "score_0_to_5": null,
+        "status": "UNVERIFIED",
+        "evidence": []
+      },
+      {
+        "name": "Accessibility and user/operator burden",
+        "weight": 5,
+        "score_0_to_5": null,
+        "status": "UNVERIFIED",
+        "evidence": []
+      }
+    ],
+    "weighted_score": null,
+    "unverified_dimensions": [],
+    "vetoes": [],
+    "verdict": "UNVERIFIED"
+  },
+  "commercial": {
+    "customer_problem_evidence": "UNVERIFIED",
+    "offer_and_scope": "UNVERIFIED",
+    "acquisition_path": "UNVERIFIED",
+    "unit_economics": "UNVERIFIED",
+    "independent_external_buyer": false,
+    "settled_payment": false,
+    "correct_attribution": false,
+    "fulfillment_proven": false,
+    "retrievable_delivery_artifact": false,
+    "ledger_reconciled": false,
+    "verified_revenue_nzd": 0,
+    "verdict": "UNVERIFIED"
+  },
+  "deployment": {
+    "deployed": false,
+    "approval_reference": "",
+    "production_sha": "",
+    "notes": ""
+  }
+}
