@@ -24,4 +24,4 @@ This draft implements transparent marketplace pricing, free B2B participation, s
 - No live x402 gateway or autonomous SRE remediation is enabled.
 
 ### Verification
-Run `npm run verify:silo-fee-policy` and `npm run verify:transparent-commercial-model`. Source-level checks cover fee policy, catalogue mirrors, listing metadata, and fail-closed checkout/visibility rules. Live payment-to-fulfillment acceptance still requires a staging transaction and independent evidence before release.
+Run `npm run verify:silo-fees` and `npm run verify:transparent-commercial-model`. Source-level checks cover fee policy, catalogue mirrors, listing metadata, and fail-closed checkout/visibility rules. Live payment-to-fulfillment acceptance still requires a staging transaction and independent evidence before release.
