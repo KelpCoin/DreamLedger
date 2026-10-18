@@ -13,6 +13,7 @@ on:
       - 'scripts/beck-one-shot-bootstrap.ps1'
       - 'ops/commerce/**'
       - 'ops/cockpit/**'
+      - 'BEC-PRIME/sentinels/**'
       - 'ops/decision/**'
       - 'BEC-PRIME/server.js'
       - 'BEC-PRIME/start.js'
@@ -33,6 +34,7 @@ on:
       - 'scripts/beck-cockpit-bootstrap.ps1'
       - 'ops/commerce/**'
       - 'ops/cockpit/**'
+      - 'BEC-PRIME/sentinels/**'
       - 'BEC-PRIME/server.js'
       - 'BEC-PRIME/scripts/verify-render-stripe-webhook-route.js'
       - '.github/workflows/figure-eight-cockpit.yml'
@@ -76,6 +78,8 @@ jobs:
           node --check ops/cockpit/discord-cockpit-notify.mjs
           node --check ops/cockpit/render-cockpit-html.mjs
           node --check BEC-PRIME/scripts/verify-render-stripe-webhook-route.js
+          node --check BEC-PRIME/sentinels/cloud_sentinel_run.mjs
+          node --check BEC-PRIME/sentinels/trend_sentinel_run.mjs
           node BEC-PRIME/scripts/verify-render-stripe-webhook-route.js
 
       - name: Parse PowerShell bootstrap without executing it
