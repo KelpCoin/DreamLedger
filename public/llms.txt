@@ -11,6 +11,13 @@ DreamLedger is a New Zealand website with free evidence-checking tools, supplier
 - Magic: The Gathering: https://dreamledger.org/mtg/
 - Public research notes: https://dreamledger.org/pulse/
 
+## Free supplier feed checker
+- Tool: https://dreamledger.org/supplier-feed-checker/
+- Compare two supplier product-feed CSVs by SKU or product ID
+- Identifies new, removed, price-changed, unchanged, and unknown-price rows
+- Files are parsed in the browser and are not uploaded by the tool
+- Results are informational; missing data stays unknown
+
 ## Supplier quote comparison
 - Listed price: NZ$49 one-time
 - Product page: https://dreamledger.org/quote-comparison/
