@@ -149,7 +149,7 @@ jobs:
           fi
           heartbeat_id="$(node -e 'const fs=require("fs");const p=JSON.parse(fs.readFileSync("proof/beck/latest-cloud-heartbeat-row.json","utf8"));process.stdout.write(p.heartbeat_id)')"
           readback_code="$(curl -sS --max-time 30 -o /tmp/readback.json -w '%{http_code}' \
-            "${auth_headers[@]}" \\
+            "${auth_headers[@]}" \
             "$base/rest/v1/cortex_heartbeat?select=heartbeat_id,seq,current_hash,previous_hash&heartbeat_id=eq.$heartbeat_id&limit=1" || true)"
           if [ "$readback_code" != "200" ]; then
             echo "Supabase heartbeat read-back failed: HTTP $readback_code"
