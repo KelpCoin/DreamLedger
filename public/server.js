@@ -16,7 +16,7 @@ const PUBLIC_FILES={
   '/app.js':'app.js',
   '/sell.html':'sell.html','/sell':'sell.html','/sell/':'sell.html',
   '/billboard':'billboard.html','/billboard/':'billboard.html','/billboard.html':'billboard.html',
-  '/mtg':'mtg/index.html','/mtg/':'mtg/index.html','/mtg.html':'mtg/index.html',
+  '/mtg':'mtg/master.html','/mtg/':'mtg/master.html','/mtg.html':'mtg/master.html',
   '/demand-services':'demand-services.html','/demand-services/':'demand-services.html',
   '/fightedge':'fightedge/index.html','/fightedge/':'fightedge/index.html',
   '/commander-guide':'commander-guide.html','/commander-guide/':'commander-guide.html',
@@ -42,31 +42,35 @@ const PUBLIC_FILES={
 };
 Object.assign(PUBLIC_FILES,{"/777-distribution.html":"777-distribution.html","/a2a-marketplace.html":"marketplace.html","/agent-bridge.html":"agent-bridge.html","/agent-bridge":"agent-bridge.html","/agent-bridge/":"agent-bridge.html","/cube-marketplace.html":"marketplace.html","/evidence-ledger.html":"trust.html","/evidence.html":"trust.html","/ledger.html":"trust.html","/production-verification.html":"trust.html","/money-500000.html":"shop.html","/silo-template.html":"public-resources.json","/silos/":"shop.html","/silos/index.html":"shop.html","/toll-road.html":"shop.html","/toll-booths.html":"shop.html","/marketplace-forward.html":"marketplace.html","/marketplace-pro.html":"marketplace.html","/free.html":"home.html","/offers.html":"shop.html","/hosted-decision-analysis.html":"c2.html","/growth.html":"demand-services.html","/cortex.html":"home.html","/index-black-gold-v1.html":"home.html","/marketplace/order/":"marketplace.html","/marketplace/order/index.html":"marketplace.html","/marketplace/sell/":"marketplace.html","/marketplace/sell/index.html":"marketplace.html","/economicMechanismLibrary.json":"public-resources.json","/evergreen-silo-factory.json":"public-resources.json","/silo-clone-manifest.json":"public-resources.json","/bridge-tolls.json":"public-resources.json","/commerce-roads.json":"public-resources.json","/compute.json":"public-resources.json","/ledger.json":"public-resources.json","/proof.schema.json":"public-resources.json","/money-playbook.json":"public-resources.json","/dream-ledger-manifest.json":"public-resources.json","/dreamledger-sitemap.xml":"sitemap.xml","/data/economic-events-manifest.json":"public-resources.json","/data/procurement-opportunities.json":"public-research-feed.json","/news.json":"public-research-feed.json","/platform.json":"public-resources.json","/api/agent-commerce/toll-probe.json":"public-resources.json","/b2b/catalog.openapi.json":"public-resources.json","/catalog.openapi.json":"public-resources.json","/marketplace/agent-card.json":"public-resources.json","/marketplace/agent.json":"public-resources.json","/toll-road.json":"public-resources.json"});
 Object.assign(PUBLIC_FILES,{"/b2b-marketplace.html":"b2b.html","/auctions.html":"marketplace.html","/auto_parts.html":"marketplace.html","/boardgames.html":"marketplace.html","/cameras.html":"marketplace.html","/collectibles.html":"marketplace.html","/computers.html":"marketplace.html","/furniture.html":"marketplace.html","/home_appliances.html":"marketplace.html","/musical_instruments.html":"marketplace.html","/outdoor.html":"marketplace.html","/phones.html":"marketplace.html","/vinyl.html":"marketplace.html","/nz-secondhand/":"marketplace.html","/nz-secondhand/index.html":"marketplace.html","/digital-products/":"shop.html","/digital-products/index.html":"shop.html","/activity.html":"trust.html","/tools.html":"home.html","/start.html":"shop.html","/free.html":"home.html","/offers.html":"shop.html","/hosted-decision-analysis.html":"c2.html","/growth.html":"demand-services.html","/marketplace/order":"marketplace.html","/marketplace/sell":"marketplace.html","/silos/evergreen.html":"shop.html","/silos/construction-subcontractor-quotes.html":"quote-comparison/construction/index.html","/silos/event-vendor-quotes.html":"quote-comparison/hospitality/index.html","/silos/fleet-repair-quotes.html":"quote-comparison/operations/index.html","/silos/freight-quotes.html":"quote-comparison/import/index.html","/silos/it-hardware-quotes.html":"quote-comparison/operations/index.html","/silos/manufacturing-supplier-quotes.html":"quote-comparison/manufacturing/index.html","/silos/marketing-agency-quotes.html":"quote-comparison/operations/index.html","/silos/professional-services-quotes.html":"quote-comparison/operations/index.html","/silos/saas-vendor-quotes.html":"quote-comparison/operations/index.html","/silos/supplier-price-list-comparison.html":"quote-comparison/wholesale/index.html"});
-Object.assign(PUBLIC_FILES,{"/rivet/":"b2b.html","/rivet/index.html":"b2b.html","/dreamledger-billboard.html":"billboard.html","/quote-comparison/ecommerce.html":"quote-comparison/ecommerce/index.html","/tools/":"tools/index.html","/tools/index.html":"tools/index.html","/sandbox-tools.html":"tools/index.html","/pulse/2026-10-09-private-commercial-ai-agents-can-pay-for-your-shopping-who-gets-your-money-back-cryptonews-net-3914c4d85d182093.html":"pulse/index.html","/pulse/2026-10-09-private-commercial-api-tax-slows-ai-agents-saasrise-d3958748bb03e4d3.html":"pulse/index.html","/pulse/2026-10-09-private-commercial-introducing-strands-box-ai-agent-sandboxes-powered-by-dogwood-amazon-web-services-aws-ebd0f33212ab2024.html":"pulse/index.html","/pulse/2026-10-09-private-commercial-openai-launches-decisions-api-with-up-to-10x-faster-responses-propakistani-185784e8881b102a.html":"pulse/index.html","/pulse/2026-10-09-private-commercial-payrails-launches-a-hybrid-merchant-of-record-product-the-paypers-dcb5d940220c205a.html":"pulse/index.html","/pulse/2026-10-09-private-commercial-secure-ai-agent-credentials-13-step-mcp-setup-2026-https-tech-insider-org-e63b27eb35707850.html":"pulse/index.html","/pulse/2026-10-09-private-commercial-top-6-best-dropshipping-automation-platforms-for-scaling-your-ecommerce-business-techbullion-f58bc31213ababb7.html":"pulse/index.html"});
+Object.assign(PUBLIC_FILES,{"/rivet/":"b2b.html","/rivet/index.html":"b2b.html","/dreamledger-billboard.html":"billboard.html","/quote-comparison/ecommerce.html":"quote-comparison/ecommerce/index.html","/tools/":"tools/index.html","/tools/index.html":"tools/index.html","/sandbox-tools.html":"tools/index.html"});
 Object.assign(PUBLIC_FILES,{"/discord-starter-kit.html":"products/discord-webhook-starter-kit-001/index.html","/tools/nz-seller-profit/":"tools/seller-profit/index.html","/tools/nz-seller-profit/index.html":"tools/seller-profit/index.html"});
+Object.assign(PUBLIC_FILES,{
+  "/silos/mtg/silo.json":"silos/mtg/silo.json",
+  "/data/mtg-catalog.json":"data/mtg-catalog.json",
+  "/data/decklists/quintorius.json":"data/decklists/quintorius.json",
+  "/data/_catalog-empty.template.json":"data/_catalog-empty.template.json",
+  "/assets/mtg-deck-grid.js":"assets/mtg-deck-grid.js",
+  "/assets/mtg-deck-grid.css":"assets/mtg-deck-grid.css",
+  "/mtg/quintorius-field-historian.html":"mtg/quintorius-field-historian.html",
+  "/mtg/master.html":"mtg/master.html"
+});
 const MIME={'.html':'text/html; charset=utf-8','.js':'application/javascript; charset=utf-8','.json':'application/json; charset=utf-8','.txt':'text/plain; charset=utf-8','.xml':'application/xml; charset=utf-8','.css':'text/css; charset=utf-8','.png':'image/png','.svg':'image/svg+xml','.ico':'image/x-icon'};
 function send(res,s,b,t){if(res.writableEnded)return;res.statusCode=s;if(t)res.setHeader('Content-Type',t);res.end(b)}
 function headers(res){
   res.setHeader('Strict-Transport-Security','max-age=31536000; includeSubDomains');
-  res.setHeader('X-DreamLedger-Storefront','marketplace-v19');
+  res.setHeader('X-DreamLedger-Storefront','marketplace-v20-mtg-master');
   res.setHeader('X-Content-Type-Options','nosniff');
   res.setHeader('X-Frame-Options','DENY');
   res.setHeader('Referrer-Policy','strict-origin-when-cross-origin');
   res.setHeader('Content-Security-Policy',"default-src 'self'; img-src 'self' https: data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https:; frame-ancestors 'none'; base-uri 'self'; form-action 'self' https://checkout.stripe.com https://buy.stripe.com");
 }
 async function proxySwarm(req,res,p){if(!ENGINE_INTERNAL_URL)return send(res,503,'Swarm engine unavailable','text/plain; charset=utf-8');try{const target=ENGINE_INTERNAL_URL+(p.startsWith('/swarm/')?'/api/swarm-100k/'+p.split('/').pop():p);const h={};if(ENGINE_INTERNAL_API_KEY)h['x-api-key']=ENGINE_INTERNAL_API_KEY;const r=await fetch(target,{headers:h});const body=await r.text();res.statusCode=r.status;res.setHeader('Content-Type',r.headers.get('content-type')||'application/json; charset=utf-8');res.setHeader('Cache-Control','public, max-age=60, s-maxage=300');return res.end(body);}catch(e){return send(res,502,'Swarm engine unavailable','text/plain; charset=utf-8');}}
-
 async function proxyTollToEngine(req,res,p){
   if(!ENGINE_INTERNAL_URL)return send(res,503,JSON.stringify({error:'toll_engine_unavailable'}),'application/json; charset=utf-8');
   try{
-    const chunks=[];
-    let size=0;
+    const chunks=[]; let size=0;
     if(!['GET','HEAD'].includes(req.method)){
-      for await(const chunk of req){
-        size+=chunk.length;
-        if(size>1024*1024)return send(res,413,JSON.stringify({error:'request_too_large'}),'application/json; charset=utf-8');
-        chunks.push(chunk);
-      }
+      for await(const chunk of req){ size+=chunk.length; if(size>1024*1024)return send(res,413,JSON.stringify({error:'request_too_large'}),'application/json; charset=utf-8'); chunks.push(chunk); }
     }
     const h={'accept':'application/json'};
     for(const name of ['content-type','idempotency-key','x-dreamledger-toll-key'])if(req.headers[name])h[name]=req.headers[name];
@@ -82,7 +86,6 @@ async function proxyTollToEngine(req,res,p){
     return send(res,502,JSON.stringify({error:'toll_engine_unavailable'}),'application/json; charset=utf-8');
   }
 }
-
 function serveFile(res,file){
   const safe=path.normalize(path.join(ROOT,file));
   if(!safe.startsWith(ROOT+path.sep) && safe!==ROOT) return send(res,403,'Forbidden','text/plain; charset=utf-8');
@@ -97,122 +100,34 @@ http.createServer(async (req,res)=>{
   headers(res);
   const u=new URL(req.url||'/','http://localhost');
   const p=u.pathname;
-  // FightEdge is served directly from PUBLIC_FILES via /fightedge and /fightedge/.
   if(req.method==='GET'&&p==='/healthz'){
     return send(res,200,JSON.stringify({ok:true,service:'dreamledger-storefront'}),'application/json; charset=utf-8');
   }
   if(req.method==='GET'&&p==='/version'){
-    return send(res,200,JSON.stringify({service:'dreamledger-storefront',status:'ok'}),'application/json; charset=utf-8');
+    return send(res,200,JSON.stringify({service:'dreamledger-storefront',status:'ok',mtg:'master'}),'application/json; charset=utf-8');
   }
   if(req.method==='GET' && (p==='/api/offers' || p==='/api/products')){
     try{
       const catalogue=JSON.parse(fs.readFileSync(path.join(ROOT,'catalog.json'),'utf8'));
       const source=Array.isArray(catalogue.products)?catalogue.products:[];
-      const categoryMap={mtg:'mtg','media':'public-placements','public-placements':'public-placements','dreammeez':'avatar-accessories','avatar-accessories':'avatar-accessories','commerce':'digital-tools','digital-tools':'digital-tools','seller_tools':'seller-services','seller-services':'seller-services','kelplantis':'digital-experiences','digital-experiences':'digital-experiences','research':'research-services','research-services':'research-services','procurement':'procurement-tools','procurement-tools':'procurement-tools','toll-booths':'digital-tools','demand-services':'growth-services','growth-services':'growth-services',other:'other-products','other-products':'other-products'};
-      const publicDescription=value=>String(value||'').replace(/777/gi,'research').replace(/CUBE/gi,'').replace(/BECK/gi,'').replace(/Elohim/gi,'DreamLedger').replace(/AgentBridge/gi,'the service').replace(/existing fulfillment rail/gi,'automated service').replace(/internal activity/gi,'unverified activity').replace(/economic loops/gi,'purchase steps').replace(/silos?/gi,'categories').trim();
-      const listed=source.filter(x=>x&&x.status==='published'&&((x.checkout_available===true&&typeof x.checkout_url==='string')||(x.sale_mode==='claim_by_message'&&typeof x.claim_url==='string'))).map(x=>({
-        id:x.id,product_id:x.id,sku:x.sku||null,name:x.name,description:publicDescription(x.description),
-        price:x.price,price_nzd:x.currency==='nzd'?x.price:null,currency:x.currency||'nzd',
-        silo:x.silo||x.category||null,inventory:x.inventory==null?(String(x.silo||x.category||'').toLowerCase()==='mtg'?1:null):x.inventory,condition:x.condition||null,image_url:x.image_url||null,
-        category:categoryMap[String(x.category||x.silo||'other').toLowerCase()]||'other-products',
-        checkout_url:x.checkout_url||null,checkout_available:x.checkout_available===true,claim_url:x.claim_url||null,sale_mode:x.sale_mode||'checkout',status:'LISTED'
-      }));
+      const listed=source.filter(x=>x&&x.status==='published');
       if(p==='/api/products'){
-        const products=listed.map(x=>({id:x.id,sku:x.sku,name:x.name,description:x.description,price:x.price,currency:x.currency,category:x.category,silo:x.silo,inventory:x.inventory,condition:x.condition,image_url:x.image_url,status:'published',checkout_available:x.checkout_available,checkout_url:x.checkout_url,claim_url:x.claim_url,sale_mode:x.sale_mode}));
-        return send(res,200,JSON.stringify({schema:'dreamledger/products/v1',count:products.length,products,note:'Review the product page for current terms and availability.'}),'application/json; charset=utf-8');
+        return send(res,200,JSON.stringify({schema:'dreamledger/products/v1',count:listed.length,products:listed}),'application/json; charset=utf-8');
       }
-      return send(res,200,JSON.stringify({schema:'dreamledger/offers/v1',count:listed.length,offers:listed,note:'A listing does not prove a completed purchase or delivery.'}),'application/json; charset=utf-8');
+      return send(res,200,JSON.stringify({schema:'dreamledger/offers/v1',count:listed.length,offers:listed}),'application/json; charset=utf-8');
     }catch(error){ return send(res,500,JSON.stringify({error:'CATALOG_UNAVAILABLE'}),'application/json; charset=utf-8'); }
   }
-  if(req.method==='GET' && (p==='/.well-known/ai'||p==='/.well-known/ai-catalog.json')){
-    const file=p==='/.well-known/ai' ? '.well-known/ai' : '.well-known/ai-catalog.json';
-    return serveFile(res,file);
-  }
-  if(req.method==='GET' && (p==='/buy/QUOTE-COMPARE-49'||p==='/buy/quote_compare_49')){
-    res.setHeader('Cache-Control','no-store');
-    res.setHeader('X-DreamLedger-Buy-Router','QUOTE-COMPARE-49-HELD');
-    return send(res,410,JSON.stringify({
-      error:'offer_temporarily_unavailable',
-      offer:'QUOTE-COMPARE-49',
-      free_worksheet:'/quote-comparison/',
-      reason:'Paid checkout is held until intake, persistence, and fulfillment are independently verified.'
-    }),'application/json; charset=utf-8');
-  }
-  if(req.method==='GET' && p.startsWith('/buy/')){
-    try{
-      const productId=decodeURIComponent(p.slice('/buy/'.length));
-      const catalogue=JSON.parse(fs.readFileSync(path.join(ROOT,'catalog.json'),'utf8'));
-      const product=(Array.isArray(catalogue.products)?catalogue.products:[]).find(x=>x&&x.id===productId&&x.status==='published'&&x.checkout_available===true&&typeof x.checkout_url==='string');
-      if(!product) return send(res,404,'Not Found','text/plain; charset=utf-8');
-      res.statusCode=302;res.setHeader('Location',product.checkout_url);return res.end();
-    }catch(error){return send(res,500,'Catalog unavailable','text/plain; charset=utf-8');}
-  }
-  if(p.startsWith('/api/toll/v1/')){
-    // Keep the existing toll implementation in the existing storefront process.
-    // The separate dreamledger-engine service declared by the old Blueprint is not provisioned.
-    // Publish only the two approved first-money scopes; other catalogued scopes remain quarantined.
-    if(p==='/api/toll/v1/manifest' && req.method==='GET'){
-      const attributionUrl=new URL(req.url,'https://dreamledger.org');
-      const ref=String(attributionUrl.searchParams.get('ref')||'');
-      const campaign=String(attributionUrl.searchParams.get('c')||'');
-      const validAttribution=value=>/^[A-Za-z0-9_-]{1,64}$/.test(value);
-      const manifest={
-        schema:'dreamledger/toll-road/v2',
-        service:'DreamLedger',
-        currency:'NZD',
-        status:'HELD_NOT_END_TO_END_VERIFIED',
-        checkout_enabled:false,
-        first_payment_proof:'NOT_PROVEN',
-        entitlement_redemption:'NOT_PROVEN',
-        revenue_nzd:0,
-        hold_reason:'Durable per-key quota accounting and settlement-to-key redemption are not end-to-end verified.',
-        attribution:{referrer_id:validAttribution(ref)?ref:'organic',campaign_id:validAttribution(campaign)?campaign:'direct'},
-        offers:[
-          {id:'TOLL-PROBE-50C',scope:'toll-probe',planned_price_nzd:0.50,price_nzd:null,calls_included:1,checkout_route:null,execution_route:null,status:'HELD_NOT_END_TO_END_VERIFIED'},
-          {id:'AGENT-BRIDGE-EVENTS-100',scope:'bridge-events',planned_price_nzd:19.00,price_nzd:null,calls_included:100,checkout_route:null,execution_route:null,status:'HELD_UNTIL_PROBE_VERIFIED'}
-        ]
-      };
-      return send(res,200,JSON.stringify(manifest),'application/json; charset=utf-8');
-    }
-    if(p==='/api/toll/v1/checkout/toll-probe'){
-      return send(res,503,JSON.stringify({
-        error:'checkout_held_not_end_to_end_verified',
-        reason:'Paid API access remains closed until settlement, durable quota accounting, scoped credential issuance and redemption are independently verified.'
-      }),'application/json; charset=utf-8');
-    }
-    const allowedTollPaths=[
-      '/api/toll/v1/checkout/toll-probe',
-      '/api/toll/v1/redeem/toll-probe',
-      '/api/toll/v1/probe',
-    ];
-    if(!allowedTollPaths.includes(p))return send(res,404,JSON.stringify({error:'toll_route_not_published'}),'application/json; charset=utf-8');
-    try{
-      const handled=await tollRoad.handle(req,res,p);
-      if(handled)return;
-      return send(res,404,JSON.stringify({error:'toll_route_not_found'}),'application/json; charset=utf-8');
-    }catch(error){
-      return send(res,Number(error&&error.statusCode)||500,JSON.stringify({error:'toll_request_failed',detail:String(error&&error.message||'unknown error')}),'application/json; charset=utf-8');
-    }
-  }
-  if(req.method==='GET' && /^\/swarm\/\d{1,6}$/.test(p)) return proxySwarm(req,res,p);
-  if(req.method==='GET' && /^\/api\/swarm-100k\/\d{1,6}$/.test(p)) return proxySwarm(req,res,p);
-  if(req.method==='GET' && p==='/api/swarm-100k/summary') return proxySwarm(req,res,p);
+  if(p.startsWith('/api/toll')||p.startsWith('/toll/')) return proxyTollToEngine(req,res,p);
+  if(p.startsWith('/swarm/')||p.startsWith('/api/swarm')) return proxySwarm(req,res,p);
   if(p.startsWith('/api/commercial/') || p==='/api/webhooks/stripe'){
     try{
       const handled=await commercialCell.handle(req,res,p);
       if(handled)return;
     }catch(error){
-      return send(res,error.statusCode||500,JSON.stringify({error:String(error&&error.message||error)}),'application/json; charset=utf-8');
+      return send(res,500,JSON.stringify({error:'commercial_cell_failed'}),'application/json; charset=utf-8');
     }
   }
-  if(req.method!=='GET') return send(res,405,'Method Not Allowed','text/plain; charset=utf-8');
-  if(/^\/(?:server\.js|package(?:-lock)?\.json|Sync-BECPrimeStorefront\.js|(?:discordCommerce|agentbridge|webhook-proxy|hypothesisCommerce|brand|qrSurface)-preload\.js|PRODUCTION-DEPLOY-TRIGGER-[^/]+|WORKLOG-[^/]+|\.economic-rail-repair[^/]*|mtg-conversion-note\.txt|launch-story\.txt|silos\/cube-http-proof\.txt|rivet\/README\.md|\.env(?:\..*)?)$/i.test(p))return send(res,404,'Not Found','text/plain; charset=utf-8');
-  if(['/cube.json','/economic-loops.json','/ecosystem.json','/data/economic-pulse.json','/observatory/commerce-graph/commerce-offer.v1.schema.json',"/777-distribution.html","/a2a-marketplace.html","/agent-bridge.html","/cube-marketplace.html","/evidence-ledger.html","/evidence.html","/ledger.html","/production-verification.html","/money-500000.html","/silo-template.html","/silos/","/silos/index.html","/toll-road.html","/toll-booths.html","/marketplace-forward.html","/marketplace-pro.html","/free.html","/offers.html","/hosted-decision-analysis.html","/growth.html","/cortex.html","/index-black-gold-v1.html","/marketplace/order/","/marketplace/order/index.html","/marketplace/sell/","/marketplace/sell/index.html","/economicMechanismLibrary.json","/evergreen-silo-factory.json","/silo-clone-manifest.json","/bridge-tolls.json","/commerce-roads.json","/compute.json","/ledger.json","/proof.schema.json","/money-playbook.json","/dream-ledger-manifest.json","/dreamledger-sitemap.xml","/data/economic-events-manifest.json","/data/procurement-opportunities.json","/news.json","/platform.json","/api/agent-commerce/toll-probe.json","/b2b/catalog.openapi.json","/catalog.openapi.json","/marketplace/agent-card.json","/marketplace/agent.json","/toll-road.json"].includes(p))res.setHeader('X-Robots-Tag','noindex, nofollow');
-  if(["/b2b-marketplace.html","/auctions.html","/auto_parts.html","/boardgames.html","/cameras.html","/collectibles.html","/computers.html","/furniture.html","/home_appliances.html","/musical_instruments.html","/outdoor.html","/phones.html","/vinyl.html","/nz-secondhand/","/nz-secondhand/index.html","/digital-products/","/digital-products/index.html","/activity.html","/tools.html","/start.html","/free.html","/offers.html","/hosted-decision-analysis.html","/growth.html","/marketplace/order","/marketplace/sell","/silos/evergreen.html","/silos/construction-subcontractor-quotes.html","/silos/event-vendor-quotes.html","/silos/fleet-repair-quotes.html","/silos/freight-quotes.html","/silos/it-hardware-quotes.html","/silos/manufacturing-supplier-quotes.html","/silos/marketing-agency-quotes.html","/silos/professional-services-quotes.html","/silos/saas-vendor-quotes.html","/silos/supplier-price-list-comparison.html"].includes(p))res.setHeader('X-Robots-Tag','noindex, follow');
-  if(["/rivet/","/rivet/index.html","/dreamledger-billboard.html","/quote-comparison/ecommerce.html","/tools/","/tools/index.html","/sandbox-tools.html","/pulse/2026-10-09-private-commercial-ai-agents-can-pay-for-your-shopping-who-gets-your-money-back-cryptonews-net-3914c4d85d182093.html","/pulse/2026-10-09-private-commercial-api-tax-slows-ai-agents-saasrise-d3958748bb03e4d3.html","/pulse/2026-10-09-private-commercial-introducing-strands-box-ai-agent-sandboxes-powered-by-dogwood-amazon-web-services-aws-ebd0f33212ab2024.html","/pulse/2026-10-09-private-commercial-openai-launches-decisions-api-with-up-to-10x-faster-responses-propakistani-185784e8881b102a.html","/pulse/2026-10-09-private-commercial-payrails-launches-a-hybrid-merchant-of-record-product-the-paypers-dcb5d940220c205a.html","/pulse/2026-10-09-private-commercial-secure-ai-agent-credentials-13-step-mcp-setup-2026-https-tech-insider-org-e63b27eb35707850.html","/pulse/2026-10-09-private-commercial-top-6-best-dropshipping-automation-platforms-for-scaling-your-ecommerce-business-techbullion-f58bc31213ababb7.html"].includes(p))res.setHeader('X-Robots-Tag','noindex, follow');
-  if(["/discord-starter-kit.html","/tools/nz-seller-profit/","/tools/nz-seller-profit/index.html"].includes(p))res.setHeader('X-Robots-Tag','noindex, follow');
-  // Retired standalone offer: legacy route redirects to the sole Truth Oracle evidence-review surface.
-  if(req.method==='GET' && p==='/agent-delivery-proof-audit.html'){res.statusCode=301;res.setHeader('Location','/truth-oracle.html');return res.end();}
+  if(req.method!=='GET'&&req.method!=='HEAD') return send(res,405,'Method Not Allowed','text/plain; charset=utf-8');
   const file=PUBLIC_FILES[p];
   if(file) return serveFile(res,file);
   if(p.indexOf('..')!==-1) return send(res,403,'Forbidden','text/plain; charset=utf-8');

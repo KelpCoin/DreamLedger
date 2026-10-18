@@ -19,7 +19,7 @@ function writeProof() {
     inventory_endpoint: '/api/products',
     checkout_endpoint: '/api/offer-checkout/create',
     horizontal_catalogue: true,
-    displays: ['image', 'name', 'price_nzd', 'condition', 'availability', 'buy_button'],
+    displays: ['image', 'name', 'price_nzd', 'availability', 'buy_button', 'condition_for_verified_singles_only'],
     generated_at: new Date().toISOString()
   };
   fs.writeFileSync(PROOF, JSON.stringify(proof, null, 2) + '\n', 'utf8');
@@ -56,7 +56,9 @@ rail.innerHTML=decks.map((p,i)=>{
   const legacyMinor=String(p.id||'')==='MTG-URZAS-LEGACY-PALINCHRON-FOIL-001';
   const priceMajor=(String(p.price_unit||'').toLowerCase()==='minor'||String(p.price_unit||'').toLowerCase()==='cents'||legacyMinor)?Number(p.price)/100:Number(p.price);
   const image=p.image_url||p.imageUrl||p.image||'';
-  const condition=p.condition||'Condition not specified';
+  const kind=String(p.product_kind||p.category||p.inventory_type||'').toLowerCase();
+  const conditionEligible=['single','single-card','mtg-single','physical-single'].includes(kind);
+  const condition=conditionEligible&&typeof p.condition==='string'&&p.condition.trim()?p.condition.trim():'';
   return '<article class="card"><div class="art">'+(image?'<img src="'+esc(image)+'" alt="'+esc(p.name||p.id)+'">':'')+'<div class="sigil">'+(i%3===0?'MTG':'EDH')+'</div></div><div class="body"><span class="pill">'+esc(p.id||'MTG')+'</span><h2>'+esc(p.name||p.id)+'</h2><div class="desc">'+esc(p.description||'MTG inventory item.')+'</div><div class="row"><span>'+esc(condition)+'</span><span>$'+priceMajor.toFixed(2)+' NZD</span></div><div class="row"><span class="'+(purchasable?'ok':'wait')+'">'+(purchasable?'IN STOCK':'NOT CURRENTLY PURCHASABLE')+'</span><span>'+esc(p.inventory==null?'?':p.inventory)+' units</span></div><button class="buy mtg-buy" '+(purchasable?'':'disabled')+' data-id="'+esc(p.id||'')+'">'+(purchasable?'BUY NOW':'UNAVAILABLE')+'</button></div></article>';
 }).join('');
 a.innerHTML=decks.map(p=>'<option value="'+esc(p.id||'')+'">'+esc(p.name||p.id)+'</option>').join('');

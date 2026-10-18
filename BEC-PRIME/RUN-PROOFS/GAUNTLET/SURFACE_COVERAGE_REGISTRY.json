@@ -1,0 +1,22 @@
+{
+  "schema": "dreamledger/gauntlet-surface-coverage/v1",
+  "updated": "2026-10-16",
+  "rule": "Every public commercial surface needs an Elohim-emitted scorecard before promotion. Gauntlet judges; Elohim does not self-PASS.",
+  "surfaces": {
+    "storefront": { "scorecard_required": true, "economic_validation": "settled_stripe_receipt" },
+    "mtg": { "scorecard_required": true, "last_fossil": "MTG-MASTER-GAUNTLET-2026-10-15.json", "verdict": "PASS_SHELL_ONLY" },
+    "avatar": { "scorecard_required": true, "dual_surface": ["web", "phinhaven"] },
+    "digital_products": { "scorecard_required": true, "schema_gate": "validateElohimProduct.js" },
+    "crypto": { "scorecard_required": true },
+    "media_music": { "scorecard_required": true },
+    "phinhaven": { "scorecard_required": true, "scope": "floor1_only" },
+    "figure_eight": { "scorecard_required": true, "requires": ["artifact", "compounding_component", "receipt_hashes"] }
+  },
+  "pipeline": [
+    "Sentinel/trend signal",
+    "Elohim emitScorecard (acceptance criteria + checks)",
+    "Gauntlet adversarial verdict",
+    "HOLD/KILL/PASS_SHELL_ONLY/PASS",
+    "External payment + evidence for VERIFIED"
+  ]
+}

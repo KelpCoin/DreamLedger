@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Silo · DreamLedger</title>
+<meta name="bec-compiler" content="SiloFaceCompiler">
+<meta name="description" content="Data-driven silo face. Shell candidates are not live markets.">
+<style>
+:root{--bg:#0a0b0f;--surface:#141722;--ink:#f4f1ea;--muted:#9aa0b0;--line:#2a3040;--accent:#d8b56b}
+*{box-sizing:border-box;margin:0;padding:0}body{font:16px/1.5 system-ui,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
+a{color:var(--accent);text-decoration:none;font-weight:700}
+.wrap{max-width:960px;margin:auto;padding:24px 16px 80px}
+.top{display:flex;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--line);margin-bottom:28px;flex-wrap:wrap;gap:12px}
+.brand span{color:var(--accent)}nav a{margin-left:12px;font-size:13px;color:var(--muted)}
+.badge{display:inline-block;font-size:10px;padding:4px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted);margin-bottom:12px}
+.eyebrow{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
+h1{font-size:clamp(1.8rem,5vw,2.8rem);letter-spacing:-.04em;line-height:1.08;margin-bottom:12px}
+.lead{color:var(--muted);max-width:36em;margin-bottom:20px}
+.status{display:inline-block;padding:6px 12px;border-radius:999px;font-size:12px;font-weight:800;border:1px solid var(--line);margin-bottom:16px}
+.status.live_candidate{border-color:#69e0b0;color:#69e0b0}
+.status.shell_candidate{border-color:#e1b85b;color:#e1b85b}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));margin-top:20px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px}
+.card h3{margin-bottom:8px;font-size:15px}.card p{color:var(--muted);font-size:13px}
+.btn{display:inline-flex;min-height:44px;align-items:center;padding:0 14px;border-radius:10px;background:var(--accent);color:#14120c;font-weight:900;margin-top:12px}
+.note{margin-top:28px;font-size:12px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <a class="brand" href="/">Dream<span>Ledger</span></a>
+  <nav><a href="/silos/">All silos</a><a href="/money.html">Pay</a><a href="/truth-oracle.html">Truth Oracle</a></nav>
+</header>
+<span class="badge">emitted by SiloFaceCompiler · data-driven face</span>
+<p class="eyebrow" id="eyebrow">Silo</p>
+<h1 id="title">Loading…</h1>
+<p class="lead" id="tagline"></p>
+<div class="status" id="status"></div>
+<div class="grid">
+  <article class="card"><h3>Catalog</h3><p>Inventory is silo-isolated. Empty catalog is honest — not fabricated stock.</p></article>
+  <article class="card"><h3>Gauntlet</h3><p>Public activation requires scorecard PASS. Shell candidates stay non-commercial.</p></article>
+  <article class="card"><h3>Commerce</h3><p>Checkout only via approved Stripe routes. No revenue without settlement.</p></article>
+</div>
+<p id="cta"></p>
+<p class="note">Compiler exhaust from <code>/data/silo-face-registry.json</code>. <strong>shell_candidate</strong> is not a live marketplace.</p>
+</div>
+<script>
+(function(){
+  const params=new URLSearchParams(location.search);
+  const slug=params.get('slug')||'mtg';
+  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  fetch('/data/silo-face-registry.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error();return r.json()}).then(d=>{
+    const silo=(d.silos||[]).find(s=>s.slug===slug);
+    if(!silo){document.getElementById('title').textContent='Silo not found';document.getElementById('tagline').textContent='No registry entry for '+slug;return;}
+    document.title=silo.name+' · DreamLedger';
+    document.getElementById('eyebrow').textContent=(silo.commercial_silo||'silo')+' · '+silo.slug;
+    document.getElementById('title').textContent=silo.name;
+    document.getElementById('tagline').textContent=silo.tagline||'';
+    const st=document.getElementById('status');
+    st.textContent=silo.status||'unknown';st.className='status '+(silo.status||'');
+    if(silo.accent) document.documentElement.style.setProperty('--accent', silo.accent);
+    const cta=document.getElementById('cta');
+    if(silo.slug==='mtg'||silo.route==='/mtg/') cta.innerHTML='<a class="btn" href="/mtg/">Open Magic silo →</a>';
+    else if(silo.status==='shell_candidate') cta.innerHTML='<span class="note">Shell only — gauntlet + supply verification required before activation.</span>';
+    else cta.innerHTML='<a class="btn" href="'+esc(silo.route||'#')+'">Open silo →</a>';
+  }).catch(()=>{document.getElementById('title').textContent='Registry unavailable';});
+})();
+</script>
+</body>
+</html>

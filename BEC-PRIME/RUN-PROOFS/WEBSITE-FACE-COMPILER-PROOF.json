@@ -1,0 +1,47 @@
+{
+  "schema": "dreamledger/website-face-compiler-proof/v1",
+  "status": "PASS",
+  "compiler": "WebsiteFaceCompiler",
+  "architecture": "website-as-exhaust",
+  "registry": "BEC-PRIME/compiler/face-registry.json",
+  "emitted_at": "2026-10-16T11:41:57.941Z",
+  "emitted": [
+    {
+      "face": "money",
+      "out": "money.html",
+      "bytes": 4067,
+      "sha256": "f7de1d419eee7113c139afd4e525ee776b291543e6d286a27843da0eecfdfe68"
+    },
+    {
+      "face": "home",
+      "out": "home.html",
+      "bytes": 3348,
+      "sha256": "455d7ac94072e85fefebaf706f796ccb133814b28cab04939b963f6af2998485"
+    },
+    {
+      "face": "shop",
+      "out": "shop.html",
+      "bytes": 4394,
+      "sha256": "985c4c40480a1a39a03522be9e081f5a613423fc5d65292cdea6c2453d3d65c9"
+    },
+    {
+      "face": "start",
+      "out": "start.html",
+      "bytes": 3503,
+      "sha256": "695dca6b2fb989b79fa308e3230f822bacd7669a5bea12755bad0d0348d8d469"
+    },
+    {
+      "face": "offers",
+      "out": "offers.html",
+      "bytes": 4215,
+      "sha256": "a0c19ae46f9df2a3130077719cedcc3724983443dfec680c217beb4a770cc58c"
+    },
+    {
+      "face": "cash_redirect",
+      "out": "cash.html",
+      "bytes": 197,
+      "sha256": "71de500e0235c9fdc203b9209ec99b6b7ec8bb4fb2e5dece28c6a9d214d0f55a"
+    }
+  ],
+  "rule": "Re-run compiler; do not hand-edit emitted HTML"
+}

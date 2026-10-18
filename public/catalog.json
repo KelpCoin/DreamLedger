@@ -103,17 +103,17 @@
       "id": "COMMANDER-DECK-DIAGNOSTIC-001",
       "sku": "CMD-DIAG-29",
       "name": "Commander Deck Diagnostic",
-      "description": "NZ$29 one-time Commander deck diagnostic covering structural weaknesses, upgrade priorities and a tuning plan. Checkout uses the existing live Stripe Payment Link. After settlement, submit the decklist through the post-payment intake. Delivery remains unverified until a retrievable report and fulfillment evidence are recorded.",
+      "description": "Held. Digital service, not a physical card or deck. Not currently offered for purchase.",
       "price": 29,
       "currency": "nzd",
-      "status": "published",
-      "checkout_available": true,
-      "checkout_url": "https://buy.stripe.com/8x228r1nfg0l3M32csdwc2I",
+      "status": "held",
+      "checkout_available": false,
       "payment_link_id": "plink_1UKS00EGgEAnUFF9kUjraaL5",
       "stripe_price_id": "price_1UFFY1EGgEAnUFF9Yq03zIa7",
       "category": "mtg",
       "delivery_test_status": "UNVERIFIED",
-      "commercial_validation_status": "UNVALIDATED"
+      "commercial_validation_status": "UNVALIDATED",
+      "inventory": 0
     },
     {
       "id": "DISCORD-WEBHOOK-STARTER-KIT-001",

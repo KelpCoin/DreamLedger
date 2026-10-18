@@ -1,0 +1,40 @@
+{
+  "schema": "dreamledger/gauntlet-scorecard/v1",
+  "subject": "mtg_master_silo",
+  "ran_at": "2026-10-14T21:33:57Z",
+  "verdict": "PASS_SHELL_ONLY_REJECT_PUBLIC_ACTIVATION",
+  "clone_executed": false,
+  "clone_recommendation": {
+    "shell_clone": true,
+    "public_activation": false,
+    "reason": "Repo has clone manifest + empty catalog template, but live deploy serves an older /mtg/ (api/products) and 404s for silo.json, catalog, deck grid. Cloning would propagate a broken public surface."
+  },
+  "blockers": [
+    "Live /silos/mtg/silo.json → 404",
+    "Live /data/mtg-catalog.json → 404",
+    "Live /assets/mtg-deck-grid.js → 404",
+    "Live /data/decklists/quintorius.json → 404",
+    "Live /mtg/ still loads /api/products — not manifest-driven index",
+    "public/Sync-BECPrimeStorefront.js overwrites public/ from BEC-PRIME/compiled/website on prestart"
+  ],
+  "repo_pass": [
+    "public/silos/mtg/silo.json",
+    "public/data/mtg-catalog.json",
+    "public/mtg/index.html (manifest-driven on main)",
+    "public/mtg-list.html",
+    "public/assets/mtg-deck-grid.js",
+    "public/data/_catalog-empty.template.json"
+  ],
+  "next_actions": [
+    "Preserve MTG master paths in Sync-BECPrimeStorefront (canonical snapshot like billboard/avatar)",
+    "Redeploy storefront; confirm live 200 for silo.json, catalog, grid JS",
+    "Re-run gauntlet",
+    "Only then cube-compile a target slug with empty catalog + publish_approval_gate"
+  ],
+  "policy": {
+    "cube": "assemble solid candidate",
+    "swarm": "bounded variants only",
+    "gauntlet": "accept or reject",
+    "human": "build or refine after gate"
+  }
+}

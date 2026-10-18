@@ -1,6 +1,6 @@
 # Agent Bridge Requirement — First Dollar External Distribution
 
-**Status:** ACTIVE · MACHINE-READABLE · 2026-10-06  
+**Status:** ACTIVE · MACHINE-READABLE · 2026-10-17  
 **Location:** `agent-bridge-requirement.md` (repo root) · also `AGENT_BUS/BRIDGE/agent-bridge-requirement.md`  
 **Related:** Notion Agent Ridge (Governance & Safeguards), Blocker B04 Rank 1, Spike 191
 
@@ -210,3 +210,71 @@ Portfolio direction: quote comparison and document extraction may be free acquis
 Synchronization protocol: CLAIM → READ NORTH STAR + CURRENT COMMIT → WORK IN SCOPED PATHS → TEST → PUBLISH COMMIT/ARTIFACT + HASH → UPDATE HANDOFF → REVIEW → AUTHORIZED MERGE/DEPLOY → VERIFY EXTERNAL RESULT.
 
 VERIFIED_EXTERNAL_REVENUE remains NZ$0.00 until independent external settlement and fulfillment/delivery evidence are verified. This document defines the contract; it does not prove that every phone app, LM Studio, or cloud agent is already connected to an automatic live shared runtime.
+
+---
+
+## MULTI-PRODUCT / SILO SCALE DOCTRINE (2026-10-17)
+
+**Owner directive (recorded):** The system is built to handle hundreds of thousands of products / economic cells. It is not permanently constrained to a single SKU. Single-offer focus is a temporary execution tactic for closing the first verified economic event, not the architecture ceiling.
+
+### Target shape
+
+```
+dreamledger.org/<silo-or-cell>
+  → economic substrate injected
+  → Stripe pricing attached (when gate-passed)
+  → automated publication of eligible offers only
+  → ranking driven by verified outcomes
+```
+
+Reddit-style proliferation (`/r/anything` analogue) is the long-range form: any silo can receive economic substrate and automated pricing once the source path is proven.
+
+### Three loops (must run in parallel)
+
+1. **Supply loop** — Generate and price SKUs / economic cells, validate Stripe configuration, publish only offers that pass existing gates. Runs continuously. Catalogue size is not revenue.
+2. **Demand loop** — Distribute approved offers through free/authorized channels, measure real interest, route traffic toward highest expected contribution margin. Runs continuously. Interest is not revenue.
+3. **Transaction loop** — Settled payment → correct fulfillment → durable evidence → contribution margin → feed ranking engine. **Only this loop creates verified earnings.**
+
+Supply and demand may operate without customers. Only independent settled payments followed by verified delivery count as economic outcomes.
+
+### Scale gate (non-negotiable)
+
+```
+CLONE / PROLIFERATE only after:
+  - at least one independent buyer
+  - settled payment
+  - correct delivery
+  - durable ledger evidence
+  - positive contribution margin measured
+```
+
+Mass silo creation (hundreds, thousands, or 100k+) before a source offer has a verified economic event is forbidden. Capacity is not proof. Architecture is not income.
+
+### Current economic truth (unchanged)
+
+```
+VERIFIED_EXTERNAL_REVENUE:     NZ$0.00
+SETTLED_EXTERNAL_PAYMENTS:     0
+INDEPENDENT_EXTERNAL_BUYERS:   0
+PAID_FULFILLED_ORDERS:         0
+RA_000001:                     OPEN
+```
+
+### Execution priority under this doctrine
+
+1. Close the first verified transaction path on an existing offer (test-mode end-to-end, then live with explicit authorization).
+2. Keep supply generation and demand discovery running under existing gates.
+3. Feed real outcomes into ranking.
+4. Only then clone / mutate / proliferate winners into additional silos or cells.
+
+### Agent rules added by this section
+
+1. Do not collapse the system into a permanent single-product design.
+2. Do not claim multi-product scale as current revenue or current customer count.
+3. Do not authorize mass silo proliferation until the scale gate above is satisfied.
+4. Prefer reuse of existing substrate (catalogues, Stripe, webhooks, ledger, gates) over new platforms.
+5. Record every material change to this doctrine with date and owner direction.
+
+---
+
+*Updated 2026-10-17. Multi-product capacity affirmed. Parallel loops required. Scale gated on verified economic outcomes. First dollar still blocked at human authorization for external distribution. No revenue claimed.*

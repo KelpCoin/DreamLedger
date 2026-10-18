@@ -1,0 +1,7 @@
+{
+  "release": "2026-10-17-bec-faces",
+  "storefront": "marketplace-v19-until-deploy",
+  "faces": ["money", "home", "shop", "start", "offers", "truth-oracle", "silo", "silos"],
+  "buy_live": true,
+  "deploy": "Render Manual Deploy or RENDER_API_KEY"
+}

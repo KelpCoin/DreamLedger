@@ -7,115 +7,87 @@
     if (text != null) n.textContent = text;
     return n;
   }
-  async function fetchCollection(names) {
+  async function fetchCards(names) {
     const unique = [...new Set(names.filter(Boolean))];
-    const map = new Map();
+    const out = new Map();
     for (let i = 0; i < unique.length; i += BATCH) {
       const chunk = unique.slice(i, i + BATCH);
-      const body = {
-        identifiers: chunk.map((name) => ({ name: name.replace(/\s*\/\/.*$/, '').trim() })),
-      };
-      const r = await fetch(ROOT + '/cards/collection', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
-      if (!r.ok) throw new Error('Scryfall collection ' + r.status);
-      const data = await r.json();
-      (data.data || []).forEach((c) => {
-        const key = (c.name || '').split(' // ')[0].toLowerCase();
-        map.set(key, c);
-        map.set((c.name || '').toLowerCase(), c);
-      });
-      await new Promise((res) => setTimeout(res, 120));
+      const body = { identifiers: chunk.map((name) => ({ name })) };
+      try {
+        const r = await fetch(ROOT + '/cards/collection', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        if (!r.ok) continue;
+        const data = await r.json();
+        (data.data || []).forEach((c) => {
+          const key = (c.name || '').toLowerCase();
+          out.set(key, c);
+        });
+      } catch (e) {}
     }
-    return map;
+    return out;
   }
-  function cardImg(card) {
-    if (!card) return null;
-    if (card.image_uris) return card.image_uris.normal || card.image_uris.small;
-    if (card.card_faces && card.card_faces[0] && card.card_faces[0].image_uris) {
-      return card.card_faces[0].image_uris.normal || card.card_faces[0].image_uris.small;
-    }
+  function cardImg(c) {
+    if (!c) return null;
+    if (c.image_uris && c.image_uris.normal) return c.image_uris.normal;
+    if (c.card_faces && c.card_faces[0] && c.card_faces[0].image_uris)
+      return c.card_faces[0].image_uris.normal;
     return null;
   }
-  function countList(list) {
-    const counts = new Map();
-    list.forEach((n) => counts.set(n, (counts.get(n) || 0) + 1));
-    return [...counts.entries()];
-  }
-  async function renderHost(host) {
-    const src = host.getAttribute('data-mtg-deck');
+  async function render(root) {
+    const src = root.getAttribute('data-mtg-deck');
     if (!src) return;
-    host.innerHTML = '<p class="mtg-grid-status">Loading card images…</p>';
+    root.innerHTML = '';
+    root.appendChild(el('p', 'mtg-grid-status', 'Loading card faces…'));
+    let list;
     try {
-      const deck = await (await fetch(src, { cache: 'no-store' })).json();
-      const boards = deck.boards || {};
-      const commander = boards.commander || [];
-      const main = boards.main || [];
-      const side = boards.sideboard || [];
-      const allNames = [...commander, ...main, ...side];
-      const map = await fetchCollection(allNames);
-      host.innerHTML = '';
-      const head = el('div', 'mtg-grid-head');
-      head.appendChild(el('h2', null, 'Cards in this deck'));
-      const meta = el('p', 'mtg-grid-meta');
-      meta.textContent =
-        (commander.length ? 'Commander + ' : '') +
-        main.length +
-        ' main' +
-        (side.length ? ' · ' + side.length + ' sideboard' : '') +
-        ' · images via Scryfall';
-      head.appendChild(meta);
-      if (deck.source) {
-        const a = el('a', 'mtg-grid-source');
-        a.href = deck.source;
-        a.target = '_blank';
-        a.rel = 'noopener noreferrer';
-        a.textContent = deck.source_label || 'Open external decklist';
-        head.appendChild(a);
-      }
-      host.appendChild(head);
-      function section(title, names) {
-        if (!names.length) return;
-        const sec = el('section', 'mtg-grid-section');
-        sec.appendChild(el('h3', null, title + ' (' + names.length + ')'));
-        const grid = el('div', 'mtg-card-grid');
-        countList(names).forEach(([name, qty]) => {
-          const key = name.replace(/\s*\/\/.*$/, '').trim().toLowerCase();
-          const card = map.get(key) || map.get(name.toLowerCase());
-          const fig = el('figure', 'mtg-card');
-          const imgUrl = cardImg(card);
-          if (imgUrl) {
-            const img = document.createElement('img');
-            img.src = imgUrl;
-            img.alt = name;
-            img.loading = 'lazy';
-            img.width = 146;
-            img.height = 204;
-            fig.appendChild(img);
-          } else {
-            fig.appendChild(el('div', 'mtg-card-ph', name));
-          }
-          fig.appendChild(el('figcaption', null, (qty > 1 ? qty + '× ' : '') + name));
-          grid.appendChild(fig);
-        });
-        sec.appendChild(grid);
-        host.appendChild(sec);
-      }
-      section('Commander', commander);
-      section('Main deck', main);
-      section('Sideboard', side);
-      const note = el('p', 'mtg-grid-note');
-      note.textContent =
-        'Card images © Wizards of the Coast. Data via Scryfall. Listing photos of the physical sleeves may differ from printings shown.';
-      host.appendChild(note);
+      const r = await fetch(src, { cache: 'no-store' });
+      if (!r.ok) throw new Error('Decklist unavailable');
+      list = await r.json();
     } catch (e) {
-      host.innerHTML = '';
-      const p = el('p', 'mtg-grid-status error');
-      p.textContent = 'Could not load card grid: ' + (e.message || 'error');
-      host.appendChild(p);
+      root.innerHTML = '';
+      root.appendChild(el('p', 'mtg-grid-status', e.message || 'Failed to load decklist'));
+      return;
     }
+    const sections = list.sections || [{ title: 'Deck', cards: list.cards || [] }];
+    const names = [];
+    sections.forEach((s) => (s.cards || []).forEach((c) => names.push(c.name || c)));
+    const byName = await fetchCards(names);
+    root.innerHTML = '';
+    sections.forEach((section) => {
+      const wrap = el('div', 'mtg-grid-section');
+      wrap.appendChild(el('h3', 'mtg-grid-section-title', section.title || 'Cards'));
+      const grid = el('div', 'mtg-grid');
+      (section.cards || []).forEach((entry) => {
+        const name = entry.name || entry;
+        const qty = entry.qty || entry.quantity || 1;
+        const c = byName.get(String(name).toLowerCase());
+        const img = cardImg(c);
+        const cell = el('article', 'mtg-grid-card');
+        if (img) {
+          const image = el('img', 'mtg-grid-img');
+          image.loading = 'lazy';
+          image.alt = name;
+          image.src = img;
+          cell.appendChild(image);
+        }
+        const meta = el('div', 'mtg-grid-meta');
+        meta.appendChild(el('div', 'mtg-grid-name', name));
+        if (qty > 1) meta.appendChild(el('div', 'mtg-grid-qty', '×' + qty));
+        cell.appendChild(meta);
+        grid.appendChild(cell);
+      });
+      wrap.appendChild(grid);
+      root.appendChild(wrap);
+    });
   }
-  document.querySelectorAll('[data-mtg-deck]').forEach(renderHost);
+  function boot() {
+    document.querySelectorAll('[data-mtg-deck]').forEach((node) => {
+      render(node);
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
 })();

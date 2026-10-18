@@ -46,16 +46,6 @@
       "Cube compile_candidate then gauntlet_check then publish_approval_gate",
       "Activate only with verified supply atom and buyer path"
     ],
-    "replace_tokens": {
-      "{{SILO_SLUG}}": "slug",
-      "{{SILO_NAME}}": "name",
-      "{{SILO_SHORT}}": "short",
-      "{{SILO_TAGLINE}}": "tagline",
-      "{{SILO_ACCENT}}": "accent",
-      "{{SILO_ROUTE}}": "route",
-      "{{SILO_LIST_ROUTE}}": "list_route",
-      "{{SILO_CATALOG}}": "catalog"
-    },
     "do_not_copy": ["product inventory rows", "customer data", "stripe credentials", "analytics identities", "other silo promotion"]
   },
   "gauntlet": {

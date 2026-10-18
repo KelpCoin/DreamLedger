@@ -1,6 +1,10 @@
 'use strict';
 
 const crypto = require('crypto');
+const {
+  validateElohimCandidate,
+  normalizeSilo
+} = require('../elohim/validateElohimProduct');
 
 const DEFAULT_PRICE_NZD = 49;
 
@@ -21,6 +25,14 @@ function priceProposal(capability) {
   return [DEFAULT_PRICE_NZD];
 }
 
+function resolveSilo(capability) {
+  const raw = capability.silo || capability.category || 'digital_products';
+  const silo = normalizeSilo(raw);
+  // Host label maps to commercial digital silo for product candidates
+  if (!silo || silo === 'dreamledger') return 'digital_products';
+  return silo;
+}
+
 function createCandidate(capability, signal = null) {
   if (!capability?.id || !capability?.name) {
     throw new TypeError('ElohimCreate requires capability.id and capability.name.');
@@ -29,11 +41,11 @@ function createCandidate(capability, signal = null) {
   const prices = priceProposal(capability);
   const demand = signal?.demand || signal?.problem || capability.summary || 'Customer problem to be validated externally.';
 
-  return {
+  const candidate = {
     id: stableId(capability, signal),
     schema_version: 'BEC-ELOHIM-CREATED-CANDIDATE-1.0',
     status: 'ELOHIM_CREATED_CANDIDATE',
-    silo: capability.silo || 'dreamledger',
+    silo: resolveSilo(capability),
     capability_id: capability.id,
     name: capability.name,
     problem: demand,
@@ -53,6 +65,27 @@ function createCandidate(capability, signal = null) {
       source: 'BEC-PRIME/catalog/ip-capabilities.json'
     }
   };
+
+  const validation = validateElohimCandidate(candidate);
+  candidate.validation = {
+    ok: validation.ok,
+    errors: validation.errors,
+    warnings: validation.warnings,
+    validated_at: new Date().toISOString(),
+    schema: 'elohim-candidate.schema.json'
+  };
+
+  if (!validation.ok) {
+    candidate.status = 'INVALID';
+    const err = new TypeError(
+      `Elohim candidate failed schema validation: ${validation.errors.map(e => e.code).join(', ')}`
+    );
+    err.candidate = candidate;
+    err.validation = validation;
+    throw err;
+  }
+
+  return candidate;
 }
 
 function createCandidates(capabilities = [], demandSignals = []) {
@@ -61,4 +94,4 @@ function createCandidates(capabilities = [], demandSignals = []) {
   return capabilities.map((capability, index) => createCandidate(capability, signals[index] || null));
 }
 
-module.exports = { createCandidate, createCandidates };
+module.exports = { createCandidate, createCandidates, resolveSilo };

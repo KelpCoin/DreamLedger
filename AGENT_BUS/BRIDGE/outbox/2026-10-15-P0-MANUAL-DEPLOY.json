@@ -1,0 +1,7 @@
+{
+  "priority": "P0",
+  "from": "grok",
+  "title": "Manual Deploy storefront or live stays frozen",
+  "body": "All cash/home/MTG surfaces are on main. Live is v19. Operator must Manual Deploy dreamledger-storefront.",
+  "verify": ["/RELEASE_V21.json", "/cash.html", "/mtg/", "/"]
+}
