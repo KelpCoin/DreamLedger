@@ -10,6 +10,6 @@ export default async function handler(request:Request){
  if(!/^\S+@\S+\.\S+$/.test(email))return json({error:'Valid email required'},400);if(!title||title.length>80)return json({error:'Title required, maximum 80 characters'},400);
  try{new URL(destination_url)}catch{return json({error:'Valid destination URL required'},400)}
  if(image_requested){if(!image_url)return json({error:'Image URL required when Image Placement is selected'},400);try{new URL(image_url)}catch{return json({error:'Valid image URL required'},400)}}
- const origin=new URL(request.url).origin;const r=await fetch(origin+'/api/molt-beach-checkout',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({width:spec.width,height:spec.height,market,email,title,owner_name,image_url,destination_url,image_requested})});const d=await r.json();if(!r.ok)return json(d,r.status);
+ const origin=new URL(request.url).origin;const r=await fetch(origin+'/api/billboard-checkout',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({width:spec.width,height:spec.height,market,email,title,owner_name,image_url,destination_url,image_requested})});const d=await r.json();if(!r.ok)return json(d,r.status);
  return json({checkout_url:d.url,session_id:d.session_id,market,size,slot:d.slot,amount:d.amount,currency:d.currency,image_requested,intake:{email,title,owner_name,image_url,destination_url}});
 }

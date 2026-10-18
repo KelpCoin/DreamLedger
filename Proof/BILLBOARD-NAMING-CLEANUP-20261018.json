@@ -1,0 +1,24 @@
+{
+  "schema_version": "BEC-PROOF-1.0",
+  "proof_id": "BILLBOARD-NAMING-CLEANUP-20261018-001",
+  "observed_at_utc": "2026-10-18T09:40:00Z",
+  "repository": "KelpCoin/DreamLedger",
+  "action": "Remove competitor-derived Molt Beach naming from Founding Tile / billboard path",
+  "changes": [
+    "api/molt-beach-checkout.ts → api/billboard-checkout.ts",
+    "api/molt-beach-inventory.ts → api/billboard-inventory.ts",
+    "api/molt-beach-webhook.ts → api/billboard-webhook.ts",
+    "metadata flag molt_beach → billboard",
+    "Supabase table reference molt_beach_campaigns → billboard_campaigns",
+    "api/billboard/submit.ts and claim.ts updated to new paths and flags"
+  ],
+  "behaviour": "Identical to previous implementation; naming and ownership only",
+  "remaining_human_actions": [
+    "Rename Supabase table molt_beach_campaigns to billboard_campaigns (or create view/alias)",
+    "Update Stripe webhook endpoint path if it pointed at /api/molt-beach-webhook",
+    "Unsuspend Render service for dreamledger.org",
+    "Either re-enable the static Payment Link or switch billboard.html fully to dynamic /api/billboard/submit path"
+  ],
+  "verified_revenue_nzd": 0,
+  "offer_status": "code cleaned; public surface still suspended; Stripe static link still gated offline"
+}
