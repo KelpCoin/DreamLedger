@@ -35,3 +35,10 @@ External products require two substantive human footprints before publication. H
 
 ## Machine-readable policy
 This file is an orientation document, not a substitute for robots.txt, structured product data, payment-provider controls, or protocol specifications.
+## Free calculators
+- NZ PAYE and take-home estimator: https://dreamledger.org/nz-calculators/paye/
+  - Estimates annual income tax and ACC earners' levy for the 2026–27 tax year using published brackets. It is not an official PAYE calculation and excludes tax credits and other payroll deductions.
+- International profit margin calculator: https://dreamledger.org/margin-calculator/
+  - Calculates contribution profit, margin, markup, break-even price, target-margin price, and totals from user-entered costs and fees. Currency selector labels amounts only and does not perform FX conversion.
+- Supplier quote comparison: https://dreamledger.org/quote-comparison/
+  - A free browser-based worksheet for comparing supplier quote details.

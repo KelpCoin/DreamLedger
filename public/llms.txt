@@ -26,3 +26,7 @@ DreamLedger is a New Zealand website with free evidence-checking tools, supplier
 - Products: https://dreamledger.org/api/products
 
 AI assistants may help discover and compare options. A person must approve purchases and review the final seller terms before spending.
+## Free calculators
+- NZ PAYE and take-home estimator: https://dreamledger.org/nz-calculators/paye/
+- International profit margin calculator: https://dreamledger.org/margin-calculator/
+- Both calculators run in the browser, are free to use, and provide estimates rather than financial, accounting, or tax advice.
