@@ -31,7 +31,7 @@ Deno.serve(async(req)=>{
  const leaseOwner=FUNCTION_NAME+":"+crypto.randomUUID();
  const {data:inboxClaim,error:inboxClaimError}=await supabase.rpc("claim_stripe_webhook_event",{
    p_event_id:eventId,p_event_type:eventType,p_payload:event,p_handler_version:HANDLER_VERSION,
-   p_lease_owner:leaseOwner,p_lease_seconds:90
+   p_lease_owner:leaseOwner,p_lease_seconds:180
  });
  if(inboxClaimError)return new Response("webhook inbox claim failed",{status:500});
  const claim=classifyInboxClaim(String(inboxClaim||""));
@@ -51,17 +51,19 @@ Deno.serve(async(req)=>{
    const transferId=String(transfer.id||"");
    if(transferId){
      const transferStatus=eventType==="transfer.reversed" ? "reversed" : "created";
-     await supabase.from("marketplace_transfers").update({
+     const {error:transferUpdateError}=await supabase.from("marketplace_transfers").update({
        status:transferStatus,
        transfer_group:transfer.transfer_group||undefined,
        stripe_charge_id:transfer.source_transaction||undefined,
        updated_at:new Date().toISOString()
      }).eq("stripe_transfer_id",transferId);
-     await supabase.from("stripe_webhook_events").update({processed:true,processed_at:new Date().toISOString()}).eq("event_id",eventId);
+     if(transferUpdateError)return await failInbox(supabase,eventId,leaseOwner,"transfer event update failed",500);
+     const {error:transferEventUpdateError}=await supabase.from("stripe_webhook_events").update({processed:true,processed_at:new Date().toISOString()}).eq("event_id",eventId);
+     if(transferEventUpdateError)return await failInbox(supabase,eventId,leaseOwner,"transfer webhook finalization failed",500);
      const finishError=await finishInbox(supabase,eventId,leaseOwner,"DONE"); if(finishError)return finishError; return Response.json({received:true,recorded:true,event_id:eventId,transfer_id:transferId,status:transferStatus});
    }
  }
- if(eventType!=="checkout.session.completed"){await supabase.from("stripe_webhook_events").update({processed:true,processed_at:new Date().toISOString()}).eq("event_id",eventId);const finishError=await finishInbox(supabase,eventId,leaseOwner,"DONE");if(finishError)return finishError;return Response.json({received:true,ignored:true,event_id:eventId});}
+ if(eventType!=="checkout.session.completed"){const {error:ignoredEventUpdateError}=await supabase.from("stripe_webhook_events").update({processed:true,processed_at:new Date().toISOString()}).eq("event_id",eventId);if(ignoredEventUpdateError)return await failInbox(supabase,eventId,leaseOwner,"ignored webhook finalization failed",500);const finishError=await finishInbox(supabase,eventId,leaseOwner,"DONE");if(finishError)return finishError;return Response.json({received:true,ignored:true,event_id:eventId});}
  const session=event.data?.object||{}; const metadata=session.metadata||{}; const amountMinor=Number(session.amount_total||0); const currency=String(session.currency||"").toUpperCase(); const paymentIntentId=typeof session.payment_intent==="string"?session.payment_intent:null; const checkoutSessionId=String(session.id||""); const customerEmail=session.customer_details?.email||session.customer_email||null; const customFields=Array.isArray(session.custom_fields)?session.custom_fields:[]; const charityField=customFields.find((field:any)=>String(field?.key||"")==="charity"); const charityIdentifier=String(charityField?.text?.value||"").trim();
  if(!checkoutSessionId||session.payment_status!=="paid")return await failInbox(supabase,eventId,leaseOwner,"checkout session is not paid",400); if(currency!=="NZD")return await failInbox(supabase,eventId,leaseOwner,"unexpected currency",400);
  const marketplaceListingId=String(metadata.marketplace_listing_id||session.marketplace_listing_id||"");
