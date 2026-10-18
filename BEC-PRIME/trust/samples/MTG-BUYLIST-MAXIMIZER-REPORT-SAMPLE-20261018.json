@@ -1990,7 +1990,8 @@
     "Several pages expose multiple condition or price blocks; headline amounts may not be the same finish/condition as the first NM table row. The report intentionally quarantines all net estimates until direct confirmation.",
     "Star City Games public bulk rates were captured as category-level evidence, not substituted for individual-print quotes. ABU Games page text in this capture did not expose current item-level prices.",
     "Shipping to US vendors, minimum sell-cart values, quantity limits, condition markdowns, currency conversion, tax treatment, fees, and payout timing are not included in any total.",
-    "Price captures prove what text was captured at a timestamp, not that a vendor will honour the price, accept the exact card/condition, or execute a sale."
+    "Price captures prove what text was captured at a timestamp, not that a vendor will honour the price, accept the exact card/condition, or execute a sale.",
+    "Commercial reuse or redistribution of complete source-page captures is not approved by this report; verify each source's terms before commercializing. Customer-facing output should provide permitted quotations and source links, not reproduce whole captured pages by default."
   ],
   "human_review": {
     "required": true,
