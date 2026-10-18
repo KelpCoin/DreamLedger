@@ -6,6 +6,7 @@ on:
     paths:
       - "BEC-PRIME/design/enterprise.tokens.json"
       - "BEC-PRIME/compiler/DesignTokenCompiler.js"
+      - "package.json"
       - "public/assets/dl-design-tokens.css"
       - "public/assets/silo-master.css"
       - "public/assets/dl-enterprise-grid.css"
@@ -16,6 +17,7 @@ on:
     paths:
       - "BEC-PRIME/design/enterprise.tokens.json"
       - "BEC-PRIME/compiler/DesignTokenCompiler.js"
+      - "package.json"
       - "public/assets/dl-design-tokens.css"
       - "public/assets/silo-master.css"
       - "public/assets/dl-enterprise-grid.css"
