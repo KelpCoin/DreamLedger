@@ -3,7 +3,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
-const ROOT = path.resolve(__dirname, '..', '..', '..');
+const ROOT = path.resolve(__dirname, '..', '..');
 const TOKEN_FILE = path.join(ROOT, 'BEC-PRIME', 'design', 'enterprise.tokens.json');
 const OUTPUT_FILE = path.join(ROOT, 'public', 'assets', 'dl-design-tokens.css');
 const MASTER_CSS = path.join(ROOT, 'public', 'assets', 'silo-master.css');
