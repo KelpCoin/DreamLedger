@@ -9,7 +9,7 @@
   "inventory": 1,
   "status": "published",
   "seller": "Biggie",
-  "condition": "Real physical Commander deck",
+  "condition": "Physical deck; condition grade to be confirmed with seller before payment.",
   "fulfillment_method": "physical_delivery",
   "image_url": null,
   "metadata": {
@@ -30,11 +30,12 @@
     "payment_note": "Stripe checkout; Afterpay availability is determined by Stripe."
   },
   "commercial_truth": {
-    "approval_required": false,
-    "checkout_available": true,
+    "approval_required": true,
+    "checkout_available": false,
     "fulfillment_required": true,
     "evidence_required": true,
-    "payment_link": null
+    "payment_link": null,
+    "reason": "Physical fulfilment and the canonical payment-to-delivery path are not yet independently verified."
   },
   "default_offer_id": "EDH_0001"
 }
