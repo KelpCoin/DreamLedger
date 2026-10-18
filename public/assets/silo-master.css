@@ -1,3 +1,5 @@
+@import url("/assets/dl-design-tokens.css");
+
 /* DreamLedger MASTER SILO stencil — MTG is the reference clone */
 :root{
   --silo-bg:#0a0b0f;--silo-bg-elev:#12141c;--silo-surface:#161922;--silo-surface-2:#1c2030;
@@ -71,3 +73,47 @@ body.silo-body{
 .silo-label{display:block;font-size:12px;font-weight:700;color:var(--silo-muted);margin:14px 0 6px}
 .silo-input,.silo-select,.silo-textarea{width:100%;padding:12px 14px;border-radius:var(--silo-radius-sm);border:1px solid var(--silo-line);background:var(--silo-surface);color:var(--silo-ink);font:inherit}
 .silo-textarea{min-height:100px;resize:vertical}
+
+/* Elohim-generated enterprise grid layer. Shared values come only from dl-design-tokens.css. */
+:root{
+  --silo-bg:var(--dl-color-surface-base);
+  --silo-bg-elev:var(--dl-color-surface-overlay);
+  --silo-surface:var(--dl-color-surface-raised);
+  --silo-surface-2:var(--dl-color-surface-overlay);
+  --silo-ink:var(--dl-color-text-primary);
+  --silo-muted:var(--dl-color-text-secondary);
+  --silo-dim:var(--dl-color-text-muted);
+  --silo-line:var(--dl-color-border-default);
+  --silo-sans:var(--dl-typography-font-family-sans);
+  --silo-serif:var(--dl-typography-font-family-sans);
+  --silo-max:var(--dl-layout-container-max);
+  --silo-radius:var(--dl-border-radius-md);
+  --silo-radius-sm:var(--dl-border-radius-sm);
+}
+body.silo-body{background-image:none;background-attachment:initial;font-size:var(--dl-typography-font-size-body);line-height:var(--dl-typography-line-height-normal)}
+.silo-wrap{padding-left:var(--dl-spacing-space-6);padding-right:var(--dl-spacing-space-6)}
+.silo-display{font-family:var(--dl-typography-font-family-sans);font-size:clamp(2rem,5vw,var(--dl-typography-font-size-display));font-weight:var(--dl-typography-font-weight-semibold);letter-spacing:-.035em;line-height:var(--dl-typography-line-height-tight)}
+.silo-h2,.silo-h3,.silo-logo em{font-family:var(--dl-typography-font-family-sans);font-weight:var(--dl-typography-font-weight-semibold);letter-spacing:-.025em}
+.silo-lead{font-size:var(--dl-typography-font-size-body);line-height:var(--dl-typography-line-height-relaxed);color:var(--dl-color-text-secondary)}
+.silo-eyebrow{font-size:var(--dl-typography-font-size-caption);letter-spacing:.08em}
+.silo-hdr{background:rgba(18,18,18,.94);border-bottom-color:var(--dl-color-border-subtle)}
+.silo-hdr-inner{height:64px}
+.silo-nav{gap:var(--dl-spacing-space-1)}
+.silo-nav a{font-size:var(--dl-typography-font-size-body-sm);border-radius:var(--dl-border-radius-sm)}
+.silo-btn{border-radius:var(--dl-border-radius-sm);font-size:var(--dl-typography-font-size-body-sm);min-height:48px}
+.silo-btn-gold,.silo-nav .silo-cta,.silo-stick a{background:var(--silo-accent);color:#14120c!important;box-shadow:none}
+.silo-pill{border-radius:var(--dl-border-radius-sm);font-size:var(--dl-typography-font-size-caption)}
+.silo-rail{gap:var(--dl-spacing-space-4)}
+.silo-tile,.silo-panel{border-radius:var(--dl-border-radius-md);border-color:var(--dl-color-border-default);box-shadow:none}
+.silo-section{padding:var(--dl-spacing-space-8) 0}
+.silo-stick{border:1px solid var(--dl-color-border-default);border-radius:var(--dl-border-radius-md);box-shadow:none}
+.silo-input,.silo-select,.silo-textarea{border-radius:var(--dl-border-radius-sm);border-color:var(--dl-color-border-default)}
+.silo-body a:focus-visible,.silo-body button:focus-visible,.silo-body input:focus-visible,.silo-body select:focus-visible,.silo-body textarea:focus-visible{outline:2px solid var(--dl-color-border-interactive);outline-offset:2px}
+@media(min-width:700px){html body .grid{gap:var(--dl-spacing-space-4);grid-template-columns:repeat(3,minmax(0,1fr))}}
+html body .grid{gap:var(--dl-spacing-space-4)}
+html body .deck{background:var(--dl-color-surface-raised);color:var(--dl-color-text-primary);border:1px solid var(--dl-color-border-default);border-radius:var(--dl-border-radius-md);padding:var(--dl-spacing-space-4);box-shadow:none}
+html body .deck h3{font-family:var(--dl-typography-font-family-sans);font-size:var(--dl-typography-font-size-h3);font-weight:var(--dl-typography-font-weight-semibold);letter-spacing:-.02em}
+html body .deck p{color:var(--dl-color-text-secondary);font-size:var(--dl-typography-font-size-body-sm);line-height:var(--dl-typography-line-height-normal)}
+html body .status-bar{background:var(--dl-color-surface-raised);border:1px solid var(--dl-color-border-default);border-radius:var(--dl-border-radius-sm);color:var(--dl-color-text-secondary)}
+html body .price{font-size:var(--dl-typography-font-size-h2);font-weight:var(--dl-typography-font-weight-bold)}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important}}
