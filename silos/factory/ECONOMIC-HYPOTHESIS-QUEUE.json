@@ -1,0 +1,115 @@
+{
+  "schema": "dreamledger/economic-hypothesis-queue/v1",
+  "status": "INTERNAL_RESEARCH_ONLY",
+  "source_template": "silos/mtg/silo.json",
+  "generated_from": "Conversation-history synthesis through 2026-10-19",
+  "governance": {
+    "first_stage": "ELOHIM",
+    "exploration": "CUBE_SWARM",
+    "adversarial_gate": "GAUNTLET",
+    "expedition": "777_DOWNSTREAM_OF_ELOHIM",
+    "canonical_knowledge": "TRUTH_ORACLE_HUMAN_REVIEW_REQUIRED",
+    "execution": "BECK_RECORDS_EVENTS_NOT_PROOF_OF_REVENUE",
+    "public_release": "EXPLICIT_HUMAN_APPROVAL_REQUIRED"
+  },
+  "truth_boundary": {
+    "verified_external_revenue_nzd": 0,
+    "settled_external_payments": 0,
+    "independent_external_buyers": 0,
+    "verified_paid_fulfillments": 0,
+    "note": "Baseline copied from current project doctrine; re-read authoritative ledgers before any future update."
+  },
+  "gauntlet": {
+    "verdicts": ["PASS_TO_BOUNDED_TEST", "REPAIR_AND_RESUBMIT", "QUARANTINE", "REJECT"],
+    "dimensions": ["buyer_pain", "independent_demand", "provenance", "differentiation", "delivery_feasibility", "unit_economics", "distribution_compliance", "licensing_privacy_liability", "falsifiability", "replicability"],
+    "rule": "No candidate passes merely by being listed. PASS only authorizes proposing a bounded test."
+  },
+  "hypotheses": [
+    {
+      "id": "HYP-001",
+      "name": "Residential construction quote-risk report",
+      "buyer": "Builder, developer, or quantity surveyor reviewing a real quote",
+      "value_hypothesis": "A source-linked report identifies omissions, scope mismatches, exclusions, assumptions, and anomalies early enough to justify a paid review.",
+      "price_hypotheses_nzd": [299, 1499],
+      "price_status": "UNVALIDATED",
+      "cheapest_test": "Run existing synthetic fixtures, then one permissioned real quote reviewed independently; record false positives, misses, time, and corrections.",
+      "required_evidence": ["permissioned quote", "manual baseline", "independent professional review", "error log", "timed review", "buyer willingness-to-pay evidence"],
+      "status": "HYPOTHESIS_ONLY",
+      "gauntlet_verdict": "NOT_RUN",
+      "risk": "Professional liability, incomplete inputs, false confidence, unproven time saved."
+    },
+    {
+      "id": "HYP-002",
+      "name": "Truth Oracle evidence-backed economic brief",
+      "buyer": "Professional or operator making a consequential decision",
+      "value_hypothesis": "A reproducible brief separating facts, estimates, assumptions, and unknowns beats an unstructured answer for some decisions.",
+      "monetization_hypothesis": "One-off brief first; subscription only if repeat use is demonstrated.",
+      "cheapest_test": "Create one source-linked sample and get qualified buyer feedback before building subscription mechanics.",
+      "status": "HYPOTHESIS_ONLY",
+      "gauntlet_verdict": "NOT_RUN"
+    },
+    {
+      "id": "HYP-003",
+      "name": "Quote comparison and decision audit",
+      "buyer": "SMB or household comparing consequential supplier quotes",
+      "value_hypothesis": "Normalising scope, exclusions, assumptions, and total cost reduces comparison effort and missed differences.",
+      "cheapest_test": "Validate known-answer synthetic fixtures and one permissioned real comparison; production checkout stays held.",
+      "status": "HYPOTHESIS_ONLY",
+      "gauntlet_verdict": "NOT_RUN"
+    },
+    {
+      "id": "HYP-004",
+      "name": "Evidence provenance and verification API",
+      "buyer": "Developer or business integrating evidence checks",
+      "value_hypothesis": "A narrow provenance/status endpoint saves bespoke integration work.",
+      "monetization_hypothesis": "Compare subscription with included quota and overage against usage-only pricing after usage costs are measured.",
+      "cheapest_test": "Define one narrow API contract and test it locally before implementing metering or billing.",
+      "status": "HYPOTHESIS_ONLY",
+      "gauntlet_verdict": "NOT_RUN"
+    },
+    {
+      "id": "HYP-005",
+      "name": "NZ business identity and risk brief",
+      "buyer": "SMB supplier, purchaser, or professional checking a counterparty",
+      "value_hypothesis": "A dated brief from permitted public business sources reduces manual lookup time.",
+      "cheapest_test": "Create a source-only sample and validate usefulness, source rights, and freshness with a target buyer.",
+      "status": "HYPOTHESIS_ONLY",
+      "gauntlet_verdict": "NOT_RUN"
+    },
+    {
+      "id": "HYP-006",
+      "name": "MTG Commander deck diagnostic",
+      "buyer": "Commander player wanting deck-specific recommendations",
+      "value_hypothesis": "A reproducible diagnostic provides practical value beyond free deck advice.",
+      "price_hypothesis_nzd": 29,
+      "price_status": "HELD_AND_UNVALIDATED",
+      "cheapest_test": "Compare an internal sample against a documented decklist and independent expert review.",
+      "status": "HYPOTHESIS_ONLY",
+      "gauntlet_verdict": "NOT_RUN"
+    },
+    {
+      "id": "HYP-007",
+      "name": "Reusable silo-factory implementation package",
+      "buyer": "Operator needing a bounded catalogue-to-offer workflow",
+      "value_hypothesis": "A validated template with tests, provenance, and fulfillment contracts is more valuable than a generic website clone.",
+      "cheapest_test": "Use MTG as reference and document current blockers; do not copy inventory or claim production readiness.",
+      "status": "HYPOTHESIS_ONLY",
+      "gauntlet_verdict": "NOT_RUN"
+    },
+    {
+      "id": "HYP-008",
+      "name": "Curated economic encyclopedia with evidence submissions",
+      "buyer": "Professionals needing maintained, auditable economic knowledge",
+      "value_hypothesis": "A curated append-only corpus with public evidence intake can support paid reports, exports, APIs, or workflows after usage and willingness-to-pay are shown.",
+      "cheapest_test": "Define and test submission, review, versioning, and publication boundaries before monetization.",
+      "status": "HYPOTHESIS_ONLY",
+      "gauntlet_verdict": "NOT_RUN"
+    }
+  ],
+  "replication_policy": {
+    "initial_batch": "5-10 bounded experiments only after Elohim prioritises and Gauntlet accepts them",
+    "scale": "Support the top 1-2 only when comparative evidence justifies it",
+    "stop": "Archive failed or dominated candidates with reasons",
+    "compounding": "Require interface, provenance, licence/dependencies, tests/fixtures, reproduction steps, and a later comparable run measuring net time/cost/quality change."
+  }
+}
