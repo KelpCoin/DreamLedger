@@ -104,7 +104,7 @@ Deno.serve(async(req)=>{
   const {error:cosmeticError}=await supabase.from("cosmetic_sales").upsert({account_id:accountId,cosmetic_id:cosmeticId,stripe_event_id:eventId,stripe_checkout_session_id:checkoutSessionId,stripe_payment_intent_id:paymentIntentId,amount_minor:amountMinor,currency:currency.toLowerCase(),payout_status:"none",settled_at:new Date().toISOString()},{onConflict:"account_id,cosmetic_id",ignoreDuplicates:true});
   if(cosmeticError)return await failInbox(supabase,eventId,leaseOwner,"DreamMeez entitlement failed",500);
   const {error:webhookUpdateError}=await supabase.from("stripe_webhook_events").update({processed:true,processed_at:new Date().toISOString()}).eq("event_id",eventId);
-  if(webhookUpdateError)return new Response("webhook finalization failed",{status:500});
+  if(webhookUpdateError)return await failInbox(supabase,eventId,leaseOwner,"webhook finalization failed",500);
   const inboxFinishError=await finishInbox(supabase,eventId,leaseOwner,"DONE"); if(inboxFinishError)return inboxFinishError; return Response.json({received:true,recorded:true,event_id:eventId,cosmetic_id:cosmeticId,account_id:accountId,entitlement:"settled"});
 }
 const {data:catalog,error:catalogError}=await supabase.from("revenue_catalog").select("sku_id,price_nzd,active,fulfillment_type").eq("sku_id",sku).eq("active",true).limit(1).maybeSingle(); if(catalogError)return await failInbox(supabase,eventId,leaseOwner,"catalog lookup failed",500); if(!catalog)return await failInbox(supabase,eventId,leaseOwner,"unknown or inactive sku",400);
@@ -118,9 +118,9 @@ const {data:catalog,error:catalogError}=await supabase.from("revenue_catalog").s
  let economicJob:any=null; let economicOpportunityId:any=null;
  if(metadata.opportunity_id==="ACNC_RESEARCH_001"&&metadata.fulfillment_worker==="ACNC_RESEARCH_WORKER"&&metadata.source_gauntlet==="ACNC_PASS"){
    const {data:packets,error:packetError}=await supabase.from("economic_execution_packets").select("packet_id,opportunity_id,status,capability_id").eq("capability_id","ACNC_RESEARCH_WORKER").eq("status","AUTHORIZED").limit(20);
-   if(packetError)return new Response("ACNC execution packet lookup failed",{status:500});
+   if(packetError)return await failInbox(supabase,eventId,leaseOwner,"ACNC execution packet lookup failed",500);
    const packet=(packets||[])[0];
-   if(!packet)return new Response("ACNC authorized execution packet not found",{status:409});
+   if(!packet)return await failInbox(supabase,eventId,leaseOwner,"ACNC authorized execution packet not found",409);
    const {data:job,error:jobError}=await supabase.rpc("queue_economic_fulfillment_job",{
      p_type:"economic_fulfillment_public_research",
      p_payload:{
