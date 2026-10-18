@@ -60,7 +60,7 @@ function compile() {
   const entries = collect(tokens);
   if (entries.length < 25) fail('unexpectedly small token set: ' + entries.length);
   const names = new Set(entries.map(x => x.name));
-  for (const required of ['--dl-color-surface-base','--dl-color-surface-raised','--dl-color-text-primary','--dl-color-border-default','--dl-color-accent-primary','--dl-typography-font-family-sans','--dl-typography-font-family-mono','--dl-spacing-space-4','--dl-typography-font-size-body']) {
+  for (const required of ['--dl-color-surface-base','--dl-color-surface-raised','--dl-color-text-primary','--dl-color-text-on-accent','--dl-color-border-default','--dl-color-accent-primary','--dl-typography-font-family-sans','--dl-typography-font-family-mono','--dl-spacing-space-4','--dl-typography-font-size-body']) {
     if (!names.has(required)) fail('required token missing: ' + required);
   }
   const lines = [
