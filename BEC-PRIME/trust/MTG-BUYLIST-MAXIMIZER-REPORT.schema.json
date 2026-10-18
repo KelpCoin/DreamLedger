@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://dreamledger.org/schemas/MTG-BUYLIST-MAXIMIZER-REPORT.schema.json",
   "title": "MTG Buylist Maximizer Report",
-  "description": "A source-stamped, auditable comparison of external buylist offers. Quoted values, assumptions, derived estimates, and missing evidence are kept distinct. Does not imply an offer is guaranteed or that any card has been shipped or paid for.",
+  "description": "A source-stamped, auditable comparison of external buylist offers. Quoted values, assumptions, derived estimates, and missing evidence are kept distinct. Does not imply an offer is guaranteed or that any card has been shipped or paid for. Source capture hashes are SHA-256 of the exact EXTRACTED_TEXT_UTF8 string stored in capture_text, not the origin server's raw HTTP bytes.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -10,6 +10,7 @@
     "report_id",
     "status",
     "created_at_utc",
+    "input_origin",
     "silo",
     "currency",
     "input_cards",
@@ -121,7 +122,8 @@
               "USER_SUPPLIED",
               "Scryfall_RESOLVED",
               "AMBIGUOUS",
-              "UNRESOLVED"
+              "UNRESOLVED",
+              "SAMPLE_INPUT"
             ],
             "default": "USER_SUPPLIED"
           },
@@ -266,6 +268,11 @@
               "type": "string",
               "maxLength": 500
             }
+          },
+          "capture_text": {
+            "type": "string",
+            "maxLength": 20000,
+            "description": "Exact extracted text string whose UTF-8 bytes are hashed into capture_sha256."
           }
         }
       }
@@ -769,6 +776,12 @@
           "pattern": "^[a-f0-9]{64}$"
         }
       }
+    },
+    "input_origin": {
+      "enum": [
+        "CUSTOMER_SUPPLIED",
+        "SYNTHETIC_SAMPLE"
+      ]
     }
   }
 }
