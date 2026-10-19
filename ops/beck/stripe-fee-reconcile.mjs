@@ -42,6 +42,8 @@ export async function fetchStripeFeeEvidence({
     return { state: 'BLOCKED', reason: 'STRIPE_RESPONSE_INVALID' };
   }
   if (pi.id !== paymentIntentId) return { state: 'BLOCKED', reason: 'PAYMENT_INTENT_ID_MISMATCH' };
+  const keyIsLive = secretKey.startsWith('sk_live_');
+  if (pi.livemode !== keyIsLive) return { state: 'BLOCKED', reason: 'STRIPE_MODE_MISMATCH' };
   if (pi.livemode !== true) return { state: 'BLOCKED', reason: 'NOT_LIVE_MODE' };
   if (pi.status !== 'succeeded') return { state: 'BLOCKED', reason: 'PAYMENT_NOT_SUCCEEDED', provider_status: pi.status || 'unknown' };
 
