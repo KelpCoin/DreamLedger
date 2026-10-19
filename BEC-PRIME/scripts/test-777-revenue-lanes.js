@@ -173,3 +173,42 @@ test('recurring plan configuration is not treated as an active subscriber or rev
   assert.ok(report.recurring_lanes[0].blocker_codes.includes('NO_INDEPENDENT_SUBSCRIPTION_PROOF_IN_LOCAL_EVIDENCE'));
   assert.equal(report.recurring_lanes[0].verified_revenue_nzd, 0);
 });
+
+
+test('public product price uses the canonical price field when price_nzd is absent', () => {
+  const report = buildRevenueLaneReadiness(fixture({
+    publicProducts: [{
+      id: 'COMMANDER-DECK-DIAGNOSTIC-001',
+      sku: 'CMD-DIAG-29',
+      price: 29,
+      currency: 'NZD',
+      status: 'published',
+      checkout_available: true,
+      checkout_url: 'https://buy.stripe.com/canonical',
+      silo: 'mtg'
+    }]
+  }));
+  assert.equal(report.approved_offer_lanes[0].configuration_status, 'CONFIGURATION_COHERENT_PROVIDER_CHECK_REQUIRED');
+  assert.ok(!report.approved_offer_lanes[0].blocker_codes.includes('APPROVED_VS_PUBLIC_PRICE_MISMATCH'));
+});
+
+test('fulfillment registry can resolve the canonical offer ID', () => {
+  const report = buildRevenueLaneReadiness(fixture({
+    fulfillmentEntries: {
+      'OFFER-CMD-DIAG-29-NZD': { ready: true, operator_required: false }
+    }
+  }));
+  const lane = report.approved_offer_lanes[0];
+  assert.equal(lane.fulfillment_registry_key, 'OFFER-CMD-DIAG-29-NZD');
+  assert.ok(!lane.blocker_codes.includes('FULFILLMENT_REGISTRY_ENTRY_MISSING'));
+});
+
+test('any operator-required fulfillment route remains blocked', () => {
+  const report = buildRevenueLaneReadiness(fixture({
+    fulfillmentEntries: {
+      'COMMANDER-DECK-DIAGNOSTIC-001': { ready: true, operator_required: true }
+    }
+  }));
+  assert.ok(report.approved_offer_lanes[0].blocker_codes.includes('FULFILLMENT_REQUIRES_OPERATOR'));
+  assert.equal(report.approved_offer_lanes[0].configuration_status, 'BLOCKED_CONFIGURATION_CONFLICT');
+});
