@@ -43,3 +43,18 @@ test("clone contract remains held until independent commerce evidence exists", (
   assert.ok(contract.promotion_gates.length >= 10);
   assert.match(contract.release_rule, /UNKNOWN is not PASS/);
 });
+
+test("a held Commander diagnostic is not sold by a hardcoded public Stripe link", () => {
+  const product = JSON.parse(read("BEC-PRIME/catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json"));
+  assert.equal(product.status, "held");
+  assert.equal(product.checkout.mode, "disabled");
+  assert.equal(product.commercial_truth.sellable, false);
+  for (const path of [
+    "BEC-PRIME/website/mtg-catalog.html",
+    "BEC-PRIME/compiled/website/mtg/index.html"
+  ]) {
+    const html = read(path);
+    assert.doesNotMatch(html, /buy\.stripe\.com/i, path + " must not bypass the held offer contract");
+    assert.match(html, /HELD · checkout disabled/, path + " must show the held state");
+  }
+});
