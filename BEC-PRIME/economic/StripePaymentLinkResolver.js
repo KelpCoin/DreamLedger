@@ -45,6 +45,7 @@ function inspectStripeLink(link, lineItems, expectedAmountMinor, expectedCurrenc
       stripe_payment_link_id: null,
       url: null,
       active: false,
+      livemode: false,
       api_mode: apiMode || 'UNKNOWN',
       amount_minor: null,
       currency: null,
@@ -54,6 +55,7 @@ function inspectStripeLink(link, lineItems, expectedAmountMinor, expectedCurrenc
   }
 
   if (link.active !== true) blockers.push('STRIPE_PAYMENT_LINK_INACTIVE');
+  if (link.livemode !== true) blockers.push('STRIPE_PAYMENT_LINK_NOT_LIVEMODE');
   if (apiMode !== 'live') blockers.push('STRIPE_API_KEY_NOT_LIVE');
   const lines = Array.isArray(lineItems) ? lineItems : [];
   if (!lines.length) blockers.push('STRIPE_PAYMENT_LINK_HAS_NO_RESOLVABLE_LINE_ITEMS');
@@ -101,6 +103,7 @@ function inspectStripeLink(link, lineItems, expectedAmountMinor, expectedCurrenc
     stripe_payment_link_id: link.id || null,
     url: link.url || null,
     active: link.active === true,
+    livemode: link.livemode === true,
     api_mode: apiMode || 'UNKNOWN',
     amount_minor: amountKnown && !currencyConflict ? amountMinor : null,
     currency: currencyConflict ? null : (lineCurrency || null),
@@ -141,6 +144,7 @@ function buildOfferParityReceipt({ offer, liveOffer, publicProduct, stripeLinks,
 
   const amountMatchedIdentityCandidates = canonicalIdentityCandidates.filter(item =>
     item.inspection.active &&
+    item.inspection.livemode === true &&
     item.inspection.api_mode === 'live' &&
     item.inspection.amount_minor === expectedAmountMinor &&
     item.inspection.currency === expectedCurrency &&
