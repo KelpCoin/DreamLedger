@@ -33,7 +33,7 @@ check('TRUTH_ORACLE_PRICES_PROPOSED_ONLY',truthOracle?.checkout_enabled===false&
 check('DREAMMEEZ_FAILS_CLOSED',dreamMeez?.checkout_enabled===false&&dreamMeez?.surface_state==='PREVIEW_ONLY_UNTIL_ENTITLEMENT_PROOF'&&dreamMeez?.no_browser_side_ownership_grants===true);
 check('DOOH_FAILS_CLOSED',dooh?.checkout_enabled===false&&dooh?.surface_state==='PREVIEW_ONLY_UNTIL_INVENTORY_AND_PLACEMENT_PROOF'&&dooh?.required_gates?.some(x=>x.includes('finite inventory'))&&dooh?.required_gates?.some(x=>x.includes('measurement')));
 check('VERTICAL_SILO_BOUNDARIES',new Set(verticals.map(x=>x.silo_id)).size===3&&priorityVerticals?.silo_rules?.no_standalone_truth_oracle_audit_sku===true&&priorityVerticals?.silo_rules?.keep_mtg_happyhomarid_collectorscoast_separate_from_amplissa_adult===true);
-check('NO_CHECKOUT_LINKS_IN_VERTICAL_REGISTRY',!JSON.stringify(priorityVerticals).toLowerCase().includes('checkout_url')&&!JSON.stringify(priorityVerticals).toLowerCase().includes('payment_link'));
+check('NO_CHECKOUT_LINKS_IN_VERTICAL_REGISTRY',!verticals.some(v=>v.checkout_url||v.checkoutUrl||v.payment_link||v.paymentUrl));
 check('VERTICALS_ENDPOINT_FAIL_CLOSED',route.includes("'/api/marketplace/v1/verticals'")&&route.includes('PRIORITY_VERTICALS_PATH')&&route.includes('UNAVAILABLE_FAIL_CLOSED'));
 check('DISCOVERY_EXPOSES_VERTICALS',route.includes("verticals:'/api/marketplace/v1/verticals'"));
 check('AGENT_MANIFEST_VERTICALS',manifest?.endpoints?.priority_verticals==='https://dreamledger.org/api/marketplace/v1/verticals');
