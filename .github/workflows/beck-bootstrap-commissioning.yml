@@ -73,7 +73,7 @@ jobs:
           foreach ($forbidden in @('RENDER_API_KEY','api.stripe.com','/deploys','contents: write','stripe listen')) {
             if ($cloud.Contains($forbidden)) { throw "Cloud heartbeat contains forbidden capability: $forbidden" }
           }
-          foreach ($endpoint in @('/healthz','/version','/truth-oracle.html')) {
+          foreach ($endpoint in @('/healthz','/truth-oracle.html','legacy_render_api')) {
             if (-not $cloud.Contains($endpoint)) { throw "Missing public liveness probe: $endpoint" }
           }
           if (-not $bootstrap.Contains("LOCAL_HEARTBEAT_TASK=REGISTERED")) { throw 'Bootstrap must emit local task registration proof.' }
