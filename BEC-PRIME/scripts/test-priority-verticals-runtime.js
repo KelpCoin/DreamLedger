@@ -83,11 +83,12 @@ async function request(path, method = 'GET') {
   }
 
   const unknown = await request('/api/marketplace/v1/not-a-route');
-  assert.equal(unknown.handled, false, 'unknown marketplace path must not be claimed by the handler');
+  assert.equal(unknown.handled, true, 'marketplace API prefix is handled by the kernel');
+  assert.equal(unknown.res.statusCode, 404, 'unknown marketplace API path must return a controlled 404');
 
   console.log(JSON.stringify({
     status: 'PASS_PRIORITY_VERTICAL_RUNTIME_CONTRACT',
-    assertions: 23,
+    assertions: 24,
     priority_verticals: 3,
     checkout_authorized: 0,
     failure_mode: 'UNAVAILABLE_FAIL_CLOSED',
