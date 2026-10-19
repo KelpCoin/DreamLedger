@@ -67,16 +67,21 @@ jobs:
               raise SystemExit('APPROVED_COMMANDER_DIAGNOSTIC=FAIL')
           if target.get('price') != 29 or target.get('currency') != 'NZD':
               raise SystemExit('APPROVED_PRICE_CURRENCY=FAIL')
-          if target.get('payment_link_status') != 'ACTIVE_LIVEMODE':
-              raise SystemExit('PAYMENT_LINK_STATUS=FAIL')
-          if not str(target.get('payment_link_url','')).startswith('https://buy.stripe.com/'):
-              raise SystemExit('PAYMENT_LINK_URL=FAIL')
+          if target.get('payment_link_status') != 'INACTIVE_LIVEMODE' or target.get('payment_link_url') is not None:
+              raise SystemExit('CHECKOUT_HOLD=FAIL')
+          if not str(target.get('fulfillment_route','')).startswith('HOLD_'):
+              raise SystemExit('FULFILLMENT_HOLD=FAIL')
+          product = json.loads(Path('BEC-PRIME/catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json').read_text())
+          if product.get('status') != 'held' or product.get('checkout',{}).get('mode') != 'disabled':
+              raise SystemExit('PRODUCT_HELD_STATE=FAIL')
+          if product.get('commercial_truth',{}).get('sellable') is not False:
+              raise SystemExit('PRODUCT_SELLABILITY=FAIL')
           if target.get('product_id') != 'COMMANDER-DECK-DIAGNOSTIC-001':
               raise SystemExit('PRODUCT_ID=FAIL')
           print('APPROVED_COMMANDER_DIAGNOSTIC=PASS')
           print('APPROVED_PRICE_CURRENCY=PASS')
-          print('PAYMENT_LINK_STATUS=PASS')
-          print('PAYMENT_LINK_URL=PASS')
+          print('CHECKOUT_HELD=PASS')
+          print('FULFILLMENT_HELD=PASS')
           print('PRODUCT_ID=PASS')
           print('CANONICAL_CANDIDATE_COUNT=' + str(len(offers.get('offers', []))))
           PY
@@ -120,32 +125,24 @@ jobs:
           done
           echo 'LIVE_FRONT_DOOR=PASS'
 
-      - name: Verify checkout contract without purchase
+      - name: Verify checkout remains held without initiating a purchase
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         shell: bash
         env:
           BASE_URL: https://dreamledger.org
         run: |
           set -euo pipefail
-          response=$(curl -sS --fail-with-body --retry 3 --retry-delay 2 --max-time 20 \
-            -X POST "$BASE_URL/api/offer-checkout/create" \
-            -H 'Content-Type: application/json' \
-            --data '{"offer_id":"OFFER-CMD-DIAG-29-NZD"}')
+          response=$(curl -sS --fail-with-body --retry 3 --retry-delay 2 --max-time 20 "$BASE_URL/catalog.json")
           python3 - <<'PY' "$response"
           import json, sys
           data = json.loads(sys.argv[1])
-          url = str(data.get('url', data.get('checkout_url', '')))
-          sku = str(data.get('product_id', ''))
-          amount = data.get('amount_nzd')
-          if not url.startswith('https://') or 'stripe.com' not in url:
-              raise SystemExit('CHECKOUT_URL=FAIL')
-          if sku != 'COMMANDER-DECK-DIAGNOSTIC-001':
-              raise SystemExit('CHECKOUT_SKU=FAIL')
-          if amount != 29:
-              raise SystemExit(f'CHECKOUT_AMOUNT=FAIL:{amount}')
-          print('CHECKOUT_URL=PASS')
-          print('CHECKOUT_SKU=PASS')
-          print('CHECKOUT_AMOUNT_NZD_29=PASS')
+          product = next((p for p in data.get('products', []) if p.get('id') == 'COMMANDER-DECK-DIAGNOSTIC-001'), None)
+          if not product:
+              raise SystemExit('COMMANDER_PRODUCT=FAIL')
+          if product.get('status') != 'held' or product.get('checkout_available') is not False or product.get('checkout_url') not in (None, ''):
+              raise SystemExit('CHECKOUT_HOLD=FAIL')
+          print('COMMANDER_PRODUCT=PASS')
+          print('CHECKOUT_HELD=PASS')
           print('PURCHASE_EXECUTED=FALSE')
           PY
 
@@ -168,8 +165,8 @@ jobs:
               'checked_at_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
               'economic_truth': {
                   'status': 'BLOCKED',
-                  'blocker': 'No independently attributable settled live payment plus fulfillment and delivery evidence.',
-                  'payment_link': 'VERIFIED_CONFIGURED',
+                  'blocker': 'Configured Commander URL is inactive; the alternate active link is not approved for public activation; database and fulfillment evidence remain unverified.',
+                  'payment_link': 'PUBLIC_CHECKOUT_HELD_PENDING_PROVIDER_AND_FULFILLMENT_PARITY',
                   'purchase_executed': False,
                   'sale_settled': False,
                   'economic_proof': False
