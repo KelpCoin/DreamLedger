@@ -8,6 +8,11 @@ const full = {
   buyer_evidence_ref: 'evidence/buyer.json', fulfillment_status: 'delivered',
   delivery_proof_ref: 'evidence/delivery.json', fee_detail_status: 'reconciled',
   balance_transaction_id: 'txn_fixture', fee_minor: 12, currency: 'nzd',
+  provider_fee_evidence: {
+    source: 'stripe_balance_transaction', fee_minor: 12, currency: 'nzd',
+    fee_details: [{ amount_minor: 12, currency: 'nzd', type: 'stripe_fee' }],
+    amount_minor: 1200,
+  }, amount_minor: 1200,
 };
 
 test('succeeded and live mode alone is blocked', () => {
@@ -38,6 +43,13 @@ test('complete provider, buyer, fulfillment and delivery evidence passes', () =>
   const r = evaluateSettlement(full);
   assert.equal(r.verdict, 'PASS');
   assert.equal(r.counts_as_verified_external_revenue, true);
+});
+
+test('fee breakdown missing or inconsistent blocks revenue', () => {
+  const noBreakdown = evaluateSettlement({ ...full, provider_fee_evidence: { source: 'stripe_balance_transaction', fee_minor: 12, currency: 'nzd', fee_details: [] } });
+  assert.equal(noBreakdown.verdict, 'BLOCKED');
+  const mismatch = evaluateSettlement({ ...full, provider_fee_evidence: { ...full.provider_fee_evidence, fee_details: [{ amount_minor: 11, currency: 'nzd' }] } });
+  assert.equal(mismatch.verdict, 'BLOCKED');
 });
 
 test('malformed fee details block revenue', () => {
