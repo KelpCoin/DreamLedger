@@ -1,0 +1,31 @@
+name: BECK ADLC Bounded Executor Tests
+
+on:
+  pull_request:
+    paths:
+      - 'runtime/beck-adlc/**'
+      - '.github/workflows/beck-adlc.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'runtime/beck-adlc/**'
+      - '.github/workflows/beck-adlc.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  bounded-executor-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile policy, executor, and tests
+        run: python -m py_compile runtime/beck-adlc/policy.py runtime/beck-adlc/executor.py runtime/beck-adlc/test_policy.py runtime/beck-adlc/test_executor.py
+      - name: Run bounded policy and executor tests
+        run: python -m unittest discover -s runtime/beck-adlc -p 'test_*.py' -v
