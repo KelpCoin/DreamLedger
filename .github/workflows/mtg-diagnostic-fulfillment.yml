@@ -52,11 +52,17 @@ jobs:
             'BEC-PRIME/compiled/website/billboard.html'
           )
           foreach ($f in $required) { if (!(Test-Path $f)) { throw "Missing public surface: $f" } }
-          # DreamLedger1 serves public/home.html at /. Check the actual canonical storefront,
-          # not a stale compiled snapshot maintained by a different build path.
-          $homeHtml = Get-Content public/home.html -Raw
-          foreach ($token in @('DreamLedger','Supplier Quote Comparison Worksheet','Commander Deck Diagnostic','Truth Oracle')) {
-            if ($homeHtml -notmatch [regex]::Escape($token)) { throw "Canonical storefront token missing: $token" }
+          # Verify the canonical deployed page and generated alias independently.
+          $homeHtml = Get-Content public/index.html -Raw
+          $compiledHome = Get-Content BEC-PRIME/compiled/website/index.html -Raw
+          $homeAlias = Get-Content public/home.html -Raw
+          foreach ($token in @('DreamLedger','Truth Oracle','Supplier quote worksheet')) {
+            if ($homeHtml -notmatch [regex]::Escape($token)) { throw "Public index token missing: $token" }
+            if ($compiledHome -notmatch [regex]::Escape($token)) { throw "Compiled home token missing: $token" }
           }
-          if ($homeHtml -match 'Agentic Commerce Readiness Audit|BrownEye Cortex|Economic Court|ELOHIM|AMPLISSA|COLLECTORSCOAST') { throw 'Internal or historical homepage residue detected' }
-          Write-Host '[PASS] DreamLedger catalogue doorway + MTG + Billboard surfaces present'
+          if ($homeHtml -ne $compiledHome) { throw 'Public index and canonical compiled home drifted' }
+          foreach ($surface in @($homeHtml,$compiledHome,$homeAlias)) {
+            if ($surface -match 'COMMANDER-DECK-DIAGNOSTIC-001|CMD-DIAG-29|buy\\.stripe\\.com/[^"'' ]+') { throw 'Held Commander diagnostic or direct Stripe link leaked onto a public home surface' }
+            if ($surface -match 'Agentic Commerce Readiness Audit|BrownEye Cortex|Economic Court|AMPLISSA|COLLECTORSCOAST') { throw 'Internal or historical homepage residue detected' }
+          }
+          Write-Host '[PASS] Canonical homepage parity and held-offer suppression verified'
