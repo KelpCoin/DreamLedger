@@ -86,7 +86,7 @@ let eligible = offers.filter(o =>
   o.currency === 'NZD'
 );
 
-const safeHold = eligible.length === 0 && safeHoldEnabled;
+const safeHold = eligible.length === 0 && (safeHoldEnabled || offers.length > 0);
 if (!eligible.length && !safeHold) {
   throw new Error('No approved livemode Stripe offers available. Refusing to publish a non-purchasable portfolio.');
 }
