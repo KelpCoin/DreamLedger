@@ -90,3 +90,28 @@ test('MTG surfaces keep dated empty-by-default proof board and Happy Homarid CTA
   assert.equal((html.match(/id="nz-market-notes"/g)||[]).length,1);
  }
 });
+
+test('free exit checklist cannot claim cutover before every gate has evidence',()=>{
+ const checklist=JSON.parse(fs.readFileSync(path.join(root,'ops/migration/FREE-EXIT-CHECKLIST.json'),'utf8'));
+ assert.equal(checklist.schema,'dreamledger/free-provider-exit/v1');
+ assert.equal(checklist.status,'NOT_RUN');
+ assert.equal(checklist.terminal_acceptance.status,'BLOCKED_UNTIL_ALL_REQUIRED_GATES_PASS');
+ assert.equal(checklist.terminal_acceptance.dns_cutover_authorized,false);
+ assert.equal(checklist.terminal_acceptance.production_deployment_authorized,false);
+ assert.equal(checklist.terminal_acceptance.revenue_verified_nzd,0);
+ assert.deepEqual(checklist.gates.map(g=>g.id),checklist.terminal_acceptance.required_pass_gates);
+ assert.ok(checklist.gates.every(g=>g.status==='NOT_RUN'));
+ assert.ok(checklist.gates.find(g=>g.id==='G14').human_action_required);
+ assert.ok(checklist.gates.find(g=>g.id==='G16').human_action_required);
+ assert.ok(checklist.gates.find(g=>g.id==='G05').blocks.some(b=>b.includes('ephemeral local filesystem')));
+ assert.equal(checklist.cost_policy.free_tier_constraints.workers_requests_per_day,100000);
+ assert.equal(checklist.cost_policy.free_tier_constraints.workers_cpu_ms_per_invocation,10);
+});
+test('Cloudflare preview probe is scoped to pages.dev and asserts deployment SHA',()=>{
+ const smoke=fs.readFileSync(path.join(root,'ops/migration/cloudflare-preview/smoke-preview.mjs'),'utf8');
+ assert.ok(smoke.includes("u.protocol !== 'https:' || !u.hostname.endsWith('.pages.dev')"));
+ assert.ok(smoke.includes("b.commit_sha === expectedSha"));
+ assert.ok(smoke.includes("status === 'BLOCKED_ROUTE_NOT_MIGRATED'"));
+ assert.ok(smoke.includes("production_ready: false"));
+ assert.ok(smoke.includes("dns_changed: false"));
+});
