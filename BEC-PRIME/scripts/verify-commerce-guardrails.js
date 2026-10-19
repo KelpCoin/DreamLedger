@@ -30,5 +30,17 @@ assert.match(deckFunction, /const publish = false;/,
   'Deck submissions must fail closed to draft until a separate authorized moderation path exists');
 assert.match(deckFunction, /HELD_FOR_HUMAN_REVIEW/,
   'Deck API must disclose that public publication is held for human review');
+assert.match(mtgMigration, /mtg_purchase_intents/, 'MTG purchase-intent state must be server-controlled');
+assert.match(mtgMigration, /mtg_bids/, 'MTG bid state must be server-controlled');
+assert.match(mtgMigration, /alter table public\.mtg_cards alter column status set default 'draft'/i,
+  'New MTG listings must default to draft');
+assert.match(mtgSync, /MTG_CATALOG_SYNC_ADMIN_USER_IDS/,
+  'MTG catalog sync must check an explicit administrator allowlist');
+assert.match(mtgSync, /adminIds\.has\(user\.id\)/,
+  'MTG catalog sync must bind authorization to a verified user');
+assert.match(mtgSync, /toNzd\(usd, fxRate\)/,
+  'USD prices must be converted before writing NZD values');
+assert.doesNotMatch(mtgSync, /const nzd = prices\.usd_foil \? Number\(prices\.usd_foil\) : usd/,
+  'USD values must not be copied directly into NZD field');
 
 console.log('PASS: static commerce guardrails verified. Database SQL test is separate and must be run against an accessible non-production database.');
