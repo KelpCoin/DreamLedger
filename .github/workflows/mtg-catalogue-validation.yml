@@ -40,6 +40,7 @@ jobs:
           if (catalog.silo !== 'mtg' || catalog.currency !== 'NZD') throw new Error('MTG catalog identity/currency mismatch');
           const products = catalog.products || [];
           const required = ['EDH_0001', 'EDH_QUINTORIUS_0002', 'EDH_DWYNEN_0003'];
+          const generalCatalog = JSON.parse(fs.readFileSync('public/catalog.json', 'utf8'));
           for (const id of required) {
             const p = products.find(x => x && x.id === id);
             if (!p || p.silo !== 'mtg' || p.category !== 'commander-deck') throw new Error('Missing MTG deck product: ' + id);
@@ -48,6 +49,16 @@ jobs:
             }
             if (p.status === 'published' && (Number(p.inventory) <= 0 || p.checkout_available !== false || p.sale_mode !== 'claim_by_message' || !p.claim_url)) {
               throw new Error('Published manual-claim deck must have stock, a claim path, and no direct checkout: ' + id);
+            }
+            if (id === 'EDH_0001') {
+              const globalCopy = (generalCatalog.products || []).find(x => x && x.id === id);
+              if (p.status !== 'held' || Number(p.inventory) !== 0 || p.sale_mode !== 'disabled' || p.claim_url) {
+                throw new Error('EDH_0001 must remain held until its conflicting prices are reconciled');
+              }
+              if (!globalCopy || globalCopy.status !== 'held' || Number(globalCopy.inventory) !== 0 ||
+                  globalCopy.checkout_available !== false || globalCopy.hold_reason !== p.hold_reason) {
+                throw new Error('EDH_0001 hold must be synchronized across both public catalogs');
+              }
             }
             if (Object.hasOwn(p, 'condition')) throw new Error('Commander deck must not inherit singles condition: ' + id);
           }
