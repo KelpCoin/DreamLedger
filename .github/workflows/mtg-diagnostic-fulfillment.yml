@@ -25,12 +25,15 @@ jobs:
         run: |
           $p = Get-Content BEC-PRIME/catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json -Raw | ConvertFrom-Json
           $f = Get-Content BEC-PRIME/fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json -Raw | ConvertFrom-Json
+          $r = $f.entries.'COMMANDER-DECK-DIAGNOSTIC-001'
           if ($p.price -ne 29) { throw 'Commander diagnostic price contract failed' }
-          if ($p.fulfillment.mode -ne 'automated') { throw 'Automated fulfillment contract failed' }
-          if ($p.fulfillment.operator_required -ne $false) { throw 'Operator-free fulfillment contract failed' }
-          if ($f.entries.'COMMANDER-DECK-DIAGNOSTIC-001'.operator_required -ne $false) { throw 'Registry still requires operator' }
-          if ($f.entries.'COMMANDER-DECK-DIAGNOSTIC-001'.ready -ne $true) { throw 'Registry is not ready' }
-          Write-Host '[PASS] MTG diagnostic commercial and fulfillment contract'
+          if ($p.status -ne 'held') { throw 'Diagnostic must remain held until fulfillment evidence exists' }
+          if ($p.inventory -ne 0) { throw 'Diagnostic inventory must remain zero until a real fulfilment artifact exists' }
+          if ($p.checkout.mode -ne 'disabled' -or $p.commercial_truth.sellable -ne $false) { throw 'Diagnostic checkout must remain disabled' }
+          if ($p.fulfillment.mode -ne 'disabled' -or $p.fulfillment.operator_required -ne $true) { throw 'Product must not claim automated fulfillment without evidence' }
+          if ($p.evidence.status -ne 'awaiting_first_payment' -or $p.evidence.transaction_id) { throw 'No payment or fulfillment evidence may be fabricated' }
+          if ($r.operator_required -ne $true -or $r.ready -ne $false) { throw 'Fulfillment registry contradicts held product state' }
+          Write-Host '[PASS] MTG diagnostic remains fail-closed until independently verifiable paid delivery is proven'
       - name: Compile MTG surface
         run: node BEC-PRIME/compiler/MTGCatalogCompiler.js
       - name: Verify CUBE MTG reskin
