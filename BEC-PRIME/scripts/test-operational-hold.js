@@ -2,8 +2,15 @@
 
 const assert = require('node:assert/strict');
 const test = require('node:test');
-const { REQUIRED_FIELDS, createHoldRecord, evaluateHold, buildHoldLivenessMetrics, digestEffect } =
-  require('../economic/OperationalHold');
+const {
+  REQUIRED_FIELDS,
+  createHoldRecord,
+  evaluateHold,
+  evaluateExceptionalRelease,
+  buildHoldLivenessMetrics,
+  canonicalEffectPayload,
+  digestEffect
+} = require('../economic/OperationalHold');
 
 const BASE_TIME = '2026-10-19T04:00:00.000Z';
 const EFFECT = {
@@ -32,12 +39,41 @@ function hold(overrides = {}) {
   });
 }
 
-test('HOLD record has all seven operational contract fields and a stable material digest', () => {
+test('HOLD record has all seven fields and the canonical record-plus-blobs digest envelope', () => {
   const record = hold();
   assert.ok(REQUIRED_FIELDS.every(key => Object.hasOwn(record, key)));
-  assert.equal(record.effect_digest, digestEffect(EFFECT));
+  assert.deepEqual(canonicalEffectPayload(EFFECT, {}), { record: EFFECT, blobs: {} });
+  assert.equal(record.effect_digest, digestEffect(EFFECT, {}));
   assert.equal(record.state, 'HOLD');
   assert.equal(record.externalization_performed, false);
+});
+
+test('artifact/blob hashes are bound to the effect digest and cannot drift between plan and execute', () => {
+  const record = hold({ blobs: { report: { sha256: 'abc123', immutable: true } } });
+  const unchanged = evaluateHold(record, EFFECT, {
+    blobs: { report: { sha256: 'abc123', immutable: true } },
+    now: '2026-10-19T05:00:00.000Z',
+    transition: 'RECHECK_PROVIDER_AND_FULFILLMENT_EVIDENCE'
+  });
+  assert.equal(unchanged.decision, 'HOLD');
+  assert.equal(unchanged.reason_code, 'HUMAN_AUTHORIZATION_REQUIRED');
+
+  const changed = evaluateHold(record, EFFECT, {
+    blobs: { report: { sha256: 'different-build', immutable: true } },
+    now: '2026-10-19T05:00:00.000Z',
+    transition: 'RECHECK_PROVIDER_AND_FULFILLMENT_EVIDENCE'
+  });
+  assert.equal(changed.decision, 'REFUSE');
+  assert.equal(changed.reason_code, 'EFFECT_MATERIAL_CHANGED_NEW_HOLD_AND_AUTHORITY_REQUIRED');
+
+  const tampered = { ...record, blobs: { report: { sha256: 'tampered', immutable: true } } };
+  const tamperedResult = evaluateHold(tampered, EFFECT, {
+    blobs: { report: { sha256: 'tampered', immutable: true } },
+    now: '2026-10-19T05:00:00.000Z',
+    transition: 'RECHECK_PROVIDER_AND_FULFILLMENT_EVIDENCE'
+  });
+  assert.equal(tamperedResult.decision, 'REFUSE');
+  assert.equal(tamperedResult.reason_code, 'HOLD_RECORD_TAMPERED');
 });
 
 test('an unchanged offer with missing live evidence remains HOLD', () => {
@@ -104,6 +140,51 @@ test('release preflight requires exact digest-bound approval and dependency pass
   const tampered = evaluateHold(record, EFFECT, { ...context, approval_effect_digest: 'sha256:wrong' });
   assert.equal(tampered.decision, 'REFUSE');
   assert.equal(tampered.reason_code, 'APPROVAL_NOT_BOUND_TO_EXACT_EFFECT_DIGEST');
+});
+
+test('exceptional release is distinct, bounded, scoped to the same effect, and never externalizes', () => {
+  const record = hold();
+  const expiresAt = '2026-10-19T06:00:00.000Z';
+  const exception = {
+    type: 'EXCEPTIONAL_RELEASE',
+    exception_id: 'EXCEPTION-001',
+    reason_code: 'TIME_BOUND_MANUAL_EXCEPTION',
+    waived_dependency: record.missing_dependency,
+    authorized_by: 'human-reviewer-id',
+    approval_status: 'AUTHORIZED',
+    effect_digest: record.effect_digest,
+    approval_effect_digest: record.effect_digest,
+    expires_at: expiresAt,
+    scope: {
+      effect_digest: record.effect_digest,
+      transition: record.permitted_next_transition,
+      expires_at: expiresAt
+    }
+  };
+  const accepted = evaluateExceptionalRelease(record, EFFECT, exception, {
+    now: '2026-10-19T05:00:00.000Z',
+    transition: record.permitted_next_transition
+  });
+  assert.equal(accepted.decision, 'EXCEPTIONAL_RELEASE_ELIGIBLE_NO_EXTERNAL_ACTION');
+  assert.equal(accepted.release_class, 'EXCEPTIONAL');
+  assert.equal(accepted.externalization_performed, false);
+
+  const changedEffect = { ...EFFECT, amount_minor: 9900 };
+  const mismatched = evaluateExceptionalRelease(record, changedEffect, exception, {
+    now: '2026-10-19T05:00:00.000Z',
+    transition: record.permitted_next_transition
+  });
+  assert.equal(mismatched.decision, 'REFUSE');
+  assert.equal(mismatched.reason_code, 'EXCEPTION_NOT_BOUND_TO_EXACT_EFFECT_DIGEST');
+
+  const longExpiry = '2026-10-21T05:00:00.000Z';
+  const unbounded = evaluateExceptionalRelease(record, EFFECT, {
+    ...exception,
+    expires_at: longExpiry,
+    scope: { ...exception.scope, expires_at: longExpiry }
+  }, { now: '2026-10-19T05:00:00.000Z', transition: record.permitted_next_transition });
+  assert.equal(unbounded.decision, 'REFUSE');
+  assert.equal(unbounded.reason_code, 'EXCEPTION_DURATION_OUT_OF_BOUNDS');
 });
 
 test('expired hold and unpermitted transition are refused', () => {
