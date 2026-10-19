@@ -25,7 +25,7 @@ const intent = {
 test('reads expanded balance transaction and returns fee evidence', async () => {
   const r = await fetchStripeFeeEvidence({
     paymentIntentId: 'pi_fixture123',
-    secretKey: 'sk_test_fixture',
+    secretKey: 'sk_live_fixture',
     fetchImpl: fakeFetch(intent),
   });
   assert.equal(r.state, 'SETTLED_AND_DETAILED');
