@@ -5,7 +5,7 @@ LM Studio is advisory. Existing CORTEX/Gauntlet remains authoritative.
 This adapter never sends outreach, executes checkout, claims revenue, or
 mutates the authoritative economic ledger.
 """
-import argparse, hashlib, json, os, sys, time, uuid
+import argparse, hashlib, json, os, re, sys, time, uuid
 from pathlib import Path
 from urllib.request import Request, urlopen
 
@@ -43,7 +43,7 @@ def fallback(signal, reason):
     title = (signal.get("title") or "Signal requires classification").strip()
     money_terms = ("pay", "budget", "cost", "spend", "burn", "$", "expensive", "invoice", "quote")
     has_money_language = any(k in text for k in money_terms)
-    explicit_budget = bool(__import__("re").search(r"(?:\$|nzd\s*\$?\s*)\s*\d+(?:[.,]\d+)?", text)) or bool(
+    explicit_budget = bool(re.search(r"(?:\$|nzd\s*\$?\s*)\s*\d+(?:[.,]\d+)?", text)) or bool(
         __import__("re").search(r"\bbudget\b.{0,25}\b\d+\b", text)
     )
     existing_spend = any(k in text for k in (
@@ -58,7 +58,7 @@ def fallback(signal, reason):
     repeated = any(k in text for k in ("every", "weekly", "monthly", "hours a week", "often", "manual"))
     seeking = any(k in text for k in (
         "looking for a tool", "looking for a solution", "actively seeking",
-        "seeking a tool", "want to buy", "ready to purchase"
+        "seeking a tool", "want to buy", "ready to purchase", "looking to buy"
     ))
     stated_need = any(k in text for k in (
         "need a tool", "need a solution", "we need to fix", "want a tool"
@@ -104,7 +104,6 @@ def fallback(signal, reason):
         # One source item cannot establish a trend or a validated monetization path.
         "9_STATUS_BUCKET": "DEAD_ABANDONED" if explicitly_abandoned else "HUMAN_GATE_CANDIDATE",
         "10_NEXT_ACTION": next_action,
-        "_fallback_reason": reason,
     }
 
 def classify(signal):
@@ -173,29 +172,31 @@ def run_existing_gauntlet(audit, signal, offer):
     score += {"isolated":2,"recurring":8,"widespread":10}.get(audit.get("2_FREQUENCY"), 0)
     if audit.get("7_BUYER") and audit.get("7_BUYER") != "Unknown buyer role":
         score += 10
-    if audit.get("8_PRODUCT_OPPORTUNITY") not in {"", "UNMATCHED"}:
+    if offer is not None:
         score += 10
     if audit.get("10_NEXT_ACTION") == "paid_offer_candidate":
         score += 10
     score = min(100, score)
 
+    # Only exact approved-registry matches supply commercial attributes.
+    # Never invent a default SKU, price, deliverable, or payment route.
     proposal = {
-        "offer_id": (offer or {}).get("offer_id", audit.get("8_PRODUCT_OPPORTUNITY")),
-        "name": (offer or {}).get("name", audit.get("8_PRODUCT_OPPORTUNITY")),
+        "offer_id": offer.get("offer_id") if offer else "UNMATCHED",
+        "name": offer.get("name") if offer else "UNMATCHED",
         "problem": audit.get("1_PAIN"),
         "target_buyer": audit.get("7_BUYER"),
-        "deliverable": (offer or {}).get("deliverable", "candidate output"),
-        "delivery_mechanism": (offer or {}).get("delivery_mechanism", "digital"),
-        "price": (offer or {}).get("price", 49),
-        "currency": (offer or {}).get("currency", "NZD"),
-        "payment_adapter": (offer or {}).get("payment_adapter", "stripe"),
-        "checkout_route": (offer or {}).get("checkout_route", "stripe_payment_link"),
+        "deliverable": offer.get("deliverable") if offer else None,
+        "delivery_mechanism": offer.get("delivery_mechanism") if offer else None,
+        "price": offer.get("price") if offer else None,
+        "currency": offer.get("currency") if offer else None,
+        "payment_adapter": offer.get("payment_adapter") if offer else None,
+        "checkout_route": offer.get("checkout_route") if offer else None,
         "approval_required": True,
         "checkout_available": False,
         "status": "candidate",
-        "proof_of_delivery": (offer or {}).get("proof_of_delivery", "evidence required"),
-        "verification_rules": (offer or {}).get("verification_rules", ["evidence_present"]),
-        "provenance": (offer or {}).get("provenance", {"private_material": "excluded"}),
+        "proof_of_delivery": offer.get("proof_of_delivery") if offer else None,
+        "verification_rules": offer.get("verification_rules", []) if offer else [],
+        "provenance": offer.get("provenance") if offer else None,
         "silo": "dreamledger",
         "kill_condition": "no buyer response or contradictory evidence",
     }
