@@ -38,7 +38,7 @@ test('reads expanded balance transaction and returns fee evidence', async () => 
 test('does not treat missing balance transaction as fee reconciliation', async () => {
   const r = await fetchStripeFeeEvidence({
     paymentIntentId: 'pi_fixture123',
-    secretKey: 'sk_test_fixture',
+    secretKey: 'sk_live_fixture',
     fetchImpl: fakeFetch({ ...intent, latest_charge: { id: 'ch_fixture123', amount_captured: 1500, currency: 'nzd', balance_transaction: null } }),
   });
   assert.equal(r.state, 'SETTLED_PENDING_DETAIL');
@@ -68,14 +68,14 @@ test('missing secret fails closed without a network request', async () => {
 test('missing fee breakdown cannot be reconciled', async () => {
   const bt = { ...intent.latest_charge.balance_transaction };
   delete bt.fee_details;
-  const r = await fetchStripeFeeEvidence({ paymentIntentId: 'pi_fixture123', secretKey: 'sk_test_fixture',
+  const r = await fetchStripeFeeEvidence({ paymentIntentId: 'pi_fixture123', secretKey: 'sk_live_fixture',
     fetchImpl: fakeFetch({ ...intent, latest_charge: { ...intent.latest_charge, balance_transaction: bt } }) });
   assert.equal(r.state, 'BLOCKED');
   assert.equal(r.reason, 'BALANCE_TRANSACTION_FEE_DETAILS_MISSING');
 });
 
 test('fee breakdown must sum to provider fee', async () => {
-  const r = await fetchStripeFeeEvidence({ paymentIntentId: 'pi_fixture123', secretKey: 'sk_test_fixture',
+  const r = await fetchStripeFeeEvidence({ paymentIntentId: 'pi_fixture123', secretKey: 'sk_live_fixture',
     fetchImpl: fakeFetch({ ...intent, latest_charge: { ...intent.latest_charge, balance_transaction: {
       ...intent.latest_charge.balance_transaction, fee_details: [{ type: 'stripe_fee', amount: 44, currency: 'nzd' }],
     } } }) });
@@ -86,7 +86,7 @@ test('fee breakdown must sum to provider fee', async () => {
 test('invalid fee fields are blocked', async () => {
   const r = await fetchStripeFeeEvidence({
     paymentIntentId: 'pi_fixture123',
-    secretKey: 'sk_test_fixture',
+    secretKey: 'sk_live_fixture',
     fetchImpl: fakeFetch({ ...intent, latest_charge: { ...intent.latest_charge, balance_transaction: { ...intent.latest_charge.balance_transaction, fee: -1 } } }),
   });
   assert.equal(r.state, 'BLOCKED');
