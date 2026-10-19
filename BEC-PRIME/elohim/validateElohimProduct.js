@@ -32,14 +32,16 @@ function getAjvValidators() {
   if (_ajvValidateProduct && _ajvValidateCandidate) {
     return { product: _ajvValidateProduct, candidate: _ajvValidateCandidate };
   }
-  let Ajv;
+  let Ajv2020;
   try {
-    Ajv = require('ajv');
-  } catch (_)
-  {
+    const loaded = require('ajv/dist/2020');
+    Ajv2020 = loaded.default || loaded;
+  } catch (_) {
     return null;
   }
-  const ajv = new Ajv({ allErrors: true, strict: false });
+  // Both canonical Elohim schemas declare JSON Schema 2020-12. The default
+  // Ajv entry point only supports older drafts and fails the entire compiler.
+  const ajv = new Ajv2020({ allErrors: true, strict: false });
   _ajvValidateProduct = ajv.compile(loadSchema('elohim-product.schema.json'));
   _ajvValidateCandidate = ajv.compile(loadSchema('elohim-candidate.schema.json'));
   return { product: _ajvValidateProduct, candidate: _ajvValidateCandidate };
