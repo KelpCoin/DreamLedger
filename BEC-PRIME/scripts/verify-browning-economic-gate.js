@@ -60,7 +60,8 @@ check('edh0001-price-conflict-fail-closed',
   'EDH_0001 uses an NZ$400 legacy source amount but is held until reconciliation against the NZ$230 public catalog amount.');
 check('diagnostic-not-marketed-on-public-home',
   !/Commander Deck Diagnostic|CMD-DIAG-29/i.test(index)
-    && !/href=["']\\/buy\\/COMMANDER-DECK-DIAGNOSTIC-001/i.test(index)
+    && !index.includes('href="/buy/COMMANDER-DECK-DIAGNOSTIC-001')
+    && !index.includes("href='/buy/COMMANDER-DECK-DIAGNOSTIC-001")
     && !/NZ\\$\\s*29/i.test(index),
   'Homepage does not market the held diagnostic or expose a buy route.');
 check('diagnostic-not-marketed-on-public-mtg',
