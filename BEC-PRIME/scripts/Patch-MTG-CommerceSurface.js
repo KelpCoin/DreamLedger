@@ -53,7 +53,7 @@ function patch() {
     return;
   }
 
-  const desktopGrid = html.match(/\.grid\{display:grid;gap:\\d+px;grid-template-columns:1fr\}/);
+  const desktopGrid = html.match(/\.grid\{display:grid;gap:\d+px;grid-template-columns:1fr\}/);
   if (!desktopGrid) {
     throw new Error('MTG listing grid CSS anchor not found');
   }
