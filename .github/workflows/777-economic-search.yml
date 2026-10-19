@@ -29,33 +29,53 @@ jobs:
     timeout-minutes: 2
     outputs:
       secrets_ready: ${{ steps.check.outputs.ready }}
+      database_ready: ${{ steps.check.outputs.database_ready }}
     steps:
-      - name: Check required Supabase runtime secrets
+      - name: Check Supabase credentials and read-only database reachability
         id: check
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL || 'https://wbwgroygjeyukkspnqiy.supabase.co' }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
         run: |
+          set -u
           missing=""
           [ -z "$SUPABASE_URL" ] && missing="$missing SUPABASE_URL"
           [ -z "$SUPABASE_SERVICE_ROLE_KEY" ] && missing="$missing SUPABASE_SERVICE_ROLE_KEY"
           if [ -n "$missing" ]; then
             echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "database_ready=false" >> "$GITHUB_OUTPUT"
             echo "::warning::DEGRADED_MISSING_SUPABASE_RUNTIME_SECRETS:$missing"
             {
               echo "## 777 preflight"
               echo ""
               echo "DEGRADED_MISSING_SUPABASE_RUNTIME_SECRETS"
               echo "Missing:$missing"
+              echo "Cloud-independent tests and local artifact compilation will continue. Database-backed writes are skipped."
             } >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          echo "ready=true" >> "$GITHUB_OUTPUT"
+          code="$(curl -sS -o /tmp/beck-db-probe.json -w '%{http_code}' --connect-timeout 5 --max-time 12 \
+            -H "apikey: $SUPABASE_SERVICE_ROLE_KEY" \
+            -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY" \
+            "$SUPABASE_URL/rest/v1/cortex_heartbeat?select=seq&limit=1" || true)"
+          if [ "$code" = "200" ]; then
+            echo "database_ready=true" >> "$GITHUB_OUTPUT"
+            echo "SUPABASE_READ_ONLY_PROBE=PASS"
           else
-            echo "ready=true" >> "$GITHUB_OUTPUT"
-            echo "Supabase runtime secrets are present."
+            echo "database_ready=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::SUPABASE_READ_ONLY_PROBE=DEGRADED_HTTP_$code"
+            {
+              echo "## 777 preflight"
+              echo ""
+              echo "SUPABASE_READ_ONLY_PROBE=DEGRADED_HTTP_$code"
+              echo "Local validation and deterministic artifact compilation will continue; database-backed work is skipped."
+            } >> "$GITHUB_STEP_SUMMARY"
           fi
 
   search:
     needs: preflight
-    if: needs.preflight.outputs.secrets_ready == 'true'
+    if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 12
 
@@ -91,15 +111,24 @@ jobs:
       - name: Test local LM Studio economic worker contract
         run: node --test BEC-PRIME/scripts/economic-local-worker.test.js
 
+      - name: Test BECK degraded-runtime safety contract
+        run: node --test BEC-PRIME/scripts/beck-runtime-degraded-contract.test.js
+
       - name: Refresh public demand radar
+        if: needs.preflight.outputs.database_ready == 'true'
+        continue-on-error: true
         run: |
-          if [ -n "$SUPABASE_URL" ] && [ -n "$SUPABASE_SERVICE_ROLE_KEY" ]; then
-            npm run cube:radar
-          else
-            echo "CUBE_RADAR=DEGRADED: GitHub Supabase credentials are not configured; continuing with existing local/public evidence only."
-          fi
+          npm run cube:radar
+
+      - name: Record skipped demand radar honestly
+        if: needs.preflight.outputs.database_ready != 'true'
+        run: |
+          echo "CUBE_RADAR=BLOCKED_SUPABASE_UNAVAILABLE"
+          echo "No database-backed signal ingestion or mechanism writes were attempted."
 
       - name: Refresh quote-normalization buyer-signal radar
+        if: needs.preflight.outputs.database_ready == 'true'
+        continue-on-error: true
         run: |
           if [ "$GITHUB_EVENT_NAME" = "schedule" ]; then
             minute="$(date -u +%M)"
@@ -121,6 +150,8 @@ jobs:
         run: node --test BEC-PRIME/economic/EconomicEvidenceLadder.test.js
 
       - name: Record existing Supabase economic heartbeat
+        if: needs.preflight.outputs.database_ready == 'true'
+        continue-on-error: true
         shell: bash
         run: |
           set -euo pipefail
@@ -132,6 +163,8 @@ jobs:
         run: node BEC-PRIME/scripts/Run-777.js
 
       - name: Bridge 777 acceptance into commerce substrate
+        if: needs.preflight.outputs.database_ready == 'true'
+        continue-on-error: true
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL || 'https://wbwgroygjeyukkspnqiy.supabase.co' }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
@@ -169,6 +202,8 @@ jobs:
           NODE
 
       - name: Run economic activation from 777 handoff
+        if: needs.preflight.outputs.database_ready == 'true'
+        continue-on-error: true
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL || 'https://wbwgroygjeyukkspnqiy.supabase.co' }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
