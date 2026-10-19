@@ -61,7 +61,7 @@
       "buy_router": null,
       "checkout_url": null,
       "status": "HELD_NOT_RELEASED",
-      "note": "Not available for purchase until signed settlement, exact offer attribution, fulfillment, and retrievable delivery are independently verified. Application payment references have been removed; the external Stripe link remains unverified.",
+      "note": "Not for sale pending independent settlement, attribution, fulfillment, and delivery proof.",
       "approval_required": true,
       "checkout_available": false
     },
@@ -157,7 +157,7 @@
       "buy_router": null,
       "checkout_url": null,
       "status": "HELD_PRICE_CONFLICT",
-      "note": "Not for sale until the NZ$230 public-catalog price and NZ$400 legacy product price are reconciled. Checkout remains held.",
+      "note": "Not for sale until NZ$230 public catalog price and NZ$400 source product price are reconciled.",
       "approval_required": true,
       "checkout_available": false
     }
