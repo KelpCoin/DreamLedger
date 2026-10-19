@@ -1,6 +1,6 @@
 {
   "schema": "dreamledger/provider-route-parity/v1",
-  "status": "BLOCKED_UNTIL_IMPLEMENTED_AND_PROBED",
+  "status": "PARTIAL_READ_ONLY_RUNTIME_IMPLEMENTED_DYNAMIC_COMMERCE_BLOCKED",
   "target": {
     "static": "Cloudflare Pages",
     "dynamic_runtime": "Cloudflare Pages Functions or Advanced Mode Worker",
@@ -9,18 +9,78 @@
   },
   "compatibility_rule": "A static-only upload is not a valid migration. Dynamic routes, webhook verification, engine proxy and durable state must be preserved before DNS cutover.",
   "routes": [
-    {"method": "GET", "path": "/", "expected": "200 HTML", "purpose": "Public storefront"},
-    {"method": "GET", "path": "/mtg/", "expected": "200 HTML", "purpose": "MTG master silo"},
-    {"method": "GET", "path": "/healthz", "expected": "200 JSON with ready status", "purpose": "Runtime health"},
-    {"method": "GET", "path": "/version", "expected": "200 JSON containing deployed commit SHA", "purpose": "Deployment identity"},
-    {"method": "GET", "path": "/api/products", "expected": "Current contract parity", "purpose": "Product catalogue API"},
-    {"method": "GET", "path": "/api/offers", "expected": "Current contract parity", "purpose": "Offer catalogue API"},
-    {"method": "GET", "path": "/api/toll/v1/manifest", "expected": "Current contract parity, held state preserved", "purpose": "Agent Bridge manifest"},
-    {"method": "GET", "path": "/api/toll/v1/probe", "expected": "Current held/fail-closed contract", "purpose": "Agent Bridge probe"},
-    {"method": "POST", "path": "/api/webhooks/stripe", "expected": "Signature verification, idempotent processing, no raw secrets in logs", "purpose": "Payment event ingress"},
-    {"method": "GET", "path": "/truth-oracle.html", "expected": "200 HTML", "purpose": "Evidence surface"},
-    {"method": "GET", "path": "/silos/mtg/silo.json", "expected": "200 JSON", "purpose": "MTG silo manifest"},
-    {"method": "GET", "path": "/data/mtg-catalog.json", "expected": "200 JSON", "purpose": "MTG catalogue"}
+    {
+      "method": "GET",
+      "path": "/",
+      "expected": "200 HTML",
+      "purpose": "Public storefront"
+    },
+    {
+      "method": "GET",
+      "path": "/mtg/",
+      "expected": "200 HTML",
+      "purpose": "MTG master silo"
+    },
+    {
+      "method": "GET",
+      "path": "/healthz",
+      "expected": "200 JSON liveness with status DEGRADED_STATIC_PREVIEW; ready=false and production_ready=false; not full acceptance",
+      "purpose": "Runtime health"
+    },
+    {
+      "method": "GET",
+      "path": "/version",
+      "expected": "200 JSON diagnostic with CF_PAGES_COMMIT_SHA when supplied; missing SHA fails deployment identity acceptance; production_ready=false",
+      "purpose": "Deployment identity"
+    },
+    {
+      "method": "GET",
+      "path": "/api/products",
+      "expected": "Read-only published product projection from public/catalog.json using dreamledger/products/v1",
+      "purpose": "Product catalogue API"
+    },
+    {
+      "method": "GET",
+      "path": "/api/offers",
+      "expected": "Read-only published offer projection from public/catalog.json using dreamledger/offers/v1",
+      "purpose": "Offer catalogue API"
+    },
+    {
+      "method": "GET",
+      "path": "/api/toll/v1/manifest",
+      "expected": "Current contract parity, held state preserved",
+      "purpose": "Agent Bridge manifest"
+    },
+    {
+      "method": "GET",
+      "path": "/api/toll/v1/probe",
+      "expected": "Current held/fail-closed contract",
+      "purpose": "Agent Bridge probe"
+    },
+    {
+      "method": "POST",
+      "path": "/api/webhooks/stripe",
+      "expected": "Signature verification, idempotent processing, no raw secrets in logs",
+      "purpose": "Payment event ingress"
+    },
+    {
+      "method": "GET",
+      "path": "/truth-oracle.html",
+      "expected": "200 HTML",
+      "purpose": "Evidence surface"
+    },
+    {
+      "method": "GET",
+      "path": "/silos/mtg/silo.json",
+      "expected": "200 JSON",
+      "purpose": "MTG silo manifest"
+    },
+    {
+      "method": "GET",
+      "path": "/data/mtg-catalog.json",
+      "expected": "200 JSON",
+      "purpose": "MTG catalogue"
+    }
   ],
   "stateful_dependencies": [
     "commerce settlement and webhook idempotency",
@@ -40,5 +100,19 @@
     "explicit approval before production DNS/domain or payment-path mutation"
   ],
   "current_production_mutation": false,
-  "verified_revenue_nzd": 0
+  "verified_revenue_nzd": 0,
+  "preview_implementation": {
+    "static_assets": "Pages ASSETS binding",
+    "liveness": "Degraded-only diagnostic endpoint",
+    "version": "CF_PAGES_COMMIT_SHA and CF_PAGES_BRANCH when present",
+    "read_only_catalogue": "GET /api/products and /api/offers read published entries only from public/catalog.json",
+    "blocked_until_ported": [
+      "/api/toll/*",
+      "/toll/*",
+      "/api/commercial/*",
+      "/api/webhooks/stripe",
+      "other /api/*"
+    ],
+    "no_fake_readiness": true
+  }
 }

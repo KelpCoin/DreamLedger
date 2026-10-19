@@ -2,66 +2,66 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-
-const root = process.cwd();
-const neon = fs.readFileSync(path.join(root, 'ops/recovery/neon-endpoint.mjs'), 'utf8');
-const cloudflare = fs.readFileSync(path.join(root, 'ops/recovery/cloudflare-pages.mjs'), 'utf8');
-const routeContract = JSON.parse(fs.readFileSync(path.join(root, 'ops/migration/CLOUDFLARE-ROUTE-PARITY-CONTRACT.json'), 'utf8'));
-const worker = fs.readFileSync(path.join(root, 'ops/migration/cloudflare-preview/_worker.js'), 'utf8');
-const builder = fs.readFileSync(path.join(root, 'ops/migration/cloudflare-preview/build-preview.mjs'), 'utf8');
-
-test('Neon adapter defaults to inspect and gates all provider mutation', () => {
-  assert.ok(neon.includes("process.env.BECK_RECOVERY_ACTION || 'inspect'"));
-  assert.ok(neon.includes("process.env.BECK_ALLOW_PRODUCTION_RECOVERY === 'true'"));
-  assert.ok(neon.includes('if (!mutationAllowed)'));
-  assert.ok(neon.includes('No POST retry was attempted.'));
-  assert.ok(neon.includes('database_write_readback_verified: false'));
-  assert.ok(neon.includes("const base = 'https://console.neon.tech/api/v2'"));
+const root=process.cwd();
+const neon=fs.readFileSync(path.join(root,'ops/recovery/neon-endpoint.mjs'),'utf8');
+const cloudflare=fs.readFileSync(path.join(root,'ops/recovery/cloudflare-pages.mjs'),'utf8');
+const routeContract=JSON.parse(fs.readFileSync(path.join(root,'ops/migration/CLOUDFLARE-ROUTE-PARITY-CONTRACT.json'),'utf8'));
+const worker=fs.readFileSync(path.join(root,'ops/migration/cloudflare-preview/_worker.js'),'utf8');
+const builder=fs.readFileSync(path.join(root,'ops/migration/cloudflare-preview/build-preview.mjs'),'utf8');
+test('Neon adapter defaults to inspect and gates mutation',()=>{
+ assert.ok(neon.includes("process.env.BECK_RECOVERY_ACTION || 'inspect'"));
+ assert.ok(neon.includes("process.env.BECK_ALLOW_PRODUCTION_RECOVERY === 'true'"));
+ assert.ok(neon.includes('if (!mutationAllowed)'));assert.ok(neon.includes('No POST retry was attempted.'));
+ assert.ok(neon.includes('database_write_readback_verified: false'));assert.ok(neon.includes("const base = 'https://console.neon.tech/api/v2'"));
 });
-
-test('Cloudflare adapter defaults to inspect and allowlists deploy-hook mutations', () => {
-  assert.ok(cloudflare.includes("process.env.BECK_RECOVERY_ACTION || 'inspect'"));
-  assert.ok(cloudflare.includes("process.env.BECK_ALLOW_PRODUCTION_RECOVERY === 'true'"));
-  assert.ok(cloudflare.includes('if (!mutationAllowed)'));
-  assert.ok(cloudflare.includes('api.cloudflare.com'));
-  assert.ok(cloudflare.includes('/pages/webhooks/deploy_hooks/'));
-  assert.ok(cloudflare.includes('No retry.'));
+test('Cloudflare adapter defaults to inspect and allowlists deploy-hook mutations',()=>{
+ assert.ok(cloudflare.includes("process.env.BECK_RECOVERY_ACTION || 'inspect''));
+ assert.ok(cloudflare.includes("process.env.BECK_ALLOW_PRODUCTION_RECOVERY === 'true''));
+ assert.ok(cloudflare.includes('if (!mutationAllowed)'));assert.ok(cloudflare.includes('api.cloudflare.com'));
+ assert.ok(cloudflare.includes('/pages/webhooks/deploy_hooks/'));assert.ok(cloudflare.includes('No retry.'));
 });
-
-test('Cloudflare route contract includes every money-sensitive route and stays blocked', () => {
-  assert.equal(routeContract.status, 'BLOCKED_UNTIL_IMPLEMENTED_AND_PROBED');
-  assert.ok(routeContract.compatibility_rule.toLowerCase().includes('static-only upload is not a valid migration'));
-  const routes = routeContract.routes.map(r => r.path);
-  for (const required of ['/healthz','/version','/api/products','/api/offers','/api/toll/v1/manifest','/api/webhooks/stripe','/mtg/','/silos/mtg/silo.json','/data/mtg-catalog.json']) {
-    assert.ok(routes.includes(required), 'missing route ' + required);
-  }
-  assert.ok(routeContract.cutover_gates.some(g => g.includes('explicit approval before production DNS/domain or payment-path mutation')));
-  assert.equal(routeContract.current_production_mutation, false);
-  assert.equal(routeContract.verified_revenue_nzd, 0);
+test('route contract covers required routes and keeps cutover blocked',()=>{
+ assert.equal(routeContract.status,'PARTIAL_READ_ONLY_RUNTIME_IMPLEMENTED_DYNAMIC_COMMERCE_BLOCKED');
+ const paths=routeContract.routes.map(r=>r.path);
+ for(const p of ['/healthz','/version','/api/products','/api/offers','/api/toll/v1/manifest','/api/webhooks/stripe','/mtg/','/silos/mtg/silo.json','/data/mtg-catalog.json'])assert.ok(paths.includes(p),'missing route '+p);
+ assert.ok(routeContract.cutover_gates.some(g=>g.includes('explicit approval before production DNS/domain or payment-path mutation')));
+ assert.equal(routeContract.current_production_mutation,false);assert.equal(routeContract.verified_revenue_nzd,0);
 });
-
-test('Cloudflare preview scaffold fails closed for dynamic routes and serves static assets through ASSETS', () => {
-  assert.ok(worker.includes('BLOCKED_ROUTE_NOT_MIGRATED'));
-  assert.ok(worker.includes('status: 503'));
-  assert.ok(worker.includes('env.ASSETS.fetch(request)'));
-  assert.ok(worker.includes('webhooks'));
-  assert.ok(builder.includes('server.js'));
-  assert.ok(builder.includes('paidCheckoutWebhook.js'));
-  assert.ok(builder.includes('PREVIEW_BUNDLE_BUILT_NOT_PRODUCTION_READY'));
+test('Worker reports degraded liveness and never claims readiness',async()=>{
+ const mod=await import('data:text/javascript;base64,'+Buffer.from(worker).toString('base64'));
+ const env={CF_PAGES_COMMIT_SHA:'fixture-sha',CF_PAGES_BRANCH:'preview',ASSETS:{fetch:async()=>new Response('{}',{status:200})}};
+ const r=await mod.default.fetch(new Request('https://preview.pages.dev/healthz'),env);assert.equal(r.status,200);
+ const b=await r.json();assert.equal(b.status,'DEGRADED_STATIC_PREVIEW');assert.equal(b.ready,false);assert.equal(b.production_ready,false);
+ const v=await mod.default.fetch(new Request('https://preview.pages.dev/version'),env);assert.equal((await v.json()).commit_sha,'fixture-sha');
 });
-
-test('Happy Homarid Patreon and MTG public surfaces keep dated, empty-by-default market proof', () => {
-  const targets = ['mtg/index.html','BEC-PRIME/website/mtg-catalog.html','BEC-PRIME/compiled/website/mtg/index.html','public/mtg/index.html'];
-  for (const rel of targets) {
-    const html = fs.readFileSync(path.join(root, rel), 'utf8');
-    const start = html.indexOf('<section class="silo-section nz-market-board" id="nz-market-notes"');
-    const end = start >= 0 ? html.indexOf('</section>', start) : -1;
-    assert.ok(start >= 0 && end > start, 'missing MTG market desk section in ' + rel);
-    const section = html.slice(start, end);
-    for (const marker of ['Current NZ value board','No current source-verified','https://patreon.com/happyhomarid','exact printing','invalidation conditions']) {
-      assert.ok(section.includes(marker), 'missing market-proof marker in ' + rel + ': ' + marker);
-    }
-    assert.ok(!/Amplissa|DreamMeez|BB[Ww]/i.test(section), 'silo boundary marker found in ' + rel);
-    assert.equal((html.match(/id="nz-market-notes"/g)||[]).length, 1, 'duplicate market desk id in ' + rel);
-  }
+test('Worker exposes only published catalogue records through read-only APIs',async()=>{
+ const mod=await import('data:text/javascript;base64,'+Buffer.from(worker).toString('base64'));
+ const fixture={products:[{id:'pub',status:'published'},{id:'held',status:'held'},{id:'draft',status:'draft'}]};
+ const env={ASSETS:{fetch:async req=>new URL(req.url).pathname==='/catalog.json'?new Response(JSON.stringify(fixture),{status:200,headers:{'content-type':'application/json'}}):new Response('asset',{status:200})}};
+ const a=await mod.default.fetch(new Request('https://preview.pages.dev/api/products'),env);assert.equal(a.status,200);
+ const ab=await a.json();assert.equal(ab.schema,'dreamledger/products/v1');assert.deepEqual(ab.products.map(x=>x.id),['pub']);
+ const b=await mod.default.fetch(new Request('https://preview.pages.dev/api/offers'),env);assert.equal(b.status,200);
+ const bb=await b.json();assert.equal(bb.schema,'dreamledger/offers/v1');assert.deepEqual(bb.offers.map(x=>x.id),['pub']);
+ assert.equal((await mod.default.fetch(new Request('https://preview.pages.dev/api/products',{method:'POST'}),env)).status,405);
+});
+test('Stateful commerce, toll and webhooks remain fail-closed',async()=>{
+ const mod=await import('data:text/javascript;base64,'+Buffer.from(worker).toString('base64'));
+ const env={ASSETS:{fetch:async()=>new Response('{}',{status:200})}};
+ for(const p of ['/api/toll/v1/manifest','/toll/probe','/api/commercial/status','/api/webhooks/stripe','/api/not-yet-ported']){
+  const r=await mod.default.fetch(new Request('https://preview.pages.dev'+p),env);assert.equal(r.status,503,p);
+  assert.equal((await r.json()).status,'BLOCKED_ROUTE_NOT_MIGRATED');
+ }
+});
+test('Preview builder excludes sensitive Node runtime files',()=>{
+ assert.ok(builder.includes('server.js'));assert.ok(builder.includes('paidCheckoutWebhook.js'));assert.ok(builder.includes('PREVIEW_BUNDLE_BUILT_NOT_PRODUCTION_READY'));
+ assert.ok(worker.includes('env.ASSETS.fetch(request)'));
+});
+test('MTG surfaces keep dated empty-by-default proof board and Happy Homarid CTA',()=>{
+ for(const rel of ['mtg/index.html','BEC-PRIME/website/mtg-catalog.html','BEC-PRIME/compiled/website/mtg/index.html','public/mtg/index.html']){
+  const html=fs.readFileSync(path.join(root,rel),'utf8');const i=html.indexOf('<section class="silo-section nz-market-board" id="nz-market-notes"');
+  const e=i>=0?html.indexOf('</section>',i):-1;assert.ok(i>=0&&e>i,'missing board '+rel);
+  const s=html.slice(i,e);
+  for(const marker of ['Current NZ value board','No current source-verified','https://patreon.com/happyhomarid','exact printing','invalidation conditions'])assert.ok(s.includes(marker),rel+':'+marker);
+  assert.ok(!/Amplissa|DreamMeez|BB[Ww]/i.test(s));assert.equal((html.match(/id="nz-market-notes"/g)||[]).length,1);
+ }
 });
