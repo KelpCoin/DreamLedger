@@ -47,7 +47,7 @@ class LocalCortexIngestTests(unittest.TestCase):
         signal = {"title": "Example", "text": "slow manual process", "url": ""}
         bad = base_audit()
         bad["2_FREQUENCY"] = "WIDESPREAD-ish"
-        with patch.object(ingest, "classify_with_sdk", return_value=(bad, {"provider": "mock"})):
+        with patch("beck_lmstudio_sdk.classify_with_sdk", return_value=(bad, {"provider": "mock"})):
             result, telemetry = ingest.classify(signal)
         self.assertIn(result["8_PRODUCT_OPPORTUNITY"], {"UNMATCHED"})
         self.assertTrue(telemetry["fallback"])
