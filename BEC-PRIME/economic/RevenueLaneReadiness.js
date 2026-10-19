@@ -80,9 +80,14 @@ function buildRevenueLaneReadiness(input = {}) {
       reasons.push('PUBLIC_PRODUCT_RECORD_MISSING');
     } else {
       if (text(product.status).toLowerCase() !== 'published') reasons.push('PUBLIC_PRODUCT_NOT_PUBLISHED');
+      if (product.checkout_available === false) reasons.push('PUBLIC_CHECKOUT_NOT_AVAILABLE');
       if (!text(product.checkout_url)) reasons.push('PUBLIC_CHECKOUT_URL_MISSING');
       else if (text(product.checkout_url) !== expectedUrl) reasons.push('APPROVED_VS_PUBLIC_CHECKOUT_URL_MISMATCH');
-      if (number(product.price_nzd) !== expectedPrice) reasons.push('APPROVED_VS_PUBLIC_PRICE_MISMATCH');
+      if (number(product.price_nzd ?? product.price) !== expectedPrice) reasons.push('APPROVED_VS_PUBLIC_PRICE_MISMATCH');
+      if (text(product.currency) && text(offer.currency) &&
+        text(product.currency).toUpperCase() !== text(offer.currency).toUpperCase()) {
+        reasons.push('APPROVED_VS_PUBLIC_CURRENCY_MISMATCH');
+      }
       if (text(product.silo) && text(offer.silo) && text(product.silo).toLowerCase() !== text(offer.silo).toLowerCase()) {
         reasons.push('APPROVED_VS_PUBLIC_SILO_MISMATCH');
       }
