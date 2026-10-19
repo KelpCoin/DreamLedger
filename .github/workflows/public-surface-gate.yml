@@ -21,6 +21,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 24
+      - name: Verify New Zealand consumer terms
+        run: node BEC-PRIME/scripts/test-consumer-terms-policy.js
       - name: Compile and synchronize canonical public surface
         working-directory: BEC-PRIME
         env:
