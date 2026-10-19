@@ -6,7 +6,7 @@
 <title>Magic · Buy & sell singles | DreamLedger NZ</title>
 <meta name="description" content="NZ Magic marketplace. List singles free. See the cards. Safe deals.">
 <link rel="canonical" href="https://dreamledger.org/mtg/">
-<link rel="stylesheet" href="/assets/silo-master.css">
+<link rel="stylesheet" href="../assets/silo-master.css">
 <style>
 :root{ --silo-name:"Magic"; --silo-accent:#d8b56b; --silo-accent-bright:#e8c87a; }
 .hero{padding:36px 0 20px}
@@ -88,7 +88,7 @@
 </footer>
 <script>
 (function(){
- const MANIFEST='/silos/mtg/silo.json',CATALOG='/data/mtg-catalog.json',grid=document.getElementById('grid'),status=document.getElementById('status');
+ const MANIFEST='../silos/mtg/silo.json',CATALOG='../data/mtg-catalog.json',grid=document.getElementById('grid'),status=document.getElementById('status');
  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  async function json(url){const r=await fetch(url,{cache:'no-store',headers:{Accept:'application/json'}});if(!r.ok)throw new Error(url+' returned '+r.status);return r.json();}
  async function start(){
