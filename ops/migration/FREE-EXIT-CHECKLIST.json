@@ -1,0 +1,391 @@
+{
+  "schema": "dreamledger/free-provider-exit/v1",
+  "status": "NOT_RUN",
+  "updated_at": "2026-10-20",
+  "objective": "Remove Render as a runtime/origin dependency and remove Supabase as an application database dependency without breaking the public storefront, MTG master silo, billboard/avatar surfaces, durable state, authentication boundaries, or Stripe settlement/fulfillment.",
+  "target_stack": {
+    "static_assets": "Cloudflare Pages",
+    "dynamic_http_runtime": "Cloudflare Pages Advanced Mode Worker or Pages Functions, selected only after route-parity and runtime compatibility tests",
+    "database": "Neon Postgres",
+    "durable_artifacts_if_needed": "Cloudflare R2, only after an inventory proves which file-backed artifacts require object storage",
+    "build_and_release": "GitHub Actions with commit-SHA release acceptance",
+    "domain": "Cloudflare DNS, after zone-record inventory and preview acceptance"
+  },
+  "cost_policy": {
+    "target_monthly_platform_cost_nzd": 0,
+    "cost_claim": "TARGET_FREE_TIERS_NOT_YET_VERIFIED_IN_ACCOUNTS",
+    "free_tier_constraints": {
+      "pages_builds_per_month": 500,
+      "workers_requests_per_day": 100000,
+      "workers_cpu_ms_per_invocation": 10,
+      "workers_subrequests_per_invocation": 50,
+      "workers_memory_mb": 128,
+      "neon_compute_hours_per_month_per_project": 100,
+      "neon_storage_gb_per_project": 1,
+      "neon_compute_scales_to_zero": true
+    },
+    "capacity_rule": "Record measured traffic, compute and database query counts. If any free-tier limit is approached, fail visibly and preserve purchase/webhook correctness; do not silently lose or duplicate payments. No paid-plan assumption is part of acceptance."
+  },
+  "authoritative_state_rule": "Each gate starts NOT_RUN. A gate may move to PASS only when its named evidence is retained and independently verified. Missing credentials, untested behavior, HTTP 200 alone, a deploy-hook success, or a green static homepage never count as PASS.",
+  "verified_revenue_nzd": 0,
+  "production_mutations_performed": false,
+  "gates": [
+    {
+      "id": "G00",
+      "name": "Pin canonical migration branch and source SHA",
+      "status": "NOT_RUN",
+      "pass_evidence": [
+        "repository",
+        "branch",
+        "base SHA",
+        "head SHA",
+        "working-tree/diff summary"
+      ],
+      "blocks": [
+        "All subsequent gates must name the tested commit SHA."
+      ],
+      "human_action_required": false
+    },
+    {
+      "id": "G01",
+      "name": "Inventory runtime routes and dependencies",
+      "status": "NOT_RUN",
+      "pass_evidence": [
+        "machine-readable route inventory from BEC-PRIME/start.js and all imported preloads/routes",
+        "HTTP method and auth classification",
+        "per-route dependency list",
+        "separate public/static, read-only, stateful, payment, internal and admin classes"
+      ],
+      "blocks": [
+        "No runtime route may be treated as migrated merely because static HTML exists."
+      ],
+      "human_action_required": false
+    },
+    {
+      "id": "G02",
+      "name": "Inventory every persistent write before moving databases",
+      "status": "NOT_RUN",
+      "pass_evidence": [
+        "inventory of transaction JSON files",
+        "revenueLedger JSONL journals/events/fulfillment",
+        "proof files and first-payment proof",
+        "AgentBridgeEventLedger rows",
+        "DemandRadar observations",
+        "Sentinel proof",
+        "cube observations and any other Supabase tables"
+      ],
+      "blocks": [
+        "Do not retire source storage until every write, read, retention requirement and recovery path is mapped."
+      ],
+      "human_action_required": false
+    },
+    {
+      "id": "G03",
+      "name": "Human provisioning of Cloudflare and Neon free accounts",
+      "status": "NOT_RUN",
+      "pass_evidence": [
+        "Cloudflare account ID and Pages project exist",
+        "Neon project and database exist",
+        "plan and quota screens recorded without exposing secrets"
+      ],
+      "blocks": [
+        "Credentials are supplied by the owner through GitHub Actions secrets; do not commit credentials."
+      ],
+      "human_action_required": true,
+      "mutations": [
+        "Create external provider resources"
+      ]
+    },
+    {
+      "id": "G04",
+      "name": "Provision and verify Neon target schema",
+      "status": "NOT_RUN",
+      "pass_evidence": [
+        "reviewed migration for complete current state model, not only minimal heartbeat schema",
+        "schema version recorded",
+        "read-only SELECT 1 passes",
+        "write/read-back and transaction rollback tests pass on disposable/test records"
+      ],
+      "blocks": [
+        "NEON-MINIMAL-SCHEMA.sql is a heartbeat/commercial-spine starting schema, not proof that Supabase or file-backed state has been fully migrated."
+      ],
+      "human_action_required": true,
+      "mutations": [
+        "Create target schema in the newly provisioned Neon database"
+      ]
+    },
+    {
+      "id": "G05",
+      "name": "Map local file-backed ledger to durable database transactions",
+      "status": "NOT_RUN",
+      "pass_evidence": [
+        "transactional tables for payment events, idempotency keys, orders, ledger journals, ledger entries, fulfillment and evidence",
+        "unique constraint for Stripe event IDs and transaction/session IDs",
+        "atomic payment + ledger + fulfillment state transition",
+        "duplicate webhook replay test",
+        "crash/retry recovery test",
+        "no production route writes to ephemeral local filesystem"
+      ],
+      "blocks": [
+        "Current Node runtime writes revenue journal, fulfillment, transaction and proof files locally. Workers local filesystem is not a durable substitute."
+      ],
+      "human_action_required": false
+    },
+    {
+      "id": "G06",
+      "name": "Move app database access from Supabase to Neon",
+      "status": "NOT_RUN",
+      "pass_evidence": [
+        "enumeration of every Supabase REST/SQL/Auth/Storage call",
+        "Neon-compatible repository adapter",
+        "source data export and row-count/hash manifest",
+        "import followed by key-by-key or hash-based read-back",
+        "dual-run comparison without duplicated writes or buyer messages",
+        "rollback/export proof"
+      ],
+      "blocks": [
+        "Do not delete/pause the Supabase project before application reads, writes, scheduled jobs and recovery paths are proven independent of it."
+      ],
+      "human_action_required": true,
+      "mutations": [
+        "Export/import and controlled test writes against target"
+      ]
+    },
+    {
+      "id": "G07",
+      "name": "Implement Cloudflare-compatible request handlers",
+      "status": "NOT_RUN",
+      "pass_evidence": [
+        "Worker/Pages Functions entrypoint independent of Node server.listen()",
+        "no dependency on Render environment variables for deployment identity",
+        "all required routes individually ported or deliberately disabled with explicit contract",
+        "database network access works within the target runtime",
+        "CPU, memory, subrequest and payload size tests recorded"
+      ],
+      "blocks": [
+        "Existing BEC-PRIME/start.js wraps node:http.createServer and starts a listener; that server boot is not itself a Cloudflare Worker entrypoint."
+      ],
+      "human_action_required": false
+    },
+    {
+      "id": "G08",
+      "name": "Public read-only preview acceptance on pages.dev",
+      "status": "NOT_RUN",
+      "pass_evidence": [
+        "same SHA visible at /version",
+        "GET / and /mtg/ return expected HTML",
+        "GET /healthz returns the documented preview/production status",
+        "GET /api/products and /api/offers match current published-only contract",
+        "MTG manifest/catalog and truth-oracle routes pass"
+      ],
+      "blocks": [
+        "All results are tied to the preview URL and exact Git SHA. Liveness is not readiness."
+      ],
+      "human_action_required": false
+    },
+    {
+      "id": "G09",
+      "name": "Stateful route and internal API parity",
+      "status": "NOT_RUN",
+      "pass_evidence": [
+        "Agent Bridge manifest/probe behavior matches contract",
+        "internal engine proxy/auth checks pass",
+        "all database reads and writes persist after isolate restart",
+        "no cross-silo data exposure",
+        "timeouts, errors, rate limits and cache policy tested"
+      ],
+      "blocks": [
+        "Any unported stateful route must remain blocked and the overall production migration remains BLOCKED."
+      ],
+      "human_action_required": false
+    },
+    {
+      "id": "G10",
+      "name": "Stripe test-mode webhook and checkout acceptance",
+      "status": "NOT_RUN",
+      "pass_evidence": [
+        "test-mode signed webhook verification passes",
+        "invalid and stale signatures rejected",
+        "duplicate event replay is idempotent",
+        "payment → attribution → ledger → fulfillment → retrievable delivery proof reconciles",
+        "event/outbox retry and crash/restart tests pass",
+        "no secret or raw payment payload appears in logs"
+      ],
+      "blocks": [
+        "Never switch the production Stripe webhook URL until all tests pass. Checkout initiation is not revenue."
+      ],
+      "human_action_required": true,
+      "mutations": [
+        "Test-mode Stripe endpoint configuration, if needed"
+      ]
+    },
+    {
+      "id": "G11",
+      "name": "Capacity and quota guardrails",
+      "status": "NOT_RUN",
+      "pass_evidence": [
+        "daily Worker invocation budget includes static-vs-function distinction and projected headroom",
+        "10 ms CPU p95/p99 measured for all Worker routes",
+        "no invocation exceeds 50 subrequests",
+        "Neon CU-hours/storage/network tracked",
+        "budget threshold emits evidence and blocks unsafe rollout before quota exhaustion"
+      ],
+      "blocks": [
+        "Public agent polling and x402 traffic require measured limits; free-tier headroom must not be assumed from today's traffic."
+      ],
+      "human_action_required": false
+    },
+    {
+      "id": "G12",
+      "name": "Deploy and prove candidate release identity",
+      "status": "NOT_RUN",
+      "pass_evidence": [
+        "Cloudflare deployment success recorded",
+        "deployed /version SHA equals candidate Git SHA",
+        "deployment environment and route acceptance result retained",
+        "deploy-hook success is not considered acceptance"
+      ],
+      "blocks": [
+        "No domain cutover unless all required route, persistence and payment gates pass for that same SHA."
+      ],
+      "human_action_required": true,
+      "mutations": [
+        "Deploy candidate to Cloudflare preview"
+      ]
+    },
+    {
+      "id": "G13",
+      "name": "Pilot custom hostname without changing apex nameservers",
+      "status": "NOT_RUN",
+      "pass_evidence": [
+        "existing MX/TXT/CNAME/A/AAAA records and TTLs captured",
+        "www or a dedicated pilot hostname validates on Pages",
+        "TLS certificate active",
+        "all approved route probes pass on that hostname",
+        "email, OAuth callbacks, webhook URLs and canonical URLs reviewed"
+      ],
+      "blocks": [
+        "Do not change apex NS records during the pilot."
+      ],
+      "human_action_required": true,
+      "mutations": [
+        "Add pilot custom-domain DNS record"
+      ]
+    },
+    {
+      "id": "G14",
+      "name": "Owner-approved DNS cutover",
+      "status": "NOT_RUN",
+      "pass_evidence": [
+        "full current DNS zone export retained",
+        "MX/TXT/SPF/DKIM/DMARC and domain-verification records preserved",
+        "Cloudflare nameserver delegation verified",
+        "apex and www HTTPS probes pass",
+        "same-SHA /version and all route tests pass from outside the zone",
+        "rollback zone file/old origin documented"
+      ],
+      "blocks": [
+        "Requires a separate explicit owner approval immediately before mutation. This checklist does not authorize NS changes."
+      ],
+      "human_action_required": true,
+      "mutations": [
+        "Change registrar nameservers to Cloudflare"
+      ]
+    },
+    {
+      "id": "G15",
+      "name": "Production soak and independent commerce reconciliation",
+      "status": "NOT_RUN",
+      "pass_evidence": [
+        "all routes pass for an owner-chosen soak period",
+        "production webhook signature/idempotency and database persistence evidence pass",
+        "daily quota and error monitoring works",
+        "one real external settlement, correct attribution, fulfillment and delivery proof reconciled before recording revenue"
+      ],
+      "blocks": [
+        "No revenue claim without independent settlement plus attribution plus fulfillment plus retrievable delivery proof."
+      ],
+      "human_action_required": false
+    },
+    {
+      "id": "G16",
+      "name": "Remove Render as a dependency",
+      "status": "NOT_RUN",
+      "pass_evidence": [
+        "no production DNS/origin points to Render",
+        "no deploy workflow, runtime path, secret or health check requires Render",
+        "last successful release and rollback artifacts retained outside Render",
+        "Cloudflare route and Neon persistence acceptance remain green"
+      ],
+      "blocks": [
+        "Do not delete Render before G14 and G15 pass. Deletion itself requires separate explicit owner approval."
+      ],
+      "human_action_required": true,
+      "mutations": [
+        "Disable Render deploys and later delete service"
+      ]
+    },
+    {
+      "id": "G17",
+      "name": "Remove Supabase application dependency",
+      "status": "NOT_RUN",
+      "pass_evidence": [
+        "application has no Supabase DB/REST/Auth/Storage calls",
+        "scheduled jobs and fleet recovery no longer require Supabase",
+        "all state has verified Neon/R2 destination and restore proof",
+        "retained backup/export is readable and checksummed"
+      ],
+      "blocks": [
+        "Do not pause or delete Supabase until all services and evidence are independent of it. The initial Neon schema alone is insufficient."
+      ],
+      "human_action_required": true,
+      "mutations": [
+        "Disable Supabase use, then separately approve project pause/deletion"
+      ]
+    }
+  ],
+  "terminal_acceptance": {
+    "status": "BLOCKED_UNTIL_ALL_REQUIRED_GATES_PASS",
+    "required_pass_gates": [
+      "G00",
+      "G01",
+      "G02",
+      "G03",
+      "G04",
+      "G05",
+      "G06",
+      "G07",
+      "G08",
+      "G09",
+      "G10",
+      "G11",
+      "G12",
+      "G13",
+      "G14",
+      "G15",
+      "G16",
+      "G17"
+    ],
+    "render_dependency": "NOT_PROVEN_REMOVED",
+    "supabase_dependency": "NOT_PROVEN_REMOVED",
+    "dns_cutover_authorized": false,
+    "production_deployment_authorized": false,
+    "stripe_production_mutation_authorized": false,
+    "revenue_verified_nzd": 0
+  },
+  "official_limit_sources": [
+    "https://developers.cloudflare.com/pages/platform/limits/",
+    "https://developers.cloudflare.com/workers/platform/limits/",
+    "https://neon.tech/docs/introduction/plans",
+    "https://render.com/docs/free",
+    "https://supabase.com/docs/guides/platform/free-plan"
+  ],
+  "evidence_artifacts": [
+    "proof/migration/free-exit-checklist-status.json",
+    "proof/migration/provider-credentials-preflight.json",
+    "proof/migration/route-parity-report.json",
+    "proof/migration/persistence-migration-report.json",
+    "proof/migration/stripe-test-mode-acceptance.json",
+    "proof/migration/final-exit-acceptance.json"
+  ]
+}
