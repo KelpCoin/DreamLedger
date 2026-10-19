@@ -64,7 +64,9 @@ test("a held Commander diagnostic is not sold by a hardcoded public Stripe link"
 
 test("held diagnostic and conflicted EDH_0001 cannot advertise active payment links", () => {
   const offers = JSON.parse(read("BEC-PRIME/catalog/offers/approved.json"));
-  const offer = offers.approved.find(x => x && x.offer_id === "OFFER-CMD-DIAG-29-NZD");
+  const active = (offers.approved || []).find(x => x && x.offer_id === "OFFER-CMD-DIAG-29-NZD");
+  assert.equal(active, undefined, "held diagnostic must not remain in the approved offer list");
+  const offer = (offers.held || []).find(x => x && x.offer_id === "OFFER-CMD-DIAG-29-NZD");
   assert.ok(offer);
   assert.equal(offer.status, "HELD_NOT_RELEASED");
   assert.equal(offer.approval_required, true);
