@@ -164,7 +164,12 @@ test("all checkout and discovery projections fail closed for held MTG offers", (
 
   for (const path of ["public/offers.html", "public/money.html", "public/shop.html", "BEC-PRIME/compiled/website/shop.html"]) {
     const html = read(path);
-    assert.doesNotMatch(html, /href=["']\\/buy\\/COMMANDER-DECK-DIAGNOSTIC-001/i, path + " must not expose diagnostic checkout");
+    assert.equal(
+      html.includes('href="/buy/COMMANDER-DECK-DIAGNOSTIC-001') ||
+      html.includes("href='/buy/COMMANDER-DECK-DIAGNOSTIC-001"),
+      false,
+      path + " must not expose diagnostic checkout"
+    );
     assert.match(html, /Held · not for sale/, path + " must show the held state");
   }
   assert.doesNotMatch(read("public/money.html"), /System validated|Validated by receipts/i);
