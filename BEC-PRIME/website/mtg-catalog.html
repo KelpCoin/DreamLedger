@@ -138,6 +138,7 @@
   const grid=document.getElementById('grid');
   const status=document.getElementById('status');
   function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+  function conditionEligible(p){return !!p && p.category==='single';}
   function isPhysical(p){return p.category==='commander-deck'||/^EDH/i.test(p.id||'');}
   async function load(){
     try{
@@ -157,7 +158,7 @@
         const detail=p.detail_url||'/mtg/';
         const inv=Number(p.inventory)>0;
         const stock=inv?'<span class="stock">In stock</span>':'<span class="stock out">—</span>';
-        const cond=p.condition?('<span>'+esc(p.condition)+'</span>'):'';
+        const cond=conditionEligible(p)&&p.condition?('<span>'+esc(p.condition)+'</span>'):'';
         const cmd=p.commander?('<span>'+esc(p.commander)+'</span>'):'';
         const buy=inv
           ? '<a class="buy" href="'+esc(detail)+'">See cards &amp; buy · NZ$'+price+'</a>'
