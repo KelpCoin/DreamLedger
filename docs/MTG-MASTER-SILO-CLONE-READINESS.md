@@ -12,10 +12,11 @@
 ## Findings that block clone-upscale
 
 1. **Publication gate:** the old MTG endpoint defaulted `publish` to true for authenticated uploads. The branch change holds all uploads as drafts until an explicit review process exists. Social copy generation is not publication authorization.
-2. **Entitlement security:** the DreamMeez ownership migration adds a self-insert RLS policy. The branch adds a follow-up migration that removes write policies and client write grants while preserving self-read. This is staged source code, not yet applied to the live database.
-3. **Purchase-to-delivery:** the inspected cosmetic checkout creates a Stripe Checkout Session, but it does not itself grant ownership. A signed, idempotent payment event plus trusted fulfillment and retrievable delivery must be proven end-to-end.
-4. **Live verification:** current database state, effective grants, live RLS policies, indexes, and advisor findings remain unverified while SQL connectivity fails.
-5. **Economics:** no independently evidenced settled sale, attributed buyer, fulfilled order, and retrievable delivery proof has been confirmed. Conversion, LTV, repeat demand, contribution margin, and acquisition cost remain unvalidated.
+2. **Held-offer checkout mismatch:** the Commander diagnostic product contract says `held`, inventory `0`, checkout disabled, and fulfillment disabled, but the canonical and compiled MTG pages contained a direct Stripe payment link. The branch removes the link and shows a held status instead; a regression test checks both pages. This is not deployed.
+3. **Entitlement security:** the DreamMeez ownership migration adds a self-insert RLS policy. The branch adds a follow-up migration that removes write policies and client write grants while preserving self-read. This is staged source code, not yet applied to the live database.
+4. **Purchase-to-delivery:** the inspected cosmetic checkout creates a Stripe Checkout Session, but it does not itself grant ownership. A signed, idempotent payment event plus trusted fulfillment and retrievable delivery must be proven end-to-end.
+5. **Live verification:** current database state, effective grants, live RLS policies, indexes, and advisor findings remain unverified while SQL connectivity fails.
+6. **Economics:** no independently evidenced settled sale, attributed buyer, fulfilled order, and retrievable delivery proof has been confirmed. Conversion, LTV, repeat demand, contribution margin, and acquisition cost remain unvalidated.
 
 ## Mandatory promotion gates
 
