@@ -1,19 +1,20 @@
 from event_projection import project_action, project_payment, project_verification
 
 
-def test_internal_route_is_not_external_send():
+def test_internal_route_is_not_external_send_or_action_dispatch():
     events = project_action({
         "dispatch_state": "INTERNAL_ROUTED",
         "authorization_verdict": "allow",
     })
-    kinds = {e["event_type"] for e in events}
-    assert "ACTION_DISPATCHED" in kinds
+    kinds = {event["event_type"] for event in events}
+    assert "ACTION_AUTHORIZED" in kinds
+    assert "ACTION_DISPATCHED" not in kinds
     assert "EXTERNAL_ACTION_SENT" not in kinds
 
 
 def test_external_sent_is_explicit():
     events = project_action({"dispatch_state": "EXTERNAL_SENT"})
-    assert [e["event_type"] for e in events] == ["EXTERNAL_ACTION_SENT"]
+    assert [event["event_type"] for event in events] == ["EXTERNAL_ACTION_SENT"]
 
 
 def test_payment_settlement_requires_settled_status():
