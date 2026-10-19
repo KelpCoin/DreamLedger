@@ -1,0 +1,34 @@
+'use strict';
+
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+
+const root = path.resolve(__dirname, '..', '..');
+const migrationPath = path.join(root, 'supabase', 'migrations', '20261019_harden_dreammeez_item_ownership.sql');
+const ownershipTestPath = path.join(root, 'supabase', 'tests', 'dreammeez_ownership_security.sql');
+const deckFunctionPath = path.join(root, 'supabase', 'functions', 'mtg-deck-catalog', 'index.ts');
+
+for (const file of [migrationPath, ownershipTestPath, deckFunctionPath]) {
+  assert.ok(fs.existsSync(file), 'Required guardrail file missing: ' + path.relative(root, file));
+}
+
+const migration = fs.readFileSync(migrationPath, 'utf8');
+const sqlTest = fs.readFileSync(ownershipTestPath, 'utf8');
+const deckFunction = fs.readFileSync(deckFunctionPath, 'utf8');
+
+assert.match(migration, /enable row level security/i, 'Ownership RLS must be enabled');
+assert.match(migration, /drop policy if exists/i, 'Migration must remove existing mutation policies');
+assert.match(migration, /revoke insert, update, delete/i, 'Browser write privileges must be revoked');
+assert.doesNotMatch(migration, /create policy[^;]+for\s+(insert|update|delete)/i, 'Migration must not create client mutation policies');
+
+assert.match(sqlTest, /has_table_privilege\('authenticated',\s*'public\.commerce_item_ownership',\s*'INSERT'\)/i,
+  'Database verification must check direct authenticated insert privilege');
+assert.match(sqlTest, /pg_policies/i, 'Database verification must inspect effective RLS policies');
+
+assert.match(deckFunction, /const publish = false;/,
+  'Deck submissions must fail closed to draft until a separate authorized moderation path exists');
+assert.match(deckFunction, /HELD_FOR_HUMAN_REVIEW/,
+  'Deck API must disclose that public publication is held for human review');
+
+console.log('PASS: static commerce guardrails verified. Database SQL test is separate and must be run against an accessible non-production database.');
