@@ -116,31 +116,41 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
-      - name: Verify deployed homepage and MTG master at GitHub Pages edge
+      - name: Verify public GitHub Pages deployment
         shell: bash
+        env:
+          PAGES_URL: ${{ steps.deployment.outputs.page_url }}
         run: |
-          set -u
-          # DNS currently resolves to the old Render IPs. Probe the GitHub Pages
-          # edge by Host/SNI override, without changing public DNS from this job.
-          ips=(185.199.108.153 185.199.109.153 185.199.110.153 185.199.111.153)
-          verify_path() {
+          set -euo pipefail
+          base="${PAGES_URL%/}/"
+          fetch_check() {
             local path="$1"
             local marker="$2"
-            local label="$3"
-            local body="/tmp/dreamledger-${label}.html"
-            local ip code
-            for ip in "${ips[@]}"; do
-              code=$(curl --resolve "dreamledger.org:443:${ip}" -L -sS \
-                -o "$body" -w '%{http_code}' --max-time 15 \
-                "https://dreamledger.org${path}" 2>/dev/null || true)
-              if [ "$code" = "200" ] && grep -Fq "$marker" "$body"; then
-                echo "PASS GITHUB_PAGES_EDGE route=${path} ip=${ip} http=${code}"
-                return 0
-              fi
-            done
-            echo "::warning::GitHub Pages artifact deployed, but edge verification for ${path} is not yet passing. dreamledger.org DNS currently points to Render; direct DNS cutover and/or Pages custom-domain validation is still required."
-            return 0
+            local body
+            body="$(mktemp)"
+            local code
+            code="$(curl -sS -L -o "$body" -w '%{http_code}' --max-time 20 "${base}${path}")"
+            if [ "$code" != "200" ]; then
+              echo "FAIL public route=${path} http=${code} url=${base}${path}"
+              cat "$body" | head -c 1000 || true
+              rm -f "$body"
+              exit 1
+            fi
+            if [ -n "$marker" ] && ! grep -Fq "$marker" "$body"; then
+              echo "FAIL marker missing route=${path} marker=${marker}"
+              rm -f "$body"
+              exit 1
+            fi
+            echo "PASS public route=${path} http=200"
+            rm -f "$body"
           }
 
-          verify_path "/" "Claim a founding billboard tile" "home"
-          verify_path "/mtg/" "Master silo" "mtg"
+          # Fail the workflow if the actual public host cannot serve the artifact.
+          # A successful artifact upload alone is not proof of a working site.
+          fetch_check "" "Claim a founding billboard tile"
+          fetch_check "mtg/" "Master silo"
+          fetch_check "assets/silo-master.css" ":root"
+          fetch_check "data/mtg-catalog.json" '"products"'
+          fetch_check "silos/mtg/silo.json" '"slug"'
+
+          echo "PASS public homepage, MTG master, stylesheet, catalog, and manifest are reachable"
