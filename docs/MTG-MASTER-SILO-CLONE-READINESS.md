@@ -34,6 +34,15 @@ Every gate must carry a retrievable PASS artifact. UNKNOWN, CI success, a catalo
 - At least one real buyer cycle is independently reconciled; repeatable demand and unit economics are then measured.
 - A clean clone dry-run passes CI and does not touch production.
 
+## Newly confirmed release blockers (19 October 2026)
+
+- **Duplicate app payment rails:** the same Commander Diagnostic had several distinct Stripe URLs in product/offer, featured-offer, live-commerce, marketing, and machine-discovery files. Source/config references are held in this branch; the actual Stripe Payment Link objects have not been deactivated or verified.
+- **Canonical data beats old offer projections:** the prior product-offer compiler copied `commercial_truth.payment_link` even when checkout was blocked. The source compiler now emits a checkout URL only when the canonical product is published, explicitly sellable, operator-approved, in stock, checkout-enabled, schema-valid, and fulfillment-ready.
+- **EDH_0001 price conflict:** canonical source is NZ$400 (40,000 minor units) while public catalog lists NZ$230. The product, configurator, and public feeds are held. No guessing at price and no purchase route.
+- **Public machine feeds:** public agent-commerce discovery previously labelled the diagnostic and EDH_0001 as available/verified. The branch changes them to held, with no buy route.
+- **Economic status:** verified external revenue remains NZ$0.00 in the contract. No end-to-end independent buyer cycle is proven.
+- **Live-state limit:** Supabase SQL and advisor reads returned `ECONNREFUSED`. Static repo changes and passing CI cannot establish what production is currently serving. The actual Stripe-hosted URLs may remain active unless disabled separately in Stripe.
+
 ## Release rule
 
 No new production clone is authorized by this contract. First make the MTG checkout-to-delivery path correct and observable, restore safe live database inspection, then prove it with a real independent buyer. Only the reusable, tested parts may then be cloned.
