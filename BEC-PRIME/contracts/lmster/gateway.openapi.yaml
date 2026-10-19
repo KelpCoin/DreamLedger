@@ -1,0 +1,292 @@
+openapi: 3.1.0
+info:
+  title: DreamLedger LMSTER Worker Gateway
+  version: 1.0.0
+  description: >-
+    Proposed authenticated adapter over the existing job queue. These routes are a contract,
+    not evidence of a deployed service. The local worker receives no Supabase administrative key.
+servers:
+  - url: https://{projectRef}.supabase.co/functions/v1/lmster-worker-gateway
+    variables:
+      projectRef:
+        default: wbwgroygjeyukkspnqiy
+security:
+  - LMSTERWorkerBearer: []
+paths:
+  /claim:
+    post:
+      operationId: claimJob
+      summary: Atomically claim a compatible queued job
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [protocol_version, worker_instance_id, capabilities, idempotency_key]
+              properties:
+                protocol_version: { const: '1.0' }
+                worker_instance_id: { type: string, minLength: 1, maxLength: 128 }
+                idempotency_key: { type: string, minLength: 16, maxLength: 256 }
+                capabilities:
+                  type: object
+                  additionalProperties: false
+                  required: [task_types, model_roles, max_concurrency]
+                  properties:
+                    task_types: { type: array, items: { type: string }, maxItems: 8 }
+                    model_roles:
+                      type: object
+                      additionalProperties: false
+                      required: [extractor, critic, synthesizer]
+                      properties:
+                        extractor: { type: string }
+                        critic: { type: string }
+                        synthesizer: { type: string }
+                    max_concurrency: { const: 1 }
+      responses:
+        '200':
+          description: Claimed a job or no eligible job is currently available
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status]
+                properties:
+                  status: { enum: [CLAIMED, IDLE] }
+                  retry_after_seconds: { type: integer, minimum: 1, maximum: 300 }
+                  job: { $ref: '#/components/schemas/JobEnvelope' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/InvalidRequest' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+  /renew:
+    post:
+      operationId: renewLease
+      summary: Renew a current lease belonging to this worker
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LeaseRequest' }
+      responses:
+        '200':
+          description: Lease renewed
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status, lease_expires_at]
+                properties:
+                  status: { const: RENEWED }
+                  lease_expires_at: { type: string, format: date-time }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/LeaseConflict' }
+  /input:
+    post:
+      operationId: getJobInput
+      summary: Retrieve only the input bound to the active lease
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LeaseRequest' }
+      responses:
+        '200':
+          description: Input and server-computed digest
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [job_id, input_payload, input_sha256]
+                properties:
+                  job_id: { type: string }
+                  input_payload: { type: object }
+                  input_sha256: { type: string, pattern: '^sha256:[a-f0-9]{64}$' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/LeaseConflict' }
+  /heartbeat:
+    post:
+      operationId: workerHeartbeat
+      summary: Publish liveness and model capability only
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [protocol_version, worker_instance_id, daemon_status, api_bind, model_roles, inference_probe, active_job_id]
+              properties:
+                protocol_version: { const: '1.0' }
+                worker_instance_id: { type: string }
+                daemon_status: { enum: [RUNNING, STOPPED, DEGRADED] }
+                api_bind: { const: '127.0.0.1' }
+                model_roles:
+                  type: object
+                  additionalProperties: false
+                  required: [extractor, critic, synthesizer]
+                  properties:
+                    extractor: { type: string }
+                    critic: { type: string }
+                    synthesizer: { type: string }
+                inference_probe: { enum: [PASS, FAIL, NOT_RUN] }
+                active_job_id: { type: [string, 'null'] }
+                runtime_health: { type: object, additionalProperties: { type: [string, number, boolean, 'null'] } }
+      responses:
+        '200': { description: Heartbeat accepted; no job or payment state is changed }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /checkpoint:
+    post:
+      operationId: saveCheckpoint
+      summary: Idempotently store one stage result under an active lease
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [job_id, lease_id, lease_generation, idempotency_key, stage, input_sha256, prompt_pack_sha256, output_schema_version, model_id, model_version, output_payload]
+              properties:
+                job_id: { type: string }
+                lease_id: { type: string }
+                lease_generation: { type: integer, minimum: 1 }
+                idempotency_key: { type: string }
+                stage: { enum: [EXTRACTOR, CRITIC, SYNTHESIZER, DETERMINISTIC_GATE] }
+                input_sha256: { type: string, pattern: '^sha256:[a-f0-9]{64}$' }
+                prompt_pack_sha256: { type: string, pattern: '^sha256:[a-f0-9]{64}$' }
+                output_schema_version: { type: string }
+                model_id: { type: string }
+                model_version: { type: string }
+                output_payload: { type: object }
+      responses:
+        '200':
+          description: Checkpoint accepted or existing identical checkpoint returned
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status, checkpoint_ref, output_sha256]
+                properties:
+                  status: { enum: [CHECKPOINTED, ALREADY_CHECKPOINTED] }
+                  checkpoint_ref: { type: string }
+                  output_sha256: { type: string, pattern: '^sha256:[a-f0-9]{64}$' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/LeaseConflict' }
+        '422': { $ref: '#/components/responses/InvalidRequest' }
+  /complete:
+    post:
+      operationId: submitEvidenceReceipt
+      summary: Submit analysis output and evidence receipt for server validation
+      description: This does not mark payment settled, order fulfilled, or revenue verified.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [job_id, lease_id, lease_generation, idempotency_key, receipt]
+              properties:
+                job_id: { type: string }
+                lease_id: { type: string }
+                lease_generation: { type: integer, minimum: 1 }
+                idempotency_key: { type: string }
+                receipt: { $ref: 'evidence-receipt.schema.json' }
+      responses:
+        '200':
+          description: Receipt staged for authoritative cloud validation
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status, receipt_ref]
+                properties:
+                  status: { enum: [RESULT_STAGED, ALREADY_STAGED] }
+                  receipt_ref: { type: string }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/LeaseConflict' }
+        '422': { $ref: '#/components/responses/InvalidRequest' }
+  /fail:
+    post:
+      operationId: reportJobFailure
+      summary: Report a bounded failure without fabricating successful output
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [job_id, lease_id, lease_generation, idempotency_key, failure_code, diagnostic_sha256, retryable]
+              properties:
+                job_id: { type: string }
+                lease_id: { type: string }
+                lease_generation: { type: integer, minimum: 1 }
+                idempotency_key: { type: string }
+                failure_code: { type: string, pattern: '^[A-Z0-9_]{3,64}$' }
+                diagnostic_sha256: { type: string, pattern: '^sha256:[a-f0-9]{64}$' }
+                retryable: { type: boolean }
+      responses:
+        '200': { description: Failure recorded under retry policy }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/LeaseConflict' }
+components:
+  securitySchemes:
+    LMSTERWorkerBearer:
+      type: http
+      scheme: bearer
+      bearerFormat: opaque-worker-token
+      description: Dedicated per-worker token validated by the gateway; not a Supabase service key.
+  schemas:
+    LeaseRequest:
+      type: object
+      additionalProperties: false
+      required: [job_id, lease_id, lease_generation, idempotency_key]
+      properties:
+        job_id: { type: string }
+        lease_id: { type: string }
+        lease_generation: { type: integer, minimum: 1 }
+        idempotency_key: { type: string }
+    JobEnvelope:
+      type: object
+      required: [protocol_version, job_id, idempotency_key, lease_id, lease_generation, lease_expires_at, worker_id, silo_id, namespace, manifest_digest, manifest_version, task_type, input_ref, input_sha256, prompt_pack_version, prompt_pack_sha256, output_schema_version, allowed_models, resource_limits, completed_checkpoints]
+      properties:
+        protocol_version: { const: '1.0' }
+        job_id: { type: string }
+        idempotency_key: { type: string }
+        lease_id: { type: string }
+        lease_generation: { type: integer, minimum: 1 }
+        lease_expires_at: { type: string, format: date-time }
+        worker_id: { const: 'lmster-local-01' }
+        silo_id: { type: string }
+        namespace: { type: string }
+        manifest_digest: { type: string, pattern: '^sha256:[a-f0-9]{64}$' }
+        manifest_version: { type: string }
+        task_type: { enum: [TRI_LLM_EVIDENCE_REVIEW, QUOTE_NORMALIZE_TEST, SOURCE_EXTRACTION_TEST] }
+        input_ref: { type: string }
+        input_sha256: { type: string, pattern: '^sha256:[a-f0-9]{64}$' }
+        prompt_pack_version: { type: string }
+        prompt_pack_sha256: { type: string, pattern: '^sha256:[a-f0-9]{64}$' }
+        output_schema_version: { type: string }
+        allowed_models: { type: object }
+        resource_limits: { type: object }
+        completed_checkpoints: { type: array }
+  responses:
+    Unauthorized:
+      description: Missing or invalid worker credential
+    Forbidden:
+      description: Worker identity lacks the requested operation, job, task, or silo scope
+    LeaseConflict:
+      description: Lease expired/stale or conflicting idempotency key
+    InvalidRequest:
+      description: Request failed strict schema or policy validation
+    Unavailable:
+      description: Gateway or backing queue temporarily unavailable

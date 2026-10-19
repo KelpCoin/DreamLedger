@@ -1,0 +1,296 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dreamledger.org/schemas/lmster-evidence-receipt-v1.schema.json",
+  "title": "LMSTER evidence receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "receipt_schema_version",
+    "job_id",
+    "idempotency_key",
+    "lease_id",
+    "lease_generation",
+    "worker_id",
+    "silo_id",
+    "namespace",
+    "manifest_digest",
+    "manifest_version",
+    "input_ref",
+    "input_sha256",
+    "output_ref",
+    "output_sha256",
+    "prompt_pack_version",
+    "prompt_pack_sha256",
+    "output_schema_version",
+    "worker_build",
+    "model_records",
+    "stage_verdicts",
+    "deterministic_checks",
+    "policy_verdict",
+    "checkpoint_refs",
+    "started_at",
+    "completed_at",
+    "canonicalization",
+    "receipt_sha256"
+  ],
+  "properties": {
+    "receipt_schema_version": {
+      "const": "1.0"
+    },
+    "job_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "idempotency_key": {
+      "type": "string",
+      "minLength": 16
+    },
+    "lease_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "lease_generation": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "worker_id": {
+      "const": "lmster-local-01"
+    },
+    "silo_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]{1,62}$"
+    },
+    "namespace": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]{1,62}$"
+    },
+    "manifest_digest": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    },
+    "manifest_version": {
+      "type": "string"
+    },
+    "input_ref": {
+      "type": "string"
+    },
+    "input_sha256": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    },
+    "output_ref": {
+      "type": "string"
+    },
+    "output_sha256": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    },
+    "prompt_pack_version": {
+      "type": "string"
+    },
+    "prompt_pack_sha256": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    },
+    "output_schema_version": {
+      "type": "string"
+    },
+    "worker_build": {
+      "type": "string"
+    },
+    "model_records": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "role",
+          "model_id",
+          "model_version",
+          "prompt_sha256",
+          "output_sha256",
+          "status"
+        ],
+        "properties": {
+          "role": {
+            "enum": [
+              "extractor",
+              "critic",
+              "synthesizer"
+            ]
+          },
+          "model_id": {
+            "type": "string"
+          },
+          "model_version": {
+            "type": "string"
+          },
+          "prompt_sha256": {
+            "type": "string",
+            "pattern": "^sha256:[a-f0-9]{64}$"
+          },
+          "output_sha256": {
+            "type": "string",
+            "pattern": "^sha256:[a-f0-9]{64}$"
+          },
+          "status": {
+            "enum": [
+              "PASS",
+              "FAIL",
+              "UNVERIFIED"
+            ]
+          }
+        }
+      }
+    },
+    "stage_verdicts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "extractor",
+        "critic",
+        "synthesizer"
+      ],
+      "properties": {
+        "extractor": {
+          "enum": [
+            "PASS",
+            "FAIL",
+            "UNVERIFIED"
+          ]
+        },
+        "critic": {
+          "enum": [
+            "PASS",
+            "BLOCK",
+            "UNVERIFIED"
+          ]
+        },
+        "synthesizer": {
+          "enum": [
+            "PASS",
+            "FAIL",
+            "UNVERIFIED"
+          ]
+        }
+      }
+    },
+    "deterministic_checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true
+      },
+      "minItems": 1
+    },
+    "policy_verdict": {
+      "enum": [
+        "VERIFIED_MATCH",
+        "UNVERIFIED",
+        "CONFLICT",
+        "BLOCKED"
+      ]
+    },
+    "checkpoint_refs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "canonicalization": {
+      "const": "RFC8785-JCS"
+    },
+    "receipt_sha256": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    },
+    "worker_signature": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "signature_algorithm": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "failure_codes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "policy_verdict": {
+            "const": "VERIFIED_MATCH"
+          }
+        },
+        "required": [
+          "policy_verdict"
+        ]
+      },
+      "then": {
+        "properties": {
+          "stage_verdicts": {
+            "properties": {
+              "extractor": {
+                "const": "PASS"
+              },
+              "critic": {
+                "const": "PASS"
+              },
+              "synthesizer": {
+                "const": "PASS"
+              }
+            },
+            "required": [
+              "extractor",
+              "critic",
+              "synthesizer"
+            ]
+          },
+          "model_records": {
+            "items": {
+              "properties": {
+                "status": {
+                  "const": "PASS"
+                }
+              },
+              "required": [
+                "status"
+              ]
+            }
+          },
+          "deterministic_checks": {
+            "items": {
+              "properties": {
+                "status": {
+                  "const": "PASS"
+                }
+              },
+              "required": [
+                "status"
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}
