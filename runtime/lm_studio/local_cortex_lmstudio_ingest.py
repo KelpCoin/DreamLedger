@@ -7,10 +7,8 @@ mutates the authoritative economic ledger.
 """
 import argparse, hashlib, json, os, re, sys, time, uuid
 from pathlib import Path
-from urllib.request import Request, urlopen
 
 ROOT = Path(os.environ.get("DREAMLEDGER_ROOT", Path(__file__).resolve().parents[2]))
-LM_BASE = os.environ.get("LM_STUDIO_BASE_URL", "http://127.0.0.1:1234/v1").rstrip("/")
 LM_MODEL = os.environ.get("LM_STUDIO_MODEL", "").strip()
 PROOF_DIR = ROOT / "runtime" / "lm_studio" / "runs"
 
@@ -25,17 +23,6 @@ ALLOWED = {
 
 def sha(value):
     return hashlib.sha256(value.encode("utf-8")).hexdigest()
-
-def http_json(path, body=None, timeout=60):
-    data = None if body is None else json.dumps(body).encode("utf-8")
-    req = Request(
-        LM_BASE + path,
-        data=data,
-        headers={"Content-Type": "application/json", "Accept": "application/json"},
-        method="POST" if body is not None else "GET",
-    )
-    with urlopen(req, timeout=timeout) as response:
-        return json.loads(response.read().decode("utf-8"))
 
 def fallback(signal, reason):
     """Conservative offline triage. A single text item cannot prove demand or trend."""
@@ -55,7 +42,7 @@ def fallback(signal, reason):
     ))
     urgent = any(k in text for k in ("urgent", "asap", "critical", "broken", "failing", "deadline"))
     blocking = any(k in text for k in ("blocking", "blocked", "cannot ship", "can't ship", "work stopped"))
-    repeated = any(k in text for k in ("every", "weekly", "monthly", "hours a week", "often", "manual"))
+    repeated = bool(re.search(r"\\bevery\\b", text)) or any(k in text for k in ("weekly", "monthly", "hours a week", "often", "manual"))
     seeking = any(k in text for k in (
         "looking for a tool", "looking for a solution", "actively seeking",
         "seeking a tool", "want to buy", "ready to purchase", "looking to buy"
@@ -64,7 +51,6 @@ def fallback(signal, reason):
         "need a tool", "need a solution", "we need to fix", "want a tool"
     ))
     explicitly_abandoned = any(k in text for k in ("deprecated", "abandoned", "discontinued"))
-    quote = any(k in text for k in ("supplier quote", "supplier quotation", "quote pdf", "supplier"))
 
     money_signal = (
         "explicit_budget" if explicit_budget else
