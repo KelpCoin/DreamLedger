@@ -22,7 +22,7 @@ try {
     $pack = $spec.existing_offer_candidates | Where-Object { $_.offer_id -eq 'AGENT-BRIDGE-EVENTS-100' } | Select-Object -First 1
     Add-Check 'existing_probe_held' ($null -ne $probe -and [double]$probe.recorded_price_nzd -eq 0.5 -and -not [bool]$probe.activation_allowed) 'existing NZD 0.50 offer is not auto-enabled'
     Add-Check 'existing_pack_held' ($null -ne $pack -and [double]$pack.recorded_price_nzd -eq 19 -and [int]$pack.recorded_units -eq 100 -and -not [bool]$pack.activation_allowed) 'existing NZD 19 / 100 offer is not auto-enabled'
-    Add-Check 'required_acceptance_gates' ($spec.required_acceptance_gates.Count -ge 9) ([string]$spec.required_acceptance_gates.Count)
+    Add-Check 'required_acceptance_gates' ($spec.required_acceptance_gates.Count -ge 11) ([string]$spec.required_acceptance_gates.Count)
     Add-Check 'no_parallel_ledger' ([bool]$spec.principles.no_parallel_ledger) 'reuse canonical settlement ledger'
     $status = if (@($checks | Where-Object { -not $_.pass }).Count -eq 0) { 'PASS' } else { 'FAIL' }
     $proof = [ordered]@{
