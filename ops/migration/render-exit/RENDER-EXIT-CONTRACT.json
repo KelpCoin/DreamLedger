@@ -33,9 +33,15 @@
   "release_gates": [
     {
       "id": "G0",
-      "name": "Container build and compile",
+      "name": "Container build and tracked runtime artifacts",
       "status": "NOT_RUN",
-      "proof": "GitHub Actions render-exit-container-check"
+      "proof": "GitHub Actions render-exit-container-check; image installs runtime dependencies and confirms all required committed compiled surfaces exist"
+    },
+    {
+      "id": "G0C",
+      "name": "Canonical compiler and commercial contract",
+      "status": "BLOCKED_EXISTING_BUILD_AND_COMMERCE_GATES",
+      "proof": "Current BEC-PRIME build has failed closed on AJV Draft 2020-12 mismatch, stale MTG patch boundary, and production-contract errors STRIPE_LINK_DRIFT and PRODUCT_NOT_SELLABLE; do not skip these release gates"
     },
     {
       "id": "G1",
@@ -71,7 +77,7 @@
       "id": "G6",
       "name": "Custom-domain cutover",
       "status": "BLOCKED_EXPLICIT_OWNER_APPROVAL",
-      "proof": "Only after G0-G5 pass; /version SHA and public route parity independently verified"
+      "proof": "Only after G0, G0C, G1-G5 pass; /version SHA and public route parity independently verified"
     }
   ],
   "non_actions": {
@@ -82,7 +88,9 @@
     "stripe_config_changed": false,
     "database_migrated": false,
     "render_deleted_or_disabled": false,
-    "production_mutation": false
+    "production_mutation": false,
+    "canonical_build_gate_bypassed": false,
+    "production_release_authorized": false
   },
   "economic_truth": {
     "verified_revenue_nzd": 0,
