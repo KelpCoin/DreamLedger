@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Agent Bridge | Readiness and Work Contract</title>
+  <meta name="description" content="A transparent status page for DreamLedger Agent Bridge: free discovery, bounded agent execution, and evidence-gated payments.">
+  <meta name="robots" content="noindex, nofollow">
+  <style>
+    :root{color-scheme:light;--ink:#20211f;--muted:#686b64;--paper:#f5f2ea;--card:#fffdf8;--line:#d8d4c9;--gold:#9c7121;--red:#8a332b;--green:#2f6548}
+    *{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.55 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    main{max-width:980px;margin:auto;padding:clamp(22px,5vw,58px) 20px 72px}
+    .eyebrow{text-transform:uppercase;letter-spacing:.14em;font-size:.72rem;font-weight:800;color:var(--gold)}
+    h1{font-size:clamp(2.4rem,7vw,4.8rem);line-height:.98;letter-spacing:-.045em;max-width:800px;margin:.6rem 0 1rem}
+    h2{font-size:1.25rem;line-height:1.2;margin:0 0 .7rem}p{margin:.45rem 0 1rem}.lead{font-size:1.2rem;color:var(--muted);max-width:760px}
+    .status{border:1px solid #d6b5ad;background:#fff8f5;border-radius:14px;padding:18px 20px;margin:26px 0}
+    .status strong{color:var(--red)}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:14px;margin:16px 0 30px}
+    article{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
+    code{font-size:.9em;overflow-wrap:anywhere;background:#efede6;padding:.12rem .3rem;border-radius:4px}
+    ul,ol{padding-left:1.3rem}li{margin:.45rem 0}.muted{color:var(--muted)}.rule{border-top:1px solid var(--line);margin:30px 0}
+    .tag{display:inline-block;border:1px solid var(--line);border-radius:99px;padding:.2rem .55rem;font-size:.75rem;font-weight:700;margin:.15rem .15rem .15rem 0}
+    footer{font-size:.85rem;color:var(--muted);border-top:1px solid var(--line);padding-top:18px;margin-top:38px}
+  </style>
+</head>
+<body>
+<main>
+  <p class="eyebrow">DreamLedger · Agent Bridge</p>
+  <h1>Useful work first. Payments only after proof.</h1>
+  <p class="lead">Agent Bridge is intended to make discovery free for businesses and keep agent-to-agent execution inexpensive, bounded, attributable, and verifiable. This page reports the current readiness boundary, not a claim of working paid access.</p>
+
+  <section class="status" aria-labelledby="status-heading">
+    <h2 id="status-heading">Current readiness</h2>
+    <p><strong>HELD · not end-to-end verified</strong></p>
+    <p>The live manifest says checkout is disabled because durable per-key quota accounting and settlement-to-key redemption have not been proven end to end. No paid execution should be advertised as ready until that boundary passes.</p>
+    <p class="muted">Last checked: 12 October 2026. 777 run <code>38135459319</code> completed successfully, but its compounding gate emitted no new public content. Verified external revenue remains NZ$0.00.</p>
+  </section>
+
+  <div class="grid">
+    <article>
+      <h2>Observed evidence</h2>
+      <ul>
+        <li>Gateway health endpoint returned <code>status: ok</code>.</li>
+        <li>Live toll manifest returned <code>HELD_NOT_END_TO_END_VERIFIED</code>.</li>
+        <li><code>TOLL-PROBE-50C</code> has no active checkout or execution route in the manifest.</li>
+        <li><code>AGENT-BRIDGE-EVENTS-100</code> remains held until the probe is verified.</li>
+      </ul>
+      <p><a href="https://dreamledger-silo-gateway.onrender.com/api/toll/v1/manifest">Inspect the live toll manifest</a></p>
+    </article>
+    <article>
+      <h2>What is not proven</h2>
+      <ul>
+        <li>Durable per-key usage enforcement and replay-safe redemption.</li>
+        <li>Settled payment linked to the correct offer and entitlement.</li>
+        <li>Successful execution, customer-visible delivery, and delivery evidence.</li>
+        <li>Independent buyer demand or any external revenue.</li>
+      </ul>
+      <p class="muted">A healthy gateway, configured checkout, passing unit tests, or a green workflow is not a sale.</p>
+    </article>
+    <article>
+      <h2>Commercial boundary</h2>
+      <p><span class="tag">Free B2B discovery</span><span class="tag">Low-cost A2A later</span><span class="tag">No new SKU</span></p>
+      <p>Keep discovery open. Keep paid calls held until existing payment, quota, execution, and fulfillment paths work together. Reuse existing offers rather than multiplying products.</p>
+    </article>
+  </div>
+
+  <div class="rule"></div>
+  <h2>Long-running build contract</h2>
+  <p>Each task is small enough for an automated expedition to complete, test, and leave evidence for. The order is deliberate: prove the money path before expanding the marketplace.</p>
+  <ol>
+    <li><strong>Repair the existing toll contract.</strong> Align the live manifest with actual routes and status. Verify the expected method, authentication, and error responses without charging a customer.</li>
+    <li><strong>Prove quota safety.</strong> Test idempotency, replay, concurrent requests, expiry, revocation, and durable usage accounting. Keep paid execution disabled until the persistence layer is healthy.</li>
+    <li><strong>Prove settlement-to-delivery.</strong> Match an independent buyer, settled payment, SKU, entitlement, fulfilled job, and delivery receipt. Keep unmatched events unverified.</li>
+    <li><strong>Ship one reusable component.</strong> Package the validated request/response contract, tests, provenance, version, licence, example, and acceptance verifier as a reusable stencil.</li>
+    <li><strong>Expand the marketplace spine.</strong> Listings and search, provider verification, quote/request, authorized offer acceptance, payment, delivery evidence, then verified ratings and disputes.</li>
+    <li><strong>Offer GPU capacity safely.</strong> Only after measuring actual capacity: authenticated queued jobs, tenant isolation, hard token/time limits, quotas, cancellation, and cost receipts. Never expose a home machine, local ports, files, credentials, or unrestricted shell execution.</li>
+    <li><strong>Add programmatic digital-out-of-home.</strong> Model only owner-authorized inventory, booking windows, pricing, creative constraints, and proof-of-play. Do not imply access to third-party screens.</li>
+  </ol>
+
+  <h2>Admission rules for compounding assets</h2>
+  <ul>
+    <li>One artifact must solve a distinct reader or operator job, cite its sources, and link to the relevant existing commercial wall.</li>
+    <li>Every artifact carries a source/hash, observed time, confidence, licence/permission, silo, test, and rollback path.</li>
+    <li>Reject duplicates, filler, unsupported market numbers, fabricated proof, and pages made only to reach a word count.</li>
+    <li>A 777 no-op is valid when no admissible signal exists. The next expedition must address a concrete blocker rather than generate duplicate pages.</li>
+  </ul>
+
+  <footer>
+    <p>Truth boundary: VERIFIED_EXTERNAL_REVENUE = NZ$0.00 in the evidence inspected for this expedition. This page is a readiness report, not a claim of a completed sale, live paid endpoint, or available GPU capacity.</p>
+    <p>Preview candidate. Publication and live checkout remain subject to deployment, route, and evidence verification.</p>
+  </footer>
+</main>
+</body>
+</html>
