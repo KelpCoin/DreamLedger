@@ -22,6 +22,9 @@ function buildRevenueLaneReadiness(input = {}) {
   const fulfillmentEntries = input.fulfillmentEntries && typeof input.fulfillmentEntries === 'object'
     ? input.fulfillmentEntries
     : {};
+  const buyerSignalRecords = Array.isArray(input.buyerSignalRecords) ? input.buyerSignalRecords : [];
+  const defaultBuyerSignalOfferId = text(input.defaultBuyerSignalOfferId);
+  const discordArtifactPresent = input.discordArtifactPresent === true;
 
   function findPublicProduct(offer) {
     const ids = [offer.product_id, offer.product_sku, offer.productSku].map(text).filter(Boolean);
@@ -243,6 +246,109 @@ function buildRevenueLaneReadiness(input = {}) {
     lane.configuration_status === 'CONFIGURATION_COHERENT_PROVIDER_CHECK_REQUIRED'
   ).length;
 
+  const commanderSignalCount = buyerSignalRecords.filter(signal =>
+    text(signal.offer_id || defaultBuyerSignalOfferId) === 'OFFER-CMD-DIAG-29-NZD'
+  ).length;
+  const discordProduct = publicProducts.find(product =>
+    text(product.id) === 'DISCORD-WEBHOOK-STARTER-KIT-001'
+  ) || null;
+  const discordApproved = approvedOffers.some(offer =>
+    text(offer.product_id) === 'DISCORD-WEBHOOK-STARTER-KIT-001' ||
+    text(offer.product_sku) === 'DISCORD-WEBHOOK-STARTER-KIT-001'
+  );
+  const discordFulfillment = fulfillmentEntries['DISCORD-WEBHOOK-STARTER-KIT-001'] ||
+    fulfillmentEntries['DISCORD_WEBHOOK_STARTER_KIT'] || null;
+  const discordBlockers = [];
+  if (!discordApproved) discordBlockers.push('NO_APPROVED_OFFER_RECORD');
+  if (!discordFulfillment) discordBlockers.push('FULFILLMENT_REGISTRY_ENTRY_MISSING');
+  else if (discordFulfillment.ready !== true) discordBlockers.push('FULFILLMENT_REGISTRY_NOT_READY');
+  if (!discordArtifactPresent) discordBlockers.push('DIGITAL_ARTIFACT_MISSING_FROM_REPOSITORY');
+  if (!discordProduct) discordBlockers.push('PUBLIC_PRODUCT_RECORD_MISSING');
+  else {
+    if (text(discordProduct.status).toLowerCase() !== 'published') discordBlockers.push('PUBLIC_PRODUCT_NOT_PUBLISHED');
+    if (discordProduct.checkout_available !== true) discordBlockers.push('PUBLIC_CHECKOUT_NOT_AVAILABLE');
+    if (text(discordProduct.delivery_test_status).toUpperCase() !== 'PASS' &&
+        text(discordProduct.delivery_test_status).toUpperCase() !== 'VERIFIED') {
+      discordBlockers.push('DELIVERY_TEST_STATUS_UNVERIFIED');
+    }
+  }
+
+  const sellerProfitProduct = publicProducts.find(product =>
+    text(product.id) === 'SELLER-PROFIT-AUDIT-001'
+  ) || null;
+  const sellerProfitApproved = approvedOffers.some(offer =>
+    text(offer.product_id) === 'SELLER-PROFIT-AUDIT-001' ||
+    text(offer.product_sku) === 'SELLER-PROFIT-AUDIT-001'
+  );
+
+  const diversifiedStreamCandidates = [
+    {
+      priority: 1,
+      lane_id: 'OFFER-CMD-DIAG-29-NZD',
+      revenue_model: 'ONE_TIME_DIGITAL_SERVICE',
+      price_nzd: 29,
+      existing_buyer_problem_records: commanderSignalCount,
+      configuration_status: commander ? commander.configuration_status : 'BLOCKED_MISSING_APPROVED_OFFER',
+      blocker_codes: commander ? commander.blocker_codes : ['APPROVED_COMMANDER_OFFER_MISSING'],
+      next_action: 'RECONCILE_ONE_CANONICAL_CHECKOUT_AND_RESTORE_SETTLEMENT_LEDGER_ACCESS',
+      external_action: 'BLOCKED'
+    },
+    {
+      priority: 2,
+      lane_id: 'DISCORD-WEBHOOK-STARTER-KIT-001',
+      revenue_model: 'ONE_TIME_DIGITAL_DOWNLOAD',
+      price_nzd: number(discordProduct && (discordProduct.price_nzd ?? discordProduct.price)),
+      existing_download_artifact_present: discordArtifactPresent,
+      configured_checkout_available: Boolean(discordProduct && discordProduct.checkout_available === true),
+      configuration_status: unique(discordBlockers).length
+        ? 'BLOCKED_APPROVAL_OR_DELIVERY_PROOF'
+        : 'CONFIGURATION_COHERENT_PROVIDER_CHECK_REQUIRED',
+      blocker_codes: unique(discordBlockers),
+      next_action: 'ADD_CANONICAL_OFFER_AND_FULFILLMENT_MAPPING_THEN_VERIFY_SESSION_BOUND_DOWNLOAD_AND_LEDGER',
+      external_action: 'BLOCKED'
+    },
+    {
+      priority: 3,
+      lane_id: 'QUOTE-COMPARE-49',
+      revenue_model: 'ONE_TIME_QUOTE_COMPARISON',
+      price_nzd: 49,
+      adapter_count: quoteAdapterFamily.adapter_count,
+      configured_checkout_url_count: quoteAdapterFamily.distinct_configured_checkout_urls,
+      configuration_status: quoteAdapterFamily.configuration_status,
+      blocker_codes: quoteAdapterFamily.blocker_codes,
+      next_action: 'CREATE_ONE_APPROVED_OFFER_WITH_CORRECT_ATTRIBUTION_AND_VERIFY_PROVIDER_LINK',
+      external_action: 'BLOCKED'
+    },
+    {
+      priority: 4,
+      lane_id: 'TRUTH-ORACLE-SUBSCRIPTIONS',
+      revenue_model: 'RECURRING_SUBSCRIPTION',
+      monthly_price_points_nzd: recurringLanes.map(plan => plan.price_nzd_month),
+      configuration_status: 'RECURRING_ROUTE_CONFIGURED_REQUIRES_PROVIDER_AND_ENTITLEMENT_TEST',
+      blocker_codes: unique([
+        'NO_APPROVED_RECURRING_OFFER_MAPPING',
+        'NO_INDEPENDENT_SUBSCRIPTION_PROOF_IN_LOCAL_EVIDENCE'
+      ]),
+      next_action: 'VERIFY_LIVE_SUBSCRIPTION_CHECKOUT_WEBHOOK_ENTITLEMENT_AND_CANCELLATION_IN_A_CONTROLLED_TEST',
+      external_action: 'BLOCKED'
+    },
+    {
+      priority: 5,
+      lane_id: 'SELLER-PROFIT-AUDIT-001',
+      revenue_model: 'ONE_TIME_REPORT_SERVICE',
+      price_nzd: number(sellerProfitProduct && (sellerProfitProduct.price_nzd ?? sellerProfitProduct.price)),
+      configured_checkout_available: Boolean(sellerProfitProduct && sellerProfitProduct.checkout_available === true),
+      configuration_status: 'BLOCKED_UNAPPROVED_MANUAL_DELIVERY',
+      blocker_codes: unique([
+        ...(sellerProfitApproved ? [] : ['NO_APPROVED_OFFER_RECORD']),
+        ...(sellerProfitProduct ? [] : ['PUBLIC_PRODUCT_RECORD_MISSING']),
+        'MANUAL_REPORT_DELIVERY_NOT_EVIDENCED'
+      ]),
+      next_action: 'APPROVE_SCOPE_AND_DELIVERY_PROOF_BEFORE_PUBLIC_SALE',
+      external_action: 'BLOCKED'
+    }
+  ].map(candidate => ({ ...candidate, verified_revenue_nzd: 0, revenue_claim_permitted: false }));
+
   return {
     schema: 'DREAMLEDGER/777/REVENUE-LANE-READINESS/v1',
     objective: 'Find and repair the nearest existing revenue paths without inventing buyers, payments, or completed delivery.',
@@ -257,6 +363,7 @@ function buildRevenueLaneReadiness(input = {}) {
     unapproved_public_checkout_products: publicCatalogOnlyProducts,
     recurring_lanes: recurringLanes,
     quote_adapter_family: quoteAdapterFamily,
+    diversified_stream_candidates: diversifiedStreamCandidates,
     recommended_next: recommendedNext,
     rules: [
       'A configured price or checkout URL is not settlement evidence.',
