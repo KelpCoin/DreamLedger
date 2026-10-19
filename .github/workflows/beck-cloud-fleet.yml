@@ -172,18 +172,36 @@ jobs:
           echo "The deploy hook is not called unless the complete dynamic route parity contract is marked verified." >> "$GITHUB_STEP_SUMMARY"
           exit 0
 
-      - name: Final read-only health summary
+      - name: Re-probe public routes after recovery attempt
+        id: public_post_probe
+        if: steps.public_probe.outputs.degraded == 'true'
+        continue-on-error: true
+        env:
+          BECK_HEARTBEAT_PATH: proof/fleet/public-heartbeat-after.json
+        run: node ops/fleet/heartbeat.mjs
+
+      - name: Final health gate and summary
         if: always()
         shell: bash
         run: |
           set -u
+          public_degraded='${{ steps.public_post_probe.outputs.degraded }}'
+          if [ -z "$public_degraded" ]; then public_degraded='${{ steps.public_probe.outputs.degraded }}'; fi
+          neon_healthy='${{ steps.neon_post_probe.outputs.healthy }}'
+          if [ -z "$neon_healthy" ]; then neon_healthy='${{ steps.neon_probe.outputs.healthy }}'; fi
           echo "## BECK cloud fleet health" >> "$GITHUB_STEP_SUMMARY"
           echo "- Commit: $GITHUB_SHA" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Public probe step: ${{ steps.public_probe.outcome }}" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Neon SQL probe step: ${{ steps.neon_probe.outcome }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Public degraded: ${public_degraded:-unknown}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Neon SQL healthy: ${neon_healthy:-unknown}" >> "$GITHUB_STEP_SUMMARY"
           echo "- Neon provider inspection: ${{ steps.neon_inspect.outcome }}" >> "$GITHUB_STEP_SUMMARY"
           echo "- Cloudflare provider inspection: ${{ steps.cloudflare_inspect.outcome }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Missing secrets and failed probes remain BLOCKED; they never count as success." >> "$GITHUB_STEP_SUMMARY"
           echo "- Revenue asserted: NZD 0 unless reconciled from provider settlement plus attribution and delivery." >> "$GITHUB_STEP_SUMMARY"
+          if [ "$public_degraded" != "false" ] || [ "$neon_healthy" != "true" ]; then
+            echo "- FLEET_STATUS=DEGRADED_OR_BLOCKED" >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+          echo "- FLEET_STATUS=HEALTHY" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload redacted health and recovery evidence
         if: always()
