@@ -7,6 +7,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
 const ROOT = path.join(__dirname, '..');
+const PRIORITY_VERTICALS_PATH = path.join(ROOT, 'catalog', 'marketplace', 'priority-verticals.v1.json');
 const STORE = String(process.env.MARKETPLACE_STORE || 'supabase').toLowerCase();
 const BASE = String(process.env.SUPABASE_URL || '').replace(/\/$/, '');
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
@@ -168,10 +169,19 @@ function uuid(v){return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f
 async function handle(req,res,requestPath) {
   if(!requestPath.startsWith('/api/marketplace/v1')) return false;
   if(req.method==='GET'&&requestPath==='/api/marketplace/v1/status') return status(req,res);
+  if(req.method==='GET'&&requestPath==='/api/marketplace/v1/verticals') {
+    try {
+      const contract=JSON.parse(fs.readFileSync(PRIORITY_VERTICALS_PATH,'utf8'));
+      if(contract.schema!=='dreamledger.marketplace.priority-verticals.v1'||!Array.isArray(contract.commercial_verticals)) throw new Error('Priority vertical contract schema mismatch');
+      return send(res,200,{...contract,observed_at:new Date().toISOString(),message:'This is a catalogue and policy contract, not release approval, live inventory, buyer intent, settlement, fulfillment, or revenue.'});
+    } catch(err) {
+      return send(res,503,{schema:'dreamledger.marketplace.priority-verticals.v1',record_state:'UNAVAILABLE_FAIL_CLOSED',checkout_enabled:false,message:'Priority vertical contract unavailable; no checkout authority is implied.'});
+    }
+  }
   if(req.method==='GET'&&requestPath==='/api/marketplace/v1/discovery') return send(res,200,{
     schema:'DREAMLEDGER/UNIFIED-MARKETPLACE/v1',name:'DreamLedger Transaction Marketplace',
-    capabilities:['goods','services','surplus_lots','procurement_rfqs','normalized_offers','evidence_and_trust','transaction_ledger','human_approval','agent_to_agent_intent'],
-    endpoints:{status:'/api/marketplace/v1/status',listings:'/api/marketplace/v1/listings',partyApplications:'/api/marketplace/v1/party-applications',rfqs:'/api/marketplace/v1/rfqs',supplierListingSubmission:'/api/marketplace/v1/listings',supplierOffers:'/api/marketplace/v1/rfqs/{rfq_id}/offers',acceptOffer:'/api/marketplace/v1/offers/{offer_id}/accept',checkout:'/api/marketplace/v1/orders/{order_id}/checkout',evidence:'/api/marketplace/v1/evidence',delivery:'/api/marketplace/v1/orders/{order_id}/delivery',acceptance:'/api/marketplace/v1/orders/{order_id}/acceptance',auctions:'/api/marketplace/v1/auctions',bids:'/api/marketplace/v1/auctions/{auction_id}/bids',buyNow:'/api/marketplace/v1/auctions/{auction_id}/buy-now',agentIntent:'/api/marketplace/v1/agent-intents',cubeHypotheses:'/api/marketplace/v1/admin/cube-hypotheses',ledger:'/api/marketplace/v1/ledger'},
+    capabilities:['goods','services','surplus_lots','procurement_rfqs','normalized_offers','evidence_and_trust','transaction_ledger','human_approval','agent_to_agent_intent','priority_vertical_discovery'],
+    endpoints:{status:'/api/marketplace/v1/status',verticals:'/api/marketplace/v1/verticals',listings:'/api/marketplace/v1/listings',partyApplications:'/api/marketplace/v1/party-applications',rfqs:'/api/marketplace/v1/rfqs',supplierListingSubmission:'/api/marketplace/v1/listings',supplierOffers:'/api/marketplace/v1/rfqs/{rfq_id}/offers',acceptOffer:'/api/marketplace/v1/offers/{offer_id}/accept',checkout:'/api/marketplace/v1/orders/{order_id}/checkout',evidence:'/api/marketplace/v1/evidence',delivery:'/api/marketplace/v1/orders/{order_id}/delivery',acceptance:'/api/marketplace/v1/orders/{order_id}/acceptance',auctions:'/api/marketplace/v1/auctions',bids:'/api/marketplace/v1/auctions/{auction_id}/bids',buyNow:'/api/marketplace/v1/auctions/{auction_id}/buy-now',agentIntent:'/api/marketplace/v1/agent-intents',cubeHypotheses:'/api/marketplace/v1/admin/cube-hypotheses',ledger:'/api/marketplace/v1/ledger'},
     a2a:{authentication:'Bearer token mapped by SHA-256 digest in A2A_AGENT_KEYS_JSON',human_approval_required_for_spend:true,execution_on_intent:false},
     truth_chain:['OBSERVED','QUALIFIED_BUYER_INTENT','AUTHORIZED','PAYMENT_PENDING','SETTLED','FULFILLED','DELIVERED','ACCEPTED','VERIFIED'],
     economic_truth:'Discovery, agent intent, an RFQ, a checkout, and an internal ledger event are not revenue.'
