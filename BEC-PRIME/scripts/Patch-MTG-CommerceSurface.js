@@ -44,8 +44,7 @@ function patch() {
 
   const original = html;
   const physicalMatcher = "function isPhysical(p){return p.category==='commander-deck'||/^EDH/i.test(p.id||'');}";
-  const physicalMatcherPatched = physicalMatcher + "
-  function conditionEligible(p){const kind=String(p.product_kind||p.category||p.inventory_type||'').toLowerCase();return ['single','single-card','mtg-single','physical-single'].includes(kind);}";
+  const physicalMatcherPatched = physicalMatcher + '\n  function conditionEligible(p){const kind=String(p.product_kind||p.category||p.inventory_type||'').toLowerCase();return ['single','single-card','mtg-single','physical-single'].includes(kind);}';
 
   if (!html.includes('function conditionEligible(p)')) {
     if (!html.includes(physicalMatcher)) {
