@@ -1,0 +1,161 @@
+{
+  "schema_version": "dreamledger.agent-bridge-live-sellability.v1",
+  "expedition_id": "DL-777-AGENT-BRIDGE-LIVE-SELLABILITY-20261020",
+  "observed_at_utc": "2026-10-19T12:03:56.613Z",
+  "observed_local_date_nz": "2026-10-20",
+  "state": "HOLD_UNVERIFIED",
+  "economic_truth": {
+    "verified_external_revenue_nzd": 0,
+    "settled_attributable_external_payments_verified": 0,
+    "independent_external_buyers_verified": 0,
+    "paid_fulfilled_orders_verified": 0,
+    "verified_economic_outcomes": 0
+  },
+  "policy": {
+    "b2b_discovery": "FREE_BY_DEFAULT",
+    "a2a_execution": "LOW_COST_METERED_RECEIPTS",
+    "checkout_env_default": false,
+    "render_yaml_TOLL_CHECKOUT_ENABLED": false,
+    "do_not_enable_global_checkout": true,
+    "no_new_sku": true,
+    "no_spend_or_publication_without_approval": true
+  },
+  "stripe_readback": [
+    {
+      "offer": "Gauntlet Run",
+      "product_id": "prod_VP3Z7dYRWX1Ddy",
+      "price_id": "price_1UOFSnEGgEAnUFF9g3ZukD1l",
+      "payment_link_id": "plink_1UOFTGEGgEAnUFF9jbaTzuu7",
+      "url": "https://buy.stripe.com/00wfZh3vncO94Q72csdwc3h",
+      "active": true,
+      "amount_nzd": 19,
+      "metadata": {
+        "dreamledger_sku": "GAUNTLET-RUN-001",
+        "truth_rule": "settled_stripe_only"
+      },
+      "toll_scope_present": false,
+      "redemption": "UNVERIFIED_SCOPE_METADATA_MISMATCH"
+    },
+    {
+      "offer": "DreamLedger Toll Probe",
+      "product_id": "prod_VOdCNvBJFDEejv",
+      "price_id": "price_1UNpvxEGgEAnUFF9OLa7dXKM",
+      "payment_link_id": "plink_1UNpw7EGgEAnUFF9yLItVlyv",
+      "url": "https://buy.stripe.com/6oU5kD4zrdSdciz3gwdwc3b",
+      "active": true,
+      "amount_nzd": 0.5,
+      "metadata": {
+        "dreamledger_sku": "TOLL-PROBE-50C",
+        "fulfillment": "digital_access_receipt",
+        "toll_kind": "single_api_probe",
+        "truth_rule": "settled_stripe_only"
+      },
+      "toll_scope_present": false,
+      "redemption": "BLOCKED_BY_SCOPE_METADATA_UNVERIFIED_AND_SUPABASE_ENTITLEMENT_QUOTA_RPC"
+    },
+    {
+      "offer": "Truth Oracle Access",
+      "product_id": "prod_VP3a2fRDVmFZAI",
+      "price_id": "price_1UOFSuEGgEAnUFF9UfqqQyXs",
+      "payment_link_id": "plink_1UOFTJEGgEAnUFF9kl5tzf4i",
+      "url": "https://buy.stripe.com/00wcN5fe55lH0zRaIYdwc3i",
+      "active": false,
+      "amount_nzd": 9,
+      "metadata": {
+        "dreamledger_sku": "TRUTH-ORACLE-ACCESS-001",
+        "truth_rule": "settled_stripe_only"
+      },
+      "toll_scope_present": false,
+      "redemption": "INACTIVE_LINK"
+    },
+    {
+      "offer": "Agent Bridge Pack - 100 Calls",
+      "product_id": "prod_VP3ZWjfwBTbfUm",
+      "price_id": "price_1UOFShEGgEAnUFF91gEtqVed",
+      "payment_link_id": "plink_1UOFTEEGgEAnUFF9LpDgDQvG",
+      "url": "https://buy.stripe.com/3cI4gz0jbeWh96n7wMdwc3g",
+      "active": false,
+      "amount_nzd": 19,
+      "metadata": {
+        "dreamledger_sku": "AGENT-BRIDGE-100-CALLS",
+        "truth_rule": "settled_stripe_only"
+      },
+      "toll_scope_present": false,
+      "redemption": "INACTIVE_LINK"
+    }
+  ],
+  "payment_link_inventory": {
+    "records_read": 213,
+    "pagination_complete": true,
+    "matching_scope_links_on_later_pages": 0,
+    "no_checkout_sessions_created": true,
+    "no_stripe_objects_mutated": true
+  },
+  "runtime": {
+    "route_file": "BEC-PRIME/routes/tollRoad.js",
+    "route_blob_sha": "97e6ae9e4845764f6e385cbdd0f1c22da8cceca5",
+    "checkout_guard": "TOLL_CHECKOUT_ENABLED",
+    "checkout_guard_value_in_render_yaml": "false",
+    "checkout_guard_effect": "dynamic checkout returns 503 while disabled",
+    "redemption_requires": [
+      "livemode=true",
+      "payment_status=paid",
+      "metadata.toll_scope equals requested scope",
+      "exact expected NZD amount and currency"
+    ],
+    "gauntlet_and_truth_metering": "No durable quota decrement was observed in their request handlers; do not sell as metered access yet",
+    "toll_probe_metering": "Calls register_toll_probe_entitlement and consume_toll_probe_quota; both depend on Supabase",
+    "bridge_event_metering": "Existing AgentBridgeEventLedger stores idempotent JSONL receipts and enforces 100 unique events per key; existing tests cover retries, altered payload and quota; production integration/concurrent runtime proof remains missing",
+    "persistent_ledger_path_from_config": "/var/data/ledger/agent-bridge/events.jsonl",
+    "source_artifacts": [
+      {
+        "path": "BEC-PRIME/runtime/TollRoad.js",
+        "blob_sha": "2bbf0383994f8d662c874fcd262ca236546d45c9"
+      },
+      {
+        "path": "BEC-PRIME/runtime/TollEntitlementLedger.js",
+        "blob_sha": "4322d9f91d8dec509fab09069cd780c3d550a746"
+      },
+      {
+        "path": "BEC-PRIME/runtime/AgentBridgeEventLedger.js",
+        "blob_sha": "ad1b4c07c81e8818d04da478ce2fdda41f7ec88e"
+      },
+      {
+        "path": "BEC-PRIME/runtime/AgentBridgeEventLedger.test.js",
+        "blob_sha": "419efd5a4c8b662dded3c54844871f9d17373b40"
+      },
+      {
+        "path": "BEC-PRIME/runtime/TollRoadFactory.js",
+        "blob_sha": "9a56933604b123684dfea9027248ca10abbb4124"
+      }
+    ]
+  },
+  "database_observation": {
+    "project_id": "wbwgroygjeyukkspnqiy",
+    "project_metadata_status": "ACTIVE_HEALTHY",
+    "read_only_sql": "ECONNREFUSED",
+    "postgres_log_utc": "2026-10-19T06:44:24.647Z",
+    "postgres_error": "could not write pg_wal/xlogtemp.4623: No space left on device",
+    "recovery_effect": "startup failure and PostgreSQL shutdown; later PostgREST local connection refusals",
+    "current_dashboard_disk_usage": "UNOBSERVABLE",
+    "current_recovery_state": "UNOBSERVABLE",
+    "writes_performed": false
+  },
+  "next_execution_order": [
+    "Keep B2B discovery free and A2A checkout disabled.",
+    "Test the existing bridge-events path in an isolated mock: settled session metadata -> scoped key -> payload digest receipt -> same-key replay -> changed-payload conflict -> quota exhaustion. Do not create a live checkout.",
+    "Test the file-ledger on the configured private-service path, including restart/replay and concurrency. Reuse AgentBridgeEventLedger; do not introduce a new ledger.",
+    "Do not enable Gauntlet or Truth as metered products until a real per-key quota decrement exists.",
+    "Resolve Supabase storage/recovery before the toll-probe RPC entitlement/quota path is considered available.",
+    "Only after the scoped A2A path and contribution cost are verified should a phone-sized approval gate enable one scope. Never turn on the global checkout switch.",
+    "Verified revenue stays NZD 0.00 until an independent real buyer pays, the service produces a retrievable result receipt, and settlement/fulfillment are reconciled."
+  ],
+  "non_goals": [
+    "No new products or SKUs",
+    "No Payment Link or Stripe metadata mutation",
+    "No Checkout Session creation or expiry",
+    "No production deployment or environment change",
+    "No database write or migration",
+    "No public posting, buyer outreach or spend"
+  ]
+}
