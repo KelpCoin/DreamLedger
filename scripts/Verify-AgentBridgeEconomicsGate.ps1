@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [string]$SpecPath = (Join-Path $PSScriptRoot 'agent-bridge-economics-gate-2026-10-20.json'),
+    [string]$SpecPath = (Join-Path $PSScriptRoot '..\docs\777\agent-bridge-economics-gate-2026-10-20.json'),
     [string]$ProofRoot = 'D:\BrownEye\BROWNEYE_ARTIFACTS\777\AGENT_BRIDGE_ECONOMICS_GATE_20261020'
 )
 $ErrorActionPreference = 'Stop'
