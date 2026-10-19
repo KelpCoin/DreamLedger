@@ -72,7 +72,7 @@ async function loadPriorityVerticals(){
  if(!status||!results)return;
  status.textContent='Loading the governed vertical registry…';results.innerHTML='';
  try{
-  const d=await getJson('/api/marketplace/v1/verticals'),rows=d.commercial_verticals||[];
+  const d=await getJson('/api/marketplace/v1/verticals'),rows=(d.commercial_verticals||[]).filter(v=>v.sales_priority!==false);
   status.textContent='Registry read succeeded. This does not verify a buyer, live inventory, payment, fulfillment, or revenue.';
   const detail={
    'truth-oracle-paid-evidence-review':'Audits and evidence review belong inside Truth Oracle paid evidence-depth tiers. No standalone audit SKU or new payment route is authorized.',
