@@ -74,15 +74,17 @@ jobs:
               !rootHtml.includes('Number(product.inventory) > 0') ||
               !rootHtml.includes("product.sale_mode === 'claim_by_message'") ||
               !rootHtml.includes('product.checkout_available === false') ||
-              !rootHtml.includes('safeClaim(product.claim_url)') ||
+              !rootHtml.includes('safeClaimUrl(product.claim_url)') ||
               !rootHtml.includes('grid.replaceChildren()')) {
             throw new Error('MTG page must render only published, positive-inventory, safe manual-enquiry products');
           }
           for (const page of [
             'mtg/quintorius-field-historian.html',
             'mtg/dwynen-gilt-leaf-daen.html',
+            'mtg/jon-irenicus-shattered-one.html',
             'public/mtg/quintorius-field-historian.html',
-            'public/mtg/dwynen-gilt-leaf-daen.html'
+            'public/mtg/dwynen-gilt-leaf-daen.html',
+            'public/mtg/jon-irenicus-shattered-one.html'
           ]) {
             if (!fs.existsSync(page)) throw new Error('Missing MTG detail route: ' + page);
           }
