@@ -127,6 +127,11 @@ jobs:
         run: |
           npm run validate:economics
           $validationExit = $LASTEXITCODE
+          node ops/commerce/gauntlet-economic-verdict.mjs
+          $gauntletExit = $LASTEXITCODE
+          if ($gauntletExit -notin @(0,2)) {
+            throw "Unexpected Gauntlet runner exit code: $gauntletExit"
+          }
           $gauntletPath = Join-Path $PWD 'proof/commerce/latest-gauntlet-economic-verdict.json'
           if (-not (Test-Path -LiteralPath $gauntletPath)) {
             throw "Bootstrap exited $validationExit without producing a Gauntlet verdict."
@@ -143,6 +148,12 @@ jobs:
           }
           if ($verdict.verdict -like 'ELIGIBLE_FOR_SMALL_CONTROLLED_SCALE*' -and @($verdict.hard_laws | Where-Object { $_.verdict -ne 'PASS' }).Count -gt 0) {
             throw 'Gauntlet verdict cannot be eligible while any commercial law is unproven.'
+          }
+          if ($gauntletExit -eq 2 -and $verdict.verdict -notin @('BLOCKED_PENDING_FIRST_PAID_ORDER_AND_FULFILLMENT_PROOF','PAYMENT_SIGNAL_ONLY_DO_NOT_SCALE_UNTIL_FULFILLMENT_AND_DEMAND_PASS')) {
+            throw "Gauntlet exit 2 does not match an evidence-blocked verdict: $($verdict.verdict)"
+          }
+          if ($gauntletExit -eq 0 -and $verdict.verdict -notlike 'ELIGIBLE_FOR_SMALL_CONTROLLED_SCALE*') {
+            throw "Gauntlet exit 0 does not match an eligible verdict: $($verdict.verdict)"
           }
           Write-Host "GAUNTLET_VERDICT=$($verdict.verdict)"
           Write-Host "GAUNTLET_SCORE=$($verdict.score_out_of_100)/100"
