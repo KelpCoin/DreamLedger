@@ -27,8 +27,20 @@ export function parseCommand(command) {
     return { ok: false, reason_code: 'SHELL_SYNTAX_FORBIDDEN' };
   }
   const args = parts.slice(1);
-  const scriptIndex = args.findIndex((p) => !p.startsWith('-'));
-  if (scriptIndex < 0 || !args[scriptIndex]) return { ok: false, reason_code: 'SCRIPT_PATH_REQUIRED' };
+  if (!args.length) return { ok: false, reason_code: 'SCRIPT_PATH_REQUIRED' };
+  if (args[0].startsWith('-') && args[0] !== '--test') {
+    return { ok: false, reason_code: 'NODE_FLAG_NOT_ALLOWLISTED' };
+  }
+  const pathArgs = args[0] === '--test' ? args.slice(1) : args;
+  if (!pathArgs.length) return { ok: false, reason_code: 'SCRIPT_PATH_REQUIRED' };
+  for (const item of pathArgs) {
+    if (item.startsWith('-')) continue;
+    const resolved = path.resolve(process.cwd(), item);
+    const root = process.cwd();
+    if (path.isAbsolute(item) || (resolved !== root && !resolved.startsWith(root + path.sep)) || item.split(/[\\/]/).includes('..')) {
+      return { ok: false, reason_code: 'SCRIPT_PATH_OUTSIDE_REPOSITORY' };
+    }
+  }
   return { ok: true, executable: 'node', args };
 }
 
