@@ -64,6 +64,24 @@ export async function fetchStripeFeeEvidence({
   if (!Number.isSafeInteger(bt.fee) || bt.fee < 0 || typeof bt.currency !== 'string' || !/^[a-z]{3}$/.test(bt.currency)) {
     return { state: 'BLOCKED', reason: 'BALANCE_TRANSACTION_FIELDS_INVALID', payment_intent_id: pi.id, charge_id: charge.id };
   }
+  if (!Array.isArray(bt.fee_details) || bt.fee_details.length === 0) {
+    return { state: 'BLOCKED', reason: 'BALANCE_TRANSACTION_FEE_DETAILS_MISSING', payment_intent_id: pi.id, balance_transaction_id: bt.id };
+  }
+  const feeDetails = bt.fee_details.map((detail) => ({
+    type: typeof detail?.type === 'string' ? detail.type : null,
+    description: typeof detail?.description === 'string' ? detail.description : null,
+    amount_minor: detail?.amount,
+    currency: typeof detail?.currency === 'string' ? detail.currency.toLowerCase() : null,
+  }));
+  if (feeDetails.some((detail) => !Number.isSafeInteger(detail.amount_minor) || detail.amount_minor < 0 || !detail.currency || !/^[a-z]{3}$/.test(detail.currency))) {
+    return { state: 'BLOCKED', reason: 'BALANCE_TRANSACTION_FEE_DETAILS_INVALID', payment_intent_id: pi.id, balance_transaction_id: bt.id };
+  }
+  if (feeDetails.reduce((sum, detail) => sum + detail.amount_minor, 0) !== bt.fee) {
+    return { state: 'BLOCKED', reason: 'BALANCE_TRANSACTION_FEE_DETAILS_MISMATCH', payment_intent_id: pi.id, balance_transaction_id: bt.id };
+  }
+  if (feeDetails.some((detail) => detail.currency !== bt.currency.toLowerCase())) {
+    return { state: 'BLOCKED', reason: 'BALANCE_TRANSACTION_FEE_CURRENCY_MISMATCH', payment_intent_id: pi.id, balance_transaction_id: bt.id };
+  }
   if (bt.type && !String(bt.type).includes('charge')) {
     return { state: 'BLOCKED', reason: 'BALANCE_TRANSACTION_TYPE_UNEXPECTED', payment_intent_id: pi.id, balance_transaction_id: bt.id };
   }
@@ -74,6 +92,7 @@ export async function fetchStripeFeeEvidence({
     balance_transaction_id: bt.id,
     amount_minor: Number.isSafeInteger(bt.amount) ? bt.amount : null,
     fee_minor: bt.fee,
+    fee_details: feeDetails,
     net_minor: Number.isSafeInteger(bt.net) ? bt.net : null,
     currency: bt.currency.toLowerCase(),
     livemode: true,
