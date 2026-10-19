@@ -192,7 +192,7 @@ const MUTANTS = [
     "if (false) blockers.push('FULFILLMENT_REQUIRES_OPERATOR');",
     'drops unattended-delivery invariant'),
   mutant('INV-08', 'DROPPED_INVARIANTS', 'resolver',
-    "if (publicPage && publicPage.checkout_held === true) blockers.push('PUBLIC_PURCHASE_ROUTE_HELD');",
+    "if (publicPage.checkout_held === true) blockers.push('PUBLIC_PURCHASE_ROUTE_HELD');",
     "if (false) blockers.push('PUBLIC_PURCHASE_ROUTE_HELD');",
     'drops held-public-route invariant')
 ];
