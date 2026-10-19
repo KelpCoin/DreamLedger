@@ -87,18 +87,204 @@
 <p><a href="https://patreon.com/happyhomarid" target="_blank" rel="noopener noreferrer">Support Happy Homarid on Patreon</a></p>
 </footer>
 <script>
-(function(){
- const MANIFEST='../silos/mtg/silo.json',CATALOG='../data/mtg-catalog.json',grid=document.getElementById('grid'),status=document.getElementById('status');
- const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- async function json(url){const r=await fetch(url,{cache:'no-store',headers:{Accept:'application/json'}});if(!r.ok)throw new Error(url+' returned '+r.status);return r.json();}
- async function start(){
-  let m=null;try{m=await json(MANIFEST);}catch(e){console.warn('MTG manifest unavailable',e);}
-  if(m){if(m.accent)document.documentElement.style.setProperty('--silo-accent',m.accent);if(m.accent_bright)document.documentElement.style.setProperty('--silo-accent-bright',m.accent_bright);if(m.short&&document.getElementById('navShort'))document.getElementById('navShort').textContent=m.short;if(m.tagline&&document.getElementById('tagline'))document.getElementById('tagline').textContent=m.tagline;}
-  try{
-   const data=await json((m&&m.catalog)||CATALOG);
-   const decks=(Array.isArray(data.products)?data.products:[]).filter(p=>p&&p.silo==='mtg'&&p.category==='commander-deck'&&p.status==='published'&&Number(p.inventory)>0);
-   if(!decks.length){status.textContent='No verified deck listings are currently available. Inventory appears only when valid listings are present.';grid.innerHTML='';return;}
-   status.textContent=decks.length+' listed deck'+(decks.length===1?'':'s')+'. Confirm availability with the seller before paying.';
-   grid.innerHTML=decks.map(p=>{const price=Number(p.price),claim=p.claim_url||p.detail_url||'/mtg-list';return '<article class="deck"><div class="deck-body"><div class="tag">Physical Commander deck</div><h3>'+esc(p.name)+'</h3><p class="desc">'+esc(p.description||'Details supplied by seller.')+'</p><div class="price">'+(Number.isFinite(price)?'NZ
+(function () {
+  'use strict';
+
+  const DEFAULT_CATALOG = '../data/mtg-catalog.json';
+  const DEFAULT_MANIFEST = '../silos/mtg/silo.json';
+  const grid = document.getElementById('grid');
+  const status = document.getElementById('status');
+
+  function textNode(tag, value, className) {
+    const el = document.createElement(tag);
+    if (className) el.className = className;
+    el.textContent = String(value ?? '');
+    return el;
+  }
+
+  function safeInternalPath(value, fallback) {
+    if (typeof value !== 'string' || !value.startsWith('/') || value.startsWith('//') ||
+        value.includes('\\') || /[\r\n]/.test(value)) return fallback;
+    return value;
+  }
+
+  function safeCatalogPath(value) {
+    if (typeof value !== 'string') return DEFAULT_CATALOG;
+    if (value === '/data/mtg-catalog.json' || value === DEFAULT_CATALOG) return value;
+    return DEFAULT_CATALOG;
+  }
+
+  function safeClaimUrl(value) {
+    return typeof value === 'string' &&
+      /^mailto:hello@dreamledger\.org(?:\?|$)/i.test(value) &&
+      !/[\r\n]/.test(value) ? value : null;
+  }
+
+  function safeDecklistUrl(value) {
+    if (typeof value !== 'string') return null;
+    try {
+      const u = new URL(value);
+      if (u.protocol === 'https:' && (u.hostname === 'manabox.app' || u.hostname === 'www.manabox.app') &&
+          u.pathname.startsWith('/decks/')) return u.href;
+    } catch (_) {}
+    return null;
+  }
+
+  async function fetchJson(path) {
+    const response = await fetch(path, {
+      cache: 'no-store',
+      headers: { Accept: 'application/json' },
+      credentials: 'same-origin'
+    });
+    if (!response.ok) throw new Error('Resource unavailable (' + response.status + ')');
+    return response.json();
+  }
+
+  function configureManifest(manifest) {
+    const listRoute = safeInternalPath(manifest?.list_route, '/mtg-list');
+    const short = typeof manifest?.short === 'string' ? manifest.short.slice(0, 40) : 'Magic';
+    const name = typeof manifest?.name === 'string' ? manifest.name.slice(0, 100) : 'Magic';
+
+    document.getElementById('navShort').textContent = short;
+    document.getElementById('eyebrow').textContent = name + ' · New Zealand';
+    document.getElementById('navList').setAttribute('href', listRoute);
+    document.getElementById('navCta').setAttribute('href', listRoute);
+    document.getElementById('ctaPrimary').setAttribute('href', listRoute);
+    document.getElementById('footList').setAttribute('href', listRoute);
+
+    if (typeof manifest?.tagline === 'string') {
+      document.getElementById('tagline').textContent = manifest.tagline.slice(0, 240);
+    }
+
+    const validColor = value => typeof value === 'string' && /^#[0-9a-f]{3,8}$/i.test(value);
+    if (validColor(manifest?.accent)) document.documentElement.style.setProperty('--silo-accent', manifest.accent);
+    if (validColor(manifest?.accent_bright)) document.documentElement.style.setProperty('--silo-accent-bright', manifest.accent_bright);
+
+    const surface = manifest?.surface && typeof manifest.surface === 'object' ? manifest.surface : {};
+    if (typeof surface.primary_cta?.label === 'string') {
+      document.getElementById('ctaPrimary').textContent = surface.primary_cta.label.slice(0, 80);
+    }
+
+    if (Array.isArray(surface.hero_pills)) {
+      const pills = document.getElementById('pills');
+      pills.replaceChildren();
+      surface.hero_pills.slice(0, 6).forEach((label, index) => {
+        const className = 'silo-pill' + (index === 0 ? ' silo-pill-gold' : index === 1 ? ' silo-pill-ok' : '');
+        pills.appendChild(textNode('span', String(label).slice(0, 80), className));
+      });
+    }
+
+    if (Array.isArray(surface.community_blocks)) {
+      const community = document.getElementById('community');
+      community.replaceChildren();
+      surface.community_blocks.slice(0, 6).forEach(block => {
+        if (!block || typeof block !== 'object') return;
+        const article = document.createElement('article');
+        article.appendChild(textNode('h3', String(block.title ?? '').slice(0, 120)));
+        article.appendChild(textNode('p', String(block.body ?? '').slice(0, 500)));
+        community.appendChild(article);
+      });
+    }
+
+    document.getElementById('cloneMeta').textContent =
+      'Master silo · driven by ' + DEFAULT_MANIFEST + ' · new clones start with empty catalogs and remain gated until review.';
+  }
+
+  function renderDeck(deck) {
+    const article = document.createElement('article');
+    article.className = 'deck';
+
+    const banner = textNode('div', 'Physical Commander deck · enquire first', 'deck-banner');
+    const body = document.createElement('div');
+    body.className = 'deck-body';
+
+    body.appendChild(textNode('div', 'MTG inventory', 'tag'));
+    body.appendChild(textNode('h3', String(deck.name ?? deck.id).slice(0, 180)));
+    body.appendChild(textNode('p', String(deck.description ?? 'Seller-provided listing details.').slice(0, 1000), 'desc'));
+
+    const price = Number(deck.price);
+    const priceText = Number.isFinite(price) && price > 0
+      ? 'NZ$' + price.toLocaleString('en-NZ', { maximumFractionDigits: 2 })
+      : 'Price requires confirmation';
+    body.appendChild(textNode('div', priceText, 'price'));
+    body.appendChild(textNode('p', 'Online checkout is disabled for this listing. Confirm availability, condition, shipping, and the final amount with the seller before paying.', 'desc'));
+
+    const actions = document.createElement('div');
+    actions.className = 'actions';
+    const claim = safeClaimUrl(deck.claim_url);
+    if (claim) {
+      const contact = document.createElement('a');
+      contact.className = 'buy';
+      contact.setAttribute('href', claim);
+      contact.textContent = 'Enquire with seller';
+      actions.appendChild(contact);
+    }
+
+    const decklist = safeDecklistUrl(deck.decklist_url);
+    if (decklist) {
+      const link = document.createElement('a');
+      link.className = 'see';
+      link.setAttribute('href', decklist);
+      link.setAttribute('target', '_blank');
+      link.setAttribute('rel', 'noopener noreferrer');
+      link.textContent = 'View decklist';
+      actions.appendChild(link);
+    }
+
+    body.appendChild(actions);
+    article.appendChild(banner);
+    article.appendChild(body);
+    return article;
+  }
+
+  async function start() {
+    if (!grid || !status) return;
+    try {
+      let manifest = {};
+      try {
+        manifest = await fetchJson(DEFAULT_MANIFEST);
+        configureManifest(manifest);
+      } catch (_) {
+        document.getElementById('cloneMeta').textContent =
+          'Manifest unavailable. Catalog routing remains on the safe MTG default.';
+      }
+
+      const catalogPath = safeCatalogPath(manifest?.catalog);
+      const catalog = await fetchJson(catalogPath);
+      const products = Array.isArray(catalog.products) ? catalog.products : [];
+      const decks = products.filter(product =>
+        product &&
+        product.silo === 'mtg' &&
+        product.category === 'commander-deck' &&
+        product.status === 'published' &&
+        Number(product.inventory) > 0 &&
+        product.sale_mode === 'claim_by_message' &&
+        product.checkout_available === false &&
+        safeClaimUrl(product.claim_url)
+      );
+
+      grid.replaceChildren();
+      if (decks.length === 0) {
+        status.className = 'status-bar';
+        status.textContent = 'No eligible deck listings are currently available. Held, draft, zero-inventory, and checkout-enabled records are not displayed here.';
+        return;
+      }
+
+      status.className = 'status-bar';
+      status.textContent = 'Showing ' + decks.length + ' published deck listing' +
+        (decks.length === 1 ? '' : 's') +
+        '. Contact the seller to confirm current availability and terms.';
+      decks.forEach(deck => grid.appendChild(renderDeck(deck)));
+    } catch (error) {
+      grid.replaceChildren();
+      status.className = 'status-bar error';
+      status.textContent = 'Catalog unavailable. No inventory is inferred while the catalog cannot be verified.';
+      console.error('MTG catalog load failed:', error);
+    }
+  }
+
+  start();
+})();
+</script>
 </body>
 </html>
