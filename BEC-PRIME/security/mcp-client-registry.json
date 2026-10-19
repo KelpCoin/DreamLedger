@@ -29,9 +29,7 @@
         "dl_propose_checkout"
       ],
       "allowed_silos": [
-        "CORE",
-        "MTG",
-        "DREAMIEZ"
+        "MTG"
       ],
       "authority": "PROPOSAL_ONLY",
       "external_actions": false
