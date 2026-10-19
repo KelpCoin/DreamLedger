@@ -19,7 +19,7 @@ function assertSafeSource(html) {
     'grid.replaceChildren()',
     'document.createElement',
     '.textContent =',
-    'checkout is not enabled'
+    'Checkout is disabled.'
   ];
   const missing = required.filter(token => !html.includes(token));
   if (missing.length) {
