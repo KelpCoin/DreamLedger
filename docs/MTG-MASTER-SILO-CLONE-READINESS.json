@@ -1,0 +1,61 @@
+{
+  "schema": "DREAMLEDGER/MASTER-SILO-CLONE-READINESS/v1",
+  "version": "1.0.0",
+  "template_silo": "mtg",
+  "template_role": "reference_implementation",
+  "readiness": "NOT_CLONE_READY",
+  "decision": "HOLD_NEW_PRODUCTION_CLONES",
+  "economic_truth": {
+    "verified_external_revenue_nzd": 0,
+    "definition": "independent_external_buyer_and_settled_payment_and_correct_attribution_and_fulfillment_and_retrievable_delivery_proof",
+    "internal_events_count_as_revenue": false
+  },
+  "known_blockers": [
+    {
+      "id": "MTG_PUBLICATION_APPROVAL",
+      "status": "REMEDIATION_STAGED",
+      "evidence": "The repository endpoint previously allowed body.publish to publish by default."
+    },
+    {
+      "id": "CLIENT_ENTITLEMENT_WRITES",
+      "status": "REMEDIATION_STAGED_NOT_DEPLOYED",
+      "evidence": "The repository migration contains a self-insert policy for commerce_item_ownership; a new remediation migration is staged in this branch."
+    },
+    {
+      "id": "PAYMENT_TO_DELIVERY",
+      "status": "UNPROVEN",
+      "evidence": "A complete independently evidenced purchase-to-fulfillment-to-delivery cycle has not been verified."
+    },
+    {
+      "id": "LIVE_DATABASE_READBACK",
+      "status": "BLOCKED",
+      "evidence": "Supabase SQL and advisor reads returned ECONNREFUSED for the project database endpoint."
+    },
+    {
+      "id": "COMMERCIAL_VALIDATION",
+      "status": "NOT_VALIDATED",
+      "evidence": "No verified external revenue or repeatable buyer conversion has been evidenced."
+    }
+  ],
+  "promotion_gates": [
+    "client cannot create or mutate paid entitlements",
+    "only signed Stripe events are accepted and event processing is idempotent under concurrent retries",
+    "settlement is matched to the exact approved offer, SKU, silo, amount, currency, and buyer/session",
+    "order, fulfillment, entitlement/inventory mutation, and evidence records are transactionally consistent or safely replayable",
+    "customer can retrieve the purchased item or physical-order delivery evidence",
+    "refund, dispute, duplicate event, delayed payment, and failed fulfillment paths are tested",
+    "public listing publication requires an auditable human approval",
+    "silo identity, data, inventory, fees, credentials, and analytics remain isolated across clones",
+    "load, backup/restore, monitoring, alerting, and failure-recovery checks pass",
+    "one complete live buyer cycle is independently reconciled, followed by repeatable sales evidence",
+    "economics include fees, refunds, fulfillment cost, acquisition cost, support time, and contribution margin",
+    "CI verifies the clone contract and a clone dry-run passes without production writes"
+  ],
+  "release_rule": "No clone is promoted to production until every promotion gate has stored PASS evidence. UNKNOWN is not PASS.",
+  "side_effects": {
+    "live_payments_performed": false,
+    "production_database_mutated": false,
+    "public_distribution_performed": false,
+    "new_clone_created": false
+  }
+}
