@@ -50,6 +50,8 @@ test('fee breakdown missing or inconsistent blocks revenue', () => {
   assert.equal(noBreakdown.verdict, 'BLOCKED');
   const mismatch = evaluateSettlement({ ...full, provider_fee_evidence: { ...full.provider_fee_evidence, fee_details: [{ amount_minor: 11, currency: 'nzd' }] } });
   assert.equal(mismatch.verdict, 'BLOCKED');
+  const badNet = evaluateSettlement({ ...full, provider_fee_evidence: { ...full.provider_fee_evidence, net_minor: 1190 } });
+  assert.equal(badNet.verdict, 'BLOCKED');
 });
 
 test('malformed fee details block revenue', () => {
