@@ -9,6 +9,7 @@ import json
 import os
 import time
 from typing import Any
+from urllib.parse import urlparse
 
 FIELDS = [
     "1_PAIN", "2_FREQUENCY", "3_URGENCY", "4_CURRENT_WORKAROUND",
@@ -32,15 +33,32 @@ def _schema() -> dict[str, Any]:
             props[field]["enum"] = sorted(ALLOWED[field])
     return {"type": "object", "properties": props, "required": FIELDS, "additionalProperties": False}
 
+def _validate_loopback_host(host: str) -> str:
+    """Reject network-reachable hosts; local LM Studio must remain loopback-only."""
+    value = str(host or "").strip()
+    parsed = urlparse(value if "://" in value else "http://" + value)
+    if parsed.scheme not in {"http", "https"}:
+        raise ValueError("LM_STUDIO_HOST_SCHEME_NOT_ALLOWED")
+    if parsed.username or parsed.password or parsed.path not in {"", "/"} or parsed.query or parsed.fragment:
+        raise ValueError("LM_STUDIO_HOST_FORMAT_INVALID")
+    hostname = (parsed.hostname or "").lower()
+    if hostname not in {"127.0.0.1", "localhost", "::1"}:
+        raise ValueError("LM_STUDIO_HOST_MUST_BE_LOOPBACK")
+    if parsed.port is not None and not (1 <= parsed.port <= 65535):
+        raise ValueError("LM_STUDIO_HOST_PORT_INVALID")
+    return value
+
+
 def _sdk():
+    host = _validate_loopback_host(
+        os.environ.get("LM_STUDIO_SDK_HOST", "http://127.0.0.1:1234").strip()
+    )
     try:
         import lmstudio as lms
     except ImportError as exc:
         raise RuntimeError("LMSTUDIO_PYTHON_SDK_NOT_INSTALLED") from exc
-    host = os.environ.get("LM_STUDIO_SDK_HOST", "").strip()
-    if host:
-        # Must be configured before the first default-client interaction.
-        lms.configure_default_client(host)
+    # Must be configured before the first default-client interaction.
+    lms.configure_default_client(host)
     return lms
 
 def classify_with_sdk(prompt: str, model_key: str = "") -> tuple[dict[str, Any], dict[str, Any]]:
