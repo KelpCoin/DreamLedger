@@ -6,10 +6,12 @@ import path from 'node:path';
 const root = path.resolve(import.meta.dirname, '../../..');
 const read = (name) => fs.readFileSync(path.join(root, name), 'utf8');
 
-test('container uses Node 24 and the canonical engine build', () => {
+test('container uses Node 24 and verifies tracked runtime artifacts', () => {
   const docker = read('Dockerfile.render-exit');
   assert.match(docker, /FROM node:24-bookworm-slim/);
-  assert.match(docker, /npm run --prefix BEC-PRIME build/);
+  assert.match(docker, /npm install --prefix BEC-PRIME --omit=dev/);
+  assert.match(docker, /TRACKED_RUNTIME_ARTIFACTS=PASS/);
+  assert.doesNotMatch(docker, /npm run --prefix BEC-PRIME build/);
   assert.match(docker, /ops\/migration\/render-exit\/start\.sh/);
   assert.match(docker, /GIT_COMMIT/);
 });
