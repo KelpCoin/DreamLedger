@@ -37,6 +37,7 @@ function fixture(overrides = {}) {
     id: 'plink_livecanonical',
     url: 'https://buy.stripe.com/canonical',
     active: true,
+    livemode: true,
     metadata: {
       offer_id: 'OFFER-CMD-DIAG-29-NZD',
       product_id: 'COMMANDER-DECK-DIAGNOSTIC-001',
@@ -107,6 +108,7 @@ test('finds an active provider link by offer metadata when catalogue URLs are st
     id: 'plink_old',
     url: 'https://buy.stripe.com/old-inactive',
     active: false,
+    livemode: true,
     metadata: { offer_id: 'OFFER-CMD-DIAG-29-NZD', product_id: 'COMMANDER-DECK-DIAGNOSTIC-001', sku: 'CMD-DIAG-29' }
   });
   f.lineItemsByLinkId.plink_old = [{
