@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
-const { handleBuyRoute } = require('./buy-route');
+const { handleBuyRoute, publicSafeProduct } = require('./buy-route');
 
 const root = fs.mkdtempSync(path.join(os.tmpdir(), 'dreamledger-buy-route-'));
 const cataloguePath = path.join(root, 'catalog.json');
@@ -42,6 +42,12 @@ assert.equal(ready.handled, true);
 assert.equal(ready.status, 302);
 assert.equal(ready.headers.location, readyProduct.checkout_url);
 assert.equal(ready.headers['cache-control'], 'no-store');
+assert.equal(publicSafeProduct(readyProduct).checkout_url, readyProduct.checkout_url,
+  'verified product may expose the allowlisted link');
+
+const hidden = publicSafeProduct({ ...readyProduct, fulfillment_test_status: 'UNVERIFIED' });
+assert.equal(hidden.checkout_available, false);
+assert.equal(hidden.checkout_url, null, 'unverified links must not leak through the public catalogue');
 
 writeCatalogue([{ ...readyProduct, payment_link_status: 'INACTIVE' }]);
 assert.equal(request('/buy/EXAMPLE-001').status, 503, 'inactive Stripe links are held');
