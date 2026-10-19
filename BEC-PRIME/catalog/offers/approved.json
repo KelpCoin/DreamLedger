@@ -59,7 +59,10 @@
       "approved_by": "operator",
       "approved_at": "2026-08-27",
       "payment_link_note": "Aligned 2026-09-25 to live /buy/DREAMLEDGER-BILLBOARD-FOUNDING-001 redirect"
-    },
+    }
+  ],
+  "updated": "2026-10-19",
+  "held": [
     {
       "offer_id": "OFFER-CMD-DIAG-29-NZD",
       "product_id": "COMMANDER-DECK-DIAGNOSTIC-001",
@@ -84,7 +87,7 @@
       "currency": "NZD",
       "pricing_strategy": "fixed",
       "refund_rules": "Apply the published checkout policy; delivery is not represented as complete before verified fulfillment.",
-      "payment_adapter": "stripe",
+      "payment_adapter": "disabled_until_approved",
       "payment_link_status": "HELD_NOT_RELEASED",
       "checkout_route": null,
       "fulfillment_route": null,
@@ -103,13 +106,16 @@
         "product_source": "BEC-PRIME/catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json",
         "private_material": "excluded"
       },
-      "approved_by": "operator",
-      "approved_at": "2026-08-23",
-      "payment_link_note": "Payment-link reference removed from application configuration while this offer is held. The actual Stripe link has not been modified by this repository patch.",
+      "payment_link_note": "Application references removed. The actual Stripe Payment Link has not been modified; Dashboard status remains unverified.",
       "status": "HELD_NOT_RELEASED",
       "approval_required": true,
-      "checkout_available": false
+      "checkout_available": false,
+      "hold_reason": "No independent settlement, exact offer attribution, durable fulfillment, and retrievable delivery proof have passed the release gate.",
+      "historical_approval": {
+        "approved_by": "operator",
+        "approved_at": "2026-08-23",
+        "superseded_by_held_state": true
+      }
     }
-  ],
-  "updated": "2026-10-19"
+  ]
 }
