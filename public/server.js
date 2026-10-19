@@ -2,6 +2,7 @@
 // Storefront server — public/ is Render rootDir. Whitelist + safe file fallback.
 const http=require('http'),fs=require('fs'),path=require('path'),{URL}=require('url');
 const commercialCell=require('../BEC-PRIME/routes/commercialCell');
+const {isPublicPurchaseReady,isSafeStripeCheckoutUrl}=require('./checkout-readiness');
 const tollRoad=require('../BEC-PRIME/routes/tollRoad');
 const TollRuntime=require('../BEC-PRIME/runtime/TollRoad');
 const PORT=Number(process.env.PORT||10000);
@@ -127,14 +128,10 @@ http.createServer(async (req,res)=>{
       const catalogue=JSON.parse(fs.readFileSync(path.join(ROOT,'catalog.json'),'utf8'));
       product=(Array.isArray(catalogue.products)?catalogue.products:[]).find(x=>x&&x.id===productId);
     }catch(_){return send(res,503,JSON.stringify({error:'catalog_unavailable'}),'application/json; charset=utf-8');}
-    const held=!product||product.status!=='published'||product.checkout_available!==true||
-      product.commercial_truth?.sellable!==true||product.delivery_test_status!=='PASS'||
-      product.availability==='review_required'||product.commercial_validation_status!=='VALIDATED'||
-      Boolean(product.checkout_hold_reason)||typeof product.checkout_url!=='string';
-    if(held) return send(res,409,JSON.stringify({error:'checkout_held',product_id:productId,message:'This offer is not currently available for purchase.'}),'application/json; charset=utf-8');
+    if(!isPublicPurchaseReady(product)) return send(res,409,JSON.stringify({error:'checkout_held',product_id:productId,message:'This offer is not currently available for purchase.'}),'application/json; charset=utf-8');
     let target;
     try{target=new URL(product.checkout_url);}catch(_){return send(res,409,JSON.stringify({error:'checkout_url_invalid',product_id:productId}),'application/json; charset=utf-8');}
-    if(target.protocol!=='https:'||target.hostname!=='buy.stripe.com'||!/^\/[A-Za-z0-9]+$/.test(target.pathname)){
+    if(!isSafeStripeCheckoutUrl(product.checkout_url)){
       return send(res,409,JSON.stringify({error:'checkout_provider_invalid',product_id:productId}),'application/json; charset=utf-8');
     }
     res.statusCode=302;
