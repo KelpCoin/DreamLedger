@@ -1,0 +1,26 @@
+{
+  "schema": "dreamledger/beck-local-jobs/v1",
+  "rule": "Local GPU is optional accelerator. Cloud remains source of truth when PC is off.",
+  "jobs": [
+    {
+      "id": "LOCAL-001",
+      "title": "Idempotent local heartbeat task registration evidence",
+      "note": "Installer must be re-runnable; produce proof without requiring cloud mutation.",
+      "evidence": "proof/local/latest-heartbeat-registration.json",
+      "on_pc_off": "NOT_RUN"
+    },
+    {
+      "id": "LOCAL-002",
+      "title": "LM Studio loopback health + dynamic model discovery",
+      "note": "Loopback only. No public bind.",
+      "evidence": "proof/local/latest-lmstudio-health.json",
+      "on_pc_off": "NOT_RUN"
+    },
+    {
+      "id": "LOCAL-003",
+      "title": "Figure-eight local proof receipt (optional points)",
+      "evidence": "proof/local/latest-figure-eight-local.json",
+      "on_pc_off": "NOT_RUN"
+    }
+  ]
+}
