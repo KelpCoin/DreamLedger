@@ -58,6 +58,14 @@ function writeProof(html) {
       'catalog_unavailable_means_no_inventory_claim'
     ],
     held_products_visible: false,
+    scope: 'STATIC_CONTRACT_ONLY',
+    economic_validation: 'NOT_PROVEN',
+    external_stripe_link_state: 'UNVERIFIED_NOT_MODIFIED',
+    caveats: [
+      'Static source assertions do not prove the deployed site matches this artifact.',
+      'No live purchase-to-delivery cycle is evidenced.',
+      'This proof is not enterprise-readiness or clone-release evidence.'
+    ],
     generated_at: new Date().toISOString()
   };
   fs.writeFileSync(PROOF, JSON.stringify(proof, null, 2) + '\n', 'utf8');
