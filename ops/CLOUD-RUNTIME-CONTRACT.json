@@ -1,12 +1,22 @@
 {
   "name": "DreamLedger Cloud Runtime Contract",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "mode": "CLOUD_FIRST",
   "primary_execution": "GitHub Actions",
   "fallback_execution": "SELF_HOSTED_RUNNER_DEFERRED",
+  "provider_migration": {
+    "status": "IN_PROGRESS",
+    "branch": "beck/provider-migration-neon-cloudflare-20261019",
+    "database_target": "Neon",
+    "static_target": "Cloudflare Pages",
+    "human_recovery_forbidden": true,
+    "local_gpu": "optional accelerator only; never required for cloud liveness"
+  },
   "production_deployment_owners": [
-    "Vercel project integration",
-    "Render deployment workflow where explicitly configured"
+    "Cloudflare Pages (target)",
+    "Neon (target database)",
+    "Supabase Edge Function (temporary control plane until Worker cutover)",
+    "Render (deprecated after cutover gates pass)"
   ],
   "economic_truth": {
     "verified_revenue_nzd": 0,
@@ -25,7 +35,15 @@
   "health_contract": {
     "checkout": "https://buy.stripe.com/28EcN54zraG13M3g3idwc1t",
     "healthz": "https://dreamledger.org/healthz",
-    "billboard": "https://dreamledger.org/billboard"
+    "billboard": "https://dreamledger.org/billboard",
+    "note": "Public domain probes must pass after Cloudflare cutover; 503 is BLOCKED"
+  },
+  "recovery_contract": {
+    "neon_adapter": "ops/recovery/neon-endpoint.mjs",
+    "cloudflare_adapter": "ops/recovery/cloudflare-pages.mjs",
+    "evidence_required": true,
+    "max_auto_attempts": 2,
+    "fail_closed": true
   },
   "proof_contract": {
     "artifact": "cloud-ecosystem-proof.json",
