@@ -45,9 +45,12 @@
         "https://developers.cloudflare.com/workers/platform/limits/",
         "https://neon.com/blog/neon-free-plan-1-gb-per-project",
         "https://neon.com/docs/manage/endpoints/"
-      ]
+      ],
+      "neon_max_compute_cu": 2,
+      "neon_network_transfer_gb_per_project": 5,
+      "neon_idle_suspend_minutes": 5
     },
-    "capacity_rule": "100,000 requests/day is shared between Workers and Pages Functions and resets at 00:00 UTC. Once a project invokes a Function for a request, request routing must deliberately exclude ordinary static assets if they are to remain unmetered. Treat 10 ms CPU, 50 subrequests and 128 MB memory as hard limits. Measure from day one; 50% usage is observe, 80% requires action, and 90% stops nonessential polling until capacity is reviewed. No paid-plan assumption is part of acceptance."
+    "capacity_rule": "100,000 requests/day is shared between Workers and Pages Functions and resets at 00:00 UTC. Once a project invokes a Function for a request, request routing must deliberately exclude ordinary static assets if they are to remain unmetered. Treat 10 ms CPU, 50 subrequests and 128 MB memory as hard limits. Measure from day one; 50% usage is observe, 80% requires action, and 90% stops nonessential polling until capacity is reviewed. No paid-plan assumption is part of acceptance. For Neon, track compute hours, maximum compute CU, storage and network transfer separately; include the fixed five-minute idle suspension in first-request latency tests."
   },
   "authoritative_state_rule": "Each gate starts NOT_RUN. PASS requires its named evidence, the exact tested commit SHA, and independent route/persistence checks. Missing credentials, untested behavior, HTTP 200 alone, deploy-hook success, a successful provider control-plane call, or a green static homepage never count as PASS. The final migration stays blocked until every required scoped gate passes.",
   "verified_revenue_nzd": 0,
