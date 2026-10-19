@@ -68,8 +68,9 @@ jobs:
           if (!rootHtml.includes("CATALOG='../data/mtg-catalog.json'")) {
             throw new Error('Canonical MTG page must load the canonical data/mtg-catalog.json');
           }
-          if (!rootHtml.includes("fetch(CATALOG") && !rootHtml.includes("json(CATALOG)")) {
-            throw new Error('Canonical MTG page must request catalogue data at runtime');
+          if (!rootHtml.includes('async function json(url)') ||
+              !rootHtml.includes('json((m&&m.catalog)||CATALOG)')) {
+            throw new Error('Canonical MTG page must request the manifest-selected catalogue at runtime');
           }
 
           for (const p of ['public/mtg/quintorius-field-historian.html', 'public/mtg/dwynen-gilt-leaf-daen.html']) {
