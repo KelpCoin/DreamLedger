@@ -1,0 +1,29 @@
+name: Settlement Claim Batch Contract
+
+on:
+  pull_request:
+    paths:
+      - "supabase/migrations/20261018000000_settlement_claim_batch.sql"
+      - "scripts/test-settlement-claim-batch-migration.js"
+      - ".github/workflows/settlement-claim-batch-contract.yml"
+  push:
+    branches: [main]
+    paths:
+      - "supabase/migrations/20261018000000_settlement_claim_batch.sql"
+      - "scripts/test-settlement-claim-batch-migration.js"
+      - ".github/workflows/settlement-claim-batch-contract.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Assert settlement queue claim contract
+        run: node scripts/test-settlement-claim-batch-migration.js
