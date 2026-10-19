@@ -64,3 +64,11 @@ jobs:
             if(!w.includes("BLOCKED_ROUTE_NOT_MIGRATED")||!w.includes("503")) throw new Error("preview runtime not fail-closed");
             console.log("PREVIEW_BUILD_CONTRACT=PASS_BLOCKED_UNTIL_RUNTIME_PARITY");
           '
+      - name: Upload preview build proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cloudflare-preview-migration-proof-${{ github.run_id }}
+          path: ops/migration/cloudflare-preview/build-proof.json
+          if-no-files-found: warn
+          retention-days: 30
