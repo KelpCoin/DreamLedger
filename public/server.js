@@ -4,7 +4,7 @@ const http=require('http'),fs=require('fs'),path=require('path'),{URL}=require('
 const commercialCell=require('../BEC-PRIME/routes/commercialCell');
 const tollRoad=require('../BEC-PRIME/routes/tollRoad');
 const TollRuntime=require('../BEC-PRIME/runtime/TollRoad');
-const {handleBuyRoute}=require('./buy-route');
+const {handleBuyRoute,publicSafeProduct}=require('./buy-route');
 const PORT=Number(process.env.PORT||10000);
 const COMMIT=process.env.RENDER_GIT_COMMIT||process.env.RENDER_GIT_COMMIT_SHA||process.env.GITHUB_SHA||'unknown';
 const ROOT=__dirname;
@@ -112,7 +112,7 @@ http.createServer(async (req,res)=>{
     try{
       const catalogue=JSON.parse(fs.readFileSync(path.join(ROOT,'catalog.json'),'utf8'));
       const source=Array.isArray(catalogue.products)?catalogue.products:[];
-      const listed=source.filter(x=>x&&x.status==='published');
+      const listed=source.filter(x=>x&&x.status==='published').map(publicSafeProduct);
       if(p==='/api/products'){
         return send(res,200,JSON.stringify({schema:'dreamledger/products/v1',count:listed.length,products:listed}),'application/json; charset=utf-8');
       }
