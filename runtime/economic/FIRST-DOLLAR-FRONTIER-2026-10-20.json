@@ -1,0 +1,86 @@
+{
+  "schema": "dreamledger/first-dollar-frontier/v1",
+  "observed_at_utc": "2026-10-19T12:24:28Z",
+  "owner_local_date": "2026-10-20",
+  "scope": "hands-off paid API access for Agent Bridge, Gauntlet, and Truth Oracle",
+  "economic_scoreboard": {
+    "verified_external_revenue_nzd": 0,
+    "settled_external_payments": 0,
+    "independent_external_buyers": 0,
+    "verified_economic_outcomes": 0,
+    "rule": "These values may only change after independent settlement, attribution, fulfillment, delivery evidence, and verification."
+  },
+  "first_dollar_candidate": {
+    "product": "Agent Bridge Pack - 100 Calls",
+    "stripe_product_id": "prod_VP3ZWjfwBTbfUm",
+    "stripe_product_active": true,
+    "stripe_price_id": "price_1UOFShEGgEAnUFF91gEtqVed",
+    "stripe_price_active": true,
+    "price_nzd": 19,
+    "payment_link": "UNCONFIRMED",
+    "price_evidence": "Read-only Stripe livemode retrieval returned an active NZD one-time price for the active product.",
+    "intended_chain": "settled Checkout Session -> scoped signed key -> quota-enforced API calls -> evidence receipt",
+    "no_live_checkout_attempted": true
+  },
+  "measured_blockers": [
+    {
+      "class": "DATABASE",
+      "blocked_at": "DATABASE / DURABLE_ENTITLEMENT",
+      "because": "Supabase project management API reports ACTIVE_HEALTHY, but PostgREST logs at 2026-10-19T12:24:28Z report PGRST000 with localhost:5432 connection refused; earlier direct SQL/table calls also returned ECONNREFUSED.",
+      "required": "Restore database connectivity, then prove read-only production-row observation and execute a non-mutating availability check for the existing entitlement/quota RPCs.",
+      "owner_action": "Authorize production database recovery only after its impact on existing data is understood. No migration or replacement database initiated."
+    },
+    {
+      "class": "PLATFORM",
+      "blocked_at": "CLOUD_COMMERCE_RUNTIME",
+      "because": "Render service DreamLedger1 (srv-d8ud55lckfvc73f1t4eg) is suspended with billing as the suspender. dreamledger-org static site is not suspended, but its latest observed deploy attempt failed with pipeline_minutes_exhausted.",
+      "required": "Use the existing cloud API control plane once reachable; do not enable paid checkout on an unverified runtime.",
+      "owner_action": "No new infrastructure or paid-plan change authorized."
+    },
+    {
+      "class": "FULFILLMENT",
+      "blocked_at": "KEY_QUOTA_PERSISTENCE",
+      "because": "AgentBridgeEventLedger defaults to a JSONL file below os.tmpdir()/dreamledger-ledger/agent-bridge. This is not sufficient evidence of durable, cross-instance quota enforcement for a paid hosted API.",
+      "required": "Route entitlement and quota enforcement through the existing durable ledger after database recovery; prove idempotent replay and exhausted-quota rejection before sales activation."
+    },
+    {
+      "class": "COMMERCE",
+      "blocked_at": "CHECKOUT_ACTIVATION",
+      "because": "BEC-PRIME/routes/tollRoad.js defaults TOLL_CHECKOUT_ENABLED to false. Road-specific checkout and redemption explicitly fail closed until durable per-key quota accounting is available.",
+      "required": "Retain fail-closed setting until settlement-to-key-to-quota-to-delivery acceptance succeeds end to end.",
+      "owner_action": "No checkout toggle changed."
+    }
+  ],
+  "ci_proof": [
+    {
+      "workflow": "economic-event-contract.yml",
+      "commit": "f02c76c53f8d4fcb26a742f670c105d303dd2be1",
+      "run_id": 39251709715,
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/KelpCoin/DreamLedger/actions/runs/39251709715"
+    },
+    {
+      "workflow": "mtg-catalogue-validation.yml",
+      "commit": "f02c76c53f8d4fcb26a742f670c105d303dd2be1",
+      "run_id": 39251710712,
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/KelpCoin/DreamLedger/actions/runs/39251710712"
+    },
+    {
+      "workflow": "surface-deploy-gate.yml",
+      "commit": "f02c76c53f8d4fcb26a742f670c105d303dd2be1",
+      "run_id": 39251704770,
+      "status": "completed",
+      "conclusion": "failure",
+      "url": "https://github.com/KelpCoin/DreamLedger/actions/runs/39251704770"
+    }
+  ],
+  "safety_decision": {
+    "checkout_enabled": false,
+    "payment_or_external_action_performed": false,
+    "secrets_written_to_artifact": false,
+    "next_safe_step": "Production database recovery is the gating decision. After it is restored, run real-row observation, then durable quota/idempotency tests, then end-to-end settled test-payment-to-key delivery before any live checkout activation."
+  }
+}
