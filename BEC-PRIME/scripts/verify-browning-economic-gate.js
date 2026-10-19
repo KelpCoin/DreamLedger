@@ -23,6 +23,12 @@ const catalogText = read('public/catalog.json');
 const catalog = JSON.parse(catalogText);
 const mtg = read('public/mtg/index.html');
 const truthPricing = JSON.parse(read('BEC-PRIME/catalog/truth-oracle/pricing.json'));
+const approvedOffers = JSON.parse(read('BEC-PRIME/catalog/offers/approved.json'));
+const heldDiagnosticOffer = (approvedOffers.held || []).find(x => x && x.offer_id === 'OFFER-CMD-DIAG-29-NZD');
+const activeDiagnosticOffer = (approvedOffers.approved || []).find(x => x && x.offer_id === 'OFFER-CMD-DIAG-29-NZD');
+const edh0001 = JSON.parse(read('BEC-PRIME/catalog/products/EDH_0001.json'));
+const edh0001LegacyPrice = Number(edh0001.price) / (String(edh0001.price_unit).toLowerCase() === 'minor' ? 100 : 1);
+
 
 check('homepage-canonical-doors',
   ['DreamLedger', 'Truth Oracle', 'Supplier quote worksheet'].every((x) => index.toLowerCase().includes(x.toLowerCase())) && !/Agent Delivery Proof Audit|agent-delivery-proof-audit/i.test(index),
@@ -36,6 +42,22 @@ check('diagnostic-current-public-catalog',
     && Number(diagnostic.inventory) === 0 && !diagnostic.checkout_url
     && !diagnostic.payment_link_id && !diagnostic.stripe_price_id,
   'Commander Deck Diagnostic remains explicitly held, zero-inventory, and without a public checkout reference.');
+
+check('diagnostic-removed-from-active-offers',
+  !activeDiagnosticOffer && !!heldDiagnosticOffer
+    && heldDiagnosticOffer.status === 'HELD_NOT_RELEASED'
+    && heldDiagnosticOffer.checkout_available === false
+    && heldDiagnosticOffer.payment_link_status !== 'ACTIVE_LIVEMODE'
+    && !heldDiagnosticOffer.payment_link_url && !heldDiagnosticOffer.payment_link_id,
+  'Commander Diagnostic is in the held registry, not the public/approved offer list; app-level live link references are removed.');
+check('edh0001-price-conflict-fail-closed',
+  edh0001.status === 'held' && Number(edh0001.inventory) === 0
+    && edh0001.checkout.mode === 'disabled'
+    && edh0001.commercial_truth.sellable === false
+    && edh0001.commercial_truth.approval_required === true
+    && !edh0001.payment_link && !edh0001.payment_link_id
+    && edh0001LegacyPrice === 400,
+  'EDH_0001 uses an NZ$400 legacy source amount but is held until reconciliation against the NZ$230 public catalog amount.');
 check('diagnostic-not-marketed-on-public-home',
   !/Commander Deck Diagnostic|CMD-DIAG-29/i.test(index)
     && !/href=["']\\/buy\\/COMMANDER-DECK-DIAGNOSTIC-001/i.test(index)
