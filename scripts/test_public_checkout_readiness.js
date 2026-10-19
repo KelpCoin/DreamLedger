@@ -30,5 +30,5 @@ assert.equal(isPublicPurchaseReady({ ...good, checkout_url: 'https://buy.stripe.
 assert.equal(isSafeStripeCheckoutUrl('https://buy.stripe.com/abc'), true);
 assert.equal(isSafeStripeCheckoutUrl('https://checkout.stripe.com/c/pay/cs_test_123'), false);
 console.log('CHECKOUT_READINESS_PASS=1');
-console.log('CHECKOUT_READINESS_NEGATIVE_CASES=13');
+console.log('CHECKOUT_READINESS_NEGATIVE_CASES=15');
 console.log('CHECKOUT_READINESS_RULE=POSITIVE_EVIDENCE_REQUIRED');
