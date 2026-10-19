@@ -1,0 +1,125 @@
+name: Economic Cloud Static Validation
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/economic-cloud-autonomous-engine.yml"
+      - ".github/workflows/economic-cloud-static-validation.yml"
+      - "BEC-PRIME/scripts/Run-777.js"
+      - "tools/dreamledger_compiler.py"
+      - "tools/rdti_evidence_pack.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  static-validation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout source with complete history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Verify engine and evidence scripts
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f BEC-PRIME/scripts/Run-777.js
+          node --check BEC-PRIME/scripts/Run-777.js
+          python3 -m py_compile tools/dreamledger_compiler.py tools/rdti_evidence_pack.py
+          echo "ENGINE_ENTRYPOINT=PASS"
+          echo "EVIDENCE_SCRIPTS_SYNTAX=PASS"
+
+      - name: Verify mutation gates statically
+        shell: bash
+        run: |
+          set -euo pipefail
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const p = '.github/workflows/economic-cloud-autonomous-engine.yml';
+          const y = fs.readFileSync(p, 'utf8');
+          const checkout = y.indexOf('      - name: Checkout repository');
+          const preflight = y.indexOf('      - name: Preflight');
+          const execute = y.indexOf('      - name: Execute 777 economic engine');
+          const required = [
+            '      - name: Expire stale human gates',
+            '      - name: Write cloud heartbeat',
+            '      - name: Reconcile external settlement evidence',
+            '      - name: Compile live economic opportunities',
+            '      - name: Refresh autonomous supervisor',
+            '      - name: Dispatch bounded GPU enrichment when available'
+          ];
+          if (checkout < 0 || preflight < 0 || execute < 0 || !(checkout < preflight && preflight < execute)) {
+            throw new Error('Checkout/preflight/entrypoint order is invalid');
+          }
+          if (!y.includes('default: false') || !y.includes('PRODUCTION_MUTATIONS_ENABLED')) {
+            throw new Error('Fail-closed manual mutation input missing');
+          }
+          for (const name of required) {
+            const i = y.indexOf(name);
+            if (i < 0) throw new Error('Expected gated step missing: ' + name);
+            const end = y.indexOf('\n      - name:', i + name.length);
+            const block = y.slice(i, end < 0 ? y.length : end);
+            if (!block.includes('if:') || !block.includes('inputs.enable_production_mutations == true')) {
+              throw new Error('Mutation gate missing on step: ' + name);
+            }
+          }
+          console.log(JSON.stringify({
+            checkout_before_execution: true,
+            full_history: /fetch-depth:\s*0/.test(y),
+            default_mutation_opt_in: false,
+            guarded_steps: required.length,
+            production_secrets_used_by_this_job: false
+          }, null, 2));
+          NODE
+
+      - name: Write static proof
+        if: always()
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import hashlib, json, os, subprocess
+          paths = [
+            '.github/workflows/economic-cloud-autonomous-engine.yml',
+            'BEC-PRIME/scripts/Run-777.js',
+            'tools/dreamledger_compiler.py',
+            'tools/rdti_evidence_pack.py'
+          ]
+          proof = {
+            'schema': 'dreamledger/economic-cloud-static-validation/v1',
+            'status': 'STATIC_ONLY',
+            'commit': os.environ.get('GITHUB_SHA'),
+            'repository': os.environ.get('GITHUB_REPOSITORY'),
+            'event': os.environ.get('GITHUB_EVENT_NAME'),
+            'production_mutations': 'NOT_RUN',
+            'supabase_queries': 'NOT_RUN',
+            'stripe_calls': 'NOT_RUN',
+            'files': {}
+          }
+          for p in paths:
+            if os.path.isfile(p):
+              with open(p, 'rb') as f:
+                proof['files'][p] = hashlib.sha256(f.read()).hexdigest()
+          os.makedirs('validation-proof', exist_ok=True)
+          with open('validation-proof/proof.json', 'w', encoding='utf-8') as f:
+            json.dump(proof, f, indent=2)
+            f.write('\n')
+          print(json.dumps(proof, indent=2))
+          PY
+
+      - name: Upload static proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: economic-cloud-static-proof-${{ github.run_id }}
+          path: validation-proof/proof.json
+          if-no-files-found: error
+          retention-days: 14
