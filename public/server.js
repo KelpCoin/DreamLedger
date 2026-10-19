@@ -128,8 +128,8 @@ http.createServer(async (req,res)=>{
       product=(Array.isArray(catalogue.products)?catalogue.products:[]).find(x=>x&&x.id===productId);
     }catch(_){return send(res,503,JSON.stringify({error:'catalog_unavailable'}),'application/json; charset=utf-8');}
     const held=!product||product.status!=='published'||product.checkout_available!==true||
-      product.commercial_truth?.sellable===false||product.availability==='review_required'||
-      product.delivery_test_status==='UNVERIFIED'||product.commercial_validation_status==='UNVALIDATED'||
+      product.commercial_truth?.sellable!==true||product.delivery_test_status!=='PASS'||
+      product.availability==='review_required'||product.commercial_validation_status!=='VALIDATED'||
       Boolean(product.checkout_hold_reason)||typeof product.checkout_url!=='string';
     if(held) return send(res,409,JSON.stringify({error:'checkout_held',product_id:productId,message:'This offer is not currently available for purchase.'}),'application/json; charset=utf-8');
     let target;
