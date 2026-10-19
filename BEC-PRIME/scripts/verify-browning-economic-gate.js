@@ -37,10 +37,10 @@ check('diagnostic-current-public-catalog',
     && !diagnostic.payment_link_id && !diagnostic.stripe_price_id,
   'Commander Deck Diagnostic remains explicitly held, zero-inventory, and without a public checkout reference.');
 check('diagnostic-not-marketed-on-public-home',
-  /Commander Deck Diagnostic/i.test(index) && /held · not for sale/i.test(index)
-    && !/href=["']\/buy\/COMMANDER-DECK-DIAGNOSTIC-001/i.test(index)
-    && !/NZ\$\s*29/i.test(index),
-  'Homepage describes the diagnostic as held and does not advertise a price or buy route.');
+  !/Commander Deck Diagnostic|CMD-DIAG-29/i.test(index)
+    && !/href=["']\\/buy\\/COMMANDER-DECK-DIAGNOSTIC-001/i.test(index)
+    && !/NZ\\$\\s*29/i.test(index),
+  'Homepage does not market the held diagnostic or expose a buy route.');
 check('diagnostic-not-marketed-on-public-mtg',
   !/Commander Deck Diagnostic|CMD-DIAG-29/i.test(mtg) && !/buy\.stripe\.com/i.test(mtg),
   'The served MTG store does not merchandise the held diagnostic.');
@@ -58,7 +58,7 @@ check('no-fake-payment-claim',
   'Public storefront does not claim a verified first customer payment.');
 
 const secretPatterns = [/sk_live_/i, /sk_test_/i, /whsec_/i, /STRIPE_SECRET_KEY/i, /STRIPE_WEBHOOK_SECRET/i];
-for (const [name, text] of [['index.html', index], ['catalog.json', catalogText], ['mtg.html', mtg]]) {
+for (const [name, text] of [['index.html', index], ['catalog.json', catalogText], ['mtg/index.html', mtg]]) {
   check('public-secret-scan-' + name,
     !secretPatterns.some((re) => re.test(text)),
     `${name} contains no known Stripe secret material.`);
