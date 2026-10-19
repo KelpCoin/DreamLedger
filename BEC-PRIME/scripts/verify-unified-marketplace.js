@@ -5,9 +5,10 @@ const root=path.join(__dirname,'..','..');
 const read=p=>fs.readFileSync(path.join(root,p),'utf8');
 const failures=[];
 function check(name,condition,detail=''){if(!condition)failures.push({name,detail});}
-let registry,manifest;
+let registry,manifest,priorityVerticals;
 try{registry=JSON.parse(read('data/777/cube-b2b-sales-hypotheses.v1.json'));}catch(e){failures.push({name:'CUBE_REGISTRY_JSON',detail:e.message});}
 try{manifest=JSON.parse(read('BEC-PRIME/compiled/website/.well-known/agent-commerce.json'));}catch(e){failures.push({name:'AGENT_COMMERCE_MANIFEST_JSON',detail:e.message});}
+try{priorityVerticals=JSON.parse(read('BEC-PRIME/catalog/marketplace/priority-verticals.v1.json'));}catch(e){failures.push({name:'PRIORITY_VERTICALS_JSON',detail:e.message});}
 const route=read('BEC-PRIME/routes/marketplaceKernel.js');
 const start=read('BEC-PRIME/start.js');
 const page=read('BEC-PRIME/compiled/website/marketplace.html');
@@ -20,6 +21,25 @@ check('CUBE_REGISTRY_UNVALIDATED',registry?.hypotheses?.every(x=>x.status==='HYP
 const counts=(registry?.hypotheses||[]).reduce((a,x)=>(a[x.priority]=(a[x.priority]||0)+1,a),{});
 check('CUBE_PRIORITY_COUNTS',counts.P1===14&&counts.P2===18&&counts.P3===4,JSON.stringify(counts));
 check('NO_QUBE_MISSPELLING',!/\bQUBE\b|\bQube\b/.test(JSON.stringify(registry)));
+
+const verticals=priorityVerticals?.commercial_verticals||[];
+const truthOracle=verticals.find(x=>x.id==='truth-oracle-paid-evidence-review');
+const dreamMeez=verticals.find(x=>x.id==='dreammeez-avatar-cosmetics');
+const dooh=verticals.find(x=>x.id==='programmatic-dooh-billboard');
+check('PRIORITY_VERTICALS_SCHEMA',priorityVerticals?.schema==='dreamledger.marketplace.priority-verticals.v1');
+check('PRIORITY_VERTICALS_COMPLETE',verticals.length===3&&!!truthOracle&&!!dreamMeez&&!!dooh,String(verticals.length));
+check('TRUTH_ORACLE_AUDIT_IS_PAID_TIER',truthOracle?.audit_capability==='PAID_FEATURE_WITHIN_TRUTH_ORACLE'&&truthOracle?.standalone_audit_sku_allowed===false&&truthOracle?.new_product_price_or_payment_link_allowed_by_this_contract===false);
+check('TRUTH_ORACLE_PRICES_PROPOSED_ONLY',truthOracle?.checkout_enabled===false&&truthOracle?.proposed_metered_tools?.length===3&&truthOracle.proposed_metered_tools.every(x=>x.status==='PROPOSED_NOT_LIVE'));
+check('DREAMMEEZ_FAILS_CLOSED',dreamMeez?.checkout_enabled===false&&dreamMeez?.surface_state==='PREVIEW_ONLY_UNTIL_ENTITLEMENT_PROOF'&&dreamMeez?.no_browser_side_ownership_grants===true);
+check('DOOH_FAILS_CLOSED',dooh?.checkout_enabled===false&&dooh?.surface_state==='PREVIEW_ONLY_UNTIL_INVENTORY_AND_PLACEMENT_PROOF'&&dooh?.required_gates?.some(x=>x.includes('finite inventory'))&&dooh?.required_gates?.some(x=>x.includes('measurement')));
+check('VERTICAL_SILO_BOUNDARIES',new Set(verticals.map(x=>x.silo_id)).size===3&&priorityVerticals?.silo_rules?.no_standalone_truth_oracle_audit_sku===true&&priorityVerticals?.silo_rules?.keep_mtg_happyhomarid_collectorscoast_separate_from_amplissa_adult===true);
+check('NO_CHECKOUT_LINKS_IN_VERTICAL_REGISTRY',!JSON.stringify(priorityVerticals).toLowerCase().includes('checkout_url')&&!JSON.stringify(priorityVerticals).toLowerCase().includes('payment_link'));
+check('VERTICALS_ENDPOINT_FAIL_CLOSED',route.includes("'/api/marketplace/v1/verticals'")&&route.includes('PRIORITY_VERTICALS_PATH')&&route.includes('UNAVAILABLE_FAIL_CLOSED'));
+check('DISCOVERY_EXPOSES_VERTICALS',route.includes("verticals:'/api/marketplace/v1/verticals'"));
+check('AGENT_MANIFEST_VERTICALS',manifest?.endpoints?.priority_verticals==='https://dreamledger.org/api/marketplace/v1/verticals');
+check('PUBLIC_PAGE_USES_VERTICALS_ENDPOINT',page.includes('id="commercial-verticals"')&&page.includes("getJson('/api/marketplace/v1/verticals')")&&page.includes('loadPriorityVerticals()'));
+check('ECONOMIC_STATUS_NOT_VALIDATED',priorityVerticals?.economic_validation?.verified_external_revenue_nzd===0&&priorityVerticals?.economic_validation?.status==='NOT_ECONOMICALLY_VALIDATED');
+
 for(const endpoint of ['/api/marketplace/v1/discovery','/api/marketplace/v1/status','/api/marketplace/v1/listings','/api/marketplace/v1/rfqs','/api/marketplace/v1/agent-intents','/api/marketplace/v1/evidence']) check('ROUTE_'+endpoint,route.includes(endpoint));
 for(const token of ['marketplace_submit_listing','marketplace_submit_offer','marketplace_accept_offer','marketplace_prepare_checkout','marketplace_settle_checkout','marketplace_record_delivery','marketplace_accept_delivery']) check('RPC_'+token,sql.includes(token)||route.includes(token));
 check('RUNTIME_ROUTE_WIRED',start.includes('marketplaceKernel.handle(req,res,requestPath)'));
@@ -48,4 +68,4 @@ check('PAGE_NO_FAKE_SUPPLIERS',page.includes('No placeholder listings have been 
 check('AGENT_MANIFEST_HAS_A2A',manifest?.endpoints?.agent_intents==='https://dreamledger.org/api/marketplace/v1/agent-intents');
 check('SETTLEMENT_NOT_CONFUSED_WITH_RFQ',registry?.guardrails?.no_claim_of_verified_revenue_until_settlement_fulfillment_delivery_and_independent_evidence_reconcile===true);
 if(failures.length){console.error(JSON.stringify({status:'FAIL',failures},null,2));process.exit(1);}
-console.log(JSON.stringify({status:'PASS_STATIC_CONTRACT_ONLY',hypotheses:registry.hypotheses.length,priority_counts:counts,migrations_checked:migrations.length,verified_revenue_nzd:0,live_buyer_intents_created:0},null,2));
+console.log(JSON.stringify({status:'PASS_STATIC_CONTRACT_ONLY',hypotheses:registry.hypotheses.length,priority_counts:counts,migrations_checked:migrations.length,priority_verticals_checked:verticals.length,priority_vertical_checkout_authorized:verticals.filter(x=>x.checkout_enabled===true).length,truth_oracle_standalone_audit_sku_allowed:false,verified_revenue_nzd:0,live_buyer_intents_created:0},null,2));
