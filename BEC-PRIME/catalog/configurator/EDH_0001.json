@@ -84,5 +84,5 @@
   },
   "checkout_available": false,
   "approval_required": true,
-  "hold_reason": "The NZ$400 configurator source and NZ$230 public catalog conflict. No customization or purchase may be accepted until the seller-approved final price, exact contents, inventory, fulfillment, and delivery terms are reconciled."
+  "hold_reason": "The NZ$400 configurator source and NZ$230 public catalog conflict. Do not accept customization or payment until final price, exact inventory, terms, and delivery are reconciled."
 }
