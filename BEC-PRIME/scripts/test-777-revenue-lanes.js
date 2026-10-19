@@ -29,8 +29,10 @@ function fixture(overrides = {}) {
       id: 'COMMANDER-DECK-DIAGNOSTIC-001',
       sku: 'CMD-DIAG-29',
       name: 'Commander Deck Diagnostic',
-      price_nzd: 29,
+      price: 29,
+      currency: 'nzd',
       status: 'published',
+      checkout_available: true,
       checkout_url: 'https://buy.stripe.com/canonical',
       silo: 'mtg'
     }],
@@ -79,6 +81,7 @@ test('checkout URL conflicts across approved, live and public catalogues block t
   assert.equal(lane.configuration_status, 'BLOCKED_CONFIGURATION_CONFLICT');
   assert.ok(lane.blocker_codes.includes('APPROVED_VS_LIVE_CHECKOUT_URL_MISMATCH'));
   assert.ok(lane.blocker_codes.includes('PUBLIC_PRODUCT_NOT_PUBLISHED'));
+  assert.ok(lane.blocker_codes.includes('PUBLIC_CHECKOUT_NOT_AVAILABLE'));
   assert.ok(lane.blocker_codes.includes('PUBLIC_CHECKOUT_URL_MISSING'));
   assert.equal(lane.verified_revenue_nzd, 0);
 });
