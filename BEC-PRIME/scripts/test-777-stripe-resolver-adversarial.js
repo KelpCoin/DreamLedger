@@ -345,6 +345,14 @@ test('zero quantity cannot erase a line-item amount guard', () => {
   assertBlocker(r, 'STRIPE_LINE_ITEM_AMOUNT_OR_CURRENCY_UNRESOLVED');
 });
 
+test('provider price currency must match the canonical offer currency', () => {
+  const f = fixture();
+  f.lineItemsByLinkId.plink_livecanonical[0].price.currency = 'usd';
+  const r = buildOfferParityReceipt(f);
+  assert.equal(r.coherent, false);
+  assertBlocker(r, 'STRIPE_CURRENCY_MISMATCH');
+});
+
 test('conflicting line-item currencies are rejected', () => {
   const f = fixture();
   f.lineItemsByLinkId.plink_livecanonical.push({
