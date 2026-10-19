@@ -19,7 +19,7 @@ const COSMETICS: Record<string, { name: string; amount: number; currency: string
 };
 
 const supabase = createClient(supabaseUrl, serviceRoleKey);
-const stripe = new Stripe(stripeSecret, { apiVersion: "2025-06-30.basil" });
+const stripe = new Stripe(stripeSecret, { apiVersion: "2026-08-26.dahlia" });
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
