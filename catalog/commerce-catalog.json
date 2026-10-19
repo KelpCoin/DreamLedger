@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0.0",
-  "generated_utc": "2026-08-24",
+  "generated_utc": "2026-10-19T02:04:16.053Z",
   "canonical_payment_rail": "stripe",
   "canonical_frontend": "super",
   "public_actions": "approval_gated",
@@ -12,11 +12,14 @@
       "silo": "mtg",
       "price_nzd": 29,
       "billing": "one_time",
-      "status": "sale_ready",
-      "stripe_payment_link": "https://buy.stripe.com/8x228r1nfg0l3M32csdwc2I",
-      "stripe_product": "prod_V6iVKl9HgFpzRU",
-      "stripe_price": "price_1UFFY1EGgEAnUFF9Yq03zIa7",
-      "role": "first_payment_proof_candidate"
+      "status": "held",
+      "role": "first_payment_proof_candidate",
+      "approval_required": true,
+      "sellable": false,
+      "checkout_available": false,
+      "inventory": 0,
+      "hold_reason": "Payment-to-delivery proof has not passed. Do not publish or take orders.",
+      "external_stripe_status": "UNVERIFIED_NOT_MODIFIED"
     },
     {
       "id": "PERSONAL-COMMERCE-CONSTITUTION",
@@ -115,5 +118,6 @@
       "status": "blocked",
       "reason": "Agent purchase authority remains user-policy and explicit-approval gated."
     }
-  ]
+  ],
+  "publication_rule": "Products require an explicit canonical release approval plus tested fulfillment and delivery proof. Held products are not checkoutable."
 }
