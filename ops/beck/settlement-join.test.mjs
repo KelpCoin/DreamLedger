@@ -22,6 +22,7 @@ const detailed = {
   net_minor: 1455,
   amount_minor: 1500,
   currency: 'nzd',
+  fee_details: [{ type: 'stripe_fee', description: 'processing', amount_minor: 45, currency: 'nzd' }],
   livemode: true,
   provider: 'stripe',
 };
@@ -96,6 +97,7 @@ test('evaluateSettlementWithStripeFetch uses adapter then join', async () => {
           fee: 45,
           net: 1455,
           currency: 'nzd',
+          fee_details: [{ type: 'stripe_fee', description: 'processing', amount: 45, currency: 'nzd' }],
         },
       },
     }),
