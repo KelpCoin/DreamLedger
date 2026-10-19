@@ -48,6 +48,7 @@ const OFFER_CATALOG = path.join(__dirname,'catalog','offers','offers.json');
 const APPROVED_OFFER_CATALOG = path.join(__dirname,'catalog','offers','approved.json');
 const PUBLIC_ROOT = path.join(__dirname,'compiled','website');
 const PORT = Number(process.env.PORT || 3000);
+const HOST = String(process.env.HOST || '0.0.0.0');
 const QR_REDIRECTS = Object.freeze({
   '/q/overpaying': 'https://dreamledger.org/overpaying?utm_source=qr&utm_medium=print&utm_campaign=power_verify',
   '/q/billboard': 'https://buy.stripe.com/aFa14naXP15r1DVdVadwc2B',
@@ -161,4 +162,4 @@ async function directProductCheckout(res,productId,silo){try{return send(res,200
 commercialCellRunner.start();
 cubePinball.start();
 const boot=controlPlane.boot();const sentinelResult=sentinel.run(boot.gauntlet);console.log(JSON.stringify({control_plane_boot:boot,sentinel:sentinelResult,deploy:{commit:DEPLOY_COMMIT,environment:DEPLOY_ENV,build_timestamp:BUILD_TIMESTAMP,release_contract:DEPLOYMENT_RELEASE_CONTRACT}},null,2));if(boot.status!=='PASS'||sentinelResult.verdict!=='PASS')throw new Error('Enterprise boot gate failed; refusing to start runtime');
-capturedServer=http.createServer((req,res)=>staticFile(req,res));if(!capturedServer)throw new Error('DreamLedger server did not create an HTTP server');if(!capturedServer.listening)capturedServer.listen(PORT,'0.0.0.0',()=>console.log(`DreamLedger commerce runtime listening on 0.0.0.0:${PORT}`));
+capturedServer=http.createServer((req,res)=>staticFile(req,res));if(!capturedServer)throw new Error('DreamLedger server did not create an HTTP server');if(!capturedServer.listening)capturedServer.listen(PORT,HOST,()=>console.log(`DreamLedger commerce runtime listening on ${HOST}:${PORT}`));
