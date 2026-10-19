@@ -17,21 +17,33 @@ function read(rel) {
   return fs.readFileSync(path.join(ROOT, rel), 'utf8');
 }
 
-const index = read('public/home.html');
+// Audit the served static pages, not retired home.html/mtg.html aliases.
+const index = read('public/index.html');
 const catalogText = read('public/catalog.json');
 const catalog = JSON.parse(catalogText);
-const mtg = read('public/mtg.html');
+const mtg = read('public/mtg/index.html');
 const truthPricing = JSON.parse(read('BEC-PRIME/catalog/truth-oracle/pricing.json'));
 
 check('homepage-canonical-doors',
-  ['DreamLedger', 'Truth Oracle', 'Supplier Quote Comparison Worksheet'].every((x) => index.toLowerCase().includes(x.toLowerCase())) && !/Agent Delivery Proof Audit|agent-delivery-proof-audit/i.test(index),
-  'Homepage exposes Truth Oracle and supplier quote comparison; the retired audit offer is absent.');
+  ['DreamLedger', 'Truth Oracle', 'Supplier quote worksheet'].every((x) => index.toLowerCase().includes(x.toLowerCase())) && !/Agent Delivery Proof Audit|agent-delivery-proof-audit/i.test(index),
+  'Served homepage exposes the free evidence tools; the retired audit offer is absent.');
+const diagnostic = Array.isArray(catalog.products)
+  ? catalog.products.find((x) => x && x.id === 'COMMANDER-DECK-DIAGNOSTIC-001' && x.sku === 'CMD-DIAG-29')
+  : null;
 check('diagnostic-current-public-catalog',
-  Array.isArray(catalog.products) && catalog.products.some((x) => x && x.id === 'COMMANDER-DECK-DIAGNOSTIC-001' && x.sku === 'CMD-DIAG-29' && Number(x.price) === 29 && String(x.currency || '').toUpperCase() === 'NZD' && x.status === 'published' && x.checkout_available === true && x.checkout_url === 'https://dreamledger.org/mtg/diagnostic.html'),
-  'Current Commander Deck Diagnostic CMD-DIAG-29 is published at NZD 29 in public/catalog.json.' );
-check('diagnostic-current-public-mtg',
-  /Commander Deck Diagnostic/i.test(mtg) && /29/i.test(mtg),
-  'Current Commander Deck Diagnostic remains discoverable at the canonical NZD 29 public MTG surface.');
+  !!diagnostic && Number(diagnostic.price) === 29 && String(diagnostic.currency || '').toUpperCase() === 'NZD'
+    && diagnostic.status === 'held' && diagnostic.checkout_available === false
+    && Number(diagnostic.inventory) === 0 && !diagnostic.checkout_url
+    && !diagnostic.payment_link_id && !diagnostic.stripe_price_id,
+  'Commander Deck Diagnostic remains explicitly held, zero-inventory, and without a public checkout reference.');
+check('diagnostic-not-marketed-on-public-home',
+  /Commander Deck Diagnostic/i.test(index) && /held · not for sale/i.test(index)
+    && !/href=["']\/buy\/COMMANDER-DECK-DIAGNOSTIC-001/i.test(index)
+    && !/NZ\$\s*29/i.test(index),
+  'Homepage describes the diagnostic as held and does not advertise a price or buy route.');
+check('diagnostic-not-marketed-on-public-mtg',
+  !/Commander Deck Diagnostic|CMD-DIAG-29/i.test(mtg) && !/buy\.stripe\.com/i.test(mtg),
+  'The served MTG store does not merchandise the held diagnostic.');
 
 const plans = Array.isArray(truthPricing.plans) ? truthPricing.plans : [];
 const expected = { SIGNAL: 4.99, INTELLIGENCE: 7.99, DEEP_EVIDENCE: 9.99 };
