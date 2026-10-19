@@ -45,10 +45,12 @@ test('an unchanged offer with missing live evidence remains HOLD', () => {
   const result = evaluateHold(record, EFFECT, {
     now: '2026-10-19T05:00:00.000Z',
     transition: 'RECHECK_PROVIDER_AND_FULFILLMENT_EVIDENCE',
+    approval_status: 'AUTHORIZED',
+    approval_effect_digest: hold().effect_digest,
     dependencies_passed: false
   });
   assert.equal(result.decision, 'HOLD');
-  assert.equal(result.reason_code, 'HUMAN_AUTHORIZATION_REQUIRED');
+  assert.equal(result.reason_code, 'DEPENDENCY_EVIDENCE_INCOMPLETE');
   assert.equal(result.externalization_performed, false);
 });
 
