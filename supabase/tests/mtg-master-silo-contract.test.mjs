@@ -162,9 +162,17 @@ test("all checkout and discovery projections fail closed for held MTG offers", (
     assert.equal(edh.buy_router, null);
   }
 
-  const publicOffers = read("public/offers.html");
-  assert.doesNotMatch(publicOffers, /href=["']\/buy\/COMMANDER-DECK-DIAGNOSTIC-001/i);
-  assert.match(publicOffers, /Held · not for sale/);
+  for (const path of ["public/offers.html", "public/money.html", "public/shop.html", "BEC-PRIME/compiled/website/shop.html"]) {
+    const html = read(path);
+    assert.doesNotMatch(html, /href=["']\\/buy\\/COMMANDER-DECK-DIAGNOSTIC-001/i, path + " must not expose diagnostic checkout");
+    assert.match(html, /Held · not for sale/, path + " must show the held state");
+  }
+  assert.doesNotMatch(read("public/money.html"), /System validated|Validated by receipts/i);
+  assert.doesNotMatch(read("public/shop.html"), /Every button uses a live Stripe route/i);
+  const faceRegistry = readJson("BEC-PRIME/compiler/face-registry.json");
+  assert.equal(faceRegistry.live_checkout_routes.some(x => x.id === "LIVE-COMMANDER-DECK-DIAGNOSTIC-001"), false);
+  assert.match(read("BEC-PRIME/compiler/WebsiteFaceCompiler.js"), /function canonicalProductState/);
+  assert.match(read("BEC-PRIME/compiler/WebsiteFaceCompiler.js"), /if \(state&&state\.held\)continue/);
 
   const silo = readJson("data/mtg-catalog.json");
   const publicSilo = readJson("public/data/mtg-catalog.json");
