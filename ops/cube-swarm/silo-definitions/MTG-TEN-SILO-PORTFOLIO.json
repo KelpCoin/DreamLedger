@@ -1,0 +1,160 @@
+{
+  "schema_version": "dreamledger/cube-swarm-silo-portfolio/v1",
+  "portfolio_id": "mtg-ten-silo-candidates",
+  "lifecycle": "CANDIDATE_ONLY",
+  "objective": "Stage ten discrete MTG/commerce offers for source-backed internal design, with no claim that demand or unit economics are validated.",
+  "target_gross_revenue_nzd": 3000000,
+  "target_interpretation": "Gross settled external payments before fees, refunds, delivery costs, tax, and operating costs. This is a target, not a forecast or profit target.",
+  "arithmetic_one_time_price_scenarios": [
+    {
+      "price_nzd": 29,
+      "units_to_reach_or_exceed_3m": 103449
+    },
+    {
+      "price_nzd": 199,
+      "units_to_reach_or_exceed_3m": 15076
+    },
+    {
+      "price_nzd": 299,
+      "units_to_reach_or_exceed_3m": 10034
+    },
+    {
+      "price_nzd": 499,
+      "units_to_reach_or_exceed_3m": 6013
+    },
+    {
+      "price_nzd": 799,
+      "units_to_reach_or_exceed_3m": 3755
+    },
+    {
+      "price_nzd": 999,
+      "units_to_reach_or_exceed_3m": 3004
+    },
+    {
+      "price_nzd": 1499,
+      "units_to_reach_or_exceed_3m": 2002
+    },
+    {
+      "price_nzd": 2900,
+      "units_to_reach_or_exceed_3m": 1035
+    },
+    {
+      "price_nzd": 9900,
+      "units_to_reach_or_exceed_3m": 304
+    }
+  ],
+  "subscription_math_note": "NZ$99/month is recurring pricing; revenue depends on customer-months, churn, fees, refunds, and retention, so it is not directly comparable with one-time sales volume.",
+  "mix_note": "Do not add separate price scenarios as if each is an independent forecast. A real mix target must be defined and validated from observed external demand.",
+  "candidates": [
+    {
+      "silo_id": "mtg-commander",
+      "name": "MTG Commander Deck Diagnostic",
+      "price_nzd": 29,
+      "price_model": "ONE_TIME",
+      "definition_path": "ops/cube-swarm/silo-definitions/mtg-commander.json",
+      "task_id": "MTG-CMD-DIAG-29-READ-ONLY-AUDIT",
+      "status": "EXISTING_CANDIDATE",
+      "note": "Existing definition and audit-only task; keep on the priority path until Gate 1 and first independent payment-to-delivery proof are resolved."
+    },
+    {
+      "silo_id": "mtg-store-audit",
+      "name": "MTG Store Audit",
+      "price_nzd": 299,
+      "price_model": "ONE_TIME_CANDIDATE",
+      "definition_path": "ops/cube-swarm/silo-definitions/mtg-store-audit.json",
+      "task_id": "MTG-STORE-AUDIT-299-CANDIDATE-BUILD",
+      "status": "CANDIDATE_NOT_LAUNCHED"
+    },
+    {
+      "silo_id": "commander-optimization",
+      "name": "Commander Deck Optimization",
+      "price_nzd": 999,
+      "price_model": "ONE_TIME_CANDIDATE",
+      "definition_path": "ops/cube-swarm/silo-definitions/commander-optimization.json",
+      "task_id": "CMD-OPTIMIZATION-999-CANDIDATE-BUILD",
+      "status": "CANDIDATE_NOT_LAUNCHED"
+    },
+    {
+      "silo_id": "bec-prime-system",
+      "name": "BEC PRIME Commerce System Setup",
+      "price_nzd": 2900,
+      "price_model": "ONE_TIME_CANDIDATE",
+      "definition_path": "ops/cube-swarm/silo-definitions/bec-prime-system.json",
+      "task_id": "BEC-PRIME-SYSTEM-2900-CANDIDATE-BUILD",
+      "status": "CANDIDATE_NOT_LAUNCHED"
+    },
+    {
+      "silo_id": "mtg-listing-engine",
+      "name": "MTG Deck Marketplace Listing Engine",
+      "price_nzd": 499,
+      "price_model": "ONE_TIME_CANDIDATE",
+      "definition_path": "ops/cube-swarm/silo-definitions/mtg-listing-engine.json",
+      "task_id": "MTG-LISTING-ENGINE-499-CANDIDATE-BUILD",
+      "status": "CANDIDATE_NOT_LAUNCHED"
+    },
+    {
+      "silo_id": "mtg-condition-grading",
+      "name": "MTG Condition Review",
+      "price_nzd": 199,
+      "price_model": "ONE_TIME_CANDIDATE",
+      "definition_path": "ops/cube-swarm/silo-definitions/mtg-condition-grading.json",
+      "task_id": "MTG-CONDITION-GRADING-199-CANDIDATE-BUILD",
+      "status": "CANDIDATE_NOT_LAUNCHED"
+    },
+    {
+      "silo_id": "mtg-inventory-sync",
+      "name": "MTG Inventory Sync Setup",
+      "price_nzd": 799,
+      "price_model": "ONE_TIME_CANDIDATE",
+      "definition_path": "ops/cube-swarm/silo-definitions/mtg-inventory-sync.json",
+      "task_id": "MTG-INVENTORY-SYNC-799-CANDIDATE-BUILD",
+      "status": "CANDIDATE_NOT_LAUNCHED"
+    },
+    {
+      "silo_id": "mtg-bulk-price-engine",
+      "name": "MTG Bulk Price Analysis",
+      "price_nzd": 1499,
+      "price_model": "ONE_TIME_CANDIDATE",
+      "definition_path": "ops/cube-swarm/silo-definitions/mtg-bulk-price-engine.json",
+      "task_id": "MTG-BULK-PRICE-1499-CANDIDATE-BUILD",
+      "status": "CANDIDATE_NOT_LAUNCHED"
+    },
+    {
+      "silo_id": "mtg-saas",
+      "name": "MTG Seller Toolkit SaaS",
+      "price_nzd": 99,
+      "price_model": "MONTHLY_SUBSCRIPTION_CANDIDATE",
+      "definition_path": "ops/cube-swarm/silo-definitions/mtg-saas.json",
+      "task_id": "MTG-SAAS-099-MONTHLY-CANDIDATE-BUILD",
+      "status": "CANDIDATE_NOT_LAUNCHED"
+    },
+    {
+      "silo_id": "agency-setup",
+      "name": "Commerce Agency Workflow Setup",
+      "price_nzd": 9900,
+      "price_model": "ONE_TIME_CANDIDATE",
+      "definition_path": "ops/cube-swarm/silo-definitions/agency-setup.json",
+      "task_id": "BEC-AGENCY-SETUP-9900-CANDIDATE-BUILD",
+      "status": "CANDIDATE_NOT_LAUNCHED"
+    }
+  ],
+  "shared_invariants": [
+    "All offers remain candidates with checkout disabled and no public availability until separately approved.",
+    "No invented Stripe URLs, product IDs, price IDs, buyers, sales, or demand evidence.",
+    "All silos use one canonical settlement and fulfillment truth contract; do not fork revenue schemas.",
+    "Every settlement must map an external buyer, live settled payment, SKU/amount/currency/mode, order attribution, fulfillment artifact, delivery receipt, and independent provider evidence.",
+    "A shared Stripe Gate 1 failure blocks all offers that depend on that rail.",
+    "Reuse shared verified payment and evidence infrastructure where safe; silo isolation applies to product data and fulfillment boundaries, not duplicate truth oracles.",
+    "Human approval is required for secret changes, public publication, production deployment, spend, and live commercial actions."
+  ],
+  "current_blockers": [
+    "Reported Gate 1: HTTP 503 STRIPE_CONFIG_MISSING.",
+    "Existing Commander diagnostic payment-to-delivery has not yet established a verified external transaction.",
+    "Current North Star controller priority remains the audit-only Commander diagnostic; candidate task contracts are not wired to its task selector."
+  ],
+  "runtime_status": "DEFINITIONS_AND_TASK_CONTRACTS_ONLY_NOT_RUNTIME_WIRED",
+  "deployment_status": "NOT_DEPLOYED",
+  "public_catalog_status": "NO_CANDIDATE_ENTRIES_ADDED_TO_PUBLIC_CATALOG",
+  "verified_revenue_nzd": 0,
+  "external_action_performed": false
+}

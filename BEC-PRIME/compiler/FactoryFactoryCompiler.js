@@ -232,6 +232,11 @@ function compileLaneManifest(manifest, manifestPath) {
   const output = manifest.buyer_output || {};
   const commerce = manifest.commerce_path || {};
   const demandFamily = manifest.demand_family || 'economic_transformation';
+  const buyerClass = manifest.buyer_class || output.buyer_class || null;
+  const demandHypothesis = manifest.demand_hypothesis || demandFamily + ' on ' + (manifest.substrate_type || 'unknown substrate');
+  const acquisitionSurfaces = Array.isArray(manifest.acquisition_surfaces) ? manifest.acquisition_surfaces : [];
+  const sourceRefs = Array.isArray(manifest.source_refs) ? manifest.source_refs : [];
+  const sourceHashes = Array.isArray(manifest.source_hashes) ? manifest.source_hashes : [];
 
   return {
     experiment_id: 'FFM-' + hash(JSON.stringify(manifest)).slice(0, 16).toUpperCase(),
@@ -241,16 +246,19 @@ function compileLaneManifest(manifest, manifestPath) {
     state: 'COMPILED_AWAITING_AUTHORIZATION',
     structure: /match|compare|reconciliation|anomaly/i.test(demandFamily + ' ' + (transformation.name || '')) ? 'VERIFICATION' : 'SERVICE',
     demand_signal: demandFamily,
-    buyer_class: null,
+    buyer_class: buyerClass,
+    demand_hypothesis: demandHypothesis,
+    asymmetric_leverage_score: Number.isFinite(Number(manifest.fit_score)) ? Number(manifest.fit_score) : null,
+    fit_review_required: manifest.fit_review_required === true,
     offer_shape: output.format || transformation.name || 'bounded transformation',
     price_band: price,
-    acquisition_surface: [],
+    acquisition_surface: acquisitionSurfaces,
     fulfillment_contract: commerce.fulfillment || 'existing bounded fulfillment adapter',
     truth_boundary: ['external_buyer','settled_payment','correct_attribution','fulfillment','independent_proof'],
     kill_conditions: Array.isArray(manifest.kill_criteria) ? manifest.kill_criteria : [],
     demand: {
-      buyer: null,
-      hypothesis: demandFamily + ' on ' + (manifest.substrate_type || 'unknown substrate'),
+      buyer: buyerClass,
+      hypothesis: demandHypothesis,
       evidence_required: Array.isArray(output.contains) ? output.contains : []
     },
     proposition: {
@@ -259,7 +267,7 @@ function compileLaneManifest(manifest, manifestPath) {
       smallest_test: 'One authorized exposure and settlement attempt.'
     },
     inverse_gauntlet: {
-      required_buyer: null,
+      required_buyer: buyerClass,
       required_offer: transformation.name || manifest.candidate_id,
       required_price_nzd: price,
       required_evidence: Array.isArray(output.contains) ? output.contains : [],
@@ -280,12 +288,12 @@ function compileLaneManifest(manifest, manifestPath) {
     },
     inverse_cube: {
       search_target: 'Find qualified buyers for the bounded lane without changing its substrate requirements or truth boundary.',
-      buyer: null,
+      buyer: buyerClass,
       offer: transformation.name || manifest.candidate_id,
       price_nzd: price,
       required_evidence: Array.isArray(output.contains) ? output.contains : [],
       required_proof: commerce.proof ? [commerce.proof] : ['EXISTING_PROOF_SPINE'],
-      allowed_channels: [],
+      allowed_channels: acquisitionSurfaces,
       smallest_test: 'One authorized exposure and settlement attempt.',
       kill_condition: 'Use the manifest kill criteria; no external exposure without authorization.',
       exposure_multiplier: 1,
@@ -302,7 +310,7 @@ function compileLaneManifest(manifest, manifestPath) {
       spend_allowed_without_authorization: false
     },
     execution: {
-      acquisition_surface: [],
+      acquisition_surface: acquisitionSurfaces,
       transaction_rail: commerce.checkout || 'existing commerce boundary',
       fulfillment: commerce.fulfillment || 'existing bounded fulfillment adapter',
       next_action: 'prepare candidate review packet; no Stripe mutation or external publication implied',
@@ -316,6 +324,13 @@ function compileLaneManifest(manifest, manifestPath) {
     provenance: {
       source: path.relative(ROOT, manifestPath).replace(/\\/g, '/'),
       candidate_id: manifest.candidate_id || null,
+      silo_id: manifest.silo_id || manifest.candidate_id || null,
+      seed_id: manifest.seed_id || null,
+      fit_score: Number.isFinite(Number(manifest.fit_score)) ? Number(manifest.fit_score) : null,
+      fit_review_required: manifest.fit_review_required === true,
+      market_demand_proven: manifest.market_demand_proven === true,
+      source_refs: sourceRefs,
+      source_hashes: sourceHashes,
       substrate_requirements: manifest.substrate_requirements || null
     }
   };

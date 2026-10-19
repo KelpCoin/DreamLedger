@@ -24,6 +24,10 @@ function buildAcquisitionPacket(experiment) {
   const channels = Array.isArray(experiment.acquisition?.channels)
     ? experiment.acquisition.channels.filter(Boolean)
     : [];
+  const qualification = experiment.candidate_qualification && typeof experiment.candidate_qualification === 'object'
+    ? experiment.candidate_qualification
+    : {};
+  const fitReviewRequired = qualification.fit_review_required === true || experiment.state === 'FIT_REVIEW_REQUIRED';
   return {
     packet_id: 'ACQ-' + experiment.experiment_id,
     schema_version: 'DREAMLEDGER/ACQUISITION-PACKET/v2',
@@ -47,13 +51,20 @@ function buildAcquisitionPacket(experiment) {
       required: ['external_buyer','settled_payment','correct_attribution','fulfillment','independent_proof'],
       revenue_claim: 'TRUTH_ORACLE_ONLY'
     },
+    candidate_qualification: {
+      asymmetric_leverage_score: Number.isFinite(Number(qualification.asymmetric_leverage_score)) ? Number(qualification.asymmetric_leverage_score) : null,
+      fit_review_required: fitReviewRequired,
+      market_demand_proven: qualification.market_demand_proven === true,
+      source_refs: Array.isArray(qualification.source_refs) ? qualification.source_refs : [],
+      source_hashes: Array.isArray(qualification.source_hashes) ? qualification.source_hashes : []
+    },
     authorization: {
       publication: 'APPROVAL_REQUIRED',
       outreach: 'APPROVAL_REQUIRED',
       spend: 'APPROVAL_REQUIRED',
       charge: 'APPROVAL_REQUIRED'
     },
-    execution_state: 'READY_FOR_AUTHORIZED_EXTERNAL_ACTION'
+    execution_state: fitReviewRequired ? 'FIT_REVIEW_REQUIRED_NO_EXTERNAL_ACTION' : 'READY_FOR_AUTHORIZED_EXTERNAL_ACTION'
   };
 }
 
