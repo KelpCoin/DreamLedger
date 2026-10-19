@@ -33,8 +33,14 @@ export function evaluateSettlement(record) {
     if (providerFee.fee_minor !== record.fee_minor || providerFee.currency !== record.currency) {
       feeMissing.push('provider_fee_evidence_matches_record');
     }
-    if (providerFee.amount_minor != null && record.amount_minor != null && providerFee.amount_minor !== record.amount_minor) {
+    if (!Number.isSafeInteger(providerFee.amount_minor) || !Number.isSafeInteger(record.amount_minor)
+      || providerFee.amount_minor !== record.amount_minor) {
       feeMissing.push('provider_amount_matches_record');
+    }
+    if (!Number.isSafeInteger(providerFee.net_minor)
+      || !Number.isSafeInteger(providerFee.amount_minor)
+      || providerFee.amount_minor - record.fee_minor !== providerFee.net_minor) {
+      feeMissing.push('provider_net_reconciles_gross_less_fee');
     }
   }
   if (!record.balance_transaction_id) feeMissing.push('balance_transaction_id');
