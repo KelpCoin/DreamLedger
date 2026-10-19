@@ -61,3 +61,24 @@ test("a held Commander diagnostic is not sold by a hardcoded public Stripe link"
     assert.match(html, /HELD · checkout disabled/, path + " must show the held state");
   }
 });
+
+test("held diagnostic and conflicted EDH_0001 cannot advertise active payment links", () => {
+  const offers = JSON.parse(read("BEC-PRIME/catalog/offers/approved.json"));
+  const offer = offers.approved.find(x => x && x.offer_id === "OFFER-CMD-DIAG-29-NZD");
+  assert.ok(offer);
+  assert.equal(offer.status, "HELD_NOT_RELEASED");
+  assert.equal(offer.approval_required, true);
+  assert.equal(offer.checkout_available, false);
+  assert.notEqual(offer.payment_link_status, "ACTIVE_LIVEMODE");
+  assert.equal(Object.hasOwn(offer, "payment_link_url"), false);
+  assert.equal(Object.hasOwn(offer, "payment_link_id"), false);
+
+  const product = JSON.parse(read("BEC-PRIME/catalog/products/EDH_0001.json"));
+  assert.equal(product.status, "held");
+  assert.equal(product.inventory, 0);
+  assert.equal(product.checkout.mode, "disabled");
+  assert.equal(product.commercial_truth.sellable, false);
+  assert.equal(product.commercial_truth.approval_required, true);
+  assert.equal(Object.hasOwn(product, "payment_link"), false);
+  assert.equal(Object.hasOwn(product, "payment_link_id"), false);
+});
