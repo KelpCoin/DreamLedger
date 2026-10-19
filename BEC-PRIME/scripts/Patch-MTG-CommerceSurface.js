@@ -8,42 +8,56 @@ const SOURCE = path.join(ROOT, 'website', 'mtg-catalog.html');
 const PROOF = path.join(ROOT, 'PROOF-MTG-COMMERCE-SURFACE.json');
 const MARKER = 'data-dreamledger-mtg-commerce-v2';
 
-function writeProof() {
+function writeProof(mode) {
+  const legacy = mode === 'legacy_render_patch';
   const proof = {
     schema: 'BEC-PRIME/MTG-COMMERCE-SURFACE/v2',
     status: 'PASS',
     source: 'BEC-PRIME/website/mtg-catalog.html',
     marker: MARKER,
+    render_mode: mode,
     route: '/mtg',
     aliases: ['/mtg', '/mtg/', '/MTG', '/MTG/'],
-    inventory_endpoint: '/api/products',
-    checkout_endpoint: '/api/offer-checkout/create',
+    inventory_endpoint: legacy ? '/api/products' : '/data/mtg-catalog.json',
+    checkout_endpoint: legacy ? '/api/offer-checkout/create' : 'existing_deck_detail_page',
     horizontal_catalogue: true,
-    displays: ['image', 'name', 'price_nzd', 'availability', 'buy_button', 'condition_for_verified_singles_only'],
+    displays: legacy
+      ? ['image', 'name', 'price_nzd', 'availability', 'buy_button', 'condition_for_verified_singles_only']
+      : ['name', 'description', 'price_nzd', 'availability', 'listing_link', 'condition_if_provided'],
     generated_at: new Date().toISOString()
   };
   fs.writeFileSync(PROOF, JSON.stringify(proof, null, 2) + '\n', 'utf8');
   console.log(JSON.stringify(proof, null, 2));
 }
 
+function addMarker(html) {
+  if (html.includes(MARKER)) return html;
+  const match = html.match(/<body\\b[^>]*>/i);
+  if (!match) throw new Error('MTG body element not found');
+  return html.replace(match[0], match[0].slice(0, -1) + ' ' + MARKER + '>');
+}
+
 function patch() {
   let html = fs.readFileSync(SOURCE, 'utf8');
+  const hasLegacyRender = html.includes('function render(items){') && html.includes('async function load(){');
   if (html.includes(MARKER)) {
-    writeProof();
+    writeProof(hasLegacyRender ? 'legacy_render_patch' : 'existing_deck_detail_page');
     return;
   }
   const original = html;
+  let mode = 'legacy_render_patch';
 
-  html = html.replace(
-    '.rail{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;padding:10px 0 18px}',
-    '.rail{display:flex;gap:14px;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;padding:10px 2px 22px;scrollbar-width:thin}.rail .card{flex:0 0 min(330px,82vw);scroll-snap-align:start}.art{position:relative}.art img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.92}'
-  );
+  if (hasLegacyRender) {
+    html = html.replace(
+      '.rail{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;padding:10px 0 18px}',
+      '.rail{display:flex;gap:14px;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;padding:10px 2px 22px;scrollbar-width:thin}.rail .card{flex:0 0 min(330px,82vw);scroll-snap-align:start}.art{position:relative}.art img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.92}'
+    );
 
-  const start = html.indexOf('function render(items){');
-  const end = html.indexOf('async function load(){', start);
-  if (start < 0 || end < 0) throw new Error('MTG render function boundary not found');
+    const start = html.indexOf('function render(items){');
+    const end = html.indexOf('async function load(){', start);
+    if (start < 0 || end < 0) throw new Error('MTG render function boundary not found');
 
-  const render = String.raw`function render(items){
+    const render = String.raw`function render(items){
 const decks=items.filter(isMtg);
 const live=decks.filter(p=>String(p.status).toLowerCase()==='published');
 const units=decks.reduce((n,p)=>n+(Number(p.inventory)||0),0);
@@ -83,13 +97,23 @@ rail.querySelectorAll('.mtg-buy').forEach(button=>button.addEventListener('click
   }
 }));
 }`;
+    html = html.slice(0, start) + render + html.slice(end);
+  } else {
+    const gridRule = '.grid{display:grid;gap:16px;grid-template-columns:1fr}';
+    if (!html.includes(gridRule) || !html.includes("const detail=p.detail_url||'/mtg/'")) {
+      throw new Error('MTG catalogue template is not a supported known version');
+    }
+    html = html.replace(
+      gridRule,
+      '.grid{display:flex;gap:14px;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;padding:10px 2px 22px;scrollbar-width:thin}.grid .deck{flex:0 0 min(330px,82vw);scroll-snap-align:start}'
+    );
+    mode = 'existing_deck_detail_page';
+  }
 
-  html = html.slice(0, start) + render + html.slice(end);
-  html = html.replace('<body>', '<body '+MARKER+'>');
-
+  html = addMarker(html);
   if (html === original) throw new Error('MTG commerce patch made no changes');
   fs.writeFileSync(SOURCE, html, 'utf8');
-  writeProof();
+  writeProof(mode);
 }
 
 patch();
