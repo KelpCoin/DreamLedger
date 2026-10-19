@@ -21,6 +21,10 @@ const OUT = path.join(OUT_DIR, '777-LATEST.json');
 const PUBLIC_CATALOG = path.join(ROOT, '..', 'public', 'catalog.json');
 const FULFILLMENT_REGISTRY = path.join(ROOT, 'fulfillment', 'PRODUCT-FULFILLMENT-REGISTRY.json');
 const { buildRevenueLaneReadiness } = require('../economic/RevenueLaneReadiness');
+const { createHoldRecord, digestEffect, evaluateHold, buildHoldLivenessMetrics } = require('../economic/OperationalHold');
+const HOLD_QUEUE = path.join(OUT_DIR, 'HOLD-QUEUE-STATE.json');
+const HOLD_LIVENESS = path.join(OUT_DIR, 'HOLD-LIVENESS-LATEST.json');
+const HOLD_EVENTS = path.join(OUT_DIR, 'HOLD-LIVENESS-EVENTS.json');
 
 const sha = v => crypto.createHash('sha256').update(v, 'utf8').digest('hex');
 
@@ -84,6 +88,149 @@ const PRICING_RESEARCH = {
 function loadJson(file, fallback) {
   if (!fs.existsSync(file)) return fallback;
   return JSON.parse(fs.readFileSync(file, 'utf8'));
+}
+
+function syncOperationalHoldQueue(readiness, approvedOffers, nowValue = new Date().toISOString()) {
+  const now = new Date(nowValue);
+  if (!Number.isFinite(now.getTime())) throw new Error('HOLD_QUEUE_CLOCK_INVALID');
+  const priorState = loadJson(HOLD_QUEUE, { records: [] });
+  const priorRecords = Array.isArray(priorState.records) ? priorState.records : [];
+  const records = priorRecords.map(record => {
+    if (record && record.state === 'HOLD' && Date.parse(record.expires_at) <= now.getTime()) {
+      return {
+        ...record,
+        state: 'EXPIRED',
+        terminal_at: now.toISOString(),
+        terminal_reason: 'HOLD_EXPIRED_NEW_REVIEW_REQUIRED'
+      };
+    }
+    return record;
+  });
+  const current = [];
+  const usedDigests = new Set();
+  const offerById = new Map((Array.isArray(approvedOffers) ? approvedOffers : []).map(offer => [offer.offer_id, offer]));
+
+  const lanes = Array.isArray(readiness.approved_offer_lanes) ? readiness.approved_offer_lanes : [];
+  const laneSpecs = lanes.length ? lanes.map(lane => ({ lane, offer: offerById.get(lane.offer_id) || {} })) : [{
+    lane: {
+      lane_id: 'GLOBAL-COMMERCE-RELEASE',
+      offer_id: 'GLOBAL-COMMERCE-RELEASE',
+      product_id: null,
+      silo: 'dreamledger',
+      price_nzd: null,
+      checkout_url: null,
+      configuration_status: 'BLOCKED_NO_PROVIDER_VERIFIED_OFFER',
+      blocker_codes: ['NO_PROVIDER_VERIFIED_ACTIVE_OFFER'],
+      next_action: 'RECONCILE_PROVIDER_PARITY_AND_END_TO_END_DELIVERY'
+    },
+    offer: {}
+  }];
+
+  for (const { lane, offer } of laneSpecs) {
+    const blockers = Array.isArray(lane.blocker_codes) ? lane.blocker_codes : [];
+    const reasonCode = blockers[0] || 'STRIPE_PROVIDER_PARITY_UNVERIFIED';
+    const effect = {
+      offer_id: lane.offer_id || null,
+      product_id: lane.product_id || offer.product_id || null,
+      sku: offer.product_sku || offer.sku || null,
+      silo: lane.silo || offer.silo || null,
+      amount_minor: Number.isFinite(Number(offer.price)) ? Math.round(Number(offer.price) * 100) : null,
+      currency: String(offer.currency || 'nzd').toLowerCase(),
+      stripe_payment_link_url: offer.payment_link_url || null,
+      stripe_payment_link_id: offer.payment_link_id || null,
+      checkout_route: offer.checkout_route || null,
+      fulfillment_route: offer.fulfillment_route || null,
+      delivery_contract: offer.proof_of_delivery || null,
+      publication_scope: 'NO_PUBLIC_ACTION_UNTIL_EXACT_EFFECT_AUTHORIZED'
+    };
+    const effectDigest = digestEffect(effect);
+    usedDigests.add(effectDigest);
+    const existing = records.find(record =>
+      record && record.state === 'HOLD' &&
+      record.effect_digest === effectDigest &&
+      Date.parse(record.expires_at) > now.getTime()
+    );
+    let record = existing || createHoldRecord({
+      material_parameters: effect,
+      reason_code: reasonCode,
+      missing_dependency: blockers.join('|') || 'STRIPE_PROVIDER_PARITY_AND_FULFILLMENT_PROOF',
+      owner: 'commerce-operations',
+      created_at: now.toISOString(),
+      expires_at: new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString(),
+      retry_policy: {
+        mode: 'manual_after_dependency_refresh',
+        max_attempts: 0,
+        retry_not_before: null,
+        human_retry_required: true
+      },
+      permitted_next_transition: 'RECHECK_PROVIDER_AND_FULFILLMENT_EVIDENCE'
+    });
+    record = {
+      ...record,
+      lane_id: lane.lane_id || lane.offer_id || 'GLOBAL-COMMERCE-RELEASE',
+      configuration_status: lane.configuration_status || 'BLOCKED',
+      blocker_codes: blockers,
+      next_action: lane.next_action || 'RECHECK_PROVIDER_AND_FULFILLMENT_EVIDENCE'
+    };
+    current.push(record);
+  }
+
+  const activeDigests = new Set(current.map(record => record.effect_digest));
+  const history = records.map(record => {
+    if (record && record.state === 'HOLD' && !activeDigests.has(record.effect_digest)) {
+      return {
+        ...record,
+        state: 'SUPERSEDED',
+        terminal_at: now.toISOString(),
+        terminal_reason: 'MATERIAL_PARAMETERS_CHANGED_NEW_EFFECT_DIGEST_REQUIRED'
+      };
+    }
+    return record;
+  });
+  const byId = new Map();
+  for (const record of history) byId.set(record.hold_id, record);
+  for (const record of current) byId.set(record.hold_id, record);
+  const allRecords = [...byId.values()].slice(-500);
+  const state = {
+    schema: 'DREAMLEDGER/OPERATIONAL-HOLD-QUEUE/v1',
+    generated_at: now.toISOString(),
+    persistence_mode: 'LOCAL_FILE_ONLY',
+    durable_shared_event_store_available: false,
+    note: 'GitHub-hosted runner history is ephemeral unless a durable store is configured; remote queue age is not inferred.',
+    active_count: current.length,
+    records: allRecords
+  };
+  fs.mkdirSync(OUT_DIR, { recursive: true });
+  fs.writeFileSync(HOLD_QUEUE, JSON.stringify(state, null, 2) + '\n', 'utf8');
+
+  const eventState = fs.existsSync(HOLD_EVENTS) ? loadJson(HOLD_EVENTS, null) : null;
+  const events = eventState && Array.isArray(eventState.events) ? eventState.events : null;
+  const liveness = buildHoldLivenessMetrics(allRecords, events, now.toISOString());
+  liveness.durable_shared_store_available = false;
+  liveness.age_semantics = 'TIME_SINCE_LOCAL_RECORD_CREATION; GLOBAL_QUEUE_AGE_UNVERIFIED_WITHOUT_DURABLE_SHARED_STORE';
+  fs.writeFileSync(HOLD_LIVENESS, JSON.stringify(liveness, null, 2) + '\n', 'utf8');
+
+  const decisions = current.map(record => evaluateHold(record, record.material_parameters, {
+    now: now.toISOString(),
+    transition: record.permitted_next_transition,
+    approval_status: 'PENDING',
+    approval_effect_digest: null,
+    dependencies_passed: false
+  }));
+  return {
+    schema: state.schema,
+    records: current,
+    active_hold_count: current.length,
+    liveness,
+    preflight_decisions: decisions.map(item => ({
+      hold_id: item.hold_id,
+      decision: item.decision,
+      reason_code: item.reason_code,
+      externalization_performed: item.externalization_performed
+    })),
+    persistence_mode: state.persistence_mode,
+    durable_shared_store_available: false
+  };
 }
 
 function candidates() {
@@ -621,6 +768,26 @@ function build() {
     defaultBuyerSignalOfferId: buyerSignalOffer.offer_id || null,
     discordArtifactPresent: fs.existsSync(path.join(ROOT, '..', 'public', 'downloads', 'discord-webhook-starter-kit.zip'))
   });
+  const operationalHolds = syncOperationalHoldQueue(revenueLaneReadiness, approvedCatalog.approved || []);
+  revenueLaneReadiness.operational_hold_count = operationalHolds.active_hold_count;
+  revenueLaneReadiness.operational_holds = operationalHolds.records.map(record => ({
+    hold_id: record.hold_id,
+    lane_id: record.lane_id,
+    state: record.state,
+    effect_digest: record.effect_digest,
+    reason_code: record.reason_code,
+    missing_dependency: record.missing_dependency,
+    owner: record.owner,
+    expires_at: record.expires_at,
+    retry_policy: record.retry_policy,
+    permitted_next_transition: record.permitted_next_transition,
+    blocker_codes: record.blocker_codes,
+    externalization_performed: record.externalization_performed
+  }));
+  revenueLaneReadiness.hold_liveness = operationalHolds.liveness;
+  revenueLaneReadiness.hold_persistence_mode = operationalHolds.persistence_mode;
+  revenueLaneReadiness.durable_shared_hold_store_available = operationalHolds.durable_shared_store_available;
+
   const configurationReadyOfferIds = new Set(
     revenueLaneReadiness.approved_offer_lanes
       .filter(lane => lane.configuration_status === 'CONFIGURATION_COHERENT_PROVIDER_CHECK_REQUIRED')
@@ -844,6 +1011,7 @@ function build() {
     acceptance_contract: acceptanceContract,
     commerce_handoff: commerceHandoff,
     revenue_lane_readiness: revenueLaneReadiness,
+    operational_holds: operationalHolds,
     evergreen_expansion: evergreenExpansion,
     candidates: rows.slice(0, 777),
     truth: {
@@ -877,6 +1045,9 @@ if (require.main === module) {
       public_checkout_products_without_approved_offer: r.revenue_lane_readiness.unapproved_public_checkout_products.length,
       recurring_lanes: r.revenue_lane_readiness.recurring_lanes.length,
       quote_adapter_blockers: r.revenue_lane_readiness.quote_adapter_family.blocker_codes,
+      operational_hold_count: r.operational_holds.active_hold_count,
+      hold_liveness: r.operational_holds.liveness,
+      durable_shared_hold_store_available: r.operational_holds.durable_shared_store_available,
       diversified_stream_candidates: r.revenue_lane_readiness.diversified_stream_candidates.map(x => ({
         priority: x.priority,
         lane_id: x.lane_id,
