@@ -44,15 +44,16 @@ Assert-True ($activation -match "price -ne $($product.price)") 'activation gate 
 Assert-True ($activation -match "currency -ne 'nzd'") 'activation gate pins NZD currency'
 Assert-True ($null -ne $offers.approval_rule) 'offer catalog has an approval rule'
 
-$priceNzd = [math]::Round(([int]$product.price / 100), 2)
+$priceNzd = [math]::Round([decimal]$product.price, 2)
 $proof = [ordered]@{
     type = 'dreamledger-economic-contract'
     status = 'PASS'
     generated_at_utc = (Get-Date).ToUniversalTime().ToString('o')
     canonical_sku = $product.id
     silo = $product.silo
-    price_minor = [int]$product.price
+    price_minor = [int][math]::Round(([decimal]$product.price * 100), 0)
     price_nzd = $priceNzd
+    price_unit = [string]$product.price_unit
     currency = $product.currency
     checkout_mode = $product.checkout.mode
     payment_surface = $product.commercial_truth.payment_surface
