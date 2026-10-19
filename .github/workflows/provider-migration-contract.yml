@@ -46,6 +46,7 @@ jobs:
           node --check ops/recovery/provider-recovery-contract.test.mjs
           node --check ops/migration/cloudflare-preview/_worker.js
           node --check ops/migration/cloudflare-preview/build-preview.mjs
+          node --check ops/migration/cloudflare-preview/smoke-preview.mjs
       - name: Test recovery controls without provider credentials
         run: node --test ops/recovery/provider-recovery-contract.test.mjs
       - name: Build fail-closed Cloudflare preview and verify sensitive handlers are excluded
