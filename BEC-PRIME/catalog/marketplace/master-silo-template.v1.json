@@ -1,0 +1,16 @@
+{
+  "schema": "dreamledger.silo.master-template.v1",
+  "version": "1.0.0",
+  "reference_silo_id": "mtg",
+  "reference_silo_name": "Magic: The Gathering",
+  "record_state": "REFERENCE_TEMPLATE_NOT_ECONOMICALLY_VALIDATED",
+  "clone_enabled": false,
+  "clone_gate": "MTG must pass the same payment, inventory, fulfillment, delivery-proof and reconciliation checks as any independent sale before any silo is cloned.",
+  "reuse_existing_kernel": true,
+  "catalogue_and_inventory_are_silo_owned": true,
+  "copy_live_data_or_credentials": false,
+  "owner_approval_required": true,
+  "verified_external_revenue_nzd": 0,
+  "independent_buyers_verified": 0,
+  "paid_fulfilled_orders_verified": 0
+}
