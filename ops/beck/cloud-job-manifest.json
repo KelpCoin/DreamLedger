@@ -6,7 +6,7 @@
       "id": "CLOUD-001",
       "title": "Run receipt regression + settlement-truth tests",
       "cwd": ".",
-      "command": "node --test ops/beck/receipts/historical-receipt-regression.test.mjs ops/beck/settlement-truth.test.mjs",
+      "command": "node --test ops/beck/receipts/historical-receipt-regression.test.mjs ops/beck/settlement-truth.test.mjs ops/beck/stripe-fee-reconcile.test.mjs",
       "evidence": "proof/beck/latest-gate-unit-tests.json",
       "on_fail": "BLOCKED"
     },
