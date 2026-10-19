@@ -51,7 +51,7 @@ async function fetchAllPaymentLinks(secret) {
   const links = [];
   let startingAfter = null;
   for (let page = 0; page < 30; page++) {
-    const params = { limit: 100, 'expand[]': 'data.line_items' };
+    const params = { limit: 100 };
     if (startingAfter) params.starting_after = startingAfter;
     const result = await stripeGet(secret, 'payment_links', params);
     const data = Array.isArray(result.data) ? result.data : [];
@@ -105,16 +105,22 @@ function pricePath(offer, skuOrId) {
 
 function readPublicPage(offer) {
   const sources = pricePath(offer, offer.product_sku);
-  for (const relative of sources) {
+  const existingPages = sources.map(relative => {
     const file = path.join(PUBLIC, relative.replace(/^public\//, ''));
-    if (!fs.existsSync(file)) continue;
-    const html = fs.readFileSync(file, 'utf8');
-    const held = /Offer currently held|not available for purchase|checkout_available\s*[:=]\s*false/i.test(html);
-    const match = html.match(/(?:NZ\s*\$|NZD\s*\$?)\s*([0-9]+(?:\.[0-9]{1,2})?)/i);
-    const routeLink = html.match(/href=["']([^"']*buy[^"']*)["']/i);
+    return fs.existsSync(file) ? { relative, html: fs.readFileSync(file, 'utf8') } : null;
+  }).filter(Boolean);
+  if (existingPages.length) {
+    const combinedHtml = existingPages.map(page => page.html).join('\n');
+    const primary = existingPages[0];
+    const held = existingPages.some(page =>
+      /Offer currently held|not available for purchase|checkout_available\s*[:=]\s*false/i.test(page.html)
+    );
+    const match = combinedHtml.match(/(?:NZ\s*\$|NZD\s*\$?)\s*([0-9]+(?:\.[0-9]{1,2})?)/i);
+    const routeLink = combinedHtml.match(/href=["']([^"']*buy[^"']*)["']/i);
     return {
       route: offer.silo === 'mtg' ? '/mtg/' : null,
-      source_path: relative,
+      source_path: primary.relative,
+      scanned_paths: existingPages.map(page => page.relative),
       purchase_route: routeLink ? routeLink[1] : null,
       displayed_amount_nzd: match ? Number(match[1]) : null,
       checkout_held: held
