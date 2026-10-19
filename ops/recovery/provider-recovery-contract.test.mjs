@@ -103,7 +103,7 @@ test('free exit checklist cannot claim cutover before every gate has evidence',(
  assert.ok(checklist.gates.every(g=>g.status==='NOT_RUN'));
  assert.ok(checklist.gates.find(g=>g.id==='G14').human_action_required);
  assert.ok(checklist.gates.find(g=>g.id==='G16').human_action_required);
- assert.ok(checklist.gates.find(g=>g.id==='G05').blocks.some(b=>b.includes('ephemeral local filesystem')));
+ assert.ok(checklist.gates.find(g=>g.id==='G05').blocks.some(b=>b.includes('not a durable substitute')));
  assert.equal(checklist.cost_policy.free_tier_constraints.workers_requests_per_day,100000);
  assert.equal(checklist.cost_policy.free_tier_constraints.workers_cpu_ms_per_invocation,10);
 });
