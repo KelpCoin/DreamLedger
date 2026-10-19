@@ -1,0 +1,70 @@
+{
+  "schema": "dreamledger/elohim-website-downstream/v1",
+  "goal": "dreamledger.org is fully downstream of Elohim/BEC compile. Biggie does nothing manual for the website.",
+  "human_manual_forbidden": [
+    "hand-edit live index.html on host",
+    "dashboard-only deploys as the normal path",
+    "claim live domain healthy without /version commit match",
+    "treat checkout availability as revenue"
+  ],
+  "pipeline": [
+    {
+      "step": 1,
+      "name": "Source",
+      "authority": "main branch only"
+    },
+    {
+      "step": 2,
+      "name": "Elohim compile + gauntlet",
+      "workflows": [
+        "cloud-elohim-website-gauntlet.yml",
+        "BEC-PRIME npm run compile",
+        "bec website / Compile-All"
+      ],
+      "proof": "compiled surfaces + proof/cloud-elohim-gauntlet.json"
+    },
+    {
+      "step": 3,
+      "name": "Public face exhaust",
+      "workflow": "bec-public-faces.yml",
+      "outputs": ["public/*.html", "public/data/silo-face-registry.json"]
+    },
+    {
+      "step": 4,
+      "name": "Canonical release",
+      "workflow": "canonical-release-spine.yml",
+      "on": "push to main",
+      "does": [
+        "npm run compile",
+        "verify-public-surface",
+        "verify silos + agentic commerce",
+        "wait Render auto-deploy until dreamledger.org/version.commit == GITHUB_SHA",
+        "probe /, /billboard, /mtg, /api/products, sitemap, robots"
+      ]
+    },
+    {
+      "step": 5,
+      "name": "Host",
+      "current_target": "Render dreamledger-org / dreamledger-bec-prime",
+      "migration_target": "Cloudflare Pages + Worker (PR 777) when Render quota or domain mapping fails",
+      "rule": "Host serves Elohim exhaust only; no parallel hand-maintained site"
+    }
+  ],
+  "live_probe_at_contract_write": {
+    "stripe_checkout_http": 200,
+    "render_origin_http": 200,
+    "dreamledger_org_buy_paths_http": 503,
+    "dreamledger_org_billboard_http": 503,
+    "status": "DOMAIN_DEGRADED",
+    "implication": "Pipeline exists on main; zero-manual is NOT true while custom domain returns 503"
+  },
+  "acceptance_zero_manual": [
+    "Push to main triggers compile + release without human clicks",
+    "dreamledger.org/version returns 200 and commit equals release SHA",
+    "/, /billboard, /mtg, /buy/* authorized paths return 200",
+    "Recovery adapters can re-probe and redeploy without Biggie",
+    "No hand edit of production HTML required for catalog or CTAs"
+  ],
+  "verified_external_revenue_nzd": 0,
+  "production_mutation_by_this_file": false
+}
