@@ -102,6 +102,11 @@
     return el;
   }
 
+  function conditionEligible(product) {
+    const kind = String(product && (product.product_kind || product.category || product.inventory_type) || '').toLowerCase();
+    return ['single', 'single-card', 'mtg-single', 'physical-single'].includes(kind);
+  }
+
   function safeInternalPath(value, fallback) {
     if (typeof value !== 'string' || !value.startsWith('/') || value.startsWith('//') ||
         value.includes('\\') || /[\r\n]/.test(value)) return fallback;
@@ -191,16 +196,20 @@
   }
 
   function renderDeck(deck) {
+    const single = conditionEligible(deck);
     const article = document.createElement('article');
     article.className = 'deck';
 
-    const banner = textNode('div', 'Physical Commander deck · enquire first', 'deck-banner');
+    const banner = textNode('div', single ? 'Physical single card · enquire first' : 'Physical Commander deck · enquire first', 'deck-banner');
     const body = document.createElement('div');
     body.className = 'deck-body';
 
     body.appendChild(textNode('div', 'MTG inventory', 'tag'));
     body.appendChild(textNode('h3', String(deck.name ?? deck.id).slice(0, 180)));
     body.appendChild(textNode('p', String(deck.description ?? 'Seller-provided listing details.').slice(0, 1000), 'desc'));
+    if (single && typeof deck.condition === 'string' && deck.condition.trim()) {
+      body.appendChild(textNode('p', 'Condition: ' + deck.condition.trim().slice(0, 120), 'desc'));
+    }
 
     const price = Number(deck.price);
     const priceText = Number.isFinite(price) && price > 0
@@ -220,7 +229,7 @@
       actions.appendChild(contact);
     }
 
-    const decklist = safeDecklistUrl(deck.decklist_url);
+    const decklist = single ? null : safeDecklistUrl(deck.decklist_url);
     if (decklist) {
       const link = document.createElement('a');
       link.className = 'see';
@@ -255,7 +264,7 @@
       const decks = products.filter(product =>
         product &&
         product.silo === 'mtg' &&
-        product.category === 'commander-deck' &&
+        (conditionEligible(product) || product.category === 'commander-deck' || /^EDH/i.test(String(product.id || '')) ) &&
         product.status === 'published' &&
         Number(product.inventory) > 0 &&
         product.sale_mode === 'claim_by_message' &&
@@ -266,12 +275,12 @@
       grid.replaceChildren();
       if (decks.length === 0) {
         status.className = 'status-bar';
-        status.textContent = 'No eligible deck listings are currently available. Held, draft, zero-inventory, and checkout-enabled records are not displayed here.';
+        status.textContent = 'No eligible physical MTG listings are currently available. Held, draft, zero-inventory, and checkout-enabled records are not displayed here.';
         return;
       }
 
       status.className = 'status-bar';
-      status.textContent = 'Showing ' + decks.length + ' published deck listing' +
+      status.textContent = 'Showing ' + decks.length + ' published MTG listing' +
         (decks.length === 1 ? '' : 's') +
         '. Contact the seller to confirm current availability and terms.';
       decks.forEach(deck => grid.appendChild(renderDeck(deck)));
