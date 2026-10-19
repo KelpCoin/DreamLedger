@@ -1,0 +1,8 @@
+{
+  "schema_version": "dreamledger/catalog-test-source/v1",
+  "classification": "TEST_FIXTURE_ONLY",
+  "purpose": "Deterministic source material used only by the offline catalogue factory test suite.",
+  "commercial_use": false,
+  "public_listing": false,
+  "checkout_enabled": false
+}
