@@ -70,8 +70,13 @@ jobs:
           const publicHtml = fs.readFileSync('public/mtg/index.html', 'utf8');
           if (rootHtml !== publicHtml) throw new Error('Root and public MTG landing pages drifted');
           if (!/\.\.\/data\/mtg-catalog\.json/.test(rootHtml)) throw new Error('Root MTG page must use its silo-isolated catalog');
-          if (!/p\.status===['"]published['"]/.test(rootHtml) || !/Number\(p\.inventory\)>0/.test(rootHtml)) {
-            throw new Error('MTG page must render only published, positive-inventory products');
+          if (!rootHtml.includes("product.status === 'published'") ||
+              !rootHtml.includes('Number(product.inventory) > 0') ||
+              !rootHtml.includes("product.sale_mode === 'claim_by_message'") ||
+              !rootHtml.includes('product.checkout_available === false') ||
+              !rootHtml.includes('safeClaim(product.claim_url)') ||
+              !rootHtml.includes('grid.replaceChildren()')) {
+            throw new Error('MTG page must render only published, positive-inventory, safe manual-enquiry products');
           }
           for (const page of [
             'mtg/quintorius-field-historian.html',
