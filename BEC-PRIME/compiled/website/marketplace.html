@@ -33,6 +33,12 @@
 <div class="field hide" aria-hidden="true"><label for="website">Leave this field blank</label><input id="website" name="website" tabindex="-1" autocomplete="off"></div>
 <div class="actions"><button id="submitRfq" type="submit">Submit RFQ</button></div><div id="rfqStatus" class="message hide" role="status" aria-live="polite"></div>
 </form></div></section>
+<section class="section" id="commercial-verticals">
+<h2>Priority commercial verticals</h2>
+<p>These are the chosen commerce lanes connected to the shared B2B/A2A substrate. Each keeps its own source of truth and release gates. Registry visibility is not checkout authorization.</p>
+<div id="verticalStatus" class="message" role="status" aria-live="polite">Loading vertical policy…</div>
+<div id="verticalResults" class="grid"></div>
+</section>
 <section class="section" id="agents"><h2>Agent-to-agent commerce</h2><p>Agents can discover the contract and submit scoped purchase intent. A2A intent is logged as an observation and held for human approval. It cannot spend money, accept terms or trigger an irreversible action by itself.</p>
 <div class="grid"><div class="panel"><span class="pill">01 · Discover</span><h3>Capability and offer discovery</h3><p class="muted">Machine-readable marketplace and agent-commerce contracts, with explicit currency, scope and evidence boundaries.</p></div><div class="panel"><span class="pill">02 · Propose</span><h3>Scoped intent</h3><p class="muted">A registered agent identifies its principal, requested action, amount and idempotency key.</p></div><div class="panel"><span class="pill">03 · Authorize</span><h3>Human approval gate</h3><p class="muted">Approval is separate from intent. Checkout and execution remain disabled until the authorization and settlement path is verified.</p></div></div>
 <div class="field"><label>Discovery contract</label><div class="code">GET https://dreamledger.org/api/marketplace/v1/discovery
@@ -61,6 +67,30 @@ Content-Type: application/json
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 async function getJson(url){const r=await fetch(url,{headers:{Accept:'application/json'},cache:'no-store'});let j={};try{j=await r.json()}catch{}if(!r.ok)throw new Error(j.message||j.error||('HTTP '+r.status));return j}
+async function loadPriorityVerticals(){
+ const status=$('verticalStatus'),results=$('verticalResults');
+ if(!status||!results)return;
+ status.textContent='Loading the governed vertical registry…';results.innerHTML='';
+ try{
+  const d=await getJson('/api/marketplace/v1/verticals'),rows=d.commercial_verticals||[];
+  status.textContent='Registry read succeeded. This does not verify a buyer, live inventory, payment, fulfillment, or revenue.';
+  const detail={
+   'truth-oracle-paid-evidence-review':'Audits and evidence review belong inside Truth Oracle paid evidence-depth tiers. No standalone audit SKU or new payment route is authorized.',
+   'dreammeez-avatar-cosmetics':'Avatar try-on and identity cosmetics are the product focus. Paid unlocks remain held until account-bound settlement, server-issued entitlement, and delivery proof pass.',
+   'programmatic-dooh-billboard':'Billboard placements require authoritative finite inventory, approved creative, settled attribution, placement measurement, and a retrievable buyer receipt.'
+  };
+  results.innerHTML=rows.map(v=>{
+   const truth=v.id==='truth-oracle-paid-evidence-review';
+   const label=v.checkout_enabled?'CHECKOUT ENABLED IN REGISTRY':'CHECKOUT HELD';
+   const gates=(v.required_gates||[]).slice(0,3).map(g=>'<li>'+esc(g)+'</li>').join('');
+   const surface=truth?'<p><a href="/truth-oracle/">Open the existing Truth Oracle surface</a></p>':'<p class="muted">Existing silo surface: '+esc(v.route||'not assigned')+'. No checkout handoff is offered here.</p>';
+   return '<article class="panel"><span class="pill">'+esc(v.silo_id||'vertical')+'</span><span class="pill">'+esc(v.surface_state||v.record_state||'configuration only')+'</span><h3>'+esc(v.display_name||v.id)+'</h3><p class="muted">'+esc(detail[v.id]||'Use the existing authorized silo contract.')+'</p><p><strong>'+label+'</strong></p><p class="muted">Model: '+esc(v.economic_role||'existing silo')+'</p><ul>'+gates+'</ul>'+surface+'</article>';
+  }).join('');
+ }catch(e){
+  status.textContent='Vertical registry unavailable. Fail-closed rule: this surface grants no checkout authority. '+e.message;
+  results.innerHTML='<article class="panel"><h3>Priority verticals held</h3><p class="muted">No fallback prices, purchase links, inventory, or buyer claims are fabricated.</p></article>';
+ }
+}
 async function refreshStatus(){try{const s=await getJson('/api/marketplace/v1/status');$('backendState').textContent=s.status==='available'?'Ledger available':s.status==='available'?'Ledger available':'Ledger '+(s.status||'unknown');$('backendNote').textContent='Backend: '+s.mode+'. '+(s.economic_truth||'');}catch(e){$('backendState').textContent='Ledger unavailable';$('backendNote').textContent='Marketplace persistence is not currently confirmed. RFQ submission may be unavailable. '+e.message;}}
 function money(minor,currency){if(minor==null)return 'Request a quote';try{return new Intl.NumberFormat(undefined,{style:'currency',currency:currency||'NZD'}).format(Number(minor)/100)}catch{return (Number(minor)/100).toFixed(2)+' '+currency}}
 async function loadAuctions(){const status=$('auctionStatus'),results=$('auctionResults');try{const d=await getJson('/api/marketplace/v1/auctions?limit=30'),rows=d.auctions||[];status.textContent=rows.length?rows.length+' live or scheduled auction(s).':'No live auctions are currently available. '+(d.message||'Only reviewed, published listings are shown.');results.innerHTML=rows.map(a=>'<article class="listing"><span class="pill">Timed auction</span><span class="pill">'+esc(a.status||'scheduled')+'</span><h3>'+esc(a.title)+'</h3><p class="muted">'+esc(a.description)+'</p><p class="price">Current bid: '+esc(a.current_bid_minor==null?money(a.starting_price_minor,a.currency):money(a.current_bid_minor,a.currency))+'</p><p class="muted">Bids: '+esc(a.bid_count||0)+' · Ends: '+esc(a.ends_at||'not scheduled')+'</p><p class="muted">Auction ID: '+esc(a.auction_id)+'</p></article>').join('')}catch(e){status.textContent='Auction catalog unavailable: '+e.message;results.innerHTML='';}}
@@ -68,6 +98,6 @@ async function loadListings(){const q=$('search').value.trim(),cat=$('category')
 $('searchBtn').addEventListener('click',loadListings);$('refreshBtn').addEventListener('click',()=>{refreshStatus();loadListings()});
 $('rfqForm').addEventListener('submit',async e=>{e.preventDefault();const btn=$('submitRfq'),status=$('rfqStatus');btn.disabled=true;status.classList.remove('hide');status.textContent='Submitting…';try{const cents=id=>{const v=$(id).value.trim();return v===''?null:Math.round(Number(v)*100)};const min=cents('budgetMin'),max=cents('budgetMax');if(min!==null&&max!==null&&min>max)throw new Error('Minimum budget cannot exceed maximum budget.');const key=crypto.randomUUID();const payload={title:$('title').value,problem:$('problem').value,category:$('rfqCategory').value,currency:$('currency').value,budget_min_minor:min,budget_max_minor:max,needed_by:$('neededBy').value||null,website:$('website').value};const r=await fetch('/api/marketplace/v1/rfqs',{method:'POST',headers:{'Content-Type':'application/json','Idempotency-Key':key},body:JSON.stringify(payload)});let d={};try{d=await r.json()}catch{}if(!r.ok)throw new Error(d.message||d.error||('HTTP '+r.status));status.textContent='RFQ reference: '+(d.rfq_id||'pending')+'\nState: '+(d.state||'OBSERVED')+'\n'+(d.message||'Received. Supplier matching is not guaranteed.');}catch(err){status.textContent='RFQ was not confirmed: '+err.message+'\nPlease retry later. Do not assume suppliers were notified.'}finally{btn.disabled=false}});
 $('joinForm').addEventListener('submit',async e=>{e.preventDefault();const btn=$('joinSubmit'),status=$('joinStatus');btn.disabled=true;status.classList.remove('hide');status.textContent='Submitting application…';try{const key=crypto.randomUUID(),payload={party_type:$('partyType').value,display_name:$('displayName').value,contact_email:$('contactEmail').value,country_code:$('countryCode').value.trim().toUpperCase(),business_website:$('businessWebsite').value,application_notes:$('applicationNotes').value,website_honeypot:$('websiteHoneypot').value};const r=await fetch('/api/marketplace/v1/party-applications',{method:'POST',headers:{'Content-Type':'application/json','Idempotency-Key':key},body:JSON.stringify(payload)});let d={};try{d=await r.json()}catch{}if(!r.ok)throw new Error(d.error||d.message||('HTTP '+r.status));status.textContent='Application reference: '+(d.application_id||'pending')+'\nStatus: '+(d.status||'pending')+'\n'+(d.message||'Account access is pending review. Trust status remains UNVERIFIED.');}catch(err){status.textContent='Application was not confirmed: '+err.message;}finally{btn.disabled=false}});
-refreshStatus();loadListings();loadAuctions();
+refreshStatus();loadListings();loadAuctions();loadPriorityVerticals();
 </script>
 </body></html>
