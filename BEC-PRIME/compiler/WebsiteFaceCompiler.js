@@ -15,7 +15,7 @@ function write(f,t){fs.mkdirSync(path.dirname(f),{recursive:true});fs.writeFileS
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function routeIsVerified(route){
   if(!route||route.checkout_enabled!==true||route.commercial_validation_status!=='VALIDATED'||route.delivery_test_status!=='PASS'||route.commercial_truth?.sellable!==true)return false;
-  if(typeof route.href!=='string'||!/^\\/buy\\/[A-Za-z0-9_-]+\\/?$/.test(route.href))return false;
+  if(typeof route.href!=='string'||!/^\/buy\/[A-Za-z0-9_-]+\/?$/.test(route.href))return false;
   return Number.isFinite(Number(route.price_nzd))&&Number(route.price_nzd)>0;
 }
 function loadRoutes(registry){
