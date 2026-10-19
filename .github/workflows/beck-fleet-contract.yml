@@ -1,0 +1,101 @@
+name: BECK Fleet Contract
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'ops/fleet/**'
+      - 'ops/recovery/**'
+      - 'ops/migration/**'
+      - '.github/workflows/beck-fleet-contract.yml'
+      - '.github/workflows/beck-cloud-fleet.yml'
+  push:
+    branches:
+      - 'beck/provider-migration-neon-cloudflare-20261019'
+    paths:
+      - 'ops/fleet/**'
+      - 'ops/recovery/**'
+      - 'ops/migration/**'
+      - '.github/workflows/beck-fleet-contract.yml'
+      - '.github/workflows/beck-cloud-fleet.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: beck-fleet-contract-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Verify fleet contracts without provider secrets
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Validate machine-readable contracts
+        run: |
+          node -e 'JSON.parse(require("fs").readFileSync("ops/fleet/JOBS.v1.json","utf8"))'
+          node -e 'JSON.parse(require("fs").readFileSync("ops/migration/CLOUDFLARE-ROUTE-PARITY-CONTRACT.json","utf8"))'
+          node --check ops/fleet/heartbeat.mjs
+          node --check ops/fleet/heartbeat.contract.test.mjs
+          node --check ops/recovery/neon-endpoint.mjs
+          node --check ops/recovery/cloudflare-pages.mjs
+          node --check ops/recovery/provider-recovery-contract.test.mjs
+
+      - name: Run local-fixture heartbeat tests
+        run: node --test ops/fleet/heartbeat.contract.test.mjs
+
+      - name: Run provider recovery guardrail tests
+        run: node --test ops/recovery/provider-recovery-contract.test.mjs
+
+      - name: Build non-production Cloudflare preview
+        run: node ops/migration/cloudflare-preview/build-preview.mjs
+
+      - name: Verify preview remains fail-closed
+        run: |
+          node -e '
+            const fs=require("node:fs");
+            const b=JSON.parse(fs.readFileSync("ops/migration/cloudflare-preview/build-proof.json","utf8"));
+            if(b.status!=="PREVIEW_BUNDLE_BUILT_NOT_PRODUCTION_READY") throw new Error("preview must not claim production readiness");
+            if(b.production_mutation!==false || b.dns_changed!==false || b.revenue_claimed_nzd!==0) throw new Error("preview proof violates no-mutation/economic-truth policy");
+            console.log("PASS preview remains non-production and fail-closed");
+          '
+
+      - name: Capture fleet contract evidence
+        if: always()
+        run: |
+          mkdir -p proof/fleet
+          node -e '
+            const fs=require("node:fs");
+            const p={
+              schema:"dreamledger.beck-fleet-contract-proof/v1",
+              checked_at_utc:new Date().toISOString(),
+              commit_sha:process.env.GITHUB_SHA||null,
+              workflow:process.env.GITHUB_WORKFLOW||null,
+              run_id:process.env.GITHUB_RUN_ID||null,
+              note:"Contract tests are not provider provisioning, production route parity, local installation or revenue proof.",
+              provider_mutations:false,
+              production_deployment_triggered:false,
+              verified_revenue_nzd:0
+            };
+            fs.writeFileSync("proof/fleet/contract-proof.json",JSON.stringify(p,null,2)+"\n","utf8");
+          '
+      - name: Upload fleet contract evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: beck-fleet-contract-${{ github.run_id }}
+          path: proof/fleet/contract-proof.json
+          if-no-files-found: error
+          retention-days: 30
