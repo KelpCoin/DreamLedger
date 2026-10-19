@@ -9,6 +9,8 @@ on:
       - "BEC-PRIME/scripts/test-777-amber-room.js"
       - "BEC-PRIME/scripts/test-777-factory-factory.js"
       - "BEC-PRIME/scripts/test-777-revenue-lanes.js"
+      - "BEC-PRIME/scripts/test-777-stripe-resolver.js"
+      - "BEC-PRIME/scripts/audit-777-stripe-offer-parity.js"
       - "BEC-PRIME/runtime/777/**"
       - "BEC-PRIME/economic/**"
       - "BEC-PRIME/catalog/**"
@@ -62,6 +64,7 @@ jobs:
           node scripts/test-777-amber-room.js
           node scripts/test-777-factory-factory.js
           node scripts/test-777-revenue-lanes.js
+          node scripts/test-777-stripe-resolver.js
           node gauntlet/test-free-discovery-gauntlet.js
 
       - name: Verify economic truth boundary
@@ -94,4 +97,33 @@ jobs:
             BEC-PRIME/data/777/777-LATEST.json
             BEC-PRIME/data/factory-factory/FACTORY-FACTORY.json
           if-no-files-found: error
+          retention-days: 14
+
+  live-provider-parity:
+    # Never expose the live Stripe credential to pull_request or feature-branch runs.
+    # The audit uses GET-only operations and runs only after a reviewed push to main.
+    if: \${{ github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') }}
+    needs: engine
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout reviewed main revision
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Read-only live Stripe offer parity audit
+        env:
+          STRIPE_SECRET_KEY: \${{ secrets.STRIPE_SECRET_KEY }}
+        run: node BEC-PRIME/scripts/audit-777-stripe-offer-parity.js
+      - name: Upload provider parity receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: 777-stripe-provider-parity-\${{ github.run_id }}
+          path: BEC-PRIME/data/777/STRIPE-OFFER-PARITY-LATEST.json
+          if-no-files-found: warn
           retention-days: 14
