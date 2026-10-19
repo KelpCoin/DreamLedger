@@ -5,7 +5,7 @@
   "fulfillment_registry": "fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json",
   "count": 31,
   "checkoutable_count": 1,
-  "source_hash": "63e3fa405fb448e6554bde29d7859d485ce392940d66edfd79963fc8cc8d91ea",
+  "source_hash": null,
   "price_contract": "major_units_by_default; legacy allowlist remains minor until explicit price_unit migration",
   "implicit_legacy_price_unit_count": 27,
   "offers": [
@@ -314,13 +314,13 @@
       "source_price_unit": "major",
       "source_price_unit_implicit": false,
       "pricing_strategy": "fixed",
-      "payment_adapter": "stripe",
-      "checkout_route": "/api/offer-checkout/create",
-      "approval_required": false,
-      "checkout_available": true,
-      "status": "VERIFIED_AVAILABLE",
-      "fulfillment_ready": true,
-      "fulfillment_block_reason": null,
+      "payment_adapter": "disabled_until_approved",
+      "checkout_route": null,
+      "approval_required": true,
+      "checkout_available": false,
+      "status": "HELD_NOT_RELEASED",
+      "fulfillment_ready": false,
+      "fulfillment_block_reason": "HELD_PENDING_INDEPENDENT_COMMERCE_PROOF",
       "proof_of_delivery": "payment_plus_fulfillment_record_plus_transaction_proof",
       "verification_rules": [
         "canonical_product",
@@ -1216,13 +1216,13 @@
       "source_price_unit": "minor",
       "source_price_unit_implicit": false,
       "pricing_strategy": "fixed",
-      "payment_adapter": "stripe",
-      "checkout_route": "/api/offer-checkout/create",
-      "approval_required": false,
+      "payment_adapter": "disabled_until_approved",
+      "checkout_route": null,
+      "approval_required": true,
       "checkout_available": false,
-      "status": "QUARANTINED_NO_FULFILLMENT",
+      "status": "HELD_PRICE_CONFLICT",
       "fulfillment_ready": false,
-      "fulfillment_block_reason": "NO_FULFILLMENT_CONTRACT",
+      "fulfillment_block_reason": "PRICE_CONFLICT_NZD_230_VS_NZD_400_AND_NO_VERIFIED_DISPATCH",
       "proof_of_delivery": "payment_plus_fulfillment_record_plus_transaction_proof",
       "verification_rules": [
         "canonical_product",
@@ -1278,5 +1278,7 @@
         "private_material": "excluded"
       }
     }
-  ]
+  ],
+  "generated_utc": "2026-10-19T02:03:51.021Z",
+  "note": "Held-state overlay applied by review branch. Re-run the product compiler only after the canonical source and fulfillment registry agree."
 }
