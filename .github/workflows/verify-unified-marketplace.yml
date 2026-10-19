@@ -8,6 +8,8 @@ on:
       - 'BEC-PRIME/compiled/website/.well-known/agent-commerce.json'
       - 'data/777/cube-b2b-sales-hypotheses.v1.json'
       - 'BEC-PRIME/catalog/marketplace/priority-verticals.v1.json'
+      - 'BEC-PRIME/catalog/marketplace/master-silo-template.v1.json'
+      - 'BEC-PRIME/scripts/verify-master-silo-template.js'
       - 'supabase/migrations/20261013000*.sql'
       - 'BEC-PRIME/scripts/verify-unified-marketplace.js'
       - 'BEC-PRIME/scripts/test-priority-verticals-runtime.js'
@@ -43,3 +45,5 @@ jobs:
         run: node BEC-PRIME/scripts/verify-unified-marketplace.js
       - name: Exercise priority vertical runtime and fail-closed path
         run: node BEC-PRIME/scripts/test-priority-verticals-runtime.js
+      - name: Verify MTG master-silo template gate
+        run: node BEC-PRIME/scripts/verify-master-silo-template.js
