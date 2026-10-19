@@ -35,8 +35,10 @@ function buildRevenueLaneReadiness(input = {}) {
 
   function findFulfillment(offer, product) {
     const keys = [
+      offer.offer_id,
       offer.product_id,
       offer.product_sku,
+      offer.productSku,
       product && product.id,
       product && product.sku
     ].map(text).filter(Boolean);
@@ -100,7 +102,7 @@ function buildRevenueLaneReadiness(input = {}) {
       reasons.push('FULFILLMENT_REGISTRY_ENTRY_MISSING');
     } else {
       if (fulfillment.entry.ready !== true) reasons.push('FULFILLMENT_REGISTRY_NOT_READY');
-      if (fulfillment.entry.operator_required === true && offer.automated_fulfillment_required === true) {
+      if (fulfillment.entry.operator_required === true) {
         reasons.push('FULFILLMENT_REQUIRES_OPERATOR');
       }
     }
