@@ -200,7 +200,14 @@ function buildOfferParityReceipt({ offer, liveOffer, publicProduct, stripeLinks,
     if (fulfillmentEntry.ready !== true) blockers.push('FULFILLMENT_REGISTRY_NOT_READY');
     if (fulfillmentEntry.operator_required === true) blockers.push('FULFILLMENT_REQUIRES_OPERATOR');
   }
-  if (publicPage && publicPage.checkout_held === true) blockers.push('PUBLIC_PURCHASE_ROUTE_HELD');
+  if (publicPage) {
+    const pageAmountMinor = nzdToMinor(publicPage.displayed_amount_nzd);
+    if (pageAmountMinor == null || pageAmountMinor !== expectedAmountMinor) blockers.push('PUBLIC_PAGE_PRICE_MISMATCH');
+    if (!asText(publicPage.purchase_route)) blockers.push('PUBLIC_PAGE_PURCHASE_ROUTE_MISSING');
+    if (publicPage.checkout_held === true) blockers.push('PUBLIC_PURCHASE_ROUTE_HELD');
+  } else {
+    blockers.push('PUBLIC_PAGE_EVIDENCE_MISSING');
+  }
   if (!asText(offer.fulfillment_route)) blockers.push('FULFILLMENT_ROUTE_MISSING');
   if (!asText(offer.proof_of_delivery)) blockers.push('DELIVERY_PROOF_CONTRACT_MISSING');
 
