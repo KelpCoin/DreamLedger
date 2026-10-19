@@ -15,6 +15,33 @@ function json(res, status, body) {
   res.end(JSON.stringify(body));
 }
 
+function isCheckoutReady(product) {
+  if (!product || product.status !== 'published' || product.checkout_available !== true) return false;
+  if (String(product.payment_link_status || '').trim().toUpperCase() !== 'ACTIVE') return false;
+  if (String(product.checkout_verification_status || '').trim().toUpperCase() !== VERIFIED) return false;
+  if (String(product.fulfillment_test_status || product.delivery_test_status || '').trim().toUpperCase() !== VERIFIED) return false;
+
+  let target;
+  try { target = new URL(String(product.checkout_url || '').trim()); }
+  catch { return false; }
+  return target.protocol === 'https:' && target.hostname === 'buy.stripe.com' &&
+    !target.username && !target.password && !target.port;
+}
+
+function publicSafeProduct(product) {
+  const safe = { ...product };
+  if (!isCheckoutReady(product)) {
+    safe.checkout_available = false;
+    safe.checkout_url = null;
+    safe.checkout_status = 'temporarily_unavailable';
+  }
+  delete safe.payment_link_status;
+  delete safe.checkout_verification_status;
+  delete safe.fulfillment_test_status;
+  delete safe.delivery_test_status;
+  return safe;
+}
+
 function handleBuyRoute(req, res, pathname, root = __dirname) {
   if (pathname !== '/buy' && !pathname.startsWith('/buy/')) return false;
   if (req.method !== 'GET' && req.method !== 'HEAD') {
@@ -60,14 +87,8 @@ function handleBuyRoute(req, res, pathname, root = __dirname) {
 
   // Fail closed unless checkout, the live Stripe link, and post-payment
   // fulfillment have each been explicitly verified in the canonical record.
-  const paymentLinkState = String(product.payment_link_status || '').trim().toUpperCase();
-  const checkoutEvidenceState = String(product.checkout_verification_status || '').trim().toUpperCase();
-  const fulfillmentEvidenceState = String(product.fulfillment_test_status || product.delivery_test_status || '').trim().toUpperCase();
   const checkoutUrl = String(product.checkout_url || '').trim();
-
-  if (product.status !== 'published' || product.checkout_available !== true ||
-      paymentLinkState !== 'ACTIVE' || checkoutEvidenceState !== VERIFIED ||
-      fulfillmentEvidenceState !== VERIFIED || !checkoutUrl) {
+  if (!isCheckoutReady(product)) {
     json(res, 503, {
       error: 'OFFER_COMMERCE_GATE_CLOSED',
       offer_id: String(product.id || lookup),
@@ -76,17 +97,7 @@ function handleBuyRoute(req, res, pathname, root = __dirname) {
     return true;
   }
 
-  let target;
-  try { target = new URL(checkoutUrl); }
-  catch {
-    json(res, 503, { error: 'INVALID_CHECKOUT_CONFIGURATION', offer_id: String(product.id || lookup) });
-    return true;
-  }
-  if (target.protocol !== 'https:' || target.hostname !== 'buy.stripe.com' ||
-      target.username || target.password || target.port) {
-    json(res, 503, { error: 'INVALID_CHECKOUT_CONFIGURATION', offer_id: String(product.id || lookup) });
-    return true;
-  }
+  const target = new URL(checkoutUrl);
 
   res.statusCode = 302;
   res.setHeader('Location', target.href);
@@ -96,4 +107,4 @@ function handleBuyRoute(req, res, pathname, root = __dirname) {
   return true;
 }
 
-module.exports = { handleBuyRoute };
+module.exports = { handleBuyRoute, isCheckoutReady, publicSafeProduct };
