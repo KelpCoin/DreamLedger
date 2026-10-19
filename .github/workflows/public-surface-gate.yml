@@ -20,9 +20,11 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
       - name: Compile and synchronize canonical public surface
         working-directory: BEC-PRIME
+        env:
+          DREAMLEDGER_SAFE_HOLD_BUILD: 'true'
         run: npm ci --no-audit --no-fund && npm run compile && node ../public/Sync-BECPrimeStorefront.js
       - name: Verify public surface
         run: node BEC-PRIME/scripts/verify-public-surface.js
