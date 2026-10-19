@@ -2,7 +2,7 @@
   "schema": "dreamledger.marketplace.priority-verticals.v1",
   "version": "1.1.0",
   "record_state": "INTEGRATION_CONTRACT_NOT_RELEASE_AUTHORITY",
-  "purpose": "Bind the existing B2B/A2A marketplace to the two near-term sales lanes: DreamMeez avatar cosmetics and web-native billboard slots, while designating MTG as the canonical master-silo template. Physical DOOH remains a future integration, not a live claim.",
+  "purpose": "The only priority sales lanes are DreamMeez avatar cosmetics and web-native billboard slots. Physical DOOH remains a future integration, not a live claim. MTG is the canonical master-silo template. Truth Oracle evidence review remains inside its existing paid tier and is not a standalone product or sales priority.",
   "marketplace": {
     "b2b_surface": "/b2b",
     "a2a_surface": "/a2a",
@@ -65,32 +65,14 @@
         "human approval before public placement",
         "owner-approved release"
       ]
-    }
-  ],
-  "silo_rules": {
-    "no_parallel_truth_or_revenue_ledger": true,
-    "no_standalone_truth_oracle_audit_sku": true,
-    "no_catalogue_or_page_alone_authorizes_checkout": true,
-    "no_unapproved_publication_or_buyer_contact": true,
-    "keep_mtg_happyhomarid_collectorscoast_separate_from_amplissa_adult": true,
-    "each_vertical_has_its_own_silo_id_and_gate_state": true
-  },
-  "economic_validation": {
-    "verified_external_revenue_nzd": 0,
-    "independent_buyers_verified": 0,
-    "settled_attributable_payments_verified": 0,
-    "paid_fulfilled_orders_verified": 0,
-    "status": "NOT_ECONOMICALLY_VALIDATED",
-    "pass_condition": "independent buyer -> authorized live checkout -> provider-confirmed settled payment -> exact vertical/SKU attribution -> completed fulfillment -> retrievable delivery evidence -> independent ledger reconciliation"
-  },
-  "shared_capabilities": [
+    },
     {
       "id": "truth-oracle-paid-evidence-review",
-      "display_name": "Truth Oracle paid evidence review",
+      "display_name": "Truth Oracle shared tier capability (not a priority sales lane)",
       "silo_id": "truth_oracle",
       "route": "/truth-oracle/",
-      "economic_role": "paid evidence-depth tier inside the existing Truth Oracle product",
-      "surface_state": "SHARED_TRUTH_ORACLE_TIER_CAPABILITY_NOT_A_PRIORITY_SALES_VERTICAL",
+      "economic_role": "Shared evidence-depth capability within the existing Truth Oracle tier only; not a separate product or sales priority.",
+      "surface_state": "SHARED_CAPABILITY_NOT_PRIORITY_SALES_LANE",
       "audit_capability": "PAID_FEATURE_WITHIN_TRUTH_ORACLE",
       "standalone_audit_sku_allowed": false,
       "new_product_price_or_payment_link_allowed_by_this_contract": false,
@@ -127,7 +109,26 @@
         "privacy retention and refund/dispute path verified",
         "owner-approved activation"
       ],
-      "public_cta_allowed": false
+      "public_cta_allowed": false,
+      "sales_priority": false,
+      "priority_rank": null
     }
-  ]
+  ],
+  "silo_rules": {
+    "no_parallel_truth_or_revenue_ledger": true,
+    "no_standalone_truth_oracle_audit_sku": true,
+    "no_catalogue_or_page_alone_authorizes_checkout": true,
+    "no_unapproved_publication_or_buyer_contact": true,
+    "keep_mtg_happyhomarid_collectorscoast_separate_from_amplissa_adult": true,
+    "each_vertical_has_its_own_silo_id_and_gate_state": true
+  },
+  "economic_validation": {
+    "verified_external_revenue_nzd": 0,
+    "independent_buyers_verified": 0,
+    "settled_attributable_payments_verified": 0,
+    "paid_fulfilled_orders_verified": 0,
+    "status": "NOT_ECONOMICALLY_VALIDATED",
+    "pass_condition": "independent buyer -> authorized live checkout -> provider-confirmed settled payment -> exact vertical/SKU attribution -> completed fulfillment -> retrievable delivery evidence -> independent ledger reconciliation"
+  },
+  "shared_capabilities": []
 }
