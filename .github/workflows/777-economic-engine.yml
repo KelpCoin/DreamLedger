@@ -102,7 +102,7 @@ jobs:
   live-provider-parity:
     # Never expose the live Stripe credential to pull_request or feature-branch runs.
     # The audit uses GET-only operations and runs only after a reviewed push to main.
-    if: \${{ github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') }}
+    if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') }}
     needs: engine
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -117,13 +117,13 @@ jobs:
           node-version: 24
       - name: Read-only live Stripe offer parity audit
         env:
-          STRIPE_SECRET_KEY: \${{ secrets.STRIPE_SECRET_KEY }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
         run: node BEC-PRIME/scripts/audit-777-stripe-offer-parity.js
       - name: Upload provider parity receipt
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: 777-stripe-provider-parity-\${{ github.run_id }}
+          name: 777-stripe-provider-parity-${{ github.run_id }}
           path: BEC-PRIME/data/777/STRIPE-OFFER-PARITY-LATEST.json
           if-no-files-found: warn
           retention-days: 14
