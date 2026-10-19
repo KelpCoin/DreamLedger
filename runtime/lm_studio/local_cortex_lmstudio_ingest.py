@@ -31,7 +31,7 @@ def fallback(signal, reason):
     money_terms = ("pay", "budget", "cost", "spend", "burn", "$", "expensive", "invoice", "quote")
     has_money_language = any(k in text for k in money_terms)
     explicit_budget = bool(re.search(r"(?:\$|nzd\s*\$?\s*)\s*\d+(?:[.,]\d+)?", text)) or bool(
-        __import__("re").search(r"\bbudget\b.{0,25}\b\d+\b", text)
+        re.search(r"\bbudget\b.{0,25}\b\d+\b", text)
     )
     existing_spend = any(k in text for k in (
         "already paying", "currently paying", "we paid", "we spend", "we spent",
