@@ -58,7 +58,7 @@ class LocalCortexIngestTests(unittest.TestCase):
         signal = {"title": "Example", "text": "budget unknown", "url": ""}
         malformed = base_audit()
         malformed["EXTRA"] = "must not pass"
-        with patch.object(ingest, "classify_with_sdk", return_value=(malformed, {})):
+        with patch("beck_lmstudio_sdk.classify_with_sdk", return_value=(malformed, {})):
             result, telemetry = ingest.classify(signal)
         self.assertTrue(telemetry["fallback"])
         self.assertEqual(result["9_STATUS_BUCKET"], "HUMAN_GATE_CANDIDATE")
