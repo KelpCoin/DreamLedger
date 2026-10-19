@@ -6,6 +6,7 @@ const read = (p) => fs.readFileSync(p, "utf8");
 const avatar = read("public/avatar.html");
 const billboard = read("public/billboard.html");
 const identity = read("public/assets/avatar-identity.js");
+const checkout = read("supabase/functions/dreammeez-cosmetic-checkout/index.ts");
 const catalogue = JSON.parse(read("public/catalog.json"));
 const checks = [];
 function check(name, fn) {
@@ -71,6 +72,26 @@ check("billboard_checkout_matches_canonical_catalogue_hold", () => {
   assert.match(billboard, /settlement and fulfilment are verified/i);
 });
 
+check("all_existing_public_dreammeez_offers_are_gated", () => {
+  const items = catalogue.products.filter((p) => String(p.id || "").startsWith("DREAMMEEZ-"));
+  assert.ok(items.length >= 3, "existing DreamMeez public catalogue items found");
+  for (const item of items) {
+    assert.equal(item.status, "gated", item.id + " must not be published while fulfilment is unverified");
+    assert.equal(item.checkout_available, false, item.id + " checkout must be held");
+    assert.equal(item.checkout_url, null, item.id + " must not expose a checkout URL");
+    assert.equal(item.availability, "review_required", item.id + " must require review");
+  }
+});
+
+check("edge_checkout_returns_hold_before_creating_a_session", () => {
+  const hold = checkout.indexOf("if (COSMETIC_CHECKOUT_RELEASE_HOLD)");
+  const create = checkout.indexOf("stripe.checkout.sessions.create(");
+  assert.ok(hold >= 0, "hard release hold is present");
+  assert.ok(create > hold, "release hold precedes Stripe Checkout Session creation");
+  assert.match(checkout, /COSMETIC_FULFILLMENT_NOT_VERIFIED/);
+  assert.match(checkout, /checkout_available:\s*false/);
+});
+
 check("public_claims_preserve_truth_and_no_false_urgency", () => {
   assert.doesNotMatch(billboard, /Stripe checkout live/i);
   assert.doesNotMatch(billboard, /launch ends today|ends today/i);
@@ -84,6 +105,8 @@ const report = {
   live_production_checked: false,
   checkout_executed: false,
   production_deployed: false,
+  release_status: "HOLD",
+  blockers: ["LIVE_PAYMENT_TO_ENTITLEMENT_CHAIN_NOT_VERIFIED", "LIVE_DATABASE_POLICY_AUDIT_BLOCKED_BY_CONNECTION_REFUSED"],
   verified_external_revenue_nzd: "0.00",
   checks,
   timestamp: new Date().toISOString(),
