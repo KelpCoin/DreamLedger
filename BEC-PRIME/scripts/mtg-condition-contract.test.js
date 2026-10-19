@@ -21,6 +21,7 @@ test('Commander diagnostic is held and has no card condition or live checkout', 
 test('digital services and commander decks never inherit a card condition', () => {
   const mtg = json('public/data/mtg-catalog.json');
   const diagnostic = mtg.products.find(p => p.id === 'COMMANDER-DECK-DIAGNOSTIC-001');
+  assert.ok(diagnostic, 'public catalogue must include the held diagnostic record');
   assert.equal(diagnostic.status, 'held');
   assert.equal(diagnostic.checkout_available, false);
   assert.equal(Object.hasOwn(diagnostic, 'condition'), false);
@@ -29,13 +30,15 @@ test('digital services and commander decks never inherit a card condition', () =
   }
 });
 
-test('MTG renderer has no default Lightly Played condition', () => {
+test('MTG renderer has no default Lightly Played condition and uses the current listing-detail contract', () => {
   const source = read('BEC-PRIME/website/mtg-catalog.html');
   const patch = read('BEC-PRIME/scripts/Patch-MTG-CommerceSurface.js');
   assert.equal(source.includes('LP− (Lightly Played)'), false);
   assert.equal(patch.includes('Condition not specified'), false);
-  assert.match(source, /conditionEligible/);
-  assert.match(patch, /conditionEligible/);
+  assert.match(source, /function isPhysical\(p\)/);
+  assert.match(source, /detail_url/);
+  assert.match(patch, /function isPhysical\(p\)/);
+  assert.match(patch, /checkout_active: false/);
 });
 
 test('static root publication contains the manifest-driven MTG master paths', () => {
