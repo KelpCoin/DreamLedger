@@ -1,8 +1,8 @@
 {
   "schema": "dreamledger.marketplace.priority-verticals.v1",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "record_state": "INTEGRATION_CONTRACT_NOT_RELEASE_AUTHORITY",
-  "purpose": "Bind the existing unified B2B/A2A marketplace to the chosen commercial verticals without creating replacement products, prices, payment links, ledgers, or silo-crossing routes.",
+  "purpose": "Bind the existing B2B/A2A marketplace to the two near-term sales lanes: DreamMeez avatar cosmetics and web-native billboard slots, while designating MTG as the canonical master-silo template. Physical DOOH remains a future integration, not a live claim.",
   "marketplace": {
     "b2b_surface": "/b2b",
     "a2a_surface": "/a2a",
@@ -11,53 +11,14 @@
     "shared_ledger": "existing marketplace ledger only",
     "external_side_effects_require_authorization": true,
     "autonomous_spend": false,
-    "marketplace_checkout_release_state": "BLOCKED_UNTIL_STAGING_AND_PAYMENT_TO_DELIVERY_PROOF"
+    "marketplace_checkout_release_state": "BLOCKED_UNTIL_STAGING_AND_PAYMENT_TO_DELIVERY_PROOF",
+    "commercial_priority_order": [
+      "dreammeez-avatar-cosmetics",
+      "programmatic-dooh-billboard"
+    ],
+    "master_silo_template": "BEC-PRIME/catalog/marketplace/master-silo-template.v1.json"
   },
   "commercial_verticals": [
-    {
-      "id": "truth-oracle-paid-evidence-review",
-      "display_name": "Truth Oracle paid evidence review",
-      "silo_id": "truth_oracle",
-      "route": "/truth-oracle/",
-      "economic_role": "paid evidence-depth tier inside the existing Truth Oracle product",
-      "surface_state": "PROPOSED_NOT_LIVE",
-      "audit_capability": "PAID_FEATURE_WITHIN_TRUTH_ORACLE",
-      "standalone_audit_sku_allowed": false,
-      "new_product_price_or_payment_link_allowed_by_this_contract": false,
-      "proposed_metered_tools": [
-        {
-          "tool": "verify_claim",
-          "amount_minor": 1,
-          "currency": "USD",
-          "unit": "invocation",
-          "status": "PROPOSED_NOT_LIVE"
-        },
-        {
-          "tool": "quote_compare",
-          "amount_minor": 10,
-          "currency": "USD",
-          "unit": "invocation",
-          "status": "PROPOSED_NOT_LIVE"
-        },
-        {
-          "tool": "verify_evidence_packet",
-          "amount_minor": 50,
-          "currency": "USD",
-          "unit": "invocation",
-          "status": "PROPOSED_NOT_LIVE"
-        }
-      ],
-      "checkout_enabled": false,
-      "required_gates": [
-        "existing Truth Oracle tier and entitlement contract reconciled",
-        "live catalogue and provider price read-back",
-        "source-linked output and explicit evidence depth",
-        "settlement attribution and metering idempotency",
-        "reproducible artifact plus hash and retrievable delivery receipt",
-        "privacy retention and refund/dispute path verified",
-        "owner-approved activation"
-      ]
-    },
     {
       "id": "dreammeez-avatar-cosmetics",
       "display_name": "DreamMeez avatar cosmetics",
@@ -121,5 +82,52 @@
     "paid_fulfilled_orders_verified": 0,
     "status": "NOT_ECONOMICALLY_VALIDATED",
     "pass_condition": "independent buyer -> authorized live checkout -> provider-confirmed settled payment -> exact vertical/SKU attribution -> completed fulfillment -> retrievable delivery evidence -> independent ledger reconciliation"
-  }
+  },
+  "shared_capabilities": [
+    {
+      "id": "truth-oracle-paid-evidence-review",
+      "display_name": "Truth Oracle paid evidence review",
+      "silo_id": "truth_oracle",
+      "route": "/truth-oracle/",
+      "economic_role": "paid evidence-depth tier inside the existing Truth Oracle product",
+      "surface_state": "SHARED_TRUTH_ORACLE_TIER_CAPABILITY_NOT_A_PRIORITY_SALES_VERTICAL",
+      "audit_capability": "PAID_FEATURE_WITHIN_TRUTH_ORACLE",
+      "standalone_audit_sku_allowed": false,
+      "new_product_price_or_payment_link_allowed_by_this_contract": false,
+      "proposed_metered_tools": [
+        {
+          "tool": "verify_claim",
+          "amount_minor": 1,
+          "currency": "USD",
+          "unit": "invocation",
+          "status": "PROPOSED_NOT_LIVE"
+        },
+        {
+          "tool": "quote_compare",
+          "amount_minor": 10,
+          "currency": "USD",
+          "unit": "invocation",
+          "status": "PROPOSED_NOT_LIVE"
+        },
+        {
+          "tool": "verify_evidence_packet",
+          "amount_minor": 50,
+          "currency": "USD",
+          "unit": "invocation",
+          "status": "PROPOSED_NOT_LIVE"
+        }
+      ],
+      "checkout_enabled": false,
+      "required_gates": [
+        "existing Truth Oracle tier and entitlement contract reconciled",
+        "live catalogue and provider price read-back",
+        "source-linked output and explicit evidence depth",
+        "settlement attribution and metering idempotency",
+        "reproducible artifact plus hash and retrievable delivery receipt",
+        "privacy retention and refund/dispute path verified",
+        "owner-approved activation"
+      ],
+      "public_cta_allowed": false
+    }
+  ]
 }
