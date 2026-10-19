@@ -52,11 +52,20 @@ export function summarizeNodeTestOutput(output) {
     }
     return null;
   };
+  const failedTests = [];
+  for (const match of output.matchAll(/(?:^|\\n)\\s*✖\\s+([^\\r\\n(]+?)(?:\\s+\\([\\d.]+ms\\))?\\s*(?=\\r?\\n|$)/g)) {
+    const name = String(match[1] || '').trim();
+    if (name && !/^failing tests:$/i.test(name)) failedTests.push(name.slice(0, 180));
+  }
+  for (const match of output.matchAll(/(?:^|\\n)\\s*not ok \\d+\\s+-\\s+([^\\r\\n]+)/g)) {
+    failedTests.push(String(match[1] || '').trim().slice(0, 180));
+  }
   return {
     tests: pick(['tests?']),
     passed: pick(['pass(?:ed)?']),
     failed: pick(['fail(?:ed)?']),
     skipped: pick(['skipped']),
+    failed_tests: [...new Set(failedTests)].slice(0, 20),
   };
 }
 
