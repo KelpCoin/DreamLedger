@@ -32,12 +32,19 @@ function stableStringify(value) {
   return JSON.stringify(normalize(value));
 }
 
-function digestEffect(materialParameters) {
+function canonicalEffectPayload(materialParameters, blobs = {}) {
   if (!materialParameters || typeof materialParameters !== 'object' || Array.isArray(materialParameters)) {
     throw new Error('HOLD_EFFECT_MATERIAL_MUST_BE_AN_OBJECT');
   }
+  if (!blobs || typeof blobs !== 'object' || Array.isArray(blobs)) {
+    throw new Error('HOLD_EFFECT_BLOBS_MUST_BE_AN_OBJECT');
+  }
+  return { record: normalize(materialParameters), blobs: normalize(blobs) };
+}
+
+function digestEffect(materialParameters, blobs = {}) {
   return 'sha256:' + crypto.createHash('sha256')
-    .update(stableStringify(materialParameters), 'utf8')
+    .update(stableStringify(canonicalEffectPayload(materialParameters, blobs)), 'utf8')
     .digest('hex');
 }
 
@@ -76,12 +83,14 @@ function createHoldRecord(input = {}) {
     human_retry_required: retryInput.human_retry_required !== false
   };
 
-  const effectDigest = digestEffect(effect);
+  const blobs = normalize(input.blobs || {});
+  const effectDigest = digestEffect(effect, blobs);
   return {
     schema: SCHEMA,
     hold_id: 'HOLD-' + effectDigest.slice(7, 23).toUpperCase(),
     state: 'HOLD',
     material_parameters: effect,
+    blobs,
     effect_digest: effectDigest,
     reason_code: reasonCode,
     missing_dependency: missingDependency,
@@ -108,7 +117,7 @@ function evaluateHold(record, currentMaterialParameters, context = {}) {
     hold_id: record && record.hold_id || null,
     effect_digest: record && record.effect_digest || null,
     current_effect_digest: currentMaterialParameters && typeof currentMaterialParameters === 'object'
-      ? digestEffect(currentMaterialParameters)
+      ? digestEffect(currentMaterialParameters, context.blobs === undefined ? {} : context.blobs)
       : null,
     evaluated_at: now,
     externalization_performed: false,
@@ -119,13 +128,14 @@ function evaluateHold(record, currentMaterialParameters, context = {}) {
     return result('REFUSE', 'HOLD_RECORD_INCOMPLETE_OR_UNKNOWN_SCHEMA');
   }
   if (record.state !== 'HOLD') return result('REFUSE', 'HOLD_NOT_ACTIVE');
-  if (digestEffect(record.material_parameters) !== record.effect_digest) {
+  const storedBlobs = record.blobs === undefined ? {} : record.blobs;
+  if (digestEffect(record.material_parameters, storedBlobs) !== record.effect_digest) {
     return result('REFUSE', 'HOLD_RECORD_TAMPERED');
   }
 
   let currentDigest;
   try {
-    currentDigest = digestEffect(currentMaterialParameters);
+    currentDigest = digestEffect(currentMaterialParameters, context.blobs === undefined ? {} : context.blobs);
   } catch (_) {
     return result('REFUSE', 'CURRENT_EFFECT_MATERIAL_INVALID');
   }
@@ -151,8 +161,79 @@ function evaluateHold(record, currentMaterialParameters, context = {}) {
     return result('HOLD', 'DEPENDENCY_EVIDENCE_INCOMPLETE');
   }
   return result('ACCEPT', 'PREFLIGHT_ACCEPTED_NO_EXTERNAL_ACTION', {
+    release_class: 'ORDINARY',
     permitted_next_transition: record.permitted_next_transition
   });
+}
+
+function evaluateExceptionalRelease(record, currentMaterialParameters, exception = {}, context = {}) {
+  const now = iso(context.now || new Date().toISOString(), 'HOLD_EVALUATION_TIME_INVALID');
+  const deny = (reasonCode, details = {}) => ({
+    decision: 'REFUSE',
+    release_class: 'EXCEPTIONAL',
+    reason_code: reasonCode,
+    hold_id: record && record.hold_id || null,
+    effect_digest: record && record.effect_digest || null,
+    externalization_performed: false,
+    evaluated_at: now,
+    ...details
+  });
+  if (!record || record.schema !== SCHEMA || record.state !== 'HOLD' ||
+      !REQUIRED_FIELDS.every(key => record[key] !== undefined && record[key] !== null)) {
+    return deny('HOLD_RECORD_INCOMPLETE_OR_NOT_ACTIVE');
+  }
+  const blobs = context.blobs === undefined ? {} : context.blobs;
+  let currentDigest;
+  try {
+    if (digestEffect(record.material_parameters, record.blobs === undefined ? {} : record.blobs) !== record.effect_digest) {
+      return deny('HOLD_RECORD_TAMPERED');
+    }
+    currentDigest = digestEffect(currentMaterialParameters, blobs);
+  } catch (_) {
+    return deny('CURRENT_EFFECT_MATERIAL_INVALID');
+  }
+  if (currentDigest !== record.effect_digest ||
+      exception.effect_digest !== record.effect_digest ||
+      exception.approval_effect_digest !== record.effect_digest) {
+    return deny('EXCEPTION_NOT_BOUND_TO_EXACT_EFFECT_DIGEST', { current_effect_digest: currentDigest });
+  }
+  if (context.transition !== record.permitted_next_transition) return deny('TRANSITION_NOT_PERMITTED');
+  if (exception.type !== 'EXCEPTIONAL_RELEASE' || !String(exception.exception_id || '').trim()) {
+    return deny('EXCEPTION_RECORD_REQUIRED');
+  }
+  if (exception.approval_status !== 'AUTHORIZED' || !String(exception.authorized_by || '').trim()) {
+    return deny('EXCEPTION_AUTHORITY_REQUIRED');
+  }
+  if (!String(exception.reason_code || '').trim() ||
+      String(exception.waived_dependency || '') !== record.missing_dependency) {
+    return deny('EXCEPTION_MUST_NAME_THE_HELD_DEPENDENCY');
+  }
+  if (!exception.scope || exception.scope.effect_digest !== record.effect_digest ||
+      exception.scope.transition !== record.permitted_next_transition) {
+    return deny('EXCEPTION_SCOPE_NOT_BOUND_TO_HELD_EFFECT');
+  }
+  let expiry;
+  try { expiry = Date.parse(iso(exception.expires_at, 'EXCEPTION_EXPIRY_INVALID')); }
+  catch (_) { return deny('EXCEPTION_EXPIRY_INVALID'); }
+  const nowMs = Date.parse(now);
+  if (!Number.isFinite(expiry) || expiry <= nowMs || expiry > nowMs + 24 * 60 * 60 * 1000) {
+    return deny('EXCEPTION_DURATION_OUT_OF_BOUNDS');
+  }
+  if (exception.scope.expires_at !== new Date(expiry).toISOString()) {
+    return deny('EXCEPTION_SCOPE_EXPIRY_MISMATCH');
+  }
+  return {
+    decision: 'EXCEPTIONAL_RELEASE_ELIGIBLE_NO_EXTERNAL_ACTION',
+    release_class: 'EXCEPTIONAL',
+    reason_code: 'BOUND_EXCEPTION_PREFLIGHT_PASSED',
+    hold_id: record.hold_id,
+    effect_digest: record.effect_digest,
+    exception_id: exception.exception_id,
+    authorized_by: exception.authorized_by,
+    exception_expires_at: new Date(expiry).toISOString(),
+    externalization_performed: false,
+    evaluated_at: now
+  };
 }
 
 function buildHoldLivenessMetrics(records, events, nowValue) {
@@ -203,4 +284,4 @@ function buildHoldLivenessMetrics(records, events, nowValue) {
   };
 }
 
-module.exports = { SCHEMA, REQUIRED_FIELDS, digestEffect, createHoldRecord, evaluateHold, buildHoldLivenessMetrics };
+module.exports = { SCHEMA, REQUIRED_FIELDS, canonicalEffectPayload, digestEffect, createHoldRecord, evaluateHold, evaluateExceptionalRelease, buildHoldLivenessMetrics };
