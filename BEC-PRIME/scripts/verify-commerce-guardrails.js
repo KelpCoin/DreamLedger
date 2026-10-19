@@ -16,6 +16,10 @@ for (const file of [migrationPath, ownershipTestPath, deckFunctionPath]) {
 const migration = fs.readFileSync(migrationPath, 'utf8');
 const sqlTest = fs.readFileSync(ownershipTestPath, 'utf8');
 const deckFunction = fs.readFileSync(deckFunctionPath, 'utf8');
+const mtgMigrationPath = path.join(root, 'supabase', 'migrations', '20261019_harden_mtg_marketplace_state.sql');
+const mtgSyncPath = path.join(root, 'supabase', 'functions', 'mtg-catalog-sync', 'index.ts');
+const mtgMigration = fs.readFileSync(mtgMigrationPath, 'utf8');
+const mtgSync = fs.readFileSync(mtgSyncPath, 'utf8');
 
 assert.match(migration, /enable row level security/i, 'Ownership RLS must be enabled');
 assert.match(migration, /drop policy if exists/i, 'Migration must remove existing mutation policies');
