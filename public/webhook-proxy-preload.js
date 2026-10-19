@@ -7,6 +7,7 @@ const { Readable } = require('stream');
 const distributionDoorway = require('../BEC-PRIME/routes/distributionDoorway');
 const mtgDiagnostic = require('../BEC-PRIME/lib/mtgDiagnosticFulfillment');
 const mtgDiagnosticRoute = require('../BEC-PRIME/routes/mtgDiagnostic');
+const marketplaceWebhook = require('../BEC-PRIME/routes/marketplaceWebhook');
 const paidCheckoutWebhook = require('./paidCheckoutWebhook');
 
 function replayRequest(req, body) {
@@ -193,6 +194,34 @@ if (!global.__dreamledgerWebhookProxyPreload) {
           res.end(JSON.stringify({ error: 'MTG diagnostic fulfillment failed; retry required', code: 'MTG_FULFILLMENT_RETRY_REQUIRED' }));
           return;
         }
+
+        const checkoutSession = parsedEvent?.data?.object;
+        const needsMarketplaceDispatch = parsedEvent?.type === 'checkout.session.completed' &&
+          checkoutSession?.payment_status === 'paid' &&
+          (checkoutSession?.metadata?.fulfillment === 'dreammeez_entitlement' ||
+           Boolean(checkoutSession?.metadata?.listing_id));
+        if (needsMarketplaceDispatch) {
+          try {
+            const result = await marketplaceWebhook.handle(replayRequest(req, body), res);
+            if (result && result.handled) return;
+            if (res.writableEnded) return;
+            res.statusCode = 500;
+            res.setHeader('Content-Type', 'application/json; charset=utf-8');
+            res.setHeader('Cache-Control', 'no-store');
+            res.end(JSON.stringify({ error: 'Marketplace fulfillment handler did not accept the paid event', code: 'MARKETPLACE_FULFILLMENT_RETRY_REQUIRED' }));
+          } catch (err) {
+            const badSignature = /Invalid Stripe signature|Expired Stripe signature/.test(String(err && err.message || ''));
+            res.statusCode = badSignature ? 400 : 500;
+            res.setHeader('Content-Type', 'application/json; charset=utf-8');
+            res.setHeader('Cache-Control', 'no-store');
+            res.end(JSON.stringify({
+              error: badSignature ? 'Stripe signature verification failed' : 'Marketplace fulfillment could not be durably recorded',
+              code: badSignature ? 'WEBHOOK_SIGNATURE_INVALID' : 'MARKETPLACE_FULFILLMENT_RETRY_REQUIRED'
+            }));
+          }
+          return;
+        }
+
         try {
           const event = JSON.parse(body.toString('utf8'));
           if (event && event.type === 'checkout.session.completed') {
