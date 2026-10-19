@@ -3,6 +3,17 @@
 const http = require('http');
 const PORT = Number(process.env.PORT || 4173);
 const BASE = 'http://127.0.0.1:' + PORT;
+function isValidClaimUrl(value) {
+  if (typeof value !== 'string' || value.trim() !== value) return false;
+  if (/^https:\/\/[^\s]+$/i.test(value)) return true;
+  if (/^\/(?!\/)[^\s]*$/.test(value)) return true;
+  // Claim-by-message supports buyer-initiated email as well as web claim pages.
+  // Restrict the extra scheme to a syntactically plausible mailbox; never allow
+  // javascript:, data:, or arbitrary protocol handlers.
+  if (/^mailto:[^@\s\/?#]+@[^@\s\/?#]+\.[^@\s\/?#]+(?:\?[^\s]*)?$/i.test(value)) return true;
+  return false;
+}
+
 function get(pathname) {
   return new Promise((resolve, reject) => {
     const req = http.get(BASE + pathname, { headers: { 'cache-control': 'no-cache' } }, res => {
@@ -54,14 +65,20 @@ async function main() {
   const published = parsed.products.filter(product => product && product.status === 'published');
   const purchasable = published.filter(product =>
     (product.checkout_available === true && typeof product.checkout_url === 'string' && (/^https:\/\//i.test(product.checkout_url) || /^\/(?!\/)/.test(product.checkout_url))) ||
-    (product.sale_mode === 'claim_by_message' && typeof product.claim_url === 'string' && (/^https:\/\//i.test(product.claim_url) || /^\/(?!\/)/.test(product.claim_url)))
+    (product.sale_mode === 'claim_by_message' && isValidClaimUrl(product.claim_url))
   );
   const brokenCheckout = published.filter(product =>
     product.checkout_available === true && !(typeof product.checkout_url === 'string' && /^https:\/\//i.test(product.checkout_url))
   );
   const brokenClaim = published.filter(product =>
-    product.sale_mode === 'claim_by_message' && !(typeof product.claim_url === 'string' && (/^https:\/\//i.test(product.claim_url) || /^\/(?!\/)/.test(product.claim_url)))
+    product.sale_mode === 'claim_by_message' && !isValidClaimUrl(product.claim_url)
   );
+  if (!isValidClaimUrl('mailto:hello@dreamledger.org?subject=Claim%20product')) {
+    throw new Error('claim URL validator rejected a valid mailto claim route');
+  }
+  if (isValidClaimUrl('javascript:alert(1)') || isValidClaimUrl('data:text/html,test')) {
+    throw new Error('claim URL validator accepted an unsafe URL scheme');
+  }
   if (brokenCheckout.length) {
     throw new Error('checkout-enabled products missing valid checkout URL: ' + brokenCheckout.map(product => product.id).join(', '));
   }
