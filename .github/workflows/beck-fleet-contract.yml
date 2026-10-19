@@ -8,7 +8,6 @@ on:
       - 'ops/recovery/**'
       - 'ops/migration/**'
       - 'ops/beck/**'
-      - 'ops/beck/**'
       - '.github/workflows/beck-fleet-contract.yml'
       - '.github/workflows/beck-cloud-fleet.yml'
   workflow_dispatch:
