@@ -65,7 +65,9 @@ jobs:
           grep -q 'Supplier Quote Comparison Worksheet' ../public/home.html
           test -s ../public/avatar.html
           grep -q 'DreamMeez' ../public/avatar.html
-          grep -q 'Save DreamMeez' ../public/avatar.html
+          grep -q 'id="avatar"' ../public/avatar.html
+          grep -q 'id="displayName"' ../public/avatar.html
+          grep -q 'DreamLedgerAvatar.save(state)' ../public/avatar.html
       - name: Upload compiler proof
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
