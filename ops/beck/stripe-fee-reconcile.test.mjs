@@ -17,6 +17,7 @@ const intent = {
     id: 'ch_fixture123', amount_captured: 1500, currency: 'nzd',
     balance_transaction: {
       id: 'txn_fixture123', type: 'charge', amount: 1500, fee: 45, net: 1455, currency: 'nzd',
+      fee_details: [{ type: 'stripe_fee', description: 'processing', amount: 45, currency: 'nzd' }],
     },
   },
 };
@@ -62,6 +63,24 @@ test('missing secret fails closed without a network request', async () => {
   });
   assert.equal(r.state, 'BLOCKED');
   assert.equal(r.reason, 'STRIPE_SECRET_KEY_MISSING_OR_INVALID');
+});
+
+test('missing fee breakdown cannot be reconciled', async () => {
+  const bt = { ...intent.latest_charge.balance_transaction };
+  delete bt.fee_details;
+  const r = await fetchStripeFeeEvidence({ paymentIntentId: 'pi_fixture123', secretKey: 'sk_test_fixture',
+    fetchImpl: fakeFetch({ ...intent, latest_charge: { ...intent.latest_charge, balance_transaction: bt } }) });
+  assert.equal(r.state, 'BLOCKED');
+  assert.equal(r.reason, 'BALANCE_TRANSACTION_FEE_DETAILS_MISSING');
+});
+
+test('fee breakdown must sum to provider fee', async () => {
+  const r = await fetchStripeFeeEvidence({ paymentIntentId: 'pi_fixture123', secretKey: 'sk_test_fixture',
+    fetchImpl: fakeFetch({ ...intent, latest_charge: { ...intent.latest_charge, balance_transaction: {
+      ...intent.latest_charge.balance_transaction, fee_details: [{ type: 'stripe_fee', amount: 44, currency: 'nzd' }],
+    } } }) });
+  assert.equal(r.state, 'BLOCKED');
+  assert.equal(r.reason, 'BALANCE_TRANSACTION_FEE_DETAILS_MISMATCH');
 });
 
 test('invalid fee fields are blocked', async () => {
