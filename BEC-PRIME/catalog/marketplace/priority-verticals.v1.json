@@ -20,6 +20,7 @@
       "silo_id": "truth_oracle",
       "route": "/truth-oracle/",
       "economic_role": "paid evidence-depth tier inside the existing Truth Oracle product",
+      "surface_state": "PROPOSED_NOT_LIVE",
       "audit_capability": "PAID_FEATURE_WITHIN_TRUTH_ORACLE",
       "standalone_audit_sku_allowed": false,
       "new_product_price_or_payment_link_allowed_by_this_contract": false,
