@@ -25,6 +25,7 @@
     "verify:molt-beach": "node BEC-PRIME/scripts/Verify-MoltBeachMVP.js",
     "verify:silos": "node BEC-PRIME/scripts/verify-silo-boundaries.js",
     "verify:agentic-commerce": "node BEC-PRIME/scripts/verify-agentic-commerce.js",
+    "verify:commerce-guardrails": "node BEC-PRIME/scripts/verify-commerce-guardrails.js",
     "verify:trust-attestation": "node BEC-PRIME/scripts/verify-trust-attestation.js",
     "verify:evidence-manifest": "node BEC-PRIME/scripts/verify-evidence-manifest.js",
     "verify:account-avatar": "node BEC-PRIME/scripts/verify-account-avatar-flow.js",
