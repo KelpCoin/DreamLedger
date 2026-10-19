@@ -47,11 +47,10 @@
       "silo": "mtg",
       "checkout_url": null,
       "buy_router": null,
-      "delivery": "Disabled pending independent proof of signed settlement, correct attribution, fulfillment, and retrievable delivery.",
       "status": "HELD_NOT_RELEASED",
       "approval_required": true,
       "checkout_available": false,
-      "note": "Not for sale. Application checkout references are removed; the actual Stripe link is not modified or verified."
+      "note": "Not available for purchase pending independent settlement, attribution, fulfillment, and delivery proof."
     },
     {
       "product_id": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
@@ -102,7 +101,7 @@
       "status": "HELD_PRICE_CONFLICT",
       "approval_required": true,
       "checkout_available": false,
-      "note": "Not for sale until NZ$230 public listing and NZ$400 legacy product price are reconciled. Actual Stripe link is not modified or verified."
+      "note": "Not available for purchase until the NZ$230/NZ$400 discrepancy is reconciled."
     }
   ],
   "catalog_note": "GET /api/offers is the authoritative discovery surface. Only products explicitly approved and checkout-enabled by canonical product and fulfillment gates may be returned. Held products are not purchasable.",
