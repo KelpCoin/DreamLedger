@@ -108,6 +108,16 @@ http.createServer(async (req,res)=>{
   if(req.method==='GET'&&p==='/version'){
     return send(res,200,JSON.stringify({service:'dreamledger-storefront',status:'ok',mtg:'master',commit:COMMIT}),'application/json; charset=utf-8');
   }
+  if(req.method==='GET'&&p==='/catalog.json'){
+    try{
+      const catalogue=JSON.parse(fs.readFileSync(path.join(ROOT,'catalog.json'),'utf8'));
+      const source=Array.isArray(catalogue.products)?catalogue.products:[];
+      const products=source.map(publicSafeProduct);
+      return send(res,200,JSON.stringify({...catalogue,products}),'application/json; charset=utf-8');
+    }catch(error){
+      return send(res,500,JSON.stringify({error:'CATALOG_UNAVAILABLE'}),'application/json; charset=utf-8');
+    }
+  }
   if(req.method==='GET' && (p==='/api/offers' || p==='/api/products')){
     try{
       const catalogue=JSON.parse(fs.readFileSync(path.join(ROOT,'catalog.json'),'utf8'));
