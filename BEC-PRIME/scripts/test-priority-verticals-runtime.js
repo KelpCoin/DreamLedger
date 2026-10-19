@@ -52,6 +52,9 @@ async function request(path, method = 'GET') {
   assert.equal(meez.checkout_enabled, false);
   assert.equal(meez.no_browser_side_ownership_grants, true);
   assert.equal(dooh.checkout_enabled, false);
+  assert.equal(dooh.current_surface_is_web_native, true, 'current public billboard must be described as web-native');
+  assert.equal(dooh.physical_dooh_integration, 'NOT_PRESENT', 'physical DOOH must not be claimed integrated');
+  assert.equal(dooh.physical_inventory_verified, false, 'physical inventory must remain unverified');
   assert.equal(new Set(contract.commercial_verticals.map(v => v.silo_id)).size, 3, 'vertical silo IDs must be distinct');
   assert.equal(contract.economic_validation.verified_external_revenue_nzd, 0);
 
@@ -88,7 +91,7 @@ async function request(path, method = 'GET') {
 
   console.log(JSON.stringify({
     status: 'PASS_PRIORITY_VERTICAL_RUNTIME_CONTRACT',
-    assertions: 24,
+    assertions: 27,
     priority_verticals: 3,
     checkout_authorized: 0,
     failure_mode: 'UNAVAILABLE_FAIL_CLOSED',
