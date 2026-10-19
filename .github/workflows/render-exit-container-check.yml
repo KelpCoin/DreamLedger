@@ -7,6 +7,8 @@ on:
       - ".dockerignore"
       - "fly.render-exit.toml"
       - "BEC-PRIME/start.js"
+      - "BEC-PRIME/elohim/**"
+      - "BEC-PRIME/schemas/elohim-*.schema.json"
       - "ops/migration/render-exit/**"
       - ".github/workflows/render-exit-container-check.yml"
   workflow_dispatch:
