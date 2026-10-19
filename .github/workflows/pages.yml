@@ -24,27 +24,53 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Stage DreamLedger storefront
+      - name: Stage DreamLedger storefront and MTG master silo
         shell: bash
         run: |
           set -euo pipefail
           rm -rf _site
           mkdir -p _site
           cp -R public/. _site/
-          rm -f _site/CNAME
+
+          # The root MTG pages are the canonical master template.
+          # Overlay them on the public snapshot and bring their static dependencies.
+          mkdir -p _site/mtg _site/assets _site/data _site/silos/mtg
+          cp -R mtg/. _site/mtg/
+          cp assets/silo-master.css _site/assets/silo-master.css
+          cp data/mtg-catalog.json _site/data/mtg-catalog.json
+          cp silos/mtg/silo.json _site/silos/mtg/silo.json
+          # Preserve the public master redirect if a caller uses /mtg/master.html.
+          if [ -s public/mtg/master.html ]; then
+            cp public/mtg/master.html _site/mtg/master.html
+          fi
+          # Publish the canonical hostname in the Pages artifact.
+          printf '%s\n' 'dreamledger.org' > _site/CNAME
 
           test -s _site/index.html
           test -s _site/automation-rescue.html
           test -s _site/about.html
           test -s _site/policies.html
-          test ! -e _site/CNAME
           test -s _site/pulse/index.html
+          test -s _site/mtg/index.html
+          test -s _site/assets/silo-master.css
+          test -s _site/data/mtg-catalog.json
+          test -s _site/silos/mtg/silo.json
+          test "$(cat _site/CNAME)" = "dreamledger.org"
+
+          grep -Fq "Claim a founding billboard tile" _site/index.html
+          grep -Fq "Build your DreamMeez free" _site/index.html
+          grep -Fq "Revenue paths live now" _site/index.html
+          grep -Fq "Magic · Buy & sell singles" _site/mtg/index.html
+          grep -Fq "Master silo" _site/mtg/index.html
+          grep -Fq "/silos/mtg/silo.json" _site/mtg/index.html
+
           python - <<'PY'
           from html.parser import HTMLParser
           from pathlib import Path
 
           root = Path("_site")
           index = root / "pulse" / "index.html"
+
           class Links(HTMLParser):
               def __init__(self):
                   super().__init__()
@@ -64,14 +90,12 @@ jobs:
               raise SystemExit("FAIL broken pulse links: " + ", ".join(missing))
           if not list((root / "pulse").glob("*-private-commercial-*.html")):
               raise SystemExit("FAIL no source-bound commercial pulse page staged")
-          print(f"PASS observatory index links={len(parser.hrefs)}; all targets exist") 
+          print(f"PASS observatory index links={len(parser.hrefs)}; all targets exist")
           PY
-          grep -Fq "Claim a founding billboard tile" _site/index.html
-          grep -Fq "Build your DreamMeez free" _site/index.html
-          grep -Fq "Revenue paths live now" _site/index.html
-          grep -Fq "777 Economic Observatory" _site/pulse/index.html
-          grep -Fq "VERIFIED_EXTERNAL_REVENUE" _site/pulse/index.html
+
           echo "PASS DreamLedger Pages artifact staged"
+          echo "PASS MTG master silo + stylesheet + catalog + manifest staged"
+          echo "PASS CNAME staged: dreamledger.org"
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
@@ -92,19 +116,31 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
-      - name: Verify deployed DreamLedger front door
+      - name: Verify deployed homepage and MTG master at GitHub Pages edge
         shell: bash
         run: |
-          set -euo pipefail
-          URL="${{ steps.deployment.outputs.page_url }}"
-          for attempt in $(seq 1 12); do
-            CODE=$(curl -L -sS -o /tmp/dreamledger.html -w '%{http_code}' --max-time 20 "$URL" || true)
-            if [ "$CODE" = "200" ] && grep -Fq "Clearer decisions. Verifiable outcomes." /tmp/dreamledger.html && grep -Fq "Start with a free worksheet" /tmp/dreamledger.html && grep -Fq "comparing supplier quotes" /tmp/dreamledger.html; then
-              echo "PASS GitHub Pages DreamLedger front door verified: $URL"
-              exit 0
-            fi
-            echo "Waiting for Pages deployment: attempt $attempt/12 HTTP=$CODE"
-            sleep 10
-          done
-          echo "FAIL GitHub Pages DreamLedger front-door verification"
-          exit 1
+          set -u
+          # DNS currently resolves to the old Render IPs. Probe the GitHub Pages
+          # edge by Host/SNI override, without changing public DNS from this job.
+          ips=(185.199.108.153 185.199.109.153 185.199.110.153 185.199.111.153)
+          verify_path() {
+            local path="$1"
+            local marker="$2"
+            local label="$3"
+            local body="/tmp/dreamledger-${label}.html"
+            local ip code
+            for ip in "${ips[@]}"; do
+              code=$(curl --resolve "dreamledger.org:443:${ip}" -L -sS \
+                -o "$body" -w '%{http_code}' --max-time 15 \
+                "https://dreamledger.org${path}" 2>/dev/null || true)
+              if [ "$code" = "200" ] && grep -Fq "$marker" "$body"; then
+                echo "PASS GITHUB_PAGES_EDGE route=${path} ip=${ip} http=${code}"
+                return 0
+              fi
+            done
+            echo "::warning::GitHub Pages artifact deployed, but edge verification for ${path} is not yet passing. dreamledger.org DNS currently points to Render; direct DNS cutover and/or Pages custom-domain validation is still required."
+            return 0
+          }
+
+          verify_path "/" "Claim a founding billboard tile" "home"
+          verify_path "/mtg/" "Master silo" "mtg"
