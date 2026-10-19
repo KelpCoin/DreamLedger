@@ -14,6 +14,9 @@ test("entitlement migration removes client write permissions and write policies"
   assert.match(sql, /upper\(cmd\) in \('INSERT', 'UPDATE', 'DELETE', 'ALL'\)/i);
   assert.match(sql, /revoke insert, update, delete, truncate, references, trigger[\s\S]*from anon, authenticated/i);
   assert.match(sql, /commerce_item_ownership_self_read/);
+  assert.match(sql, /revoke all privileges on table public\\.commerce_item_ownership from anon, authenticated/i);
+  assert.match(sql, /grant select on table public\\.commerce_item_ownership to authenticated/i);
+  assert.match(sql, /using \\(\\(select auth\\.uid\\(\\)\\) = user_id\\)/i);
   assert.doesNotMatch(sql, /create policy commerce_item_ownership_self_insert/i);
 });
 
