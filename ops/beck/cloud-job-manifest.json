@@ -4,9 +4,9 @@
   "jobs": [
     {
       "id": "CLOUD-001",
-      "title": "Run receipt regression + settlement-truth tests",
+      "title": "Run receipt, settlement, stripe fee, and join regressions",
       "cwd": ".",
-      "command": "node --test ops/beck/receipts/historical-receipt-regression.test.mjs ops/beck/settlement-truth.test.mjs ops/beck/stripe-fee-reconcile.test.mjs",
+      "command": "node --test ops/beck/receipts/historical-receipt-regression.test.mjs ops/beck/settlement-truth.test.mjs ops/beck/stripe-fee-reconcile.test.mjs ops/beck/settlement-join.test.mjs",
       "evidence": "proof/beck/latest-gate-unit-tests.json",
       "on_fail": "BLOCKED"
     },
