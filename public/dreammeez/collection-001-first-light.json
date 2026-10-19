@@ -1,0 +1,67 @@
+{
+  "schema": "dreamledger/dreammeez-collection/v1",
+  "id": "collection-001-first-light",
+  "name": "First Light",
+  "status": "locked-for-cash-register",
+  "currency": "NZD",
+  "description": "First commercial DreamMeez cosmetic drop. Free base avatar remains free. Cosmetics are identity only — no gameplay power sold.",
+  "sets": [
+    {
+      "id": "dmz-fl-set-kelp-explorer",
+      "name": "Kelp Explorer Set",
+      "price": 24,
+      "sku": "dmz-fl-set-kelp-explorer",
+      "items": ["dmz-fl-kelp-crown", "dmz-fl-explorer-cloak", "dmz-fl-moss-boots"]
+    },
+    {
+      "id": "dmz-fl-set-night-market",
+      "name": "Night Market Set",
+      "price": 24,
+      "sku": "dmz-fl-set-night-market",
+      "items": ["dmz-fl-neon-visor", "dmz-fl-market-hoodie", "dmz-fl-chrome-soles"]
+    },
+    {
+      "id": "dmz-fl-set-founder-ember",
+      "name": "Founder Ember Set",
+      "price": 29,
+      "sku": "dmz-fl-set-founder-ember",
+      "items": ["dmz-fl-ember-circlet", "dmz-fl-founder-cloak", "dmz-fl-ember-mark"]
+    }
+  ],
+  "items": [
+    {"sku": "dmz-fl-kelp-crown", "name": "Kelp Crown", "slot": "head", "price": 8, "set": "kelp-explorer", "rarity": "uncommon"},
+    {"sku": "dmz-fl-explorer-cloak", "name": "Explorer Cloak", "slot": "top", "price": 9, "set": "kelp-explorer", "rarity": "uncommon"},
+    {"sku": "dmz-fl-moss-boots", "name": "Moss Boots", "slot": "feet", "price": 7, "set": "kelp-explorer", "rarity": "uncommon"},
+    {"sku": "dmz-fl-neon-visor", "name": "Neon Visor", "slot": "head", "price": 8, "set": "night-market", "rarity": "uncommon"},
+    {"sku": "dmz-fl-market-hoodie", "name": "Market Hoodie", "slot": "top", "price": 9, "set": "night-market", "rarity": "uncommon"},
+    {"sku": "dmz-fl-chrome-soles", "name": "Chrome Soles", "slot": "feet", "price": 7, "set": "night-market", "rarity": "uncommon"},
+    {"sku": "dmz-fl-ember-circlet", "name": "Ember Circlet", "slot": "head", "price": 9, "set": "founder-ember", "rarity": "founder"},
+    {"sku": "dmz-fl-founder-cloak", "name": "Founder Cloak", "slot": "top", "price": 12, "set": "founder-ember", "rarity": "founder"},
+    {"sku": "dmz-fl-ember-mark", "name": "Ember Mark", "slot": "face", "price": 8, "set": "founder-ember", "rarity": "founder"},
+    {"sku": "dmz-fl-pirate-crown", "name": "Pirate Crown", "slot": "head", "price": 7, "set": null, "rarity": "common"},
+    {"sku": "dmz-fl-cosmic-hoodie", "name": "Cosmic Hoodie", "slot": "top", "price": 8, "set": null, "rarity": "common"},
+    {"sku": "dmz-fl-dragon-mark", "name": "Dragon Mark", "slot": "face", "price": 6, "set": null, "rarity": "common"},
+    {"sku": "dmz-fl-neon-sneakers", "name": "Neon Sneakers", "slot": "feet", "price": 7, "set": null, "rarity": "common"},
+    {"sku": "dmz-fl-drift-scarf", "name": "Drift Scarf", "slot": "accessory", "price": 5, "set": null, "rarity": "common"},
+    {"sku": "dmz-fl-pocket-companion", "name": "Pocket Companion", "slot": "companion", "price": 9, "set": null, "rarity": "uncommon"},
+    {"sku": "dmz-fl-soft-glow-aura", "name": "Soft Glow Aura", "slot": "aura", "price": 6, "set": null, "rarity": "common"},
+    {"sku": "dmz-fl-title-first-light", "name": "Title: First Light", "slot": "title", "price": 5, "set": null, "rarity": "common"},
+    {"sku": "dmz-fl-emote-wave-spark", "name": "Emote: Wave & Spark", "slot": "emote", "price": 5, "set": null, "rarity": "common"}
+  ],
+  "rules": {
+    "free_base_avatar": true,
+    "no_gameplay_power_sold": true,
+    "entitlement_idempotent": true,
+    "self_payment_not_external_revenue": true
+  },
+  "cash_register_checklist": [
+    "Create Stripe products/prices for every SKU and the three sets",
+    "Map price.id / product.id → SKU(s)",
+    "Webhook verifies Stripe signature server-side",
+    "Successful payment upserts owned_objects (user_id, sku, source_payment_id)",
+    "Item appears in buyer inventory and can be equipped",
+    "Same payment cannot grant twice",
+    "Non-owner test purchase succeeds before any promotion"
+  ],
+  "updated_at": "2026-10-19T14:00:00Z"
+}
