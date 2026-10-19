@@ -70,8 +70,9 @@ jobs:
           set -euo pipefail
           test -f public/avatar.html
           grep -q 'id="avatar"' public/avatar.html
-          grep -q 'id="save"' public/avatar.html
-          grep -q 'Save DreamMeez' public/avatar.html
+          grep -q 'id="displayName"' public/avatar.html
+          grep -q 'DreamLedgerAvatar.save(state)' public/avatar.html
+          grep -q 'Name saves with your portable identity' public/avatar.html
 
       - name: SQL canonical table check
         shell: bash
