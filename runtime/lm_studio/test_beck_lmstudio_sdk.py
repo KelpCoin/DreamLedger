@@ -3,12 +3,27 @@ from types import SimpleNamespace
 from unittest.mock import patch
 import sys
 
-from beck_lmstudio_sdk import ALLOWED, FIELDS, classify_with_sdk, cortex_act
+from beck_lmstudio_sdk import ALLOWED, FIELDS, classify_with_sdk, cortex_act, _validate_loopback_host, _sdk
 
 class SDKAdapterTests(unittest.TestCase):
     def test_schema_fields_and_enums_are_defined(self):
         self.assertEqual(len(FIELDS), 10)
         self.assertIn("actively_seeking", ALLOWED["5_BUYING_INTENT"])
+
+
+    def test_lmstudio_host_requires_loopback(self):
+        self.assertEqual(_validate_loopback_host("http://127.0.0.1:1234"), "http://127.0.0.1:1234")
+        self.assertEqual(_validate_loopback_host("localhost:1234"), "localhost:1234")
+        self.assertEqual(_validate_loopback_host("http://[::1]:1234"), "http://[::1]:1234")
+        for remote in ("http://192.168.1.50:1234", "https://example.com", "http://0.0.0.0:1234"):
+            with self.subTest(remote=remote):
+                with self.assertRaisesRegex(ValueError, "LM_STUDIO_HOST_MUST_BE_LOOPBACK"):
+                    _validate_loopback_host(remote)
+
+    def test_sdk_host_is_validated_before_import(self):
+        with patch.dict("os.environ", {"LM_STUDIO_SDK_HOST":"http://example.com:1234"}):
+            with self.assertRaisesRegex(ValueError, "LM_STUDIO_HOST_MUST_BE_LOOPBACK"):
+                _sdk()
 
     def test_missing_sdk_is_explicit(self):
         with patch.dict(sys.modules, {"lmstudio": None}):
