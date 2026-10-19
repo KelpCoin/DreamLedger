@@ -31,6 +31,24 @@ function normalizeEmail(value) {
   return String(value || '').trim().toLowerCase();
 }
 
+// The public Render storefront has no confirmed persistent volume. A paid
+// webhook must not write an entitlement to the deploy filesystem and then
+// acknowledge Stripe as though delivery were durable.
+function assertDurableStore() {
+  const hosted = process.env.NODE_ENV === 'production' ||
+    Boolean(process.env.RENDER_SERVICE_ID || process.env.RENDER_INSTANCE_ID);
+  if (!hosted) return true;
+
+  const configured = String(process.env.DREAMIEZ_DATA_DIR || '').trim();
+  const expectedRoot = path.resolve('/var/data');
+  const resolved = configured ? path.resolve(configured) : '';
+  const onPersistentMount = Boolean(resolved && resolved.startsWith(expectedRoot + path.sep));
+  if (process.env.DREAMIEZ_DURABLE_STORE !== 'true' || !onPersistentMount) {
+    throw new Error('DREAMMEEZ_DURABLE_ENTITLEMENT_STORE_NOT_VERIFIED');
+  }
+  return true;
+}
+
 function cosmeticForSku(sku) {
   const id = SKU_TO_COSMETIC[String(sku || '').trim().toUpperCase()];
   if (!id) return null;
@@ -40,6 +58,7 @@ function cosmeticForSku(sku) {
 function grantPaidCosmetic({ eventId, transactionId, session, sku }) {
   const cosmetic = cosmeticForSku(sku);
   if (!cosmetic) return { handled: false, reason: 'unknown_cosmetic_sku', sku };
+  assertDurableStore();
 
   const email = normalizeEmail(session?.customer_details?.email || session?.customer_email || session?.customer_email_address);
   if (!email) return { handled: true, status: 'PENDING_ACCOUNT_EMAIL', sku, cosmetic_id: cosmetic.id };
@@ -99,4 +118,4 @@ function reconcilePendingForAccount(user) {
   return { granted, pending };
 }
 
-module.exports = { grantPaidCosmetic, reconcilePendingForAccount, cosmeticForSku, SKU_TO_COSMETIC };
+module.exports = { grantPaidCosmetic, reconcilePendingForAccount, cosmeticForSku, assertDurableStore, SKU_TO_COSMETIC };
