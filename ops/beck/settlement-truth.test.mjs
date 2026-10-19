@@ -2,46 +2,53 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { evaluateSettlement, separateKillCriteria } from './settlement-truth.mjs';
 
-test('succeeded+livemode alone is BLOCKED', () => {
+const full = {
+  status: 'succeeded', livemode: true, payment_intent_id: 'pi_fixture',
+  offer_id: 'offer_fixture', independent_buyer: true,
+  buyer_evidence_ref: 'evidence/buyer.json', fulfillment_status: 'delivered',
+  delivery_proof_ref: 'evidence/delivery.json', fee_detail_status: 'reconciled',
+  balance_transaction_id: 'txn_fixture', fee_minor: 12, currency: 'nzd',
+};
+
+test('succeeded and live mode alone is blocked', () => {
   const r = evaluateSettlement({ status: 'succeeded', livemode: true });
   assert.equal(r.verdict, 'BLOCKED');
   assert.equal(r.counts_as_verified_external_revenue, false);
   assert.ok(r.missing.includes('matched_offer'));
   assert.ok(r.missing.includes('independent_buyer'));
-  assert.ok(r.missing.includes('fulfillment'));
-  assert.ok(r.missing.includes('delivery_proof'));
+  assert.ok(r.missing.includes('fee_detail_reconciled'));
 });
 
-test('pending fee detail stays pending and blocks revenue', () => {
-  const r = evaluateSettlement({
-    status: 'succeeded',
-    livemode: true,
-    offer_id: 'off_1',
-    independent_buyer: true,
-    fulfillment_status: 'delivered',
-    delivery_proof_ref: 'proof/x',
-    fee_detail_status: 'pending',
-  });
+test('pending fee detail blocks revenue', () => {
+  const r = evaluateSettlement({ ...full, fee_detail_status: 'pending', balance_transaction_id: null, fee_minor: null });
   assert.equal(r.verdict, 'BLOCKED');
   assert.equal(r.reason, 'FEE_DETAIL_PENDING');
   assert.equal(r.counts_as_verified_external_revenue, false);
 });
 
-test('full chain PASSes revenue count', () => {
-  const r = evaluateSettlement({
-    status: 'succeeded',
-    livemode: true,
-    offer_id: 'off_1',
-    independent_buyer: true,
-    fulfillment_status: 'delivered',
-    delivery_proof_ref: 'proof/x',
-    fee_detail_status: 'reconciled',
-  });
+test('missing or unknown fee state cannot pass', () => {
+  for (const fee_detail_status of [undefined, 'unknown']) {
+    const r = evaluateSettlement({ ...full, fee_detail_status });
+    assert.equal(r.verdict, 'BLOCKED');
+    assert.equal(r.counts_as_verified_external_revenue, false);
+  }
+});
+
+test('complete provider, buyer, fulfillment and delivery evidence passes', () => {
+  const r = evaluateSettlement(full);
   assert.equal(r.verdict, 'PASS');
   assert.equal(r.counts_as_verified_external_revenue, true);
 });
 
-test('kill criteria separate verified revenue from quality warnings', () => {
+test('malformed fee details block revenue', () => {
+  for (const change of [{ balance_transaction_id: null }, { fee_minor: -1 }, { fee_minor: 1.5 }, { currency: 'NZD' }]) {
+    const r = evaluateSettlement({ ...full, ...change });
+    assert.equal(r.verdict, 'BLOCKED');
+    assert.equal(r.counts_as_verified_external_revenue, false);
+  }
+});
+
+test('kill criteria separate verified revenue from data quality warnings', () => {
   const k = separateKillCriteria({
     verifiedSales: [{ counts_as_verified_external_revenue: true }],
     qualityRows: [{ status: 'unverified' }, { status: 'rejected' }],
