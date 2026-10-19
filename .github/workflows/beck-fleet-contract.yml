@@ -44,6 +44,8 @@ jobs:
           node --check ops/recovery/neon-endpoint.mjs
           node --check ops/recovery/cloudflare-pages.mjs
           node --check ops/recovery/provider-recovery-contract.test.mjs
+          node --check ops/beck/run-cloud-jobs.mjs
+          node --check ops/beck/run-cloud-jobs.test.mjs
           node --check ops/beck/settlement-truth.mjs
           node --check ops/beck/settlement-truth.test.mjs
           node --check ops/beck/stripe-fee-reconcile.mjs
@@ -58,8 +60,11 @@ jobs:
       - name: Run provider recovery guardrail tests
         run: node --test ops/recovery/provider-recovery-contract.test.mjs
 
-      - name: Run settlement, receipt, and Stripe fee evidence tests
-        run: node --test ops/beck/settlement-truth.test.mjs ops/beck/stripe-fee-reconcile.test.mjs ops/beck/settlement-join.test.mjs ops/beck/receipts/historical-receipt-regression.test.mjs
+      - name: Run cloud job manifest and emit evidence-checked proof report
+        env:
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+        run: node ops/beck/run-cloud-jobs.mjs
 
       - name: Build non-production Cloudflare preview
         run: node ops/migration/cloudflare-preview/build-preview.mjs
@@ -98,6 +103,12 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: beck-fleet-contract-${{ github.run_id }}
-          path: proof/fleet/contract-proof.json
+          path: |
+            proof/fleet/contract-proof.json
+            proof/beck/latest-proof-report.json
+            proof/beck/latest-gate-unit-tests.json
+            proof/beck/latest-neon-recovery.json
+            proof/beck/latest-cloudflare-recovery.json
+            proof/autonomy/latest-spine-status.json
           if-no-files-found: error
           retention-days: 30
