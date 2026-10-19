@@ -61,11 +61,16 @@ export function joinSettlementWithProviderFee(baseRecord, feeEvidence) {
     balance_transaction_id: feeEvidence.balance_transaction_id,
     fee_minor: feeEvidence.fee_minor,
     currency: feeEvidence.currency,
+    amount_minor: feeEvidence.amount_minor,
     provider_fee_evidence: {
+      source: 'stripe_balance_transaction',
       state: feeEvidence.state,
       charge_id: feeEvidence.charge_id,
       net_minor: feeEvidence.net_minor,
       amount_minor: feeEvidence.amount_minor,
+      fee_minor: feeEvidence.fee_minor,
+      fee_details: feeEvidence.fee_details,
+      currency: feeEvidence.currency,
       provider: feeEvidence.provider || 'stripe',
     },
   };
