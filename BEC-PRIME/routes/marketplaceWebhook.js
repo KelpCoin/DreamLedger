@@ -73,6 +73,9 @@ async function handle(req, res) {
     const cosmeticFulfillment = String(session.metadata?.fulfillment || '').trim() === 'dreammeez_entitlement';
 
     if (cosmeticId && cosmeticFulfillment) {
+      // Verify storage durability before recording payment, fulfillment, or
+      // entitlement rows. A checkout event must not partially write locally.
+      dreammeezEntitlement.assertDurableStore();
       const transactionId = session.id;
       fs.mkdirSync(DATA, { recursive: true });
       fs.mkdirSync(PROOFS, { recursive: true });
