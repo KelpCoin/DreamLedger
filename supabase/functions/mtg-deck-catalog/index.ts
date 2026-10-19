@@ -111,7 +111,12 @@ Deno.serve(async (req) => {
       .gt("inventory", 0)
       .order("published_at", { ascending: false });
     if (error) return json({ error: error.message }, 500);
-    return json({ schema: "DREAMLEDGER/MTG-DECK-CATALOG/v1", decks: data || [] });
+    // Do not expose the unrestricted metadata object on the public catalog surface.
+    const decks = (data || []).map(({ metadata, ...deck }) => ({
+      ...deck,
+      slug: typeof metadata?.slug === "string" ? metadata.slug : null
+    }));
+    return json({ schema: "DREAMLEDGER/MTG-DECK-CATALOG/v1", decks });
   }
 
   if (req.method !== "POST") return json({ error: "method_not_allowed" }, 405);
@@ -128,7 +133,10 @@ Deno.serve(async (req) => {
   const inventory = Math.max(0, Math.floor(Number(body.inventory ?? 1)));
   const decklist = clean(body.decklist_text, 200000);
   const imageUrl = clean(body.image_url, 1000);
-  const publish = body.publish !== false;
+
+  // This public authenticated route can submit a draft, but cannot publish it.
+  // An auditable human approval path must publish the listing separately.
+  const publish = false;
 
   if (!title) return json({ error: "title_required" }, 422);
   if (!commander) return json({ error: "commander_required" }, 422);
@@ -156,7 +164,7 @@ Deno.serve(async (req) => {
     image_url: imageUrl || null,
     status: publish ? "published" : "draft",
     source: "mtg_deck_upload",
-    metadata: { uploader_email: user.email || null, slug },
+    metadata: { slug, publication_requires_human_approval: true },
     published_at: publish ? new Date().toISOString() : null
   };
 
@@ -169,14 +177,20 @@ Deno.serve(async (req) => {
 
   if (error) return json({ error: error.message }, 500);
 
+  const { metadata: savedMetadata, ...safeDeck } = data;
   return json({
     ok: true,
-    deck: data,
+    deck: {
+      ...safeDeck,
+      slug: typeof savedMetadata?.slug === "string" ? savedMetadata.slug : slug
+    },
+    publication_requested: body.publish === true,
+    publication_status: "HELD_FOR_HUMAN_REVIEW",
     public_url: publish ? "https://dreamledger.org/mtg/?deck=" + encodeURIComponent(slug) : null,
     distribution: {
       facebook: social.facebook,
       patreon: social.patreon,
-      rule: "COPY_ONLY_UNTIL_EXTERNAL_CHANNEL_AUTHORIZATION_EXISTS"
+      rule: "COPY_ONLY_UNTIL_HUMAN_APPROVAL_AND_EXTERNAL_CHANNEL_AUTHORIZATION"
     }
   }, 201);
 });
