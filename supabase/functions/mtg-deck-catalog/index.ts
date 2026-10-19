@@ -128,7 +128,9 @@ Deno.serve(async (req) => {
   const inventory = Math.max(0, Math.floor(Number(body.inventory ?? 1)));
   const decklist = clean(body.decklist_text, 200000);
   const imageUrl = clean(body.image_url, 1000);
-  const publish = body.publish !== false;
+  // Fail closed: authenticated seller submission is not moderator approval.
+  // Keep all new rows in draft until a separate authorized review path exists.
+  const publish = false;
 
   if (!title) return json({ error: "title_required" }, 422);
   if (!commander) return json({ error: "commander_required" }, 422);
@@ -173,6 +175,11 @@ Deno.serve(async (req) => {
     ok: true,
     deck: data,
     public_url: publish ? "https://dreamledger.org/mtg/?deck=" + encodeURIComponent(slug) : null,
+    publication: {
+      status: "HELD_FOR_HUMAN_REVIEW",
+      requested_publish: body.publish === true,
+      public_url: null
+    },
     distribution: {
       facebook: social.facebook,
       patreon: social.patreon,
