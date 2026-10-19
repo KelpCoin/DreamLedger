@@ -10,7 +10,7 @@ const {
 } = require('./validateElohimProduct');
 const { createCandidate } = require('../council/ElohimCreate');
 
-test('valid catalog product passes', () => {
+test('valid catalog product passes with Draft 2020-12 schema', () => {
   const r = validateCatalogProduct({
     id: 'DOC-EXTRACT-50',
     name: 'Document Extraction',
