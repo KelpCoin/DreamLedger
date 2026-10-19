@@ -20,6 +20,23 @@ export function evaluateSettlement(record) {
 
   const feeMissing = [];
   if (record.fee_detail_status !== 'reconciled') feeMissing.push('fee_detail_reconciled');
+  const providerFee = record.provider_fee_evidence;
+  if (!providerFee || providerFee.source !== 'stripe_balance_transaction' || !Array.isArray(providerFee.fee_details) || providerFee.fee_details.length === 0) {
+    feeMissing.push('provider_fee_details_evidence');
+  } else {
+    const detailAmounts = providerFee.fee_details.map((detail) => detail?.amount_minor);
+    if (detailAmounts.some((amount) => !Number.isSafeInteger(amount) || amount < 0)
+      || detailAmounts.reduce((sum, amount) => sum + amount, 0) !== record.fee_minor
+      || providerFee.fee_details.some((detail) => String(detail?.currency || '').toLowerCase() !== record.currency)) {
+      feeMissing.push('provider_fee_details_reconcile');
+    }
+    if (providerFee.fee_minor !== record.fee_minor || providerFee.currency !== record.currency) {
+      feeMissing.push('provider_fee_evidence_matches_record');
+    }
+    if (providerFee.amount_minor != null && record.amount_minor != null && providerFee.amount_minor !== record.amount_minor) {
+      feeMissing.push('provider_amount_matches_record');
+    }
+  }
   if (!record.balance_transaction_id) feeMissing.push('balance_transaction_id');
   if (!Number.isSafeInteger(record.fee_minor) || record.fee_minor < 0) feeMissing.push('fee_minor');
   if (typeof record.currency !== 'string' || !/^[a-z]{3}$/.test(record.currency)) feeMissing.push('currency');
