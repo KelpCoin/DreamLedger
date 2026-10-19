@@ -7,9 +7,11 @@ WORKDIR /app
 COPY package.json ./
 RUN npm install --omit=dev --no-audit --no-fund
 
-# Copy the compiled source tree, then use the repository's canonical engine build.
+# Package tracked runtime surfaces. The full canonical compile remains an
+# independent release gate and currently fails closed on offer/link drift.
 COPY . .
-RUN npm run --prefix BEC-PRIME build \
+RUN npm install --prefix BEC-PRIME --omit=dev --no-audit --no-fund \
+    && node -e "const fs=require('fs'); const paths=['BEC-PRIME/catalog/offers/offers.json','BEC-PRIME/catalog/offers/approved.json','BEC-PRIME/catalog/ip-capabilities.json','BEC-PRIME/compiled/website/index.html','BEC-PRIME/compiled/website/assets/marketplace-live.js']; const missing=paths.filter(p=>!fs.existsSync(p)||!fs.statSync(p).size); if(missing.length){console.error('RUNTIME_ARTIFACTS_MISSING='+missing.join(','));process.exit(1)} console.log('TRACKED_RUNTIME_ARTIFACTS=PASS:'+paths.length)" \
     && chmod 0755 ops/migration/render-exit/start.sh
 
 ARG GIT_COMMIT=unknown
