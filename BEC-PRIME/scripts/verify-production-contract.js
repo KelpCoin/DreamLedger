@@ -87,10 +87,8 @@ const safeHold =
 if (safeHold) {
   if (publicMtg.includes('buy.stripe.com')) errors.push('SAFE_HOLD_PUBLIC_MTG_HAS_DIRECT_STRIPE_URL');
   if (publicBillboard.includes('buy.stripe.com')) errors.push('SAFE_HOLD_PUBLIC_BILLBOARD_HAS_DIRECT_STRIPE_URL');
-  if (!publicMtg.includes('/buy/COMMANDER-DECK-DIAGNOSTIC-001') &&
-      !publicMtg.includes('/buy/commander-deck-diagnostic-001/')) {
-    errors.push('SAFE_HOLD_PUBLIC_MTG_ROUTE_MISSING');
-  }
+  // In safe hold, the marketplace must not expose a purchase route. The dedicated
+  // buy URL remains a separate static held page for direct navigation and testing.
   if (liveOffer && (liveOffer.status === 'ACTIVE_LIVEMODE' || liveOffer.checkout)) {
     warnings.push('LIVE_COMMERCE_CATALOGUE_STALE: a live-catalogue record still advertises an unverified checkout');
   }
