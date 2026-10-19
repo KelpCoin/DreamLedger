@@ -65,6 +65,7 @@ jobs:
           node scripts/test-777-factory-factory.js
           node scripts/test-777-revenue-lanes.js
           node scripts/test-777-stripe-resolver.js
+          node scripts/test-operational-hold.js
           node gauntlet/test-free-discovery-gauntlet.js
 
       - name: Verify economic truth boundary
@@ -95,6 +96,8 @@ jobs:
           name: 777-economic-engine-${{ github.run_id }}
           path: |
             BEC-PRIME/data/777/777-LATEST.json
+            BEC-PRIME/data/777/HOLD-QUEUE-STATE.json
+            BEC-PRIME/data/777/HOLD-LIVENESS-LATEST.json
             BEC-PRIME/data/factory-factory/FACTORY-FACTORY.json
           if-no-files-found: error
           retention-days: 14
