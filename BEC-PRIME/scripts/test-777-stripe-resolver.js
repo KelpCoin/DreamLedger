@@ -52,7 +52,7 @@ function fixture(overrides = {}) {
     }] },
     apiMode: 'live',
     fulfillmentEntry: { ready: true, operator_required: false, type: 'digital_report' },
-    publicPage: { route: '/mtg/', source_path: 'public/mtg/index.html', displayed_amount_nzd: 29, checkout_held: false },
+    publicPage: { route: '/mtg/', source_path: 'public/mtg/index.html', purchase_route: '/buy/commander-deck-diagnostic-001/', displayed_amount_nzd: 29, checkout_held: false },
     ...overrides
   };
 }
@@ -107,7 +107,7 @@ test('finds an active provider link by offer metadata when catalogue URLs are st
     id: 'plink_old',
     url: 'https://buy.stripe.com/old-inactive',
     active: false,
-    metadata: { offer_id: 'OFFER-CMD-DIAG-29-NZD', sku: 'CMD-DIAG-29' }
+    metadata: { offer_id: 'OFFER-CMD-DIAG-29-NZD', product_id: 'COMMANDER-DECK-DIAGNOSTIC-001', sku: 'CMD-DIAG-29' }
   });
   f.lineItemsByLinkId.plink_old = [{
     quantity: 1,
