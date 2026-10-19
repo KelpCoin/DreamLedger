@@ -5,7 +5,9 @@
     {"label": "Pay", "href": "/money.html"},
     {"label": "Shop", "href": "/shop.html"},
     {"label": "Magic", "href": "/mtg/"},
-    {"label": "Avatar", "href": "/avatar.html"}
+    {"label": "Avatar", "href": "/avatar.html"},
+    {"label": "Quote comparison", "href": "/quote-comparison/"},
+    {"label": "Trust", "href": "/trust/"}
   ],
   "faces": [
     {
@@ -30,16 +32,18 @@
       "route": "/",
       "out": "home.html",
       "title": "DreamLedger",
-      "eyebrow": "BECK compiler · evidence · Stripe",
-      "headline": "Build the factory. Get paid.",
-      "lead": "Free tools stay free. Paid surfaces are compiler-emitted from structured offers. Validated by receipts.",
+      "eyebrow": "Evidence-first commerce · receipts · decisions",
+      "headline": "Make the next decision. Get paid with evidence.",
+      "lead": "Free tools stay free. Evidence-first commerce keeps uncertainty visible. Truth Oracle helps capture sources, decisions and proof.",
       "cta_source": "live_checkout_routes",
       "primary_offer_ids": ["LIVE-DREAMMEEZ-SUPPORTER-SPROUT"],
       "secondary_links": [
         {"label": "All cash offers", "href": "/money.html"},
         {"label": "Shop", "href": "/shop.html"},
         {"label": "Magic", "href": "/mtg/"},
-        {"label": "Avatar", "href": "/avatar.html"}
+        {"label": "Avatar", "href": "/avatar.html"},
+        {"label": "Compare quotes", "href": "/quote-comparison/"},
+        {"label": "Trust", "href": "/trust/"}
       ]
     },
     {
