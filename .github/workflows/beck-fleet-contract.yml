@@ -7,6 +7,7 @@ on:
       - 'ops/fleet/**'
       - 'ops/recovery/**'
       - 'ops/migration/**'
+      - 'ops/beck/**'
       - '.github/workflows/beck-fleet-contract.yml'
       - '.github/workflows/beck-cloud-fleet.yml'
   push:
@@ -52,12 +53,20 @@ jobs:
           node --check ops/recovery/neon-endpoint.mjs
           node --check ops/recovery/cloudflare-pages.mjs
           node --check ops/recovery/provider-recovery-contract.test.mjs
+          node --check ops/beck/settlement-truth.mjs
+          node --check ops/beck/settlement-truth.test.mjs
+          node --check ops/beck/stripe-fee-reconcile.mjs
+          node --check ops/beck/stripe-fee-reconcile.test.mjs
+          node --check ops/beck/receipts/historical-receipt-regression.test.mjs
 
       - name: Run local-fixture heartbeat tests
         run: node --test ops/fleet/heartbeat.contract.test.mjs
 
       - name: Run provider recovery guardrail tests
         run: node --test ops/recovery/provider-recovery-contract.test.mjs
+
+      - name: Run settlement, receipt, and Stripe fee evidence tests
+        run: node --test ops/beck/settlement-truth.test.mjs ops/beck/stripe-fee-reconcile.test.mjs ops/beck/receipts/historical-receipt-regression.test.mjs
 
       - name: Build non-production Cloudflare preview
         run: node ops/migration/cloudflare-preview/build-preview.mjs
