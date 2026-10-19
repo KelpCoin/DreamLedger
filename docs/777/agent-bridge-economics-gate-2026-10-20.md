@@ -56,3 +56,28 @@ This artifact did not enable checkout, create Stripe objects or sessions, change
 
 See the adjacent machine-readable acceptance contract:
 docs/777/agent-bridge-economics-gate-2026-10-20.json
+
+## 2026-10-20 correction: dispatch meaning and database recovery
+
+The previous projection mapped dispatch_state INTERNAL_ROUTED to ACTION_DISPATCHED. That conflated internal routing with dispatch. The correction removes that mapping. The observation loop now skips an inapplicable event only when the transition engine returns STATE_TRANSITION_INVALID, while preserving all other explicit blockers.
+
+The new replay regression re-projects an ordered test event log and asserts that internal routing never creates EXECUTED. This is a deterministic regression fixture, not a production database replay. Historical production replay remains blocked until the database is readable.
+
+An isolated harness reproducing the changed modules and tests passed 9/9 checks. This is not a repository CI result; CI remains unproven until an actual relevant workflow completes.
+
+### Newly observed database root cause
+
+Supabase PostgreSQL logs at 2026-10-19T06:44:24.647Z say: could not write to file pg_wal/xlogtemp.4623: No space left on device. The startup process then exited with code 1 and the database shut down. PostgREST later logged localhost:5432 connection refused. Read-only SQL still returned ECONNREFUSED on 2026-10-20. This directly supports storage exhaustion during recovery for that event sequence, rather than an IPv6-only hypothesis. Current dashboard disk usage and recovery status remain unobserved.
+
+Supavisor port 6543 may resolve a connection-path compatibility issue but cannot repair a disk-full database. No paid upgrade or spend was initiated.
+
+### Corrected next execution order
+
+1. Keep the projection correction and replay regression test; obtain a real completed repository CI result.
+2. Resolve the observed PostgreSQL storage/recovery blocker without unapproved spend.
+3. After recovery, confirm SELECT 1 and schema/migration access, then run one real persisted row through the existing observation modules.
+4. Replay actual ordered persisted action rows and record exact state transitions and blockers. No EXECUTED state without explicit ACTION_DISPATCHED.
+5. Read back the current gateway and exact existing Stripe Product/Price/Payment Link binding without creating a Checkout Session; keep any inconsistent offer held.
+6. Run deterministic authorization, quota, idempotency, signed-event, replay, concurrency, failure/retry, delivery receipt and reconciliation tests.
+7. Measure direct costs and configure a justified minimum contribution margin.
+8. Only after prior gates pass and human approval is explicit, enable one independent-buyer path and reconcile settlement, fulfilment, retrievable delivery evidence and ledger state.
