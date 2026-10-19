@@ -113,9 +113,8 @@ try {
     if (-not $python) { throw 'Python is unavailable on this PC.' }
     $env:LMSTUDIO_BASE_URL = $LMStudioUrl.TrimEnd('/')
     $env:PYTHONUTF8 = '1'
-    $run = & $python.Source $entry 2>&1
+    & $python.Source $entry | Out-File -LiteralPath $logPath -Encoding utf8
     $exitCode = $LASTEXITCODE
-    ($run | Out-String) | Set-Content -LiteralPath $logPath -Encoding utf8
     if ($exitCode -eq 0) {
         $status = 'WORKER_RAN_UNVERIFIED'
         $detail = 'Local orchestrator ran. Its recommendations are not revenue proof.'
