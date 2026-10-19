@@ -16,6 +16,8 @@ function assertSafeSource(html) {
     "product.sale_mode === 'claim_by_message'",
     'product.checkout_available === false',
     'safeClaim(product.claim_url)',
+    'function conditionEligible(product)',
+    "['single', 'single-card', 'mtg-single', 'physical-single'].includes(kind)",
     'grid.replaceChildren()',
     'document.createElement',
     '.textContent =',
@@ -48,7 +50,8 @@ function writeProof(html) {
     purchase_flow: 'manual_enquiry_only',
     rendering: 'DOM_CREATION_AND_TEXT_CONTENT',
     display_contract: [
-      'published_physical_decks_only',
+      'published_physical_singles_and_decks_only',
+      'condition_shown_only_for_eligible_singles',
       'positive_inventory_only',
       'manual_claim_path_only',
       'no_direct_checkout',
