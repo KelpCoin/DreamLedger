@@ -87,7 +87,7 @@ async function request(path, method = 'GET') {
 
   console.log(JSON.stringify({
     status: 'PASS_PRIORITY_VERTICAL_RUNTIME_CONTRACT',
-    assertions: 18,
+    assertions: 23,
     priority_verticals: 3,
     checkout_authorized: 0,
     failure_mode: 'UNAVAILABLE_FAIL_CLOSED',
