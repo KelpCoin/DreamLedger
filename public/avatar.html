@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b0b0d">
-<title>DreamMeez Studio · Look good. Spend NZ$2–5.</title>
-<meta name="description" content="Build an avatar that follows you across DreamLedger and into Phinhaven. Free body extremes. Impulse cosmetics from NZ$2.">
+<title>DreamMeez Studio | Avatar Preview</title>
+<meta name="description" content="Customise and preview a DreamMeez avatar. Paid cosmetic unlocks remain paused until account-bound checkout and delivery are verified.">
 <link rel="canonical" href="https://dreamledger.org/avatar.html">
 <script src="/assets/avatar-identity.js"></script>
 <style>
@@ -172,6 +172,7 @@ buff{display:block;font-size:10px;color:var(--mint)}
 .btn:disabled{opacity:.5;cursor:not-allowed}
 .status{min-height:18px;font-size:12px;color:var(--muted);margin-top:8px}
 .status.err{color:#ff8f8f}
+.checkout-held{margin:0;color:var(--muted);font-size:11px;line-height:1.4;border:1px dashed var(--line);border-radius:10px;padding:8px}
 .field{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line);
   background:#0e0e14;color:var(--text);margin-bottom:10px}
 .export{font-size:11px;color:var(--muted);margin-top:10px;word-break:break-all}
@@ -191,8 +192,8 @@ buff{display:block;font-size:10px;color:var(--mint)}
   <section class="hero">
     <p class="eyebrow">Cross-surface avatar · Web + Phinhaven</p>
     <h1>Look like someone<br><span>worth a few dollars.</span></h1>
-    <p class="lead">Free extreme body types. Try cosmetics on your avatar before you pay. Same loadout follows you into Phinhaven — visuals on the web, light buffs in-game.</p>
-    <span class="pill">Impulse cosmetics NZ$2–5 · try-on first</span>
+    <p class="lead">Customise your look and preview cosmetics. Paid ownership and Phinhaven effects remain unavailable until account-bound entitlement delivery is verified.</p>
+    <span class="pill">Preview mode · paid unlocks held</span>
   </section>
 
   <div class="studio">
@@ -247,10 +248,11 @@ buff{display:block;font-size:10px;color:var(--mint)}
       </div>
 
       <h2 style="margin-top:16px">Impulse shop · NZ$2–5</h2>
-      <p class="sub">Tap <strong>Try</strong> to see it on your avatar. Owned items equip for web + Phinhaven buffs.</p>
+      <p class="sub">Tap <strong>Try</strong> to preview a look. Paid checkout and ownership are held while account-bound delivery is verified.</p>
       <div class="shop" id="shopGrid"></div>
       <p class="status" id="status"></p>
       <p class="export" id="phinExport"></p>
+      <p class="export refund-policy">Digital goods: no refund for change of mind where permitted by law. If an item is not delivered or is not as described, we will provide any remedy required by the Consumer Guarantees Act 1993.</p>
     </section>
   </div>
 </div>
@@ -434,28 +436,10 @@ buff{display:block;font-size:10px;color:var(--mint)}
         };
         row.appendChild(eq);
       } else {
-        var buy = document.createElement('button');
-        buy.type = 'button';
-        buy.className = 'btn';
-        buy.textContent = 'Unlock demo';
-        buy.title = 'Local unlock for demo until Stripe cosmetic checkout is wired for this SKU';
-        buy.onclick = function() {
-          // Demo unlock so try→own→equip loop works before every Stripe SKU is live
-          state = DreamLedgerAvatar.own(item.id);
-          state = DreamLedgerAvatar.equip(item.id);
-          tryingId = null;
-          status('Unlocked locally (demo). Wire Stripe for real NZ$' + item.price_nzd + ' settlement.');
-          render();
-        };
-        row.appendChild(buy);
-
-        // Direct low-friction cash path for real money validation
-        var real = document.createElement('a');
-        real.className = 'btn ghost';
-        real.href = '/buy/DREAMMEEZ-SUPPORTER-SPROUT';
-        real.textContent = 'Pay NZ$3.99';
-        real.title = 'Settled Stripe path while per-cosmetic checkout is finalized';
-        row.appendChild(real);
+        var held = document.createElement('p');
+        held.className = 'checkout-held';
+        held.textContent = 'Preview only. Paid unlocks are paused until account-bound checkout and verified delivery are active.';
+        row.appendChild(held);
       }
 
       grid.appendChild(card);
