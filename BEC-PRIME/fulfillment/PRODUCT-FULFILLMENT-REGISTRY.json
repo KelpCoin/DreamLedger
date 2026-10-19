@@ -8,7 +8,7 @@
       "type": "automatic_service_activation",
       "delivery_target": "dreamledger.org/billboard",
       "activation": "verified_paid_stripe_session -> signed_webhook -> exact_amount_currency_validation -> buyer_field_validation -> public_image_fetch_validation -> automatic_moderation -> atomic_first_available_100x100_grid_allocation -> media_persist -> billboard_state_persist -> publication -> durable_fulfillment_proof",
-      "operator_required": false,
+      "operator_required": true,
       "idempotency_key": "stripe_checkout_session_id",
       "buyer_inputs": [
         "tile_image_url",
@@ -23,14 +23,15 @@
         "delivery_url",
         "proof_url"
       ],
-      "failure_behavior": "payment remains recorded but publication is not marked complete until every fulfillment step succeeds; retry is idempotent"
+      "failure_behavior": "payment remains recorded but publication is not marked complete until every fulfillment step succeeds; retry is idempotent",
+      "reason": "Held until secure intake, live inventory reservation, and end-to-end payment-to-delivery proof are independently verified; no public checkout is authorized."
     },
     "OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001": {
       "ready": false,
       "type": "automatic_service_activation",
       "delivery_target": "dreamledger.org/billboard",
       "activation": "verified_paid_stripe_session -> signed_webhook -> exact_amount_currency_validation -> buyer_field_validation -> public_image_fetch_validation -> automatic_moderation -> atomic_first_available_100x100_grid_allocation -> media_persist -> billboard_state_persist -> publication -> durable_fulfillment_proof",
-      "operator_required": false,
+      "operator_required": true,
       "idempotency_key": "stripe_checkout_session_id",
       "buyer_inputs": [
         "destination_url",
@@ -46,7 +47,8 @@
         "proof_url"
       ],
       "failure_behavior": "payment remains recorded but publication is not marked complete until every fulfillment step succeeds; retry is idempotent",
-      "canonical_product_id": "DREAMLEDGER-BILLBOARD-FOUNDING-001"
+      "canonical_product_id": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "reason": "Held until secure intake, live inventory reservation, and end-to-end payment-to-delivery proof are independently verified; no public checkout is authorized."
     },
     "BILLBOARD-MEDIUM": {
       "ready": false,
