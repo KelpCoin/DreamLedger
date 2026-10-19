@@ -1,6 +1,7 @@
 'use strict';
 
 function nzdToMinor(value) {
+  if (value === null || value === undefined || value === '' || typeof value === 'boolean') return null;
   const amount = Number(value);
   return Number.isFinite(amount) && amount >= 0 ? Math.round(amount * 100) : null;
 }
@@ -23,17 +24,17 @@ function firstText(...values) {
 
 function metadataIdentityMatches(link, offer) {
   const metadata = link && link.metadata && typeof link.metadata === 'object' ? link.metadata : {};
-  const allowed = new Set([
-    offer.offer_id,
-    offer.product_id,
-    offer.product_sku,
-    offer.sku,
-    offer.sku_id
-  ].map(asText).filter(Boolean).map(value => value.toLowerCase()));
-  return Object.entries(metadata).some(([key, value]) =>
-    /offer_id|product_id|product_sku|sku|sku_id/i.test(key) &&
-    allowed.has(asText(value).toLowerCase())
-  );
+  const expectedOfferId = asText(offer && offer.offer_id).toLowerCase();
+  const actualOfferId = asText(metadata.offer_id || metadata.dreamledger_offer_id).toLowerCase();
+  const expectedProductId = asText(offer && offer.product_id).toLowerCase();
+  const actualProductId = asText(metadata.product_id || metadata.dreamledger_product_id).toLowerCase();
+  const expectedSku = asText(offer && (offer.product_sku || offer.sku || offer.sku_id)).toLowerCase();
+  const actualSku = asText(metadata.product_sku || metadata.sku || metadata.sku_id || metadata.dreamledger_sku).toLowerCase();
+
+  if (!expectedOfferId || !actualOfferId || actualOfferId !== expectedOfferId) return false;
+  if (!expectedProductId || !actualProductId || actualProductId !== expectedProductId) return false;
+  if (!expectedSku || !actualSku || actualSku !== expectedSku) return false;
+  return true;
 }
 
 function inspectStripeLink(link, lineItems, expectedAmountMinor, expectedCurrency, apiMode, offer) {
@@ -86,9 +87,10 @@ function inspectStripeLink(link, lineItems, expectedAmountMinor, expectedCurrenc
   if (!amountKnown) blockers.push('STRIPE_LINE_ITEM_AMOUNT_OR_CURRENCY_UNRESOLVED');
   if (currencyConflict) blockers.push('STRIPE_LINE_ITEM_CURRENCY_CONFLICT');
   if (recurring) blockers.push('UNEXPECTED_RECURRING_PRICE_ON_ONE_TIME_OFFER');
-  if (expectedAmountMinor == null || !amountKnown || amountMinor !== expectedAmountMinor) {
+  if (expectedAmountMinor == null || expectedAmountMinor <= 0 || !amountKnown || amountMinor !== expectedAmountMinor) {
     blockers.push('STRIPE_AMOUNT_MINOR_MISMATCH');
   }
+  if (expectedAmountMinor === 0) blockers.push('STRIPE_OFFER_AMOUNT_MUST_BE_POSITIVE');
   if (!lineCurrency || lineCurrency !== normalizeCurrency(expectedCurrency)) {
     blockers.push('STRIPE_CURRENCY_MISMATCH');
   }
