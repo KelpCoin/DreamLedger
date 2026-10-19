@@ -616,7 +616,10 @@ function build() {
     publicProducts: publicCatalog.products || [],
     fulfillmentEntries: fulfillmentRegistry.entries || {},
     recurringPlans: pricingForAudit.plans || [],
-    evergreenAdapters: evergreenFactoryForAudit.live_adapters || []
+    evergreenAdapters: evergreenFactoryForAudit.live_adapters || [],
+    buyerSignalRecords: buyerSignalHunt.candidates || [],
+    defaultBuyerSignalOfferId: buyerSignalOffer.offer_id || null,
+    discordArtifactPresent: fs.existsSync(path.join(ROOT, '..', 'public', 'downloads', 'discord-webhook-starter-kit.zip'))
   });
   const configurationReadyOfferIds = new Set(
     revenueLaneReadiness.approved_offer_lanes
