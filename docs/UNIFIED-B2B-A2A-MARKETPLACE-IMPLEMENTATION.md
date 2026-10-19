@@ -91,3 +91,15 @@ A hypothesis becomes qualified only with a traceable external buyer, a current c
 7. Only then approve production migration/deployment and turn on checkout flags.
 
 Current economic scoreboard from this code change: 0 new qualified external buyer intents, 0 new independent buyers, 0 settled payments, 0 verified revenue. This is a concrete implementation contribution, not a claim that the market is already operating.
+
+
+## Priority commercial verticals and paid-tier doctrine
+
+This is a binding integration map for the existing marketplace substrate, not a new store, payment system, Stripe SKU, or release approval. Machine-readable source: `BEC-PRIME/catalog/marketplace/priority-verticals.v1.json`; read-only discovery endpoint: `GET /api/marketplace/v1/verticals`.
+
+- **Truth Oracle:** audits, quote comparisons, and evidence packets are paid evidence-depth capabilities inside Truth Oracle. Do not create a standalone audit product, parallel page/CTA, or replacement Product/Price/Payment Link. Its metered tool prices are proposals, not live checkout or validated willingness-to-pay.
+- **DreamMeez avatar cosmetics:** this marketplace may describe the vertical, but it must not grant cosmetic ownership or imply buyability. Paid unlocks remain held until the canonical SKU/price, authenticated buyer, settled Stripe payment, signature-verified idempotent entitlement grant, and retrievable delivery receipt are proven.
+- **Programmatic DOOH:** use the existing billboard-v2 inventory and delivery authority. Checkout remains held until finite inventory reservation, approved creative, amount/currency match, settled attribution, actual placement/measurement evidence, and a buyer-retrievable delivery report reconcile. A billboard tile is not automatically a programmatic media impression.
+- **B2B/A2A:** the shared transaction kernel handles discovery, RFQs, supplier offers, human authorization, and evidence-linked fulfillment. Agent intent is not authorization; authorization is not payment; checkout is not settlement; settlement is not delivery.
+
+The priority vertical registry is deliberately fail-closed. Its UI and API are **static/policy-contract validation only**. The Supabase migrations still require disposable/staging execution, schema/RLS review, concurrency and replay tests, and authorized release. No external buyer, demand, settled transaction, completed delivery, or revenue is claimed from this code contribution. Verified external revenue remains NZ$0.00 until the independent buyer -> settled attributable payment -> fulfillment -> retrievable delivery evidence -> reconciliation chain passes.
