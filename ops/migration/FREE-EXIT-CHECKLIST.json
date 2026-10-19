@@ -22,11 +22,34 @@
       "workers_memory_mb": 128,
       "neon_compute_hours_per_month_per_project": 100,
       "neon_storage_gb_per_project": 1,
-      "neon_compute_scales_to_zero": true
+      "neon_compute_scales_to_zero": true,
+      "pages_concurrent_builds": 1,
+      "pages_max_files_per_site": 20000,
+      "pages_max_asset_mib": 25,
+      "pages_static_assets_unmetered_only_when_functions_not_invoked": true,
+      "pages_functions_share_workers_daily_quota": true,
+      "workers_quota_resets_at_utc": "00:00",
+      "workers_daily_warning_percent": 50,
+      "workers_daily_action_required_percent": 80,
+      "workers_daily_stop_nonessential_polling_percent": 90,
+      "workers_cpu_soft_budget_ms": 7,
+      "workers_subrequest_soft_budget": 20,
+      "neon_max_autoscale_cu": 2,
+      "neon_scale_to_zero_idle_minutes": 5,
+      "neon_object_storage_gb": 5,
+      "neon_postgres_network_transfer": "VERIFY_CURRENT_ACCOUNT_LIMIT; do not assume 5 GB because Neon’s Oct 2, 2026 update identifies the 5 GB allowance as Object Storage.",
+      "source_urls": [
+        "https://developers.cloudflare.com/pages/platform/limits/",
+        "https://developers.cloudflare.com/pages/functions/routing/",
+        "https://developers.cloudflare.com/pages/functions/pricing/",
+        "https://developers.cloudflare.com/workers/platform/limits/",
+        "https://neon.com/blog/neon-free-plan-1-gb-per-project",
+        "https://neon.com/docs/manage/endpoints/"
+      ]
     },
-    "capacity_rule": "Record measured traffic, compute and database query counts. If any free-tier limit is approached, fail visibly and preserve purchase/webhook correctness; do not silently lose or duplicate payments. No paid-plan assumption is part of acceptance."
+    "capacity_rule": "100,000 requests/day is shared between Workers and Pages Functions and resets at 00:00 UTC. Once a project invokes a Function for a request, request routing must deliberately exclude ordinary static assets if they are to remain unmetered. Treat 10 ms CPU, 50 subrequests and 128 MB memory as hard limits. Measure from day one; 50% usage is observe, 80% requires action, and 90% stops nonessential polling until capacity is reviewed. No paid-plan assumption is part of acceptance."
   },
-  "authoritative_state_rule": "Each gate starts NOT_RUN. A gate may move to PASS only when its named evidence is retained and independently verified. Missing credentials, untested behavior, HTTP 200 alone, a deploy-hook success, or a green static homepage never count as PASS.",
+  "authoritative_state_rule": "Each gate starts NOT_RUN. PASS requires its named evidence, the exact tested commit SHA, and independent route/persistence checks. Missing credentials, untested behavior, HTTP 200 alone, deploy-hook success, a successful provider control-plane call, or a green static homepage never count as PASS. The final migration stays blocked until every required scoped gate passes.",
   "verified_revenue_nzd": 0,
   "production_mutations_performed": false,
   "gates": [
@@ -160,7 +183,9 @@
         "no dependency on Render environment variables for deployment identity",
         "all required routes individually ported or deliberately disabled with explicit contract",
         "database network access works within the target runtime",
-        "CPU, memory, subrequest and payload size tests recorded"
+        "CPU, memory, subrequest and payload size tests recorded",
+        "static asset requests are excluded from Function invocation by verified _routes.json or an equivalent tested asset routing rule",
+        "each deployed handler stays within 10 ms CPU, 50 subrequests and 128 MB memory; 7 ms CPU and 20 subrequests are the internal soft budgets"
       ],
       "blocks": [
         "Existing BEC-PRIME/start.js wraps node:http.createServer and starts a listener; that server boot is not itself a Cloudflare Worker entrypoint."
@@ -176,7 +201,10 @@
         "GET / and /mtg/ return expected HTML",
         "GET /healthz returns the documented preview/production status",
         "GET /api/products and /api/offers match current published-only contract",
-        "MTG manifest/catalog and truth-oracle routes pass"
+        "MTG manifest/catalog and truth-oracle routes pass",
+        "GET /billboard and GET /mtg/ return the expected HTML on pages.dev",
+        "static assets bypass Functions so they do not consume the 100,000/day runtime quota",
+        "GET /version SHA is identical to the deployed Git commit SHA"
       ],
       "blocks": [
         "All results are tied to the preview URL and exact Git SHA. Liveness is not readiness."
@@ -228,10 +256,15 @@
         "10 ms CPU p95/p99 measured for all Worker routes",
         "no invocation exceeds 50 subrequests",
         "Neon CU-hours/storage/network tracked",
-        "budget threshold emits evidence and blocks unsafe rollout before quota exhaustion"
+        "budget threshold emits evidence and blocks unsafe rollout before quota exhaustion",
+        "shared Pages Functions plus Workers request counts and UTC reset behavior verified",
+        "usage response thresholds are exercised at 50%, 80% and 90%",
+        "Neon scale-to-zero wake latency, 100 CU-hours/month, 1 GB Postgres storage and max 2 CU are measured/recorded",
+        "current Neon Postgres network-transfer limit checked in the account; 5 GB Object Storage must not be mislabeled as Postgres egress"
       ],
       "blocks": [
-        "Public agent polling and x402 traffic require measured limits; free-tier headroom must not be assumed from today's traffic."
+        "Public agent polling and x402 traffic require measured limits; free-tier headroom must not be assumed from today's traffic.",
+        "A Pages build quota is not the dynamic runtime quota. Function requests count against the shared Workers free quota."
       ],
       "human_action_required": false
     },
@@ -375,10 +408,11 @@
   },
   "official_limit_sources": [
     "https://developers.cloudflare.com/pages/platform/limits/",
+    "https://developers.cloudflare.com/pages/functions/routing/",
+    "https://developers.cloudflare.com/pages/functions/pricing/",
     "https://developers.cloudflare.com/workers/platform/limits/",
-    "https://neon.tech/docs/introduction/plans",
-    "https://render.com/docs/free",
-    "https://supabase.com/docs/guides/platform/free-plan"
+    "https://neon.com/blog/neon-free-plan-1-gb-per-project",
+    "https://neon.com/docs/manage/endpoints/"
   ],
   "evidence_artifacts": [
     "proof/migration/free-exit-checklist-status.json",
