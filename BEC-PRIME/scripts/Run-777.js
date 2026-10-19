@@ -876,7 +876,17 @@ if (require.main === module) {
       blocked_approved_lane_count: r.revenue_lane_readiness.blocked_approved_lane_count,
       public_checkout_products_without_approved_offer: r.revenue_lane_readiness.unapproved_public_checkout_products.length,
       recurring_lanes: r.revenue_lane_readiness.recurring_lanes.length,
-      quote_adapter_blockers: r.revenue_lane_readiness.quote_adapter_family.blocker_codes
+      quote_adapter_blockers: r.revenue_lane_readiness.quote_adapter_family.blocker_codes,
+      diversified_stream_candidates: r.revenue_lane_readiness.diversified_stream_candidates.map(x => ({
+        priority: x.priority,
+        lane_id: x.lane_id,
+        revenue_model: x.revenue_model,
+        price_nzd: x.price_nzd ?? null,
+        monthly_price_points_nzd: x.monthly_price_points_nzd || null,
+        configuration_status: x.configuration_status,
+        blocker_codes: x.blocker_codes,
+        verified_revenue_nzd: x.verified_revenue_nzd
+      }))
     },
     output: OUT
   }, null, 2));
