@@ -9,7 +9,7 @@ const full = {
   delivery_proof_ref: 'evidence/delivery.json', fee_detail_status: 'reconciled',
   balance_transaction_id: 'txn_fixture', fee_minor: 12, currency: 'nzd',
   provider_fee_evidence: {
-    source: 'stripe_balance_transaction', fee_minor: 12, currency: 'nzd',
+    source: 'stripe_balance_transaction', fee_minor: 12, currency: 'nzd', net_minor: 1188,
     fee_details: [{ amount_minor: 12, currency: 'nzd', type: 'stripe_fee' }],
     amount_minor: 1200,
   }, amount_minor: 1200,
