@@ -53,13 +53,13 @@ function patch() {
     return;
   }
 
-  const desktopGrid = '.grid{display:grid;gap:14px;grid-template-columns:1fr}';
-  if (!html.includes(desktopGrid)) {
+  const desktopGrid = html.match(/\.grid\{display:grid;gap:\\d+px;grid-template-columns:1fr\}/);
+  if (!desktopGrid) {
     throw new Error('MTG listing grid CSS anchor not found');
   }
 
   const horizontalGrid = '.grid{display:flex;gap:14px;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;padding:10px 2px 22px;scrollbar-width:thin}.grid>.deck{flex:0 0 min(330px,82vw);scroll-snap-align:start}';
-  let updated = html.replace(desktopGrid, horizontalGrid);
+  let updated = html.replace(desktopGrid[0], horizontalGrid);
   updated = updated.replace('@media(min-width:640px){.grid{grid-template-columns:1fr 1fr}}', '');
   updated = updated.replace('@media(min-width:960px){.grid{grid-template-columns:1fr 1fr 1fr}}', '');
 
