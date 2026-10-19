@@ -71,8 +71,10 @@ test('checkout URL conflicts across approved, live and public catalogues block t
       id: 'COMMANDER-DECK-DIAGNOSTIC-001',
       sku: 'CMD-DIAG-29',
       name: 'Commander Deck Diagnostic',
-      price_nzd: 29,
+      price: 29,
+      currency: 'nzd',
       status: 'held',
+      checkout_available: false,
       checkout_url: null,
       silo: 'mtg'
     }]
