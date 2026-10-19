@@ -32,9 +32,12 @@ function writeProof(mode) {
 
 function addMarker(html) {
   if (html.includes(MARKER)) return html;
-  const match = html.match(/<body\\b[^>]*>/i);
-  if (!match) throw new Error('MTG body element not found');
-  return html.replace(match[0], match[0].slice(0, -1) + ' ' + MARKER + '>');
+  const start = html.toLowerCase().indexOf('<body');
+  if (start < 0) throw new Error('MTG body element not found');
+  const end = html.indexOf('>', start);
+  if (end < 0) throw new Error('MTG body element is incomplete');
+  const opening = html.slice(start, end + 1);
+  return html.slice(0, start) + opening.slice(0, -1) + ' ' + MARKER + '>' + html.slice(end + 1);
 }
 
 function patch() {
