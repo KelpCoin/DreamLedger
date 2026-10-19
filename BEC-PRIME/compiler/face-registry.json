@@ -2,12 +2,30 @@
   "schema": "BEC-PRIME/FACE-REGISTRY/v1",
   "rule": "Faces are emitted by WebsiteFaceCompiler from this registry + live_checkout_routes. Hand-edited public HTML is legacy.",
   "nav": [
-    {"label": "Shop", "href": "/shop.html"},
-    {"label": "Magic", "href": "/mtg/"},
-    {"label": "Avatar", "href": "/avatar.html"},
-    {"label": "Quote comparison", "href": "/quote-comparison/"},
-    {"label": "Trust", "href": "/trust/"},
-    {"label": "Truth Oracle", "href": "/truth-oracle.html"}
+    {
+      "label": "Shop",
+      "href": "/shop.html"
+    },
+    {
+      "label": "Magic",
+      "href": "/mtg/"
+    },
+    {
+      "label": "Avatar",
+      "href": "/avatar.html"
+    },
+    {
+      "label": "Quote comparison",
+      "href": "/quote-comparison/"
+    },
+    {
+      "label": "Trust",
+      "href": "/trust/"
+    },
+    {
+      "label": "Truth Oracle",
+      "href": "/truth-oracle.html"
+    }
   ],
   "faces": [
     {
@@ -15,17 +33,11 @@
       "route": "/money.html",
       "out": "money.html",
       "title": "Pay · DreamLedger NZ",
-      "eyebrow": "Compiler exhaust · Stripe · NZD",
-      "headline": "Pay. Get a receipt. System validated.",
-      "lead": "Generated from the face registry and live checkout routes. No revenue claimed without settlement.",
+      "eyebrow": "Evidence-first checkout · held",
+      "headline": "Checkout remains held until delivery is proven.",
+      "lead": "No purchase route is active until live settlement, fulfillment, delivery proof, and ledger reconciliation agree. A green CI run is not a sale.",
       "cta_source": "live_checkout_routes",
-      "primary_offer_ids": [
-        "LIVE-DREAMMEEZ-SUPPORTER-SPROUT",
-        "LIVE-DOC-EXTRACT-50",
-        "LIVE-SUPPLIER-CHECK-50",
-        "LIVE-COMMANDER-DECK-DIAGNOSTIC-001",
-        "LIVE-SELLER-PROFIT-AUDIT-001"
-      ]
+      "primary_offer_ids": []
     },
     {
       "id": "home",
@@ -34,16 +46,34 @@
       "title": "DreamLedger",
       "eyebrow": "Evidence-first commerce · receipts · decisions",
       "headline": "Make the next decision <span>easier to prove</span>",
-      "lead": "Free tools stay free. Evidence-first commerce keeps uncertainty visible. Truth Oracle helps capture sources, decisions and proof.",
+      "lead": "Free tools stay free. Paid checkout remains held until settlement, fulfillment, delivery proof, and ledger reconciliation agree. Truth Oracle helps capture sources, decisions, and proof.",
       "cta_source": "live_checkout_routes",
-      "primary_offer_ids": ["LIVE-DREAMMEEZ-SUPPORTER-SPROUT"],
+      "primary_offer_ids": [],
       "secondary_links": [
-        {"label": "Products and services", "href": "/shop.html"},
-        {"label": "Shop", "href": "/shop.html"},
-        {"label": "Magic", "href": "/mtg/"},
-        {"label": "Avatar", "href": "/avatar.html"},
-        {"label": "Compare quotes", "href": "/quote-comparison/"},
-        {"label": "Trust", "href": "/trust/"}
+        {
+          "label": "Products and services",
+          "href": "/shop.html"
+        },
+        {
+          "label": "Shop",
+          "href": "/shop.html"
+        },
+        {
+          "label": "Magic",
+          "href": "/mtg/"
+        },
+        {
+          "label": "Avatar",
+          "href": "/avatar.html"
+        },
+        {
+          "label": "Compare quotes",
+          "href": "/quote-comparison/"
+        },
+        {
+          "label": "Trust",
+          "href": "/trust/"
+        }
       ]
     },
     {
@@ -51,11 +81,11 @@
       "route": "/shop.html",
       "out": "shop.html",
       "title": "Shop · DreamLedger NZ",
-      "eyebrow": "Compiler exhaust · checkout-ready",
-      "headline": "Pay for real work.",
-      "lead": "Lowest price first. Every button uses a live Stripe route from the registry.",
+      "eyebrow": "Catalog validation · checkout held",
+      "headline": "Offers under verification.",
+      "lead": "Every purchase route remains held until canonical offer identity, provider status, fulfillment, delivery proof, and ledger reconciliation agree.",
       "cta_source": "live_checkout_routes_sorted",
-      "banner_offer_id": "LIVE-DREAMMEEZ-SUPPORTER-SPROUT"
+      "banner_offer_id": null
     },
     {
       "id": "start",
@@ -64,11 +94,23 @@
       "title": "Start · DreamLedger",
       "eyebrow": "Compiler exhaust · onboarding",
       "headline": "Three doors. One receipt.",
-      "lead": "Pick a path. Money validates the system. Magic and avatar are surfaces on the same spine.",
+      "lead": "Checkout stays closed until a real payment, fulfillment, and delivery receipt can be reconciled. Public actions remain human-approved.",
       "doors": [
-        {"label": "Pay from NZ$3.99", "href": "/money.html", "blurb": "Settled Stripe — economic validation"},
-        {"label": "Magic silo", "href": "/mtg/", "blurb": "Singles and decks — see the cards"},
-        {"label": "Avatar studio", "href": "/avatar.html", "blurb": "Cosmetics that follow you to Phinhaven"}
+        {
+          "label": "Pay from NZ$3.99",
+          "href": "/money.html",
+          "blurb": "Settled Stripe — economic validation"
+        },
+        {
+          "label": "Magic silo",
+          "href": "/mtg/",
+          "blurb": "Singles and decks — see the cards"
+        },
+        {
+          "label": "Avatar studio",
+          "href": "/avatar.html",
+          "blurb": "Cosmetics that follow you to Phinhaven"
+        }
       ]
     },
     {
@@ -76,18 +118,11 @@
       "route": "/offers.html",
       "out": "offers.html",
       "title": "Offers · DreamLedger",
-      "eyebrow": "Compiler exhaust · structured offers",
-      "headline": "Offers with a path to payment.",
-      "lead": "Emitted from the same live checkout registry as money and shop.",
+      "eyebrow": "Offer register · evidence-gated",
+      "headline": "No offer is currently cleared for purchase.",
+      "lead": "A route is shown only after live provider status, canonical price, fulfillment readiness, and delivery evidence agree.",
       "cta_source": "live_checkout_routes_sorted"
     }
   ],
-  "live_checkout_routes": [
-    {"id": "LIVE-DREAMMEEZ-SUPPORTER-SPROUT", "name": "Supporter — Sprout", "price_nzd": 3.99, "href": "/buy/DREAMMEEZ-SUPPORTER-SPROUT", "tag": "Lowest friction"},
-    {"id": "LIVE-DOC-EXTRACT-50", "name": "Document Extraction", "price_nzd": 5, "href": "/buy/DOC-EXTRACT-50", "tag": "Micro"},
-    {"id": "LIVE-SUPPLIER-CHECK-50", "name": "Supplier Check", "price_nzd": 5, "href": "/buy/SUPPLIER-CHECK-50", "tag": "Micro"},
-    {"id": "LIVE-COMMANDER-DECK-DIAGNOSTIC-001", "name": "Commander Deck Diagnostic", "price_nzd": 29, "href": "/buy/COMMANDER-DECK-DIAGNOSTIC-001", "tag": "Magic"},
-    {"id": "LIVE-SELLER-PROFIT-AUDIT-001", "name": "Seller Profit Audit", "price_nzd": 29, "href": "/buy/SELLER-PROFIT-AUDIT-001", "tag": "Seller"},
-    {"id": "LIVE-DISCORD-WEBHOOK-STARTER-KIT-001", "name": "Discord Webhook Kit", "price_nzd": 79, "href": "/buy/DISCORD-WEBHOOK-STARTER-KIT-001", "tag": "Tools"}
-  ]
+  "live_checkout_routes": []
 }
