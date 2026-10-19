@@ -13,7 +13,7 @@ const route=read('BEC-PRIME/routes/marketplaceKernel.js');
 const start=read('BEC-PRIME/start.js');
 const page=read('BEC-PRIME/compiled/website/marketplace.html');
 const migrationDir=path.join(root,'supabase','migrations');
-const migrations=fs.readdirSync(migrationDir).filter(x=>x.startsWith('20261013000')&&x.endsWith('.sql')).sort();
+const migrations=fs.readdirSync(migrationDir).filter(x=>/^20261013\\d+.*\\.sql$/.test(x)).sort();
 const sql=migrations.map(x=>fs.readFileSync(path.join(migrationDir,x),'utf8')).join('\n');
 check('CUBE_REGISTRY_SCHEMA',registry?.schema_version==='dreamledger.cube.sales-hypothesis-swarm.v1');
 check('CUBE_REGISTRY_COUNT',registry?.hypotheses?.length===36,String(registry?.hypotheses?.length));
