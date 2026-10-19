@@ -4,6 +4,7 @@ const http=require('http'),fs=require('fs'),path=require('path'),{URL}=require('
 const commercialCell=require('../BEC-PRIME/routes/commercialCell');
 const tollRoad=require('../BEC-PRIME/routes/tollRoad');
 const TollRuntime=require('../BEC-PRIME/runtime/TollRoad');
+const {handleBuyRoute}=require('./buy-route');
 const PORT=Number(process.env.PORT||10000);
 const COMMIT=process.env.RENDER_GIT_COMMIT||process.env.RENDER_GIT_COMMIT_SHA||process.env.GITHUB_SHA||'unknown';
 const ROOT=__dirname;
@@ -16,7 +17,7 @@ const PUBLIC_FILES={
   '/app.js':'app.js',
   '/sell.html':'sell.html','/sell':'sell.html','/sell/':'sell.html',
   '/billboard':'billboard.html','/billboard/':'billboard.html','/billboard.html':'billboard.html',
-  '/mtg':'mtg/master.html','/mtg/':'mtg/master.html','/mtg.html':'mtg/master.html',
+  '/mtg':'mtg/index.html','/mtg/':'mtg/index.html','/mtg.html':'mtg/index.html',
   '/demand-services':'demand-services.html','/demand-services/':'demand-services.html',
   '/fightedge':'fightedge/index.html','/fightedge/':'fightedge/index.html',
   '/commander-guide':'commander-guide.html','/commander-guide/':'commander-guide.html',
@@ -100,11 +101,12 @@ http.createServer(async (req,res)=>{
   headers(res);
   const u=new URL(req.url||'/','http://localhost');
   const p=u.pathname;
+  if((p==='/buy'||p.startsWith('/buy/'))&&handleBuyRoute(req,res,p,ROOT))return;
   if(req.method==='GET'&&p==='/healthz'){
     return send(res,200,JSON.stringify({ok:true,service:'dreamledger-storefront'}),'application/json; charset=utf-8');
   }
   if(req.method==='GET'&&p==='/version'){
-    return send(res,200,JSON.stringify({service:'dreamledger-storefront',status:'ok',mtg:'master'}),'application/json; charset=utf-8');
+    return send(res,200,JSON.stringify({service:'dreamledger-storefront',status:'ok',mtg:'master',commit:COMMIT}),'application/json; charset=utf-8');
   }
   if(req.method==='GET' && (p==='/api/offers' || p==='/api/products')){
     try{
