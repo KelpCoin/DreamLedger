@@ -206,6 +206,12 @@ test('public price and currency copy must match the approved offer', () => {
   assertBlocker(buildOfferParityReceipt(currency), 'PUBLIC_COPY_CURRENCY_MISMATCH');
 });
 
+test('missing public product record is a blocker', () => {
+  const r = receipt({ publicProduct: null });
+  assert.equal(r.coherent, false);
+  assertBlocker(r, 'PUBLIC_PRODUCT_RECORD_MISSING');
+});
+
 test('rendered page price is checked separately from catalogue prices', () => {
   const f = fixture();
   f.publicPage.displayed_amount_nzd = 49;
@@ -364,6 +370,14 @@ test('inactive provider object is rejected even when its amount matches', () => 
   const r = buildOfferParityReceipt(f);
   assert.equal(r.coherent, false);
   assertBlocker(r, 'STRIPE_PAYMENT_LINK_INACTIVE');
+});
+
+test('a Stripe Payment Link object with livemode false is rejected even with live API access', () => {
+  const f = fixture();
+  f.stripeLinks[0].livemode = false;
+  const r = buildOfferParityReceipt(f);
+  assert.equal(r.coherent, false);
+  assertBlocker(r, 'STRIPE_PAYMENT_LINK_NOT_LIVEMODE');
 });
 
 test('test-mode API access is rejected for the live offer', () => {
