@@ -1,45 +1,52 @@
 #!/usr/bin/env node
 /**
  * Settlement truth evaluator.
- * status=succeeded + livemode=true alone is insufficient.
- * Pending fee details remain pending; they do not grant revenue PASS.
+ * This is a fail-closed evidence join, not a Stripe API client.
+ * The caller must fetch and persist the provider's balance transaction before
+ * setting fee_detail_status=reconciled. Never infer fees from webhook payloads.
  */
-
 export function evaluateSettlement(record) {
   const missing = [];
-  if (!record) return { verdict: 'BLOCKED', reason: 'NO_RECORD', missing: ['record'] };
+  if (!record) return { verdict: 'BLOCKED', reason: 'NO_RECORD', missing: ['record'], counts_as_verified_external_revenue: false };
 
   if (record.status !== 'succeeded') missing.push('status_succeeded');
   if (record.livemode !== true) missing.push('livemode_true');
+  if (!record.payment_intent_id) missing.push('payment_intent_id');
   if (!record.offer_id && !record.price_id && !record.payment_link_id) missing.push('matched_offer');
-  if (!record.independent_buyer) missing.push('independent_buyer');
-  if (!record.fulfillment_status || !['completed', 'claimable', 'delivered'].includes(record.fulfillment_status)) {
-    missing.push('fulfillment');
-  }
+  if (record.independent_buyer !== true) missing.push('independent_buyer');
+  if (!record.buyer_evidence_ref) missing.push('buyer_evidence_ref');
+  if (!record.fulfillment_status || !['completed', 'claimable', 'delivered'].includes(record.fulfillment_status)) missing.push('fulfillment');
   if (!record.delivery_proof_ref) missing.push('delivery_proof');
+
+  const feeMissing = [];
+  if (record.fee_detail_status !== 'reconciled') feeMissing.push('fee_detail_reconciled');
+  if (!record.balance_transaction_id) feeMissing.push('balance_transaction_id');
+  if (!Number.isSafeInteger(record.fee_minor) || record.fee_minor < 0) feeMissing.push('fee_minor');
+  if (typeof record.currency !== 'string' || !/^[a-z]{3}$/.test(record.currency)) feeMissing.push('currency');
 
   if (record.fee_detail_status === 'pending') {
     return {
       verdict: 'BLOCKED',
       reason: 'FEE_DETAIL_PENDING',
-      missing,
-      note: 'Pending fee detail must not shortcut the full revenue gate.',
+      missing: [...missing, ...feeMissing],
       counts_as_verified_external_revenue: false,
+      note: 'Provider fee detail remains pending; this is not revenue PASS.',
     };
   }
+  if (feeMissing.length) missing.push(...feeMissing);
 
   if (missing.length) {
     return {
       verdict: 'BLOCKED',
       reason: 'INCOMPLETE_SETTLEMENT_TRUTH',
-      missing,
+      missing: [...new Set(missing)],
       counts_as_verified_external_revenue: false,
     };
   }
 
   return {
     verdict: 'PASS',
-    reason: 'FULL_CHAIN',
+    reason: 'FULL_CHAIN_AND_PROVIDER_FEE_RECONCILED',
     missing: [],
     counts_as_verified_external_revenue: true,
   };
@@ -57,10 +64,7 @@ export function separateKillCriteria({ verifiedSales = [], qualityRows = [] }) {
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
-  const demo = evaluateSettlement({
-    status: 'succeeded',
-    livemode: true,
-  });
+  const demo = evaluateSettlement({ status: 'succeeded', livemode: true });
   console.log(JSON.stringify({ demo_insufficient: demo }, null, 2));
-  process.exit(demo.verdict === 'PASS' ? 0 : 1);
+  process.exit(demo.verdict === 'PASS' ? 1 : 0);
 }
