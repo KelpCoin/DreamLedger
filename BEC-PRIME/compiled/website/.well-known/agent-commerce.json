@@ -22,7 +22,8 @@
     "evidence_linked_delivery_acceptance",
     "append_only_transaction_ledger",
     "discover_timed_auctions",
-    "submit_human_authorized_bids"
+    "submit_human_authorized_bids",
+    "discover_priority_commercial_verticals"
   ],
   "endpoints": {
     "marketplace_snapshot": "https://dreamledger.org/api/b2b/marketplace",
@@ -32,6 +33,7 @@
     "marketplace_contract": "https://dreamledger.org/.well-known/dreamledger-marketplace.json",
     "unified_discovery": "https://dreamledger.org/api/marketplace/v1/discovery",
     "marketplace_status": "https://dreamledger.org/api/marketplace/v1/status",
+    "priority_verticals": "https://dreamledger.org/api/marketplace/v1/verticals",
     "listings": "https://dreamledger.org/api/marketplace/v1/listings",
     "rfqs": "https://dreamledger.org/api/marketplace/v1/rfqs",
     "agent_intents": "https://dreamledger.org/api/marketplace/v1/agent-intents",
