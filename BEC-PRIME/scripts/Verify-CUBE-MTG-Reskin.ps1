@@ -15,7 +15,7 @@ if ($m.price_nzd -ne 29) { throw 'Price mismatch' }
 $html = Get-Content $surface -Raw
 $forbidden = @('Amplissa','HappyHomarid','CollectorsCoast','DreamMeez','adult')
 foreach ($token in $forbidden) { if ($html -match [regex]::Escape($token)) { throw "Forbidden token leaked into MTG surface: $token" } }
-if ($html -notmatch 'Commander Deck Diagnostic') { throw 'Diagnostic missing from MTG surface' }
-if ($html -notmatch 'NZ\$29') { throw 'Price missing from MTG surface' }
-if ($html -notmatch '/api/mtg/diagnostic/intake') { throw 'Automated checkout route missing' }
-Write-Host '[PASS] CUBE MTG reskin: manifest + isolation + public surface + automated checkout route'
+if ($html -notmatch 'Commander Deck Diagnostic') { throw 'Held product information page missing' }
+if ($html -notmatch '(?i)held|not currently available|not available for purchase') { throw 'Diagnostic page must clearly show held state' }
+if ($html -match 'NZ\$29|/api/mtg/diagnostic/intake|/buy/COMMANDER-DECK-DIAGNOSTIC-001|buy\.stripe\.com') { throw 'Held diagnostic must not expose a price or checkout route' }
+Write-Host '[PASS] CUBE MTG surface: isolated and explicitly held; no checkout claimed'
