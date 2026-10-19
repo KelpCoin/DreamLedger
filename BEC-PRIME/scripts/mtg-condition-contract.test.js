@@ -6,6 +6,8 @@ const path = require('node:path');
 const root = path.resolve(__dirname, '../..');
 const read = p => fs.readFileSync(path.join(root, p), 'utf8');
 const json = p => JSON.parse(read(p));
+const { compile: compileMtgCatalog } = require('../compiler/MTGCatalogCompiler');
+compileMtgCatalog();
 
 test('Commander diagnostic is held and has no card condition or live checkout', () => {
   const p = json('BEC-PRIME/catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json');
@@ -36,6 +38,8 @@ test('MTG renderer has no default Lightly Played condition and uses the current 
   assert.equal(source.includes('LP− (Lightly Played)'), false);
   assert.equal(patch.includes('Condition not specified'), false);
   assert.match(source, /function isPhysical\(p\)/);
+  assert.match(source, /function conditionEligible\(p\)\{return !!p && p\.category==='single';\}/);
+  assert.match(source, /conditionEligible\(p\)&&p\.condition/);
   assert.match(source, /detail_url/);
   assert.match(patch, /function isPhysical\(p\)/);
   assert.match(patch, /checkout_active: false/);
