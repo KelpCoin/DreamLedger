@@ -1,0 +1,44 @@
+{
+  "schema": "dreamledger/provider-route-parity/v1",
+  "status": "BLOCKED_UNTIL_IMPLEMENTED_AND_PROBED",
+  "target": {
+    "static": "Cloudflare Pages",
+    "dynamic_runtime": "Cloudflare Pages Functions or Advanced Mode Worker",
+    "database": "Neon",
+    "source": "KelpCoin/DreamLedger current public route and runtime contracts"
+  },
+  "compatibility_rule": "A static-only upload is not a valid migration. Dynamic routes, webhook verification, engine proxy and durable state must be preserved before DNS cutover.",
+  "routes": [
+    {"method": "GET", "path": "/", "expected": "200 HTML", "purpose": "Public storefront"},
+    {"method": "GET", "path": "/mtg/", "expected": "200 HTML", "purpose": "MTG master silo"},
+    {"method": "GET", "path": "/healthz", "expected": "200 JSON with ready status", "purpose": "Runtime health"},
+    {"method": "GET", "path": "/version", "expected": "200 JSON containing deployed commit SHA", "purpose": "Deployment identity"},
+    {"method": "GET", "path": "/api/products", "expected": "Current contract parity", "purpose": "Product catalogue API"},
+    {"method": "GET", "path": "/api/offers", "expected": "Current contract parity", "purpose": "Offer catalogue API"},
+    {"method": "GET", "path": "/api/toll/v1/manifest", "expected": "Current contract parity, held state preserved", "purpose": "Agent Bridge manifest"},
+    {"method": "GET", "path": "/api/toll/v1/probe", "expected": "Current held/fail-closed contract", "purpose": "Agent Bridge probe"},
+    {"method": "POST", "path": "/api/webhooks/stripe", "expected": "Signature verification, idempotent processing, no raw secrets in logs", "purpose": "Payment event ingress"},
+    {"method": "GET", "path": "/truth-oracle.html", "expected": "200 HTML", "purpose": "Evidence surface"},
+    {"method": "GET", "path": "/silos/mtg/silo.json", "expected": "200 JSON", "purpose": "MTG silo manifest"},
+    {"method": "GET", "path": "/data/mtg-catalog.json", "expected": "200 JSON", "purpose": "MTG catalogue"}
+  ],
+  "stateful_dependencies": [
+    "commerce settlement and webhook idempotency",
+    "engine internal proxy and authentication",
+    "durable state and storage reconciliation",
+    "Neon connectivity, write/read-back and transaction behavior",
+    "restore/export rollback and stable correlation IDs"
+  ],
+  "cutover_gates": [
+    "all listed routes tested against a preview deployment",
+    "expected status codes, headers and cache behavior verified",
+    "no secret or private endpoint exposed to browser",
+    "test-mode signed webhook duplicate replay proves idempotency",
+    "Neon SQL read/write/read-back and backup/restore proof passes",
+    "origin and dreamledger.org custom domain independently return expected responses",
+    "current main provider and data export retained until cutover acceptance",
+    "explicit approval before production DNS/domain or payment-path mutation"
+  ],
+  "current_production_mutation": false,
+  "verified_revenue_nzd": 0
+}

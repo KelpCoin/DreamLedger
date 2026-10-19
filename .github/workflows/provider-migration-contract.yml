@@ -1,0 +1,66 @@
+name: BECK Provider Migration Contract
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'ops/migration/**'
+      - 'ops/recovery/neon-endpoint.mjs'
+      - 'ops/recovery/cloudflare-pages.mjs'
+      - 'ops/recovery/provider-recovery-contract.test.mjs'
+      - '.github/workflows/provider-migration-contract.yml'
+  push:
+    branches:
+      - 'beck/provider-migration-neon-cloudflare-20261019'
+    paths:
+      - 'ops/migration/**'
+      - 'ops/recovery/neon-endpoint.mjs'
+      - 'ops/recovery/cloudflare-pages.mjs'
+      - 'ops/recovery/provider-recovery-contract.test.mjs'
+      - '.github/workflows/provider-migration-contract.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: provider-migration-contract-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Validate contract JSON and JavaScript syntax
+        run: |
+          node -e 'JSON.parse(require("fs").readFileSync("ops/migration/CLOUDFLARE-ROUTE-PARITY-CONTRACT.json","utf8"))'
+          node --check ops/recovery/neon-endpoint.mjs
+          node --check ops/recovery/cloudflare-pages.mjs
+          node --check ops/recovery/provider-recovery-contract.test.mjs
+          node --check ops/migration/cloudflare-preview/_worker.js
+          node --check ops/migration/cloudflare-preview/build-preview.mjs
+      - name: Test recovery controls without provider credentials
+        run: node --test ops/recovery/provider-recovery-contract.test.mjs
+      - name: Build fail-closed Cloudflare preview and verify sensitive handlers are excluded
+        run: |
+          node ops/migration/cloudflare-preview/build-preview.mjs
+          node -e '
+            const fs=require("fs"),path=require("path");
+            const root="ops/migration/cloudflare-preview/dist";
+            for (const p of ["index.html","mtg/index.html","data/mtg-catalog.json","silos/mtg/silo.json","_worker.js"]) {
+              if(!fs.existsSync(path.join(root,p))) throw new Error("missing static route asset: "+p);
+            }
+            for (const p of ["server.js","paidCheckoutWebhook.js","package.json","brand-preload.js","discordCommercePreload.js"]) {
+              if(fs.existsSync(path.join(root,p))) throw new Error("server-side/internal file copied into preview: "+p);
+            }
+            const w=fs.readFileSync(path.join(root,"_worker.js"),"utf8");
+            if(!w.includes("BLOCKED_ROUTE_NOT_MIGRATED")||!w.includes("503")) throw new Error("preview runtime not fail-closed");
+            console.log("PREVIEW_BUILD_CONTRACT=PASS_BLOCKED_UNTIL_RUNTIME_PARITY");
+          '
