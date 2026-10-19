@@ -17,6 +17,11 @@
       "evidence": "The repository endpoint previously allowed body.publish to publish by default."
     },
     {
+      "id": "HELD_OFFER_PUBLIC_PAYMENT_LINK",
+      "status": "REMEDIATION_STAGED",
+      "evidence": "The canonical and compiled MTG pages contained a hardcoded Stripe payment URL for Commander Deck Diagnostic while its product contract marked it held, inventory zero, checkout disabled, and fulfillment disabled. Branch patch replaces the payment button with a held status."
+    },
+    {
       "id": "CLIENT_ENTITLEMENT_WRITES",
       "status": "REMEDIATION_STAGED_NOT_DEPLOYED",
       "evidence": "The repository migration contains a self-insert policy for commerce_item_ownership; a new remediation migration is staged in this branch."
