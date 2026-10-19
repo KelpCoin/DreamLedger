@@ -13,13 +13,21 @@ function sha256(s){return crypto.createHash('sha256').update(s,'utf8').digest('h
 function readJson(f){return JSON.parse(fs.readFileSync(f,'utf8'));}
 function write(f,t){fs.mkdirSync(path.dirname(f),{recursive:true});fs.writeFileSync(f,t,'utf8');}
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function routeIsVerified(route){
+  if(!route||route.checkout_enabled!==true||route.commercial_validation_status!=='VALIDATED'||route.delivery_test_status!=='PASS'||route.commercial_truth?.sellable!==true)return false;
+  if(typeof route.href!=='string'||!/^\\/buy\\/[A-Za-z0-9_-]+\\/?$/.test(route.href))return false;
+  return Number.isFinite(Number(route.price_nzd))&&Number(route.price_nzd)>0;
+}
 function loadRoutes(registry){
   const byId={};
-  for(const r of registry.live_checkout_routes||[]) byId[r.id]=r;
+  for(const r of registry.live_checkout_routes||[]) if(routeIsVerified(r))byId[r.id]=r;
   try{if(fs.existsSync(APPROVED)){const approved=readJson(APPROVED);
-    for(const o of approved.approved||[]){const link=o.payment_link_url||o.payment_link;if(!link)continue;
+    for(const o of approved.approved||[]){
+      if(o.commercial_truth?.sellable!==true||o.commercial_validation_status!=='VALIDATED'||o.delivery_test_status!=='PASS')continue;
       const id='APPROVED-'+(o.product_id||o.offer_id);if(byId[id])continue;
-      byId[id]={id,name:o.name,price_nzd:Number(o.price),href:link,tag:o.silo||'approved'};}}}
+      const route={id,name:o.name,price_nzd:Number(o.price),href:'/buy/'+String(o.product_id||''),tag:o.silo||'approved',checkout_enabled:true,commercial_validation_status:o.commercial_validation_status,delivery_test_status:o.delivery_test_status,commercial_truth:o.commercial_truth};
+      if(routeIsVerified(route))byId[id]=route;
+    }}}
   catch(_){}
   return byId;
 }
