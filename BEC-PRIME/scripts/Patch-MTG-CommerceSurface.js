@@ -8,12 +8,13 @@ const SOURCE = path.join(ROOT, 'website', 'mtg-catalog.html');
 const PROOF = path.join(ROOT, 'PROOF-MTG-COMMERCE-SURFACE.json');
 const MARKER = 'data-dreamledger-mtg-commerce-v2';
 
-function writeProof() {
+function writeProof(patchMode = 'legacy-render-rewrite') {
   const proof = {
     schema: 'BEC-PRIME/MTG-COMMERCE-SURFACE/v2',
     status: 'PASS',
     source: 'BEC-PRIME/website/mtg-catalog.html',
     marker: MARKER,
+    patch_mode: patchMode,
     route: '/mtg',
     aliases: ['/mtg', '/mtg/', '/MTG', '/MTG/'],
     inventory_endpoint: '/api/products',
@@ -29,21 +30,20 @@ function writeProof() {
 function patch() {
   let html = fs.readFileSync(SOURCE, 'utf8');
   if (html.includes(MARKER)) {
-    writeProof();
+    writeProof('already-patched');
     return;
   }
   const original = html;
-
-  html = html.replace(
-    '.rail{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;padding:10px 0 18px}',
-    '.rail{display:flex;gap:14px;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;padding:10px 2px 22px;scrollbar-width:thin}.rail .card{flex:0 0 min(330px,82vw);scroll-snap-align:start}.art{position:relative}.art img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.92}'
-  );
-
   const start = html.indexOf('function render(items){');
   const end = html.indexOf('async function load(){', start);
-  if (start < 0 || end < 0) throw new Error('MTG render function boundary not found');
 
-  const render = String.raw`function render(items){
+  if (start >= 0 && end >= 0) {
+    html = html.replace(
+      '.rail{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;padding:10px 0 18px}',
+      '.rail{display:flex;gap:14px;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;padding:10px 2px 22px;scrollbar-width:thin}.rail .card{flex:0 0 min(330px,82vw);scroll-snap-align:start}.art{position:relative}.art img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.92}'
+    );
+
+    const render = String.raw`function render(items){
 const decks=items.filter(isMtg);
 const live=decks.filter(p=>String(p.status).toLowerCase()==='published');
 const units=decks.reduce((n,p)=>n+(Number(p.inventory)||0),0);
@@ -59,7 +59,11 @@ rail.innerHTML=decks.map((p,i)=>{
   const kind=String(p.product_kind||p.category||p.inventory_type||'').toLowerCase();
   const conditionEligible=['single','single-card','mtg-single','physical-single'].includes(kind);
   const condition=conditionEligible&&typeof p.condition==='string'&&p.condition.trim()?p.condition.trim():'';
-  return '<article class="card"><div class="art">'+(image?'<img src="'+esc(image)+'" alt="'+esc(p.name||p.id)+'">':'')+'<div class="sigil">'+(i%3===0?'MTG':'EDH')+'</div></div><div class="body"><span class="pill">'+esc(p.id||'MTG')+'</span><h2>'+esc(p.name||p.id)+'</h2><div class="desc">'+esc(p.description||'MTG inventory item.')+'</div><div class="row"><span>'+esc(condition)+'</span><span>$'+priceMajor.toFixed(2)+' NZD</span></div><div class="row"><span class="'+(purchasable?'ok':'wait')+'">'+(purchasable?'IN STOCK':'NOT CURRENTLY PURCHASABLE')+'</span><span>'+esc(p.inventory==null?'?':p.inventory)+' units</span></div><button class="buy mtg-buy" '+(purchasable?'':'disabled')+' data-id="'+esc(p.id||'')+'">'+(purchasable?'BUY NOW':'UNAVAILABLE')+'</button></div></article>';
+  return '<article class="card"><div class="art">'+(image?'<img src="'+esc(image)+'" alt="'+esc(p.name||p.id)+'">':'')+'<div class="sigil">'+(i%3===0?'MTG':'EDH')+'</div></div><div class="body"><span class="pill">'+esc(p.id||'MTG')+'</span><h2>'+esc(p.name||p.id)+'</h2><div class="desc">'+esc(p.description||'MTG inventory item.')+'</div><div class="row"><span>'+esc(condition)+'</span><span>
+}
+
+patch();
++priceMajor.toFixed(2)+' NZD</span></div><div class="row"><span class="'+(purchasable?'ok':'wait')+'">'+(purchasable?'IN STOCK':'NOT CURRENTLY PURCHASABLE')+'</span><span>'+esc(p.inventory==null?'?':p.inventory)+' units</span></div><button class="buy mtg-buy" '+(purchasable?'':'disabled')+' data-id="'+esc(p.id||'')+'">'+(purchasable?'BUY NOW':'UNAVAILABLE')+'</button></div></article>';
 }).join('');
 a.innerHTML=decks.map(p=>'<option value="'+esc(p.id||'')+'">'+esc(p.name||p.id)+'</option>').join('');
 b.innerHTML=a.innerHTML;
@@ -83,13 +87,28 @@ rail.querySelectorAll('.mtg-buy').forEach(button=>button.addEventListener('click
   }
 }));
 }`;
+    html = html.slice(0, start) + render + html.slice(end);
+    html = html.replace('<body>', '<body '+MARKER+'>');
+    if (html === original) throw new Error('MTG commerce patch made no changes');
+    fs.writeFileSync(SOURCE, html, 'utf8');
+    writeProof('legacy-render-rewrite');
+    return;
+  }
 
-  html = html.slice(0, start) + render + html.slice(end);
-  html = html.replace('<body>', '<body '+MARKER+'>');
+  const currentVariant = html.includes('id="grid"')
+    && html.includes('id="status"')
+    && html.includes("const CATALOG='/data/mtg-catalog.json'")
+    && html.includes('async function load()')
+    && html.includes('.grid{display:grid;gap:16px;grid-template-columns:1fr}');
+  if (!currentVariant) throw new Error('MTG commerce template is not a recognized supported variant');
 
-  if (html === original) throw new Error('MTG commerce patch made no changes');
+  const baseGrid = '.grid{display:grid;gap:16px;grid-template-columns:1fr}';
+  const railGrid = '.grid{display:flex;gap:14px;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;padding:10px 2px 22px;scrollbar-width:thin}.grid>.deck{flex:0 0 min(330px,82vw);scroll-snap-align:start}';
+  html = html.replace(baseGrid, railGrid);
+  html = html.replace('<body class="silo-body">', '<body class="silo-body" '+MARKER+'>');
+  if (!html.includes(MARKER) || html === original) throw new Error('MTG modern-template patch did not apply');
   fs.writeFileSync(SOURCE, html, 'utf8');
-  writeProof();
+  writeProof('modern-grid-to-horizontal-rail');
 }
 
 patch();
