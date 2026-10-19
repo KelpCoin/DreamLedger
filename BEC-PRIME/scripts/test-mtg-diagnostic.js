@@ -26,11 +26,23 @@ async function main() {
   assert.strictEqual(metrics.lands,2);
   assert.strictEqual(metrics.removal,1);
 
-  // Economic fail-closed contract: no checkout session or intake artifact may
-  // be created while the settlement ledger cannot record the resulting order.
+  // Product status and the fulfillment registry are authoritative release gates.
+  const product = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'catalog', 'products', 'COMMANDER-DECK-DIAGNOSTIC-001.json'), 'utf8'));
+  const registry = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'fulfillment', 'PRODUCT-FULFILLMENT-REGISTRY.json'), 'utf8'));
+  assert.strictEqual(product.status, 'held');
+  assert.strictEqual(product.inventory, 0);
+  assert.strictEqual(product.checkout.mode, 'disabled');
+  assert.strictEqual(product.commercial_truth.sellable, false);
+  assert.strictEqual(product.fulfillment.mode, 'disabled');
+  assert.strictEqual(product.fulfillment.operator_required, true);
+  assert.strictEqual(registry.entries['COMMANDER-DECK-DIAGNOSTIC-001'].ready, false);
+  assert.strictEqual(registry.entries['COMMANDER-DECK-DIAGNOSTIC-001'].operator_required, true);
+
+  // A direct call must not create an intake or a Stripe session while held,
+  // even when a fake Stripe key is present and the DB path might later recover.
   await assert.rejects(
     d.createCheckout({decklist:deck}),
-    /Economic ledger unavailable; checkout held/
+    /Commander diagnostic sale is held; checkout is disabled pending explicit commercial release/
   );
   assert.deepStrictEqual(fs.readdirSync(tempDir), []);
 
@@ -39,7 +51,7 @@ async function main() {
     test:'mtg-diagnostic-contract',
     parsed_cards:parsed.length,
     metrics,
-    checkout_without_economic_ledger:'BLOCKED_AS_REQUIRED',
+    checkout_while_product_held:'BLOCKED_AS_REQUIRED',
     intake_artifacts_created:0
   },null,2));
 }
