@@ -1,0 +1,24 @@
+FROM node:24-bookworm-slim
+
+ENV NODE_ENV=production
+WORKDIR /app
+
+# Install root dependencies used by public preloads and shared scripts.
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev --no-audit --no-fund
+
+# Copy the compiled source tree, then use the repository's canonical engine build.
+COPY . .
+RUN npm run --prefix BEC-PRIME build \
+    && chmod 0755 ops/migration/render-exit/start.sh
+
+ARG GIT_COMMIT=unknown
+ENV GIT_COMMIT=${GIT_COMMIT}
+ENV GITHUB_SHA=${GIT_COMMIT}
+
+EXPOSE 8080
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=120s --retries=3 \
+  CMD node -e "fetch('http://127.0.0.1:8080/healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+
+CMD ["sh", "ops/migration/render-exit/start.sh"]
