@@ -82,6 +82,10 @@ jobs:
 
       - name: Capture fleet contract evidence
         if: always()
+        env:
+          BECK_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
         run: |
           mkdir -p proof/fleet
           node -e '
@@ -89,7 +93,8 @@ jobs:
             const p={
               schema:"dreamledger.beck-fleet-contract-proof/v1",
               checked_at_utc:new Date().toISOString(),
-              commit_sha:process.env.GITHUB_SHA||null,
+              commit_sha:process.env.BECK_HEAD_SHA||process.env.GITHUB_SHA||null,
+              github_merge_sha:process.env.GITHUB_SHA||null,
               workflow:process.env.GITHUB_WORKFLOW||null,
               run_id:process.env.GITHUB_RUN_ID||null,
               note:"Contract tests are not provider provisioning, production route parity, local installation or revenue proof.",
