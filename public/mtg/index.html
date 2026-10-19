@@ -13,12 +13,20 @@
 .deck h3{font-family:var(--silo-serif);font-weight:400;margin:0 0 8px}
 .price{font-size:1.4rem;font-weight:800}
 .status-bar{padding:12px;border-radius:12px;background:var(--silo-surface);border:1px solid var(--silo-line);color:var(--silo-muted);margin-bottom:14px}
+
+/* Happy Homarid / DreamLedger MTG evidence-first market desk */
+.nz-market-grid{display:grid;grid-template-columns:1fr;gap:12px;margin:14px 0}
+@media(min-width:720px){.nz-market-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.nz-market-grid article{padding:18px;border:1px solid var(--silo-line);border-radius:16px;background:var(--silo-surface)}
+.nz-market-grid h3{margin:0 0 7px;font-size:1rem}
+.nz-market-grid p{margin:0 0 10px;color:var(--silo-muted);font-size:13px;line-height:1.5}
+.nz-market-board-status{padding:12px 16px;border-radius:12px;border:1px solid var(--silo-line);background:var(--silo-surface);color:var(--silo-muted);font-size:13px;line-height:1.5}
 </style>
 </head>
 <body class="silo-body">
 <header class="silo-hdr"><div class="silo-hdr-inner">
 <a class="silo-logo" href="/mtg/">Dream<em>Ledger</em> · Magic</a>
-<nav class="silo-nav"><a href="/mtg-list">Sell single</a><a href="/cash.html">Buy</a><a class="silo-cta" href="/mtg-list">List free</a></nav>
+<nav class="silo-nav"><a href="/mtg-list">Sell single</a><a href="/cash.html">Buy</a><a class="silo-cta" href="/mtg-list">List free</a><a href="#nz-market-notes">NZ notes</a></nav>
 </div></header>
 <main class="silo-wrap">
 <section class="hero">
@@ -31,6 +39,30 @@
 <a class="silo-btn silo-btn-line" href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Diagnostic NZ$29</a>
 </div>
 </section>
+<section class="silo-section nz-market-board" id="nz-market-notes" aria-labelledby="nz-market-notes-title">
+  <div class="silo-section-h">
+    <p class="silo-eyebrow">Happy Homarid | Aotearoa New Zealand</p>
+    <h2 class="silo-h2" id="nz-market-notes-title">Timely NZ MTG notes. Source-linked.</h2>
+  </div>
+  <p class="silo-lead">A generic international price move is not automatically a New Zealand opportunity. This board is designed to show what was observed, when, and which source supports it before a note is treated as current.</p>
+  <div class="nz-market-grid">
+    <article>
+      <h3>Free / public: inspect the proof</h3>
+      <p>Public examples stay dated and source-linked. Community discussion stays open, and a stale price observation is never presented as a current buy call.</p>
+    </article>
+    <article>
+      <h3>Members: the full alert</h3>
+      <p>Happy Homarid Patreon is the membership layer for the complete, time-sensitive alert and shortlist. A useful note captures the exact printing, observed time, NZD sources, local availability and shipping context where observed, action window, invalidation conditions and a dated outcome follow-up.</p>
+      <p><a class="silo-btn silo-btn-gold" href="https://patreon.com/happyhomarid" target="_blank" rel="noopener noreferrer">Explore Happy Homarid membership</a></p>
+    </article>
+    <article>
+      <h3>Evidence, not hype</h3>
+      <p>No guaranteed returns. Confirm current stock, condition, seller terms and final landed cost before acting. Only publish the claims the recorded sources actually support.</p>
+    </article>
+  </div>
+  <div class="nz-market-board-status" id="nz-market-board-status" role="status"><strong>Current NZ value board:</strong> No current source-verified market note is published here yet. No live buy call or current card price is represented. A note is added only after a real observation, timestamp and source URL are checked.</div>
+</section>
+
 <section class="silo-section" id="decks">
 <h2 class="silo-h2">Decks for sale</h2>
 <div id="status" class="status-bar">Loading…</div>

@@ -49,3 +49,19 @@ test('Cloudflare preview scaffold fails closed for dynamic routes and serves sta
   assert.ok(builder.includes('paidCheckoutWebhook.js'));
   assert.ok(builder.includes('PREVIEW_BUNDLE_BUILT_NOT_PRODUCTION_READY'));
 });
+
+test('Happy Homarid Patreon and MTG public surfaces keep dated, empty-by-default market proof', () => {
+  const targets = ['mtg/index.html','BEC-PRIME/website/mtg-catalog.html','BEC-PRIME/compiled/website/mtg/index.html','public/mtg/index.html'];
+  for (const rel of targets) {
+    const html = fs.readFileSync(path.join(root, rel), 'utf8');
+    const start = html.indexOf('<section class="silo-section nz-market-board" id="nz-market-notes"');
+    const end = start >= 0 ? html.indexOf('</section>', start) : -1;
+    assert.ok(start >= 0 && end > start, 'missing MTG market desk section in ' + rel);
+    const section = html.slice(start, end);
+    for (const marker of ['Current NZ value board','No current source-verified','https://patreon.com/happyhomarid','exact printing','invalidation conditions']) {
+      assert.ok(section.includes(marker), 'missing market-proof marker in ' + rel + ': ' + marker);
+    }
+    assert.ok(!/Amplissa|DreamMeez|BB[Ww]/i.test(section), 'silo boundary marker found in ' + rel);
+    assert.equal((html.match(/id="nz-market-notes"/g)||[]).length, 1, 'duplicate market desk id in ' + rel);
+  }
+});
