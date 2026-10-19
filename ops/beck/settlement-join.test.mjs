@@ -103,7 +103,7 @@ test('evaluateSettlementWithStripeFetch uses adapter then join', async () => {
     }),
   });
   const r = await evaluateSettlementWithStripeFetch(base, {
-    secretKey: 'sk_test_fixture',
+    secretKey: 'sk_live_fixture',
     fetchImpl,
   });
   assert.equal(r.fee_evidence_state, 'SETTLED_AND_DETAILED');
