@@ -2,5 +2,9 @@
   "offer_id": "COMMANDER-DECK-DIAGNOSTIC-001",
   "sku": "CMD-DIAG-29",
   "price_nzd": 29,
-  "payment_link_status": "ready"
+  "payment_link_status": "HELD_NOT_RELEASED",
+  "status": "HELD_NOT_RELEASED",
+  "approval_required": true,
+  "checkout_available": false,
+  "reason": "Canonical Commander diagnostic is held pending independently proven payment-to-delivery."
 }
