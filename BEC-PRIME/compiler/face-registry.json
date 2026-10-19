@@ -7,7 +7,8 @@
     {"label": "Magic", "href": "/mtg/"},
     {"label": "Avatar", "href": "/avatar.html"},
     {"label": "Quote comparison", "href": "/quote-comparison/"},
-    {"label": "Trust", "href": "/trust/"}
+    {"label": "Trust", "href": "/trust/"},
+    {"label": "Truth Oracle", "href": "/truth-oracle.html"}
   ],
   "faces": [
     {
@@ -33,7 +34,7 @@
       "out": "home.html",
       "title": "DreamLedger",
       "eyebrow": "Evidence-first commerce · receipts · decisions",
-      "headline": "Make the next decision. Get paid with evidence.",
+      "headline": "Make the next decision <span>easier to prove</span>",
       "lead": "Free tools stay free. Evidence-first commerce keeps uncertainty visible. Truth Oracle helps capture sources, decisions and proof.",
       "cta_source": "live_checkout_routes",
       "primary_offer_ids": ["LIVE-DREAMMEEZ-SUPPORTER-SPROUT"],
