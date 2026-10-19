@@ -18,6 +18,9 @@ const CUBE_POLICY = path.join(ROOT, 'economic', 'CUBE_EXPERIMENT_POLICY.json');
 const TRUTH_ORACLE_PRICING = path.join(ROOT, 'catalog', 'truth-oracle', 'pricing.json');
 const OUT_DIR = path.join(ROOT, 'data', '777');
 const OUT = path.join(OUT_DIR, '777-LATEST.json');
+const PUBLIC_CATALOG = path.join(ROOT, '..', 'public', 'catalog.json');
+const FULFILLMENT_REGISTRY = path.join(ROOT, 'fulfillment', 'PRODUCT-FULFILLMENT-REGISTRY.json');
+const { buildRevenueLaneReadiness } = require('../economic/RevenueLaneReadiness');
 
 const sha = v => crypto.createHash('sha256').update(v, 'utf8').digest('hex');
 
@@ -576,7 +579,7 @@ function build() {
 
   const golden_allocation = buildGoldenAllocation(rows);
 
-  const activation_candidates = rows
+  let activation_candidates = rows
     .filter(x => x.commercial_activation &&
       x.commercial_activation.payment_link_url &&
       x.commercial_activation.fulfillment_route &&
@@ -587,6 +590,7 @@ function build() {
       seed_opportunity_id: x.seed_opportunity_id,
       title: x.seed_title,
       offer: x.hypothesis.offer,
+      offer_id: x.commercial_activation.offer_id || null,
       price_nzd: x.hypothesis.price_nzd,
       payment_link_url: x.commercial_activation.payment_link_url,
       payment_link_status: x.commercial_activation.payment_link_status,
@@ -601,6 +605,28 @@ function build() {
   const buyerSignalHunt = loadJson(BUYER_SIGNALS, { candidates: [], offer: {} });
   const buyerSignalOffer = buyerSignalHunt.offer || {};
   const approvedCatalog = loadJson(APPROVED, { approved: [] });
+  const liveCommerceCatalog = loadJson(LIVE_COMMERCE, { offers: [] });
+  const publicCatalog = loadJson(PUBLIC_CATALOG, { products: [] });
+  const fulfillmentRegistry = loadJson(FULFILLMENT_REGISTRY, { entries: {} });
+  const evergreenFactoryForAudit = loadJson(EVERGREEN_FACTORY, { live_adapters: [] });
+  const pricingForAudit = loadJson(TRUTH_ORACLE_PRICING, { plans: [] });
+  const revenueLaneReadiness = buildRevenueLaneReadiness({
+    approvedOffers: approvedCatalog.approved || [],
+    liveOffers: liveCommerceCatalog.offers || [],
+    publicProducts: publicCatalog.products || [],
+    fulfillmentEntries: fulfillmentRegistry.entries || {},
+    recurringPlans: pricingForAudit.plans || [],
+    evergreenAdapters: evergreenFactoryForAudit.live_adapters || []
+  });
+  const configurationReadyOfferIds = new Set(
+    revenueLaneReadiness.approved_offer_lanes
+      .filter(lane => lane.configuration_status === 'CONFIGURATION_COHERENT_PROVIDER_CHECK_REQUIRED')
+      .map(lane => lane.offer_id)
+      .filter(Boolean)
+  );
+  activation_candidates = activation_candidates.filter(candidate =>
+    configurationReadyOfferIds.has(candidate.offer_id)
+  );
   const approvedIdentity = new Map((approvedCatalog.approved || []).map(x => [
     x.offer_id,
     { payment_link: x.payment_link_url || null, silo_id: x.silo || null, price_nzd: Number(x.price || 0) }
@@ -624,6 +650,12 @@ function build() {
         permission: x.permission || 'UNVERIFIED_SURFACE_RULES'
       }))
     : [];
+
+  revenueLaneReadiness.buyer_signal_records = buyerSignals.length;
+  if (revenueLaneReadiness.recommended_next) {
+    revenueLaneReadiness.recommended_next.existing_buyer_signal_records =
+      buyerSignals.filter(signal => signal.offer_id === revenueLaneReadiness.recommended_next.offer_id).length;
+  }
 
   const buyerSignalQueue = buyerSignals
     .map(x => ({
@@ -738,12 +770,14 @@ function build() {
   // Canonical Phase-1 -> Commerce handoff. Internal only. It carries
   // existing 777 identity into the existing commerce/fulfillment substrate.
   const approvedOffer = acceptanceOfferId ? (approvedCatalog.approved || []).find(x => x.offer_id === acceptanceOfferId) : null;
+  const handoffLane = revenueLaneReadiness.approved_offer_lanes.find(lane => lane.offer_id === acceptanceOfferId) || null;
   const commerceHandoff = {
     schema_version: 'DREAMLEDGER/777/COMMERCE-HANDOFF/v1',
     handoff_id: acceptanceExperimentId ? '777-COMMERCE-' + acceptanceExperimentId : null,
-    lifecycle_state: acceptanceSignalId && acceptanceOfferId && acceptancePaymentLink && acceptanceSiloId
-      ? 'COMMERCE_READY'
-      : 'COMMERCE_BLOCKED_MISSING_IDENTITY',
+    lifecycle_state: acceptanceSignalId && acceptanceOfferId && acceptancePaymentLink && acceptanceSiloId &&
+      handoffLane && handoffLane.configuration_status === 'CONFIGURATION_COHERENT_PROVIDER_CHECK_REQUIRED'
+      ? 'READY_FOR_SEPARATE_PROVIDER_CHECK'
+      : 'COMMERCE_BLOCKED_BY_IDENTITY_OR_CONFIGURATION',
     signal_id: acceptanceSignalId,
     silo_id: acceptanceSiloId,
     cell_id: acceptanceExperimentId,
@@ -806,6 +840,7 @@ function build() {
     next_human_action: nextHumanAction,
     acceptance_contract: acceptanceContract,
     commerce_handoff: commerceHandoff,
+    revenue_lane_readiness: revenueLaneReadiness,
     evergreen_expansion: evergreenExpansion,
     candidates: rows.slice(0, 777),
     truth: {
@@ -832,6 +867,14 @@ if (require.main === module) {
     seed_count: r.seed_count,
     candidate_count: r.candidate_count,
     truth: r.truth,
+    revenue_lane_readiness: {
+      approved_offer_lane_count: r.revenue_lane_readiness.approved_offer_lane_count,
+      configuration_coherent_lane_count: r.revenue_lane_readiness.configuration_coherent_lane_count,
+      blocked_approved_lane_count: r.revenue_lane_readiness.blocked_approved_lane_count,
+      public_checkout_products_without_approved_offer: r.revenue_lane_readiness.unapproved_public_checkout_products.length,
+      recurring_lanes: r.revenue_lane_readiness.recurring_lanes.length,
+      quote_adapter_blockers: r.revenue_lane_readiness.quote_adapter_family.blocker_codes
+    },
     output: OUT
   }, null, 2));
 }
