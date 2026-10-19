@@ -47,7 +47,7 @@ jobs:
           node --check BEC-PRIME/lib/dreammeezPaidEntitlement.js
           node --check BEC-PRIME/routes/marketplaceWebhook.js
       - name: Type-check held cosmetic checkout endpoint
-        run: deno check supabase/functions/dreammeez-cosmetic-checkout/index.ts
+        run: deno check --node-modules-dir=auto supabase/functions/dreammeez-cosmetic-checkout/index.ts
       - name: Test local idempotent entitlement helper
         run: node BEC-PRIME/scripts/test-dreammeez-paid-entitlement.js
       - name: Verify public and endpoint fail-closed gates
