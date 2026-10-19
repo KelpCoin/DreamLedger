@@ -72,7 +72,7 @@
       "silo_id": "truth_oracle",
       "route": "/truth-oracle/",
       "economic_role": "Shared evidence-depth capability within the existing Truth Oracle tier only; not a separate product or sales priority.",
-      "surface_state": "SHARED_CAPABILITY_NOT_PRIORITY_SALES_LANE",
+      "surface_state": "PROPOSED_NOT_LIVE",
       "audit_capability": "PAID_FEATURE_WITHIN_TRUTH_ORACLE",
       "standalone_audit_sku_allowed": false,
       "new_product_price_or_payment_link_allowed_by_this_contract": false,
