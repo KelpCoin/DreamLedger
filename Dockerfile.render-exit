@@ -4,8 +4,8 @@ ENV NODE_ENV=production
 WORKDIR /app
 
 # Install root dependencies used by public preloads and shared scripts.
-COPY package.json package-lock.json ./
-RUN npm ci --omit=dev --no-audit --no-fund
+COPY package.json ./
+RUN npm install --omit=dev --no-audit --no-fund
 
 # Copy the compiled source tree, then use the repository's canonical engine build.
 COPY . .
