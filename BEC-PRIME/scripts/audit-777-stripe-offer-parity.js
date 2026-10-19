@@ -241,4 +241,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { run, fetchAllPaymentLinks, fetchLineItems, buildOfferParityReceipt };
+module.exports = { run, stripeGet, fetchAllPaymentLinks, fetchLineItems, buildOfferParityReceipt };
