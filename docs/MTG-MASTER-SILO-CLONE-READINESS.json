@@ -7,7 +7,7 @@
   "decision": "HOLD_NEW_PRODUCTION_CLONES",
   "economic_truth": {
     "verified_external_revenue_nzd": 0,
-    "definition": "independent_external_buyer_and_settled_payment_and_correct_attribution_and_fulfillment_and_retrievable_delivery_proof",
+    "definition": "independent external buyer plus settled payment plus correct attribution plus fulfilled order plus retrievable delivery proof, reconciled to authoritative evidence",
     "internal_events_count_as_revenue": false
   },
   "known_blockers": [
@@ -40,6 +40,36 @@
       "id": "COMMERCIAL_VALIDATION",
       "status": "NOT_VALIDATED",
       "evidence": "No verified external revenue or repeatable buyer conversion has been evidenced."
+    },
+    {
+      "id": "DUPLICATE_ACTIVE_PAYMENT_CONFIGURATIONS",
+      "status": "REMEDIATION_STAGED_EXTERNAL_STATUS_UNVERIFIED",
+      "evidence": "Four independent app/catalog surfaces had the Commander diagnostic marked active with distinct Stripe URLs; all known application/public catalog references are being held on this branch. The actual Stripe link objects were not disabled or verified."
+    },
+    {
+      "id": "PUBLIC_AGENT_DISCOVERY_DRIFT",
+      "status": "REMEDIATION_STAGED",
+      "evidence": "The .well-known and agent-commerce feeds claimed diagnostic available and EDH_0001 verified despite held canonical product/price conflict; feeds are being changed to held with no buy route."
+    },
+    {
+      "id": "EDH_0001_PRICE_AND_INVENTORY_CONFLICT",
+      "status": "HELD",
+      "evidence": "Source product price is NZ$400 (40000 minor units), public catalog price NZ$230, and a configurator remained live-configurable. Source product, configurator, and public catalog are held pending seller-confirmed price, stock, and fulfillment."
+    },
+    {
+      "id": "OFFER_COMPILER_HELD_LINK_LEAK",
+      "status": "SOURCE_PATCH_STAGED",
+      "evidence": "ProductCompiler previously emitted checkout_url from commercial_truth.payment_link even when checkout was unavailable. Branch now emits a payment route/URL only when the full sellable/approved/inventory/fulfillment gate passes."
+    },
+    {
+      "id": "LIVE_STRIPE_LINK_STATE",
+      "status": "UNVERIFIED_NOT_MODIFIED",
+      "evidence": "Repository metadata contains stale ACTIVE_LIVEMODE labels and multiple distinct link URLs. Actual Stripe object status remains unverified; links were not deactivated because that is a live production billing change."
+    },
+    {
+      "id": "LIVE_DEPLOYMENT_AND_DATABASE_READBACK",
+      "status": "BLOCKED",
+      "evidence": "Supabase SQL and security/performance advisor reads returned ECONNREFUSED. Repository branch and CI results do not prove the live deployed site/database matches the staged changes."
     }
   ],
   "promotion_gates": [
@@ -54,13 +84,16 @@
     "load, backup/restore, monitoring, alerting, and failure-recovery checks pass",
     "one complete live buyer cycle is independently reconciled, followed by repeatable sales evidence",
     "economics include fees, refunds, fulfillment cost, acquisition cost, support time, and contribution margin",
-    "CI verifies the clone contract and a clone dry-run passes without production writes"
+    "CI verifies the clone contract and a clone dry-run passes without production writes",
+    "Every payment rail referenced by every API, catalog, static page, and agent-discovery feed resolves to the one approved SKU/amount/currency and is disabled in both app configuration and Stripe when the product is held; no legacy parallel payment links remain."
   ],
-  "release_rule": "No clone is promoted to production until every promotion gate has stored PASS evidence. UNKNOWN is not PASS.",
+  "release_rule": "No clone is promoted to production until every promotion gate has stored independent PASS evidence. UNKNOWN is not PASS. A repository-only hold does not disable a Stripe-hosted Payment Link; external Stripe state must be verified separately.",
   "side_effects": {
     "live_payments_performed": false,
     "production_database_mutated": false,
     "public_distribution_performed": false,
-    "new_clone_created": false
-  }
+    "new_clone_created": false,
+    "external_stripe_links_modified": false
+  },
+  "last_reviewed": "2026-10-19"
 }
