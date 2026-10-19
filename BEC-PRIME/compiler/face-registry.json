@@ -2,7 +2,6 @@
   "schema": "BEC-PRIME/FACE-REGISTRY/v1",
   "rule": "Faces are emitted by WebsiteFaceCompiler from this registry + live_checkout_routes. Hand-edited public HTML is legacy.",
   "nav": [
-    {"label": "Pay", "href": "/money.html"},
     {"label": "Shop", "href": "/shop.html"},
     {"label": "Magic", "href": "/mtg/"},
     {"label": "Avatar", "href": "/avatar.html"},
@@ -39,7 +38,7 @@
       "cta_source": "live_checkout_routes",
       "primary_offer_ids": ["LIVE-DREAMMEEZ-SUPPORTER-SPROUT"],
       "secondary_links": [
-        {"label": "All cash offers", "href": "/money.html"},
+        {"label": "Products and services", "href": "/shop.html"},
         {"label": "Shop", "href": "/shop.html"},
         {"label": "Magic", "href": "/mtg/"},
         {"label": "Avatar", "href": "/avatar.html"},
