@@ -34,7 +34,7 @@ function patch() {
   // Idempotent: an already marked page is accepted only if it still uses the
   // compatible list loader and inventory contract.
   if (html.includes(MARKER)) {
-    if (!html.includes('async function load(){') || !html.includes('function isPhysical(p)')) {
+    if (!html.includes('async function load(){') || !html.includes('function isPhysical(p)') || !html.includes('function conditionEligible(p)')) {
       throw new Error('Marked MTG surface no longer matches the canonical loader contract');
     }
     writeProof();
@@ -43,6 +43,7 @@ function patch() {
 
   if (!html.includes('async function load(){') ||
       !html.includes('function isPhysical(p)') ||
+      !html.includes('function conditionEligible(p)') ||
       !html.includes("fetch(CATALOG,{cache:'no-store'})") ||
       !html.includes("p.detail_url||'/mtg/'")) {
     throw new Error('MTG catalog source does not match the supported listing-detail contract');
