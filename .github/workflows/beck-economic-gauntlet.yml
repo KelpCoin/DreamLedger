@@ -109,11 +109,13 @@ jobs:
           if ($bootstrap.Contains('actions/workflows/beck-production-heartbeat.yml/runs')) { throw 'Bootstrap is still coupled to the production workflow that can self-heal deployments.' }
           if (-not $localInstaller.Contains('DreamLedger-Local-Heartbeat')) { throw 'Local heartbeat scheduled task is not installed.' }
           if (-not $cloud.Contains('contents: read')) { throw 'Cloud heartbeat must be read-only.' }
-          if (-not $cloud.Contains('dreamledger-silo-gateway.onrender.com')) { throw 'Cloud heartbeat must probe the actual Render gateway, not the static public domain.' }
+          if (-not $cloud.Contains('economic-radar-heartbeat/healthz')) { throw 'Cloud heartbeat must probe the active independent cloud control plane.' }
+          if (-not $cloud.Contains('dreamledger-org.onrender.com')) { throw 'Cloud heartbeat must probe the live static origin.' }
+          if (-not $cloud.Contains('legacy_render_api')) { throw 'Legacy Render API must be recorded separately as optional, not mistaken for the control plane.' }
           foreach ($forbidden in @('RENDER_API_KEY','api.stripe.com','/deploys','contents: write','secrets.')) {
             if ($cloud.Contains($forbidden)) { throw "Cloud liveness contains forbidden mutation capability: $forbidden" }
           }
-          foreach ($endpoint in @('/healthz','/version','/truth-oracle.html')) {
+          foreach ($endpoint in @('/healthz','/truth-oracle.html','legacy_render_api')) {
             if (-not $cloud.Contains($endpoint)) { throw "Cloud liveness is missing endpoint probe $endpoint" }
           }
           Write-Host 'BOOTSTRAP_CLOUD_LIVENESS_CONTRACT=PASS'
