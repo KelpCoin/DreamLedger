@@ -9,10 +9,21 @@
       "description": "One-time DreamMeez identity cosmetic. Payment is matched to the buyer's DreamMeez account email and the cosmetic is granted after settled Stripe payment.",
       "price": 5,
       "currency": "nzd",
-      "status": "published",
-      "checkout_available": true,
-      "checkout_url": "https://buy.stripe.com/aFa14nd5XdSdeqH5oEdwc2J",
-      "category": "avatar-accessories"
+      "status": "held",
+      "checkout_available": false,
+      "checkout_url": null,
+      "category": "avatar-accessories",
+      "payment_link_id": null,
+      "stripe_price_id": null,
+      "availability": "review_required",
+      "delivery_test_status": "UNVERIFIED",
+      "commercial_validation_status": "UNVALIDATED",
+      "checkout_hold_reason": "Held until one live settlement can be matched to validated fulfillment, retrievable delivery proof, and the economic ledger.",
+      "commercial_truth": {
+        "sellable": false,
+        "approval_required": true,
+        "payment_surface": null
+      }
     },
     {
       "id": "DREAMMEEZ-CAPE-001",
@@ -21,10 +32,21 @@
       "description": "One-time DreamMeez identity cosmetic. Payment is matched to the buyer's DreamMeez account email and the cosmetic is granted after settled Stripe payment.",
       "price": 10,
       "currency": "nzd",
-      "status": "published",
-      "checkout_available": true,
-      "checkout_url": "https://buy.stripe.com/cNi5kDaXP7tP0zR2csdwc2K",
-      "category": "avatar-accessories"
+      "status": "held",
+      "checkout_available": false,
+      "checkout_url": null,
+      "category": "avatar-accessories",
+      "payment_link_id": null,
+      "stripe_price_id": null,
+      "availability": "review_required",
+      "delivery_test_status": "UNVERIFIED",
+      "commercial_validation_status": "UNVALIDATED",
+      "checkout_hold_reason": "Held until one live settlement can be matched to validated fulfillment, retrievable delivery proof, and the economic ledger.",
+      "commercial_truth": {
+        "sellable": false,
+        "approval_required": true,
+        "payment_surface": null
+      }
     },
     {
       "id": "DREAMMEEZ-CHROME-BOOTS-001",
@@ -33,10 +55,21 @@
       "description": "One-time DreamMeez identity cosmetic. Payment is matched to the buyer's DreamMeez account email and the cosmetic is granted after settled Stripe payment.",
       "price": 9,
       "currency": "nzd",
-      "status": "published",
-      "checkout_available": true,
-      "checkout_url": "https://buy.stripe.com/3cI5kDgi97tP3M37wMdwc2L",
-      "category": "avatar-accessories"
+      "status": "held",
+      "checkout_available": false,
+      "checkout_url": null,
+      "category": "avatar-accessories",
+      "payment_link_id": null,
+      "stripe_price_id": null,
+      "availability": "review_required",
+      "delivery_test_status": "UNVERIFIED",
+      "commercial_validation_status": "UNVALIDATED",
+      "checkout_hold_reason": "Held until one live settlement can be matched to validated fulfillment, retrievable delivery proof, and the economic ledger.",
+      "commercial_truth": {
+        "sellable": false,
+        "approval_required": true,
+        "payment_surface": null
+      }
     },
     {
       "id": "DREAMMEEZ-SUPPORTER-SPROUT",
@@ -45,10 +78,21 @@
       "description": "Monthly supporter identity tier with supporter status, a monthly cosmetic drop, and DreamMeez/Kelplantis cosmetic access.",
       "price": 3.99,
       "currency": "nzd",
-      "status": "published",
-      "checkout_available": true,
-      "checkout_url": "https://buy.stripe.com/3cI5kDfe5cO9gyP5oEdwc2M",
-      "category": "avatar-accessories"
+      "status": "held",
+      "checkout_available": false,
+      "checkout_url": null,
+      "category": "avatar-accessories",
+      "payment_link_id": null,
+      "stripe_price_id": null,
+      "availability": "review_required",
+      "delivery_test_status": "UNVERIFIED",
+      "commercial_validation_status": "UNVALIDATED",
+      "checkout_hold_reason": "Held until one live settlement can be matched to validated fulfillment, retrievable delivery proof, and the economic ledger.",
+      "commercial_truth": {
+        "sellable": false,
+        "approval_required": true,
+        "payment_surface": null
+      }
     },
     {
       "id": "DREAMMEEZ-SUPPORTER-GLOW",
@@ -57,10 +101,21 @@
       "description": "Monthly supporter identity tier with expanded cosmetic access and a monthly cosmetic drop.",
       "price": 5.99,
       "currency": "nzd",
-      "status": "published",
-      "checkout_available": true,
-      "checkout_url": "https://buy.stripe.com/5kQfZh5Dv9BXciz5oEdwc2N",
-      "category": "avatar-accessories"
+      "status": "held",
+      "checkout_available": false,
+      "checkout_url": null,
+      "category": "avatar-accessories",
+      "payment_link_id": null,
+      "stripe_price_id": null,
+      "availability": "review_required",
+      "delivery_test_status": "UNVERIFIED",
+      "commercial_validation_status": "UNVALIDATED",
+      "checkout_hold_reason": "Held until one live settlement can be matched to validated fulfillment, retrievable delivery proof, and the economic ledger.",
+      "commercial_truth": {
+        "sellable": false,
+        "approval_required": true,
+        "payment_surface": null
+      }
     },
     {
       "id": "DREAMMEEZ-SUPPORTER-DEPTH",
@@ -69,10 +124,21 @@
       "description": "Premium monthly supporter identity tier with premium cosmetic drops and premium DreamMeez/Kelplantis cosmetic access.",
       "price": 9.99,
       "currency": "nzd",
-      "status": "published",
-      "checkout_available": true,
-      "checkout_url": "https://buy.stripe.com/8x2dR93vnaG1gyPg3idwc2O",
-      "category": "avatar-accessories"
+      "status": "held",
+      "checkout_available": false,
+      "checkout_url": null,
+      "category": "avatar-accessories",
+      "payment_link_id": null,
+      "stripe_price_id": null,
+      "availability": "review_required",
+      "delivery_test_status": "UNVERIFIED",
+      "commercial_validation_status": "UNVALIDATED",
+      "checkout_hold_reason": "Held until one live settlement can be matched to validated fulfillment, retrievable delivery proof, and the economic ledger.",
+      "commercial_truth": {
+        "sellable": false,
+        "approval_required": true,
+        "payment_surface": null
+      }
     },
     {
       "id": "KELP-FLOOR1-001",
@@ -81,10 +147,21 @@
       "description": "One-time digital access to the Floor 1 vertical slice, including the persistent First Garden social hub and Floor 1 progression.",
       "price": 19,
       "currency": "nzd",
-      "status": "published",
-      "checkout_available": true,
-      "checkout_url": "https://buy.stripe.com/aFa3cvea16pLbevbN2dwc2P",
-      "category": "digital-experiences"
+      "status": "held",
+      "checkout_available": false,
+      "checkout_url": null,
+      "category": "digital-experiences",
+      "payment_link_id": null,
+      "stripe_price_id": null,
+      "availability": "review_required",
+      "delivery_test_status": "UNVERIFIED",
+      "commercial_validation_status": "UNVALIDATED",
+      "checkout_hold_reason": "Held until one live settlement can be matched to validated fulfillment, retrievable delivery proof, and the economic ledger.",
+      "commercial_truth": {
+        "sellable": false,
+        "approval_required": true,
+        "payment_surface": null
+      }
     },
     {
       "id": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
@@ -93,11 +170,21 @@
       "description": "Billboard preview only. Paid placement checkout is temporarily held while secure intake and live inventory reservation are repaired. No purchase is accepted from the current billboard page.",
       "price": 50,
       "currency": "nzd",
-      "status": "published",
+      "status": "held",
       "checkout_available": false,
       "checkout_url": null,
       "category": "public-placements",
-      "availability": "review_required"
+      "availability": "review_required",
+      "payment_link_id": null,
+      "stripe_price_id": null,
+      "delivery_test_status": "UNVERIFIED",
+      "commercial_validation_status": "UNVALIDATED",
+      "checkout_hold_reason": "Held until secure intake, live allocation, payment settlement, and end-to-end delivery proof are validated.",
+      "commercial_truth": {
+        "sellable": false,
+        "approval_required": true,
+        "payment_surface": null
+      }
     },
     {
       "id": "COMMANDER-DECK-DIAGNOSTIC-001",
@@ -122,11 +209,21 @@
       "description": "A downloadable Stripe-to-Discord webhook kit. The ZIP and session-verified download endpoint exist, but the post-payment delivery path has not yet passed an end-to-end receipt test; the current Stripe completion message promises email delivery within 24 hours.",
       "price": 79,
       "currency": "nzd",
-      "status": "published",
-      "checkout_available": true,
-      "checkout_url": "https://buy.stripe.com/4gMcN56HzaG1dmDeZedwc1n",
+      "status": "held",
+      "checkout_available": false,
+      "checkout_url": null,
       "category": "digital-tools",
-      "delivery_test_status": "UNVERIFIED"
+      "delivery_test_status": "UNVERIFIED",
+      "payment_link_id": null,
+      "stripe_price_id": null,
+      "availability": "review_required",
+      "commercial_validation_status": "UNVALIDATED",
+      "checkout_hold_reason": "Held until one live settlement can be matched to validated fulfillment, retrievable delivery proof, and the economic ledger.",
+      "commercial_truth": {
+        "sellable": false,
+        "approval_required": true,
+        "payment_surface": null
+      }
     },
     {
       "id": "EDH_0001",
@@ -285,13 +382,22 @@
       "description": "Seller-specific NZ profit audit covering marketplace fees, pricing, GST threshold, ACC and income-tax considerations, channel comparison and shipping economics.",
       "price": 29,
       "currency": "nzd",
-      "status": "published",
-      "checkout_available": true,
-      "checkout_url": "https://buy.stripe.com/8x2bJ17LD3dzeqH8AQdwc2S",
-      "payment_link_id": "plink_1UJNTzEGgEAnUFF9bzVlFlng",
+      "status": "held",
+      "checkout_available": false,
+      "checkout_url": null,
+      "payment_link_id": null,
       "stripe_product_id": "prod_VK1WoQw8ieHpMN",
-      "stripe_price_id": "price_1UJNTvEGgEAnUFF9bfGbtrmm",
-      "category": "seller-services"
+      "stripe_price_id": null,
+      "category": "seller-services",
+      "availability": "review_required",
+      "delivery_test_status": "UNVERIFIED",
+      "commercial_validation_status": "UNVALIDATED",
+      "checkout_hold_reason": "Held until one live settlement can be matched to validated fulfillment, retrievable delivery proof, and the economic ledger.",
+      "commercial_truth": {
+        "sellable": false,
+        "approval_required": true,
+        "payment_surface": null
+      }
     },
     {
       "id": "DREAMLEDGER-COMMERCIAL-TRUTH-STRESS-TEST-001",
@@ -300,13 +406,22 @@
       "description": "A bounded adversarial review of a commercial claim, offer, workflow, or decision. Tests evidence, assumptions, failure modes, and the conditions required for the claim to be considered supported.",
       "price": 999,
       "currency": "nzd",
-      "status": "published",
-      "checkout_available": true,
-      "checkout_url": "https://buy.stripe.com/aFa4gz3vng0lfuLg3idwc2T",
-      "payment_link_id": "plink_1UJSwWEGgEAnUFF9EPmOx8PQ",
+      "status": "held",
+      "checkout_available": false,
+      "checkout_url": null,
+      "payment_link_id": null,
       "stripe_product_id": "prod_VK7AxB6WEZGX9C",
-      "stripe_price_id": "price_1UJSwREGgEAnUFF9kGZjJEma",
-      "category": "other-products"
+      "stripe_price_id": null,
+      "category": "other-products",
+      "availability": "review_required",
+      "delivery_test_status": "UNVERIFIED",
+      "commercial_validation_status": "UNVALIDATED",
+      "checkout_hold_reason": "Held until one live settlement can be matched to validated fulfillment, retrievable delivery proof, and the economic ledger.",
+      "commercial_truth": {
+        "sellable": false,
+        "approval_required": true,
+        "payment_surface": null
+      }
     },
     {
       "id": "ACNC-CHARITY-DD-99",
@@ -315,11 +430,11 @@
       "description": "Fixed-scope, source-backed due diligence report on one Australian charity using the ACNC public register, annual reports, governance records and other verifiable primary sources. A free Australian Red Cross sample is published.",
       "price": 99,
       "currency": "nzd",
-      "status": "published",
-      "checkout_available": true,
-      "checkout_url": "https://buy.stripe.com/28E5kD9TLeWhgyP04kdwc2Y",
-      "payment_link_id": "plink_1UKAu6EGgEAnUFF93oLQlZiR",
-      "stripe_price_id": "price_1UKAu0EGgEAnUFF9OrBC80OU",
+      "status": "held",
+      "checkout_available": false,
+      "checkout_url": null,
+      "payment_link_id": null,
+      "stripe_price_id": null,
       "sample_url": "https://dreamledger.org/buy/acnc-charity-due-diligence/",
       "scope": [
         "registration",
@@ -329,7 +444,16 @@
         "risk_rating",
         "source_trail"
       ],
-      "category": "research-services"
+      "category": "research-services",
+      "availability": "review_required",
+      "delivery_test_status": "UNVERIFIED",
+      "commercial_validation_status": "UNVALIDATED",
+      "checkout_hold_reason": "Held until one live settlement can be matched to validated fulfillment, retrievable delivery proof, and the economic ledger.",
+      "commercial_truth": {
+        "sellable": false,
+        "approval_required": true,
+        "payment_surface": null
+      }
     },
     {
       "id": "QUOTE-COMPARE-49",
@@ -353,13 +477,22 @@
       "description": "PDF to structured data, with source references and unknowns preserved.",
       "price": 5,
       "currency": "nzd",
-      "status": "published",
-      "checkout_available": true,
-      "checkout_url": "https://buy.stripe.com/00wdR9ea14hDgyPbN2dwc33",
-      "payment_link_id": "plink_1UKqD6EGgEAnUFF9u9GanhSX",
-      "stripe_price_id": "price_1UKqCvEGgEAnUFF9RnTtUUpH",
+      "status": "held",
+      "checkout_available": false,
+      "checkout_url": null,
+      "payment_link_id": null,
+      "stripe_price_id": null,
       "toll_unit": "per_document",
-      "category": "digital-tools"
+      "category": "digital-tools",
+      "availability": "review_required",
+      "delivery_test_status": "UNVERIFIED",
+      "commercial_validation_status": "UNVALIDATED",
+      "checkout_hold_reason": "Held until one live settlement can be matched to validated fulfillment, retrievable delivery proof, and the economic ledger.",
+      "commercial_truth": {
+        "sellable": false,
+        "approval_required": true,
+        "payment_surface": null
+      }
     },
     {
       "id": "SUPPLIER-CHECK-50",
@@ -368,13 +501,22 @@
       "description": "Entity and registry verification with source-backed findings.",
       "price": 5,
       "currency": "nzd",
-      "status": "published",
-      "checkout_available": true,
-      "checkout_url": "https://buy.stripe.com/8x28wPc1T5lH6YfdVadwc34",
-      "payment_link_id": "plink_1UKqD9EGgEAnUFF9NUPlLvyp",
-      "stripe_price_id": "price_1UKqCxEGgEAnUFF9gj639uka",
+      "status": "held",
+      "checkout_available": false,
+      "checkout_url": null,
+      "payment_link_id": null,
+      "stripe_price_id": null,
       "toll_unit": "per_check",
-      "category": "digital-tools"
+      "category": "digital-tools",
+      "availability": "review_required",
+      "delivery_test_status": "UNVERIFIED",
+      "commercial_validation_status": "UNVALIDATED",
+      "checkout_hold_reason": "Held until one live settlement can be matched to validated fulfillment, retrievable delivery proof, and the economic ledger.",
+      "commercial_truth": {
+        "sellable": false,
+        "approval_required": true,
+        "payment_surface": null
+      }
     },
     {
       "id": "EVIDENCE-PACKET-10",
@@ -383,13 +525,22 @@
       "description": "Source bundle plus integrity/hash receipt for a defined claim or transaction.",
       "price": 10,
       "currency": "nzd",
-      "status": "published",
-      "checkout_available": true,
-      "checkout_url": "https://buy.stripe.com/28E14n6HzbK582j4kAdwc35",
-      "payment_link_id": "plink_1UKqDBEGgEAnUFF946wIyU9k",
-      "stripe_price_id": "price_1UKqD0EGgEAnUFF9eJjEjHBb",
+      "status": "held",
+      "checkout_available": false,
+      "checkout_url": null,
+      "payment_link_id": null,
+      "stripe_price_id": null,
       "toll_unit": "per_packet",
-      "category": "digital-tools"
+      "category": "digital-tools",
+      "availability": "review_required",
+      "delivery_test_status": "UNVERIFIED",
+      "commercial_validation_status": "UNVALIDATED",
+      "checkout_hold_reason": "Held until one live settlement can be matched to validated fulfillment, retrievable delivery proof, and the economic ledger.",
+      "commercial_truth": {
+        "sellable": false,
+        "approval_required": true,
+        "payment_surface": null
+      }
     },
     {
       "id": "DL-DEMAND-LEAK-500",
@@ -398,13 +549,22 @@
       "description": "Fixed-scope inbound demand audit for one product or service; competitor review, three high-intent acquisition opportunities, conversion-path findings, and a 30-day action plan.",
       "price": 500,
       "currency": "nzd",
-      "status": "published",
-      "checkout_available": true,
-      "checkout_url": "https://buy.stripe.com/9B67sLd5X01n2HZ4kAdwc3j",
+      "status": "held",
+      "checkout_available": false,
+      "checkout_url": null,
       "stripe_product_id": "prod_VPDirsbZswjiaR",
-      "stripe_price_id": "price_1UOPHJEGgEAnUFF9Ph7ivnnV",
-      "payment_link_id": "plink_1UOPHUEGgEAnUFF9OQvE578s",
-      "category": "growth-services"
+      "stripe_price_id": null,
+      "payment_link_id": null,
+      "category": "growth-services",
+      "availability": "review_required",
+      "delivery_test_status": "UNVERIFIED",
+      "commercial_validation_status": "UNVALIDATED",
+      "checkout_hold_reason": "Held until one live settlement can be matched to validated fulfillment, retrievable delivery proof, and the economic ledger.",
+      "commercial_truth": {
+        "sellable": false,
+        "approval_required": true,
+        "payment_surface": null
+      }
     },
     {
       "id": "DL-INBOUND-ENGINE-2500",
@@ -413,13 +573,22 @@
       "description": "Fixed-scope implementation of one measurable inbound acquisition funnel with landing page, lead capture, analytics, automated tests, and a 30-day report.",
       "price": 2500,
       "currency": "nzd",
-      "status": "published",
-      "checkout_available": true,
-      "checkout_url": "https://buy.stripe.com/dRm14n1nf6pLcizdVadwc3k",
+      "status": "held",
+      "checkout_available": false,
+      "checkout_url": null,
       "stripe_product_id": "prod_VPDifHxkq0QXuO",
-      "stripe_price_id": "price_1UOPHLEGgEAnUFF9LCqTujZt",
-      "payment_link_id": "plink_1UOPHWEGgEAnUFF93KiFoiMG",
-      "category": "growth-services"
+      "stripe_price_id": null,
+      "payment_link_id": null,
+      "category": "growth-services",
+      "availability": "review_required",
+      "delivery_test_status": "UNVERIFIED",
+      "commercial_validation_status": "UNVALIDATED",
+      "checkout_hold_reason": "Held until one live settlement can be matched to validated fulfillment, retrievable delivery proof, and the economic ledger.",
+      "commercial_truth": {
+        "sellable": false,
+        "approval_required": true,
+        "payment_surface": null
+      }
     },
     {
       "id": "DL-AUTONOMOUS-DEMAND-10000",
@@ -428,13 +597,22 @@
       "description": "Fixed-scope multi-channel inbound acquisition system with up to three offer pages, demand research, lead and purchase tracking, experiment scoring, failure controls, and handover documentation.",
       "price": 10000,
       "currency": "nzd",
-      "status": "published",
-      "checkout_available": true,
-      "checkout_url": "https://buy.stripe.com/cNi7sLd5X8xT2HZg3idwc3l",
+      "status": "held",
+      "checkout_available": false,
+      "checkout_url": null,
       "stripe_product_id": "prod_VPDibxfOI8hLz3",
-      "stripe_price_id": "price_1UOPHNEGgEAnUFF9hMPRHJeA",
-      "payment_link_id": "plink_1UOPHZEGgEAnUFF9yHvfZ1FL",
-      "category": "growth-services"
+      "stripe_price_id": null,
+      "payment_link_id": null,
+      "category": "growth-services",
+      "availability": "review_required",
+      "delivery_test_status": "UNVERIFIED",
+      "commercial_validation_status": "UNVALIDATED",
+      "checkout_hold_reason": "Held until one live settlement can be matched to validated fulfillment, retrievable delivery proof, and the economic ledger.",
+      "commercial_truth": {
+        "sellable": false,
+        "approval_required": true,
+        "payment_surface": null
+      }
     },
     {
       "id": "EDH_JON_IRENICUS_0004",
