@@ -35,7 +35,8 @@ jobs:
           grep -q "VERIFIED_EXTERNAL_REVENUE = NZ\$0.00" runtime/ECONOMIC-EVENT-LOOP-V1-2026-09-29.md
       - name: Verify BECK local Cortex and LM Studio safety contracts
         run: |
-          python3 -m unittest discover -s runtime/lm_studio -p 'test_*.py' -v
+          python3 runtime/lm_studio/test_beck_lmstudio_sdk.py -v
+          python3 runtime/lm_studio/test_local_cortex_lmstudio_ingest.py -v
 
       - name: Verify existing deterministic admission tests
         run: |
