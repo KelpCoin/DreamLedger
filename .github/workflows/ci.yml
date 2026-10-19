@@ -71,6 +71,9 @@ jobs:
           print(f"PASS public observatory links={len(parser.hrefs)}; all targets exist")
           PY
 
+      - name: Prepare MTG condition contract from canonical source
+        run: node scripts/Patch-MTG-CommerceSurface.js
+
       - name: Unit policy tests
         run: npm test
 
