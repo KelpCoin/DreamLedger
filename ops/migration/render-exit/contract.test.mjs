@@ -33,8 +33,9 @@ test('engine must answer health before the public listener starts', () => {
 test('persistent paths are mounted under /var/data', () => {
   const entry = read('ops/migration/render-exit/start.sh');
   const fly = read('fly.render-exit.toml');
+  assert.match(entry, /DATA_ROOT="\/var\/data"/);
   for (const dir of ['ledger', 'proofs', 'qr', 'dreamiez', 'demand', 'jobs', 'bec-proofs', 'bec-prime-data']) {
-    assert.ok(entry.includes('/var/data/' + dir), 'missing persistent path ' + dir);
+    assert.ok(entry.includes('"$DATA_ROOT/' + dir + '"'), 'missing persistent path ' + dir);
   }
   assert.match(fly, /destination = "\/var\/data"/);
   assert.match(fly, /source = "dreamledger_data"/);
