@@ -57,7 +57,7 @@ test('test command cannot PASS without a test summary', () => {
 
 test('Node test summary is parsed without retaining raw test output', () => {
   const stats = summarizeNodeTestOutput('ℹ tests 7\nℹ pass 6\nℹ fail 1\nℹ skipped 0');
-  assert.deepEqual(stats, { tests: 7, passed: 6, failed: 1, skipped: 0 });
+  assert.deepEqual(stats, { tests: 7, passed: 6, failed: 1, skipped: 0, failed_tests: [] });
   const r = classifyCommandResult(
     { evidence_mode: 'runner_summary' },
     { status: 0 },
