@@ -10,6 +10,7 @@ on:
       - 'BEC-PRIME/catalog/marketplace/priority-verticals.v1.json'
       - 'supabase/migrations/20261013000*.sql'
       - 'BEC-PRIME/scripts/verify-unified-marketplace.js'
+      - 'BEC-PRIME/scripts/test-priority-verticals-runtime.js'
       - '.github/workflows/verify-unified-marketplace.yml'
   push:
     branches: [main]
@@ -22,6 +23,7 @@ on:
       - 'BEC-PRIME/catalog/marketplace/priority-verticals.v1.json'
       - 'supabase/migrations/20261013000*.sql'
       - 'BEC-PRIME/scripts/verify-unified-marketplace.js'
+      - 'BEC-PRIME/scripts/test-priority-verticals-runtime.js'
       - '.github/workflows/verify-unified-marketplace.yml'
 permissions:
   contents: read
@@ -39,3 +41,5 @@ jobs:
           node --check BEC-PRIME/start.js
       - name: Validate marketplace, ledger, and CUBE contract
         run: node BEC-PRIME/scripts/verify-unified-marketplace.js
+      - name: Exercise priority vertical runtime and fail-closed path
+        run: node BEC-PRIME/scripts/test-priority-verticals-runtime.js
