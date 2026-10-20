@@ -49,4 +49,24 @@ const pending = entitlement.grantPaidCosmetic({
 });
 assert.strictEqual(pending.status, 'PENDING_ACCOUNT');
 
-console.log(JSON.stringify({ ok: true, granted: first.entitlement_id, idempotent: duplicate.entitlement_id, pending: pending.entitlement_id }));
+// Production-like hosts must fail closed until an operator has confirmed a
+// persistent volume and explicitly marked it as the durable entitlement store.
+const oldNodeEnv = process.env.NODE_ENV;
+const oldStoreFlag = process.env.DREAMIEZ_DURABLE_STORE;
+const oldDataDir = process.env.DREAMIEZ_DATA_DIR;
+const oldRenderId = process.env.RENDER_SERVICE_ID;
+process.env.NODE_ENV = 'production';
+delete process.env.RENDER_SERVICE_ID;
+process.env.DREAMIEZ_DATA_DIR = tmp;
+delete process.env.DREAMIEZ_DURABLE_STORE;
+assert.throws(() => entitlement.assertDurableStore(), /DREAMMEEZ_DURABLE_ENTITLEMENT_STORE_NOT_VERIFIED/);
+process.env.DREAMIEZ_DURABLE_STORE = 'true';
+process.env.DREAMIEZ_DATA_DIR = '/var/data/dreamiez';
+assert.strictEqual(entitlement.assertDurableStore(), true);
+
+if (oldNodeEnv === undefined) delete process.env.NODE_ENV; else process.env.NODE_ENV = oldNodeEnv;
+if (oldStoreFlag === undefined) delete process.env.DREAMIEZ_DURABLE_STORE; else process.env.DREAMIEZ_DURABLE_STORE = oldStoreFlag;
+if (oldDataDir === undefined) delete process.env.DREAMIEZ_DATA_DIR; else process.env.DREAMIEZ_DATA_DIR = oldDataDir;
+if (oldRenderId === undefined) delete process.env.RENDER_SERVICE_ID; else process.env.RENDER_SERVICE_ID = oldRenderId;
+
+console.log(JSON.stringify({ ok: true, granted: first.entitlement_id, idempotent: duplicate.entitlement_id, pending: pending.entitlement_id, production_durability_gate: 'PASS' }));

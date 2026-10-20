@@ -1,6 +1,6 @@
 """Deterministic projection from persisted economic records to canonical event candidates.
 
-Read-only by design. It never writes economic truth, authorizes external action,
+Read-only by design. It never writes economic truth, authorizes an action,
 or promotes incomplete observations to verified outcomes.
 """
 
@@ -30,9 +30,12 @@ def project_action(row: dict[str, Any]) -> list[dict[str, Any]]:
     if authorization == "allow":
         events.append({"event_type": "ACTION_AUTHORIZED"})
 
-    if dispatch == "INTERNAL_ROUTED":
-        events.append({"event_type": "ACTION_DISPATCHED", "state_after": "INTERNAL_ROUTED"})
-    elif dispatch == "EXTERNAL_BLOCKED":
+    # INTERNAL_ROUTED is a dispatch observation, not the ACTION_DISPATCHED
+    # economic event. Projecting it as ACTION_DISPATCHED let an internal
+    # worker trace advance AUTHORIZED -> EXECUTED without an action event.
+    # Preserve the observed dispatch_state on the persisted row; do not
+    # manufacture a lifecycle event from that state label.
+    if dispatch == "EXTERNAL_BLOCKED":
         events.append({"event_type": "ACTION_BLOCKED", "state_after": "EXTERNAL_BLOCKED"})
     elif dispatch == "EXTERNAL_SENT":
         events.append({"event_type": "EXTERNAL_ACTION_SENT"})

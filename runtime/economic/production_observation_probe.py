@@ -11,6 +11,28 @@ from event_projection import project_action, project_payment
 from state_transition_engine import transition_opportunity
 
 
+def _no_transition_blocker(current: str, row: dict[str, Any], events: list[dict[str, Any]]) -> dict[str, Any]:
+    dispatch = str(row.get("dispatch_state") or "UNKNOWN").upper()
+    missing_by_dispatch = {
+        "NOT_DISPATCHED": "action_dispatched_event",
+        "INTERNAL_ROUTED": "external_action_sent_evidence",
+        "EXTERNAL_BLOCKED": "authority_or_access_clearance",
+        "EXTERNAL_SENT": "external_result_evidence",
+        "EXTERNAL_RESULT_OBSERVED": "next_payment_or_fulfillment_evidence",
+        "UNKNOWN": "dispatch_state",
+    }
+    missing = missing_by_dispatch.get(dispatch, "applicable_next_event")
+    return {
+        "result": "EXACT_BLOCKER",
+        "error_class": "NO_TRANSITIONABLE_EVENT",
+        "dependency_state": dispatch,
+        "missing_field": missing,
+        "required_next_event": missing,
+        "state_before": current,
+        "events": events,
+    }
+
+
 def inspect_action(row: dict[str, Any]) -> dict[str, Any]:
     action_type = str(row.get("action_type") or "").upper()
     events = project_action(row)
@@ -46,6 +68,11 @@ def inspect_action(row: dict[str, Any]) -> dict[str, Any]:
                 "state_after": transition.state_after,
                 "events": events,
             }
+        # Projections can contain observations that are not applicable to
+        # the current opportunity state. Continue to the next observed event;
+        # a state/event mismatch alone is not proof that the record is bad.
+        if transition.error_class == "STATE_TRANSITION_INVALID":
+            continue
         if transition.error_class:
             return {
                 "result": "EXACT_BLOCKER",
@@ -57,12 +84,7 @@ def inspect_action(row: dict[str, Any]) -> dict[str, Any]:
                 "events": events,
             }
 
-    return {
-        "result": "EXACT_BLOCKER",
-        "error_class": "NO_TRANSITIONABLE_EVENT",
-        "dependency_state": "unverified",
-        "events": events,
-    }
+    return _no_transition_blocker(current, row, events)
 
 
 def inspect_payment(row: dict[str, Any]) -> dict[str, Any]:

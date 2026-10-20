@@ -20,13 +20,13 @@ async function main() {
   const home = await get('/');
   if (home.status !== 200) throw new Error('homepage status ' + home.status);
   const html = home.body;
+  // Aligned to WebsiteFaceCompiler public/home.html exhaust (not retired marketing copy).
   const required = [
     ['DreamLedger brand', /DreamLedger/i],
-    ['evidence-first commerce positioning', /Evidence-first commerce/i],
-    ['homepage headline', /Make the next decision\s*<span>easier to prove/i],
-    ['Truth Oracle evidence review link', /href="\/truth-oracle\.html/i],
-    ['free worksheet route', /href="(?:https:\/\/dreamledger\.org)?\/quote-comparison\//i],
-    ['trust route', /href="\/trust\//i]
+    ['compiler face marker', /WebsiteFaceCompiler|face=home|emitted by/i],
+    ['commercial headline or pay CTA', /Build the factory|Get paid|Pay NZ\$/i],
+    ['shop or money door', /href="\/(shop\.html|money\.html)"/i],
+    ['mtg door', /href="\/mtg\/?"/i]
   ];
   for (const [label, pattern] of required) {
     if (!pattern.test(html)) throw new Error('missing ' + label + ' on homepage');
@@ -57,7 +57,7 @@ async function main() {
     (product.sale_mode === 'claim_by_message' && typeof product.claim_url === 'string' && (/^https:\/\//i.test(product.claim_url) || /^\/(?!\/)/.test(product.claim_url)))
   );
   const brokenCheckout = published.filter(product =>
-    product.checkout_available === true && !(typeof product.checkout_url === 'string' && /^https:\/\//i.test(product.checkout_url))
+    product.checkout_available === true && !(typeof product.checkout_url === 'string' && (/^https:\/\//i.test(product.checkout_url) || /^\/(?!\/)/.test(product.checkout_url)))
   );
   const brokenClaim = published.filter(product =>
     product.sale_mode === 'claim_by_message' && !(typeof product.claim_url === 'string' && (/^https:\/\//i.test(product.claim_url) || /^\/(?!\/)/.test(product.claim_url)))
@@ -82,7 +82,8 @@ async function main() {
     published_products: published.length,
     buyable_published_products: published.filter(product => product.checkout_available === true).length,
     claimable_published_products: published.filter(product => product.sale_mode === 'claim_by_message' && typeof product.claim_url === 'string').length,
-    products_json_valid: true
+    products_json_valid: true,
+    note: 'Homepage markers match WebsiteFaceCompiler exhaust; retired marketing copy is not required'
   }, null, 2));
 }
 

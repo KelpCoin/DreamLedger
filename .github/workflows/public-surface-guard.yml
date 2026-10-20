@@ -64,6 +64,14 @@ jobs:
           grep -q "ENGINE_INTERNAL_URL" public/server.js
           grep -q "/api/swarm-100k/" public/server.js
           grep -q "return send(res,404,'Not Found'" public/server.js
+          grep -q "p==='/catalog.json'" public/server.js
+          grep -q 'products=source.map(publicSafeProduct)' public/server.js
+          node public/buy-route.test.js
+          if grep -Eiq 'buy\\.stripe\\.com|Stripe checkout live|Pay securely via Stripe' public/billboard.html; then
+            echo 'FAIL: held billboard page exposes checkout or claims checkout is live.'
+            exit 1
+          fi
+          echo 'PASS: public catalogue links are gated and billboard checkout is held.'
           echo 'PASS: public API boundary is explicit for toll, bounded swarm proxy, and 404 fallback.'
 
       - name: Check for obvious credential literals

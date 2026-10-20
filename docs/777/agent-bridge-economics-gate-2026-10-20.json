@@ -1,0 +1,209 @@
+{
+  "schema_version": "dreamledger.agent-bridge-economics-gate.v1",
+  "expedition_id": "DL-777-AGENT-BRIDGE-ECONOMICS-20261020",
+  "observed_at": "2026-10-20",
+  "status": "HOLD_UNVERIFIED",
+  "principles": {
+    "b2b_discovery": "FREE_BY_DEFAULT",
+    "a2a_execution": "LOW_COST_METERED_AND_MARGIN_GATED",
+    "economic_truth_source": "CANONICAL_SETTLEMENT_AND_FULFILLMENT_EVIDENCE",
+    "no_new_sku": true,
+    "no_publication_without_approval": true,
+    "no_spend_without_approval": true,
+    "no_parallel_ledger": true
+  },
+  "economic_baseline": {
+    "verified_external_revenue_nzd": 0,
+    "independent_external_buyers_verified": 0,
+    "settled_attributable_external_payments_verified": 0,
+    "paid_fulfilled_orders_verified": 0,
+    "status": "UNVERIFIED",
+    "rule": "Do not change this baseline without an independent buyer, settled attributable payment, successful fulfillment, retrievable delivery evidence, and reconciliation."
+  },
+  "existing_offer_candidates": [
+    {
+      "offer_id": "TOLL-PROBE-50C",
+      "recorded_price_nzd": 0.5,
+      "recorded_unit": "one bounded probe",
+      "current_offer_state": "HELD_OR_UNVERIFIED",
+      "commercial_role": "First external end-to-end proof, not a margin claim",
+      "activation_allowed": false,
+      "required_proof": [
+        "canonical route and exact live offer/price mapping read back",
+        "independent buyer and authorized purchase",
+        "settled live payment with correct attribution",
+        "durable scoped entitlement and quota",
+        "one authenticated bounded call",
+        "retrievable result and delivery receipt",
+        "idempotent reconciliation"
+      ]
+    },
+    {
+      "offer_id": "AGENT-BRIDGE-EVENTS-100",
+      "recorded_price_nzd": 19,
+      "recorded_units": 100,
+      "derived_gross_price_per_unique_event_nzd": 0.19,
+      "current_offer_state": "CANDIDATE_HELD_UNVERIFIED",
+      "commercial_role": "Later bounded event-receipt pack after the probe and unit economics pass",
+      "activation_allowed": false,
+      "required_proof": [
+        "active canonical price and payment link match the offer ID",
+        "atomic quota decrement and concurrency/replay tests",
+        "unique accepted receipt semantics",
+        "measured direct provider/compute/support cost",
+        "measured payment fees, tax treatment and refunds as applicable",
+        "positive contribution margin above the configured floor",
+        "settlement-to-entitlement-to-delivery reconciliation"
+      ]
+    }
+  ],
+  "unit_economics": {
+    "formula": "contribution_nzd = collected_amount_nzd - applicable_tax_nzd - refunds_and_disputes_nzd - payment_processing_nzd - provider_and_compute_cost_nzd - delivery_and_storage_cost_nzd - attributable_support_cost_nzd",
+    "contribution_margin_formula": "contribution_margin = contribution_nzd / net_revenue_after_applicable_tax_and_refunds_nzd",
+    "current_measured_cost_nzd": null,
+    "current_measured_contribution_margin_percent": null,
+    "minimum_margin_percent": null,
+    "measurement_state": "UNMEASURED",
+    "gate": "Do not mark an offer economically qualified until the unit cost basis and minimum margin threshold are explicitly configured and measured. Null means unknown, never zero."
+  },
+  "billing_contract": {
+    "billable_unit": "one unique accepted receipt for a valid authorized request",
+    "same_key_same_payload": "return original receipt; no second charge or quota decrement",
+    "same_key_different_payload": "reject with conflict; no side effects",
+    "invalid_or_unauthorized_request": "reject; do not execute or bill",
+    "failed_execution": "do not bill as successful delivery; preserve a failure receipt for diagnosis",
+    "budget_scope_and_expiry": "required before execution",
+    "hard_timeout_and_quota": "required and enforced server-side",
+    "receipt": "stable ID, payload digest, version, status, timestamps, usage and cost references, and retrievable delivery evidence",
+    "raw_payload_storage": "minimize; store only what the declared contract and privacy policy require"
+  },
+  "free_b2b_marketplace_contract": {
+    "browse_and_search": "FREE",
+    "supplier_and_capability_discovery": "FREE_BY_DEFAULT",
+    "rfq_submission": "FREE_BY_DEFAULT_WITH_RATE_LIMITS_AND_PROVENANCE",
+    "claim_quality": "a listing or submission is not verified demand, availability, or revenue",
+    "seller_controls": [
+      "provenance",
+      "freshness",
+      "moderation",
+      "removal",
+      "appeal",
+      "contact_privacy"
+    ],
+    "commercial_boundary": "charge for successful bounded execution only after real value, authorization, fulfillment and unit economics are proven"
+  },
+  "required_acceptance_gates": [
+    {
+      "id": "G01_ROUTE_PARITY",
+      "pass_when": "Custom domain and provider host route, method, auth requirements, manifest and version match; HTTP status and deployed revision are recorded."
+    },
+    {
+      "id": "G02_OFFER_BINDING",
+      "pass_when": "Canonical offer, Stripe product/price/link, amount, NZD currency, live mode, SKU metadata and webhook routing match exactly."
+    },
+    {
+      "id": "G03_AUTHORIZATION",
+      "pass_when": "Server validates scoped credential, explicit budget ceiling, expiry, permitted tools and hard timeout; no credential or private host access leaks."
+    },
+    {
+      "id": "G04_IDEMPOTENCY_AND_QUOTA",
+      "pass_when": "Same-key same-payload retries return the original receipt; same-key changed-payload fails; concurrent and replay tests produce one side effect and one quota decrement."
+    },
+    {
+      "id": "G05_SETTLEMENT_AND_ENTITLEMENT",
+      "pass_when": "Verified signed provider event and settled payment map to exactly one canonical order and entitlement; duplicate event delivery creates no duplicate grant."
+    },
+    {
+      "id": "G06_RESULT_AND_DELIVERY",
+      "pass_when": "A bounded authorized job returns schema-valid output and a buyer-retrievable receipt; failure/retry/cancel/refund states are explicit."
+    },
+    {
+      "id": "G07_UNIT_ECONOMICS",
+      "pass_when": "Observed fees and direct costs are measured; contribution margin clears the configured floor under the declared workload and failure assumptions."
+    },
+    {
+      "id": "G08_EXTERNAL_ECONOMIC_PROOF",
+      "pass_when": "An independent buyer's settled attributable payment, successful fulfillment, delivery evidence and ledger reconciliation all read back. This is separate from test-mode technical acceptance."
+    },
+    {
+      "id": "G09_APPROVAL",
+      "pass_when": "A human explicitly approves any production enablement, public publication, outreach, or spend that falls under an existing approval gate."
+    },
+    {
+      "id": "G10_NO_FALSE_EXECUTED_ON_REPLAY",
+      "pass_when": "Replay the ordered persisted action observations through the existing projection and state transition engine. No EXECUTED state may arise without an explicit ACTION_DISPATCHED event; INTERNAL_ROUTED must never be projected into ACTION_DISPATCHED."
+    },
+    {
+      "id": "G11_DATABASE_RESTORED_READ_ONLY",
+      "pass_when": "A read-only SELECT and schema/migration inventory succeed after storage/recovery is repaired. Project metadata status alone is not sufficient."
+    }
+  ],
+  "known_blockers_at_last_recorded_check": [
+    "Agent Bridge paid route and NZ$0.50 probe were held or unverified; do not infer availability from source code or a listed price.",
+    "Recorded Render build pipeline minutes were exhausted on 2026-10-19; live deployment parity needs a fresh check after authorized recovery.",
+    "Supabase recovery blocker: PostgreSQL logs at 2026-10-19T06:44:24.647Z explicitly say could not write pg_wal/xlogtemp because there was no space left on device; startup process exited with code 1 and shut down. PostgREST later reported localhost:5432 connection refused. Direct SQL still returned ECONNREFUSED on 2026-10-20. Treat disk-full recovery as the observed cause for those logs; do not assume an IPv6/pooler-only issue. Current dashboard disk utilisation and recovery state remain unobserved.",
+    "No independent buyer, settled attributable external payment, paid fulfilled order, or verified delivery outcome is recorded."
+  ],
+  "next_execution_order": [
+    "Keep the INTERNAL_ROUTED projection correction and replay regression test. Run the repository tests on the branch; CI must report an actual completed result.",
+    "Resolve the observed PostgreSQL storage/recovery failure. Do not treat Supavisor port 6543 as a disk-full repair; it addresses connection-path compatibility. No paid upgrade or spend without explicit approval.",
+    "After recovery, confirm SELECT 1, read schema/migrations, and run one real persisted row through runtime/economic/production_observation_contract.py, event_projection.py and state_transition_engine.py.",
+    "Replay actual ordered persisted action rows through the canonical modules and record resulting states and exact blockers; no EXECUTED state without explicit ACTION_DISPATCHED.",
+    "Read back live route parity and exact existing Stripe Product/Price/Payment Link mapping without creating a Checkout Session. Keep any inconsistent or unverified offer held.",
+    "Run deterministic test-mode authorization, quota, idempotency, signed-event, replay, concurrency, failure/retry, receipt, and reconciliation fixtures.",
+    "Measure direct costs and configure an evidence-based minimum contribution margin.",
+    "Only after prior gates pass and human approval is explicit, enable one independent-buyer path and reconcile settlement, fulfilment, delivery evidence and ledger state."
+  ],
+  "source_artifacts": [
+    {
+      "path": "AGENT_BUS/BRIDGE/PROTOCOL.md",
+      "blob_sha": "6ac2c36870b9c7958dc5f181d5e3376c63624aa1",
+      "role": "Canonical Agent Bridge execution and evidence rules"
+    },
+    {
+      "path": "AGENT_BUS/MONEY-PLAYBOOK-500.md",
+      "blob_sha": "1ed1467d85f0a0eaf86304f92292db23f2547dbc",
+      "role": "Canonical existing-offer and first-dollar sequence"
+    },
+    {
+      "path": "data/schema/agent-bridge-toll-road-v1.schema.json",
+      "blob_sha": "72c0fffa4cb171524c3f84c0d9857f6ada162508",
+      "role": "Existing versioned toll contract; reused rather than duplicated"
+    },
+    {
+      "path": "webapp/agentic-commerce/777-first-dollar-compounding-work-contract.json",
+      "blob_sha": "72b8ad75bf025cfa79caaf67f15cb34a6e602c02",
+      "role": "Existing bounded 777 execution and acceptance work contract"
+    },
+    {
+      "url": "https://app.notion.com/p/3f52ee9b45db81c8902bc7baadcad0b7?pvs=204",
+      "role": "Existing 777 Marketplace Expedition; updated with this receipt"
+    },
+    {
+      "path": "runtime/economic/event_projection.py",
+      "role": "Corrected projection: INTERNAL_ROUTED no longer synthesizes ACTION_DISPATCHED."
+    },
+    {
+      "path": "runtime/economic/production_observation_probe.py",
+      "role": "Observation loop skips inapplicable events and reports dispatch-specific blockers."
+    },
+    {
+      "path": "runtime/economic/production_observation_contract.py",
+      "role": "Read-only production observation with the same fail-closed interpretation."
+    },
+    {
+      "path": "runtime/economic/test_event_projection.py",
+      "role": "Regression test and ordered projected-event replay asserting no false EXECUTED state."
+    },
+    {
+      "path": "runtime/economic/test_production_observation_probe.py",
+      "role": "Regression tests for internal routing and exact blockers."
+    }
+  ],
+  "non_goals": [
+    "No new SKU, price, payment link, database, ledger, or production route",
+    "No checkout-session smoke test or self-purchase",
+    "No public post, outbound buyer contact, production deployment, secret change or paid spend",
+    "No revenue uplift implied by a passing schema, CI run, manifest, route, or internal artifact"
+  ]
+}

@@ -5,12 +5,10 @@ LM Studio is advisory. Existing CORTEX/Gauntlet remains authoritative.
 This adapter never sends outreach, executes checkout, claims revenue, or
 mutates the authoritative economic ledger.
 """
-import argparse, hashlib, json, os, sys, time
+import argparse, hashlib, json, os, re, sys, time, uuid
 from pathlib import Path
-from urllib.request import Request, urlopen
 
 ROOT = Path(os.environ.get("DREAMLEDGER_ROOT", Path(__file__).resolve().parents[2]))
-LM_BASE = os.environ.get("LM_STUDIO_BASE_URL", "http://127.0.0.1:1234/v1").rstrip("/")
 LM_MODEL = os.environ.get("LM_STUDIO_MODEL", "").strip()
 PROOF_DIR = ROOT / "runtime" / "lm_studio" / "runs"
 
@@ -26,34 +24,72 @@ ALLOWED = {
 def sha(value):
     return hashlib.sha256(value.encode("utf-8")).hexdigest()
 
-def http_json(path, body=None, timeout=60):
-    data = None if body is None else json.dumps(body).encode("utf-8")
-    req = Request(
-        LM_BASE + path,
-        data=data,
-        headers={"Content-Type": "application/json", "Accept": "application/json"},
-        method="POST" if body is not None else "GET",
-    )
-    with urlopen(req, timeout=timeout) as response:
-        return json.loads(response.read().decode("utf-8"))
-
 def fallback(signal, reason):
+    """Conservative offline triage. A single text item cannot prove demand or trend."""
     text = (signal.get("text") or "").lower()
-    money = any(k in text for k in ["pay", "budget", "cost", "spend", "burn", "$", "expensive", "invoice", "quote"])
-    urgent = any(k in text for k in ["urgent", "asap", "critical", "broken", "failing", "deadline"])
-    quote = any(k in text for k in ["supplier quote", "supplier quotation", "quote pdf", "supplier"])
+    title = (signal.get("title") or "Signal requires classification").strip()
+    money_terms = ("pay", "budget", "cost", "spend", "burn", "$", "expensive", "invoice", "quote")
+    has_money_language = any(k in text for k in money_terms)
+    explicit_budget = bool(re.search(r"(?:\$|nzd\s*\$?\s*)\s*\d+(?:[.,]\d+)?", text)) or bool(
+        re.search(r"\bbudget\b.{0,25}\b\d+\b", text)
+    )
+    existing_spend = any(k in text for k in (
+        "already paying", "currently paying", "we paid", "we spend", "we spent",
+        "existing spend", "monthly bill", "invoice paid"
+    ))
+    avoided_loss = any(k in text for k in (
+        "lost revenue", "cost us", "costing us", "lost sales", "revenue leakage"
+    ))
+    urgent = any(k in text for k in ("urgent", "asap", "critical", "broken", "failing", "deadline"))
+    blocking = any(k in text for k in ("blocking", "blocked", "cannot ship", "can't ship", "work stopped"))
+    repeated = bool(re.search(r"\\bevery\\b", text)) or any(k in text for k in ("weekly", "monthly", "hours a week", "often", "manual"))
+    seeking = any(k in text for k in (
+        "looking for a tool", "looking for a solution", "actively seeking",
+        "seeking a tool", "want to buy", "ready to purchase", "looking to buy"
+    ))
+    stated_need = any(k in text for k in (
+        "need a tool", "need a solution", "we need to fix", "want a tool"
+    ))
+    explicitly_abandoned = any(k in text for k in ("deprecated", "abandoned", "discontinued"))
+
+    money_signal = (
+        "explicit_budget" if explicit_budget else
+        "existing_spend" if existing_spend else
+        "avoided_loss" if avoided_loss else
+        "unknown"
+    )
+    buying_intent = (
+        "actively_seeking" if seeking else
+        "stated" if stated_need else
+        "implied" if has_money_language else
+        "none"
+    )
+    urgency = (
+        "critical" if "critical" in text else
+        "blocking" if blocking else
+        "costly" if avoided_loss or existing_spend or explicit_budget else
+        "nuisance"
+    )
+    next_action = (
+        "paid_offer_candidate"
+        if (seeking or stated_need) and money_signal in {"explicit_budget", "existing_spend"}
+        else "investigate" if has_money_language or urgent or seeking or stated_need
+        else "monitor"
+    )
     return {
-        "1_PAIN": (signal.get("title") or "Signal requires classification")[:240],
-        "2_FREQUENCY": "recurring" if any(k in text for k in ["every", "weekly", "monthly", "hours a week", "often", "manual"]) else "isolated",
-        "3_URGENCY": "critical" if urgent and "critical" in text else ("costly" if money else "nuisance"),
+        "1_PAIN": title[:240],
+        "2_FREQUENCY": "recurring" if repeated else "isolated",
+        "3_URGENCY": urgency,
         "4_CURRENT_WORKAROUND": "Unknown; preserve as unknown until evidence exists.",
-        "5_BUYING_INTENT": "actively_seeking" if any(k in text for k in ["looking for", "need", "seeking", "want a tool"]) else ("implied" if money else "none"),
-        "6_MONEY_SIGNAL": "existing_spend" if any(k in text for k in ["spend", "hours a week", "paying", "invoice"]) else ("avoided_loss" if money else "unknown"),
+        "5_BUYING_INTENT": buying_intent,
+        "6_MONEY_SIGNAL": money_signal,
         "7_BUYER": "Unknown buyer role",
-        "8_PRODUCT_OPPORTUNITY": "QUOTE-COMPARE-49" if quote else "UNMATCHED",
-        "9_STATUS_BUCKET": "WORKING_MONETIZABLE" if money else "TRENDING_SPIKE",
-        "10_NEXT_ACTION": "paid_offer_candidate" if money else "monitor",
-        "_fallback_reason": reason,
+        # No reliable deterministic mapping from arbitrary text to a sellable SKU.
+        # In particular, never suggest the held QUOTE-COMPARE-49 offer automatically.
+        "8_PRODUCT_OPPORTUNITY": "UNMATCHED",
+        # One source item cannot establish a trend or a validated monetization path.
+        "9_STATUS_BUCKET": "DEAD_ABANDONED" if explicitly_abandoned else "HUMAN_GATE_CANDIDATE",
+        "10_NEXT_ACTION": next_action,
     }
 
 def classify(signal):
@@ -79,14 +115,28 @@ URL: {signal.get("url", "")}
         from beck_lmstudio_sdk import classify_with_sdk
         result, telemetry = classify_with_sdk(prompt, LM_MODEL)
         required = ["1_PAIN","2_FREQUENCY","3_URGENCY","4_CURRENT_WORKAROUND","5_BUYING_INTENT","6_MONEY_SIGNAL","7_BUYER","8_PRODUCT_OPPORTUNITY","9_STATUS_BUCKET","10_NEXT_ACTION"]
+        if not isinstance(result, dict):
+            raise ValueError("INVALID_ROOT_TYPE")
+        if set(result) != set(required):
+            missing = sorted(set(required) - set(result))
+            extra = sorted(set(result) - set(required))
+            raise ValueError("SCHEMA_KEYS_MISMATCH:" + ",".join(missing[:3]) + "|" + ",".join(extra[:3]))
         for key in required:
-            if key not in result:
-                raise ValueError("MISSING_" + key)
+            if not isinstance(result[key], str) or not result[key].strip():
+                raise ValueError("INVALID_TYPE_OR_EMPTY_" + key)
+            limit = 1200 if key in {"1_PAIN", "4_CURRENT_WORKAROUND"} else 240
+            if len(result[key]) > limit:
+                raise ValueError("OVERSIZED_" + key)
             if key in ALLOWED and result[key] not in ALLOWED[key]:
                 raise ValueError("INVALID_" + key)
         return result, telemetry
     except Exception as exc:
-        return fallback(signal, str(exc)), {"provider": "cortex-heuristic", "model": None, "fallback": True, "error": str(exc)}
+        error_code = str(exc) if isinstance(exc, ValueError) and str(exc).isupper() else "LOCAL_MODEL_OR_SCHEMA_UNAVAILABLE"
+        safe_code = "".join(ch if ch.isalnum() or ch in "_:-|" else "_" for ch in error_code)[:180]
+        return fallback(signal, safe_code), {
+            "provider": "cortex-heuristic", "model": None, "fallback": True,
+            "fallback_reason": safe_code, "error_type": type(exc).__name__
+        }
 
 def load_offer(audit):
     needle = str(audit.get("8_PRODUCT_OPPORTUNITY", "")).upper()
@@ -108,29 +158,31 @@ def run_existing_gauntlet(audit, signal, offer):
     score += {"isolated":2,"recurring":8,"widespread":10}.get(audit.get("2_FREQUENCY"), 0)
     if audit.get("7_BUYER") and audit.get("7_BUYER") != "Unknown buyer role":
         score += 10
-    if audit.get("8_PRODUCT_OPPORTUNITY") not in {"", "UNMATCHED"}:
+    if offer is not None:
         score += 10
     if audit.get("10_NEXT_ACTION") == "paid_offer_candidate":
         score += 10
     score = min(100, score)
 
+    # Only exact approved-registry matches supply commercial attributes.
+    # Never invent a default SKU, price, deliverable, or payment route.
     proposal = {
-        "offer_id": (offer or {}).get("offer_id", audit.get("8_PRODUCT_OPPORTUNITY")),
-        "name": (offer or {}).get("name", audit.get("8_PRODUCT_OPPORTUNITY")),
+        "offer_id": offer.get("offer_id") if offer else "UNMATCHED",
+        "name": offer.get("name") if offer else "UNMATCHED",
         "problem": audit.get("1_PAIN"),
         "target_buyer": audit.get("7_BUYER"),
-        "deliverable": (offer or {}).get("deliverable", "candidate output"),
-        "delivery_mechanism": (offer or {}).get("delivery_mechanism", "digital"),
-        "price": (offer or {}).get("price", 49),
-        "currency": (offer or {}).get("currency", "NZD"),
-        "payment_adapter": (offer or {}).get("payment_adapter", "stripe"),
-        "checkout_route": (offer or {}).get("checkout_route", "stripe_payment_link"),
+        "deliverable": offer.get("deliverable") if offer else None,
+        "delivery_mechanism": offer.get("delivery_mechanism") if offer else None,
+        "price": offer.get("price") if offer else None,
+        "currency": offer.get("currency") if offer else None,
+        "payment_adapter": offer.get("payment_adapter") if offer else None,
+        "checkout_route": offer.get("checkout_route") if offer else None,
         "approval_required": True,
         "checkout_available": False,
         "status": "candidate",
-        "proof_of_delivery": (offer or {}).get("proof_of_delivery", "evidence required"),
-        "verification_rules": (offer or {}).get("verification_rules", ["evidence_present"]),
-        "provenance": (offer or {}).get("provenance", {"private_material": "excluded"}),
+        "proof_of_delivery": offer.get("proof_of_delivery") if offer else None,
+        "verification_rules": offer.get("verification_rules", []) if offer else [],
+        "provenance": offer.get("provenance") if offer else None,
         "silo": "dreamledger",
         "kill_condition": "no buyer response or contradictory evidence",
     }
@@ -191,7 +243,7 @@ def process(signal):
     result["input_hash"] = sha(json.dumps(signal, sort_keys=True))
     result["output_hash"] = sha(json.dumps(result, sort_keys=True))
     PROOF_DIR.mkdir(parents=True, exist_ok=True)
-    (PROOF_DIR / ("signal-" + result["input_hash"][:16] + ".json")).write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
+    (PROOF_DIR / ("signal-" + result["input_hash"][:16] + "-" + uuid.uuid4().hex[:8] + ".json")).write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
     return result
 
 def main():

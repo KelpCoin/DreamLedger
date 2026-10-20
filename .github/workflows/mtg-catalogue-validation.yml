@@ -3,17 +3,22 @@ name: MTG catalogue validation
 on:
   pull_request:
     paths:
-      - "public/catalog.json"
+      - "data/mtg-catalog.json"
+      - "public/data/mtg-catalog.json"
       - "mtg/**"
       - "public/mtg/**"
       - ".github/workflows/mtg-catalogue-validation.yml"
   push:
     branches: [main]
     paths:
-      - "public/catalog.json"
+      - "data/mtg-catalog.json"
+      - "public/data/mtg-catalog.json"
       - "mtg/**"
       - "public/mtg/**"
       - ".github/workflows/mtg-catalogue-validation.yml"
+
+permissions:
+  contents: read
 
 jobs:
   validate-mtg-listings:
@@ -21,36 +26,73 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-      - name: Validate catalogue records and buyer routes
+      - name: Validate canonical MTG catalogue and buyer routes
         run: |
           node <<'NODE'
           const fs = require('fs');
-          const catalog = JSON.parse(fs.readFileSync('public/catalog.json', 'utf8'));
+          const assert = require('node:assert/strict');
+          const catalogText = fs.readFileSync('data/mtg-catalog.json', 'utf8');
+          const publicCatalogText = fs.readFileSync('public/data/mtg-catalog.json', 'utf8');
+          assert.equal(publicCatalogText, catalogText, 'Published catalogue must match canonical catalogue bytes');
+          const catalog = JSON.parse(catalogText);
+          if (catalog.silo !== 'mtg' || catalog.currency !== 'NZD') {
+            throw new Error('Canonical MTG catalogue has wrong silo or currency');
+          }
+
+          const products = catalog.products || [];
           const required = [
             ['EDH_0001', null],
             ['EDH_QUINTORIUS_0002', 'mtg/quintorius-field-historian.html'],
             ['EDH_DWYNEN_0003', 'mtg/dwynen-gilt-leaf-daen.html']
           ];
-          const products = catalog.products || [];
-          for (const [id, page] of required) {
-            const p = products.find(x => x.id === id);
-            if (!p || p.status !== 'published') throw new Error('Missing/unpublished MTG listing: ' + id);
-            if (page && !fs.existsSync(page)) throw new Error('Missing buyer route: ' + page);
-            if (id !== 'EDH_0001' && (p.checkout_available !== false || p.sale_mode !== 'claim_by_message' || !p.claim_url)) {
-              throw new Error('Claim-only deck must not claim direct checkout: ' + id);
+          for (const [id, detailPath] of required) {
+            const product = products.find(p => p.id === id);
+            if (!product || product.status !== 'published') {
+              throw new Error('Missing/unpublished canonical MTG listing: ' + id);
+            }
+            if (detailPath && !fs.existsSync(detailPath)) throw new Error('Missing canonical buyer route: ' + detailPath);
+            if (product.silo !== 'mtg' || product.currency !== 'NZD') {
+              throw new Error('MTG listing has silo/currency mismatch: ' + id);
+            }
+            if (product.checkout_available !== false || product.sale_mode !== 'claim_by_message' || !product.claim_url) {
+              throw new Error('Claim-only MTG listing must not claim direct checkout and needs its claim route: ' + id);
+            }
+            if (Object.hasOwn(product, 'condition')) {
+              throw new Error('Commander deck must not use a single-card condition field: ' + id);
             }
           }
-          const html = fs.readFileSync('mtg/index.html', 'utf8');
-          if (!html.includes('/public/catalog.json')) throw new Error('Root preview catalogue must use tracked public catalogue data');
-          const liveHtml = fs.readFileSync('public/mtg/index.html', 'utf8');
-          if (!liveHtml.includes("get('/catalog.json')")) throw new Error('Live public MTG page must load the tracked catalogue.json');
-          for (const page of ['public/mtg/quintorius-field-historian.html', 'public/mtg/dwynen-gilt-leaf-daen.html']) {
-            if (!fs.existsSync(page)) throw new Error('Missing deployed public route: ' + page);
+
+          const rootHtml = fs.readFileSync('mtg/index.html', 'utf8');
+          const publicHtml = fs.readFileSync('public/mtg/index.html', 'utf8');
+          assert.equal(publicHtml, rootHtml, 'Published MTG page must match canonical master page bytes');
+          if (!rootHtml.includes("CATALOG='../data/mtg-catalog.json'")) {
+            throw new Error('Canonical MTG page must load the canonical data/mtg-catalog.json');
           }
-          if (!html.includes('EDH_QUINTORIUS_0002') || !html.includes('EDH_DWYNEN_0003')) throw new Error('Catalogue must prioritize the new decks');
-          for (const page of ['mtg/quintorius-field-historian.html', 'mtg/dwynen-gilt-leaf-daen.html']) {
-            const body = fs.readFileSync(page, 'utf8');
-            if (!body.includes('decklist') && !body.includes('decklist')) throw new Error('Missing decklist reference in ' + page);
+          if (!rootHtml.includes('async function json(url)') ||
+              !rootHtml.includes('json((m&&m.catalog)||CATALOG)')) {
+            throw new Error('Canonical MTG page must request the manifest-selected catalogue at runtime');
           }
-          console.log('MTG catalogue validation passed.');
+
+          for (const p of ['public/mtg/quintorius-field-historian.html', 'public/mtg/dwynen-gilt-leaf-daen.html']) {
+            if (!fs.existsSync(p)) throw new Error('Missing public buyer route: ' + p);
+          }
+          for (const p of ['mtg/quintorius-field-historian.html', 'mtg/dwynen-gilt-leaf-daen.html']) {
+            const body = fs.readFileSync(p, 'utf8').toLowerCase();
+            if (!body.includes('decklist')) throw new Error('Missing decklist reference in ' + p);
+          }
+
+          for (const product of products.filter(p => p.category === 'commander-deck' || p.category === 'digital-service')) {
+            if (Object.hasOwn(product, 'condition')) {
+              throw new Error('Non-single MTG product must not carry a card condition: ' + product.id);
+            }
+          }
+
+          const diagnostic = products.find(p => p.id === 'COMMANDER-DECK-DIAGNOSTIC-001');
+          if (diagnostic && (diagnostic.status !== 'held' || diagnostic.checkout_available !== false)) {
+            throw new Error('Held diagnostic must remain non-purchasable until canonical release gates pass');
+          }
+          console.log('MTG_CATALOGUE_VALIDATION=PASS');
+          console.log('CANONICAL_CATALOGUE=data/mtg-catalog.json');
+          console.log('PUBLIC_COPY_PARITY=PASS');
+          console.log('DIRECT_CHECKOUT=HELD');
           NODE
