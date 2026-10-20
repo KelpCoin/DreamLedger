@@ -3,184 +3,105 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Magic in New Zealand · Buy, sell, trade | DreamLedger</title>
-<meta name="description" content="New Zealand’s Magic marketplace. See the cards. List singles free. Commander decks for sale with open lists. Confirm before you pay.">
-<meta name="theme-color" content="#0a0b0f">
+<title>Magic in New Zealand · Commander decks | DreamLedger</title>
+<meta name="description" content="NZ Magic: published Commander decks for sale. Claim by message. 0% DreamLedger marketplace fee.">
 <link rel="canonical" href="https://dreamledger.org/mtg/">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,600;9..40,700;9..40,800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/silo-master.css">
 <style>
-:root{--silo-accent:#d8b56b;--silo-accent-bright:#e8c87a}
-.hero{padding:44px 0 20px}
-.grid{display:grid;gap:14px}
-@media(min-width:720px){.grid{grid-template-columns:1fr 1fr}}
-@media(min-width:980px){.grid{grid-template-columns:1fr 1fr 1fr}}
-.deck{
-  background:var(--silo-surface);border:1px solid var(--silo-line);border-radius:16px;
-  padding:18px;display:flex;flex-direction:column;min-height:220px
-}
-.deck h3{font-family:var(--silo-serif);font-weight:400;font-size:1.35rem;margin:0 0 8px;letter-spacing:-.02em;line-height:1.15}
-.deck .meta{font-size:13px;color:var(--silo-muted);flex:1;margin:0 0 12px;line-height:1.45}
-.deck .price{font-size:1.55rem;font-weight:800;letter-spacing:-.03em;margin:0 0 12px}
-.deck .price small{font-size:.7rem;font-weight:600;color:var(--silo-dim)}
-.deck .actions{display:flex;flex-wrap:wrap;gap:8px}
-.status-bar{
-  padding:12px 14px;border-radius:12px;background:var(--silo-surface);
-  border:1px solid var(--silo-line);color:var(--silo-muted);margin-bottom:14px;font-size:14px
-}
-.status-bar strong{color:var(--silo-ink)}
-.truth{display:grid;gap:10px;margin:28px 0 8px}
-@media(min-width:700px){.truth{grid-template-columns:1fr 1fr 1fr}}
-.truth div{background:var(--silo-surface);border:1px solid var(--silo-line);border-radius:14px;padding:16px}
-.truth b{display:block;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--silo-accent);margin-bottom:6px}
-.truth span{font-size:13px;color:var(--silo-muted);line-height:1.45}
-.secondary{margin-top:8px;padding:20px;border-radius:16px;border:1px solid var(--silo-line);background:var(--silo-surface)}
-.secondary h3{font-family:var(--silo-serif);font-weight:400;margin:0 0 8px}
-.secondary p{color:var(--silo-muted);font-size:14px;margin:0 0 14px}
+:root{color-scheme:dark;--bg:#080a0d;--surface:#10151b;--line:#27313a;--ink:#f5f3eb;--muted:#b3bdc7;--gold:#d8b56b;--goldb:#e8c87a;--max:1100px}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 12% 0,#2b2418 0,#080a0d 42%);color:var(--ink);font:15px/1.55 system-ui,sans-serif}
+a{color:var(--goldb);text-decoration:none;font-weight:700}
+.wrap{max-width:var(--max);margin:auto;padding:0 16px 72px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:16px 0;border-bottom:1px solid var(--line)}
+.brand{font-weight:900;letter-spacing:.06em}.brand span{color:var(--gold)}
+nav{display:flex;gap:12px;flex-wrap:wrap;font-size:13px}nav a{color:var(--muted);font-weight:600}
+.hero{padding:40px 0 18px}.kicker{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
+h1{font-size:clamp(2.2rem,6vw,3.6rem);line-height:1.02;letter-spacing:-.04em;margin:10px 0 12px;max-width:16ch}
+.lead{color:var(--muted);max-width:40em;margin:0 0 18px}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.pill{border:1px solid var(--line);border-radius:999px;padding:5px 10px;font-size:11px;color:var(--muted);font-weight:700}
+.pill-gold{border-color:#d8b56b66;color:var(--gold)}
+.status-bar{padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--muted);margin:18px 0 14px}
+.grid{display:grid;gap:14px;grid-template-columns:1fr}
+@media(min-width:640px){.grid{grid-template-columns:1fr 1fr}}
+@media(min-width:960px){.grid{grid-template-columns:1fr 1fr 1fr}}
+.deck{background:linear-gradient(180deg,#151b23,#0e1217);border:1px solid var(--line);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:8px}
+.deck h3{margin:0;font-size:1.15rem}.deck .price{font-size:1.5rem;font-weight:900}
+.deck p{margin:0;color:var(--muted);font-size:13px}
+.silo-btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 14px;border-radius:10px;font-weight:800;font-size:13px;margin-top:8px}
+.silo-btn-ghost{border:1px solid var(--line);color:var(--ink)}
+.notice{margin-top:24px;padding:14px;border:1px solid var(--line);border-radius:12px;color:var(--muted);font-size:13px}
+.foot{margin-top:36px;padding-top:16px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:12px;font-size:13px}.foot a{color:var(--muted)}
 </style>
 </head>
-<body class="silo-body">
-<header class="silo-hdr"><div class="silo-hdr-inner">
-  <a class="silo-logo" href="/mtg/">Dream<em>Ledger</em> · Magic</a>
-  <nav class="silo-nav">
-    <a href="#decks">Decks</a>
-    <a href="/mtg-list">List free</a>
-    <a class="silo-cta" href="/mtg-list">Sell a single</a>
-  </nav>
-</div></header>
-
-<main class="silo-wrap">
-  <section class="hero">
-    <p class="silo-eyebrow">Magic · New Zealand</p>
-    <h1 class="silo-display">See the cards.<br>Then deal.</h1>
-    <p class="silo-lead">
-      New Zealand’s open Magic surface. Browse real decks with full lists.
-      List singles free. Confirm stock before you pay — no Facebook chaos.
-    </p>
-    <div class="silo-actions">
-      <a class="silo-btn silo-btn-gold" href="#decks">Browse decks</a>
-      <a class="silo-btn silo-btn-ghost" href="/mtg-list">List a single free</a>
-      <a class="silo-btn silo-btn-line" href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Deck diagnostic · NZ$29</a>
-    </div>
-  </section>
-
-  <section class="silo-section" id="decks">
-    <div class="silo-section-h">
-      <h2 class="silo-h2">Commander decks for sale</h2>
-    </div>
-    <div id="status" class="status-bar">Loading catalogue…</div>
-    <div id="grid" class="grid" aria-live="polite"></div>
-  </section>
-
-  <section class="truth" aria-label="How deals work">
-    <div>
-      <b>See the cards</b>
-      <span>Open a deck page for the full list and images. What you see is what is for sale.</span>
-    </div>
-    <div>
-      <b>Confirm first</b>
-      <span>Request confirms stock and logistics. Payment details only after confirmation — never in a random chat.</span>
-    </div>
-    <div>
-      <b>List free</b>
-      <span>Peer singles: 0% platform success fee. Structured fields beat a Facebook wall post.</span>
-    </div>
-  </section>
-
-  <section class="silo-section">
-    <div class="secondary">
-      <h3>List a single</h3>
-      <p>Card name, condition, finish, NZD price, city, meetup or post. Free account to publish so sellers are reachable.</p>
-      <a class="silo-btn silo-btn-gold" href="/mtg-list">Start listing</a>
-    </div>
-  </section>
-
-  <footer class="silo-footer">
-    <a href="/mtg/">Magic silo</a>
-    <a href="/mtg-list">List free</a>
-    <a href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Diagnostic NZ$29</a>
-    <a href="/">DreamLedger</a>
-    <p style="margin-top:14px">
-      Physical decks and peer listings in Aotearoa. Card images © Wizards of the Coast.
-      Checkout for decks is claim-by-message until Stripe paths are verified per listing.
-    </p>
-  </footer>
-</main>
-
+<body>
+<div class="wrap">
+<header class="top"><a class="brand" href="/">Dream<span>Ledger</span> · Magic</a>
+<nav><a href="/mtg/">Decks</a><a href="https://patreon.com/happyhomarid" target="_blank" rel="noopener">Patreon</a><a href="/">Home</a></nav></header>
+<section class="hero">
+<p class="kicker">Commander · New Zealand · Happy Homarid</p>
+<div class="pills"><span class="pill pill-gold">0% marketplace fee</span><span class="pill">Claim by message</span><span class="pill">#MeatiestMagic</span></div>
+<h1>Find your next deck.</h1>
+<p class="lead">Published Commander listings from the MTG master silo. Claim by message. Confirm stock before paying. Never send card numbers in a DM.</p>
+</section>
+<section id="decks">
+<p class="kicker">Available decks</p>
+<div id="status" class="status-bar">Loading catalogue…</div>
+<div id="grid" class="grid" aria-live="polite"></div>
+</section>
+<div class="notice">Checkout is claim-by-message until Stripe paths are verified per listing. Patreon members get priority where listed.</div>
+<footer class="foot"><a href="/">Home</a><a href="/mtg/">Magic</a><a href="https://patreon.com/happyhomarid" target="_blank" rel="noopener">Patreon</a></footer>
+</div>
 <script>
 (function () {
-  var statusEl = document.getElementById('status');
-  var grid = document.getElementById('grid');
-  var FALLBACK = [
-    {
-      name: 'Quintorius, Field Historian — Commander deck',
-      description: 'Spirit / scholar Commander deck. Fully sleeved, playtested. Physical deck for sale in NZ.',
-      price: 90, patreon_price: 80, condition: 'Sleeved · playtested', inventory: 1,
-      detail_url: '/mtg/quintorius-field-historian.html',
-      claim_url: 'mailto:hello@dreamledger.org?subject=Buy%20Quintorius%20Commander%20deck%20NZ%2490'
-    },
-    {
-      name: 'Dwynen, Gilt-Leaf Daen — Elf tribal Commander deck',
-      description: 'Mono-green Elf tribal. Play elves, make mana, widen the board. Physical deck for sale in NZ.',
-      price: 90, patreon_price: 80, condition: 'Sleeved · playtested', inventory: 1,
-      detail_url: '/mtg/dwynen-gilt-leaf-daen.html',
-      claim_url: 'mailto:hello@dreamledger.org?subject=Buy%20Dwynen%20Commander%20deck%20NZ%2490'
-    },
-    {
-      name: 'Jon Irenicus, Shattered One — Commander deck',
-      description: 'Dimir table-politics Commander. Fully sleeved, playtested. Physical deck for sale in NZ.',
-      price: 220, patreon_price: 200, condition: 'Sleeved · playtested', inventory: 1,
-      detail_url: '/mtg/jon-irenicus-shattered-one.html',
-      claim_url: 'mailto:hello@dreamledger.org?subject=Claim%20Jon%20Irenicus%20Commander%20Deck'
-    }
-  ];
   function esc(v) {
     return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) {
       return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c];
     });
   }
+  var FALLBACK = [
+    { id: 'EDH_QUINTORIUS_0002', name: 'Quintorius, Field Historian', price: 90, status: 'published', category: 'commander-deck',
+      description: 'Boros graveyard-recursion Commander. NZ$90 free NZ shipping. Patreon NZ$80.',
+      claim_url: 'mailto:hello@dreamledger.org?subject=Buy%20Quintorius%20Commander%20deck%20NZ%2490' },
+    { id: 'EDH_DWYNEN_0003', name: 'Dwynen, Gilt-Leaf Daen', price: 90, status: 'published', category: 'commander-deck',
+      description: 'Mono-green Elf tribal. NZ$90 free NZ shipping. Patreon NZ$80.',
+      claim_url: 'mailto:hello@dreamledger.org?subject=Buy%20Dwynen%20Commander%20deck%20NZ%2490' },
+    { id: 'EDH_JON_IRENICUS_0004', name: 'Jon Irenicus, Shattered One', price: 220, status: 'published', category: 'commander-deck',
+      description: 'Physical Commander deck. Claim to confirm availability and shipping.',
+      claim_url: 'mailto:hello@dreamledger.org?subject=Claim%20Jon%20Irenicus%20Commander%20Deck' }
+  ];
+  var statusEl = document.getElementById('status');
+  var grid = document.getElementById('grid');
+  function isMtgDeck(p) {
+    if (!p || p.status !== 'published') return false;
+    if (p.id === 'COMMANDER-DECK-DIAGNOSTIC-001') return false;
+    var id = String(p.id || '');
+    var cat = String(p.category || '').toLowerCase();
+    var silo = String(p.silo || '').toLowerCase();
+    return silo === 'mtg' || cat === 'commander-deck' || /^EDH_/i.test(id);
+  }
   function render(decks, note) {
-    if (!decks.length) {
-      statusEl.innerHTML = '<strong>No decks listed right now.</strong> You can still <a href="/mtg-list">list a single free</a>.';
-      grid.innerHTML = '';
-      return;
-    }
     statusEl.innerHTML = '<strong>' + decks.length + ' deck' + (decks.length === 1 ? '' : 's') + '</strong> · physical · NZ · claim confirms stock' + (note ? ' · ' + note : '');
     grid.innerHTML = decks.map(function (p) {
-      var detail = p.detail_url || '/mtg/';
       var claim = p.claim_url || ('mailto:hello@dreamledger.org?subject=' + encodeURIComponent('Buy ' + (p.name || 'deck') + ' NZ$' + (p.price || '')));
-      var cond = p.condition ? esc(p.condition) + ' · ' : '';
-      var inv = (p.inventory != null) ? (p.inventory + ' in stock') : '';
-      return (
-        '<article class="deck">' +
-          '<h3>' + esc(p.name) + '</h3>' +
-          '<p class="meta">' + esc(p.description || '') + (cond || inv ? '<br>' + cond + esc(inv) : '') + '</p>' +
-          '<div class="price">NZ$' + esc(p.price) +
-            (p.patreon_price ? ' <small>· Patreon NZ$' + esc(p.patreon_price) + '</small>' : '') +
-          '</div>' +
-          '<div class="actions">' +
-            '<a class="silo-btn silo-btn-gold" href="' + esc(detail) + '">See cards</a>' +
-            '<a class="silo-btn silo-btn-ghost" href="' + esc(claim) + '">Request deck</a>' +
-          '</div>' +
-        '</article>'
-      );
+      var price = Number(p.price);
+      return '<article class="deck"><h3>' + esc(p.name || p.id) + '</h3><p>' + esc(p.description || '') + '</p><div class="price">' +
+        (Number.isFinite(price) ? ('NZ$' + price.toFixed(2)) : '') + '</div><a class="silo-btn silo-btn-ghost" href="' + esc(claim) + '">Request deck</a></article>';
     }).join('');
   }
-  fetch('/data/mtg-catalog.json', { cache: 'no-store' })
-    .then(function (r) {
-      if (!r.ok) throw new Error('Catalogue unavailable');
+  function tryFetch(url) {
+    return fetch(url, { cache: 'no-store' }).then(function (r) {
+      if (!r.ok) throw new Error(String(r.status));
       return r.json();
-    })
+    });
+  }
+  tryFetch('/data/mtg-catalog.json')
+    .catch(function () { return tryFetch('/catalog.json'); })
     .then(function (d) {
-      var products = d.products || [];
-      var decks = products.filter(function (p) {
-        return p.status === 'published' && (p.category === 'commander-deck' || /^EDH/i.test(p.id || ''));
-      });
+      var products = (d && d.products) || [];
+      var decks = products.filter(isMtgDeck);
       render(decks.length ? decks : FALLBACK, decks.length ? '' : 'fallback');
     })
-    .catch(function () {
-      render(FALLBACK, 'offline catalogue');
-    });
+    .catch(function () { render(FALLBACK, 'offline catalogue'); });
 })();
 </script>
 </body>
