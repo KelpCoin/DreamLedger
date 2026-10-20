@@ -1,0 +1,506 @@
+{
+  "schema": "dreamledger/cube-silo-candidate-registry/v1",
+  "updated_date": "2026-10-20",
+  "objective": "Use MTG as the canonical master silo and generate the broadest practical set of low-cost marketplace candidates without inventing demand, copying tenant data, or enabling unverified payment routes.",
+  "truth_contract": {
+    "verified_external_revenue_nzd": 0,
+    "revenue_rule": "independent buyer + settled external payment + correct offer attribution + completed fulfillment + retrievable delivery proof",
+    "demand_rule": "Candidate category, active Stripe object, catalog entry, generated page, traffic, simulation, or EPV heuristic alone is not demand evidence.",
+    "provisioning_rule": "This file and generated manifests are candidate blueprints only. No production database rows, DNS records, payment links, inventory, credentials, or workers are created by the generator."
+  },
+  "canonical_master": {
+    "silo_id": "nz-mtg",
+    "slug": "mtg",
+    "role": "MASTER_REFERENCE",
+    "display_name": "Magic: The Gathering Singles & Commander",
+    "canonical_route": "https://dreamledger.org/mtg/",
+    "proposed_custom_domain": "mtg.dreamledger.org",
+    "domain_status": "NOT_VERIFIED_OR_CONFIGURED",
+    "platform_take_rate_pct": 0,
+    "seller_listing_fee_pct": 0,
+    "role_policy": "Master silo retains source inventory, provenance, pricing, fulfillment and trust rules. Clones receive schemas and templates only, never inventory, users, credentials or cross-silo vouches.",
+    "current_code_state": "PRESENT_IN_REPOSITORY; LIVE_RUNTIME_AND_FULL_TRANSACTION_FULFILLMENT_NOT_ACCEPTED",
+    "economic_readiness": "BLOCKED_CONTRACT_CONFLICT"
+  },
+  "shared_clone_contract": {
+    "seller_listing_fee_pct": 0,
+    "platform_take_rate_pct": null,
+    "platform_take_rate_status": "NOT_SET_UNTIL_PRICE_TEST_AND_UNIT_ECONOMICS",
+    "listing_default": "FREE_LISTING_CANDIDATE",
+    "monetization_options_to_test_not_assume": [
+      "optional promoted placement",
+      "seller tools and inventory sync",
+      "buyer convenience or collection tools",
+      "transaction services only after payment and delivery rails pass",
+      "B2B value-added automation with explicit price and bounded deliverable"
+    ],
+    "isolation_requirements": [
+      "Every listing, offer, payment, order, vouch, task, file and analytics record is scoped to silo_id.",
+      "RLS policies and negative cross-tenant tests are required before provisioning.",
+      "Tenant-scoped foreign keys reject listing/payment/order relationships across different silos.",
+      "Public APIs expose published fields only, never service credentials or private inventory.",
+      "MTG, DreamMeez, adult/Amplissa and other silo data cannot bleed across boundaries."
+    ],
+    "go_live_gates": [
+      "owner-approved SKU and exact price",
+      "observed intent with buyer-facing problem, price and channel",
+      "cost-to-serve and contribution-margin estimate",
+      "working buyer intake and active checkout link verified at deployment time",
+      "signed payment event verification plus duplicate/replay tests",
+      "durable idempotent settlement record",
+      "automated or explicitly disclosed fulfillment path",
+      "retrievable delivery proof",
+      "refund/failure recovery test",
+      "RLS/isolation and security tests",
+      "public route and commit-SHA probes"
+    ],
+    "cube_policy": {
+      "execution_status": "NO_PRODUCTION_FLEET_VERIFIED",
+      "candidate_default_workers": 0,
+      "maximum_workers_before_first_verified_sale": 1,
+      "expansion_enabled": false,
+      "epv_policy": "NZ$25/NZ$120 thresholds remain unvalidated heuristics until computed from qualified traffic and net contribution; they cannot alone authorize worker provisioning.",
+      "scale_after_sale": "One silo at a time, after proof reconciles; scale only on measured net contribution, queue latency, error rate and fulfillment reliability."
+    }
+  },
+  "silos": [
+    {
+      "silo_id": "nz-mtg",
+      "slug": "mtg",
+      "role": "MASTER_REFERENCE",
+      "name": "MTG Singles & Commander",
+      "category": "Trading card game singles, sealed product, Commander collections",
+      "custom_domain": "mtg.dreamledger.org",
+      "primary_route": "/mtg/",
+      "priority": 1,
+      "platform_take_rate_pct": 0,
+      "seller_listing_fee_pct": 0,
+      "asset_readiness": "EXISTING_CODE_AND_CATALOG; CHECKOUT_FULFILLMENT_CONFLICT",
+      "buyer_job": "Find, list, compare and trade specific MTG printings with condition and provenance",
+      "must_have_data": [
+        "Scryfall card and printing identity",
+        "set/collector number/finish",
+        "condition and photos",
+        "seller location and shipping",
+        "inventory proof"
+      ],
+      "additional_gate": "Signed settlement, safe trade locking, scoped vouches and delivery receipt must be verified."
+    },
+    {
+      "silo_id": "dreamiez-cosmetics",
+      "slug": "dreamiez",
+      "role": "EXISTING_CODE_CANDIDATE",
+      "name": "Avatar Cosmetics & Identity",
+      "category": "Cosmetic avatar items, supporter tiers, digital entitlements",
+      "custom_domain": "dreamiez.dreamledger.org",
+      "primary_route": "/dreamiez/",
+      "priority": 2,
+      "platform_take_rate_pct": null,
+      "seller_listing_fee_pct": 0,
+      "asset_readiness": "EXISTING_PRODUCTS_AND_ACTIVE_STRIPE_LINKS; ENTITLEMENT_E2E_NOT_PROVEN",
+      "buyer_job": "Buy and receive a cosmetic/supporter entitlement with a retrievable account receipt",
+      "must_have_data": [
+        "cosmetic SKU",
+        "account/user binding",
+        "entitlement state",
+        "transaction receipt"
+      ],
+      "additional_gate": "Verify one NZ$3.99 active link through signed webhook to one idempotent entitlement and account-visible delivery."
+    },
+    {
+      "silo_id": "b2b-suppliers",
+      "slug": "suppliers",
+      "role": "CANDIDATE",
+      "name": "Free B2B Supplier Directory",
+      "category": "Supplier profiles, capability listings and RFQ discovery",
+      "custom_domain": "suppliers.dreamledger.org",
+      "primary_route": "/suppliers/",
+      "priority": 3,
+      "platform_take_rate_pct": null,
+      "seller_listing_fee_pct": 0,
+      "asset_readiness": "EXISTING_B2B_SURFACES; LIVE_ISOLATED_TENANT_NOT_PROVEN",
+      "buyer_job": "Find a supplier, compare capabilities and request a quote",
+      "must_have_data": [
+        "business identity and public evidence",
+        "service/product categories",
+        "region/coverage",
+        "capability and capacity fields"
+      ],
+      "additional_gate": "Start with free listings and qualified RFQs; do not enable paid lead claims without verified contact delivery."
+    },
+    {
+      "silo_id": "b2b-quotes",
+      "slug": "quotes",
+      "role": "CANDIDATE",
+      "name": "Quote Comparison",
+      "category": "Supplier quotes, ETA, lead times, delivery terms and cost normalization",
+      "custom_domain": "quotes.dreamledger.org",
+      "primary_route": "/quotes/",
+      "priority": 4,
+      "platform_take_rate_pct": null,
+      "seller_listing_fee_pct": 0,
+      "asset_readiness": "FREE_WORKSHEET_EXISTS; PAID_INTAKE_AND_DELIVERY_NOT_ACCEPTED",
+      "buyer_job": "Compare 2-5 supplier quotes without hiding unknown costs",
+      "must_have_data": [
+        "source files",
+        "currency and comparable totals",
+        "delivery/ETA",
+        "lead time",
+        "MOQ",
+        "payment terms",
+        "unknowns"
+      ],
+      "additional_gate": "Verify secure intake, deterministic output, durable file delivery and active paid link before selling."
+    },
+    {
+      "silo_id": "music-media",
+      "slug": "music",
+      "role": "CANDIDATE",
+      "name": "Music & Media",
+      "category": "Records, CDs, media collections, audio media and memorabilia",
+      "custom_domain": "music.dreamledger.org",
+      "primary_route": "/music/",
+      "priority": 5,
+      "platform_take_rate_pct": null,
+      "seller_listing_fee_pct": 0,
+      "asset_readiness": "NEW_CANDIDATE",
+      "buyer_job": "List and find media by release, format, edition, condition and location",
+      "must_have_data": [
+        "release identifiers",
+        "format",
+        "condition",
+        "photos",
+        "seller and shipping"
+      ],
+      "additional_gate": "Source reliable catalog metadata and validate supply, buyer intent and rights-sensitive listing rules."
+    },
+    {
+      "silo_id": "music-instruments",
+      "slug": "instruments",
+      "role": "CANDIDATE",
+      "name": "Musical Instruments & Audio Gear",
+      "category": "Instruments, microphones, interfaces, amplifiers and studio equipment",
+      "custom_domain": "instruments.dreamledger.org",
+      "primary_route": "/instruments/",
+      "priority": 6,
+      "platform_take_rate_pct": null,
+      "seller_listing_fee_pct": 0,
+      "asset_readiness": "NEW_CANDIDATE",
+      "buyer_job": "Find used gear with verified model, condition and included accessories",
+      "must_have_data": [
+        "manufacturer/model",
+        "serial redaction policy",
+        "condition",
+        "accessories",
+        "pickup/shipping"
+      ],
+      "additional_gate": "Define fraud checks, serial/privacy handling and safe delivery."
+    },
+    {
+      "silo_id": "womens-clothing",
+      "slug": "style",
+      "role": "CANDIDATE",
+      "name": "Women's Clothing & Accessories",
+      "category": "Pre-owned clothing, footwear, bags and accessories",
+      "custom_domain": "style.dreamledger.org",
+      "primary_route": "/style/",
+      "priority": 7,
+      "platform_take_rate_pct": null,
+      "seller_listing_fee_pct": 0,
+      "asset_readiness": "NEW_CANDIDATE",
+      "buyer_job": "Find garments by size, measurements, material, style and condition",
+      "must_have_data": [
+        "standardized size",
+        "actual measurements",
+        "material",
+        "condition",
+        "authenticity where relevant",
+        "photos"
+      ],
+      "additional_gate": "Keep seller listing free during liquidity test; define counterfeit and returns policies."
+    },
+    {
+      "silo_id": "baby-kids",
+      "slug": "baby",
+      "role": "CANDIDATE",
+      "name": "Baby & Kids",
+      "category": "Clothing, toys, nursery goods and age-appropriate equipment",
+      "custom_domain": "baby.dreamledger.org",
+      "primary_route": "/baby/",
+      "priority": 8,
+      "platform_take_rate_pct": null,
+      "seller_listing_fee_pct": 0,
+      "asset_readiness": "NEW_CANDIDATE",
+      "buyer_job": "Find age/size-appropriate second-hand goods with clear condition",
+      "must_have_data": [
+        "age/size",
+        "recall and safety status",
+        "condition",
+        "cleaning/disclosure fields",
+        "photos"
+      ],
+      "additional_gate": "Default-deny recalled or safety-critical products until a verifiable safety/recall workflow exists."
+    },
+    {
+      "silo_id": "home-garden",
+      "slug": "home",
+      "role": "CANDIDATE",
+      "name": "Home & Garden",
+      "category": "Furniture, homewares, garden tools and household goods",
+      "custom_domain": "home.dreamledger.org",
+      "primary_route": "/home/",
+      "priority": 9,
+      "platform_take_rate_pct": null,
+      "seller_listing_fee_pct": 0,
+      "asset_readiness": "NEW_CANDIDATE",
+      "buyer_job": "Find local goods with real dimensions, pickup and delivery terms",
+      "must_have_data": [
+        "dimensions",
+        "condition",
+        "location",
+        "pickup/shipping",
+        "photos"
+      ],
+      "additional_gate": "Use local pickup defaults and do not promise delivery integrations before tested."
+    },
+    {
+      "silo_id": "electronics-gaming",
+      "slug": "tech",
+      "role": "CANDIDATE",
+      "name": "Electronics & Gaming",
+      "category": "Consoles, accessories, computers and consumer electronics",
+      "custom_domain": "tech.dreamledger.org",
+      "primary_route": "/tech/",
+      "priority": 10,
+      "platform_take_rate_pct": null,
+      "seller_listing_fee_pct": 0,
+      "asset_readiness": "NEW_CANDIDATE",
+      "buyer_job": "Compare used electronics by exact model, condition and included parts",
+      "must_have_data": [
+        "model/edition",
+        "tested status",
+        "battery/defect disclosure",
+        "accessories",
+        "serial privacy policy"
+      ],
+      "additional_gate": "Add fraud, account-lock, stolen-goods and condition-disclosure controls."
+    },
+    {
+      "silo_id": "sports-outdoors",
+      "slug": "sports",
+      "role": "CANDIDATE",
+      "name": "Sports & Outdoors",
+      "category": "Fitness, camping, cycling, water and outdoor equipment",
+      "custom_domain": "sports.dreamledger.org",
+      "primary_route": "/sports/",
+      "priority": 11,
+      "platform_take_rate_pct": null,
+      "seller_listing_fee_pct": 0,
+      "asset_readiness": "NEW_CANDIDATE",
+      "buyer_job": "Find used equipment by size, spec, safety condition and location",
+      "must_have_data": [
+        "model/specification",
+        "size",
+        "safety/condition",
+        "accessories",
+        "location"
+      ],
+      "additional_gate": "Safety-critical gear requires category-specific disclosure and eligibility rules."
+    },
+    {
+      "silo_id": "books-comics",
+      "slug": "books",
+      "role": "CANDIDATE",
+      "name": "Books, Comics & Print",
+      "category": "Books, comics, manga, magazines and collectible print",
+      "custom_domain": "books.dreamledger.org",
+      "primary_route": "/books/",
+      "priority": 12,
+      "platform_take_rate_pct": null,
+      "seller_listing_fee_pct": 0,
+      "asset_readiness": "NEW_CANDIDATE",
+      "buyer_job": "Find the right edition, printing, ISBN and condition",
+      "must_have_data": [
+        "ISBN/edition",
+        "print run where relevant",
+        "condition",
+        "photos"
+      ],
+      "additional_gate": "Separate common used books from collectible editions and preserve accurate provenance."
+    },
+    {
+      "silo_id": "collectibles-vintage",
+      "slug": "vintage",
+      "role": "CANDIDATE",
+      "name": "Collectibles & Vintage",
+      "category": "Vintage objects, memorabilia and collector goods",
+      "custom_domain": "vintage.dreamledger.org",
+      "primary_route": "/vintage/",
+      "priority": 13,
+      "platform_take_rate_pct": null,
+      "seller_listing_fee_pct": 0,
+      "asset_readiness": "NEW_CANDIDATE",
+      "buyer_job": "Find niche items with authenticity and provenance signals",
+      "must_have_data": [
+        "maker/era",
+        "condition",
+        "provenance",
+        "authenticity statement",
+        "photos"
+      ],
+      "additional_gate": "Never label authenticity verified without independent evidence."
+    },
+    {
+      "silo_id": "vehicle-parts",
+      "slug": "parts",
+      "role": "CANDIDATE",
+      "name": "Vehicle & Marine Parts",
+      "category": "Automotive, motorcycle, bicycle and marine replacement parts",
+      "custom_domain": "parts.dreamledger.org",
+      "primary_route": "/parts/",
+      "priority": 14,
+      "platform_take_rate_pct": null,
+      "seller_listing_fee_pct": 0,
+      "asset_readiness": "NEW_CANDIDATE",
+      "buyer_job": "Match a part to make/model/year/specification and compatibility",
+      "must_have_data": [
+        "OEM/part number",
+        "fitment",
+        "condition",
+        "safety status",
+        "shipping dimensions"
+      ],
+      "additional_gate": "Safety-critical fitment and recalls need explicit compatibility warnings."
+    },
+    {
+      "silo_id": "maker-crafts",
+      "slug": "makers",
+      "role": "CANDIDATE",
+      "name": "Crafts & Creator Goods",
+      "category": "Handmade goods, art, craft supplies and creator merchandise",
+      "custom_domain": "makers.dreamledger.org",
+      "primary_route": "/makers/",
+      "priority": 15,
+      "platform_take_rate_pct": null,
+      "seller_listing_fee_pct": 0,
+      "asset_readiness": "NEW_CANDIDATE",
+      "buyer_job": "Discover handmade goods with clear maker, materials and delivery time",
+      "must_have_data": [
+        "maker identity",
+        "materials",
+        "dimensions",
+        "production/dispatch ETA",
+        "photos"
+      ],
+      "additional_gate": "Distinguish ready stock from made-to-order and never fabricate ship dates."
+    },
+    {
+      "silo_id": "pets-hobby",
+      "slug": "pets",
+      "role": "CANDIDATE",
+      "name": "Pet Supplies & Hobby",
+      "category": "Pet equipment, accessories and non-live-animal hobby supplies",
+      "custom_domain": "pets.dreamledger.org",
+      "primary_route": "/pets/",
+      "priority": 16,
+      "platform_take_rate_pct": null,
+      "seller_listing_fee_pct": 0,
+      "asset_readiness": "NEW_CANDIDATE",
+      "buyer_job": "Find appropriate pet equipment and hobby accessories by size/specification",
+      "must_have_data": [
+        "species/size suitability",
+        "condition",
+        "materials",
+        "safety disclosure"
+      ],
+      "additional_gate": "Live-animal sales, restricted products and unsafe health claims stay disabled."
+    },
+    {
+      "silo_id": "business-equipment",
+      "slug": "equipment",
+      "role": "CANDIDATE",
+      "name": "Business Equipment",
+      "category": "Commercial tools, office, kitchen and small-business equipment",
+      "custom_domain": "equipment.dreamledger.org",
+      "primary_route": "/equipment/",
+      "priority": 17,
+      "platform_take_rate_pct": null,
+      "seller_listing_fee_pct": 0,
+      "asset_readiness": "NEW_CANDIDATE",
+      "buyer_job": "Find used equipment with service history, capacity and delivery terms",
+      "must_have_data": [
+        "model/capacity",
+        "service history",
+        "condition",
+        "power/compliance notes",
+        "delivery/ETA"
+      ],
+      "additional_gate": "Safety and regulatory claims require source evidence."
+    },
+    {
+      "silo_id": "contractor-variations",
+      "slug": "variations",
+      "role": "CANDIDATE",
+      "name": "Contractor Quotes & Variations",
+      "category": "Free quote intake, change-order records and ETA comparisons",
+      "custom_domain": "variations.dreamledger.org",
+      "primary_route": "/variations/",
+      "priority": 18,
+      "platform_take_rate_pct": null,
+      "seller_listing_fee_pct": 0,
+      "asset_readiness": "NEW_CANDIDATE",
+      "buyer_job": "Compare variation requests, scope, evidence, price and schedule impact",
+      "must_have_data": [
+        "contract/job reference",
+        "scope change",
+        "evidence attachments",
+        "cost impact",
+        "time impact",
+        "approvals"
+      ],
+      "additional_gate": "No legal or construction-compliance verdict without cited source and qualified human review."
+    },
+    {
+      "silo_id": "rdti-compliance",
+      "slug": "rdti",
+      "role": "CANDIDATE",
+      "name": "R&D Tax & Statutory Records",
+      "category": "Evidence organization and compliance data preparation",
+      "custom_domain": "rdti.dreamledger.org",
+      "primary_route": "/rdti/",
+      "priority": 19,
+      "platform_take_rate_pct": null,
+      "seller_listing_fee_pct": 0,
+      "asset_readiness": "NEW_CANDIDATE",
+      "buyer_job": "Organize source evidence and missing documents into a reviewable evidence pack",
+      "must_have_data": [
+        "jurisdiction",
+        "source document",
+        "period",
+        "source hash",
+        "review owner",
+        "unknowns"
+      ],
+      "additional_gate": "Preparation only until jurisdiction rules, expert boundaries and service fulfillment are reviewed."
+    }
+  ],
+  "economic_validation_protocol": {
+    "first_7_day_experiment": "Do not launch all verticals. Build candidate manifests and one intent measurement per candidate only after route readiness is proven; keep external publication approval-gated.",
+    "priority_order": [
+      "MTG master data and fulfillment reconciliation",
+      "DreamMeez cosmetic entitlement end-to-end proof",
+      "Billboard payment-link correction and inventory reservation/delivery proof",
+      "Free B2B supplier listings and quote intake",
+      "Remaining verticals according to observed supply and intent"
+    ],
+    "demand_signal_ladder": [
+      "independent settled purchase with fulfillment and delivery proof",
+      "explicit buy intent at stated price",
+      "qualified buyer request with scope and deadline",
+      "seller supply with genuine listings",
+      "generic traffic or likes"
+    ],
+    "unit_economics": "net contribution = settled proceeds - Stripe/processor fees - refunds/disputes - variable fulfillment cost - storage/API cost. Do not use top-line GMV or simulated EPV as profit.",
+    "gate": "No silo enters production or CUBE expansion until its own gates pass. One silo's evidence does not automatically prove another silo's economics."
+  }
+}
