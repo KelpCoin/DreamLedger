@@ -61,7 +61,7 @@ function generateReward(input) {
   return asset;
 }
 
-async function propose(input) {
+async function propose(input, options = {}) {
   const isMarketplaceProduct = Boolean(input && typeof input === 'object' &&
     (input.kind === 'marketplace_product' || input.product_candidate || input.product));
   // Marketplace prices are calculated only from explicit cost + evidence inputs.
@@ -87,8 +87,9 @@ async function propose(input) {
     allowed_actions: ['generate_asset', 'write_proof', 'update_candidate'],
     forbidden_without_human_approval: ['publish', 'send_message', 'charge_customer', 'execute_external_action', 'change_approval_gate']
   };
-  fs.mkdirSync(PROOF_DIR, { recursive: true });
-  fs.writeFileSync(path.join(PROOF_DIR, `${proposal.proposal_id}.json`), JSON.stringify(proposal, null, 2) + '\n', 'utf8');
+  const proofDir = options.proofDir ? path.resolve(options.proofDir) : PROOF_DIR;
+  fs.mkdirSync(proofDir, { recursive: true });
+  fs.writeFileSync(path.join(proofDir, proposal.proposal_id + '.json'), JSON.stringify(proposal, null, 2) + '\n', 'utf8');
   return proposal;
 }
 
