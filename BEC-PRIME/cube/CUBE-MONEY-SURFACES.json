@@ -1,16 +1,167 @@
 {
-  "schema_version": "CUBE-MONEY-SURFACES-1.0",
+  "schema_version": "CUBE-MONEY-SURFACES-1.1",
+  "source_contract": "BEC-PRIME/cube/CUBE-SILO-FACTORY-CONTRACT.json",
+  "status": "CANDIDATE_SURFACES_ONLY_UNTIL_GAUNTLET",
   "silos": {
-    "mtg": ["deck_diagnostics", "inventory_services", "collector_digital_products"],
-    "crypto": ["research_reports", "treasury_tools", "risk_diagnostics"],
-    "media_music": ["digital_releases", "production_assets", "creator_tools"],
-    "digital_products": ["templates", "automation_kits", "business_diagnostics"]
+    "mtg": [
+      "free_listings",
+      "verified_supply_catalog",
+      "seller_profiles",
+      "P2P_trade_agreement_candidate"
+    ],
+    "crypto": [
+      "research_reports",
+      "treasury_tools",
+      "risk_diagnostics"
+    ],
+    "media_music": [
+      "free_catalog",
+      "creator_profiles",
+      "media_release_discovery"
+    ],
+    "digital_products": [
+      "templates",
+      "automation_kits",
+      "business_diagnostics"
+    ],
+    "dreammeez": [
+      "avatar_builder",
+      "cosmetic_catalog_candidate",
+      "identity_session"
+    ],
+    "nz_secondhand": [
+      "free_listings",
+      "seller_profiles",
+      "buyer_requests"
+    ],
+    "womens_clothing": [
+      "free_listings",
+      "size_condition_fields",
+      "seller_profiles"
+    ],
+    "b2b": [
+      "free_vendor_directory",
+      "buyer_request_intake",
+      "qualified_quote_requests"
+    ],
+    "b2b_quotes": [
+      "free_quote_worksheet",
+      "supplier_quote_comparison_candidate"
+    ],
+    "nz_rdti": [
+      "evidence_intake",
+      "source-linked compliance workflow candidate"
+    ],
+    "contractor_tax": [
+      "evidence_intake",
+      "scope-bounded calculator candidate"
+    ],
+    "mcp_audit": [
+      "public_capability_directory",
+      "free_probe_candidate"
+    ],
+    "subcontractor_variations": [
+      "variation_register_candidate",
+      "source-evidence package candidate"
+    ],
+    "saas_usage": [
+      "usage_visibility_candidate",
+      "churn_evidence candidate"
+    ],
+    "legal_evidence": [
+      "source-linked evidence bundle candidate",
+      "human-review gate"
+    ],
+    "iso_device": [
+      "device and policy evidence intake candidate",
+      "human-review gate"
+    ],
+    "esg_carbon": [
+      "supplier data intake candidate",
+      "source provenance gate"
+    ],
+    "electronics_appliances": [
+      "free_listings",
+      "condition_fields",
+      "serial_model_fields"
+    ],
+    "home_garden": [
+      "free_listings",
+      "condition_fields",
+      "pickup_delivery_terms"
+    ],
+    "health_beauty": [
+      "free_listings",
+      "sealed_condition_fields",
+      "product-safety exclusions"
+    ],
+    "pet": [
+      "free_listings",
+      "seller profiles",
+      "animal welfare and prohibited-sale gates"
+    ],
+    "books_stationery": [
+      "free_listings",
+      "condition_fields",
+      "bundled listings"
+    ],
+    "sports_outdoors": [
+      "free_listings",
+      "condition_fields",
+      "safety recall gates"
+    ],
+    "baby_kids": [
+      "free_listings",
+      "condition_fields",
+      "recall_safety_gates"
+    ],
+    "automotive": [
+      "free_listings",
+      "compatibility_fields",
+      "ownership and safety gates"
+    ],
+    "food_pantry": [
+      "local_vendor_directory_candidate",
+      "expiry and food-safety gates"
+    ],
+    "education_courses": [
+      "free_course_directory",
+      "creator profiles",
+      "content rights gates"
+    ],
+    "local_services": [
+      "free_provider_directory",
+      "service request intake",
+      "quote capture"
+    ],
+    "delivery_eta": [
+      "shipment status and timestamped ETA candidate",
+      "exception reporting"
+    ],
+    "accounting": [
+      "scope-bounded workflow",
+      "human approval for filing"
+    ],
+    "production_verification": [
+      "source evidence bundle",
+      "human approval gates"
+    ]
   },
-  "commercial_ladder": [49,149,499,999],
+  "commercial_ladder": [
+    49,
+    149,
+    499,
+    999
+  ],
+  "commercial_ladder_status": "UNVALIDATED_HYPOTHESIS_NOT_APPROVED_FOR_PUBLIC_PUBLICATION",
   "constraints": {
     "payment_required_for_revenue_claim": true,
     "public_posting_requires_approval": true,
     "cross_silo_catalog_mix": false,
-    "dreamledger_neutral": true
+    "dreamledger_neutral": true,
+    "free_listings_default_for_marketplace_candidates": true,
+    "no_public_checkout_for_unverified_offers": true,
+    "no_invented_products_or_inventory": true,
+    "simulation_results_never_count_as_revenue": true
   }
 }
