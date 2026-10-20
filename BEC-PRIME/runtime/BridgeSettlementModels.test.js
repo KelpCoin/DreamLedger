@@ -74,7 +74,7 @@ test('async task allows five revisions, then requires refund after next rejectio
   task = advanceAsyncTask(task, 'FUND', { escrow_fund_tx_hash: TX1 });
   task = advanceAsyncTask(task, 'QUEUE');
   for (let i = 0; i < MAX_REVISIONS; i++) {
-    task = advanceAsyncTask(task, 'START');
+    if (task.state === 'QUEUED') task = advanceAsyncTask(task, 'START');
     task = advanceAsyncTask(task, 'SUBMIT', { delivery_sha256: digest('draft-' + i) });
     task = advanceAsyncTask(task, 'REJECT', { feedback_sha256: digest('feedback-' + i) });
     assert.equal(task.state, 'REVISION_REQUESTED');
