@@ -28,7 +28,7 @@ function isoDate(value) {
   return Number.isFinite(parsed.getTime()) && value.includes('T');
 }
 
-function safeEvidence(evidence) {
+function safeEvidence(evidence, trustedEvidenceKeys) {
   if (!evidence || typeof evidence !== 'object') return false;
   if (typeof evidence.evidence_id !== 'string' || !evidence.evidence_id.trim()) return false;
   if (evidence.admission_status !== 'VERIFIED') return false;
@@ -39,6 +39,17 @@ function safeEvidence(evidence) {
   if (!['PRIMARY', 'SECONDARY', 'TERTIARY', 'USER_SUPPLIED'].includes(evidence.source_role)) return false;
   if (!['SUPPORTS', 'CONTRADICTS', 'CONTEXT'].includes(evidence.relation)) return false;
   if (typeof evidence.source_url !== 'string') return false;
+  if (!evidence.attestation || evidence.attestation.algorithm !== 'Ed25519' ||
+      typeof evidence.attestation.key_id !== 'string' || typeof evidence.attestation.signature !== 'string') return false;
+  const trustedPem = trustedEvidenceKeys && trustedEvidenceKeys[evidence.attestation.key_id];
+  if (typeof trustedPem !== 'string' || !trustedPem.trim()) return false;
+  const { attestation, ...attestedPayload } = evidence;
+  try {
+    const trustedKey = crypto.createPublicKey(trustedPem);
+    if (trustedKey.asymmetricKeyType !== 'ed25519') return false;
+    if (!crypto.verify(null, Buffer.from(canonicalJson(attestedPayload), 'utf8'), trustedKey,
+        Buffer.from(attestation.signature, 'base64'))) return false;
+  } catch { return false; }
   try {
     const url = new URL(evidence.source_url);
     if (url.protocol !== 'https:' || !url.hostname) return false;
@@ -48,7 +59,7 @@ function safeEvidence(evidence) {
   return true;
 }
 
-function assessClaim(input, contract) {
+function assessClaim(input, contract, options = {}) {
   const policy = contract && contract.defaults;
   const statuses = contract && contract.statuses;
   if (!policy || !Array.isArray(statuses) || !input || typeof input !== 'object') {
@@ -60,8 +71,9 @@ function assessClaim(input, contract) {
 
   const seenIds = new Set();
   const rawEvidence = Array.isArray(input.evidence) ? input.evidence : [];
+  const trustedEvidenceKeys = options.trustedEvidenceKeys || {};
   const evidence = rawEvidence.filter((item) => {
-    if (!safeEvidence(item) || seenIds.has(item.evidence_id)) return false;
+    if (!safeEvidence(item, trustedEvidenceKeys) || seenIds.has(item.evidence_id)) return false;
     seenIds.add(item.evidence_id);
     return true;
   }).sort((a, b) => a.evidence_id.localeCompare(b.evidence_id));
@@ -152,7 +164,8 @@ function assessClaim(input, contract) {
       independence_group: item.independence_group,
       observed_at: item.observed_at,
       content_sha256: item.content_sha256,
-      relation: item.relation
+      relation: item.relation,
+      admission_attestation: item.attestation
     })),
     deterministic_checks: checks,
     source_summary: sourceSummary,
