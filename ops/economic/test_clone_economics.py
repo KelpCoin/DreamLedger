@@ -3,6 +3,8 @@ import subprocess
 import sys
 import tempfile
 import unittest
+
+import cube_epv_gate as epv_gate
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -126,6 +128,103 @@ class SiloCloneEconomicContractTests(unittest.TestCase):
         self.assertFalse(self.report["silo_registry"]["automatic_scaling_enabled"])
         self.assertIn("LIVE_EXTERNAL_RECONCILIATION", [c["id"] for c in self.report["checks"]])
         self.assertEqual(self.check_by_id("LIVE_EXTERNAL_RECONCILIATION")["status"], "BLOCKED")
+
+
+    def _signed_evidence(self, **overrides):
+        key = "unit-test-only-hmac-key"
+        payload = {
+            "schema": epv_gate.SCHEMA,
+            "evidence_class": "INDEPENDENTLY_RECONCILED_SETTLEMENT_AND_FULFILLMENT",
+            "ledger_export_sha256": "1" * 64,
+            "reconciliation_artifact_sha256": "2" * 64,
+            "external_provider_reference": "test-provider-event-batch",
+            "reconciler_build_sha": "3" * 40,
+            "settled_revenue_nzd": 5000,
+            "refunds_nzd": 0,
+            "processing_fees_nzd": 0,
+            "variable_fulfillment_cost_nzd": 0,
+            "unique_qualified_visitors": 20,
+            "settled_and_fulfilled_transactions": 20,
+            "measurement_window_days": 30,
+            "qualified_pending_signals": 100,
+            "current_live_workers": 1,
+            "daily_worker_budget_cap_nzd": 100,
+            "worker_provider_connected": False,
+            "durable_queue_connected": False,
+            "tenant_fence_tests_passed": False,
+            "duplicate_settlement_replay_tests_passed": False,
+            "budget_guard_connected": False,
+            "pipeline_value_nzd": 624000,
+        }
+        payload.update(overrides)
+        payload["attestation"] = {"algorithm": "HMAC-SHA256", "signature": ""}
+        payload["attestation"]["signature"] = epv_gate.make_attestation_for_trusted_reconciler(payload, key)
+        return payload, key
+
+    def test_cube_gate_holds_without_signed_evidence(self):
+        decision = epv_gate.evaluate(None, None)
+        self.assertEqual(decision["action"], "HOLD_NO_SCALE")
+        self.assertEqual(decision["reason"], "EVIDENCE_SCHEMA_MISMATCH")
+        self.assertFalse(decision["apply_enabled"])
+        self.assertEqual(decision["target_workers"], 1)
+
+    def test_cube_gate_rejects_untrusted_or_invalid_attestation(self):
+        payload, key = self._signed_evidence()
+        self.assertEqual(epv_gate.evaluate(payload, None)["reason"], "ATTESTATION_KEY_NOT_CONFIGURED")
+        payload["attestation"]["signature"] = "0" * 64
+        self.assertEqual(epv_gate.evaluate(payload, key)["reason"], "ATTESTATION_SIGNATURE_INVALID")
+
+    def test_cube_gate_refuses_to_expand_without_real_worker_runtime(self):
+        payload, key = self._signed_evidence()
+        decision = epv_gate.evaluate(payload, key)
+        self.assertEqual(decision["epv_nzd"], 250)
+        self.assertEqual(decision["status"], "BLOCKED_RUNTIME_CAPABILITY")
+        self.assertEqual(decision["action"], "HOLD_NO_SCALE_RUNTIME_UNVERIFIED")
+        self.assertEqual(decision["current_workers"], 1)
+        self.assertEqual(decision["target_workers"], 1)
+        self.assertFalse(decision["apply_enabled"])
+        self.assertEqual(decision["verified_revenue_claim_nzd"], 0)
+
+    def test_cube_gate_only_recommends_scale_after_signed_evidence_and_runtime_gates(self):
+        payload, key = self._signed_evidence(
+            worker_provider_connected=True,
+            durable_queue_connected=True,
+            tenant_fence_tests_passed=True,
+            duplicate_settlement_replay_tests_passed=True,
+            budget_guard_connected=True,
+        )
+        decision = epv_gate.evaluate(payload, key)
+        self.assertEqual(decision["action"], "WOULD_CLONE_EXPAND_SWARM")
+        self.assertEqual(decision["target_workers"], 2)
+        self.assertFalse(decision["apply_enabled"])
+        self.assertEqual(decision["verified_revenue_claim_nzd"], 0)
+
+    def test_cube_gate_prunes_only_from_net_contribution_epv(self):
+        payload, key = self._signed_evidence(
+            settled_revenue_nzd=10,
+            current_live_workers=3,
+            unique_qualified_visitors=20,
+            worker_provider_connected=True,
+            durable_queue_connected=True,
+            tenant_fence_tests_passed=True,
+            duplicate_settlement_replay_tests_passed=True,
+            budget_guard_connected=True,
+        )
+        decision = epv_gate.evaluate(payload, key)
+        self.assertEqual(decision["epv_nzd"], 0.5)
+        self.assertEqual(decision["action"], "WOULD_PRUNE_TO_BASELINE")
+        self.assertEqual(decision["target_workers"], 1)
+        self.assertFalse(decision["apply_enabled"])
+
+    def test_cube_gate_rejects_small_sample_even_if_pipeline_value_is_large(self):
+        payload, key = self._signed_evidence(
+            settled_and_fulfilled_transactions=3,
+            pipeline_value_nzd=624000,
+        )
+        decision = epv_gate.evaluate(payload, key)
+        self.assertEqual(decision["action"], "HOLD_NO_SCALE")
+        self.assertEqual(decision["reason"], "TRANSACTION_SAMPLE_BELOW_MINIMUM")
+        self.assertIsNotNone(decision["epv_nzd"])
 
 
 if __name__ == "__main__":
