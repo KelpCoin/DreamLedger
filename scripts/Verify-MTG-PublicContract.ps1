@@ -7,6 +7,8 @@ param(
 $ErrorActionPreference = 'Stop'
 $checks = New-Object System.Collections.ArrayList
 $script:FailureCount = 0
+$eligible = New-Object System.Collections.Generic.List[object]
+$quarantined = New-Object System.Collections.Generic.List[object]
 
 function Add-Check {
     param(
@@ -144,7 +146,7 @@ try {
                 $reason = 'STATUS_NOT_PUBLISHED'
             } elseif ($item.category -ne 'commander-deck' -and $id -notmatch '^EDH') {
                 $reason = 'NOT_A_COMMANDER_DECK'
-            } elseif ([string]$item.currency -notmatch '^(?i)nzd$' -or [string]$live.currency -notmatch '^(?i)nzd$') {
+            } elseif ([string]$item.currency -notmatch '(?i)^nzd$' -or [string]$live.currency -notmatch '(?i)^nzd$') {
                 $reason = 'CURRENCY_NOT_NZD'
             } elseif (-not (Is-PositiveInteger $item.inventory) -or -not (Is-PositiveInteger $live.inventory)) {
                 $reason = 'STOCK_NOT_CONFIRMED_IN_BOTH_CATALOGUES'
@@ -252,7 +254,8 @@ $report = [ordered]@{
 }
 $report | ConvertTo-Json -Depth 15 | Set-Content -LiteralPath $proofPath -Encoding UTF8
 foreach ($item in $checks) {
-    $line = (if ($item.pass) { 'PASS ' } else { 'FAIL ' }) + $item.id + ' :: ' + $item.detail
+    $prefix = if ($item.pass) { 'PASS ' } else { 'FAIL ' }
+    $line = $prefix + $item.id + ' :: ' + $item.detail
     $logLines.Add($line)
     Write-Host $line
 }
