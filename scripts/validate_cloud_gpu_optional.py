@@ -54,7 +54,7 @@ proof = {
 }
 proof_path = ROOT / "artifacts" / "cloud-gpu-contract-proof.json"
 proof_path.parent.mkdir(parents=True, exist_ok=True)
-proof_path.write_text(json.dumps(proof, indent=2) + "\\n", encoding="utf-8")
+proof_path.write_text(json.dumps(proof, indent=2) + "\n", encoding="utf-8")
 print("CLOUD_GPU_OPTIONAL_CONTRACT=PASS")
 print("CLOUD_CI_DOES_NOT_REQUIRE_GPU=PASS")
 print("LM_STUDIO_HEALTH_GATE=PASS")
