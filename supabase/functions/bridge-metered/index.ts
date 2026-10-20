@@ -6,7 +6,9 @@ import { UptoEvmScheme } from "npm:@x402/evm/upto/server";
 
 const PAY_TO = Deno.env.get("X402_PAY_TO_ADDRESS") || "";
 const TESTNET = Deno.env.get("X402_TESTNET") !== "false";
-const NETWORK = Deno.env.get("X402_METERED_NETWORK") || (TESTNET ? "eip155:84532" : "eip155:8453");
+const EXPECTED_NETWORK = TESTNET ? "eip155:84532" : "eip155:8453";
+const NETWORK = Deno.env.get("X402_METERED_NETWORK") || EXPECTED_NETWORK;
+const NETWORK_CONSISTENT = NETWORK === EXPECTED_NETWORK;
 const FACILITATOR_URL = Deno.env.get("X402_FACILITATOR_URL") || (TESTNET ? "https://x402.org/facilitator" : "");
 const WORKER_URL = Deno.env.get("BRIDGE_INFERENCE_WORKER_URL") || "";
 const WORKER_TOKEN = Deno.env.get("BRIDGE_INFERENCE_WORKER_TOKEN") || "";
@@ -16,6 +18,7 @@ const MAX_ATOMIC = 100000n; // 0.10 USDC
 const RATE_ATOMIC = 100n; // 0.0001 USDC per generated token
 const ATOMIC_PER_USDC = 1000000n;
 const HASH_RE = /^[0-9a-f]{64}$/;
+const ADDRESS_RE = /^0x[0-9a-fA-F]{40}$/;
 
 function safeConfiguredWorkerUrl(value: string): URL | null {
   try {
@@ -82,7 +85,8 @@ app.use("*", async (c, next) => {
 });
 
 const workerUrl = safeConfiguredWorkerUrl(WORKER_URL);
-const paymentReady = Boolean(ENABLED && PAY_TO && FACILITATOR_URL && workerUrl && WORKER_TOKEN);
+const validPayTo = ADDRESS_RE.test(PAY_TO) && !/^0x0{40}$/i.test(PAY_TO);
+const paymentReady = Boolean(ENABLED && validPayTo && NETWORK_CONSISTENT && FACILITATOR_URL && workerUrl && WORKER_TOKEN);
 
 if (paymentReady) {
   const facilitator = new HTTPFacilitatorClient({ url: FACILITATOR_URL });
@@ -109,6 +113,8 @@ app.get("/healthz", (c) => c.json({
   tool: "metered_inference",
   scheme: "upto",
   network: NETWORK,
+  network_consistent_with_testnet_flag: NETWORK_CONSISTENT,
+  valid_pay_to_address: validPayTo,
   maximum_price_usdc: "0.10",
   actual_usage_rate_usdc_per_generated_token: "0.0001",
   escrowed_async_task: "BLOCKED_NO_APPROVED_ESCROW_CONTRACT"
@@ -137,6 +143,7 @@ app.post("/v1/metered_inference", async (c) => {
         "authorization": "Bearer " + WORKER_TOKEN
       },
       body: JSON.stringify({ prompt: body.prompt, max_output_tokens: maxTokens }),
+      redirect: "error",
       signal: AbortSignal.timeout(120000)
     });
   } catch {
@@ -146,7 +153,12 @@ app.post("/v1/metered_inference", async (c) => {
     return c.json({ error: "INFERENCE_WORKER_FAILED", upstream_status: upstream.status, status: "NOT_SETTLED" }, 502);
   }
 
-  const generated = await upstream.json().catch(() => null);
+  const upstreamText = await upstream.text();
+  if (upstreamText.length > 500000) {
+    return c.json({ error: "INFERENCE_WORKER_RESPONSE_TOO_LARGE", status: "NOT_SETTLED" }, 502);
+  }
+  let generated: any = null;
+  try { generated = JSON.parse(upstreamText); } catch { generated = null; }
   if (!generated || typeof generated.text !== "string" ||
       !generated.usage || !Number.isSafeInteger(generated.usage.generated_tokens) ||
       generated.usage.generated_tokens < 0 || generated.usage.generated_tokens > maxTokens) {
