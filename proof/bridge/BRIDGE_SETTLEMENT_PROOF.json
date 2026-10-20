@@ -22,6 +22,8 @@
     {
       "tool": "metered_inference",
       "status": "NOT_RUN",
+      "implementation_status": "CODE_ADDED_BUT_DISABLED_UNTIL_ENV_CONFIGURATION",
+      "endpoint": "supabase/functions/bridge-metered/index.ts :: POST /v1/metered_inference",
       "maximum_price_usdc": "0.10",
       "scheme": "upto",
       "network": "eip155:8453",
@@ -34,7 +36,7 @@
       "settlement_tx_hash": null,
       "delivery_payload_sha256": null,
       "blockers": [
-        "No configured inference worker accessible to the cloud runtime was verified.",
+        "BRIDGE_METERED_INFERENCE_ENABLED, BRIDGE_INFERENCE_WORKER_URL, BRIDGE_INFERENCE_WORKER_TOKEN, X402_PAY_TO_ADDRESS, and mainnet facilitator configuration are not verified here.",
         "No Base wallet/payTo address was supplied for a mainnet payment challenge.",
         "No real upto scheme challenge or settlement override was exercised."
       ]
@@ -88,11 +90,15 @@
   },
   "unit_tests": {
     "file": "BEC-PRIME/runtime/BridgeSettlementModels.test.js",
-    "status": "NOT_RUN_IN_GITHUB_RUNTIME",
+    "status": "PASS_ISOLATED_LOCAL_TEST_COPY",
+    "tests_passed": 9,
+    "tests_failed": 0,
+    "runtime": "Node.js v22.16.0",
+    "note": "The helper and test source were exercised in an isolated temporary test directory; this does not execute the Supabase Edge Function or prove chain settlement.",
     "expected_command": "node --test BEC-PRIME/runtime/BridgeSettlementModels.test.js"
   },
   "notes": [
     "At 0.0001 USDC per generated token, 100 generated tokens cost 0.01 USDC, not 0.09 USDC; 900 generated tokens cost 0.09 USDC.",
-    "This artifact records current evidence state for this branch. It is not evidence that any production endpoint has been deployed."
+    This artifact records current evidence state for this branch. It is not evidence that any production endpoint has been deployed.
   ]
 }
