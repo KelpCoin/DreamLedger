@@ -26,11 +26,15 @@ jobs:
           $p = Get-Content BEC-PRIME/catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json -Raw | ConvertFrom-Json
           $f = Get-Content BEC-PRIME/fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json -Raw | ConvertFrom-Json
           if ($p.price -ne 29) { throw 'Commander diagnostic price contract failed' }
-          if ($p.fulfillment.mode -ne 'automated') { throw 'Automated fulfillment contract failed' }
-          if ($p.fulfillment.operator_required -ne $false) { throw 'Operator-free fulfillment contract failed' }
-          if ($f.entries.'COMMANDER-DECK-DIAGNOSTIC-001'.operator_required -ne $false) { throw 'Registry still requires operator' }
-          if ($f.entries.'COMMANDER-DECK-DIAGNOSTIC-001'.ready -ne $true) { throw 'Registry is not ready' }
-          Write-Host '[PASS] MTG diagnostic commercial and fulfillment contract'
+          if ($p.status -ne 'held') { throw 'Diagnostic must remain held until end-to-end sale readiness is proven' }
+          if ($p.checkout.mode -ne 'disabled') { throw 'Diagnostic checkout must remain disabled while fulfillment is unverified' }
+          if ($p.fulfillment.mode -ne 'disabled') { throw 'Diagnostic fulfillment cannot claim automated mode without delivery proof' }
+          if ($p.fulfillment.operator_required -ne $true) { throw 'Unverified fulfillment must not claim operator-free execution' }
+          if ($f.entries.'COMMANDER-DECK-DIAGNOSTIC-001'.operator_required -ne $true) { throw 'Registry must retain operator-required hold' }
+          if ($f.entries.'COMMANDER-DECK-DIAGNOSTIC-001'.ready -ne $false) { throw 'Registry must remain not-ready until evidence passes' }
+          if ($f.entries.'COMMANDER-DECK-DIAGNOSTIC-001'.checkout_enabled -ne $false) { throw 'Registry checkout must remain disabled' }
+          if ($f.entries.'COMMANDER-DECK-DIAGNOSTIC-001'.status -ne 'HELD_UNVERIFIED') { throw 'Registry held state mismatch' }
+          Write-Host '[PASS] MTG diagnostic remains economically fail-closed; sale readiness is not claimed'
       - name: Compile MTG surface
         run: node BEC-PRIME/compiler/MTGCatalogCompiler.js
       - name: Verify CUBE MTG reskin
