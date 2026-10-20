@@ -29,6 +29,13 @@ def _number(value: Any) -> float | None:
     return float(value)
 
 
+def _integer_count(value: Any) -> int | None:
+    number = _number(value)
+    if number is None or not float(number).is_integer():
+        return None
+    return int(number)
+
+
 def _hold(reason: str, *, blockers: list[str] | None = None) -> dict[str, Any]:
     return {
         "schema": "bec/cube-scale-decision/v1",
@@ -72,7 +79,7 @@ def recommend_scale(evidence: dict[str, Any]) -> dict[str, Any]:
         return _hold("UNSUPPORTED_SETTLEMENT_EVIDENCE_SOURCE")
 
     window_days = _number(evidence.get("window_days"))
-    visitors = _number(evidence.get("unique_qualified_visitors"))
+    visitors = _integer_count(evidence.get("unique_qualified_visitors"))
     if window_days is None or window_days < MIN_WINDOW_DAYS:
         return _hold("OBSERVATION_WINDOW_TOO_SHORT")
     if visitors is None or visitors <= 0:
@@ -186,8 +193,8 @@ def recommend_scale(evidence: dict[str, Any]) -> dict[str, Any]:
 
     margin = sum(row["contribution_nzd"] for row in verified_orders)
     epv = margin / visitors
-    current = _number(evidence.get("current_workers", 1))
-    pending = _number(evidence.get("pending_verified_signals", 0))
+    current = _integer_count(evidence.get("current_workers", 1))
+    pending = _integer_count(evidence.get("pending_verified_signals", 0))
     capacity = evidence.get("capacity_guardrails")
     if current is None or current < 1 or pending is None or pending < 0:
         return _hold("INVALID_CURRENT_WORKER_OR_QUEUE_METRIC")
