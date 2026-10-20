@@ -27,7 +27,7 @@ Keep page visits, article reads, QR visits, support clicks, free memberships, pa
 1. Copy `config/silo-growth-defaults.json` into the silo manifest or its generated config.
 2. Set `silo_id`, `silo_slug`, canonical URL, fee policy and creator-support label.
 3. Verify all destinations. Leave missing destinations null and fail closed.
-4. Generate a non-intrusive support component only when a verified destination exists.
+4. Generate a non-intrusive support component with `node BEC-PRIME/scripts/render-silo-growth-promo.js path/to/silo-growth.json`. The renderer emits no public markup unless the destination is HTTPS and explicitly marked `VERIFIED`.
 5. Generate QR assets from the canonical first-party URL, with source variants if supported.
 6. Generate channel-specific drafts from canonical content records.
 7. Run `node BEC-PRIME/scripts/verify-silo-growth-contract.js` and the normal silo boundary, fee and public-surface checks.
