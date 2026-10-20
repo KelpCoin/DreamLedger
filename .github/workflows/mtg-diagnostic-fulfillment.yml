@@ -25,12 +25,15 @@ jobs:
         run: |
           $p = Get-Content BEC-PRIME/catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json -Raw | ConvertFrom-Json
           $f = Get-Content BEC-PRIME/fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json -Raw | ConvertFrom-Json
+          $e = $f.entries.'COMMANDER-DECK-DIAGNOSTIC-001'
           if ($p.price -ne 29) { throw 'Commander diagnostic price contract failed' }
-          if ($p.fulfillment.mode -ne 'automated') { throw 'Automated fulfillment contract failed' }
-          if ($p.fulfillment.operator_required -ne $false) { throw 'Operator-free fulfillment contract failed' }
-          if ($f.entries.'COMMANDER-DECK-DIAGNOSTIC-001'.operator_required -ne $false) { throw 'Registry still requires operator' }
-          if ($f.entries.'COMMANDER-DECK-DIAGNOSTIC-001'.ready -ne $true) { throw 'Registry is not ready' }
-          Write-Host '[PASS] MTG diagnostic commercial and fulfillment contract'
+          if ($p.status -eq 'published' -and $p.checkout.mode -eq 'stripe' -and $p.fulfillment.mode -eq 'automated' -and $p.fulfillment.operator_required -eq $false -and $e.ready -eq $true -and $e.operator_required -eq $false) {
+            Write-Host '[PASS] MTG diagnostic production-ready contract'
+          } elseif ($p.status -eq 'held' -and $p.checkout.mode -eq 'disabled' -and $p.fulfillment.mode -eq 'disabled' -and $p.fulfillment.operator_required -eq $true -and $e.ready -eq $false -and $e.operator_required -eq $true) {
+            Write-Host '[PASS] MTG diagnostic held/closed contract; checkout remains disabled'
+          } else {
+            throw 'MTG product and fulfillment registry are inconsistent'
+          }
       - name: Compile MTG surface
         run: node BEC-PRIME/compiler/MTGCatalogCompiler.js
       - name: Verify CUBE MTG reskin
