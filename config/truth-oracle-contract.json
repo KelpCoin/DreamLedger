@@ -1,0 +1,61 @@
+{
+  "schema_version": "dreamledger/truth-oracle-contract/v1",
+  "contract_id": "DREAMLEDGER_TRUTH_ORACLE_EVIDENCE_CONTRACT",
+  "purpose": "Evidence-gated claim assessment with deterministic checks, independent-source rules and optional Ed25519-signed receipts.",
+  "statuses": [
+    "VERIFIED",
+    "LIKELY",
+    "UNCERTAIN",
+    "UNVERIFIED",
+    "CONTRADICTED"
+  ],
+  "defaults": {
+    "minimum_independent_primary_source_groups_for_verified": 2,
+    "minimum_independent_supporting_source_groups_for_likely": 2,
+    "require_https_source_urls": true,
+    "require_content_sha256": true,
+    "require_observed_at": true,
+    "model_agreement_is_independent_evidence": false,
+    "numerical_confidence_requires_calibration_record": true,
+    "confidence_when_uncalibrated": null,
+    "conflicting_admitted_evidence_verdict": "UNCERTAIN",
+    "insufficient_evidence_verdict": "UNVERIFIED",
+    "fail_closed_on_missing_provenance": true
+  },
+  "evidence_fields_required": [
+    "evidence_id",
+    "source_url",
+    "source_role",
+    "independence_group",
+    "observed_at",
+    "content_sha256",
+    "excerpt",
+    "admission_status",
+    "relation"
+  ],
+  "deterministic_check_fields_required": [
+    "check_id",
+    "status",
+    "evidence_ids",
+    "verifier_id"
+  ],
+  "verdict_policy": {
+    "VERIFIED": "At least two independent admitted primary-source groups, at least one evidence-backed deterministic check, all checks PASS, and no contradictory evidence.",
+    "LIKELY": "At least two independent admitted supporting source groups, no admitted contradiction, but VERIFIED requirements are not met. This means corroborated, not guaranteed true.",
+    "UNCERTAIN": "Admitted supporting and contradicting evidence coexist, or checks report INDETERMINATE, or provenance cannot cleanly resolve the result.",
+    "UNVERIFIED": "Insufficient admissible evidence, unknown provenance, or no supported conclusion.",
+    "CONTRADICTED": "At least two independent primary source groups and evidence-backed deterministic checks establish a failed claim, or two independent primary groups directly contradict it, with no admitted support."
+  },
+  "signing": {
+    "algorithm": "Ed25519",
+    "private_key_must_be_supplied_out_of_band": true,
+    "private_key_must_never_be_committed": true,
+    "signature_proves_receipt_integrity_not_claim_truth": true
+  },
+  "payment": {
+    "x402_enabled": false,
+    "enable_only_after_settlement_reconciliation_and_owner_approval": true,
+    "payment_signal_is_not_claim_evidence": true,
+    "receipt_is_not_revenue_evidence": true
+  }
+}
