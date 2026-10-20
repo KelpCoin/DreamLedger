@@ -39,13 +39,14 @@ function cardCount(decklist) {
 function eligibleInventoryRecords(records, requirements) {
   if (!Array.isArray(records)) return [];
   const seenKeys = new Set();
+  const seenItems = new Set();
   const eligible = [];
   for (const record of records) {
     if (!record || record.inventory_status !== requirements.inventory_record_status) continue;
     if (record.physical !== true) continue;
     if (record.card_legality_status !== requirements.card_legality_status) continue;
     if (record.compatibility_status !== requirements.compatibility_status) continue;
-    if (typeof record.inventory_item_id !== 'string' || !record.inventory_item_id.trim()) continue;
+    if (typeof record.inventory_item_id !== 'string' || !record.inventory_item_id.trim() || seenItems.has(record.inventory_item_id)) continue;
     if (typeof record.card_key !== 'string' || !record.card_key.trim() || seenKeys.has(record.card_key)) continue;
     if (typeof record.printing_id !== 'string' || !record.printing_id.trim()) continue;
     if (typeof record.condition !== 'string' || !record.condition.trim()) continue;
@@ -54,6 +55,7 @@ function eligibleInventoryRecords(records, requirements) {
     if (!Number.isInteger(record.on_hand_qty) || !Number.isInteger(record.reserved_qty) ||
         record.on_hand_qty <= record.reserved_qty || record.reserved_qty < 0) continue;
     if (typeof record.evidence_ref !== 'string' || !record.evidence_ref.trim()) continue;
+    seenItems.add(record.inventory_item_id);
     seenKeys.add(record.card_key);
     eligible.push(record);
   }
@@ -89,6 +91,9 @@ function evaluateCustomizationEligibility(input) {
 
   const actualCardCount = cardCount(input.decklist);
   if (actualCardCount !== requirements.decklist_card_count) reasons.push('DECKLIST_CARD_COUNT_INVALID');
+  if (product.commander && input.decklist && input.decklist.commander !== product.commander) {
+    reasons.push('DECKLIST_COMMANDER_MISMATCH');
+  }
 
   const proof = input.legality_proof;
   if (!proof || proof.status !== requirements.commander_legality_proof_status ||
