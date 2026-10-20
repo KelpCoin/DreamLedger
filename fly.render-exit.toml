@@ -1,0 +1,51 @@
+# Template only. Creating the app and attached volume is a billable owner action.
+app = "dreamledger-render-exit"
+primary_region = "syd"
+
+[build]
+  dockerfile = "Dockerfile.render-exit"
+
+[env]
+  NODE_ENV = "production"
+  PORT = "8080"
+  ENGINE_INTERNAL_URL = "http://127.0.0.1:3000"
+  PUBLIC_BASE_URL = "https://dreamledger.org"
+  PUBLIC_ORIGIN = "https://dreamledger.org"
+  QR_BASE_URL = "https://qr.dreamledger.org"
+  QR_ALLOWED_HOSTS = "dreamledger.org,qr.dreamledger.org"
+  SUPABASE_URL = "https://wbwgroygjeyukkspnqiy.supabase.co"
+  TOLL_CHECKOUT_ENABLED = "false"
+  DIGITAL_PROXY_LM_ENABLED = "false"
+  DIGITAL_PROXY_LM_BASE_URL = "http://127.0.0.1:1234/v1"
+  LEDGER_DATA_DIR = "/var/data/ledger"
+  PROOF_DATA_DIR = "/var/data/proofs"
+  FIRST_PAYMENT_PROOF_PATH = "/var/data/proofs/FIRST_PAYMENT_PROOF.json"
+  QR_DATA_DIR = "/var/data/qr"
+  DREAMIEZ_DATA_DIR = "/var/data/dreamiez"
+  DEMAND_RADAR_DATA_DIR = "/var/data/demand"
+  BEC_JOB_QUEUE_DIR = "/var/data/jobs"
+  BEC_PROOF_DIR = "/var/data/bec-proofs"
+  DEPLOYMENT_CHANNEL = "dreamledger-production"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "off"
+  auto_start_machines = true
+  min_machines_running = 1
+
+[[http_service.checks]]
+  interval = "30s"
+  timeout = "5s"
+  grace_period = "120s"
+  method = "GET"
+  path = "/healthz"
+
+[[mounts]]
+  source = "dreamledger_data"
+  destination = "/var/data"
+
+[[vm]]
+  cpu_kind = "shared"
+  cpus = 1
+  memory = "1gb"

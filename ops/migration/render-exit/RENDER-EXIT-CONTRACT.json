@@ -1,0 +1,99 @@
+{
+  "schema": "dreamledger/render-exit/v1",
+  "status": "SCAFFOLD_PREPARED_NOT_DEPLOYED",
+  "direction": {
+    "runtime": "Fly.io Docker Machine",
+    "app_shape": "Node 24 storefront and private engine in one supervised container",
+    "public_listener": "0.0.0.0:8080",
+    "engine_listener": "127.0.0.1:3000",
+    "durable_files": "Fly persistent volume mounted at /var/data",
+    "database": "Existing Supabase remains unchanged during the hosting migration",
+    "edge_dns": "Cloudflare DNS/CDN may be retained, but DNS is not changed by this contract"
+  },
+  "why_not_static_only": [
+    "public/server.js is a Node HTTP server and proxies engine routes",
+    "BEC-PRIME/start.js runs a Node HTTP server and multiple commerce, webhook and marketplace route handlers",
+    "the engine uses filesystem-backed jobs, proofs and ledger paths",
+    "a static-only upload or the existing Cloudflare preview returns 503 for dynamic commerce routes"
+  ],
+  "required_secrets": [
+    "ENGINE_INTERNAL_API_KEY",
+    "SUPABASE_SERVICE_ROLE_KEY",
+    "STRIPE_SECRET_KEY",
+    "STRIPE_WEBHOOK_SECRET",
+    "DREAMLEDGER_TOLL_KEY_SECRET",
+    "DREAMLEDGER_AGENT_BRIDGE_TOKEN",
+    "DIGITAL_PROXY_APPROVAL_TOKEN",
+    "MARKETPLACE_ADMIN_TOKEN",
+    "M2M_API_KEY",
+    "QR_API_KEY",
+    "QR_IP_SALT",
+    "RESEND_API_KEY"
+  ],
+  "release_gates": [
+    {
+      "id": "G0",
+      "name": "Container build and tracked runtime artifacts",
+      "status": "NOT_RUN",
+      "proof": "GitHub Actions render-exit-container-check; image installs runtime dependencies and confirms all required committed compiled surfaces exist"
+    },
+    {
+      "id": "G0C",
+      "name": "Canonical compiler and commercial contract",
+      "status": "BLOCKED_EXISTING_BUILD_AND_COMMERCE_GATES",
+      "proof": "Current BEC-PRIME build has failed closed on AJV Draft 2020-12 mismatch, stale MTG patch boundary, and production-contract errors STRIPE_LINK_DRIFT and PRODUCT_NOT_SELLABLE; do not skip these release gates"
+    },
+    {
+      "id": "G1",
+      "name": "Preview deployment and engine readiness",
+      "status": "BLOCKED_NEEDS_FLY_ACCOUNT_APP_AND_VOLUME",
+      "proof": "Preview /healthz and /version plus engine proxy probes"
+    },
+    {
+      "id": "G2",
+      "name": "State export, import and integrity",
+      "status": "NOT_RUN",
+      "proof": "Before/after file counts, SHA-256 manifest, ledger and proof reconciliation"
+    },
+    {
+      "id": "G3",
+      "name": "Route parity and silo boundaries",
+      "status": "NOT_RUN",
+      "proof": "Public route matrix and existing MTG/silo gauntlet"
+    },
+    {
+      "id": "G4",
+      "name": "Stripe test-mode webhook signature and idempotency",
+      "status": "NOT_RUN",
+      "proof": "Signed test-mode event accepted; duplicate delivery creates no duplicate ledger/fulfilment effect"
+    },
+    {
+      "id": "G5",
+      "name": "Rollback readiness",
+      "status": "NOT_RUN",
+      "proof": "Render kept intact; data export and DNS rollback instructions verified"
+    },
+    {
+      "id": "G6",
+      "name": "Custom-domain cutover",
+      "status": "BLOCKED_EXPLICIT_OWNER_APPROVAL",
+      "proof": "Only after G0, G0C, G1-G5 pass; /version SHA and public route parity independently verified"
+    }
+  ],
+  "non_actions": {
+    "fly_account_created": false,
+    "fly_resources_created": false,
+    "production_deployed": false,
+    "dns_changed": false,
+    "stripe_config_changed": false,
+    "database_migrated": false,
+    "render_deleted_or_disabled": false,
+    "production_mutation": false,
+    "canonical_build_gate_bypassed": false,
+    "production_release_authorized": false
+  },
+  "economic_truth": {
+    "verified_revenue_nzd": 0,
+    "rule": "Independent settled payment, correct attribution, fulfilment and retrievable delivery evidence are all required"
+  }
+}
