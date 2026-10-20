@@ -156,11 +156,12 @@ if ($feed -and $feed.products -and $aggregate -and $aggregate.products) {
                 if (-not $manual -and -not $online) {
                     $reason = 'SALE_MODE_NOT_EXPLICITLY_ALLOWED'
                 } else {
+                    $mode = if ($online) { 'approved_online_checkout' } else { 'manual_enquiry' }
                     $eligible.Add([ordered]@{
                         id = $id
                         price_nzd = [double]$item.price
                         inventory = [math]::Min([int]$item.inventory, [int]$live.inventory)
-                        mode = if ($online) { 'approved_online_checkout' } else { 'manual_enquiry' }
+                        mode = $mode
                         checkout_available = [bool]$online
                     })
                 }
@@ -180,15 +181,18 @@ $knownConflictPass = ($eligibleIds -notcontains 'EDH_0001') -and
 Add-Check -Id 'live_catalogue_conflicts_hidden' -Pass $knownConflictPass -Detail 'Known ID and price conflicts remain quarantined from the live storefront.'
 
 $reportStatus = if ($script:FailureCount -eq 0) { 'PASS_LIVE_ROUTE_AND_HOLD_CONTRACT' } else { 'FAIL_LIVE_ROUTE_AND_HOLD_CONTRACT' }
+$productionStatus = if ($script:FailureCount -eq 0) { 'VERIFIED_ROUTE_AND_HOLD_STATE' } else { 'NOT_VERIFIED' }
+$expectedCommitValue = if ($ExpectedCommit) { $ExpectedCommit } else { $null }
+$liveCommitValue = if ($liveCommit) { $liveCommit } else { $null }
 $timestamp = (Get-Date).ToUniversalTime().ToString('o')
 $report = [ordered]@{
     schema = 'DREAMLEDGER-MTG-PUBLIC-CONTRACT/v1'
     status = $reportStatus
-    production_status = if ($script:FailureCount -eq 0) { 'VERIFIED_ROUTE_AND_HOLD_STATE' } else { 'NOT_VERIFIED' }
+    production_status = $productionStatus
     timestamp_utc = $timestamp
     base_url = $base
-    expected_commit = if ($ExpectedCommit) { $ExpectedCommit } else { $null }
-    live_commit = if ($liveCommit) { $liveCommit } else { $null }
+    expected_commit = $expectedCommitValue
+    live_commit = $liveCommitValue
     verified_external_revenue_nzd = 0.0
     checkout_created = $false
     production_mutated = $false
