@@ -80,6 +80,18 @@
       "path": "/data/mtg-catalog.json",
       "expected": "200 JSON",
       "purpose": "MTG catalogue"
+    },
+    {
+      "method": "GET",
+      "path": "/404.html",
+      "expected": "200 HTML dedicated not-found document",
+      "purpose": "Explicit Pages not-found document preventing default SPA fallback"
+    },
+    {
+      "method": "GET",
+      "path": "/__preview-unique-not-found-probe__.html",
+      "expected": "404 HTML containing the dedicated not-found marker, not the homepage",
+      "purpose": "Genuine unknown-route behavior"
     }
   ],
   "stateful_dependencies": [
@@ -97,7 +109,12 @@
     "Neon SQL read/write/read-back and backup/restore proof passes",
     "origin and dreamledger.org custom domain independently return expected responses",
     "current main provider and data export retained until cutover acceptance",
-    "explicit approval before production DNS/domain or payment-path mutation"
+    "explicit approval before production DNS/domain or payment-path mutation",
+    "deployed GET /data/mtg-catalog.json is valid and confined to silo=mtg",
+    "each product with status=published in the deployed MTG catalogue has a detail_url returning 200 HTML with matching product identity",
+    "every published MTG deck claim_url is present, syntactically safe, and agrees with the user-visible detail-page claim control; held products remain non-purchasable",
+    "root /404.html exists and a unique unknown path returns actual HTTP 404 with the not-found marker, never the homepage/SPA body",
+    "deployment identity from /version matches the exact Git commit SHA used for the route probe"
   ],
   "current_production_mutation": false,
   "verified_revenue_nzd": 0,
@@ -113,6 +130,8 @@
       "/api/webhooks/stripe",
       "other /api/*"
     ],
-    "no_fake_readiness": true
+    "no_fake_readiness": true,
+    "not_found": "Root public/404.html is required; smoke test probes a unique nonexistent path and expects 404 with Page not found marker.",
+    "mtg_routes": "Smoke test enumerates each published product from /data/mtg-catalog.json, requests its declared detail_url, checks identity and claim-action contract."
   }
 }
