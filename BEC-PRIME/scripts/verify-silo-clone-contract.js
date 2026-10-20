@@ -17,6 +17,22 @@ function validContract() {
     content: { canonical_record_id: 'article-001', public_cutoff: 'NONE', paid_content_public_distribution: false },
     measurement: { evidence_path: 'records/attribution/mtg' },
     commerce: { checkout_enabled: false, inventory_verified: false, fulfillment_contract_verified: false, settlement_required: true, delivery_proof_required: true },
+    security: {
+      gauntlet_required: true,
+      secret_scan_required: true,
+      dependency_scan_required: true,
+      silo_isolation_required: true,
+      offline_first: true,
+      signed_release_required: true,
+      human_release_approval_required: true,
+      local_worker_inbound_disabled: true,
+      online_release_allowlist_only: true,
+      offline_online_membrane: {
+        directionality: 'FIGURE_EIGHT',
+        online_to_offline: 'QUARANTINED_INPUT_ONLY',
+        offline_to_online: 'SIGNED_APPROVED_ARTIFACTS_ONLY'
+      }
+    },
     x402: { enabled: false, live_approved: false }
   };
 }
@@ -115,6 +131,21 @@ test('checkout without verified fulfillment blocks', () => {
   contract.commerce.fulfillment_contract_verified = false;
   const result = validateSiloCloneContract(contract);
   assert.ok(result.errors.some(e => e.code === 'CHECKOUT_FULFILLMENT_UNVERIFIED'));
+});
+
+test('Gauntlet security requirements are mandatory', () => {
+  const contract = validContract();
+  contract.security.secret_scan_required = false;
+  const result = validateSiloCloneContract(contract);
+  assert.equal(result.status, 'BLOCK');
+  assert.ok(result.errors.some(e => e.code === 'SECURITY_CONTROL_REQUIRED'));
+});
+
+test('offline-to-online Figure Eight membrane cannot be weakened', () => {
+  const contract = validContract();
+  contract.security.offline_online_membrane.offline_to_online = 'DIRECT_UPLOAD';
+  const result = validateSiloCloneContract(contract);
+  assert.ok(result.errors.some(e => e.code === 'FIGURE_EIGHT_MEMBRANE_POLICY_REQUIRED'));
 });
 
 test('missing x402 state stays fail-closed', () => {
