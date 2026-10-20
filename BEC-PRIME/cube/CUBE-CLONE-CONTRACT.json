@@ -74,6 +74,22 @@
     "x402": {
       "enabled": false,
       "live_approved": false
+    },
+    "security": {
+      "gauntlet_required": true,
+      "secret_scan_required": true,
+      "dependency_scan_required": true,
+      "silo_isolation_required": true,
+      "offline_first": true,
+      "signed_release_required": true,
+      "human_release_approval_required": true,
+      "local_worker_inbound_disabled": true,
+      "online_release_allowlist_only": true,
+      "offline_online_membrane": {
+        "directionality": "FIGURE_EIGHT",
+        "online_to_offline": "QUARANTINED_INPUT_ONLY",
+        "offline_to_online": "SIGNED_APPROVED_ARTIFACTS_ONLY"
+      }
     }
   },
   "silo_overrides": {
