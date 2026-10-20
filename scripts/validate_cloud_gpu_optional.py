@@ -24,6 +24,8 @@ require('TimeoutSec 5' in gpu and 'TimeoutSec 120' in gpu, "Health and inference
 require('uses: actions/upload-artifact@v4' in gpu and 'if: always()' in gpu,
         "Worker must retain diagnostics even after a failed/skipped inference.")
 require("-notmatch '\"online\"'" not in gpu, "Do not use the broken substring test that skips valid /v1/models responses.")
+require("Model returned no valid candidates." in gpu and "Candidate is missing required field" in gpu,
+        "Malformed or empty model output must fail closed rather than be reported as a successful inference.")
 require("stripe" not in gpu.lower() and "supabase" not in gpu.lower(),
         "Optional GPU research workflow must not call payment or database services.")
 
