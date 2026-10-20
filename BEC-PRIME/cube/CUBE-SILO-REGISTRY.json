@@ -1,22 +1,1338 @@
 {
-  "schema_version": "CUBE-SILO-REGISTRY-1.2",
+  "schema_version": "CUBE-SILO-REGISTRY-1.3",
   "neutral_host": "DreamLedger",
   "cross_silo_data": false,
+  "registry_scope": "CONFIGURATION_REGISTRY_ONLY_NOT_LIVE_TENANT_PROVISIONING",
+  "economic_truth": {
+    "verified_external_revenue_nzd": 0,
+    "source": "BEC-PRIME/OWN-FIRST-COMPANY-OPERATOR.json and current repository economic-truth doctrine",
+    "rule": "Only independently settled external payment + correct attribution + completed fulfillment + retrievable independent delivery proof counts as verified revenue.",
+    "simulation_or_test_revenue_nzd": 0
+  },
+  "silo_defaults": {
+    "candidate_status": "SCAFFOLD_ONLY_NOT_PROVISIONED",
+    "custom_domain_bound": false,
+    "route_runtime_verified": false,
+    "rls_verified": false,
+    "checkout_verified": false,
+    "fulfillment_verified": false,
+    "external_demand_verified": false,
+    "public_activation_authorized": false,
+    "cube_worker_scaling_authorized": false,
+    "inventory_policy": "EMPTY_UNTIL_VERIFIED_SUPPLY_ATOM",
+    "cross_silo_data": false,
+    "credentials_generated": false
+  },
   "silos": [
-    {"id":"mtg","name":"Magic: The Gathering","allowed_domains":["mtg"],"status":"isolated"},
-    {"id":"crypto","name":"Cryptocurrency","allowed_domains":["crypto"],"status":"isolated"},
-    {"id":"media_music","name":"Media and Music","allowed_domains":["media_music"],"status":"isolated"},
-    {"id":"digital_products","name":"Digital Products","allowed_domains":["digital_products"],"status":"isolated"},
-    {"id":"accounting","name":"Agentic Accounting","allowed_domains":["accounting"],"status":"isolated","risk_policy":"LOW_TO_MODERATE","live_payment_approval_required":true,"tax_filing_approval_required":true},
-    {"id":"production_verification","name":"Production Verification","allowed_domains":["production_verification","maximona"],"status":"isolated","commercial_experiment":"MAXIMONA-001","payment_model":"one_time_fixed_scope","evergreen_catalog":true}
+    {
+      "id": "mtg",
+      "slug": "mtg",
+      "name": "Magic: The Gathering",
+      "allowed_domains": [
+        "mtg"
+      ],
+      "status": "MASTER_REFERENCE_EXISTING_SURFACE",
+      "priority": 1,
+      "priority_source": "existing asset and proximity to an existing economic path",
+      "proposed_custom_domain": "mtg.dreamledger.org",
+      "custom_domain_bound": false,
+      "route_candidate": "/mtg/",
+      "provisioned": false,
+      "runtime_isolation_verified": false,
+      "rls_verified": false,
+      "checkout_verified": false,
+      "fulfillment_verified": false,
+      "buyer_demand_verified": false,
+      "supply_verified": "PARTIAL_EXISTING_FIRST_PARTY_CATALOG_NOT_P2P_LIQUIDITY",
+      "public_activation_authorized": false,
+      "cube_worker_scaling_authorized": false,
+      "capabilities_by_ref": [
+        "catalog",
+        "compiler",
+        "gauntlet",
+        "commerce-spine",
+        "fossil"
+      ],
+      "catalog_policy": "EMPTY_FOR_NEW_SILOS; NEVER COPY MTG OR OTHER SILO INVENTORY",
+      "commercial_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": 0,
+        "listing_policy": "FREE_LISTINGS",
+        "paid_offer_policy": "NO_NEW_PAID_OFFER_UNTIL_EXISTING_CHECKOUT_AND_SUPPLY_ARE_VERIFIED",
+        "success_fee_peer_pct": 0
+      },
+      "existing_source_paths": [
+        "public/silos/mtg/silo.json",
+        "public/data/mtg-catalog.json",
+        "public/mtg/index.html"
+      ],
+      "notes": [
+        "Canonical master/reference implementation; success fee 0%; don't copy its catalog or customer data when cloning.",
+        "Existing catalog items use claim-by-message and checkout_available=false; this is not a verified P2P transaction or verified GMV.",
+        "No live RLS/database verification is asserted by this registry."
+      ]
+    },
+    {
+      "id": "dreammeez",
+      "slug": "dreammeez",
+      "name": "Avatar Cosmetics",
+      "allowed_domains": [
+        "dreammeez"
+      ],
+      "status": "EXISTING_SURFACE_NEEDS_CHECKOUT_VERIFICATION",
+      "priority": 2,
+      "priority_source": "existing asset and proximity to an existing economic path",
+      "proposed_custom_domain": "dreammeez.dreamledger.org",
+      "custom_domain_bound": false,
+      "route_candidate": "/dreammeez/",
+      "provisioned": false,
+      "runtime_isolation_verified": false,
+      "rls_verified": false,
+      "checkout_verified": false,
+      "fulfillment_verified": false,
+      "buyer_demand_verified": false,
+      "supply_verified": "NOT_VERIFIED",
+      "public_activation_authorized": false,
+      "cube_worker_scaling_authorized": false,
+      "capabilities_by_ref": [
+        "catalog",
+        "compiler",
+        "gauntlet",
+        "commerce-spine",
+        "fossil"
+      ],
+      "catalog_policy": "EMPTY_FOR_NEW_SILOS; NEVER COPY MTG OR OTHER SILO INVENTORY",
+      "commercial_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": null,
+        "listing_policy": "FREE_CANDIDATE_DIRECTORY_OR_CATALOG",
+        "paid_offer_policy": "UNVALIDATED_DO_NOT_PUBLISH_A_PRICE_OR_ENABLE_CHECKOUT"
+      },
+      "existing_source_paths": [
+        "public/avatar.html"
+      ],
+      "notes": [
+        "Existing avatar-builder surface; NZ$2–5 cosmetic copy is not proof of live checkout or settled sales.",
+        "Verify every cosmetic SKU/Stripe destination and fulfillment before scaling."
+      ]
+    },
+    {
+      "id": "media_music",
+      "slug": "media-music",
+      "name": "Music and Media",
+      "allowed_domains": [
+        "media-music"
+      ],
+      "status": "SCAFFOLD_ONLY_NOT_PROVISIONED",
+      "priority": 8,
+      "priority_source": "existing asset and proximity to an existing economic path",
+      "proposed_custom_domain": "media-music.dreamledger.org",
+      "custom_domain_bound": false,
+      "route_candidate": "/media-music/",
+      "provisioned": false,
+      "runtime_isolation_verified": false,
+      "rls_verified": false,
+      "checkout_verified": false,
+      "fulfillment_verified": false,
+      "buyer_demand_verified": false,
+      "supply_verified": "NOT_VERIFIED",
+      "public_activation_authorized": false,
+      "cube_worker_scaling_authorized": false,
+      "capabilities_by_ref": [
+        "catalog",
+        "compiler",
+        "gauntlet",
+        "commerce-spine",
+        "fossil"
+      ],
+      "catalog_policy": "EMPTY_FOR_NEW_SILOS; NEVER COPY MTG OR OTHER SILO INVENTORY",
+      "commercial_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": 0,
+        "listing_policy": "FREE_LISTINGS",
+        "paid_offer_policy": "OPTIONAL_PROMOTION_OR_TRANSACTION_MONETIZATION_ONLY_AFTER_BUYER_AND_SELLER_EVIDENCE"
+      }
+    },
+    {
+      "id": "digital_products",
+      "slug": "digital-products",
+      "name": "Digital Products",
+      "allowed_domains": [
+        "digital-products"
+      ],
+      "status": "SCAFFOLD_ONLY_NOT_PROVISIONED",
+      "priority": 9,
+      "priority_source": "existing asset and proximity to an existing economic path",
+      "proposed_custom_domain": "digital-products.dreamledger.org",
+      "custom_domain_bound": false,
+      "route_candidate": "/digital-products/",
+      "provisioned": false,
+      "runtime_isolation_verified": false,
+      "rls_verified": false,
+      "checkout_verified": false,
+      "fulfillment_verified": false,
+      "buyer_demand_verified": false,
+      "supply_verified": "NOT_VERIFIED",
+      "public_activation_authorized": false,
+      "cube_worker_scaling_authorized": false,
+      "capabilities_by_ref": [
+        "catalog",
+        "compiler",
+        "gauntlet",
+        "commerce-spine",
+        "fossil"
+      ],
+      "catalog_policy": "EMPTY_FOR_NEW_SILOS; NEVER COPY MTG OR OTHER SILO INVENTORY",
+      "commercial_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": null,
+        "listing_policy": "FREE_CANDIDATE_DIRECTORY_OR_CATALOG",
+        "paid_offer_policy": "UNVALIDATED_DO_NOT_PUBLISH_A_PRICE_OR_ENABLE_CHECKOUT"
+      }
+    },
+    {
+      "id": "nz_secondhand",
+      "slug": "nz-secondhand",
+      "name": "NZ Secondhand Marketplace",
+      "allowed_domains": [
+        "nz-secondhand"
+      ],
+      "status": "SCAFFOLD_CANDIDATE_FREE_LISTING",
+      "priority": 5,
+      "priority_source": "existing asset and proximity to an existing economic path",
+      "proposed_custom_domain": "nz-secondhand.dreamledger.org",
+      "custom_domain_bound": false,
+      "route_candidate": "/nz-secondhand/",
+      "provisioned": false,
+      "runtime_isolation_verified": false,
+      "rls_verified": false,
+      "checkout_verified": false,
+      "fulfillment_verified": false,
+      "buyer_demand_verified": false,
+      "supply_verified": "NOT_VERIFIED",
+      "public_activation_authorized": false,
+      "cube_worker_scaling_authorized": false,
+      "capabilities_by_ref": [
+        "catalog",
+        "compiler",
+        "gauntlet",
+        "commerce-spine",
+        "fossil"
+      ],
+      "catalog_policy": "EMPTY_FOR_NEW_SILOS; NEVER COPY MTG OR OTHER SILO INVENTORY",
+      "commercial_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": 0,
+        "listing_policy": "FREE_LISTINGS",
+        "paid_offer_policy": "OPTIONAL_PROMOTION_OR_TRANSACTION_MONETIZATION_ONLY_AFTER_BUYER_AND_SELLER_EVIDENCE"
+      }
+    },
+    {
+      "id": "womens_clothing",
+      "slug": "womens-clothing",
+      "name": "Women's Clothing",
+      "allowed_domains": [
+        "womens-clothing"
+      ],
+      "status": "SCAFFOLD_ONLY_NOT_PROVISIONED",
+      "priority": 6,
+      "priority_source": "existing asset and proximity to an existing economic path",
+      "proposed_custom_domain": "womens-clothing.dreamledger.org",
+      "custom_domain_bound": false,
+      "route_candidate": "/womens-clothing/",
+      "provisioned": false,
+      "runtime_isolation_verified": false,
+      "rls_verified": false,
+      "checkout_verified": false,
+      "fulfillment_verified": false,
+      "buyer_demand_verified": false,
+      "supply_verified": "NOT_VERIFIED",
+      "public_activation_authorized": false,
+      "cube_worker_scaling_authorized": false,
+      "capabilities_by_ref": [
+        "catalog",
+        "compiler",
+        "gauntlet",
+        "commerce-spine",
+        "fossil"
+      ],
+      "catalog_policy": "EMPTY_FOR_NEW_SILOS; NEVER COPY MTG OR OTHER SILO INVENTORY",
+      "commercial_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": 0,
+        "listing_policy": "FREE_LISTINGS",
+        "paid_offer_policy": "OPTIONAL_PROMOTION_OR_TRANSACTION_MONETIZATION_ONLY_AFTER_BUYER_AND_SELLER_EVIDENCE"
+      },
+      "safety_gates": [
+        "condition and size fields",
+        "brand/authenticity claims must be evidenced",
+        "seller-controlled returns and delivery terms"
+      ]
+    },
+    {
+      "id": "b2b",
+      "slug": "b2b",
+      "name": "Free B2B Directory",
+      "allowed_domains": [
+        "b2b"
+      ],
+      "status": "SCAFFOLD_CANDIDATE_FREE_LISTING",
+      "priority": 3,
+      "priority_source": "existing asset and proximity to an existing economic path",
+      "proposed_custom_domain": "b2b.dreamledger.org",
+      "custom_domain_bound": false,
+      "route_candidate": "/b2b/",
+      "provisioned": false,
+      "runtime_isolation_verified": false,
+      "rls_verified": false,
+      "checkout_verified": false,
+      "fulfillment_verified": false,
+      "buyer_demand_verified": false,
+      "supply_verified": "NOT_VERIFIED",
+      "public_activation_authorized": false,
+      "cube_worker_scaling_authorized": false,
+      "capabilities_by_ref": [
+        "catalog",
+        "compiler",
+        "gauntlet",
+        "commerce-spine",
+        "fossil"
+      ],
+      "catalog_policy": "EMPTY_FOR_NEW_SILOS; NEVER COPY MTG OR OTHER SILO INVENTORY",
+      "commercial_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": 0,
+        "listing_policy": "FREE_LISTINGS",
+        "paid_offer_policy": "OPTIONAL_PROMOTION_OR_TRANSACTION_MONETIZATION_ONLY_AFTER_BUYER_AND_SELLER_EVIDENCE"
+      }
+    },
+    {
+      "id": "b2b_quotes",
+      "slug": "b2b-quotes",
+      "name": "B2B Supplier Quotes",
+      "allowed_domains": [
+        "b2b-quotes"
+      ],
+      "status": "EXISTING_OFFER_DEPENDENCY_UNVERIFIED",
+      "priority": 4,
+      "priority_source": "existing asset and proximity to an existing economic path",
+      "proposed_custom_domain": "b2b-quotes.dreamledger.org",
+      "custom_domain_bound": false,
+      "route_candidate": "/b2b-quotes/",
+      "provisioned": false,
+      "runtime_isolation_verified": false,
+      "rls_verified": false,
+      "checkout_verified": false,
+      "fulfillment_verified": false,
+      "buyer_demand_verified": false,
+      "supply_verified": "NOT_VERIFIED",
+      "public_activation_authorized": false,
+      "cube_worker_scaling_authorized": false,
+      "capabilities_by_ref": [
+        "catalog",
+        "compiler",
+        "gauntlet",
+        "commerce-spine",
+        "fossil"
+      ],
+      "catalog_policy": "EMPTY_FOR_NEW_SILOS; NEVER COPY MTG OR OTHER SILO INVENTORY",
+      "commercial_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": null,
+        "listing_policy": "FREE_INTAKE_OR_DIRECTORY",
+        "paid_offer_policy": "EXISTING_QUOTE_COMPARE_49_REQUIRES_LIVE_CHECKOUT_AND_FULFILLMENT_REVALIDATION"
+      },
+      "existing_source_paths": [
+        "public/quote-comparison/index.html",
+        "BEC-PRIME/fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json"
+      ],
+      "notes": [
+        "A free browser worksheet exists. The registry references Supabase functions and an economic fulfillment worker; live dependency and delivery are not verified."
+      ]
+    },
+    {
+      "id": "nz_rdti",
+      "slug": "nz-rdti",
+      "name": "NZ RDTI",
+      "allowed_domains": [
+        "nz-rdti"
+      ],
+      "status": "SCAFFOLD_ONLY_NOT_PROVISIONED",
+      "priority": 50,
+      "priority_source": "candidate queue only; no demand ranking claim",
+      "proposed_custom_domain": "nz-rdti.dreamledger.org",
+      "custom_domain_bound": false,
+      "route_candidate": "/nz-rdti/",
+      "provisioned": false,
+      "runtime_isolation_verified": false,
+      "rls_verified": false,
+      "checkout_verified": false,
+      "fulfillment_verified": false,
+      "buyer_demand_verified": false,
+      "supply_verified": "NOT_VERIFIED",
+      "public_activation_authorized": false,
+      "cube_worker_scaling_authorized": false,
+      "capabilities_by_ref": [
+        "catalog",
+        "compiler",
+        "gauntlet",
+        "commerce-spine",
+        "fossil"
+      ],
+      "catalog_policy": "EMPTY_FOR_NEW_SILOS; NEVER COPY MTG OR OTHER SILO INVENTORY",
+      "commercial_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": null,
+        "listing_policy": "FREE_CANDIDATE_DIRECTORY_OR_CATALOG",
+        "paid_offer_policy": "UNVALIDATED_DO_NOT_PUBLISH_A_PRICE_OR_ENABLE_CHECKOUT"
+      },
+      "safety_gates": [
+        "scope limitations visible",
+        "source evidence required",
+        "no unsupported legal/tax/compliance certification claims",
+        "human approval for filings, attestations, and high-impact actions"
+      ]
+    },
+    {
+      "id": "contractor_tax",
+      "slug": "contractor-tax",
+      "name": "Contractor Tax and Payroll",
+      "allowed_domains": [
+        "contractor-tax"
+      ],
+      "status": "SCAFFOLD_ONLY_NOT_PROVISIONED",
+      "priority": 50,
+      "priority_source": "candidate queue only; no demand ranking claim",
+      "proposed_custom_domain": "contractor-tax.dreamledger.org",
+      "custom_domain_bound": false,
+      "route_candidate": "/contractor-tax/",
+      "provisioned": false,
+      "runtime_isolation_verified": false,
+      "rls_verified": false,
+      "checkout_verified": false,
+      "fulfillment_verified": false,
+      "buyer_demand_verified": false,
+      "supply_verified": "NOT_VERIFIED",
+      "public_activation_authorized": false,
+      "cube_worker_scaling_authorized": false,
+      "capabilities_by_ref": [
+        "catalog",
+        "compiler",
+        "gauntlet",
+        "commerce-spine",
+        "fossil"
+      ],
+      "catalog_policy": "EMPTY_FOR_NEW_SILOS; NEVER COPY MTG OR OTHER SILO INVENTORY",
+      "commercial_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": null,
+        "listing_policy": "FREE_CANDIDATE_DIRECTORY_OR_CATALOG",
+        "paid_offer_policy": "UNVALIDATED_DO_NOT_PUBLISH_A_PRICE_OR_ENABLE_CHECKOUT"
+      },
+      "safety_gates": [
+        "scope limitations visible",
+        "source evidence required",
+        "no unsupported legal/tax/compliance certification claims",
+        "human approval for filings, attestations, and high-impact actions"
+      ]
+    },
+    {
+      "id": "mcp_audit",
+      "slug": "mcp-audit",
+      "name": "MCP and Agent Infrastructure",
+      "allowed_domains": [
+        "mcp-audit"
+      ],
+      "status": "SCAFFOLD_ONLY_NOT_PROVISIONED",
+      "priority": 50,
+      "priority_source": "candidate queue only; no demand ranking claim",
+      "proposed_custom_domain": "mcp-audit.dreamledger.org",
+      "custom_domain_bound": false,
+      "route_candidate": "/mcp-audit/",
+      "provisioned": false,
+      "runtime_isolation_verified": false,
+      "rls_verified": false,
+      "checkout_verified": false,
+      "fulfillment_verified": false,
+      "buyer_demand_verified": false,
+      "supply_verified": "NOT_VERIFIED",
+      "public_activation_authorized": false,
+      "cube_worker_scaling_authorized": false,
+      "capabilities_by_ref": [
+        "catalog",
+        "compiler",
+        "gauntlet",
+        "commerce-spine",
+        "fossil"
+      ],
+      "catalog_policy": "EMPTY_FOR_NEW_SILOS; NEVER COPY MTG OR OTHER SILO INVENTORY",
+      "commercial_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": null,
+        "listing_policy": "FREE_CANDIDATE_DIRECTORY_OR_CATALOG",
+        "paid_offer_policy": "UNVALIDATED_DO_NOT_PUBLISH_A_PRICE_OR_ENABLE_CHECKOUT"
+      },
+      "safety_gates": [
+        "scope limitations visible",
+        "source evidence required",
+        "no unsupported legal/tax/compliance certification claims",
+        "human approval for filings, attestations, and high-impact actions"
+      ]
+    },
+    {
+      "id": "subcontractor_variations",
+      "slug": "subcontractor-variations",
+      "name": "Subcontractor Variations",
+      "allowed_domains": [
+        "subcontractor-variations"
+      ],
+      "status": "SCAFFOLD_ONLY_NOT_PROVISIONED",
+      "priority": 50,
+      "priority_source": "candidate queue only; no demand ranking claim",
+      "proposed_custom_domain": "subcontractor-variations.dreamledger.org",
+      "custom_domain_bound": false,
+      "route_candidate": "/subcontractor-variations/",
+      "provisioned": false,
+      "runtime_isolation_verified": false,
+      "rls_verified": false,
+      "checkout_verified": false,
+      "fulfillment_verified": false,
+      "buyer_demand_verified": false,
+      "supply_verified": "NOT_VERIFIED",
+      "public_activation_authorized": false,
+      "cube_worker_scaling_authorized": false,
+      "capabilities_by_ref": [
+        "catalog",
+        "compiler",
+        "gauntlet",
+        "commerce-spine",
+        "fossil"
+      ],
+      "catalog_policy": "EMPTY_FOR_NEW_SILOS; NEVER COPY MTG OR OTHER SILO INVENTORY",
+      "commercial_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": null,
+        "listing_policy": "FREE_CANDIDATE_DIRECTORY_OR_CATALOG",
+        "paid_offer_policy": "UNVALIDATED_DO_NOT_PUBLISH_A_PRICE_OR_ENABLE_CHECKOUT"
+      }
+    },
+    {
+      "id": "saas_usage",
+      "slug": "saas-usage",
+      "name": "SaaS Usage and Churn",
+      "allowed_domains": [
+        "saas-usage"
+      ],
+      "status": "SCAFFOLD_ONLY_NOT_PROVISIONED",
+      "priority": 50,
+      "priority_source": "candidate queue only; no demand ranking claim",
+      "proposed_custom_domain": "saas-usage.dreamledger.org",
+      "custom_domain_bound": false,
+      "route_candidate": "/saas-usage/",
+      "provisioned": false,
+      "runtime_isolation_verified": false,
+      "rls_verified": false,
+      "checkout_verified": false,
+      "fulfillment_verified": false,
+      "buyer_demand_verified": false,
+      "supply_verified": "NOT_VERIFIED",
+      "public_activation_authorized": false,
+      "cube_worker_scaling_authorized": false,
+      "capabilities_by_ref": [
+        "catalog",
+        "compiler",
+        "gauntlet",
+        "commerce-spine",
+        "fossil"
+      ],
+      "catalog_policy": "EMPTY_FOR_NEW_SILOS; NEVER COPY MTG OR OTHER SILO INVENTORY",
+      "commercial_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": null,
+        "listing_policy": "FREE_CANDIDATE_DIRECTORY_OR_CATALOG",
+        "paid_offer_policy": "UNVALIDATED_DO_NOT_PUBLISH_A_PRICE_OR_ENABLE_CHECKOUT"
+      }
+    },
+    {
+      "id": "legal_evidence",
+      "slug": "legal-evidence",
+      "name": "Legal Evidence",
+      "allowed_domains": [
+        "legal-evidence"
+      ],
+      "status": "SCAFFOLD_ONLY_NOT_PROVISIONED",
+      "priority": 50,
+      "priority_source": "candidate queue only; no demand ranking claim",
+      "proposed_custom_domain": "legal-evidence.dreamledger.org",
+      "custom_domain_bound": false,
+      "route_candidate": "/legal-evidence/",
+      "provisioned": false,
+      "runtime_isolation_verified": false,
+      "rls_verified": false,
+      "checkout_verified": false,
+      "fulfillment_verified": false,
+      "buyer_demand_verified": false,
+      "supply_verified": "NOT_VERIFIED",
+      "public_activation_authorized": false,
+      "cube_worker_scaling_authorized": false,
+      "capabilities_by_ref": [
+        "catalog",
+        "compiler",
+        "gauntlet",
+        "commerce-spine",
+        "fossil"
+      ],
+      "catalog_policy": "EMPTY_FOR_NEW_SILOS; NEVER COPY MTG OR OTHER SILO INVENTORY",
+      "commercial_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": null,
+        "listing_policy": "FREE_CANDIDATE_DIRECTORY_OR_CATALOG",
+        "paid_offer_policy": "UNVALIDATED_DO_NOT_PUBLISH_A_PRICE_OR_ENABLE_CHECKOUT"
+      },
+      "safety_gates": [
+        "scope limitations visible",
+        "source evidence required",
+        "no unsupported legal/tax/compliance certification claims",
+        "human approval for filings, attestations, and high-impact actions"
+      ]
+    },
+    {
+      "id": "iso_device",
+      "slug": "iso-device",
+      "name": "ISO and Device Compliance",
+      "allowed_domains": [
+        "iso-device"
+      ],
+      "status": "SCAFFOLD_ONLY_NOT_PROVISIONED",
+      "priority": 50,
+      "priority_source": "candidate queue only; no demand ranking claim",
+      "proposed_custom_domain": "iso-device.dreamledger.org",
+      "custom_domain_bound": false,
+      "route_candidate": "/iso-device/",
+      "provisioned": false,
+      "runtime_isolation_verified": false,
+      "rls_verified": false,
+      "checkout_verified": false,
+      "fulfillment_verified": false,
+      "buyer_demand_verified": false,
+      "supply_verified": "NOT_VERIFIED",
+      "public_activation_authorized": false,
+      "cube_worker_scaling_authorized": false,
+      "capabilities_by_ref": [
+        "catalog",
+        "compiler",
+        "gauntlet",
+        "commerce-spine",
+        "fossil"
+      ],
+      "catalog_policy": "EMPTY_FOR_NEW_SILOS; NEVER COPY MTG OR OTHER SILO INVENTORY",
+      "commercial_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": null,
+        "listing_policy": "FREE_CANDIDATE_DIRECTORY_OR_CATALOG",
+        "paid_offer_policy": "UNVALIDATED_DO_NOT_PUBLISH_A_PRICE_OR_ENABLE_CHECKOUT"
+      },
+      "safety_gates": [
+        "scope limitations visible",
+        "source evidence required",
+        "no unsupported legal/tax/compliance certification claims",
+        "human approval for filings, attestations, and high-impact actions"
+      ]
+    },
+    {
+      "id": "esg_carbon",
+      "slug": "esg-carbon",
+      "name": "ESG and Carbon Supply Chain",
+      "allowed_domains": [
+        "esg-carbon"
+      ],
+      "status": "SCAFFOLD_ONLY_NOT_PROVISIONED",
+      "priority": 50,
+      "priority_source": "candidate queue only; no demand ranking claim",
+      "proposed_custom_domain": "esg-carbon.dreamledger.org",
+      "custom_domain_bound": false,
+      "route_candidate": "/esg-carbon/",
+      "provisioned": false,
+      "runtime_isolation_verified": false,
+      "rls_verified": false,
+      "checkout_verified": false,
+      "fulfillment_verified": false,
+      "buyer_demand_verified": false,
+      "supply_verified": "NOT_VERIFIED",
+      "public_activation_authorized": false,
+      "cube_worker_scaling_authorized": false,
+      "capabilities_by_ref": [
+        "catalog",
+        "compiler",
+        "gauntlet",
+        "commerce-spine",
+        "fossil"
+      ],
+      "catalog_policy": "EMPTY_FOR_NEW_SILOS; NEVER COPY MTG OR OTHER SILO INVENTORY",
+      "commercial_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": null,
+        "listing_policy": "FREE_CANDIDATE_DIRECTORY_OR_CATALOG",
+        "paid_offer_policy": "UNVALIDATED_DO_NOT_PUBLISH_A_PRICE_OR_ENABLE_CHECKOUT"
+      },
+      "safety_gates": [
+        "scope limitations visible",
+        "source evidence required",
+        "no unsupported legal/tax/compliance certification claims",
+        "human approval for filings, attestations, and high-impact actions"
+      ]
+    },
+    {
+      "id": "electronics_appliances",
+      "slug": "electronics-appliances",
+      "name": "Electronics and Appliances",
+      "allowed_domains": [
+        "electronics-appliances"
+      ],
+      "status": "SCAFFOLD_ONLY_NOT_PROVISIONED",
+      "priority": 50,
+      "priority_source": "candidate queue only; no demand ranking claim",
+      "proposed_custom_domain": "electronics-appliances.dreamledger.org",
+      "custom_domain_bound": false,
+      "route_candidate": "/electronics-appliances/",
+      "provisioned": false,
+      "runtime_isolation_verified": false,
+      "rls_verified": false,
+      "checkout_verified": false,
+      "fulfillment_verified": false,
+      "buyer_demand_verified": false,
+      "supply_verified": "NOT_VERIFIED",
+      "public_activation_authorized": false,
+      "cube_worker_scaling_authorized": false,
+      "capabilities_by_ref": [
+        "catalog",
+        "compiler",
+        "gauntlet",
+        "commerce-spine",
+        "fossil"
+      ],
+      "catalog_policy": "EMPTY_FOR_NEW_SILOS; NEVER COPY MTG OR OTHER SILO INVENTORY",
+      "commercial_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": null,
+        "listing_policy": "FREE_CANDIDATE_DIRECTORY_OR_CATALOG",
+        "paid_offer_policy": "UNVALIDATED_DO_NOT_PUBLISH_A_PRICE_OR_ENABLE_CHECKOUT"
+      }
+    },
+    {
+      "id": "home_garden",
+      "slug": "home-garden",
+      "name": "Home and Garden",
+      "allowed_domains": [
+        "home-garden"
+      ],
+      "status": "SCAFFOLD_ONLY_NOT_PROVISIONED",
+      "priority": 50,
+      "priority_source": "candidate queue only; no demand ranking claim",
+      "proposed_custom_domain": "home-garden.dreamledger.org",
+      "custom_domain_bound": false,
+      "route_candidate": "/home-garden/",
+      "provisioned": false,
+      "runtime_isolation_verified": false,
+      "rls_verified": false,
+      "checkout_verified": false,
+      "fulfillment_verified": false,
+      "buyer_demand_verified": false,
+      "supply_verified": "NOT_VERIFIED",
+      "public_activation_authorized": false,
+      "cube_worker_scaling_authorized": false,
+      "capabilities_by_ref": [
+        "catalog",
+        "compiler",
+        "gauntlet",
+        "commerce-spine",
+        "fossil"
+      ],
+      "catalog_policy": "EMPTY_FOR_NEW_SILOS; NEVER COPY MTG OR OTHER SILO INVENTORY",
+      "commercial_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": null,
+        "listing_policy": "FREE_CANDIDATE_DIRECTORY_OR_CATALOG",
+        "paid_offer_policy": "UNVALIDATED_DO_NOT_PUBLISH_A_PRICE_OR_ENABLE_CHECKOUT"
+      }
+    },
+    {
+      "id": "health_beauty",
+      "slug": "health-beauty",
+      "name": "Health and Beauty",
+      "allowed_domains": [
+        "health-beauty"
+      ],
+      "status": "SCAFFOLD_ONLY_NOT_PROVISIONED",
+      "priority": 50,
+      "priority_source": "candidate queue only; no demand ranking claim",
+      "proposed_custom_domain": "health-beauty.dreamledger.org",
+      "custom_domain_bound": false,
+      "route_candidate": "/health-beauty/",
+      "provisioned": false,
+      "runtime_isolation_verified": false,
+      "rls_verified": false,
+      "checkout_verified": false,
+      "fulfillment_verified": false,
+      "buyer_demand_verified": false,
+      "supply_verified": "NOT_VERIFIED",
+      "public_activation_authorized": false,
+      "cube_worker_scaling_authorized": false,
+      "capabilities_by_ref": [
+        "catalog",
+        "compiler",
+        "gauntlet",
+        "commerce-spine",
+        "fossil"
+      ],
+      "catalog_policy": "EMPTY_FOR_NEW_SILOS; NEVER COPY MTG OR OTHER SILO INVENTORY",
+      "commercial_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": null,
+        "listing_policy": "FREE_CANDIDATE_DIRECTORY_OR_CATALOG",
+        "paid_offer_policy": "UNVALIDATED_DO_NOT_PUBLISH_A_PRICE_OR_ENABLE_CHECKOUT"
+      }
+    },
+    {
+      "id": "pet",
+      "slug": "pet",
+      "name": "Pet Supplies",
+      "allowed_domains": [
+        "pet"
+      ],
+      "status": "SCAFFOLD_ONLY_NOT_PROVISIONED",
+      "priority": 50,
+      "priority_source": "candidate queue only; no demand ranking claim",
+      "proposed_custom_domain": "pet.dreamledger.org",
+      "custom_domain_bound": false,
+      "route_candidate": "/pet/",
+      "provisioned": false,
+      "runtime_isolation_verified": false,
+      "rls_verified": false,
+      "checkout_verified": false,
+      "fulfillment_verified": false,
+      "buyer_demand_verified": false,
+      "supply_verified": "NOT_VERIFIED",
+      "public_activation_authorized": false,
+      "cube_worker_scaling_authorized": false,
+      "capabilities_by_ref": [
+        "catalog",
+        "compiler",
+        "gauntlet",
+        "commerce-spine",
+        "fossil"
+      ],
+      "catalog_policy": "EMPTY_FOR_NEW_SILOS; NEVER COPY MTG OR OTHER SILO INVENTORY",
+      "commercial_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": null,
+        "listing_policy": "FREE_CANDIDATE_DIRECTORY_OR_CATALOG",
+        "paid_offer_policy": "UNVALIDATED_DO_NOT_PUBLISH_A_PRICE_OR_ENABLE_CHECKOUT"
+      }
+    },
+    {
+      "id": "books_stationery",
+      "slug": "books-stationery",
+      "name": "Books and Stationery",
+      "allowed_domains": [
+        "books-stationery"
+      ],
+      "status": "SCAFFOLD_ONLY_NOT_PROVISIONED",
+      "priority": 50,
+      "priority_source": "candidate queue only; no demand ranking claim",
+      "proposed_custom_domain": "books-stationery.dreamledger.org",
+      "custom_domain_bound": false,
+      "route_candidate": "/books-stationery/",
+      "provisioned": false,
+      "runtime_isolation_verified": false,
+      "rls_verified": false,
+      "checkout_verified": false,
+      "fulfillment_verified": false,
+      "buyer_demand_verified": false,
+      "supply_verified": "NOT_VERIFIED",
+      "public_activation_authorized": false,
+      "cube_worker_scaling_authorized": false,
+      "capabilities_by_ref": [
+        "catalog",
+        "compiler",
+        "gauntlet",
+        "commerce-spine",
+        "fossil"
+      ],
+      "catalog_policy": "EMPTY_FOR_NEW_SILOS; NEVER COPY MTG OR OTHER SILO INVENTORY",
+      "commercial_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": null,
+        "listing_policy": "FREE_CANDIDATE_DIRECTORY_OR_CATALOG",
+        "paid_offer_policy": "UNVALIDATED_DO_NOT_PUBLISH_A_PRICE_OR_ENABLE_CHECKOUT"
+      }
+    },
+    {
+      "id": "sports_outdoors",
+      "slug": "sports-outdoors",
+      "name": "Sports and Outdoors",
+      "allowed_domains": [
+        "sports-outdoors"
+      ],
+      "status": "SCAFFOLD_ONLY_NOT_PROVISIONED",
+      "priority": 50,
+      "priority_source": "candidate queue only; no demand ranking claim",
+      "proposed_custom_domain": "sports-outdoors.dreamledger.org",
+      "custom_domain_bound": false,
+      "route_candidate": "/sports-outdoors/",
+      "provisioned": false,
+      "runtime_isolation_verified": false,
+      "rls_verified": false,
+      "checkout_verified": false,
+      "fulfillment_verified": false,
+      "buyer_demand_verified": false,
+      "supply_verified": "NOT_VERIFIED",
+      "public_activation_authorized": false,
+      "cube_worker_scaling_authorized": false,
+      "capabilities_by_ref": [
+        "catalog",
+        "compiler",
+        "gauntlet",
+        "commerce-spine",
+        "fossil"
+      ],
+      "catalog_policy": "EMPTY_FOR_NEW_SILOS; NEVER COPY MTG OR OTHER SILO INVENTORY",
+      "commercial_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": null,
+        "listing_policy": "FREE_CANDIDATE_DIRECTORY_OR_CATALOG",
+        "paid_offer_policy": "UNVALIDATED_DO_NOT_PUBLISH_A_PRICE_OR_ENABLE_CHECKOUT"
+      }
+    },
+    {
+      "id": "baby_kids",
+      "slug": "baby-kids",
+      "name": "Baby and Kids",
+      "allowed_domains": [
+        "baby-kids"
+      ],
+      "status": "SCAFFOLD_ONLY_NOT_PROVISIONED",
+      "priority": 7,
+      "priority_source": "existing asset and proximity to an existing economic path",
+      "proposed_custom_domain": "baby-kids.dreamledger.org",
+      "custom_domain_bound": false,
+      "route_candidate": "/baby-kids/",
+      "provisioned": false,
+      "runtime_isolation_verified": false,
+      "rls_verified": false,
+      "checkout_verified": false,
+      "fulfillment_verified": false,
+      "buyer_demand_verified": false,
+      "supply_verified": "NOT_VERIFIED",
+      "public_activation_authorized": false,
+      "cube_worker_scaling_authorized": false,
+      "capabilities_by_ref": [
+        "catalog",
+        "compiler",
+        "gauntlet",
+        "commerce-spine",
+        "fossil"
+      ],
+      "catalog_policy": "EMPTY_FOR_NEW_SILOS; NEVER COPY MTG OR OTHER SILO INVENTORY",
+      "commercial_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": 0,
+        "listing_policy": "FREE_LISTINGS",
+        "paid_offer_policy": "OPTIONAL_PROMOTION_OR_TRANSACTION_MONETIZATION_ONLY_AFTER_BUYER_AND_SELLER_EVIDENCE"
+      },
+      "safety_gates": [
+        "product recall checks",
+        "product safety and age suitability",
+        "exclude prohibited or recalled infant-safety products",
+        "seller identity and condition evidence"
+      ]
+    },
+    {
+      "id": "automotive",
+      "slug": "automotive",
+      "name": "Automotive",
+      "allowed_domains": [
+        "automotive"
+      ],
+      "status": "SCAFFOLD_ONLY_NOT_PROVISIONED",
+      "priority": 50,
+      "priority_source": "candidate queue only; no demand ranking claim",
+      "proposed_custom_domain": "automotive.dreamledger.org",
+      "custom_domain_bound": false,
+      "route_candidate": "/automotive/",
+      "provisioned": false,
+      "runtime_isolation_verified": false,
+      "rls_verified": false,
+      "checkout_verified": false,
+      "fulfillment_verified": false,
+      "buyer_demand_verified": false,
+      "supply_verified": "NOT_VERIFIED",
+      "public_activation_authorized": false,
+      "cube_worker_scaling_authorized": false,
+      "capabilities_by_ref": [
+        "catalog",
+        "compiler",
+        "gauntlet",
+        "commerce-spine",
+        "fossil"
+      ],
+      "catalog_policy": "EMPTY_FOR_NEW_SILOS; NEVER COPY MTG OR OTHER SILO INVENTORY",
+      "commercial_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": null,
+        "listing_policy": "FREE_CANDIDATE_DIRECTORY_OR_CATALOG",
+        "paid_offer_policy": "UNVALIDATED_DO_NOT_PUBLISH_A_PRICE_OR_ENABLE_CHECKOUT"
+      }
+    },
+    {
+      "id": "food-pantry",
+      "slug": "food-pantry",
+      "name": "Food and Pantry",
+      "allowed_domains": [
+        "food-pantry"
+      ],
+      "status": "SCAFFOLD_ONLY_NOT_PROVISIONED",
+      "priority": 50,
+      "priority_source": "candidate queue only; no demand ranking claim",
+      "proposed_custom_domain": "food-pantry.dreamledger.org",
+      "custom_domain_bound": false,
+      "route_candidate": "/food-pantry/",
+      "provisioned": false,
+      "runtime_isolation_verified": false,
+      "rls_verified": false,
+      "checkout_verified": false,
+      "fulfillment_verified": false,
+      "buyer_demand_verified": false,
+      "supply_verified": "NOT_VERIFIED",
+      "public_activation_authorized": false,
+      "cube_worker_scaling_authorized": false,
+      "capabilities_by_ref": [
+        "catalog",
+        "compiler",
+        "gauntlet",
+        "commerce-spine",
+        "fossil"
+      ],
+      "catalog_policy": "EMPTY_FOR_NEW_SILOS; NEVER COPY MTG OR OTHER SILO INVENTORY",
+      "commercial_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": null,
+        "listing_policy": "FREE_CANDIDATE_DIRECTORY_OR_CATALOG",
+        "paid_offer_policy": "UNVALIDATED_DO_NOT_PUBLISH_A_PRICE_OR_ENABLE_CHECKOUT"
+      }
+    },
+    {
+      "id": "education-courses",
+      "slug": "education-courses",
+      "name": "Education and Courses",
+      "allowed_domains": [
+        "education-courses"
+      ],
+      "status": "SCAFFOLD_ONLY_NOT_PROVISIONED",
+      "priority": 50,
+      "priority_source": "candidate queue only; no demand ranking claim",
+      "proposed_custom_domain": "education-courses.dreamledger.org",
+      "custom_domain_bound": false,
+      "route_candidate": "/education-courses/",
+      "provisioned": false,
+      "runtime_isolation_verified": false,
+      "rls_verified": false,
+      "checkout_verified": false,
+      "fulfillment_verified": false,
+      "buyer_demand_verified": false,
+      "supply_verified": "NOT_VERIFIED",
+      "public_activation_authorized": false,
+      "cube_worker_scaling_authorized": false,
+      "capabilities_by_ref": [
+        "catalog",
+        "compiler",
+        "gauntlet",
+        "commerce-spine",
+        "fossil"
+      ],
+      "catalog_policy": "EMPTY_FOR_NEW_SILOS; NEVER COPY MTG OR OTHER SILO INVENTORY",
+      "commercial_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": null,
+        "listing_policy": "FREE_CANDIDATE_DIRECTORY_OR_CATALOG",
+        "paid_offer_policy": "UNVALIDATED_DO_NOT_PUBLISH_A_PRICE_OR_ENABLE_CHECKOUT"
+      }
+    },
+    {
+      "id": "local_services",
+      "slug": "local-services",
+      "name": "Local Services",
+      "allowed_domains": [
+        "local-services"
+      ],
+      "status": "SCAFFOLD_ONLY_NOT_PROVISIONED",
+      "priority": 50,
+      "priority_source": "candidate queue only; no demand ranking claim",
+      "proposed_custom_domain": "local-services.dreamledger.org",
+      "custom_domain_bound": false,
+      "route_candidate": "/local-services/",
+      "provisioned": false,
+      "runtime_isolation_verified": false,
+      "rls_verified": false,
+      "checkout_verified": false,
+      "fulfillment_verified": false,
+      "buyer_demand_verified": false,
+      "supply_verified": "NOT_VERIFIED",
+      "public_activation_authorized": false,
+      "cube_worker_scaling_authorized": false,
+      "capabilities_by_ref": [
+        "catalog",
+        "compiler",
+        "gauntlet",
+        "commerce-spine",
+        "fossil"
+      ],
+      "catalog_policy": "EMPTY_FOR_NEW_SILOS; NEVER COPY MTG OR OTHER SILO INVENTORY",
+      "commercial_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": null,
+        "listing_policy": "FREE_CANDIDATE_DIRECTORY_OR_CATALOG",
+        "paid_offer_policy": "UNVALIDATED_DO_NOT_PUBLISH_A_PRICE_OR_ENABLE_CHECKOUT"
+      }
+    },
+    {
+      "id": "delivery_eta",
+      "slug": "delivery-eta",
+      "name": "Delivery and ETA Tracking",
+      "allowed_domains": [
+        "delivery-eta"
+      ],
+      "status": "SCAFFOLD_ONLY_NOT_PROVISIONED",
+      "priority": 10,
+      "priority_source": "existing asset and proximity to an existing economic path",
+      "proposed_custom_domain": "delivery-eta.dreamledger.org",
+      "custom_domain_bound": false,
+      "route_candidate": "/delivery-eta/",
+      "provisioned": false,
+      "runtime_isolation_verified": false,
+      "rls_verified": false,
+      "checkout_verified": false,
+      "fulfillment_verified": false,
+      "buyer_demand_verified": false,
+      "supply_verified": "NOT_VERIFIED",
+      "public_activation_authorized": false,
+      "cube_worker_scaling_authorized": false,
+      "capabilities_by_ref": [
+        "catalog",
+        "compiler",
+        "gauntlet",
+        "commerce-spine",
+        "fossil"
+      ],
+      "catalog_policy": "EMPTY_FOR_NEW_SILOS; NEVER COPY MTG OR OTHER SILO INVENTORY",
+      "commercial_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": null,
+        "listing_policy": "FREE_CANDIDATE_DIRECTORY_OR_CATALOG",
+        "paid_offer_policy": "UNVALIDATED_DO_NOT_PUBLISH_A_PRICE_OR_ENABLE_CHECKOUT"
+      },
+      "safety_gates": [
+        "ETAs must be estimates backed by timestamped carrier/seller data",
+        "never present an unverified ETA as a guarantee",
+        "show data freshness and exception state"
+      ]
+    },
+    {
+      "id": "crypto",
+      "slug": "crypto",
+      "name": "Crypto",
+      "allowed_domains": [
+        "crypto"
+      ],
+      "status": "SCAFFOLD_ONLY_NOT_PROVISIONED",
+      "priority": 50,
+      "priority_source": "candidate queue only; no demand ranking claim",
+      "proposed_custom_domain": "crypto.dreamledger.org",
+      "custom_domain_bound": false,
+      "route_candidate": "/crypto/",
+      "provisioned": false,
+      "runtime_isolation_verified": false,
+      "rls_verified": false,
+      "checkout_verified": false,
+      "fulfillment_verified": false,
+      "buyer_demand_verified": false,
+      "supply_verified": "NOT_VERIFIED",
+      "public_activation_authorized": false,
+      "cube_worker_scaling_authorized": false,
+      "capabilities_by_ref": [
+        "catalog",
+        "compiler",
+        "gauntlet",
+        "commerce-spine",
+        "fossil"
+      ],
+      "catalog_policy": "EMPTY_FOR_NEW_SILOS; NEVER COPY MTG OR OTHER SILO INVENTORY",
+      "commercial_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": null,
+        "listing_policy": "FREE_CANDIDATE_DIRECTORY_OR_CATALOG",
+        "paid_offer_policy": "UNVALIDATED_DO_NOT_PUBLISH_A_PRICE_OR_ENABLE_CHECKOUT"
+      }
+    },
+    {
+      "id": "accounting",
+      "slug": "accounting",
+      "name": "Agentic Accounting",
+      "allowed_domains": [
+        "accounting"
+      ],
+      "status": "SCAFFOLD_ONLY_NOT_PROVISIONED",
+      "priority": 50,
+      "priority_source": "candidate queue only; no demand ranking claim",
+      "proposed_custom_domain": "accounting.dreamledger.org",
+      "custom_domain_bound": false,
+      "route_candidate": "/accounting/",
+      "provisioned": false,
+      "runtime_isolation_verified": false,
+      "rls_verified": false,
+      "checkout_verified": false,
+      "fulfillment_verified": false,
+      "buyer_demand_verified": false,
+      "supply_verified": "NOT_VERIFIED",
+      "public_activation_authorized": false,
+      "cube_worker_scaling_authorized": false,
+      "capabilities_by_ref": [
+        "catalog",
+        "compiler",
+        "gauntlet",
+        "commerce-spine",
+        "fossil"
+      ],
+      "catalog_policy": "EMPTY_FOR_NEW_SILOS; NEVER COPY MTG OR OTHER SILO INVENTORY",
+      "commercial_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": null,
+        "listing_policy": "FREE_CANDIDATE_DIRECTORY_OR_CATALOG",
+        "paid_offer_policy": "UNVALIDATED_DO_NOT_PUBLISH_A_PRICE_OR_ENABLE_CHECKOUT"
+      },
+      "safety_gates": [
+        "scope limitations visible",
+        "source evidence required",
+        "no unsupported legal/tax/compliance certification claims",
+        "human approval for filings, attestations, and high-impact actions"
+      ]
+    },
+    {
+      "id": "production_verification",
+      "slug": "production-verification",
+      "name": "Production Verification",
+      "allowed_domains": [
+        "production-verification"
+      ],
+      "status": "SCAFFOLD_ONLY_NOT_PROVISIONED",
+      "priority": 50,
+      "priority_source": "candidate queue only; no demand ranking claim",
+      "proposed_custom_domain": "production-verification.dreamledger.org",
+      "custom_domain_bound": false,
+      "route_candidate": "/production-verification/",
+      "provisioned": false,
+      "runtime_isolation_verified": false,
+      "rls_verified": false,
+      "checkout_verified": false,
+      "fulfillment_verified": false,
+      "buyer_demand_verified": false,
+      "supply_verified": "NOT_VERIFIED",
+      "public_activation_authorized": false,
+      "cube_worker_scaling_authorized": false,
+      "capabilities_by_ref": [
+        "catalog",
+        "compiler",
+        "gauntlet",
+        "commerce-spine",
+        "fossil"
+      ],
+      "catalog_policy": "EMPTY_FOR_NEW_SILOS; NEVER COPY MTG OR OTHER SILO INVENTORY",
+      "commercial_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": null,
+        "listing_policy": "FREE_CANDIDATE_DIRECTORY_OR_CATALOG",
+        "paid_offer_policy": "UNVALIDATED_DO_NOT_PUBLISH_A_PRICE_OR_ENABLE_CHECKOUT"
+      }
+    }
+  ],
+  "commercial_surfaces": [
+    {
+      "id": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "name": "Founding Billboard Tile",
+      "source_paths": [
+        "BEC-PRIME/catalog/products/DREAMLEDGER-BILLBOARD-FOUNDING-001.json",
+        "public/billboard.html"
+      ],
+      "listed_price_nzd": 50,
+      "status": "PUBLIC_BUY_BUTTON_EXISTS_BUT_SECURE_INTAKE_AND_INVENTORY_RESERVATION_UNVERIFIED",
+      "payment_link_in_product_record": null,
+      "production_checkout_verified": false,
+      "fulfillment_verified": false,
+      "expansion_priority": 1,
+      "blockers": [
+        "Product record says checkout held because secure intake and live inventory reservation routes are missing.",
+        "Public page exposes Stripe buy URLs, but the full pay-to-delivery route has not been independently verified. Do not promote until reconciled."
+      ]
+    },
+    {
+      "id": "COMMANDER-DECK-DIAGNOSTIC-001",
+      "name": "Commander Deck Diagnostic",
+      "source_paths": [
+        "BEC-PRIME/catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json",
+        "BEC-PRIME/fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json"
+      ],
+      "listed_price_nzd": 29,
+      "status": "HELD",
+      "production_checkout_verified": false,
+      "fulfillment_verified": false,
+      "expansion_priority": 99,
+      "blockers": [
+        "Catalog checkout disabled; fulfillment.mode disabled and operator_required=true.",
+        "Existing MTG master silo remains the reference, but this SKU is not a current sellable offer."
+      ]
+    },
+    {
+      "id": "DREAMMEEZ-SUPPORTER-SPROUT",
+      "name": "DreamMeez Supporter Sprout",
+      "source_paths": [
+        "public/avatar.html",
+        "public/money.html"
+      ],
+      "listed_price_nzd": null,
+      "status": "SKU_AND_LIVE_CHECKOUT_NOT_INDEPENDENTLY_VERIFIED",
+      "production_checkout_verified": false,
+      "fulfillment_verified": false,
+      "expansion_priority": 2,
+      "blockers": [
+        "Avatar surface contains low-ticket cosmetic pricing copy, but this audit did not establish a matching live product/price, successful settlement or delivery receipt."
+      ]
+    },
+    {
+      "id": "QUOTE-COMPARE-49",
+      "name": "Supplier Quote Comparison",
+      "source_paths": [
+        "BEC-PRIME/fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json",
+        "public/quote-comparison/index.html"
+      ],
+      "listed_price_nzd": 49,
+      "status": "FULFILLMENT_REGISTRY_CLAIM_NOT_REVALIDATED",
+      "production_checkout_verified": false,
+      "fulfillment_verified": false,
+      "expansion_priority": 3,
+      "blockers": [
+        "Registry points to Supabase Edge Functions and a worker; database and production route were not independently verified in this audit.",
+        "Free browser worksheet is not a paid order."
+      ]
+    }
   ],
   "rules": [
-    "No catalog, checkout, analytics, content, customer data, or promotion may cross silo boundaries.",
-    "DreamLedger remains neutral and does not become a silo.",
-    "Shared infrastructure may be reused only when silo identity is explicit and data isolation is preserved.",
-    "Every monetization surface must emit a proof artifact before revenue claims are made.",
-    "ACCOUNTING live payments and tax filings require explicit human approval.",
-    "PRODUCTION_VERIFICATION may reuse the commerce spine but must retain its own offer, prospect, fulfillment, and economic evidence namespace.",
-    "CUBE clones preserve source-silo identity and may not import another silo's customer data, credentials, analytics, content, or promotion."
-  ]
+    "Registry entries are candidate configuration, not created domains, databases, deployed worker pools, or live tenant RLS.",
+    "No third-party domain or tenant may be said to be provisioned unless DNS, route, data store, and isolation probes pass.",
+    "Do not copy inventory, customers, posts, offers, checkout sessions, credentials, analytics identities, or promotional state across silos.",
+    "No candidate checkout is publishable until buyer price, SKU, payment endpoint, settlement reconciliation, fulfillment handler, and delivery proof are tested together.",
+    "Baby and kids listings must apply recall/safety exclusions before publishing.",
+    "Economic promotion rank is prioritization, not evidence of demand or guaranteed revenue.",
+    "A PASS from Verify-CUBE-SiloIsolation.ps1 proves registry consistency only; it does not prove live RLS, custom-domain routing, payment, or production isolation."
+  ],
+  "source_contract": "BEC-PRIME/cube/CUBE-SILO-FACTORY-CONTRACT.json"
 }
