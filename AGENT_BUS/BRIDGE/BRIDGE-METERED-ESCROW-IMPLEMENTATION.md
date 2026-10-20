@@ -9,6 +9,8 @@ Branch: feat/bridge-metered-escrow-proof-20261020
 - The existing economic toll-road is `supabase/functions/agent-toll-road/index.ts`.
 - That toll-road currently imports `registerExactEvmScheme` and registers fixed-price routes. It does not register the EVM `upto` scheme.
 - The function defaults to Base Sepolia unless `X402_TESTNET=false`; a mainnet result must be verified from the actual network and transaction receipt.
+- This branch adds `supabase/functions/bridge-metered/index.ts`. Its `POST /v1/metered_inference` route is disabled unless the operator explicitly enables `BRIDGE_METERED_INFERENCE_ENABLED=true` and supplies an HTTPS inference worker URL/token, a payTo address, and a facilitator. It uses the official Hono settlement-override helper with the EVM `upto` server scheme.
+- Its `POST /v1/async_task` route is deliberately fail-closed and returns `503 ESCROW_NOT_CONFIGURED`; the state-machine helper is not a substitute for a deployed escrow contract.
 - The existing MCP gateway policy is local stdio-only and proposal-only. This change does not expose Gauntlet, Judge, shell execution, payment credentials, or any additional MCP tools.
 
 ## Metered price contract
@@ -29,11 +31,11 @@ The x402 `upto` scheme authorizes a maximum and lets the server set the final am
 
 A database state machine is not an escrow. The state helper added here requires funding transaction evidence before queueing, delivery and reviewer evidence before release, and an on-chain release or refund transaction hash for terminal money movement. It allows five requested revisions before the following rejection leads to REFUND_PENDING.
 
-The HTTP endpoint that creates and funds real escrow is intentionally not enabled by this branch alone. Before enabling it, select an actual deployed contract, verify its chain ID/address/ABI and supported token, specify buyer/provider/evaluator roles, deadlines and dispute/timeout behavior, and run contract tests plus a testnet lifecycle. No contract deployment, wallet signing, or payment is performed by these changes.
+The HTTP endpoint that creates and funds real escrow is intentionally not enabled by this branch alone. The `POST /v1/async_task` route returns a fail-closed 503 rather than pretending that a database row locks funds. Before enabling it, select an actual deployed contract, verify its chain ID/address/ABI and supported token, specify buyer/provider/evaluator roles, deadlines and dispute/timeout behavior, and run contract tests plus a testnet lifecycle. No contract deployment, wallet signing, or payment is performed by these changes.
 
 ## Local inference boundary
 
-A Supabase Edge Function cannot call a user's LM Studio process at `127.0.0.1:1234`; that address would resolve to the cloud runtime. A paid inference route needs a reachable, authenticated execution adapter, or a local worker that polls a durable queue and returns a signed/correlated result. The runtime must use server-measured usage and hash the exact delivered payload bytes. This branch does not invent a worker URL or tunnel.
+A Supabase Edge Function cannot call a user's LM Studio process at `127.0.0.1:1234`; that address would resolve to the cloud runtime. A paid inference route needs a reachable, authenticated execution adapter, or a local worker that polls a durable queue and returns a signed/correlated result. The runtime must use server-measured usage and hash the exact delivered payload bytes. The code hashes the worker's delivered `text` bytes and advertises settlement using an atomic-unit override. This branch does not invent a worker URL or tunnel.
 
 ## Discovery and publishing
 
