@@ -174,7 +174,8 @@ if (!catalogResult || catalogResult.status !== 200 || !catalog || !Array.isArray
       continue;
     }
 
-    const primaryMarker = String(product.commander || product.name || product.id || '').split(' — ')[0].trim();
+    const preferredMarker = product.commander && product.commander !== 'See listing' ? product.commander : (product.name || product.id || '');
+    const primaryMarker = String(preferredMarker).split(' ' + String.fromCharCode(0x2014) + ' ')[0].trim();
     const detail = await probe({
       path: detailPath,
       status: 200,
