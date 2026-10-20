@@ -1,7 +1,7 @@
 {
   "schema":"dreamledger.a2a.agent-card.v1",
-  "name":"DreamLedger Marketplace",
-  "description":"B2B and A2A discovery, quote and commerce handoff surface.",
+  "name":"Kelphaven.n Marketplace",
+  "description":"Kelphaven.n B2B and A2A discovery, quote and commerce handoff surface.",
   "protocols":["HTTP+JSON","A2A-compatible machine discovery"],
   "human_web":"/marketplace.html",
   "b2b_web":"/b2b",
