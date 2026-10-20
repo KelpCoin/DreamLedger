@@ -1,0 +1,62 @@
+name: BEC Economic Readiness and Silo Clone Contract
+
+on:
+  pull_request:
+    paths:
+      - "ops/economic/**"
+      - "BEC-PRIME/OWN-FIRST-COMPANY-OPERATOR.json"
+      - "BEC-PRIME/catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json"
+      - "BEC-PRIME/catalog/products/DREAMLEDGER-BILLBOARD-FOUNDING-001.json"
+      - "BEC-PRIME/fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json"
+      - ".github/workflows/mtg-diagnostic-fulfillment.yml"
+      - "public/billboard.html"
+      - "public/avatar.html"
+  push:
+    branches: [main]
+    paths:
+      - "ops/economic/**"
+      - "BEC-PRIME/OWN-FIRST-COMPANY-OPERATOR.json"
+      - "BEC-PRIME/catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json"
+      - "BEC-PRIME/catalog/products/DREAMLEDGER-BILLBOARD-FOUNDING-001.json"
+      - "BEC-PRIME/fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json"
+      - ".github/workflows/mtg-diagnostic-fulfillment.yml"
+      - "public/billboard.html"
+      - "public/avatar.html"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bec-economic-silo-contract-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  inspect-economic-contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout exact commit
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate registry and source readiness detection
+        run: python -m unittest discover -s ops/economic -p "test_*.py" -v
+
+      - name: Emit read-only economic readiness report
+        run: python ops/economic/verify_clone_economics.py --output proof/economic/BEC-ECONOMIC-READINESS.json
+
+      - name: Retain audit proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bec-economic-readiness-${{ github.run_id }}
+          path: |
+            proof/economic/BEC-ECONOMIC-READINESS.json
+          if-no-files-found: warn
+          retention-days: 30
