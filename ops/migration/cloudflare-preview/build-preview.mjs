@@ -68,11 +68,17 @@ await fs.rm(output, { recursive:true, force:true });
 await fs.mkdir(output, { recursive:true });
 await walk(source);
 await fs.copyFile(workerSource, path.join(output, '_worker.js'));
+const missingPage = path.join(output, '404.html');
+if (!(await fs.stat(missingPage).catch(() => null))?.isFile()) {
+  throw new Error('ROOT_404_REQUIRED: missing public/404.html; Pages would enable its default SPA fallback.');
+}
 const worker = await fs.readFile(workerSource);
 manifest.included.push({ path:'_worker.js', bytes:worker.length, sha256:crypto.createHash('sha256').update(worker).digest('hex') });
 await fs.writeFile(path.join(here, 'build-proof.json'), JSON.stringify({
   ...manifest,
   status:'PREVIEW_BUNDLE_BUILT_NOT_PRODUCTION_READY',
+  root_404_present:true,
+  unknown_paths:'MUST_RETURN_404_NOT_ROOT_SPA_FALLBACK',
   static_only:false,
   dynamic_routes:'EXPLICITLY_BLOCKED_UNTIL_PORTED',
   production_mutation:false,
