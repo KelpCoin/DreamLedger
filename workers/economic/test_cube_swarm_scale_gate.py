@@ -8,7 +8,8 @@ def fixture(epv_target=10.0):
     orders = []
     # Synthetic fixtures test policy branches only. They do not represent real sales.
     for i in range(3):
-        gross = 100.0
+        gross = 300.0
+        platform_revenue = 300.0
         fees = 3.0
         fulfilment = 2.0
         provider = 1.0
@@ -26,13 +27,16 @@ def fixture(epv_target=10.0):
             "delivery_proof_status": "VERIFIED",
             "delivery_proof_sha256": hashlib.sha256(f"delivery_{i}".encode()).hexdigest(),
             "gross_amount_nzd": gross,
+            "platform_revenue_nzd": platform_revenue,
             "processor_fees_nzd": fees,
             "direct_fulfillment_cost_nzd": fulfilment,
             "provider_cost_nzd": provider,
             "refund_amount_nzd": 0,
+            "refund_cost_nzd": 0,
         })
-    # Contribution margin is 282 NZD. Choose visitors to exercise the requested EPV tier.
-    visitors = max(1, round(282 / epv_target))
+    # Synthetic direct-sale fixture: platform revenue is explicit. Net contribution is 882 NZD.
+    # These rows are test-only and never constitute live economic evidence.
+    visitors = max(3, int(882 / epv_target))
     return {
         "schema": SCHEMA,
         "verified_bundle": {
@@ -116,9 +120,34 @@ class CubeSwarmScaleGateTests(unittest.TestCase):
         self.assertFalse(d["execute_scale"])
         self.assertFalse(d["production_mutation"])
 
+
+    def test_zero_fee_marketplace_gmv_is_not_platform_revenue(self):
+        e = fixture(epv_target=50.0)
+        for order in e["orders"]:
+            order["platform_revenue_nzd"] = 0.0
+        d = recommend_scale(e)
+        self.assertEqual(d["decision"], "HOLD_BASELINE_PREPARE_ONLY")
+        self.assertEqual(d["revenue_claimed_by_gate_nzd"], 0)
+        self.assertIn("NON_POSITIVE_NET_CONTRIBUTION_MARGIN", " ".join(d["blockers"]))
+
+    def test_distinct_buyers_cannot_exceed_qualified_visitor_denominator(self):
+        e = fixture(epv_target=50.0)
+        e["unique_qualified_visitors"] = 2
+        d = recommend_scale(e)
+        self.assertEqual(d["decision"], "HOLD_BASELINE_PREPARE_ONLY")
+        self.assertIn("BUYER_COUNT_EXCEEDS_QUALIFIED_VISITOR_DENOMINATOR", " ".join(d["blockers"]))
+
+    def test_legacy_gmv_only_v1_evidence_is_rejected(self):
+        e = fixture()
+        e["schema"] = "bec/cube-scale-evidence/v1"
+        d = recommend_scale(e)
+        self.assertEqual(d["decision"], "HOLD_BASELINE_PREPARE_ONLY")
+        self.assertIn("INVALID_OR_MISSING_EVIDENCE_SCHEMA", " ".join(d["blockers"]))
+
     def test_refunds_and_costs_reduce_net_contribution(self):
         e = fixture(epv_target=50.0)
-        e["orders"][0]["refund_amount_nzd"] = 100.0
+        e["orders"][0]["refund_amount_nzd"] = e["orders"][0]["gross_amount_nzd"]
+        e["orders"][0]["refund_cost_nzd"] = e["orders"][0]["platform_revenue_nzd"]
         d = recommend_scale(e)
         self.assertEqual(d["decision"], "HOLD_BASELINE_PREPARE_ONLY")
 
