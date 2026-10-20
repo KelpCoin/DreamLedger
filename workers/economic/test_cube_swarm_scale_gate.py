@@ -135,7 +135,8 @@ class CubeSwarmScaleGateTests(unittest.TestCase):
         e["unique_qualified_visitors"] = 2
         d = recommend_scale(e)
         self.assertEqual(d["decision"], "HOLD_BASELINE_PREPARE_ONLY")
-        self.assertIn("BUYER_COUNT_EXCEEDS_QUALIFIED_VISITOR_DENOMINATOR", " ".join(d["blockers"]))
+        self.assertEqual(d["reason"], "BUYER_COUNT_EXCEEDS_QUALIFIED_VISITOR_DENOMINATOR")
+        self.assertIn("only 2 qualified visitors", " ".join(d["blockers"]))
 
     def test_legacy_gmv_only_v1_evidence_is_rejected(self):
         e = fixture()
