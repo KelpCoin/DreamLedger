@@ -114,9 +114,17 @@
       "per-silo tenant boundary tests",
       "idempotent retry tests",
       "budget cap",
-      "rollback path"
+      "rollback path",
+      "signed settlement-and-fulfillment reconciliation attestation",
+      "verified ledger and reconciliation SHA-256 digests",
+      "HMAC key held outside repository",
+      "decision-only output reviewed before any independently authorized worker mutation"
     ],
-    "policy_note": "The thresholds 25/120/64 originate from the requested strategy, not from independent runtime validation. Automatic scaling remains disabled until live worker code and economic inputs are verified."
+    "policy_note": "The thresholds 25/120/64 originate from the requested strategy, not from independent runtime validation. Automatic scaling remains disabled until live worker code and economic inputs are verified.",
+    "decision_gate_path": "ops/economic/cube_epv_gate.py",
+    "signed_evidence_required": true,
+    "attestation_algorithm": "HMAC-SHA256 from trusted reconciler; key supplied via CUBE_ECONOMIC_EVIDENCE_HMAC_KEY",
+    "decision_engine_side_effects": false
   },
   "acceptance_gates": [
     {
