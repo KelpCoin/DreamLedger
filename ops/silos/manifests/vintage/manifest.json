@@ -1,0 +1,79 @@
+{
+  "schema": "dreamledger/silo-candidate-manifest/v1",
+  "generated_at_utc": "2026-10-20T01:06:34.913Z",
+  "registry_source": "ops/silos/CUBE-SILO-CANDIDATE-REGISTRY.json",
+  "registry_sha256": null,
+  "silo_id": "collectibles-vintage",
+  "slug": "vintage",
+  "name": "Collectibles & Vintage",
+  "role": "CANDIDATE",
+  "stage": "CANDIDATE_NOT_PROVISIONED",
+  "category": "Vintage objects, memorabilia and collector goods",
+  "priority": 13,
+  "clone_source": "nz-mtg",
+  "primary_route": "/vintage/",
+  "custom_domain": {
+    "requested": "vintage.dreamledger.org",
+    "status": "NOT_CONFIGURED",
+    "dns_mutation_performed": false
+  },
+  "economics": {
+    "platform_take_rate_pct": null,
+    "seller_listing_fee_pct": 0,
+    "price_validation": "NOT_RUN",
+    "demand_validation": "NOT_RUN",
+    "cost_to_serve_validation": "NOT_RUN",
+    "verified_revenue_nzd": 0,
+    "asset_readiness": "NEW_CANDIDATE"
+  },
+  "tenant_isolation": {
+    "silo_id_required_on_all_records": true,
+    "rls_status": "NOT_PROVISIONED_OR_TESTED",
+    "cross_tenant_negative_tests": "NOT_RUN",
+    "inventory_copied_from_master": false,
+    "user_data_copied_from_master": false,
+    "vouches_copied_from_master": false,
+    "credentials_generated": false,
+    "secret_values_in_manifest": false
+  },
+  "runtime": {
+    "public_route_live": false,
+    "payment_link_bound": false,
+    "fulfillment_verified": false,
+    "database_provisioned": false,
+    "production_mutations_performed": false
+  },
+  "cube_swarm": {
+    "status": "DISABLED_UNTIL_ECONOMIC_GATES_PASS",
+    "deployed_workers_verified": 0,
+    "candidate_default_workers": 0,
+    "max_workers_before_first_verified_sale": 1,
+    "scale_up_enabled": false,
+    "epv_thresholds_authorize_scale": false,
+    "rule": "Only observed net contribution and completed proof can advance a silo. Traffic, generated signals, simulated throughput, active Stripe objects and EPV heuristics alone do not authorize worker creation."
+  },
+  "buyer_job": "Find niche items with authenticity and provenance signals",
+  "required_data_fields": [
+    "maker/era",
+    "condition",
+    "provenance",
+    "authenticity statement",
+    "photos"
+  ],
+  "additional_gate": "Never label authenticity verified without independent evidence.",
+  "go_live_gates": [
+    "owner-approved SKU and exact price",
+    "observed intent with buyer-facing problem, price and channel",
+    "cost-to-serve and contribution-margin estimate",
+    "working buyer intake and active checkout link verified at deployment time",
+    "signed payment event verification plus duplicate/replay tests",
+    "durable idempotent settlement record",
+    "automated or explicitly disclosed fulfillment path",
+    "retrievable delivery proof",
+    "refund/failure recovery test",
+    "RLS/isolation and security tests",
+    "public route and commit-SHA probes"
+  ],
+  "state": "HOLD",
+  "not_a_live_marketplace_notice": "Candidate manifest only. No route, DNS, database row, Stripe link, inventory, external post or worker is provisioned by this file."
+}
