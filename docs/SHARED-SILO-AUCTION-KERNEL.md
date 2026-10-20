@@ -30,14 +30,22 @@ All auctions are discovery/offer mechanics only. Payment, payout, refund, fulfil
 - Publication approval is a trusted human/reviewer action, not an untrusted seller update.
 - Auction completion creates a **winner/payment-pending** state only. No paid status is inferred from the winning bid. Settlement must be independently confirmed, attributed, fulfilled and supported by retrievable delivery evidence before revenue is verified.
 
+## API adapter
+
+`api/auctions.js` exposes:
+- `GET /api/auctions?silo_id=mtg`: lists approved, open auctions under existing RLS.
+- `POST /api/auctions`: accepts `auction_id`, `amount`, and `idempotency_key`, forwards the caller's Supabase JWT to the bid RPC, and never uses a service-role key.
+
+The route fails closed if URL/anon-key configuration is missing and applies an eight-second upstream timeout. It is source-controlled but not yet production-verified. Do not advertise it as live until the migration is applied, environment variables are verified, deployment completes, and end-to-end tests pass.
+
 ## Cloud-first deployment sequence
 
-1. Run static contract tests and SQL lint/review.
+1. Run static contract tests and SQL/API syntax checks.
 2. Confirm Supabase database connectivity and migration history are healthy.
 3. Review the existing MTG auction policies and define a migration/adapter path. Do not assume this additive migration automatically secures legacy `mtg_auctions`.
 4. Apply migration in a controlled window with backup/rollback plan.
 5. Test concurrent bids, replayed idempotency key, self-bid, late bid, unapproved auction, reserve-not-met, and anonymous access.
-6. Wire a server-side API adapter using the authenticated Supabase JWT; never put the service-role key in a browser.
+6. Deploy the API route with `SUPABASE_URL` and `SUPABASE_ANON_KEY` (or `NEXT_PUBLIC_SUPABASE_ANON_KEY`) configured; never put the service-role key in a browser.
 7. Add a payment/fulfillment handoff only after a trusted auction close and human-approved checkout policy. Do not auto-charge bidders.
 8. Roll out MTG first. Promote other silo IDs only after isolation, economics, refund/dispute and delivery tests pass.
 
@@ -47,4 +55,4 @@ The GitHub `online-auction` topic contains multiple student/demo implementations
 
 ## Proof boundaries
 
-This PR proves only that the migration and contract are present in source control and static checks pass. It does **not** prove database migration, production API integration, successful bids, checkout, settlement, delivery or revenue.
+This PR proves only that the migration, API adapter and contract checks are present in source control. It does **not** prove database migration, production API deployment, successful bids, checkout, settlement, delivery or revenue.
