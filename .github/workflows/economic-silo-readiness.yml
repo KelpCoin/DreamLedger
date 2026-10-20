@@ -1,0 +1,55 @@
+name: Economic readiness and silo candidate contract
+
+on:
+  pull_request:
+    paths:
+      - "ops/economics/**"
+      - "ops/silos/**"
+      - ".github/workflows/economic-silo-readiness.yml"
+  push:
+    branches:
+      - main
+      - "beck/economic-silo-upscaling-20261020"
+    paths:
+      - "ops/economics/**"
+      - "ops/silos/**"
+      - ".github/workflows/economic-silo-readiness.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: economic-silo-readiness-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate-economic-evidence-and-build-candidates:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run economic and isolation tests
+        run: python -m unittest discover -s ops/economics/tests -v
+      - name: Emit economic audit proof
+        run: python ops/economics/validate_economic_readiness.py --output proof/economics/economic-readiness-audit.json
+      - name: Generate 19 held candidate manifests
+        run: python ops/silos/build_silo_candidates.py --output-dir "$RUNNER_TEMP/dreamledger-silo-candidates" --summary proof/silos/candidate-build-summary.json
+      - name: Assert candidate count and fail-closed state
+        env:
+          CANDIDATE_OUTPUT_DIR: ${{ runner.temp }}/dreamledger-silo-candidates
+        run: |
+          python -c "import json,os; from pathlib import Path; p=json.loads(Path('proof/silos/candidate-build-summary.json').read_text()); assert p['candidate_manifest_count']==19; assert p['workers_provisioned']==0; assert p['scale_up_enabled'] is False; assert p['production_mutations_performed'] is False; assert len(list((Path(os.environ['CANDIDATE_OUTPUT_DIR'])/'silos').glob('*/manifest.json')))==19; print('SILO_CANDIDATE_CONTRACT=PASS; PRODUCTION_PROVISIONING=NOT_RUN; CUBE_SCALE_UP=DISABLED')"
+      - name: Retain economic and silo proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: economic-silo-readiness-${{ github.run_id }}
+          path: |
+            proof/economics/economic-readiness-audit.json
+            proof/silos/candidate-build-summary.json
+          if-no-files-found: warn
+          retention-days: 30
