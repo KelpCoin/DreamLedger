@@ -46,5 +46,9 @@
     "new_workers_authorized": 0,
     "provisioned_by_this_change": 0,
     "production_scale_mutation": false
-  }
+  },
+  "evidence_schema": "bec/cube-scale-evidence/v2",
+  "contribution_formula": "platform_revenue_nzd - processor_fees_nzd - direct_fulfillment_cost_nzd - provider_cost_nzd - refund_cost_nzd. gross_amount_nzd represents GMV and is never treated as DreamLedger revenue or contribution.",
+  "zero_fee_marketplace_rule": "For a 0% peer success-fee silo such as MTG, GMV is not platform revenue. If no independently evidenced platform revenue offsets platform-borne costs, net contribution is non-positive and CUBE remains HOLD.",
+  "visitor_denominator_rule": "The count of distinct independent buyer hashes cannot exceed the observed unique qualified visitor denominator."
 }
