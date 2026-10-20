@@ -67,7 +67,11 @@ test('economic readiness rejects claims unsupported by live settlement and fulfi
   assert.equal(scaling.verified_external_revenue_nzd, 0);
   assert.equal(scaling.current_action.new_workers_authorized, 0);
   assert.equal(scaling.current_action.production_scale_mutation, false);
-  assert.equal(scaling.epv_policy.simulation_performance_claims.revenue_or_scale_evidence, false);
+  assert.equal(scaling.status, 'HOLD_NO_VERIFIED_ECONOMIC_EVIDENCE');
+  assert.equal(scaling.current_action.action, 'HOLD_BASELINE_PREPARE_ONLY');
+  assert.equal(scaling.current_action.new_workers_authorized, 0);
+  assert.equal(scaling.current_action.production_scale_mutation, false);
+  assert.ok(scaling.policy_rules.some(rule => /simulation/i.test(rule) && /cannot/i.test(rule)));
   assert.equal(money.commercial_ladder_status, 'UNVALIDATED_HYPOTHESIS_NOT_APPROVED_FOR_PUBLIC_PUBLICATION');
   const billboard = registry.commercial_surfaces.find(s => s.id === 'DREAMLEDGER-BILLBOARD-FOUNDING-001');
   assert.equal(billboard.production_checkout_verified, false);
