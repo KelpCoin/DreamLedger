@@ -16,7 +16,8 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
+  pull-requests: write
 
 concurrency:
   group: 777-repository-membrane-${{ github.ref }}
@@ -43,6 +44,29 @@ jobs:
       - name: Run 777 compounding gate on hydrated artifacts
         if: github.event_name != 'pull_request'
         run: python scripts/777_compounding_gate.py
+      - name: Persist validated repository packets as a reviewable PR
+        if: github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if ! compgen -G "data/777/repository-expeditions/*.json" > /dev/null; then
+            echo "REPOSITORY_ARTIFACT_PR=NO_NEW_PACKET"
+            exit 0
+          fi
+          git add -f data/777/repository-expeditions/*.json
+          if git diff --cached --quiet; then
+            echo "REPOSITORY_ARTIFACT_PR=NO_NEW_CHANGES"
+            exit 0
+          fi
+          branch="777/repository-expedition-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch --create "$branch"
+          git commit -m "Add validated 777 repository expedition artifact"
+          git push origin "$branch"
+          gh pr create --base main --head "$branch"             --title "777 repository expedition artifacts (${GITHUB_RUN_ID})"             --body "Automated data-only repository expedition packet(s), independently hydrated from public GitHub repository metadata, default-branch HEAD and licence evidence. Schema and compounding-gate validation passed in workflow run ${GITHUB_RUN_ID}. Truth remains UNVERIFIED. No repository source code was downloaded or executed; no dependency installed; no production, external action, credential, private-data or revenue claim. Human review is required before any reuse or promotion."
+
       - name: Return validated repository artifacts to xBiggie
         if: always()
         uses: actions/upload-artifact@v4
