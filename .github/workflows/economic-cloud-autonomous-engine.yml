@@ -2,6 +2,12 @@ name: Economic Cloud Autonomous Engine
 
 on:
   workflow_dispatch:
+    inputs:
+      enable_production_mutations:
+        description: "Allow this run to write production Supabase state or dispatch GPU enrichment."
+        required: true
+        type: boolean
+        default: false
   schedule:
     - cron: '7,22,37,52 * * * *'
 
@@ -21,13 +27,22 @@ jobs:
       SUPABASE_URL: https://wbwgroygjeyukkspnqiy.supabase.co
       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
       REVIEW_WIP_LIMIT: 1
+      PRODUCTION_MUTATIONS_ENABLED: ${{ github.event_name == 'workflow_dispatch' && inputs.enable_production_mutations == true }}
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Preflight
         shell: bash
         run: |
           set -euo pipefail
+          test -f BEC-PRIME/scripts/Run-777.js
+          node --check BEC-PRIME/scripts/Run-777.js
           test -n "$SUPABASE_SERVICE_ROLE_KEY"
           echo "CLOUD_ENGINE=READY"
+          echo "PRODUCTION_MUTATIONS_ENABLED=$PRODUCTION_MUTATIONS_ENABLED"
 
       - name: Execute 777 economic engine
         shell: bash
@@ -76,6 +91,7 @@ jobs:
           PY
 
       - name: Expire stale human gates
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.enable_production_mutations == true }}
         shell: bash
         run: |
           set -euo pipefail
@@ -102,6 +118,7 @@ jobs:
           fi
 
       - name: Write cloud heartbeat
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.enable_production_mutations == true }}
         shell: bash
         run: |
           set -euo pipefail
@@ -117,12 +134,14 @@ jobs:
           NODE
 
       - name: Reconcile external settlement evidence
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.enable_production_mutations == true }}
         shell: bash
         run: |
           set -euo pipefail
           curl -fsS --max-time 90             -X POST "$SUPABASE_URL/functions/v1/x402-reconcile"             -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY"             -H "Content-Type: application/json"             --data '{}' | tee x402-reconcile.json
 
       - name: Compile live economic opportunities
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.enable_production_mutations == true }}
         shell: bash
         run: |
           set -euo pipefail
@@ -130,7 +149,7 @@ jobs:
           node -e 'const x=require("./economic-compiler.json"); if(x.ok!==true) process.exit(1); console.log(JSON.stringify(x,null,2));'
 
       - name: Refresh autonomous supervisor
-        if: steps.review_wip.outputs.capacity == 'true'
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.enable_production_mutations == true && steps.review_wip.outputs.capacity == 'true' }}
         shell: bash
         run: |
           set -euo pipefail
@@ -169,7 +188,7 @@ jobs:
           echo "GPU_RUNNER_AVAILABLE=$available"
 
       - name: Dispatch bounded GPU enrichment when available
-        if: steps.gpu.outputs.available == 'true' && steps.review_wip.outputs.capacity == 'true'
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.enable_production_mutations == true && steps.gpu.outputs.available == 'true' && steps.review_wip.outputs.capacity == 'true' }}
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
@@ -194,6 +213,7 @@ jobs:
             commit:process.env.GITHUB_SHA,
             cloud_only:true,
             local_pc_required:false,
+            production_mutations_enabled:process.env.PRODUCTION_MUTATIONS_ENABLED==='true',
             compiler:{
               source_signals:compiler.source_signals||0,
               mechanisms:compiler.mechanisms||0,
