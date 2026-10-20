@@ -1,7 +1,7 @@
 import hashlib
 import unittest
 
-from cube_swarm_scale_gate import EMPTY_SHA256, SCHEMA, recommend_scale
+from workers.economic.cube_swarm_scale_gate import EMPTY_SHA256, SCHEMA, recommend_scale
 
 
 def fixture(epv_target=10.0):
