@@ -1,0 +1,140 @@
+{
+  "schema": "dreamledger/stripe-economic-evidence/v1",
+  "observed_date": "2026-10-20",
+  "observation_mode": "READ_ONLY_LIVE_STRIPE_API",
+  "freshness": "SNAPSHOT_ONLY_RECHECK_BEFORE_ANY_CHECKOUT_OR_RELEASE",
+  "account_label": "DreamLedger live account",
+  "privacy": "No customer names, emails, receipt URLs, client secrets, or account access tokens recorded.",
+  "catalog_sample": {
+    "products_first_page": {
+      "requested_limit": 100,
+      "returned": 100,
+      "has_more": true,
+      "active": 95,
+      "inactive": 5,
+      "observation": "Many returned active M10K service-wall records carry metadata status CANDIDATE; active=true does not mean commercially ready."
+    },
+    "payment_links_first_page": {
+      "requested_limit": 100,
+      "returned": 100,
+      "has_more": true,
+      "active": 50,
+      "inactive": 50,
+      "observation": "This is a returned page, not a complete account-wide count."
+    }
+  },
+  "account_level_settlement_evidence": {
+    "charges_returned": 2,
+    "has_more": false,
+    "successful_paid_charges": 2,
+    "original_currency_gross": [
+      {
+        "currency": "nzd",
+        "amount_minor": 500
+      },
+      {
+        "currency": "usd",
+        "amount_minor": 100
+      }
+    ],
+    "balance_transactions_returned": 2,
+    "balance_transaction_currency": "nzd",
+    "converted_gross_minor_nzd": 667,
+    "fees_minor_nzd": 80,
+    "net_minor_nzd": 587,
+    "attribution_state": "UNMATCHED",
+    "fulfillment_state": "NOT_PROVEN",
+    "include_in_verified_dreamledger_revenue": false,
+    "reason": "Returned charge records had no useful product/offer metadata and no joined independent delivery proof. Account-level charges cannot be asserted as verified DreamLedger product revenue."
+  },
+  "inspected_offers": [
+    {
+      "offer_key": "billboard_founding_50",
+      "product_name": "Internet Billboard - Permanent 100x100 Placement",
+      "expected_price": {
+        "currency": "nzd",
+        "amount_minor": 5000
+      },
+      "public_page": "public/billboard.html",
+      "public_cta_url": "https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w",
+      "stripe_payment_link_id": "plink_1U9JGTEGgEAnUFF9WRg3CKk3",
+      "stripe_link_active": false,
+      "after_completion": "hosted_confirmation",
+      "verdict": "BLOCKED",
+      "finding": "Public page says Stripe checkout is live but its exact hard-coded Stripe link is inactive."
+    },
+    {
+      "offer_key": "commander_deck_diagnostic_29",
+      "product_name": "Commander Deck Diagnostic",
+      "price": {
+        "currency": "nzd",
+        "amount_minor": 2900
+      },
+      "stripe_payment_link_id": "plink_1URUN1EGgEAnUFF9qPz94dqS",
+      "stripe_link_active": true,
+      "repository_product_id": "COMMANDER-DECK-DIAGNOSTIC-001",
+      "repository_product_status": "held",
+      "repository_checkout_mode": "disabled",
+      "repository_fulfillment_mode": "disabled",
+      "repository_operator_required": true,
+      "fulfillment_registry_ready": true,
+      "fulfillment_registry_operator_required": false,
+      "stripe_after_completion": "hosted_confirmation",
+      "stripe_confirmation_requires": "Buyer may need to reply to the Stripe receipt with a Commander decklist; the stated deliverable is a focused written diagnostic.",
+      "verdict": "BLOCKED_CONTRACT_CONFLICT",
+      "finding": "Live link, held product, disabled checkout/fulfillment, and ready registry contradict one another. The link can charge NZ$29 but does not prove automated delivery."
+    },
+    {
+      "offer_key": "dreammeez_supporter_sprout",
+      "product_name": "DreamMeez Supporter - Sprout",
+      "price": {
+        "currency": "nzd",
+        "amount_minor": 399
+      },
+      "stripe_payment_link_id": "plink_1UG8ZfEGgEAnUFF9U22CJcNT",
+      "stripe_link_active": true,
+      "repository_product_active": true,
+      "fulfillment_kind_claimed": "dreammeez entitlement",
+      "end_to_end_fulfillment_proof": false,
+      "verdict": "NEXT_TEST_CANDIDATE_NOT_ACCEPTED",
+      "finding": "An active NZ$3.99 cosmetic/supporter link exists. Verify entitlement route, idempotent webhook, receipt and account-visible delivery before promoting it as ready."
+    }
+  ],
+  "repository_evidence": {
+    "revenue_ledger_file": "BEC-PRIME/lib/revenueLedger.js",
+    "ledger_storage": "Local JSONL files under BEC-PRIME/data/transactions unless overridden by environment.",
+    "idempotency_implementation": "Read-before-append JSONL checks; not atomic cross-process uniqueness constraints.",
+    "commander_worker": "workers/marketplace/commander_marketplace_worker.py",
+    "commander_worker_dependencies": [
+      "SUPABASE_URL",
+      "SUPABASE_SERVICE_ROLE_KEY",
+      "Supabase RPC claim/complete/fail functions",
+      "Supabase Storage marketplace-fulfillment bucket",
+      "local filesystem cache/output"
+    ],
+    "worker_runtime": "Python polling worker source; deployed worker fleet not independently verified.",
+    "cloudflare_compatibility": "The application uses Node http.createServer and local filesystem ledger writes; Cloudflare migration remains unaccepted for stateful commerce.",
+    "missing_claimed_modules_in_dreamledger_main": [
+      "cube_swarm_scaler.py",
+      "bec_tenant_spawner.py",
+      "beck_engine_rebuilt.py",
+      "silo-migration-10-domains.sql",
+      "schema_nz_mtg_silo.sql",
+      "seed_nz_mtg.sql"
+    ],
+    "missing_module_scope": "Not found at checked paths in KelpCoin/DreamLedger main. This is not proof that a local Studio copy does not exist; the named scripts were not independently inspectable from the connected repository."
+  },
+  "economic_truth": {
+    "verified_dreamledger_revenue_nzd": 0,
+    "reason": "A Stripe charge must reconcile to an independent buyer, canonical product/offer attribution, settlement, fulfillment/delivery proof, and durable retrievable evidence. The two account-level historical charges do not meet that chain on returned evidence.",
+    "pipeline_value_nzd": 0,
+    "simulated_signal_throughput_counts_as_revenue": false,
+    "active_stripe_object_counts_as_demand": false,
+    "checkout_session_counts_as_revenue": false,
+    "paid_but_unfulfilled_counts_as_earned_revenue": false
+  },
+  "production_mutations_performed": false,
+  "dns_changed": false,
+  "checkout_or_payment_links_changed": false,
+  "database_schema_changed": false
+}
