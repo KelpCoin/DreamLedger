@@ -1,0 +1,45 @@
+name: 777 Offline-Online Repository Membrane
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "data/777/repository-handoffs/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: 777-repository-membrane-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  hydrate-and-verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Hydrate leads using public GitHub metadata only
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python scripts/777_repository_membrane.py
+      - name: Test repository artifact contract
+        run: |
+          python -m unittest tests.test_777_repository_artifact_contract
+          python -m unittest tests.test_777_repository_membrane
+      - name: Run 777 compounding gate on hydrated artifacts
+        run: python scripts/777_compounding_gate.py
+      - name: Return validated repository artifacts to xBiggie
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: 777-repository-expedition-${{ github.run_id }}
+          path: |
+            data/777/repository-expeditions/
+            webapp/pulse/777-compounding-receipt-*.json
+          if-no-files-found: warn
+          retention-days: 90
