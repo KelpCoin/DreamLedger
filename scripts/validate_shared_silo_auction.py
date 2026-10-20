@@ -25,7 +25,7 @@ checks = {
     "API fails closed without configuration": "AUCTION_BACKEND_NOT_CONFIGURED" in API,
     "payment truth boundary documented": "No paid status is inferred from the winning bid" in DOC,
     "not deployed disclosed": "not deployed" in DOC.lower(),
-    "legacy MTG limitation disclosed": "does not automatically secure legacy" in DOC.lower(),
+    "legacy MTG limitation disclosed": "does not rewrite those tables" in DOC.lower() and "mtg_auctions" in DOC.lower(),
 }
 failed = [name for name, ok in checks.items() if not ok]
 for name, ok in checks.items():
