@@ -2,49 +2,153 @@
 <html lang="en-NZ" data-silo="mtg">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Magic · See the cards | DreamLedger NZ</title>
-<meta name="description" content="NZ Magic marketplace. List singles free. See the cards, then deal.">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0a0b0f">
+<meta name="dreamledger-mtg-contract" content="v1">
+<title>Magic: The Gathering | DreamLedger NZ</title>
+<meta name="description" content="A New Zealand Magic marketplace. Browse reconciled Commander deck listings and list singles free.">
+<link rel="canonical" href="https://dreamledger.org/mtg/">
 <link rel="stylesheet" href="/assets/silo-master.css">
 <style>
 :root{--silo-accent:#d8b56b;--silo-accent-bright:#e8c87a}
-.hero{padding:40px 0 16px}.grid{display:grid;gap:14px}@media(min-width:700px){.grid{grid-template-columns:1fr 1fr 1fr}}
-.deck{background:var(--silo-surface);border:1px solid var(--silo-line);border-radius:16px;padding:16px}
-.deck h3{font-family:var(--silo-serif);font-weight:400;margin:0 0 8px}
-.price{font-size:1.4rem;font-weight:800}
+.hero{padding:40px 0 18px}
+.grid{display:grid;gap:14px;grid-template-columns:1fr}
+@media(min-width:700px){.grid{grid-template-columns:1fr 1fr}}
+@media(min-width:1040px){.grid{grid-template-columns:1fr 1fr 1fr}}
+.deck{background:var(--silo-surface);border:1px solid var(--silo-line);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:10px}
+.deck h3{font-family:var(--silo-serif);font-weight:400;margin:0;line-height:1.2}
+.deck p{margin:0;color:var(--silo-muted)}
+.price{font-size:1.45rem;font-weight:800;color:var(--silo-ink)}
+.deck .stock{font-size:12px}
 .status-bar{padding:12px;border-radius:12px;background:var(--silo-surface);border:1px solid var(--silo-line);color:var(--silo-muted);margin-bottom:14px}
+.truth-note{margin:18px 0;padding:16px;border:1px solid var(--silo-line);border-radius:14px;background:var(--silo-surface)}
+.truth-note strong{color:var(--silo-ink)}
+.deck .silo-btn{margin-top:auto}
 </style>
 </head>
 <body class="silo-body">
 <header class="silo-hdr"><div class="silo-hdr-inner">
 <a class="silo-logo" href="/mtg/">Dream<em>Ledger</em> · Magic</a>
-<nav class="silo-nav"><a href="/mtg-list">Sell single</a><a href="/cash.html">Buy</a><a class="silo-cta" href="/mtg-list">List free</a></nav>
+<nav class="silo-nav" aria-label="Magic marketplace">
+<a href="/mtg-list">Sell single</a>
+<a class="silo-cta" href="/mtg-list">List free</a>
+</nav>
 </div></header>
 <main class="silo-wrap">
 <section class="hero">
-<p class="silo-eyebrow">Magic · New Zealand</p>
+<p class="silo-eyebrow">Magic: The Gathering · New Zealand</p>
 <h1 class="silo-display">See the cards.<br>Then deal.</h1>
-<p class="silo-lead">List singles free. Open decks for the full list. Confirm before you pay.</p>
+<p class="silo-lead">Browse Commander decks, inspect the details, and confirm the exact price and availability before paying. Listing singles is free.</p>
 <div class="silo-actions">
-<a class="silo-btn silo-btn-gold" href="/mtg-list">Sell a single</a>
-<a class="silo-btn silo-btn-ghost" href="#decks">Browse decks</a>
-<a class="silo-btn silo-btn-line" href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Diagnostic NZ$29</a>
+<a class="silo-btn silo-btn-gold" href="/mtg-list">List a single free</a>
+<a class="silo-btn silo-btn-ghost" href="#decks">Browse listed decks</a>
+</div>
+<div class="truth-note" role="status">
+<strong>Commander Deck Diagnostic: currently held.</strong>
+<p>This digital service is not available for purchase. No payment is accepted for it while its settlement and fulfillment gate remains closed.</p>
 </div>
 </section>
 <section class="silo-section" id="decks">
-<h2 class="silo-h2">Decks for sale</h2>
-<div id="status" class="status-bar">Loading…</div>
+<h2 class="silo-h2">Commander decks</h2>
+<p class="silo-lead">Listings appear only when product identity, NZD price, stock, and sale mode agree between the MTG catalogue and the storefront catalogue. Contacting the seller is a request, not a completed purchase.</p>
+<div id="status" class="status-bar" role="status" aria-live="polite">Reconciling catalogue sources...</div>
 <div id="grid" class="grid"></div>
 </section>
+<section class="silo-section">
+<h2 class="silo-h2">Buy safely</h2>
+<p class="silo-lead">For manual listings, ask the seller to confirm the exact deck, current stock, price, shipping, and payment terms. Do not treat a message, checkout link, or catalogue entry as proof that payment has settled or an item has shipped.</p>
+</section>
 </main>
+<footer class="silo-footer silo-wrap">
+<p>Magic is the DreamLedger master marketplace silo. Other marketplace candidates remain isolated until separately reviewed and approved.</p>
+<a href="/">DreamLedger home</a>
+</footer>
 <script>
-fetch('/data/mtg-catalog.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('Catalogue unavailable');return r.json()}).then(d=>{
-  const decks=(d.products||[]).filter(p=>p.category==='commander-deck'||/^EDH/i.test(p.id||''));
-  const status=document.getElementById('status'), grid=document.getElementById('grid');
-  const esc=v=>String(v??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-  if(!decks.length){status.textContent='No verified decks listed. Sell a single free.';return;}
-  status.textContent=decks.length+' deck(s)';
-  grid.innerHTML=decks.map(p=>'<article class="deck"><h3>'+esc(p.name)+'</h3><p style="color:var(--silo-muted);font-size:13px">'+esc(p.description||'')+'</p><div class="price">NZ$'+esc(p.price)+'</div><a class="silo-btn silo-btn-gold" style="margin-top:10px" href="'+esc(p.detail_url||'/mtg/')+'">See cards</a></article>').join('');
-}).catch(e=>{document.getElementById('status').textContent=e.message;});
+(function(){
+  'use strict';
+  var status=document.getElementById('status');
+  var grid=document.getElementById('grid');
+  function esc(value){
+    return String(value===null||value===undefined?'':value).replace(/[&<>"']/g,function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+  function usableDetail(value){
+    var url=String(value||'');
+    if(url.indexOf('/mtg/')!==0||url.indexOf('//')===0)return '';
+    if(url==='/mtg/'||url==='/mtg/index.html'||url==='/mtg/master.html')return '';
+    return url;
+  }
+  function requestUrl(product){
+    var existing=String(product.claim_url||'');
+    if(/^mailto:hello@dreamledger\.org\?/i.test(existing))return existing;
+    var subject='Availability request: '+String(product.name||product.id)+' (NZ$'+String(product.price)+')';
+    var body='Hello,\n\nPlease confirm current availability, the exact price, shipping, and payment terms for '+String(product.name||product.id)+'.\n\nI understand this is an enquiry, not a purchase or reservation.';
+    return 'mailto:hello@dreamledger.org?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
+  }
+  function checkoutApproved(feed,live){
+    return feed.checkout_available===true &&
+      live.checkout_available===true &&
+      feed.checkout_approved===true &&
+      live.commercial_truth &&
+      live.commercial_truth.approval_required===false &&
+      typeof feed.checkout_url==='string' &&
+      feed.checkout_url===live.checkout_url &&
+      /^https:\/\/buy\.stripe\.com\/[A-Za-z0-9]+/.test(feed.checkout_url);
+  }
+  function reconcile(feed,live){
+    if(!feed||!live)return null;
+    if(String(feed.id||'')!==String(live.id||''))return null;
+    if(feed.silo!=='mtg'||live.silo!=='mtg')return null;
+    if(feed.status!=='published'||live.status!=='published')return null;
+    if(feed.category!=='commander-deck'&&!/^EDH/i.test(String(feed.id||'')))return null;
+    if(String(feed.currency||'').toLowerCase()!=='nzd'||String(live.currency||'').toLowerCase()!=='nzd')return null;
+    if(!Number.isSafeInteger(feed.inventory)||feed.inventory<1||!Number.isSafeInteger(live.inventory)||live.inventory<1)return null;
+    if(!Number.isFinite(Number(feed.price))||Number(feed.price)<=0||Number(feed.price)!==Number(live.price))return null;
+    var manual=feed.checkout_available===false&&live.checkout_available===false&&
+      !feed.checkout_url&&!live.checkout_url&&feed.sale_mode==='claim_by_message';
+    var online=checkoutApproved(feed,live);
+    if(!manual&&!online)return null;
+    return {feed:feed,live:live,checkoutMode:online?'online':'manual'};
+  }
+  function card(entry){
+    var p=entry.feed;
+    var displayName=entry.live.name||p.name||p.id;
+    var detail=usableDetail(p.detail_url);
+    var href=entry.checkoutMode==='online'?p.checkout_url:(detail||requestUrl(p));
+    var label=entry.checkoutMode==='online'?'Buy now':(detail?'See every card':'Request availability');
+    var note=entry.checkoutMode==='online'?'Online checkout enabled on both catalogues.':'Manual enquiry only. Confirm stock and terms before paying.';
+    return '<article class="deck" data-product-id="'+esc(p.id)+'">'+
+      '<p class="silo-eyebrow">Commander deck</p>'+
+      '<h3>'+esc(displayName)+'</h3>'+
+      '<p>'+esc(p.description||'Physical Commander deck listed in New Zealand.')+'</p>'+
+      '<p class="price">NZ$'+esc(Number(p.price).toFixed(2).replace(/\.00$/,''))+'</p>'+
+      '<p class="stock">Catalogue stock: '+esc(Math.min(p.inventory,entry.live.inventory))+' · '+esc(p.condition||'Condition to be confirmed')+'</p>'+
+      '<p>'+esc(note)+'</p>'+
+      '<a class="silo-btn silo-btn-gold" href="'+esc(href)+'">'+esc(label)+'</a>'+
+      '</article>';
+  }
+  Promise.all([
+    fetch('/data/mtg-catalog.json',{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('MTG catalogue HTTP '+r.status);return r.json();}),
+    fetch('/api/products',{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('Storefront catalogue HTTP '+r.status);return r.json();})
+  ]).then(function(data){
+    var feed=data[0],api=data[1];
+    if(!feed||feed.silo!=='mtg'||!Array.isArray(feed.products)||!api||!Array.isArray(api.products))throw new Error('Catalogue shape mismatch');
+    var liveById=new Map(api.products.filter(function(p){return p&&p.silo==='mtg'&&p.id;}).map(function(p){return [String(p.id),p];}));
+    var entries=feed.products.map(function(p){return reconcile(p,liveById.get(String(p.id||'')));}).filter(Boolean);
+    if(!entries.length){
+      status.textContent='No listings passed the price, stock, identity, and sale-mode checks. No purchase is offered from this page.';
+      grid.innerHTML='';
+      return;
+    }
+    status.textContent=entries.length+' reconciled listing(s). Request links are enquiries, not purchases.';
+    grid.innerHTML=entries.map(card).join('');
+  }).catch(function(error){
+    status.textContent='Catalogue sources could not be reconciled. Listings are hidden until the source data is available and consistent.';
+    grid.innerHTML='';
+    console.error('MTG_CATALOGUE_RECONCILIATION_FAILED',String(error&&error.message||error));
+  });
+})();
 </script>
-</body></html>
+</body>
+</html>
