@@ -169,6 +169,7 @@ def run_audit(output_path: Path) -> dict[str, Any]:
         ".github/workflows/mtg-diagnostic-fulfillment.yml",
         "public/billboard.html",
         "public/avatar.html",
+        "ops/economic/cube_epv_gate.py",
     ]
     for rel in expected_sources:
         status = "PASS" if (ROOT / rel).is_file() else "BLOCKED"
@@ -280,6 +281,21 @@ def run_audit(output_path: Path) -> dict[str, Any]:
             f"Found tracked source at {found}." if found else f"{basename} was not found among tracked files in KelpCoin/DreamLedger; any Studio-only copy was not accessible for executable validation.",
             [found] if found else [basename],
         )
+
+    cube_gate_source = read_text(ROOT / "ops/economic/cube_epv_gate.py") or ""
+    cube_gate_safe = (
+        "APPLY_ENABLED = False" in cube_gate_source
+        and "HMAC-SHA256" in cube_gate_source
+        and "HOLD_NO_SCALE_RUNTIME_UNVERIFIED" in cube_gate_source
+        and "pipeline_value" not in cube_gate_source.lower().split("def compute_epv")[1].split("def verify_evidence")[0]
+    )
+    add_check(
+        checks, "CUBE_EPV_GATE_SOURCE",
+        "PASS" if cube_gate_safe else "FAIL",
+        "Decision-only EPV gate requires signed reconciliation evidence, excludes pipeline value from the EPV calculation and cannot mutate workers."
+        if cube_gate_safe else "CUBE EPV gate is missing required fail-closed or no-side-effect protections.",
+        ["ops/economic/cube_epv_gate.py"],
+    )
 
     scaling = registry.get("cube_scaling", {})
     scale_safe = (
