@@ -75,15 +75,15 @@ def tracked_paths() -> list[str]:
 
 def file_for(paths: list[str], basename: str) -> str | None:
     matches = [p for p in paths if PurePosixPath(p).name.lower() == basename.lower()]
-    if not matches:
+    # Historical proof/backup copies are evidence, not executable source.
+    active = [
+        p for p in matches
+        if not any(word in p.lower().split("/") for word in ("archive", "archives", "proof", "backup", "backups"))
+    ]
+    if not active:
         return None
-    # Prefer current source paths over proof, backup, or archive copies.
-    matches.sort(key=lambda p: (
-        any(word in p.lower().split("/") for word in ("archive", "archives", "proof", "backup", "backups")),
-        len(p),
-        p,
-    ))
-    return matches[0]
+    active.sort(key=lambda p: (len(p), p))
+    return active[0]
 
 
 def add_check(
