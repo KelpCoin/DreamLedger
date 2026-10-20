@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { notDispatchedEvidence, validateSubmissionContract } from '../ops/external/dispatch-contract.mjs';
 
 test('page observation or form preparation is NOT_DISPATCHED', () => {
@@ -36,4 +37,16 @@ test('empty form fields are not a submission payload', () => {
     }),
     /MISSING_ACTION_PAYLOAD/
   );
+});
+
+test('scheduled social distribution is suppressed if the public doorway is unhealthy', () => {
+  const workflowPath = new URL('../.github/workflows/777-social-distribution.yml', import.meta.url);
+  const workflow = readFileSync(workflowPath, 'utf8');
+  const health = workflow.indexOf('Confirm public acquisition doorway is healthy before posting');
+  const tumblr = workflow.indexOf('Publish to Tumblr when credentials are configured');
+  const x = workflow.indexOf('Publish to X when credentials are configured');
+  assert.ok(health >= 0 && health < tumblr && health < x, 'health check must run before all social publishers');
+  const guardedPublishers = workflow.match(/if: steps\.target_health\.outputs\.healthy == 'true'/g) || [];
+  assert.equal(guardedPublishers.length, 2, 'both Tumblr and X must require a healthy doorway');
+  assert.ok(workflow.includes('SKIP_UNHEALTHY_DOORWAY'), 'unhealthy door must be explicitly recorded');
 });
