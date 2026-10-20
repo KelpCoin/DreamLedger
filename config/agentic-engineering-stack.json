@@ -1,0 +1,46 @@
+{
+  "schema_version": "dreamledger/agentic-engineering-stack/v1",
+  "contract_id": "DREAMLEDGER_FIVE_LAYER_ENGINEERING_STACK",
+  "purpose": "Coordinate replaceable AI coding workers through least-privilege harnesses, bounded loops, explicit routing and a verified factory.",
+  "layers": {
+    "model": {
+      "owns": "Produce a proposal, implementation or critique.",
+      "may_certify_its_own_output": false,
+      "output_status": "PROPOSED"
+    },
+    "harness": {
+      "owns": "Provide scoped context, tools, credentials and execution permissions.",
+      "least_privilege_required": true,
+      "production_secrets_exposed_to_model_by_default": false,
+      "external_actions_enabled_by_default": false
+    },
+    "loop": {
+      "owns": "Classify results, verify, retry within a budget or stop.",
+      "deterministic_stop_conditions_required": true,
+      "max_attempts_per_task": 2,
+      "repeated_failure_action": "QUARANTINE_AND_ESCALATE",
+      "unverified_success_claims_forbidden": true
+    },
+    "graph": {
+      "owns": "Route tasks and authority between workers, deterministic services and humans.",
+      "independent_evaluator_required": true,
+      "builder_and_evaluator_must_be_logically_separate": true,
+      "fail_closed_on_missing_evidence": true,
+      "human_approval_required_for_publication": true
+    },
+    "factory": {
+      "owns": "Instantiate, schedule, audit and improve reusable workflows at scale.",
+      "clone_from_canonical_contracts_only": true,
+      "clone_customer_data_or_credentials": false,
+      "preserve_silo_isolation": true,
+      "emit_retrievable_run_evidence": true
+    }
+  },
+  "mandatory_gates": {
+    "tests_pass_before_merge_claim": true,
+    "deployment_receipt_before_live_claim": true,
+    "independent_payment_and_fulfilment_evidence_before_revenue_claim": true,
+    "public_publication_requires_authorization": true,
+    "price_or_payment_mutations_require_separate_approval": true
+  }
+}
