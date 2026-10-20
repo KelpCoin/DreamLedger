@@ -1,12 +1,24 @@
 {
   "schema": "BEC-PRIME/CUBE-SILO-FACTORY-CONTRACT/v1",
-  "purpose": "Turn a verified silo definition into a reusable commercial surface with existing BEC capabilities mounted by reference.",
-  "factory_rule": "Clone the shell and capability bindings, never the inventory. A silo becomes economically active only when a verified supply atom and a buyer/payment atom exist.",
+  "purpose": "Turn an Elohim-qualified silo definition into a reusable commercial surface with existing BEC capabilities mounted by reference.",
+  "factory_rule": "Elohim is the mandatory upstream refinery. Cube may compile only a versioned, validated Elohim package. Clone the shell and capability bindings, never the inventory. A silo becomes economically active only when a verified supply atom and a buyer/payment atom exist.",
   "capability_manifest": "BEC-PRIME/cube/CUBE-ASSET-CAPABILITY-MANIFEST.json",
   "economic_event_library": "BEC-PRIME/economics/CUBE-ECONOMIC-EVENTS-100.json",
-  "default_capabilities": ["catalog","cinema","auction","compiler","news-carousel","dreammeez","gauntlet","commerce-spine","fossil"],
+  "elohim_package_contract": "BEC-PRIME/schemas/elohim-beachhead-package.schema.json",
+  "default_capabilities": [
+    "catalog",
+    "cinema",
+    "auction",
+    "compiler",
+    "news-carousel",
+    "dreammeez",
+    "gauntlet",
+    "commerce-spine",
+    "fossil"
+  ],
   "activation_pipeline": [
     "discover_signal",
+    "elohim_package_validation",
     "verify_supply",
     "compile_candidate",
     "gauntlet_check",
@@ -18,13 +30,25 @@
     "fossilize",
     "reuse_result"
   ],
+  "runtime_policy": {
+    "cloud_is_authoritative": true,
+    "local_compute_optional": true,
+    "gpu_acceleration_optional": true,
+    "local_gpu_offline_behavior": "continue_on_cloud_cpu_or_queue",
+    "elohim_package_required_before_compile": true,
+    "package_provenance_required": true,
+    "package_hash_required": true,
+    "fail_closed_on_missing_or_invalid_package": true
+  },
   "automation_policy": {
     "human_role": "approve_public_distribution_and_handle_exceptions",
     "agent_role": "discover_compile_test_draft_measure_and_prepare_next action",
     "inventory_policy": "empty_until_verified_supply",
     "payment_truth": "settled_payment_only",
     "failure_policy": "quarantine_and_continue_other_silos",
-    "bottleneck_policy": "no manual per-silo code changes for ordinary cloning"
+    "bottleneck_policy": "no manual per-silo code changes for ordinary cloning",
+    "production_release": "explicit_human_approval_required",
+    "spend_policy": "no_new_paid_infrastructure_without_explicit_approval"
   },
   "silos": [
     "mtg",
@@ -45,14 +69,54 @@
     "education-courses"
   ],
   "economic_event_mapping": {
-    "catalog": ["catalog_view","offer_click","checkout_start","paid_order"],
-    "cinema": ["free_preview","paid_replay","proof_artifact"],
-    "auction": ["bid","auction_win","deposit","settled_sale"],
-    "compiler": ["candidate_compile","offer_compile","surface_compile"],
-    "news-carousel": ["signal_view","content_click","offer_discovery"],
-    "dreammeez": ["identity_session","streak","reward_unlock","repeat_purchase"],
-    "gauntlet": ["candidate_pass","candidate_quarantine","evidence_emit"],
-    "commerce-spine": ["checkout","payment","fulfilment","settlement_evidence"],
-    "fossil": ["payment_fossil","fulfilment_fossil","experiment_memory"]
+    "catalog": [
+      "catalog_view",
+      "offer_click",
+      "checkout_start",
+      "paid_order"
+    ],
+    "cinema": [
+      "free_preview",
+      "paid_replay",
+      "proof_artifact"
+    ],
+    "auction": [
+      "bid",
+      "auction_win",
+      "deposit",
+      "settled_sale"
+    ],
+    "compiler": [
+      "candidate_compile",
+      "offer_compile",
+      "surface_compile"
+    ],
+    "news-carousel": [
+      "signal_view",
+      "content_click",
+      "offer_discovery"
+    ],
+    "dreammeez": [
+      "identity_session",
+      "streak",
+      "reward_unlock",
+      "repeat_purchase"
+    ],
+    "gauntlet": [
+      "candidate_pass",
+      "candidate_quarantine",
+      "evidence_emit"
+    ],
+    "commerce-spine": [
+      "checkout",
+      "payment",
+      "fulfilment",
+      "settlement_evidence"
+    ],
+    "fossil": [
+      "payment_fossil",
+      "fulfilment_fossil",
+      "experiment_memory"
+    ]
   }
 }
