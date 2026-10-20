@@ -6,6 +6,7 @@ on:
       - "ops/external/**"
       - "tests/external-actuator-dispatch-contract.test.mjs"
       - ".github/workflows/external-actuator-contract.yml"
+      - ".github/workflows/777-social-distribution.yml"
   push:
     branches: [main]
     paths:
