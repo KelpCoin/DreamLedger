@@ -58,7 +58,7 @@ jobs:
           node --check ops/migration/cloudflare-preview/_worker.js
           node --check ops/migration/cloudflare-preview/smoke-preview.mjs
           test -s ops/migration/cloudflare-preview/dist/_worker.js
-          node -e 'const fs=require("fs");const p="ops/migration/cloudflare-preview/dist";for(const f of ["index.html","mtg/index.html","truth-oracle.html","silos/mtg/silo.json","data/mtg-catalog.json","_worker.js"])if(!fs.existsSync(p+"/"+f))throw new Error("missing "+f);console.log("CLOUDFLARE_PREVIEW_BUILD=PASS")'
+          node -e 'const fs=require("fs");const p="ops/migration/cloudflare-preview/dist";for(const f of ["index.html","404.html","mtg/index.html","truth-oracle.html","silos/mtg/silo.json","data/mtg-catalog.json","_worker.js"])if(!fs.existsSync(p+"/"+f))throw new Error("missing "+f);console.log("CLOUDFLARE_PREVIEW_BUILD=PASS")'
 
       - name: Deploy preview branch only
         shell: bash
