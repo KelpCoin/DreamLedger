@@ -41,9 +41,24 @@ jobs:
             }
           }
           const html = fs.readFileSync('mtg/index.html', 'utf8');
-          if (!html.includes('/public/catalog.json')) throw new Error('Root preview catalogue must use tracked public catalogue data');
           const liveHtml = fs.readFileSync('public/mtg/index.html', 'utf8');
-          if (!liveHtml.includes("get('/catalog.json')")) throw new Error('Live public MTG page must load the tracked catalogue.json');
+          if (!html.includes("CATALOG='../data/mtg-catalog.json'")) throw new Error('Master template must load the manifest-backed canonical catalogue');
+          if (!liveHtml.includes("CATALOG='../data/mtg-catalog.json'")) throw new Error('Public MTG page must load the canonical catalogue');
+          if (html !== liveHtml) throw new Error('Public MTG page drifted from the canonical master template');
+          const masterData = fs.readFileSync('data/mtg-catalog.json', 'utf8');
+          const publicMasterData = fs.readFileSync('public/data/mtg-catalog.json', 'utf8');
+          if (masterData !== publicMasterData) throw new Error('Public MTG catalogue drifted from canonical data');
+          const master = JSON.parse(masterData);
+          for (const id of ['EDH_QUINTORIUS_0002', 'EDH_DWYNEN_0003', 'COMMANDER-DECK-DIAGNOSTIC-001']) {
+            if (!(master.products || []).some(p => p.id === id)) throw new Error('Canonical MTG catalogue missing product: ' + id);
+          }
+          const diagnostic = master.products.find(p => p.id === 'COMMANDER-DECK-DIAGNOSTIC-001');
+          if (diagnostic.status !== 'held' || diagnostic.checkout_available !== false) {
+            throw new Error('Diagnostic must remain held until paid delivery is proven');
+          }
+          for (const p of master.products.filter(p => ['commander-deck','digital-service'].includes(p.category))) {
+            if (Object.hasOwn(p, 'condition')) throw new Error(p.id + ' must not inherit physical-card condition');
+          }
           for (const page of ['public/mtg/quintorius-field-historian.html', 'public/mtg/dwynen-gilt-leaf-daen.html']) {
             if (!fs.existsSync(page)) throw new Error('Missing deployed public route: ' + page);
           }

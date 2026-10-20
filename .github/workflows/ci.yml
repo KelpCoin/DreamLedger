@@ -74,6 +74,9 @@ jobs:
       - name: Unit policy tests
         run: npm test
 
+      - name: Commerce guardrail source checks
+        run: npm run verify:commerce-guardrails
+
       - name: BECK LM Studio SDK and ADLC tests
         shell: bash
         run: |

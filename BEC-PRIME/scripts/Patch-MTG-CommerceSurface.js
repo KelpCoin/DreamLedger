@@ -16,10 +16,11 @@ function writeProof() {
     marker: MARKER,
     route: '/mtg',
     aliases: ['/mtg', '/mtg/', '/MTG', '/MTG/'],
-    inventory_endpoint: '/api/products',
-    checkout_endpoint: '/api/offer-checkout/create',
-    horizontal_catalogue: true,
-    displays: ['image', 'name', 'price_nzd', 'availability', 'buy_button', 'condition_for_verified_singles_only'],
+    inventory_endpoint: '/data/mtg-catalog.json',
+    checkout_endpoint: null,
+    horizontal_catalogue: false,
+    public_checkout_status: 'HELD_UNTIL_FULFILLMENT_PROOF',
+    displays: ['name', 'price_nzd', 'availability', 'deck_condition', 'condition_for_verified_singles_only'],
     generated_at: new Date().toISOString()
   };
   fs.writeFileSync(PROOF, JSON.stringify(proof, null, 2) + '\n', 'utf8');
@@ -32,6 +33,23 @@ function patch() {
     writeProof();
     return;
   }
+
+  // The canonical MTG page migrated to the manifest-driven master template.
+  // Do not run the legacy string-splice patch against that different structure.
+  const isCanonicalMaster =
+    html.includes("const CATALOG='/data/mtg-catalog.json';") &&
+    html.includes('Purchase temporarily held') &&
+    html.includes('function conditionEligible(p)');
+  if (isCanonicalMaster) {
+    if (!html.includes('<body class="silo-body"')) {
+      throw new Error('Canonical MTG master body boundary not found');
+    }
+    html = html.replace('<body class="silo-body"', '<body class="silo-body" ' + MARKER);
+    fs.writeFileSync(SOURCE, html, 'utf8');
+    writeProof();
+    return;
+  }
+
   const original = html;
 
   html = html.replace(
