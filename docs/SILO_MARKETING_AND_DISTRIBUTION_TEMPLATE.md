@@ -41,3 +41,33 @@ AI-drafted, human-finished original content should preserve the author's real ob
 ## MTG override
 
 MTG may use the label “Support Happy Homarid's original Magic writing” after the actual Patreon destination is verified. Keep the marketplace and listing tools free as promised, and keep paid Patreon content behind Patreon access controls. Do not apply MTG branding or its permanent 0% fee override to other silos by default.
+
+
+## Five-layer engineering stack
+
+The factory coordinates five separate responsibilities:
+- **Model:** proposes work and cannot certify its own result.
+- **Harness:** scopes context, permissions, tools and secrets using least privilege.
+- **Loop:** applies deterministic verification, bounded retries and explicit stop conditions.
+- **Graph:** routes outputs to independent evaluators, deterministic checks, quarantine or human approval.
+- **Factory:** clones canonical contracts and schedules many workflows while preserving tenant/silo isolation.
+
+Machine-readable contract: `config/agentic-engineering-stack.json`. Verify it with `node BEC-PRIME/scripts/verify-agentic-engineering-stack.js`. The worker that builds a change is not the authority that certifies it; passing a dedicated test is not proof of production deployment.
+
+## Optional product-customization offers
+
+Machine-readable reusable rules live in `config/offer-customization-defaults.json`. The eligibility evaluator is `BEC-PRIME/scripts/evaluate-customization-eligibility.js`. Run it against an evidence-bearing evaluation input with:
+
+```sh
+node BEC-PRIME/scripts/evaluate-customization-eligibility.js path/to/evaluation-input.json
+```
+
+The evaluator returns explicit reason codes and fails closed unless the base product is published and in stock, its purchase path is verified, its decklist is present and 100 cards, an independent legality proof matches the current decklist fingerprint, the customization price is approved, and at least 20 distinct verified, physical, compatible swap options are available and unreserved.
+
+For each custom order, two independent order-time gates remain separate:
+- `requires_inventory_reservation_before_fulfilment`
+- `requires_price_difference_approval_before_payment`
+
+The first prevents promising a card that cannot be pulled. The second prevents charging an unapproved difference. Both are rechecked at the relevant point in the order lifecycle. The base “Ready to Play” purchase path must remain available even when customization is disabled.
+
+The MTG $19 service price is only a proposed pilot value. The MTG override remains disabled and `PROPOSED_NOT_VALIDATED`; do not display the upgrade until the price, purchase route, decklist evidence, eligibility pool and actual reservation mechanism are verified. The public MTG catalogue currently does not satisfy those gates, so no live CTA is implied by these files.
