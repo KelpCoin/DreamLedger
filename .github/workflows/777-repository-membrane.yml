@@ -1,6 +1,14 @@
 name: 777 Offline-Online Repository Membrane
 
 on:
+  pull_request:
+    paths:
+      - "data/777/repository-handoffs/**"
+      - "scripts/777_repository_membrane.py"
+      - "scripts/repository_artifact_contract.py"
+      - "tests/test_777_repository_artifact_contract.py"
+      - "tests/test_777_repository_membrane.py"
+      - ".github/workflows/777-repository-membrane.yml"
   push:
     branches: [main]
     paths:
@@ -24,14 +32,16 @@ jobs:
         with:
           python-version: "3.12"
       - name: Hydrate leads using public GitHub metadata only
+        if: github.event_name != 'pull_request'
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: python scripts/777_repository_membrane.py
       - name: Test repository artifact contract
         run: |
-          python -m unittest tests.test_777_repository_artifact_contract
-          python -m unittest tests.test_777_repository_membrane
+          python -m unittest discover -s tests -p 'test_777_repository_artifact_contract.py'
+          python -m unittest discover -s tests -p 'test_777_repository_membrane.py'
       - name: Run 777 compounding gate on hydrated artifacts
+        if: github.event_name != 'pull_request'
         run: python scripts/777_compounding_gate.py
       - name: Return validated repository artifacts to xBiggie
         if: always()
