@@ -13,11 +13,14 @@ BUILDER = ROOT / "ops" / "silos" / "build_silo_candidates.py"
 
 
 def run_audit():
-    result = subprocess.run(
-        [sys.executable, str(AUDIT), "--root", str(ROOT), "--snapshot", str(SNAPSHOT)],
-        check=True, capture_output=True, text=True,
-    )
-    return json.loads(result.stdout)
+    with tempfile.TemporaryDirectory() as tmp:
+        output_path = Path(tmp) / "audit.json"
+        subprocess.run(
+            [sys.executable, str(AUDIT), "--root", str(ROOT), "--snapshot", str(SNAPSHOT),
+             "--output", str(output_path)],
+            check=True, capture_output=True, text=True,
+        )
+        return json.loads(output_path.read_text(encoding="utf-8"))
 
 
 class EconomicReadinessTests(unittest.TestCase):
@@ -29,7 +32,7 @@ class EconomicReadinessTests(unittest.TestCase):
         self.assertFalse(snapshot["account_level_settlement_evidence"]["include_in_verified_dreamledger_revenue"])
         self.assertEqual(snapshot["economic_truth"]["verified_dreamledger_revenue_nzd"], 0)
         serialized = json.dumps(snapshot).lower()
-        for forbidden in ("sk_live_", "whsec_", "service_role_key", "customer_email", "receipt_url"):
+        for forbidden in ("sk_live_", "sk_test_", "whsec_", "sb_secret_", "rk_live_", "re_secret_"):
             self.assertNotIn(forbidden, serialized)
 
     def test_billboard_and_mtg_contract_conflicts_remain_visible(self):
