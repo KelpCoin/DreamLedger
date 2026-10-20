@@ -79,7 +79,7 @@ jobs:
           except Exception as error:
               status=type(error).__name__
           with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
-              output.write("healthy=" + ("true" if healthy else "false") + "\\n")
+              output.write("healthy=" + ("true" if healthy else "false") + "\n")
           print("ACQUISITION_DOORWAY_HTTP=" + status)
           print("SOCIAL_PUBLICATION_GATE=" + ("PASS" if healthy else "SKIP_UNHEALTHY_DOORWAY"))
           PY
