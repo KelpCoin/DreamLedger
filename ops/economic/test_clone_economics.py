@@ -82,13 +82,13 @@ class SiloCloneEconomicContractTests(unittest.TestCase):
     def test_worker_scaling_is_configured_but_not_enabled(self):
         scale = self.registry["cube_scaling"]
         self.assertFalse(scale["automatic_provisioning_enabled"])
-        self.assertFalse(scale["no_scale_from_pipeline_value"] is False)
+        self.assertTrue(scale["no_scale_from_pipeline_value"])
         self.assertEqual(scale["epv_floor_nzd"], 25)
         self.assertEqual(scale["winner_expansion_threshold_nzd"], 120)
         self.assertEqual(scale["configured_ceiling_workers"], 64)
         self.assertEqual(scale["maximum_live_workers_before_all_gates_pass"], 1)
         self.assertIn("settled", scale["epv_definition"].lower())
-        self.assertIn("fulfillment", " ".join(scale["scale_requires"]).lower())
+        self.assertIn("fulfilled", " ".join(scale["scale_requires"]).lower())
 
     def test_revenue_is_not_inflated_by_registry_or_simulation(self):
         self.assertEqual(self.registry["economic_truth"]["verified_external_revenue_nzd"], 0)
