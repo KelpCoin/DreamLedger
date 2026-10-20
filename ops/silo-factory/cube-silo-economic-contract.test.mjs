@@ -95,7 +95,8 @@ test('scale gate uses platform revenue, not GMV, and remains decision-only', () 
   assert.ok(scaling.contribution_formula.includes('gross_amount_nzd represents GMV'));
   assert.ok(scaling.zero_fee_marketplace_rule.includes('0%'));
   assert.ok(scaling.visitor_denominator_rule.includes('cannot exceed'));
-  assert.ok(scaleGate.includes('platform_revenue_nzd - fees - fulfilment_cost - provider_cost - platform_refund_cost'));
+  assert.ok(scaleGate.includes('order.get("platform_revenue_nzd")'));
+  assert.ok(scaleGate.includes('platform_revenue - fees - fulfilment_cost - provider_cost - platform_refund_cost'));
   assert.ok(scaleGate.includes('BUYER_COUNT_EXCEEDS_QUALIFIED_VISITOR_DENOMINATOR'));
   assert.equal(scaling.current_action.new_workers_authorized, 0);
   assert.equal(scaling.current_action.production_scale_mutation, false);
