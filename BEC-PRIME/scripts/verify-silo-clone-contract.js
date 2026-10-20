@@ -1,59 +1,130 @@
 'use strict';
 
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
 const { test } = require('node:test');
-const { validateSiloCloneContract } = require('../lib/siloCloneContract');
+const { validateSiloCloneContract, validateCloneManifest, createSignedVerdict, stableStringify } = require('../lib/siloCloneContract');
+
+const REPO_ROOT = path.resolve(__dirname, '..', '..');
 
 function validContract() {
   return {
     silo_id: 'mtg',
-    fee_policy: { platform_fee_bps: 0 },
+    fee_policy: { platform_fee_bps: 0, zero_fee_override: true, policy: 'PERMANENT_MTG_ZERO_PLATFORM_FEE' },
     authorship: { declared_tier: 'AAC', production_mode: 'AI_ASSISTED', human_review_required: true },
-    support: { status: 'VERIFIED', url: 'https://www.patreon.com/HappyHomarid' },
-    content: { canonical_record_id: 'article-001', public_cutoff: 'heading: members-only section', paid_content_public_distribution: false },
+    support: { status: 'NOT_CONFIGURED' },
+    content: { canonical_record_id: 'article-001', public_cutoff: 'NONE', paid_content_public_distribution: false },
     measurement: { evidence_path: 'records/attribution/mtg' },
-    commerce: { checkout_enabled: true, inventory_verified: true, fulfillment_contract_verified: true, settlement_required: true, delivery_proof_required: true },
-    x402: { enabled: false }
+    commerce: { checkout_enabled: false, inventory_verified: false, fulfillment_contract_verified: false, settlement_required: true, delivery_proof_required: true },
+    x402: { enabled: false, live_approved: false }
   };
 }
 
-test('valid reusable silo contract passes', () => {
-  const result = validateSiloCloneContract(validContract());
-  assert.equal(result.status, 'PASS');
+function realMtgManifest() {
+  return JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'public', 'silos', 'mtg', 'silo.json'), 'utf8'));
+}
+
+test('real MTG source manifest passes with permanent explicit 0% fee override', () => {
+  const manifest = realMtgManifest();
+  const result = validateCloneManifest(manifest);
+  assert.equal(result.status, 'PASS', JSON.stringify(result.errors));
   assert.equal(result.publish_allowed, true);
+  assert.equal(manifest.clone_contract.fee_policy.platform_fee_bps, 0);
+  assert.equal(manifest.clone_contract.fee_policy.zero_fee_override, true);
 });
 
-test('missing inventory evidence blocks checkout', () => {
+test('clone manifest with missing embedded policy fails closed', () => {
+  const manifest = realMtgManifest();
+  delete manifest.clone_contract;
+  const result = validateCloneManifest(manifest);
+  assert.equal(result.status, 'BLOCK');
+  assert.ok(result.errors.some(e => e.code === 'CONTRACT_OBJECT_REQUIRED'));
+  assert.ok(result.errors.some(e => e.code === 'CLONE_POLICY_REQUIRED'));
+});
+
+test('missing fee policy fails closed', () => {
   const contract = validContract();
-  contract.commerce.inventory_verified = false;
+  delete contract.fee_policy;
+  const result = validateSiloCloneContract(contract);
+  assert.ok(result.errors.some(e => e.code === 'FEE_POLICY_INVALID'));
+});
+
+test('0% fee without explicit override is rejected', () => {
+  const contract = validContract();
+  contract.fee_policy.zero_fee_override = false;
+  const result = validateSiloCloneContract(contract);
+  assert.ok(result.errors.some(e => e.code === 'ZERO_FEE_OVERRIDE_REQUIRED'));
+});
+
+test('MTG fake non-zero fee is rejected even when the contract says override=true', () => {
+  const contract = validContract();
+  contract.fee_policy.platform_fee_bps = 1500;
   const result = validateSiloCloneContract(contract);
   assert.equal(result.status, 'BLOCK');
-  assert.ok(result.errors.some(e => e.code === 'CHECKOUT_INVENTORY_UNVERIFIED'));
+  assert.ok(result.errors.some(e => e.code === 'ZERO_FEE_OVERRIDE_CONTRADICTS_RATE'));
+  assert.ok(result.errors.some(e => e.code === 'MTG_ZERO_FEE_OVERRIDE_REQUIRED'));
 });
 
-test('declared authorship cannot contradict production mode', () => {
+test('missing authorship declaration fails closed', () => {
+  const contract = validContract();
+  delete contract.authorship;
+  const result = validateSiloCloneContract(contract);
+  assert.ok(result.errors.some(e => e.code === 'AUTHORSHIP_DECLARATION_REQUIRED'));
+});
+
+test('authorship tier cannot contradict recorded production mode', () => {
   const contract = validContract();
   contract.authorship.declared_tier = 'HCC';
   const result = validateSiloCloneContract(contract);
   assert.ok(result.errors.some(e => e.code === 'AUTHORSHIP_TIER_MISMATCH'));
 });
 
-test('paid content cannot enter public distribution', () => {
+test('paid content is rejected if marked for public distribution', () => {
   const contract = validContract();
   contract.content.paid_content_public_distribution = true;
   const result = validateSiloCloneContract(contract);
   assert.ok(result.errors.some(e => e.code === 'PAYWALL_LEAK_RISK'));
 });
 
-test('unconfigured optional support destination is dormant, not a fake live link', () => {
+test('missing public/paid cutoff is rejected', () => {
   const contract = validContract();
-  contract.support = { status: 'NOT_CONFIGURED' };
+  delete contract.content.public_cutoff;
   const result = validateSiloCloneContract(contract);
-  assert.equal(result.status, 'PASS');
-  assert.ok(result.warnings.some(w => w.code === 'SUPPORT_DESTINATION_DORMANT'));
+  assert.ok(result.errors.some(e => e.code === 'PAYWALL_CUTOFF_REQUIRED'));
 });
 
-test('x402 live endpoint blocks placeholders and missing approval', () => {
+test('missing attribution/evidence path is rejected', () => {
+  const contract = validContract();
+  delete contract.measurement.evidence_path;
+  const result = validateSiloCloneContract(contract);
+  assert.ok(result.errors.some(e => e.code === 'MEASUREMENT_EVIDENCE_PATH_REQUIRED'));
+});
+
+test('checkout without verified inventory blocks', () => {
+  const contract = validContract();
+  contract.commerce.checkout_enabled = true;
+  contract.commerce.inventory_verified = false;
+  const result = validateSiloCloneContract(contract);
+  assert.ok(result.errors.some(e => e.code === 'CHECKOUT_INVENTORY_UNVERIFIED'));
+});
+
+test('checkout without verified fulfillment blocks', () => {
+  const contract = validContract();
+  contract.commerce.checkout_enabled = true;
+  contract.commerce.fulfillment_contract_verified = false;
+  const result = validateSiloCloneContract(contract);
+  assert.ok(result.errors.some(e => e.code === 'CHECKOUT_FULFILLMENT_UNVERIFIED'));
+});
+
+test('missing x402 state stays fail-closed', () => {
+  const contract = validContract();
+  delete contract.x402;
+  const result = validateSiloCloneContract(contract);
+  assert.ok(result.errors.some(e => e.code === 'X402_POLICY_REQUIRED'));
+});
+
+test('x402 enabled with placeholders and no approval is rejected', () => {
   const contract = validContract();
   contract.x402 = { enabled: true, network: 'CONFIGURE_BEFORE_LIVE', asset: 'USDC', pay_to: '0xabc', facilitator: 'https://facilitator.example', live_approved: false };
   const result = validateSiloCloneContract(contract);
@@ -61,9 +132,21 @@ test('x402 live endpoint blocks placeholders and missing approval', () => {
   assert.ok(result.errors.some(e => e.code === 'X402_LIVE_APPROVAL_REQUIRED'));
 });
 
-test('fee policy must preserve explicit per-silo economics', () => {
-  const contract = validContract();
-  contract.fee_policy.platform_fee_bps = -1;
-  const result = validateSiloCloneContract(contract);
-  assert.ok(result.errors.some(e => e.code === 'FEE_POLICY_INVALID'));
+test('zero fee source field must match embedded fee policy', () => {
+  const manifest = realMtgManifest();
+  manifest.success_fee_peer = 0.15;
+  const result = validateCloneManifest(manifest);
+  assert.equal(result.status, 'BLOCK');
+  assert.ok(result.errors.some(e => e.code === 'FEE_POLICY_SOURCE_MISMATCH'));
+});
+
+test('signed verdicts can be verified offline with the emitted public key', () => {
+  const { privateKey } = require('node:crypto').generateKeyPairSync('ed25519');
+  const privatePem = privateKey.export({ type: 'pkcs8', format: 'pem' }).toString();
+  const payload = { schema: 'test/v1', verdict: { status: 'PASS', silo_id: 'mtg' } };
+  const signing = createSignedVerdict(payload, privatePem);
+  assert.equal(signing.status, 'SIGNED');
+  const publicKey = require('node:crypto').createPublicKey(signing.public_key);
+  const valid = require('node:crypto').verify(null, Buffer.from(stableStringify(payload)), publicKey, Buffer.from(signing.signature, 'base64url'));
+  assert.equal(valid, true);
 });
