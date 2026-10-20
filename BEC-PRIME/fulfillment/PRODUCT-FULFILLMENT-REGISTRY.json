@@ -69,9 +69,9 @@
       "reason": "not approved for sale"
     },
     "COMMANDER-DECK-DIAGNOSTIC-001": {
-      "ready": true,
-      "operator_required": false,
-      "reason": "Automated MTG digital fulfillment contract validated by the MTG Diagnostic Fulfillment Gate; public sale readiness enabled 2026-08-26."
+      "ready": false,
+      "operator_required": true,
+      "reason": "Fail-closed hold: product metadata status=held, checkout.mode=disabled and fulfillment.mode=disabled. Do not enable until a durable non-local fulfillment path and external settlement reconciliation are independently proven."
     },
     "BEC-PRIME-ARCHITECTURE-AUDIT-001": {
       "ready": false,
