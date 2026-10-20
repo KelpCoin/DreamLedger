@@ -4,19 +4,33 @@ on:
   pull_request:
     paths:
       - 'config/silo-growth-defaults.json'
+      - 'config/offer-customization-defaults.json'
+      - 'config/agentic-engineering-stack.json'
       - 'BEC-PRIME/scripts/verify-silo-growth-contract.js'
       - 'BEC-PRIME/scripts/render-silo-growth-promo.js'
       - 'BEC-PRIME/scripts/render-silo-growth-promo.test.js'
+      - 'BEC-PRIME/scripts/evaluate-customization-eligibility.js'
+      - 'BEC-PRIME/scripts/evaluate-customization-eligibility.test.js'
+      - 'BEC-PRIME/scripts/verify-agentic-engineering-stack.js'
+      - 'BEC-PRIME/scripts/agentic-engineering-stack.test.js'
       - 'docs/SILO_MARKETING_AND_DISTRIBUTION_TEMPLATE.md'
+      - 'package.json'
       - '.github/workflows/silo-growth-contract.yml'
   push:
     branches: [main]
     paths:
       - 'config/silo-growth-defaults.json'
+      - 'config/offer-customization-defaults.json'
+      - 'config/agentic-engineering-stack.json'
       - 'BEC-PRIME/scripts/verify-silo-growth-contract.js'
       - 'BEC-PRIME/scripts/render-silo-growth-promo.js'
       - 'BEC-PRIME/scripts/render-silo-growth-promo.test.js'
+      - 'BEC-PRIME/scripts/evaluate-customization-eligibility.js'
+      - 'BEC-PRIME/scripts/evaluate-customization-eligibility.test.js'
+      - 'BEC-PRIME/scripts/verify-agentic-engineering-stack.js'
+      - 'BEC-PRIME/scripts/agentic-engineering-stack.test.js'
       - 'docs/SILO_MARKETING_AND_DISTRIBUTION_TEMPLATE.md'
+      - 'package.json'
       - '.github/workflows/silo-growth-contract.yml'
 
 permissions:
@@ -34,3 +48,7 @@ jobs:
         run: node BEC-PRIME/scripts/verify-silo-growth-contract.js
       - name: Test fail-closed creator support renderer
         run: node --test BEC-PRIME/scripts/render-silo-growth-promo.test.js
+      - name: Verify customization eligibility gates
+        run: node --test BEC-PRIME/scripts/evaluate-customization-eligibility.test.js
+      - name: Verify five-layer engineering stack
+        run: node BEC-PRIME/scripts/verify-agentic-engineering-stack.js && node --test BEC-PRIME/scripts/agentic-engineering-stack.test.js
