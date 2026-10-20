@@ -2,6 +2,8 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
 const { evaluateCustomizationEligibility, fingerprintDecklist } = require('./evaluate-customization-eligibility.js');
 const template = require('../../config/offer-customization-defaults.json');
 
@@ -142,5 +144,22 @@ test('duplicate inventory item IDs cannot count as separate physical cards', () 
   const result = evaluateCustomizationEligibility(input);
   assert.equal(result.eligible, false);
   assert.equal(result.eligible_swap_count, 19);
+  assert.ok(result.reason_codes.includes('VERIFIED_SWAP_POOL_BELOW_MINIMUM'));
+});
+
+test('the current real MTG catalogue does not expose a customization upsell prematurely', () => {
+  const catalog = JSON.parse(fs.readFileSync(path.join(__dirname, '../../public/data/mtg-catalog.json'), 'utf8'));
+  const product = catalog.products.find((item) => item.id === 'EDH_QUINTORIUS_0002');
+  assert.ok(product, 'Expected canonical pilot deck remains in catalogue');
+  const result = evaluateCustomizationEligibility({
+    config: template,
+    product,
+    decklist: null,
+    inventory_records: [],
+    legality_proof: null
+  });
+  assert.equal(result.eligible, false);
+  assert.ok(result.reason_codes.includes('CUSTOMIZATION_DISABLED'));
+  assert.ok(result.reason_codes.includes('VERIFIED_PURCHASE_PATH_REQUIRED'));
   assert.ok(result.reason_codes.includes('VERIFIED_SWAP_POOL_BELOW_MINIMUM'));
 });
