@@ -1,0 +1,57 @@
+{
+  "schema_version": "dreamledger/offer-customization/v1",
+  "contract_id": "DREAMLEDGER_OPTIONAL_CUSTOMIZATION",
+  "purpose": "Reusable optional product-personalization offer; never blocks the ready-to-buy base offer.",
+  "defaults": {
+    "enabled": false,
+    "base_offer_must_remain_available": true,
+    "max_card_swaps": 20,
+    "minimum_eligible_swap_cards": 20,
+    "require_verified_inventory": true,
+    "require_published_decklist": true,
+    "require_independent_legality_proof": true,
+    "require_verified_purchase_path": true
+  },
+  "gates": {
+    "requires_inventory_reservation_before_fulfilment": true,
+    "requires_price_difference_approval_before_payment": true,
+    "buyer_must_confirm_final_swap_list": true,
+    "reservation_expiry_must_be_rechecked_before_fulfilment": true
+  },
+  "eligibility_requirements": {
+    "product_status": "published",
+    "checkout_available": true,
+    "purchase_path_status": "VERIFIED",
+    "minimum_product_inventory": 1,
+    "decklist_required": true,
+    "decklist_card_count": 100,
+    "commander_legality_proof_status": "VERIFIED",
+    "legality_proof_must_be_independent_of_builder": true,
+    "inventory_record_status": "VERIFIED",
+    "card_legality_status": "VERIFIED",
+    "compatibility_status": "VERIFIED",
+    "inventory_must_be_physical": true,
+    "printing_id_required": true,
+    "condition_required": true,
+    "language_required": true,
+    "price_nzd_required": true
+  },
+  "price": {
+    "currency": "NZD",
+    "service_fee_nzd": null,
+    "status": "UNSET",
+    "rule": "Never display an upsell until price and all eligibility gates have been approved."
+  },
+  "silo_overrides": {
+    "mtg": {
+      "enabled": false,
+      "offer_id": "MTG-DECK-TUNE-20",
+      "label": "Make It Yours",
+      "max_card_swaps": 20,
+      "proposed_service_fee_nzd": 19,
+      "price_status": "PROPOSED_NOT_VALIDATED",
+      "status": "DRAFT_ONLY",
+      "note": "Pilot proposal only. Do not display until inventory, checkout, legality evidence and price are verified and approved."
+    }
+  }
+}
