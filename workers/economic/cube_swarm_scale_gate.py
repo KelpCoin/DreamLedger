@@ -11,7 +11,7 @@ import math
 import re
 from typing import Any
 
-SCHEMA = "bec/cube-scale-evidence/v1"
+SCHEMA = "bec/cube-scale-evidence/v2"
 EMPTY_SHA256 = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
 HEX64 = re.compile(r"^[0-9a-f]{64}$")
 EPV_PRUNE_FLOOR_NZD = 25.0
@@ -52,7 +52,9 @@ def recommend_scale(evidence: dict[str, Any]) -> dict[str, Any]:
 
     Required evidence fields are intentionally strict. The upstream reconciliation
     system, not this pure function, must verify provider signatures and evidence.
-    All currency amounts supplied here must already be normalized to NZD.
+    All currency amounts supplied here must already be normalized to NZD. Gross
+    GMV is not platform revenue: contribution is platform revenue less costs borne
+    by the platform. This distinction is critical for zero-fee P2P marketplaces.
     """
     if not isinstance(evidence, dict) or evidence.get("schema") != SCHEMA:
         return _hold("INVALID_OR_MISSING_EVIDENCE_SCHEMA")
@@ -131,18 +133,28 @@ def recommend_scale(evidence: dict[str, Any]) -> dict[str, Any]:
             blockers.append(f"ORDER_{index}_DUPLICATE_PAYMENT_EVENT_OR_SESSION")
             continue
 
-        amount = _number(order.get("gross_amount_nzd"))
+        gross_amount = _number(order.get("gross_amount_nzd"))
+        platform_revenue = _number(order.get("platform_revenue_nzd"))
         fees = _number(order.get("processor_fees_nzd"))
         fulfilment_cost = _number(order.get("direct_fulfillment_cost_nzd"))
         provider_cost = _number(order.get("provider_cost_nzd"))
-        refund = _number(order.get("refund_amount_nzd", 0.0))
-        if any(v is None for v in (amount, fees, fulfilment_cost, provider_cost, refund)):
+        gross_refund = _number(order.get("refund_amount_nzd", 0.0))
+        platform_refund_cost = _number(order.get("refund_cost_nzd"))
+        if any(v is None for v in (
+            gross_amount, platform_revenue, fees, fulfilment_cost,
+            provider_cost, gross_refund, platform_refund_cost
+        )):
             blockers.append(f"ORDER_{index}_INVALID_COST_OR_AMOUNT")
             continue
-        if amount <= 0 or min(fees, fulfilment_cost, provider_cost, refund) < 0 or refund > amount:
+        if (
+            gross_amount <= 0
+            or platform_revenue < 0
+            or min(fees, fulfilment_cost, provider_cost, gross_refund, platform_refund_cost) < 0
+            or gross_refund > gross_amount
+        ):
             blockers.append(f"ORDER_{index}_NEGATIVE_OR_INVALID_AMOUNT")
             continue
-        if refund >= amount:
+        if gross_refund >= gross_amount:
             blockers.append(f"ORDER_{index}_FULLY_REFUNDED_NOT_COUNTED")
             continue
 
@@ -151,7 +163,11 @@ def recommend_scale(evidence: dict[str, Any]) -> dict[str, Any]:
         seen_events.add(event_id)
         verified_orders.append({
             "buyer_key_hash": buyer_key_hash,
-            "contribution_nzd": amount - fees - fulfilment_cost - provider_cost - refund,
+            "gross_gmv_nzd": gross_amount,
+            "platform_revenue_nzd": platform_revenue,
+            "contribution_nzd": (
+                platform_revenue - fees - fulfilment_cost - provider_cost - platform_refund_cost
+            ),
         })
 
     # Any rejected row means the source bundle is not a clean scaling sample.
@@ -162,6 +178,10 @@ def recommend_scale(evidence: dict[str, Any]) -> dict[str, Any]:
     if distinct_buyers < MIN_DISTINCT_BUYERS:
         return _hold("INSUFFICIENT_INDEPENDENT_BUYERS", blockers=[
             f"Need at least {MIN_DISTINCT_BUYERS} distinct independent buyers; found {distinct_buyers}."
+        ])
+    if distinct_buyers > visitors:
+        return _hold("BUYER_COUNT_EXCEEDS_QUALIFIED_VISITOR_DENOMINATOR", blockers=[
+            f"Observed {distinct_buyers} distinct buyers but only {int(visitors)} qualified visitors."
         ])
 
     margin = sum(row["contribution_nzd"] for row in verified_orders)
@@ -195,6 +215,8 @@ def recommend_scale(evidence: dict[str, Any]) -> dict[str, Any]:
         "production_mutation": False,
         "revenue_claimed_by_gate_nzd": 0.0,
         "net_contribution_margin_nzd": round(margin, 2),
+        "gross_gmv_nzd": round(sum(row["gross_gmv_nzd"] for row in verified_orders), 2),
+        "platform_revenue_nzd": round(sum(row["platform_revenue_nzd"] for row in verified_orders), 2),
         "observed_epv_nzd": round(epv, 6),
         "verified_order_count": len(verified_orders),
         "distinct_buyer_count": distinct_buyers,
