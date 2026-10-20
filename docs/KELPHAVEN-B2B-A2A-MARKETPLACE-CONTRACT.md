@@ -1,8 +1,8 @@
-# Kelphaven: B2B + A2A marketplace implementation contract
+# Kelphaven.n: B2B + A2A marketplace implementation contract
 
 **Status: FOUNDATION CONTRACT ONLY. Not production-ready, not deployed, and not a claim of full Trade Me replacement.**
 
-Kelphaven is the canonical marketplace name for this work. Do not rename it to Kelplantis. MTG remains the master silo/reference implementation for catalogue and evidence quality. Silo isolation remains mandatory, including the existing MTG/HappyHomarid/CollectorsCoast versus Amplissa/adult boundary.
+Kelphaven.n is the canonical marketplace name for this work. Do not rename it to Kelplantis or any other spelling. MTG remains the master silo/reference implementation for catalogue and evidence quality. Silo isolation remains mandatory, including the existing MTG/HappyHomarid/CollectorsCoast versus Amplissa/adult boundary.
 
 ## Customer-facing truth at the current checkpoint
 
@@ -20,9 +20,9 @@ Do not display a product as buyable unless the current catalogue, checkout state
 6. Any price change creates a versioned proposal. Existing orders retain the accepted price. Never rewrite historical order economics.
 7. Dynamic price experiments must be bounded, explainable, auditable, and reversible. No discriminatory or opaque individual pricing; no false scarcity; no fabricated competitor quotes.
 
-The initial deterministic kernel lives at BEC-PRIME/commerce/kelphaven-marketplace-contract.mjs. It is a policy reference implementation, not a persistence layer or production adapter.
+The initial deterministic kernel and Elohim-to-Gauntlet product pipeline live at BEC-PRIME/commerce/kelphaven-marketplace-contract.mjs and BEC-PRIME/commerce/kelphaven-elohim-product-pipeline.mjs. The latter is called for Elohim marketplace-product proposals, calculates a cost-plus price only when source/timestamp/kind/SHA-256 evidence is supplied, runs the existing CandidateGauntlet, and emits an unpublished draft. The evidence SHA proves payload integrity metadata only, not the truth of market facts. These modules do not constitute a persistence layer, provider adapter or production deployment.
 
-## B2B and agent-to-agent trade lifecycle
+## Elohim price creation and Gauntlet decision\n\nWhen an Elohim proposal is tagged `kind: "marketplace_product"` or supplies `product_candidate`, `ElohimV6.propose` now calls the pricing pipeline before it writes its proposal proof. Without timestamped, source-referenced, hashed price evidence and valid cost inputs, the candidate is held without a default price. A Gauntlet PASS produces `READY_FOR_HUMAN_REVIEW`, never PUBLISHED. Checkout stays disabled and both `may_publish` and `may_charge` remain false. The CandidateGauntlet checks payload shape, manifest hash, policy identity and price/cost floor; it does not independently fetch or authenticate the source data.\n\n## B2B and agent-to-agent trade lifecycle
 
 Both human B2B trades and A2A trades use the same economic state machine:
 
