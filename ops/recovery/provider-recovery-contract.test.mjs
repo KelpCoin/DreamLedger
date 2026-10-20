@@ -8,6 +8,8 @@ const cloudflare=fs.readFileSync(path.join(root,'ops/recovery/cloudflare-pages.m
 const routeContract=JSON.parse(fs.readFileSync(path.join(root,'ops/migration/CLOUDFLARE-ROUTE-PARITY-CONTRACT.json'),'utf8'));
 const worker=fs.readFileSync(path.join(root,'ops/migration/cloudflare-preview/_worker.js'),'utf8');
 const builder=fs.readFileSync(path.join(root,'ops/migration/cloudflare-preview/build-preview.mjs'),'utf8');
+const smoke=fs.readFileSync(path.join(root,'ops/migration/cloudflare-preview/smoke-preview.mjs'),'utf8');
+const notFound=fs.readFileSync(path.join(root,'public/404.html'),'utf8');
 
 test('Neon adapter defaults to inspect and gates mutation',()=>{
  assert.ok(neon.includes("process.env.BECK_RECOVERY_ACTION || 'inspect'"));
@@ -28,8 +30,10 @@ test('Cloudflare adapter defaults to inspect and allowlists deploy-hook mutation
 test('route contract covers required routes and keeps cutover blocked',()=>{
  assert.equal(routeContract.status,'PARTIAL_READ_ONLY_RUNTIME_IMPLEMENTED_DYNAMIC_COMMERCE_BLOCKED');
  const paths=routeContract.routes.map(r=>r.path);
- for(const p of ['/healthz','/version','/api/products','/api/offers','/api/toll/v1/manifest','/api/webhooks/stripe','/mtg/','/silos/mtg/silo.json','/data/mtg-catalog.json'])assert.ok(paths.includes(p),'missing route '+p);
+ for(const p of ['/healthz','/version','/api/products','/api/offers','/api/toll/v1/manifest','/api/webhooks/stripe','/mtg/','/silos/mtg/silo.json','/data/mtg-catalog.json','/404.html','/__preview-unique-not-found-probe__.html'])assert.ok(paths.includes(p),'missing route '+p);
  assert.ok(routeContract.cutover_gates.some(g=>g.includes('explicit approval before production DNS/domain or payment-path mutation')));
+ assert.ok(routeContract.cutover_gates.some(g=>g.includes('each product with status=published')));
+ assert.ok(routeContract.cutover_gates.some(g=>g.includes('actual HTTP 404')));
  assert.equal(routeContract.current_production_mutation,false);
  assert.equal(routeContract.verified_revenue_nzd,0);
 });
@@ -107,6 +111,33 @@ test('free exit checklist cannot claim cutover before every gate has evidence',(
  assert.equal(checklist.cost_policy.free_tier_constraints.workers_requests_per_day,100000);
  assert.equal(checklist.cost_policy.free_tier_constraints.workers_cpu_ms_per_invocation,10);
 });
+test('preview bundle requires an explicit root 404 and enumerates published MTG detail/claim routes',()=>{
+ assert.ok(notFound.includes('Page not found'));
+ assert.ok(builder.includes('ROOT_404_REQUIRED'));
+ assert.ok(builder.includes('root_404_present:true'));
+ assert.ok(smoke.includes("status: 404"));
+ assert.ok(smoke.includes("genuine_404:"));
+ assert.ok(smoke.includes("MTG detail:"));
+ assert.ok(smoke.includes("MTG claim action:"));
+ assert.ok(smoke.includes("p.status === 'published'"));
+ assert.ok(smoke.includes("b.commit_sha === expectedSha"));
+});
+
+test('migration gates cover non-public schema dependencies and atomic outbox idempotency',()=>{
+ const checklist=JSON.parse(fs.readFileSync(path.join(root,'ops/migration/FREE-EXIT-CHECKLIST.json'),'utf8'));
+ assert.equal(checklist.database_dump_scope_status,'NOT_SELECTED_PENDING_G02_DEPENDENCY_INVENTORY');
+ const g02=checklist.gates.find(g=>g.id==='G02');
+ assert.ok(g02.pass_evidence.some(x=>x.includes('all-schema inventory')));
+ assert.ok(g02.pass_evidence.some(x=>x.includes('auth, storage and realtime')));
+ const g05=checklist.gates.find(g=>g.id==='G05');
+ assert.ok(g05.pass_evidence.some(x=>x.includes('durable outbox')));
+ assert.ok(g05.pass_evidence.some(x=>x.includes('not deleted after an uncertain failure')));
+ const g08=checklist.gates.find(g=>g.id==='G08');
+ assert.ok(g08.pass_evidence.some(x=>x.includes('every product with status=published')));
+ assert.ok(g08.pass_evidence.some(x=>x.includes('actual HTTP 404')));
+});
+
+
 test('Cloudflare preview probe is scoped to pages.dev and asserts deployment SHA',()=>{
  const smoke=fs.readFileSync(path.join(root,'ops/migration/cloudflare-preview/smoke-preview.mjs'),'utf8');
  assert.ok(smoke.includes("u.protocol !== 'https:' || !u.hostname.endsWith('.pages.dev')"));
