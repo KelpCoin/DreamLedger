@@ -215,12 +215,30 @@ def run_audit(output_path: Path) -> dict[str, Any]:
         ["BEC-PRIME/catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json", "BEC-PRIME/fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json"],
     )
 
+    gate_supports_held_state = (
+        "$p.status -eq 'held'" in mtg_gate
+        and "$p.checkout.mode -eq 'disabled'" in mtg_gate
+        and "$p.fulfillment.mode -eq 'disabled'" in mtg_gate
+        and "$e.ready -eq $false" in mtg_gate
+    )
+    held_state_consistent = (
+        (mtg_product or {}).get("status") == "held"
+        and (mtg_product or {}).get("checkout", {}).get("mode") == "disabled"
+        and product_mode == "disabled"
+        and (mtg_product or {}).get("fulfillment", {}).get("operator_required") is True
+        and entry.get("ready") is False
+        and entry.get("operator_required") is True
+    )
     gate_expects_automated = "$p.fulfillment.mode -ne 'automated'" in mtg_gate
+    gate_ok = (gate_supports_held_state and held_state_consistent) or (
+        not gate_expects_automated and not contradictory
+    )
     add_check(
         checks, "MTG_CI_EXPECTATION",
-        "BLOCKED" if gate_expects_automated and product_mode != "automated" else "PASS",
-        "The checked-in MTG gate explicitly requires fulfillment.mode=automated, but current product metadata has fulfillment.mode=" + str(product_mode) + ". This is a reproducible source-contract mismatch.",
-        [".github/workflows/mtg-diagnostic-fulfillment.yml", "BEC-PRIME/catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json"],
+        "PASS" if gate_ok else "BLOCKED",
+        "The MTG gate accepts the held/closed product state and checks registry consistency; checkout remains disabled."
+        if gate_ok else "The MTG gate and product/fulfillment metadata still disagree about whether this SKU is held or production-ready.",
+        [".github/workflows/mtg-diagnostic-fulfillment.yml", "BEC-PRIME/catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json", "BEC-PRIME/fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json"],
     )
 
     billboard_product = read_json(ROOT / "BEC-PRIME/catalog/products/DREAMLEDGER-BILLBOARD-FOUNDING-001.json")
