@@ -209,7 +209,8 @@ async function verifyProduction(baseUrl, expectedCommit, sourceRoot = ROOT) {
     }
   }
 
-  const [version, mtgNoSlash, mtgSlash, liveProducts, liveCatalog, feedCatalog, robots, sitemap] = await Promise.all([
+  const [health, version, mtgNoSlash, mtgSlash, liveProducts, liveCatalog, feedCatalog, robots, sitemap] = await Promise.all([
+    get('/healthz', true),
     get('/version', true),
     get('/mtg', false),
     get('/mtg/', false),
@@ -219,6 +220,9 @@ async function verifyProduction(baseUrl, expectedCommit, sourceRoot = ROOT) {
     get('/robots.txt', false),
     get('/sitemap.xml', false)
   ]);
+  add('production_health_contract',
+    Boolean(health.parsed && health.parsed.ok === true && health.parsed.service === 'dreamledger-storefront'),
+    'The storefront health endpoint reports the expected live service and ok=true.');
 
   for (const [name, result] of [['/mtg', mtgNoSlash], ['/mtg/', mtgSlash]]) {
     add('page_marker_' + name.replace(/\W/g, '_'),
