@@ -97,6 +97,21 @@ class CubeSwarmScaleGateTests(unittest.TestCase):
         self.assertEqual(d["decision"], "HOLD_BASELINE_PREPARE_ONLY")
         self.assertIn("NOT_FULFILLED", " ".join(d["blockers"]))
 
+
+    def test_fractional_visitor_denominator_is_rejected(self):
+        e = fixture()
+        e["unique_qualified_visitors"] = 3.5
+        d = recommend_scale(e)
+        self.assertEqual(d["decision"], "HOLD_BASELINE_PREPARE_ONLY")
+        self.assertEqual(d["reason"], "MISSING_QUALIFIED_VISITOR_DENOMINATOR")
+
+    def test_fractional_worker_or_queue_counts_are_rejected(self):
+        e = fixture()
+        e["current_workers"] = 1.5
+        d = recommend_scale(e)
+        self.assertEqual(d["decision"], "HOLD_BASELINE_PREPARE_ONLY")
+        self.assertEqual(d["reason"], "INVALID_CURRENT_WORKER_OR_QUEUE_METRIC")
+
     def test_low_observed_contribution_epv_recommends_baseline_only(self):
         e = fixture(epv_target=10.0)
         d = recommend_scale(e)
