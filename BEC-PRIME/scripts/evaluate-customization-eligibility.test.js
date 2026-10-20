@@ -122,3 +122,25 @@ test('base purchase remains available independently of customization state', () 
   assert.ok(result.reason_codes.includes('CUSTOMIZATION_DISABLED'));
   assert.equal(input.config.defaults.base_offer_must_remain_available, true);
 });
+
+test('a different commander or illegal deck format blocks the upgrade', () => {
+  const commanderMismatch = fixture();
+  commanderMismatch.product.commander = 'Product Commander';
+  const resultA = evaluateCustomizationEligibility(commanderMismatch);
+  assert.ok(resultA.reason_codes.includes('DECKLIST_COMMANDER_MISMATCH'));
+
+  const formatMismatch = fixture();
+  formatMismatch.decklist.format = 'modern';
+  formatMismatch.legality_proof.decklist_fingerprint = fingerprintDecklist(formatMismatch.decklist);
+  const resultB = evaluateCustomizationEligibility(formatMismatch);
+  assert.ok(resultB.reason_codes.includes('DECKLIST_FORMAT_INVALID'));
+});
+
+test('duplicate inventory item IDs cannot count as separate physical cards', () => {
+  const input = fixture();
+  input.inventory_records[1].inventory_item_id = input.inventory_records[0].inventory_item_id;
+  const result = evaluateCustomizationEligibility(input);
+  assert.equal(result.eligible, false);
+  assert.equal(result.eligible_swap_count, 19);
+  assert.ok(result.reason_codes.includes('VERIFIED_SWAP_POOL_BELOW_MINIMUM'));
+});
