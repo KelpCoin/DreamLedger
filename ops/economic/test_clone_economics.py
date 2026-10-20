@@ -98,10 +98,15 @@ class SiloCloneEconomicContractTests(unittest.TestCase):
         self.assertEqual(self.report["overall_status"], "BLOCKED")
         self.assertIn("pipeline value", " ".join(self.registry["economic_truth"]["never_revenue"]).lower())
 
-    def test_audit_detects_known_mtg_product_contract_mismatch(self):
+    def test_mtg_diagnostic_stays_held_but_registry_and_ci_agree(self):
         self.assertEqual(self.check_by_id("MTG_DIAGNOSTIC_CHECKOUT")["status"], "BLOCKED")
-        self.assertEqual(self.check_by_id("MTG_PRODUCT_FULFILLMENT_CONSISTENCY")["status"], "BLOCKED")
-        self.assertEqual(self.check_by_id("MTG_CI_EXPECTATION")["status"], "BLOCKED")
+        self.assertEqual(self.check_by_id("MTG_PRODUCT_FULFILLMENT_CONSISTENCY")["status"], "PASS")
+        self.assertEqual(self.check_by_id("MTG_CI_EXPECTATION")["status"], "PASS")
+        product = json.loads((ROOT / "BEC-PRIME/catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json").read_text(encoding="utf-8"))
+        registry = json.loads((ROOT / "BEC-PRIME/fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json").read_text(encoding="utf-8"))
+        self.assertEqual(product["checkout"]["mode"], "disabled")
+        self.assertEqual(product["fulfillment"]["mode"], "disabled")
+        self.assertFalse(registry["entries"]["COMMANDER-DECK-DIAGNOSTIC-001"]["ready"])
 
     def test_audit_detects_billboard_and_avatar_source_mismatches(self):
         self.assertEqual(self.check_by_id("BILLBOARD_CHECKOUT_MANIFEST_PARITY")["status"], "BLOCKED")
