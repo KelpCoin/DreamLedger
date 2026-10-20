@@ -26,7 +26,7 @@ function safeConfiguredWorkerUrl(value: string): URL | null {
     if (/^(127\.|10\.|192\.168\.|169\.254\.)/.test(host)) return null;
     const m = host.match(/^172\.(\d+)\./);
     if (m && Number(m[1]) >= 16 && Number(m[1]) <= 31) return null;
-    if (host === "::1" || host.startsWith("fc") || host.startsWith("fd") || host.startsWith("fe80:")) return null;
+    if (host === "::1" || host === "[::1]" || host.startsWith("fc") || host.startsWith("fd") || host.startsWith("fe80:") || host === "0.0.0.0") return null;
     return url;
   } catch {
     return null;
@@ -42,14 +42,6 @@ function chargeForGeneratedTokens(tokens: number) {
     actual_usdc: (Number(actual) / Number(ATOMIC_PER_USDC)).toFixed(6),
     capped: calculated > MAX_ATOMIC
   };
-}
-
-function sha256Utf8(value: string): string {
-  const bytes = new TextEncoder().encode(value);
-  return Array.from(new Uint8Array(
-    // Web Crypto is asynchronous; this helper is replaced by sha256Utf8Async at call sites.
-    new ArrayBuffer(0)
-  )).join("");
 }
 
 async function sha256Utf8Async(value: string): Promise<string> {
