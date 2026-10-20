@@ -1,6 +1,6 @@
 {
   "schema": "dreamledger/agent-commerce/v6",
-  "updated": "2026-10-11",
+  "updated": "2026-10-19",
   "purpose": "Public product discovery and purchase information for people and AI assistants.",
   "storefront": "https://dreamledger.org/",
   "human_shop_horizontal": "https://dreamledger.org/shop.html",
@@ -58,11 +58,12 @@
       "product_id": "COMMANDER-DECK-DIAGNOSTIC-001",
       "name": "Commander Deck Diagnostic",
       "price_nzd": 29,
-      "buy_router": "https://dreamledger.org/mtg/diagnostic.html",
-      "checkout_url": "https://dreamledger.org/mtg/diagnostic.html",
-      "status": "LISTED",
-      "loop": "LOOP-CMD-DIAG-29",
-      "note": "First-party decklist intake creates a one-time Checkout Session only while the canonical economic ledger is reachable. Do not treat checkout creation as payment or delivery proof."
+      "buy_router": null,
+      "checkout_url": null,
+      "status": "HELD_NOT_RELEASED",
+      "note": "Not for sale pending independent settlement, attribution, fulfillment, and delivery proof.",
+      "approval_required": true,
+      "checkout_available": false
     },
     {
       "product_id": "DREAMMEEZ-SUPPORTER-SPROUT",
@@ -153,13 +154,15 @@
       "product_id": "EDH_0001",
       "name": "EDH_0001 Commander Deck",
       "price_nzd": 230,
-      "buy_router": "https://dreamledger.org/buy/edh-0001/",
+      "buy_router": null,
       "checkout_url": null,
-      "status": "REVIEW_REQUIRED",
-      "note": "Checkout is held because the public listing says NZ$230 while the linked live Stripe Payment Link charges NZ$400. Do not purchase until the price and checkout are reconciled."
+      "status": "HELD_PRICE_CONFLICT",
+      "note": "Not for sale until NZ$230 public catalog price and NZ$400 source product price are reconciled.",
+      "approval_required": true,
+      "checkout_available": false
     }
   ],
-  "catalog_note": "Prices, checkout links, and availability can change. Confirm current terms on the product page before purchase.",
+  "catalog_note": "Only an API offer returned by the canonical release gates may be presented for purchase. Catalog presence is not proof of checkout readiness, payment, delivery, or revenue.",
   "safety": {
     "human_approval_required_before_spending": true,
     "check_current_terms_before_purchase": true,

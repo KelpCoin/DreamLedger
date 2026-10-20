@@ -1,12 +1,56 @@
 {
   "schema": "BEC-PRIME/LIVE-COMMERCE/v1",
   "truth_rule": "Only Stripe-confirmed external payments count as revenue.",
-  "updated_at": "2026-08-25",
+  "updated_at": "2026-10-19T02:03:57.638Z",
   "offers": [
-    {"offer_id":"OFFER-BEC-PRIME-ARCHITECTURE-AUDIT-002","price_nzd":49,"checkout":"https://buy.stripe.com/5kQ00j7LD9BXfuLaIYdwc2k","status":"ACTIVE_LIVEMODE","silo":"commerce"},
-    {"offer_id":"OFFER-BEC-PRIME-AGENT-READINESS-099","price_nzd":99,"checkout":"https://buy.stripe.com/5kQaEX1nf5lH1DV2csdwc2j","status":"ACTIVE_LIVEMODE","silo":"commerce"},
-    {"offer_id":"OFFER-CMD-DIAG-29-NZD","price_nzd":29,"checkout":"https://buy.stripe.com/8x228r1nfg0l3M32csdwc2I","status":"ACTIVE_LIVEMODE","silo":"mtg"},
-    {"offer_id":"DREAMLEDGER-BILLBOARD-NZ-100X100","price_nzd":50,"checkout":"https://buy.stripe.com/5kQeVdc1Tg0l4Q718odwc2a","status":"ACTIVE_LIVEMODE","silo":"commerce"}
+    {
+      "offer_id": "OFFER-BEC-PRIME-ARCHITECTURE-AUDIT-002",
+      "price_nzd": 49,
+      "checkout": "https://buy.stripe.com/5kQ00j7LD9BXfuLaIYdwc2k",
+      "status": "ACTIVE_LIVEMODE",
+      "silo": "commerce"
+    },
+    {
+      "offer_id": "OFFER-BEC-PRIME-AGENT-READINESS-099",
+      "price_nzd": 99,
+      "checkout": "https://buy.stripe.com/5kQaEX1nf5lH1DV2csdwc2j",
+      "status": "ACTIVE_LIVEMODE",
+      "silo": "commerce"
+    },
+    {
+      "offer_id": "OFFER-CMD-DIAG-29-NZD",
+      "price_nzd": 29,
+      "checkout": null,
+      "status": "HELD_NOT_RELEASED",
+      "silo": "mtg",
+      "checkout_available": false,
+      "approval_required": true,
+      "hold_reason": "Not sale-authorized: payment-to-delivery remains unproven."
+    },
+    {
+      "offer_id": "DREAMLEDGER-BILLBOARD-NZ-100X100",
+      "price_nzd": 50,
+      "checkout": "https://buy.stripe.com/5kQeVdc1Tg0l4Q718odwc2a",
+      "status": "ACTIVE_LIVEMODE",
+      "silo": "commerce"
+    }
   ],
-  "revenue": {"verified_external_nzd":0,"self_purchases":0}
+  "revenue": {
+    "verified_external_nzd": 0,
+    "self_purchases": 0
+  },
+  "held": [
+    {
+      "offer_id": "OFFER-CMD-DIAG-29-NZD",
+      "product_id": "COMMANDER-DECK-DIAGNOSTIC-001",
+      "price_nzd": 29,
+      "checkout": null,
+      "status": "HELD_NOT_RELEASED",
+      "checkout_available": false,
+      "approval_required": true,
+      "silo": "mtg",
+      "payment_link_reference_removed": true,
+      "external_stripe_status": "UNVERIFIED_NOT_MODIFIED"
+    }
+  ]
 }

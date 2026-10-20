@@ -1,6 +1,7 @@
 {
-  "schema": "BEC-PRIME/MTG-COMMERCE-SURFACE/v2",
+  "schema": "BEC-PRIME/MTG-COMMERCE-SURFACE/v3",
   "status": "PASS",
+  "scope": "STATIC_CONTRACT_ONLY",
   "source": "BEC-PRIME/website/mtg-catalog.html",
   "marker": "data-dreamledger-mtg-commerce-v2",
   "route": "/mtg",
@@ -10,16 +11,26 @@
     "/MTG",
     "/MTG/"
   ],
-  "inventory_endpoint": "/api/products",
-  "checkout_endpoint": "/api/offer-checkout/create",
-  "horizontal_catalogue": true,
-  "displays": [
-    "image",
-    "name",
-    "price_nzd",
-    "condition",
-    "availability",
-    "buy_button"
+  "inventory_source": "/data/mtg-catalog.json",
+  "checkout": "DISABLED",
+  "purchase_flow": "manual_enquiry_only",
+  "rendering": "DOM_CREATION_AND_TEXT_CONTENT",
+  "display_contract": [
+    "published_physical_singles_and_decks_only",
+    "positive_inventory_only",
+    "manual_claim_path_only",
+    "condition_shown_only_for_eligible_singles",
+    "held_and_draft_products_hidden",
+    "no_direct_checkout",
+    "catalog_unavailable_means_no_inventory_claim"
   ],
-  "generated_at": "2026-08-28T06:47:01.883Z"
+  "held_products_visible": false,
+  "economic_validation": "NOT_PROVEN",
+  "external_stripe_link_state": "UNVERIFIED_NOT_MODIFIED",
+  "generated_at": "2026-10-19",
+  "caveats": [
+    "Static source assertions do not prove the deployed site matches this artifact.",
+    "No live purchase-to-delivery cycle is evidenced.",
+    "Do not treat this proof as enterprise-readiness or clone-release evidence."
+  ]
 }

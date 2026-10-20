@@ -57,6 +57,18 @@ function makeReport(intake,cards,scry){
 }
 async function createIntake(input){
   const cards=parseDecklist(input.decklist);if(cards.length<10)throw new Error('Please supply at least 10 decklist lines.');const intakeId=id();const intake={intake_id:intakeId,product_id:PRODUCT_ID,offer_id:OFFER_ID,commander:String(input.commander||''),strategy:String(input.strategy||''),budget:String(input.budget||''),decklist:String(input.decklist),cards,created_at:new Date().toISOString(),status:'awaiting_payment'};writeJson(path.join(INTAKES,intakeId+'.json'),intake);return intake;}
+function assertSaleApproved(){
+  const product=safeJson(path.join(ROOT,'catalog','products',PRODUCT_ID+'.json'));
+  const registry=safeJson(path.join(ROOT,'fulfillment','PRODUCT-FULFILLMENT-REGISTRY.json'));
+  const fulfillment=registry&&registry.entries&&registry.entries[PRODUCT_ID];
+  const approved=!!product&&product.id===PRODUCT_ID&&product.status==='published'&&
+    product.commercial_truth&&product.commercial_truth.approval_required===false&&
+    product.commercial_truth.sellable===true&&product.inventory>0&&
+    product.checkout&&product.checkout.mode==='stripe_session'&&
+    product.fulfillment&&product.fulfillment.mode==='automated'&&product.fulfillment.operator_required===false&&
+    !!fulfillment&&fulfillment.ready===true&&fulfillment.operator_required===false;
+  if(!approved)throw new Error('Commander diagnostic sale is held; checkout is disabled pending explicit commercial release');
+}
 function form(params){const out=new URLSearchParams();for(const[k,v]of Object.entries(params))out.set(k,String(v));return out;}
 async function stripeSession(intake){if(!STRIPE_SECRET_KEY)throw new Error('STRIPE_SECRET_KEY is not configured');const sessionParams={'mode':'payment','line_items[0][price]':STRIPE_PRICE_ID,'line_items[0][quantity]':'1','success_url':PUBLIC_BASE+'/mtg/diagnostic-success.html?session_id={CHECKOUT_SESSION_ID}','cancel_url':PUBLIC_BASE+'/mtg?diagnostic_cancelled=1','metadata[product_id]':PRODUCT_ID,'metadata[offer_id]':OFFER_ID,'metadata[silo]':'mtg','metadata[intake_id]':intake.intake_id,'metadata[commerce_version]':'mtg-diagnostic-auto-v1','customer_creation':'always'};const r=await fetch('https://api.stripe.com/v1/checkout/sessions',{method:'POST',headers:{Authorization:'Bearer '+STRIPE_SECRET_KEY,'content-type':'application/x-www-form-urlencoded','Idempotency-Key':'dreamledger-mtg-diagnostic-'+intake.intake_id},body:form(sessionParams)});const t=await r.text();let j;try{j=JSON.parse(t)}catch{j={}}if(!r.ok)throw new Error(j?.error?.message||'Stripe checkout creation failed');return j;}
 async function assertEconomicLedgerReady(){
@@ -76,6 +88,7 @@ async function assertEconomicLedgerReady(){
   if(!offerId)throw new Error('Canonical economic offer unavailable; checkout held');
 }
 async function createCheckout(input){
+  assertSaleApproved();
   if(!STRIPE_SECRET_KEY)throw new Error('STRIPE_SECRET_KEY is not configured');
   await assertEconomicLedgerReady();
   const intake=await createIntake(input);

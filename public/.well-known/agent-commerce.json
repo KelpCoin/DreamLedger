@@ -1,6 +1,6 @@
 {
   "schema": "dreamledger/agent-commerce/v2",
-  "updated": "2026-10-03",
+  "updated": "2026-10-19",
   "purpose": "Public machine-readable commerce contract for partners and shopping agents.",
   "storefront": "https://dreamledger.org/",
   "fee_policy": {
@@ -45,10 +45,12 @@
       "price_nzd": 29,
       "currency": "NZD",
       "silo": "mtg",
-      "checkout_url": "https://buy.stripe.com/00wfZhaXP01neqHaIYdwc2R",
-      "buy_router": "https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001",
-      "delivery": "Automated diagnostic report after payment",
-      "status": "VERIFIED_AVAILABLE"
+      "checkout_url": null,
+      "buy_router": null,
+      "status": "HELD_NOT_RELEASED",
+      "approval_required": true,
+      "checkout_available": false,
+      "note": "Not available for purchase pending independent settlement, attribution, fulfillment, and delivery proof."
     },
     {
       "product_id": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
@@ -93,13 +95,16 @@
       "price_nzd": 400,
       "currency": "NZD",
       "silo": "mtg",
-      "checkout_url": "https://buy.stripe.com/14A3cvea1dSd1DV5oEdwc1J",
-      "buy_router": "https://dreamledger.org/buy/EDH_0001",
+      "checkout_url": null,
+      "buy_router": null,
       "delivery": "Physical Commander deck",
-      "status": "VERIFIED_AVAILABLE"
+      "status": "HELD_PRICE_CONFLICT",
+      "approval_required": true,
+      "checkout_available": false,
+      "note": "Not available for purchase until the NZ$230/NZ$400 discrepancy is reconciled."
     }
   ],
-  "catalog_note": "Full live set: GET /api/offers. Prefer checkout_url from that response over any cached list.",
+  "catalog_note": "GET /api/offers is the authoritative discovery surface. Only products explicitly approved and checkout-enabled by canonical product and fulfillment gates may be returned. Held products are not purchasable.",
   "safety": {
     "no_autonomous_spend_without_buyer_authorization": true,
     "payment_provider": "Stripe",
@@ -131,5 +136,6 @@
       "reputation"
     ],
     "truth_rule": "Settled external payment plus fulfillment plus independent evidence is required before verified economic truth."
-  }
+  },
+  "publication_rule": "No offer listed as held, review-required, or awaiting proof may expose a checkout URL or buy route."
 }

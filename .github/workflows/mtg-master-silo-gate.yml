@@ -1,0 +1,40 @@
+name: MTG master-silo clone readiness
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "supabase/functions/mtg-deck-catalog/index.ts"
+      - "supabase/migrations/*commerce_entitlement_writes.sql"
+      - "supabase/tests/mtg-master-silo-contract.test.mjs"
+      - "docs/MTG-MASTER-SILO-CLONE-READINESS*"
+      - ".github/workflows/mtg-master-silo-gate.yml"
+  push:
+    branches: [main]
+    paths:
+      - "supabase/functions/mtg-deck-catalog/index.ts"
+      - "supabase/migrations/*commerce_entitlement_writes.sql"
+      - "supabase/tests/mtg-master-silo-contract.test.mjs"
+      - "docs/MTG-MASTER-SILO-CLONE-READINESS*"
+      - ".github/workflows/mtg-master-silo-gate.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mtg-master-silo-gate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contract:
+    name: Verify clone-readiness safety contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Check master-silo safety contracts
+        run: node --test supabase/tests/mtg-master-silo-contract.test.mjs

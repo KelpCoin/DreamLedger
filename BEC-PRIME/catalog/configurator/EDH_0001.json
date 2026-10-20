@@ -1,6 +1,6 @@
 {
   "schema_version": "mtg-80-20-config-v1",
-  "status": "LIVE_CONFIGURABLE",
+  "status": "HELD_PRICE_CONFLICT",
   "deck_id": "EDH_0001",
   "name": "Edward Kenway - Grixis Pirates",
   "commander": "Edward Kenway",
@@ -9,7 +9,7 @@
   "bracket_target": "3",
   "base_price_minor": 40000,
   "currency": "NZD",
-  "inventory_status": "ASSEMBLED_BASE_UNIT",
+  "inventory_status": "HELD_ZERO_INVENTORY",
   "testing_status": "TESTING_DATA_REQUIRED",
   "testing_note": "Do not publish numerical win-rate claims until the complete 100-card decklist and simulation evidence are ingested and verified.",
   "primer_status": "DRAFT_REQUIRED",
@@ -27,7 +27,7 @@
         "name": "Classic lands",
         "description": "Traditional non-foil basic land treatment.",
         "price_adjustment_minor": 0,
-        "status": "AVAILABLE",
+        "status": "HELD_PENDING_INVENTORY",
         "inventory_ref": "MTG-BASIC-LANDS-CLASSIC"
       },
       {
@@ -35,7 +35,7 @@
         "name": "Premium foil lands",
         "description": "Foil basic land treatment, subject to verified stock.",
         "price_adjustment_minor": 1800,
-        "status": "PENDING_INVENTORY",
+        "status": "HELD_PENDING_INVENTORY",
         "inventory_ref": "MTG-BASIC-LANDS-PREMIUM-FOIL"
       },
       {
@@ -43,7 +43,7 @@
         "name": "Themed lands",
         "description": "Visually coherent land package selected for the deck theme.",
         "price_adjustment_minor": 1200,
-        "status": "PENDING_INVENTORY",
+        "status": "HELD_PENDING_INVENTORY",
         "inventory_ref": "MTG-BASIC-LANDS-THEMED"
       }
     ],
@@ -52,13 +52,15 @@
         "id": "FLEX-REMOVAL",
         "name": "Removal slot",
         "description": "Replace one engineered removal slot with a verified compatible inventory card.",
-        "options": []
+        "options": [],
+        "status": "HELD_PENDING_INVENTORY"
       },
       {
         "id": "FLEX-RAMP",
         "name": "Ramp slot",
         "description": "Replace one engineered ramp slot with a verified compatible inventory card.",
-        "options": []
+        "options": [],
+        "status": "HELD_PENDING_INVENTORY"
       }
     ],
     "premium_upgrades": [
@@ -67,7 +69,7 @@
         "name": "Foil package",
         "description": "Upgrade verified eligible cards to foil versions.",
         "price_adjustment_minor": 5000,
-        "status": "PENDING_INVENTORY",
+        "status": "HELD_PENDING_INVENTORY",
         "inventory_ref": "MTG-FOIL-UPGRADE-EDH-0001"
       },
       {
@@ -75,9 +77,12 @@
         "name": "Chase-card upgrade",
         "description": "Add a verified compatible premium card selected from the singles inventory.",
         "price_adjustment_minor": 10000,
-        "status": "PENDING_INVENTORY",
+        "status": "HELD_PENDING_INVENTORY",
         "inventory_ref": "MTG-CHASE-UPGRADE-EDH-0001"
       }
     ]
-  }
+  },
+  "checkout_available": false,
+  "approval_required": true,
+  "hold_reason": "The NZ$400 configurator source and NZ$230 public catalog conflict. Do not accept customization or payment until final price, exact inventory, terms, and delivery are reconciled."
 }

@@ -71,6 +71,9 @@ jobs:
           print(f"PASS public observatory links={len(parser.hrefs)}; all targets exist")
           PY
 
+      - name: MTG master-silo safety contract
+        run: node --test ../supabase/tests/mtg-master-silo-contract.test.mjs
+
       - name: Unit policy tests
         run: npm test
 

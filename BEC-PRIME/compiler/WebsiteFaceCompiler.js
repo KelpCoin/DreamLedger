@@ -13,13 +13,39 @@ function sha256(s){return crypto.createHash('sha256').update(s,'utf8').digest('h
 function readJson(f){return JSON.parse(fs.readFileSync(f,'utf8'));}
 function write(f,t){fs.mkdirSync(path.dirname(f),{recursive:true});fs.writeFileSync(f,t,'utf8');}
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function canonicalProductState(productId){
+  if(!productId)return null;
+  const candidate=path.join(ROOT,'catalog','products',String(productId)+'.json');
+  if(!fs.existsSync(candidate))return null;
+  const p=readJson(candidate);
+  const held=p.status==='held'||p.commercial_truth?.sellable===false||
+    p.commercial_truth?.approval_required===true||Number(p.inventory)===0||
+    p.checkout?.mode==='disabled';
+  return {held,product:p};
+}
+function routeProductId(route){
+  if(route.product_id)return String(route.product_id);
+  return String(route.id||'').replace(/^LIVE-/,'');
+}
+function routeAllowed(route){
+  const state=canonicalProductState(routeProductId(route));
+  if(!state)return true;
+  return !state.held;
+}
 function loadRoutes(registry){
   const byId={};
-  for(const r of registry.live_checkout_routes||[]) byId[r.id]=r;
+  for(const r of registry.live_checkout_routes||[]){
+    if(routeAllowed(r))byId[r.id]=r;
+  }
   try{if(fs.existsSync(APPROVED)){const approved=readJson(APPROVED);
-    for(const o of approved.approved||[]){const link=o.payment_link_url||o.payment_link;if(!link)continue;
+    for(const o of approved.approved||[]){
+      const link=o.payment_link_url||o.payment_link;
+      if(!link||o.approval_required===true||o.checkout_available===false||o.status==='HELD_NOT_RELEASED')continue;
+      const state=canonicalProductState(o.product_id);
+      if(state&&state.held)continue;
       const id='APPROVED-'+(o.product_id||o.offer_id);if(byId[id])continue;
-      byId[id]={id,name:o.name,price_nzd:Number(o.price),href:link,tag:o.silo||'approved'};}}}
+      byId[id]={id,name:o.name,price_nzd:Number(o.price),href:link,tag:o.silo||'approved'};
+    }}}
   catch(_){}
   return byId;
 }

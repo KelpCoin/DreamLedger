@@ -87,12 +87,16 @@ function compile() {
     const checkoutAvailable = schema.ok
       && p.status === 'published'
       && p.commercial_truth?.approval_required === false
+      && p.commercial_truth?.sellable === true
+      && p.checkout?.mode !== 'disabled'
       && inventoryPositive(p)
       && f.ready;
 
     let status;
     if (!schema.ok) status = 'QUARANTINED_SCHEMA';
     else if (checkoutAvailable) status = 'VERIFIED_AVAILABLE';
+    else if (p.status === 'held' && /price.{0,30}conflict|conflict.{0,30}price/i.test(String(p.hold_reason || p.commercial_truth?.reason || ''))) status = 'HELD_PRICE_CONFLICT';
+    else if (p.status === 'held') status = 'HELD_NOT_RELEASED';
     else if (p.status === 'published') status = 'QUARANTINED_NO_FULFILLMENT';
     else status = 'unavailable';
 
@@ -117,10 +121,12 @@ function compile() {
       source_price_unit: resolvedPrice.unit,
       source_price_unit_implicit: resolvedPrice.implicit,
       pricing_strategy: 'fixed',
-      payment_adapter: 'stripe',
-      checkout_route: p.checkout?.mode === 'payment_link' ? 'stripe_payment_link' : '/api/offer-checkout/create',
-      checkout_url: p.commercial_truth?.payment_link || null,
-      approval_required: p.commercial_truth?.approval_required === true,
+      payment_adapter: checkoutAvailable ? 'stripe' : 'disabled_until_approved',
+      checkout_route: checkoutAvailable
+        ? (p.checkout?.mode === 'payment_link' ? 'stripe_payment_link' : '/api/offer-checkout/create')
+        : null,
+      checkout_url: checkoutAvailable ? (p.commercial_truth?.payment_link || null) : null,
+      approval_required: p.commercial_truth?.approval_required !== false,
       checkout_available: checkoutAvailable,
       status,
       fulfillment_ready: f.ready,

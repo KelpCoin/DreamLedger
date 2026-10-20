@@ -25,12 +25,16 @@ jobs:
         run: |
           $p = Get-Content BEC-PRIME/catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json -Raw | ConvertFrom-Json
           $f = Get-Content BEC-PRIME/fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json -Raw | ConvertFrom-Json
+          $entry = $f.entries.'COMMANDER-DECK-DIAGNOSTIC-001'
           if ($p.price -ne 29) { throw 'Commander diagnostic price contract failed' }
-          if ($p.fulfillment.mode -ne 'automated') { throw 'Automated fulfillment contract failed' }
-          if ($p.fulfillment.operator_required -ne $false) { throw 'Operator-free fulfillment contract failed' }
-          if ($f.entries.'COMMANDER-DECK-DIAGNOSTIC-001'.operator_required -ne $false) { throw 'Registry still requires operator' }
-          if ($f.entries.'COMMANDER-DECK-DIAGNOSTIC-001'.ready -ne $true) { throw 'Registry is not ready' }
-          Write-Host '[PASS] MTG diagnostic commercial and fulfillment contract'
+          if ($p.status -ne 'held' -or $p.inventory -ne 0) { throw 'Held product must remain unpublished with zero inventory' }
+          if ($p.checkout.mode -ne 'disabled' -or $p.checkout.url -ne $null) { throw 'Held diagnostic must not expose checkout' }
+          if ($p.commercial_truth.sellable -ne $false -or $p.commercial_truth.approval_required -ne $true) { throw 'Held diagnostic commercial truth is inconsistent' }
+          if ($p.fulfillment.mode -ne 'disabled' -or $p.fulfillment.operator_required -ne $true) { throw 'Held diagnostic cannot claim automated fulfillment' }
+          if ($entry.ready -ne $false -or $entry.operator_required -ne $true) { throw 'Registry must independently keep diagnostic checkout disabled' }
+          if ($entry.status -ne 'NOT_RELEASED') { throw 'Registry must label diagnostic NOT_RELEASED' }
+          Write-Host '[PASS] MTG diagnostic held-state contract'
+
       - name: Compile MTG surface
         run: node BEC-PRIME/compiler/MTGCatalogCompiler.js
       - name: Verify CUBE MTG reskin
@@ -48,11 +52,17 @@ jobs:
             'BEC-PRIME/compiled/website/billboard.html'
           )
           foreach ($f in $required) { if (!(Test-Path $f)) { throw "Missing public surface: $f" } }
-          # DreamLedger1 serves public/home.html at /. Check the actual canonical storefront,
-          # not a stale compiled snapshot maintained by a different build path.
-          $homeHtml = Get-Content public/home.html -Raw
-          foreach ($token in @('DreamLedger','Supplier Quote Comparison Worksheet','Commander Deck Diagnostic','Truth Oracle')) {
-            if ($homeHtml -notmatch [regex]::Escape($token)) { throw "Canonical storefront token missing: $token" }
+          # Verify the canonical deployed page and generated alias independently.
+          $homeHtml = Get-Content public/index.html -Raw
+          $compiledHome = Get-Content BEC-PRIME/compiled/website/index.html -Raw
+          $homeAlias = Get-Content public/home.html -Raw
+          foreach ($token in @('DreamLedger','Truth Oracle','Supplier quote worksheet')) {
+            if ($homeHtml -notmatch [regex]::Escape($token)) { throw "Public index token missing: $token" }
+            if ($compiledHome -notmatch [regex]::Escape($token)) { throw "Compiled home token missing: $token" }
           }
-          if ($homeHtml -match 'Agentic Commerce Readiness Audit|BrownEye Cortex|Economic Court|ELOHIM|AMPLISSA|COLLECTORSCOAST') { throw 'Internal or historical homepage residue detected' }
-          Write-Host '[PASS] DreamLedger catalogue doorway + MTG + Billboard surfaces present'
+          if ($homeHtml -ne $compiledHome) { throw 'Public index and canonical compiled home drifted' }
+          foreach ($surface in @($homeHtml,$compiledHome,$homeAlias)) {
+            if ($surface -match 'COMMANDER-DECK-DIAGNOSTIC-001|CMD-DIAG-29|buy\\.stripe\\.com/[^"'' ]+') { throw 'Held Commander diagnostic or direct Stripe link leaked onto a public home surface' }
+            if ($surface -match 'Agentic Commerce Readiness Audit|BrownEye Cortex|Economic Court|AMPLISSA|COLLECTORSCOAST') { throw 'Internal or historical homepage residue detected' }
+          }
+          Write-Host '[PASS] Canonical homepage parity and held-offer suppression verified'

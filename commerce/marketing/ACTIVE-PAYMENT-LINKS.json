@@ -2,22 +2,15 @@
   "schema": "dreamledger/active-payment-links/v3",
   "truth_rule": "A link is commercially live only when it matches /api/products checkout_url and Stripe accepts payment. Revenue only when Stripe reports paid completed session + attribution + fulfillment.",
   "source": "https://dreamledger.org/api/products",
-  "last_live_rail_check": "2026-09-26",
+  "last_live_rail_check": null,
   "buy_router": "https://dreamledger.org/buy/{product_id}",
-  "economic_event_order": ["authorized", "paid", "delivered", "proven"],
+  "economic_event_order": [
+    "authorized",
+    "paid",
+    "delivered",
+    "proven"
+  ],
   "links": [
-    {
-      "product_id": "COMMANDER-DECK-DIAGNOSTIC-001",
-      "sku": "CMD-DIAG-29",
-      "offer": "Commander Deck Diagnostic",
-      "currency": "NZD",
-      "amount": 29,
-      "url": "https://buy.stripe.com/00wfZhaXP01neqHaIYdwc2R",
-      "buy_router": "https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001",
-      "status": "ACTIVE",
-      "fulfillment": "diagnostic-input.html + /api/commercial/input",
-      "revenue_status": "UNPAID"
-    },
     {
       "product_id": "SELLER-PROFIT-AUDIT-001",
       "sku": "SELLER-PROFIT-AUDIT-001",
@@ -52,18 +45,6 @@
       "buy_router": "https://dreamledger.org/buy/DISCORD-WEBHOOK-STARTER-KIT-001",
       "status": "ACTIVE",
       "fulfillment": "digital_download",
-      "revenue_status": "UNPAID"
-    },
-    {
-      "product_id": "EDH_0001",
-      "sku": "EDH_0001",
-      "offer": "EDH_0001 Commander Deck",
-      "currency": "NZD",
-      "amount": 400,
-      "url": "https://buy.stripe.com/14A3cvea1dSd1DV5oEdwc1J",
-      "buy_router": "https://dreamledger.org/buy/EDH_0001",
-      "status": "ACTIVE",
-      "fulfillment": "physical",
       "revenue_status": "UNPAID"
     },
     {
@@ -153,6 +134,37 @@
   "verified_revenue_nzd": 0,
   "notes": [
     "Prefer buy_router over raw Stripe URL so client_reference_id is bound.",
-    "Supabase marketplace-diagnostic-delivery was returning WORKER_ERROR as of 2026-09-26; use diagnostic-input.html + /api/commercial/input for diagnostic fulfillment."
+    "Supabase marketplace-diagnostic-delivery was returning WORKER_ERROR as of 2026-09-26; use diagnostic-input.html + /api/commercial/input for diagnostic fulfillment.",
+    "Held records were removed from this application's active index on 2026-10-19. External Stripe Payment Links were not deactivated or rechecked by this patch."
+  ],
+  "held_links": [
+    {
+      "product_id": "COMMANDER-DECK-DIAGNOSTIC-001",
+      "sku": "CMD-DIAG-29",
+      "offer": "Commander Deck Diagnostic",
+      "currency": "NZD",
+      "amount": 29,
+      "status": "HELD_NOT_RELEASED",
+      "fulfillment": "diagnostic-input.html + /api/commercial/input",
+      "revenue_status": "UNPAID",
+      "approval_required": true,
+      "checkout_available": false,
+      "external_stripe_status": "UNVERIFIED_NOT_MODIFIED",
+      "hold_reason": "Canonical diagnostic is held pending verified settlement, attribution, fulfillment, and delivery."
+    },
+    {
+      "product_id": "EDH_0001",
+      "sku": "EDH_0001",
+      "offer": "EDH_0001 Commander Deck",
+      "currency": "NZD",
+      "amount": 400,
+      "status": "HELD_NOT_RELEASED",
+      "fulfillment": "physical",
+      "revenue_status": "UNPAID",
+      "approval_required": true,
+      "checkout_available": false,
+      "external_stripe_status": "UNVERIFIED_NOT_MODIFIED",
+      "hold_reason": "Public catalog price NZ$230 conflicts with canonical product price NZ$400."
+    }
   ]
 }
