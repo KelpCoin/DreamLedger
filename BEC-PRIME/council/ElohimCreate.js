@@ -6,8 +6,6 @@ const {
   normalizeSilo
 } = require('../elohim/validateElohimProduct');
 
-const DEFAULT_PRICE_NZD = 49;
-
 function stableId(capability, signal) {
   const seed = JSON.stringify({
     capability_id: capability.id,
@@ -19,10 +17,13 @@ function stableId(capability, signal) {
 
 function priceProposal(capability) {
   if (Array.isArray(capability.tiers) && capability.tiers.length) {
-    return capability.tiers.map(t => Number(t.price)).filter(Number.isFinite);
+    return capability.tiers.map(t => Number(t.price)).filter(p => Number.isFinite(p) && p > 0);
   }
-  if (Number.isFinite(Number(capability.price))) return [Number(capability.price)];
-  return [DEFAULT_PRICE_NZD];
+  if (capability.price !== undefined && capability.price !== null && capability.price !== '' &&
+      Number.isFinite(Number(capability.price)) && Number(capability.price) > 0) {
+    return [Number(capability.price)];
+  }
+  return [];
 }
 
 function resolveSilo(capability) {
@@ -44,7 +45,7 @@ function createCandidate(capability, signal = null) {
   const candidate = {
     id: stableId(capability, signal),
     schema_version: 'BEC-ELOHIM-CREATED-CANDIDATE-1.0',
-    status: 'ELOHIM_CREATED_CANDIDATE',
+    status: prices.length ? 'ELOHIM_CREATED_CANDIDATE' : 'UNPRICED_HELD',
     silo: resolveSilo(capability),
     capability_id: capability.id,
     name: capability.name,
@@ -52,7 +53,7 @@ function createCandidate(capability, signal = null) {
     deliverable: capability.commercialization || 'Capability-derived deliverable requiring scope definition.',
     target_buyer: signal?.target_buyer || 'Buyer matching the observed demand signal.',
     price_proposal_nzd: prices,
-    price_status: 'UNVERIFIED',
+    price_status: prices.length ? 'UNVERIFIED' : 'HELD_MISSING_PRICE_EVIDENCE',
     payment_adapter: 'stripe',
     checkout_available: false,
     approval_required: true,
@@ -65,6 +66,17 @@ function createCandidate(capability, signal = null) {
       source: 'BEC-PRIME/catalog/ip-capabilities.json'
     }
   };
+
+  if (!prices.length) {
+    candidate.validation = {
+      ok: false,
+      errors: [{ code: 'PRICE_EVIDENCE_REQUIRED', message: 'No source-backed price was supplied. Route through Kelphaven Elohim pricing pipeline; do not invent a default.' }],
+      warnings: [],
+      validated_at: new Date().toISOString(),
+      schema: 'elohim-candidate.schema.json'
+    };
+    return candidate;
+  }
 
   const validation = validateElohimCandidate(candidate);
   candidate.validation = {
