@@ -16,22 +16,22 @@ This audit distinguishes an implementation/configuration artifact from an operat
 | Billboard public surface | `public/billboard.html` | HTML contains a Stripe URL and says checkout is live. That conflicts with the structured product metadata. An URL in HTML is not proof of a configured/working fulfillment path. |
 | Avatar cosmetics | `public/avatar.html` | The per-cosmetic `Unlock demo` flow is local; the real cash link is a separate NZ$3.99 supporter SKU. It is not evidence that individual cosmetic SKUs settle and grant matching entitlements. |
 | MTG diagnostic SKU | `BEC-PRIME/catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json` | Held; checkout mode disabled; fulfillment mode disabled; operator required; no inventory. NZ$29 is a configured price, not a buyable offer. |
-| MTG fulfillment registry | `BEC-PRIME/fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json` | Claims `ready: true` and `operator_required: false` for the diagnostic, contradicting the held product record. |
-| MTG gate | `.github/workflows/mtg-diagnostic-fulfillment.yml` | Requires `fulfillment.mode = automated`; current product metadata says `disabled`. The latest inspected MTG Diagnostic Fulfillment Gate failed at this contract check. |
+| MTG fulfillment registry | `BEC-PRIME/fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json` | The base branch incorrectly claimed `ready: true` while the SKU was held. This branch aligns the entry to `ready: false` and `operator_required: true`, so it remains closed. |
+| MTG gate | `.github/workflows/mtg-diagnostic-fulfillment.yml` | The base gate falsely required automation mode even when a product was intentionally held. This branch accepts either a consistent production-ready state or a consistent held/disabled state. Passing the gate does not enable checkout. |
 | Revenue doctrine | `BEC-PRIME/OWN-FIRST-COMPANY-OPERATOR.json` | Counts no checkout start, link, internal event, database row, test, simulation, or generated artifact as revenue. Revenue remains NZ$0 in the inspected source snapshot. |
 
 ## Specific CI evidence observed
 
-The latest inspected PR #777 run set was mixed, not green overall:
+The inspected PR #777 baseline was mixed, not green overall:
 
 - **BECK Provider Migration Contract:** passed (run #79).
 - **BECK Fleet Contract:** passed (run #72).
-- **MTG Diagnostic Fulfillment Gate:** failed (run #7002) on the product's missing `automated` fulfillment mode.
+- **MTG Diagnostic Fulfillment Gate:** failed (baseline run #7002) because the workflow required `fulfillment.mode=automated` even though the product was explicitly held. This branch corrects the contract while keeping checkout disabled.
 - **DreamLedger E-Commerce Smoke:** failed (run #6682).
 - **Cortex CI/CD Live Release Gate:** failed (run #7383), with the forensic output marking Supabase-backed inventory, server-side Stripe checkout and paid activation webhook checks as failing.
 - **Public Surface Guard:** failed (run #6681) on prohibited internal/historical terms in three public HTML files.
 
-These checks are evidence of source/build status, not proof of live payment or revenue. Run results should be rechecked against the latest exact commit before merge or release.
+The dedicated BEC economic suite passed 16 tests and emitted a machine-readable audit marked `BLOCKED`, with 13 passing checks and 13 unresolved blockers at the last inspected code head. Other repository workflows remain red. These checks are evidence of source/build status, not proof of live payment or revenue. Run results must be rechecked against the latest exact commit before merge or release.
 
 ## BEC files not available as executable source in this repository snapshot
 
