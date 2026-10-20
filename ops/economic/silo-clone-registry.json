@@ -1,0 +1,913 @@
+{
+  "schema": "BEC-PRIME/ECONOMIC-SILO-CLONE-REGISTRY/v1",
+  "last_updated": "2026-10-20",
+  "overall_state": "STAGED_NOT_PROVISIONED",
+  "mission": "Use Magic: The Gathering Singles as the master marketplace template, prepare a broad Trade Me-style marketplace across practical verticals, keep B2B listings free at launch, and monetize existing billboard/avatar offers only after their actual checkout and delivery contracts reconcile.",
+  "economic_truth": {
+    "verified_external_revenue_nzd": 0,
+    "snapshot_source": "BEC-PRIME/OWN-FIRST-COMPANY-OPERATOR.json in the observed repository baseline",
+    "revenue_requires": [
+      "independent external buyer",
+      "settled external payment",
+      "correct offer attribution",
+      "completed fulfillment",
+      "retrievable delivery proof",
+      "reconciliation including refunds and fees"
+    ],
+    "never_revenue": [
+      "traffic",
+      "pipeline value",
+      "EPV projection",
+      "hash without canonical payload",
+      "payment link existence",
+      "checkout initiation",
+      "simulation benchmark",
+      "database row alone"
+    ]
+  },
+  "clone_factory": {
+    "master_silo_id": "nz-mtg",
+    "master_route": "https://dreamledger.org/mtg/",
+    "proposed_master_domain": "mtg.dreamledger.org",
+    "shared_marketplace_contract": "One reviewed shared marketplace/trade schema, with silo_id-bound rows and tenant-specific RLS. Do not create separate databases or copy source inventory just to clone a vertical.",
+    "production_provisioning_authorized": false,
+    "domain_dns_mutations_authorized": false,
+    "database_migrations_authorized": false,
+    "create_provider_resources_authorized": false,
+    "public_publication_authorized": false,
+    "clone_data": false,
+    "clone_credentials": false,
+    "clone_live_payment_configuration": false,
+    "total_silo_configurations": 16,
+    "staged_clone_count": 15,
+    "ready_for_live_launch_count": 0
+  },
+  "commercial_focus": [
+    {
+      "priority": 1,
+      "id": "MTG_MASTER_SILO",
+      "purpose": "Establish MTG listings, agreements, vouches and fulfillment proof as the reusable marketplace reference.",
+      "current_state": "BLOCKED_SCHEMA_AND_LIVE_TRADE_EVIDENCE",
+      "blockers": [
+        "schema_nz_mtg_silo.sql and seed_nz_mtg.sql not found at canonical paths in the checked DreamLedger repo",
+        "inactive MTG Supabase project reported by connected project inventory",
+        "the diagnostic SKU is held and checkout-disabled",
+        "trade_001 result and fossil must be independently reproduced before any claim"
+      ]
+    },
+    {
+      "priority": 2,
+      "id": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "price_nzd": 50,
+      "route": "/billboard.html",
+      "current_state": "SOURCE_CONFLICT_BLOCKED",
+      "blockers": [
+        "catalog manifest has payment_link=null and evidence_status=checkout_held_missing_public_intake",
+        "public billboard HTML contains a Stripe URL and says checkout is live",
+        "must reconcile source contract and prove buyer inputs plus payment-to-placement proof before distribution"
+      ]
+    },
+    {
+      "priority": 3,
+      "id": "DREAMMEEZ-SUPPORTER-SPROUT",
+      "price_nzd": 3.99,
+      "route": "/avatar.html",
+      "current_state": "SUPPORTER_LINK_EXISTS_BUT_PER_COSMETIC_CHECKOUT_UNVERIFIED",
+      "blockers": [
+        "avatar page offers local demo unlock for individual cosmetics",
+        "the real-money link is a separate supporter SKU",
+        "must not describe a cosmetic as purchased/owned by payment unless SKU attribution and delivery reconcile"
+      ]
+    },
+    {
+      "priority": 4,
+      "id": "FREE_B2B_MARKETPLACE",
+      "price_nzd": 0,
+      "route": "/b2b/",
+      "current_state": "ROUTE_DESCRIBED_IN_REPO_NOT_LIVE_PROBED",
+      "blockers": [
+        "route, tenant RLS, quote-to-order and seller/buyer workflow need independent route probes"
+      ]
+    }
+  ],
+  "cube_scaling": {
+    "policy_state": "PROPOSED_GUARDRAIL_NOT_CONNECTED_TO_VERIFIED_WORKER_POOL",
+    "live_worker_pool_status": "NOT_VERIFIED",
+    "automatic_provisioning_enabled": false,
+    "live_worker_count_observed": null,
+    "maximum_live_workers_before_all_gates_pass": 1,
+    "configured_ceiling_workers": 64,
+    "epv_floor_nzd": 25,
+    "winner_expansion_threshold_nzd": 120,
+    "queue_scaling_rule": "one worker per 10 pending qualified signals only in the normal EPV band after the execution provider and durable queue are verified",
+    "expansion_rule": "double workers only when trailing measured net contribution EPV is at least NZ$120, there is positive net contribution after refunds/provider/fulfillment costs, and sample/queue/budget gates pass",
+    "pruning_rule": "when measured net contribution EPV is below NZ$25, reduce a connected pool to one maintenance worker; do not simulate that a worker was stopped if no pool is deployed",
+    "epv_definition": "settled attributed revenue minus refunds, payment processing, delivery and other variable costs, divided by unique qualified visitors over the measurement window",
+    "minimum_independent_settled_and_fulfilled_transactions_before_expansion": 20,
+    "measurement_window_days": 30,
+    "no_scale_from_pipeline_value": true,
+    "simulation_counts_as_revenue": false,
+    "scale_requires": [
+      "durable live queue",
+      "actual worker runtime and health telemetry",
+      "independent settled and fulfilled transactions",
+      "per-silo tenant boundary tests",
+      "idempotent retry tests",
+      "budget cap",
+      "rollback path",
+      "signed settlement-and-fulfillment reconciliation attestation",
+      "verified ledger and reconciliation SHA-256 digests",
+      "HMAC key held outside repository",
+      "decision-only output reviewed before any independently authorized worker mutation"
+    ],
+    "policy_note": "The thresholds 25/120/64 originate from the requested strategy, not from independent runtime validation. Automatic scaling remains disabled until live worker code and economic inputs are verified.",
+    "decision_gate_path": "ops/economic/cube_epv_gate.py",
+    "signed_evidence_required": true,
+    "attestation_algorithm": "HMAC-SHA256 from trusted reconciler; key supplied via CUBE_ECONOMIC_EVIDENCE_HMAC_KEY",
+    "decision_engine_side_effects": false
+  },
+  "acceptance_gates": [
+    {
+      "id": "ECO-01",
+      "name": "Canonical MTG schema present and migration-tested",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "ECO-02",
+      "name": "MTG RLS isolation passes cross-silo negative tests",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "ECO-03",
+      "name": "Trade lock amount, fee and state hash are server-derived and replay-safe",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "ECO-04",
+      "name": "Vouches only follow verified fulfillment and cannot inflate counters",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "ECO-05",
+      "name": "Billboard link, manifest, intake, inventory reservation and fulfillment reconcile",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "ECO-06",
+      "name": "Avatar paid SKU is tied to actual cosmetic entitlement and durable receipt",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "ECO-07",
+      "name": "Free B2B listing and quote flow passes tenant isolation and persistence tests",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "ECO-08",
+      "name": "CUBE scaler source, durable queue and actual worker provider are found and verified",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "ECO-09",
+      "name": "First independent external settlement, correct attribution, fulfillment and delivery proof reconciled",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "ECO-10",
+      "name": "First clone has one verified buyer/seller workflow before further clones launch",
+      "status": "NOT_RUN"
+    }
+  ],
+  "silos": [
+    {
+      "silo_id": "nz-mtg",
+      "display_name": "Magic: The Gathering Singles",
+      "category": "collectibles_tcg",
+      "role": "CANONICAL_MASTER",
+      "canonical_route_candidate": "/mtg/",
+      "domain_candidate": "mtg.dreamledger.org",
+      "state": "DESIGNATED_MASTER_SCHEMA_AND_LIVE_FLOW_UNVERIFIED",
+      "commercial_bootstrap": {
+        "seller_listing_fee_nzd": 0,
+        "buyer_listing_browse_fee_nzd": 0,
+        "transaction_take_rate_pct": 0,
+        "fee_policy": "ZERO_DURING_LIQUIDITY_BOOTSTRAP; any future fee requires an explicit experiment, owner approval, and observed contribution evidence",
+        "paid_add_ons_enabled": false
+      },
+      "readiness": {
+        "domain_provisioned": false,
+        "database_tenant_provisioned": false,
+        "rls_cross_tenant_test_passed": false,
+        "inventory_imported": false,
+        "seller_count_observed": null,
+        "independent_buyer_count_observed": null,
+        "settled_and_fulfilled_transactions_observed": 0,
+        "deployment_sha_verified": false,
+        "production_launch_authorized": false,
+        "cube_worker_pool_provisioned": false,
+        "cube_autoscaling_enabled": false
+      },
+      "clone_rules": {
+        "clone_catalog_schema_not_live_data": true,
+        "clone_credentials": false,
+        "clone_private_inventory": false,
+        "separate_silo_id_required": true,
+        "cross_silo_queries_denied_by_default": true,
+        "preserve_source_attribution_and_item_condition": true
+      },
+      "category_controls": [
+        "Scryfall identity and printing fields",
+        "condition and foil status",
+        "seller/buyer agreement",
+        "shipping/tracking proof",
+        "vouch only after evidence-backed completion"
+      ],
+      "source_evidence": {
+        "source_status": "ROUTE_AND_PRODUCT_FILES_FOUND_SCHEMA_FILE_NOT_FOUND",
+        "live_status_independently_verified": false
+      }
+    },
+    {
+      "silo_id": "music-media",
+      "display_name": "Music and Media",
+      "category": "music_media",
+      "role": "REUSABLE_VERTICAL_CLONE",
+      "canonical_route_candidate": "/music/",
+      "domain_candidate": "music.dreamledger.org",
+      "state": "STAGED_CONFIG_ONLY",
+      "commercial_bootstrap": {
+        "seller_listing_fee_nzd": 0,
+        "buyer_listing_browse_fee_nzd": 0,
+        "transaction_take_rate_pct": 0,
+        "fee_policy": "ZERO_DURING_LIQUIDITY_BOOTSTRAP; any future fee requires an explicit experiment, owner approval, and observed contribution evidence",
+        "paid_add_ons_enabled": false
+      },
+      "readiness": {
+        "domain_provisioned": false,
+        "database_tenant_provisioned": false,
+        "rls_cross_tenant_test_passed": false,
+        "inventory_imported": false,
+        "seller_count_observed": null,
+        "independent_buyer_count_observed": null,
+        "settled_and_fulfilled_transactions_observed": 0,
+        "deployment_sha_verified": false,
+        "production_launch_authorized": false,
+        "cube_worker_pool_provisioned": false,
+        "cube_autoscaling_enabled": false
+      },
+      "clone_rules": {
+        "clone_catalog_schema_not_live_data": true,
+        "clone_credentials": false,
+        "clone_private_inventory": false,
+        "separate_silo_id_required": true,
+        "cross_silo_queries_denied_by_default": true,
+        "preserve_source_attribution_and_item_condition": true
+      },
+      "category_controls": [
+        "copyright and authenticity review",
+        "media condition and format",
+        "no assumed licence rights"
+      ],
+      "source_evidence": {
+        "source_status": "DESIGN_CONFIG_ONLY",
+        "live_status_independently_verified": false
+      }
+    },
+    {
+      "silo_id": "womens-fashion",
+      "display_name": "Women's Clothing",
+      "category": "apparel_womens",
+      "role": "REUSABLE_VERTICAL_CLONE",
+      "canonical_route_candidate": "/fashion/",
+      "domain_candidate": "fashion.dreamledger.org",
+      "state": "STAGED_CONFIG_ONLY",
+      "commercial_bootstrap": {
+        "seller_listing_fee_nzd": 0,
+        "buyer_listing_browse_fee_nzd": 0,
+        "transaction_take_rate_pct": 0,
+        "fee_policy": "ZERO_DURING_LIQUIDITY_BOOTSTRAP; any future fee requires an explicit experiment, owner approval, and observed contribution evidence",
+        "paid_add_ons_enabled": false
+      },
+      "readiness": {
+        "domain_provisioned": false,
+        "database_tenant_provisioned": false,
+        "rls_cross_tenant_test_passed": false,
+        "inventory_imported": false,
+        "seller_count_observed": null,
+        "independent_buyer_count_observed": null,
+        "settled_and_fulfilled_transactions_observed": 0,
+        "deployment_sha_verified": false,
+        "production_launch_authorized": false,
+        "cube_worker_pool_provisioned": false,
+        "cube_autoscaling_enabled": false
+      },
+      "clone_rules": {
+        "clone_catalog_schema_not_live_data": true,
+        "clone_credentials": false,
+        "clone_private_inventory": false,
+        "separate_silo_id_required": true,
+        "cross_silo_queries_denied_by_default": true,
+        "preserve_source_attribution_and_item_condition": true
+      },
+      "category_controls": [
+        "size and condition fields",
+        "brand/authenticity claims need evidence"
+      ],
+      "source_evidence": {
+        "source_status": "DESIGN_CONFIG_ONLY",
+        "live_status_independently_verified": false
+      }
+    },
+    {
+      "silo_id": "baby-kids",
+      "display_name": "Baby and Kids",
+      "category": "baby_kids",
+      "role": "REUSABLE_VERTICAL_CLONE",
+      "canonical_route_candidate": "/baby-kids/",
+      "domain_candidate": "baby.dreamledger.org",
+      "state": "STAGED_CONFIG_ONLY",
+      "commercial_bootstrap": {
+        "seller_listing_fee_nzd": 0,
+        "buyer_listing_browse_fee_nzd": 0,
+        "transaction_take_rate_pct": 0,
+        "fee_policy": "ZERO_DURING_LIQUIDITY_BOOTSTRAP; any future fee requires an explicit experiment, owner approval, and observed contribution evidence",
+        "paid_add_ons_enabled": false
+      },
+      "readiness": {
+        "domain_provisioned": false,
+        "database_tenant_provisioned": false,
+        "rls_cross_tenant_test_passed": false,
+        "inventory_imported": false,
+        "seller_count_observed": null,
+        "independent_buyer_count_observed": null,
+        "settled_and_fulfilled_transactions_observed": 0,
+        "deployment_sha_verified": false,
+        "production_launch_authorized": false,
+        "cube_worker_pool_provisioned": false,
+        "cube_autoscaling_enabled": false
+      },
+      "clone_rules": {
+        "clone_catalog_schema_not_live_data": true,
+        "clone_credentials": false,
+        "clone_private_inventory": false,
+        "separate_silo_id_required": true,
+        "cross_silo_queries_denied_by_default": true,
+        "preserve_source_attribution_and_item_condition": true
+      },
+      "category_controls": [
+        "recall and safety checks",
+        "age/condition disclosure",
+        "no unsafe or recalled listings"
+      ],
+      "source_evidence": {
+        "source_status": "DESIGN_CONFIG_ONLY",
+        "live_status_independently_verified": false
+      }
+    },
+    {
+      "silo_id": "books-comics",
+      "display_name": "Books and Comics",
+      "category": "books_comics",
+      "role": "REUSABLE_VERTICAL_CLONE",
+      "canonical_route_candidate": "/books/",
+      "domain_candidate": "books.dreamledger.org",
+      "state": "STAGED_CONFIG_ONLY",
+      "commercial_bootstrap": {
+        "seller_listing_fee_nzd": 0,
+        "buyer_listing_browse_fee_nzd": 0,
+        "transaction_take_rate_pct": 0,
+        "fee_policy": "ZERO_DURING_LIQUIDITY_BOOTSTRAP; any future fee requires an explicit experiment, owner approval, and observed contribution evidence",
+        "paid_add_ons_enabled": false
+      },
+      "readiness": {
+        "domain_provisioned": false,
+        "database_tenant_provisioned": false,
+        "rls_cross_tenant_test_passed": false,
+        "inventory_imported": false,
+        "seller_count_observed": null,
+        "independent_buyer_count_observed": null,
+        "settled_and_fulfilled_transactions_observed": 0,
+        "deployment_sha_verified": false,
+        "production_launch_authorized": false,
+        "cube_worker_pool_provisioned": false,
+        "cube_autoscaling_enabled": false
+      },
+      "clone_rules": {
+        "clone_catalog_schema_not_live_data": true,
+        "clone_credentials": false,
+        "clone_private_inventory": false,
+        "separate_silo_id_required": true,
+        "cross_silo_queries_denied_by_default": true,
+        "preserve_source_attribution_and_item_condition": true
+      },
+      "category_controls": [
+        "edition and condition fields",
+        "ISBN/printing where available"
+      ],
+      "source_evidence": {
+        "source_status": "DESIGN_CONFIG_ONLY",
+        "live_status_independently_verified": false
+      }
+    },
+    {
+      "silo_id": "gaming-collectibles",
+      "display_name": "Gaming and Collectibles",
+      "category": "gaming_collectibles",
+      "role": "REUSABLE_VERTICAL_CLONE",
+      "canonical_route_candidate": "/collectibles/",
+      "domain_candidate": "collectibles.dreamledger.org",
+      "state": "STAGED_CONFIG_ONLY",
+      "commercial_bootstrap": {
+        "seller_listing_fee_nzd": 0,
+        "buyer_listing_browse_fee_nzd": 0,
+        "transaction_take_rate_pct": 0,
+        "fee_policy": "ZERO_DURING_LIQUIDITY_BOOTSTRAP; any future fee requires an explicit experiment, owner approval, and observed contribution evidence",
+        "paid_add_ons_enabled": false
+      },
+      "readiness": {
+        "domain_provisioned": false,
+        "database_tenant_provisioned": false,
+        "rls_cross_tenant_test_passed": false,
+        "inventory_imported": false,
+        "seller_count_observed": null,
+        "independent_buyer_count_observed": null,
+        "settled_and_fulfilled_transactions_observed": 0,
+        "deployment_sha_verified": false,
+        "production_launch_authorized": false,
+        "cube_worker_pool_provisioned": false,
+        "cube_autoscaling_enabled": false
+      },
+      "clone_rules": {
+        "clone_catalog_schema_not_live_data": true,
+        "clone_credentials": false,
+        "clone_private_inventory": false,
+        "separate_silo_id_required": true,
+        "cross_silo_queries_denied_by_default": true,
+        "preserve_source_attribution_and_item_condition": true
+      },
+      "category_controls": [
+        "authenticity and grading evidence",
+        "condition and edition fields"
+      ],
+      "source_evidence": {
+        "source_status": "DESIGN_CONFIG_ONLY",
+        "live_status_independently_verified": false
+      }
+    },
+    {
+      "silo_id": "consumer-electronics",
+      "display_name": "Consumer Electronics",
+      "category": "electronics",
+      "role": "REUSABLE_VERTICAL_CLONE",
+      "canonical_route_candidate": "/electronics/",
+      "domain_candidate": "electronics.dreamledger.org",
+      "state": "STAGED_CONFIG_ONLY",
+      "commercial_bootstrap": {
+        "seller_listing_fee_nzd": 0,
+        "buyer_listing_browse_fee_nzd": 0,
+        "transaction_take_rate_pct": 0,
+        "fee_policy": "ZERO_DURING_LIQUIDITY_BOOTSTRAP; any future fee requires an explicit experiment, owner approval, and observed contribution evidence",
+        "paid_add_ons_enabled": false
+      },
+      "readiness": {
+        "domain_provisioned": false,
+        "database_tenant_provisioned": false,
+        "rls_cross_tenant_test_passed": false,
+        "inventory_imported": false,
+        "seller_count_observed": null,
+        "independent_buyer_count_observed": null,
+        "settled_and_fulfilled_transactions_observed": 0,
+        "deployment_sha_verified": false,
+        "production_launch_authorized": false,
+        "cube_worker_pool_provisioned": false,
+        "cube_autoscaling_enabled": false
+      },
+      "clone_rules": {
+        "clone_catalog_schema_not_live_data": true,
+        "clone_credentials": false,
+        "clone_private_inventory": false,
+        "separate_silo_id_required": true,
+        "cross_silo_queries_denied_by_default": true,
+        "preserve_source_attribution_and_item_condition": true
+      },
+      "category_controls": [
+        "tested/untested status",
+        "serial/privacy checks",
+        "battery and condition disclosure"
+      ],
+      "source_evidence": {
+        "source_status": "DESIGN_CONFIG_ONLY",
+        "live_status_independently_verified": false
+      }
+    },
+    {
+      "silo_id": "home-furniture",
+      "display_name": "Home and Furniture",
+      "category": "home_furniture",
+      "role": "REUSABLE_VERTICAL_CLONE",
+      "canonical_route_candidate": "/home/",
+      "domain_candidate": "home.dreamledger.org",
+      "state": "STAGED_CONFIG_ONLY",
+      "commercial_bootstrap": {
+        "seller_listing_fee_nzd": 0,
+        "buyer_listing_browse_fee_nzd": 0,
+        "transaction_take_rate_pct": 0,
+        "fee_policy": "ZERO_DURING_LIQUIDITY_BOOTSTRAP; any future fee requires an explicit experiment, owner approval, and observed contribution evidence",
+        "paid_add_ons_enabled": false
+      },
+      "readiness": {
+        "domain_provisioned": false,
+        "database_tenant_provisioned": false,
+        "rls_cross_tenant_test_passed": false,
+        "inventory_imported": false,
+        "seller_count_observed": null,
+        "independent_buyer_count_observed": null,
+        "settled_and_fulfilled_transactions_observed": 0,
+        "deployment_sha_verified": false,
+        "production_launch_authorized": false,
+        "cube_worker_pool_provisioned": false,
+        "cube_autoscaling_enabled": false
+      },
+      "clone_rules": {
+        "clone_catalog_schema_not_live_data": true,
+        "clone_credentials": false,
+        "clone_private_inventory": false,
+        "separate_silo_id_required": true,
+        "cross_silo_queries_denied_by_default": true,
+        "preserve_source_attribution_and_item_condition": true
+      },
+      "category_controls": [
+        "dimensions and condition",
+        "delivery/pickup terms"
+      ],
+      "source_evidence": {
+        "source_status": "DESIGN_CONFIG_ONLY",
+        "live_status_independently_verified": false
+      }
+    },
+    {
+      "silo_id": "tools-trades",
+      "display_name": "Tools and Trade Supplies",
+      "category": "tools_trades",
+      "role": "REUSABLE_VERTICAL_CLONE",
+      "canonical_route_candidate": "/tools/",
+      "domain_candidate": "tools.dreamledger.org",
+      "state": "STAGED_CONFIG_ONLY",
+      "commercial_bootstrap": {
+        "seller_listing_fee_nzd": 0,
+        "buyer_listing_browse_fee_nzd": 0,
+        "transaction_take_rate_pct": 0,
+        "fee_policy": "ZERO_DURING_LIQUIDITY_BOOTSTRAP; any future fee requires an explicit experiment, owner approval, and observed contribution evidence",
+        "paid_add_ons_enabled": false
+      },
+      "readiness": {
+        "domain_provisioned": false,
+        "database_tenant_provisioned": false,
+        "rls_cross_tenant_test_passed": false,
+        "inventory_imported": false,
+        "seller_count_observed": null,
+        "independent_buyer_count_observed": null,
+        "settled_and_fulfilled_transactions_observed": 0,
+        "deployment_sha_verified": false,
+        "production_launch_authorized": false,
+        "cube_worker_pool_provisioned": false,
+        "cube_autoscaling_enabled": false
+      },
+      "clone_rules": {
+        "clone_catalog_schema_not_live_data": true,
+        "clone_credentials": false,
+        "clone_private_inventory": false,
+        "separate_silo_id_required": true,
+        "cross_silo_queries_denied_by_default": true,
+        "preserve_source_attribution_and_item_condition": true
+      },
+      "category_controls": [
+        "safety and condition",
+        "model/serial and compatibility where applicable"
+      ],
+      "source_evidence": {
+        "source_status": "DESIGN_CONFIG_ONLY",
+        "live_status_independently_verified": false
+      }
+    },
+    {
+      "silo_id": "sports-outdoors",
+      "display_name": "Sports and Outdoors",
+      "category": "sports_outdoors",
+      "role": "REUSABLE_VERTICAL_CLONE",
+      "canonical_route_candidate": "/outdoors/",
+      "domain_candidate": "outdoors.dreamledger.org",
+      "state": "STAGED_CONFIG_ONLY",
+      "commercial_bootstrap": {
+        "seller_listing_fee_nzd": 0,
+        "buyer_listing_browse_fee_nzd": 0,
+        "transaction_take_rate_pct": 0,
+        "fee_policy": "ZERO_DURING_LIQUIDITY_BOOTSTRAP; any future fee requires an explicit experiment, owner approval, and observed contribution evidence",
+        "paid_add_ons_enabled": false
+      },
+      "readiness": {
+        "domain_provisioned": false,
+        "database_tenant_provisioned": false,
+        "rls_cross_tenant_test_passed": false,
+        "inventory_imported": false,
+        "seller_count_observed": null,
+        "independent_buyer_count_observed": null,
+        "settled_and_fulfilled_transactions_observed": 0,
+        "deployment_sha_verified": false,
+        "production_launch_authorized": false,
+        "cube_worker_pool_provisioned": false,
+        "cube_autoscaling_enabled": false
+      },
+      "clone_rules": {
+        "clone_catalog_schema_not_live_data": true,
+        "clone_credentials": false,
+        "clone_private_inventory": false,
+        "separate_silo_id_required": true,
+        "cross_silo_queries_denied_by_default": true,
+        "preserve_source_attribution_and_item_condition": true
+      },
+      "category_controls": [
+        "condition and sizing",
+        "safety-critical gear inspection status"
+      ],
+      "source_evidence": {
+        "source_status": "DESIGN_CONFIG_ONLY",
+        "live_status_independently_verified": false
+      }
+    },
+    {
+      "silo_id": "toys-hobbies",
+      "display_name": "Toys and Hobbies",
+      "category": "toys_hobbies",
+      "role": "REUSABLE_VERTICAL_CLONE",
+      "canonical_route_candidate": "/toys/",
+      "domain_candidate": "toys.dreamledger.org",
+      "state": "STAGED_CONFIG_ONLY",
+      "commercial_bootstrap": {
+        "seller_listing_fee_nzd": 0,
+        "buyer_listing_browse_fee_nzd": 0,
+        "transaction_take_rate_pct": 0,
+        "fee_policy": "ZERO_DURING_LIQUIDITY_BOOTSTRAP; any future fee requires an explicit experiment, owner approval, and observed contribution evidence",
+        "paid_add_ons_enabled": false
+      },
+      "readiness": {
+        "domain_provisioned": false,
+        "database_tenant_provisioned": false,
+        "rls_cross_tenant_test_passed": false,
+        "inventory_imported": false,
+        "seller_count_observed": null,
+        "independent_buyer_count_observed": null,
+        "settled_and_fulfilled_transactions_observed": 0,
+        "deployment_sha_verified": false,
+        "production_launch_authorized": false,
+        "cube_worker_pool_provisioned": false,
+        "cube_autoscaling_enabled": false
+      },
+      "clone_rules": {
+        "clone_catalog_schema_not_live_data": true,
+        "clone_credentials": false,
+        "clone_private_inventory": false,
+        "separate_silo_id_required": true,
+        "cross_silo_queries_denied_by_default": true,
+        "preserve_source_attribution_and_item_condition": true
+      },
+      "category_controls": [
+        "age grading and recall checks",
+        "parts/completeness disclosure"
+      ],
+      "source_evidence": {
+        "source_status": "DESIGN_CONFIG_ONLY",
+        "live_status_independently_verified": false
+      }
+    },
+    {
+      "silo_id": "free-b2b",
+      "display_name": "Free B2B Listings",
+      "category": "b2b_classifieds",
+      "role": "REUSABLE_VERTICAL_CLONE",
+      "canonical_route_candidate": "/b2b/",
+      "domain_candidate": "b2b.dreamledger.org",
+      "state": "STAGED_CONFIG_ONLY",
+      "commercial_bootstrap": {
+        "seller_listing_fee_nzd": 0,
+        "buyer_listing_browse_fee_nzd": 0,
+        "transaction_take_rate_pct": 0,
+        "fee_policy": "ZERO_DURING_LIQUIDITY_BOOTSTRAP; any future fee requires an explicit experiment, owner approval, and observed contribution evidence",
+        "paid_add_ons_enabled": false
+      },
+      "readiness": {
+        "domain_provisioned": false,
+        "database_tenant_provisioned": false,
+        "rls_cross_tenant_test_passed": false,
+        "inventory_imported": false,
+        "seller_count_observed": null,
+        "independent_buyer_count_observed": null,
+        "settled_and_fulfilled_transactions_observed": 0,
+        "deployment_sha_verified": false,
+        "production_launch_authorized": false,
+        "cube_worker_pool_provisioned": false,
+        "cube_autoscaling_enabled": false
+      },
+      "clone_rules": {
+        "clone_catalog_schema_not_live_data": true,
+        "clone_credentials": false,
+        "clone_private_inventory": false,
+        "separate_silo_id_required": true,
+        "cross_silo_queries_denied_by_default": true,
+        "preserve_source_attribution_and_item_condition": true
+      },
+      "category_controls": [
+        "business identity proportionate to transaction risk",
+        "free listings",
+        "quote/request timeline and explicit terms"
+      ],
+      "source_evidence": {
+        "source_status": "DESIGN_CONFIG_ONLY",
+        "live_status_independently_verified": false
+      }
+    },
+    {
+      "silo_id": "procurement-eta",
+      "display_name": "Procurement Quotes and ETA",
+      "category": "procurement_lead_time",
+      "role": "REUSABLE_VERTICAL_CLONE",
+      "canonical_route_candidate": "/procurement/",
+      "domain_candidate": "procurement.dreamledger.org",
+      "state": "STAGED_CONFIG_ONLY",
+      "commercial_bootstrap": {
+        "seller_listing_fee_nzd": 0,
+        "buyer_listing_browse_fee_nzd": 0,
+        "transaction_take_rate_pct": 0,
+        "fee_policy": "ZERO_DURING_LIQUIDITY_BOOTSTRAP; any future fee requires an explicit experiment, owner approval, and observed contribution evidence",
+        "paid_add_ons_enabled": false
+      },
+      "readiness": {
+        "domain_provisioned": false,
+        "database_tenant_provisioned": false,
+        "rls_cross_tenant_test_passed": false,
+        "inventory_imported": false,
+        "seller_count_observed": null,
+        "independent_buyer_count_observed": null,
+        "settled_and_fulfilled_transactions_observed": 0,
+        "deployment_sha_verified": false,
+        "production_launch_authorized": false,
+        "cube_worker_pool_provisioned": false,
+        "cube_autoscaling_enabled": false
+      },
+      "clone_rules": {
+        "clone_catalog_schema_not_live_data": true,
+        "clone_credentials": false,
+        "clone_private_inventory": false,
+        "separate_silo_id_required": true,
+        "cross_silo_queries_denied_by_default": true,
+        "preserve_source_attribution_and_item_condition": true
+      },
+      "category_controls": [
+        "ETA is seller-supplied and timestamped",
+        "delivery assumptions and exclusions",
+        "quote comparison retains unknowns"
+      ],
+      "source_evidence": {
+        "source_status": "DESIGN_CONFIG_ONLY",
+        "live_status_independently_verified": false
+      }
+    },
+    {
+      "silo_id": "local-services",
+      "display_name": "Local Services",
+      "category": "local_services",
+      "role": "REUSABLE_VERTICAL_CLONE",
+      "canonical_route_candidate": "/services/",
+      "domain_candidate": "services.dreamledger.org",
+      "state": "STAGED_CONFIG_ONLY",
+      "commercial_bootstrap": {
+        "seller_listing_fee_nzd": 0,
+        "buyer_listing_browse_fee_nzd": 0,
+        "transaction_take_rate_pct": 0,
+        "fee_policy": "ZERO_DURING_LIQUIDITY_BOOTSTRAP; any future fee requires an explicit experiment, owner approval, and observed contribution evidence",
+        "paid_add_ons_enabled": false
+      },
+      "readiness": {
+        "domain_provisioned": false,
+        "database_tenant_provisioned": false,
+        "rls_cross_tenant_test_passed": false,
+        "inventory_imported": false,
+        "seller_count_observed": null,
+        "independent_buyer_count_observed": null,
+        "settled_and_fulfilled_transactions_observed": 0,
+        "deployment_sha_verified": false,
+        "production_launch_authorized": false,
+        "cube_worker_pool_provisioned": false,
+        "cube_autoscaling_enabled": false
+      },
+      "clone_rules": {
+        "clone_catalog_schema_not_live_data": true,
+        "clone_credentials": false,
+        "clone_private_inventory": false,
+        "separate_silo_id_required": true,
+        "cross_silo_queries_denied_by_default": true,
+        "preserve_source_attribution_and_item_condition": true
+      },
+      "category_controls": [
+        "scope and geography",
+        "seller credentials only when verified",
+        "no false availability claims"
+      ],
+      "source_evidence": {
+        "source_status": "DESIGN_CONFIG_ONLY",
+        "live_status_independently_verified": false
+      }
+    },
+    {
+      "silo_id": "arts-crafts",
+      "display_name": "Arts and Crafts",
+      "category": "arts_crafts",
+      "role": "REUSABLE_VERTICAL_CLONE",
+      "canonical_route_candidate": "/crafts/",
+      "domain_candidate": "crafts.dreamledger.org",
+      "state": "STAGED_CONFIG_ONLY",
+      "commercial_bootstrap": {
+        "seller_listing_fee_nzd": 0,
+        "buyer_listing_browse_fee_nzd": 0,
+        "transaction_take_rate_pct": 0,
+        "fee_policy": "ZERO_DURING_LIQUIDITY_BOOTSTRAP; any future fee requires an explicit experiment, owner approval, and observed contribution evidence",
+        "paid_add_ons_enabled": false
+      },
+      "readiness": {
+        "domain_provisioned": false,
+        "database_tenant_provisioned": false,
+        "rls_cross_tenant_test_passed": false,
+        "inventory_imported": false,
+        "seller_count_observed": null,
+        "independent_buyer_count_observed": null,
+        "settled_and_fulfilled_transactions_observed": 0,
+        "deployment_sha_verified": false,
+        "production_launch_authorized": false,
+        "cube_worker_pool_provisioned": false,
+        "cube_autoscaling_enabled": false
+      },
+      "clone_rules": {
+        "clone_catalog_schema_not_live_data": true,
+        "clone_credentials": false,
+        "clone_private_inventory": false,
+        "separate_silo_id_required": true,
+        "cross_silo_queries_denied_by_default": true,
+        "preserve_source_attribution_and_item_condition": true
+      },
+      "category_controls": [
+        "maker and material claims",
+        "shipping dimensions and dispatch terms"
+      ],
+      "source_evidence": {
+        "source_status": "DESIGN_CONFIG_ONLY",
+        "live_status_independently_verified": false
+      }
+    },
+    {
+      "silo_id": "musical-instruments",
+      "display_name": "Musical Instruments and Audio Gear",
+      "category": "music_gear",
+      "role": "REUSABLE_VERTICAL_CLONE",
+      "canonical_route_candidate": "/instruments/",
+      "domain_candidate": "instruments.dreamledger.org",
+      "state": "STAGED_CONFIG_ONLY",
+      "commercial_bootstrap": {
+        "seller_listing_fee_nzd": 0,
+        "buyer_listing_browse_fee_nzd": 0,
+        "transaction_take_rate_pct": 0,
+        "fee_policy": "ZERO_DURING_LIQUIDITY_BOOTSTRAP; any future fee requires an explicit experiment, owner approval, and observed contribution evidence",
+        "paid_add_ons_enabled": false
+      },
+      "readiness": {
+        "domain_provisioned": false,
+        "database_tenant_provisioned": false,
+        "rls_cross_tenant_test_passed": false,
+        "inventory_imported": false,
+        "seller_count_observed": null,
+        "independent_buyer_count_observed": null,
+        "settled_and_fulfilled_transactions_observed": 0,
+        "deployment_sha_verified": false,
+        "production_launch_authorized": false,
+        "cube_worker_pool_provisioned": false,
+        "cube_autoscaling_enabled": false
+      },
+      "clone_rules": {
+        "clone_catalog_schema_not_live_data": true,
+        "clone_credentials": false,
+        "clone_private_inventory": false,
+        "separate_silo_id_required": true,
+        "cross_silo_queries_denied_by_default": true,
+        "preserve_source_attribution_and_item_condition": true
+      },
+      "category_controls": [
+        "condition and authenticity",
+        "tested/untested state",
+        "shipping protection"
+      ],
+      "source_evidence": {
+        "source_status": "DESIGN_CONFIG_ONLY",
+        "live_status_independently_verified": false
+      }
+    }
+  ]
+}
