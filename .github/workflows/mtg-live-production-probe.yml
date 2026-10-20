@@ -5,7 +5,11 @@ on:
     branches: [main]
   workflow_dispatch:
   schedule:
-    - cron: "*/15 * * * *"
+    - cron: "17 */2 * * *"
+
+concurrency:
+  group: dreamledger-mtg-live-production-probe
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -13,9 +17,21 @@ permissions:
 jobs:
   probe:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 12
     steps:
-      - name: Wait for Render and probe live DreamLedger MTG surface
+      - name: Checkout exact verification commit
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Wait for production to serve the expected commit
+        id: wait
         shell: bash
         env:
           BASE: https://dreamledger.org
@@ -23,14 +39,13 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p proof
-          echo "Expected commit: $EXPECTED_COMMIT"
-
           converged=0
+          live_commit=""
           for attempt in $(seq 1 18); do
-            if curl -L -sS --fail --max-time 20 "$BASE/version" -o proof/LIVE-VERSION.json; then
-              LIVE_COMMIT=$(node -e "const fs=require('fs'); const x=JSON.parse(fs.readFileSync('proof/LIVE-VERSION.json','utf8')); process.stdout.write(String(x.commit||''))")
-              echo "Attempt $attempt/18 - live commit: $LIVE_COMMIT"
-              if [ "$LIVE_COMMIT" = "$EXPECTED_COMMIT" ]; then
+            if curl -L -sS --fail --max-time 12 "$BASE/version" -o proof/LIVE-VERSION.json; then
+              live_commit=$(node -e "const fs=require('node:fs');const x=JSON.parse(fs.readFileSync('proof/LIVE-VERSION.json','utf8'));process.stdout.write(String(x.commit||''))" 2>/dev/null || true)
+              echo "Attempt $attempt/18 - live commit: $live_commit"
+              if [[ "$live_commit" == "$EXPECTED_COMMIT" ]]; then
                 converged=1
                 break
               fi
@@ -39,48 +54,42 @@ jobs:
             fi
             sleep 20
           done
+          printf '{"status":"%s","expected_commit":"%s","live_commit":"%s","production_mutated":false,"verified_external_revenue_nzd":0}\n' "$([[ "$converged" == "1" ]] && echo PASS || echo FAIL)" "$EXPECTED_COMMIT" "$live_commit" > proof/production-commit-convergence.json
+          echo "converged=$converged" >> "$GITHUB_OUTPUT"
+          cat proof/production-commit-convergence.json
 
-          test "$converged" = "1"
-          cat proof/LIVE-VERSION.json
+      - name: Verify deployed MTG routes, catalogue truth, and held diagnostic
+        id: verify
+        if: steps.wait.outputs.converged == '1'
+        shell: bash
+        env:
+          EXPECTED_COMMIT: ${{ github.sha }}
+          MTG_BASE_URL: https://dreamledger.org
+        run: |
+          set -euo pipefail
+          node scripts/verify-mtg-public-contract.js --production --expected-commit "$EXPECTED_COMMIT" --out proof/mtg-public-contract-production.json
+          cat proof/mtg-public-contract-production.json
 
-          for path in /mtg /mtg/ /MTG /MTG/ /version /api/products /api/products/COMMANDER-DECK-DIAGNOSTIC-001 /sitemap.xml /robots.txt; do
-            code=$(curl -L -sS -o /tmp/response -w "%{http_code}" --max-time 20 "$BASE$path")
-            echo "$code $path"
-            test "$code" = "200"
-          done
-
-          curl -L -sS --fail --max-time 20 "$BASE/api/products" -o proof/PRODUCTS.json
-          node - <<'NODE'
-          const fs = require('fs');
-          const x = JSON.parse(fs.readFileSync('proof/PRODUCTS.json','utf8'));
-          const products = Array.isArray(x.products) ? x.products : (Array.isArray(x.offers) ? x.offers : []);
-          const p = products.find(v => (v.id || v.product_id) === 'COMMANDER-DECK-DIAGNOSTIC-001');
-          if (!p) throw new Error('COMMANDER-DECK-DIAGNOSTIC-001 missing from /api/products');
-          if (Number(p.price ?? p.price_nzd) !== 29) throw new Error('MTG diagnostic price is not 29');
-          if (String(p.currency).toUpperCase() !== 'NZD') throw new Error('MTG diagnostic currency is not NZD');
-          if (!p.checkout_url) throw new Error('MTG diagnostic checkout URL missing');
-          console.log('PRODUCT CONTRACT: PASS');
-          NODE
-
-          curl -L -sS --fail --max-time 20 "$BASE/mtg" -o proof/MTG.html
-          grep -q "data-dreamledger-mtg-commerce-v2" proof/MTG.html
-          grep -q "BUY NOW" proof/MTG.html
-
-          cat > proof/MTG-LIVE-GATE.json <<EOF
-          {
-            "status": "PASS",
-            "expected_commit": "$EXPECTED_COMMIT",
-            "live_commit": "$LIVE_COMMIT",
-            "mtg_routes": "PASS",
-            "diagnostic_product": "PASS",
-            "commerce_markers": "PASS",
-            "sitemap": "PASS",
-            "robots": "PASS"
-          }
-          EOF
-      - name: Upload production proof
-        uses: actions/upload-artifact@v4
+      - name: Retain production evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: mtg-live-production-probe-${{ github.sha }}
+          name: mtg-live-production-contract-${{ github.run_id }}
           path: proof/
-          if-no-files-found: error
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Require deployed route contract
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "${{ steps.wait.outputs.converged }}" != "1" ]]; then
+            echo "FAIL: production did not expose the expected commit; inspect retained proof."
+            exit 1
+          fi
+          if [[ "${{ steps.verify.outcome }}" != "success" ]]; then
+            echo "FAIL: live MTG route or commerce truth contract did not pass."
+            exit 1
+          fi
+          echo "PASS: live MTG route works and the diagnostic remains held."
