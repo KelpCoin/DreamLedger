@@ -13,13 +13,21 @@ function sha256(s){return crypto.createHash('sha256').update(s,'utf8').digest('h
 function readJson(f){return JSON.parse(fs.readFileSync(f,'utf8'));}
 function write(f,t){fs.mkdirSync(path.dirname(f),{recursive:true});fs.writeFileSync(f,t,'utf8');}
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function routeIsVerified(route){
+  if(!route||route.checkout_enabled!==true||route.commercial_validation_status!=='VALIDATED'||route.delivery_test_status!=='PASS'||route.commercial_truth?.sellable!==true)return false;
+  if(typeof route.href!=='string'||!/^\/buy\/[A-Za-z0-9_-]+\/?$/.test(route.href))return false;
+  return Number.isFinite(Number(route.price_nzd))&&Number(route.price_nzd)>0;
+}
 function loadRoutes(registry){
   const byId={};
-  for(const r of registry.live_checkout_routes||[]) byId[r.id]=r;
+  for(const r of registry.live_checkout_routes||[]) if(routeIsVerified(r))byId[r.id]=r;
   try{if(fs.existsSync(APPROVED)){const approved=readJson(APPROVED);
-    for(const o of approved.approved||[]){const link=o.payment_link_url||o.payment_link;if(!link)continue;
+    for(const o of approved.approved||[]){
+      if(o.commercial_truth?.sellable!==true||o.commercial_validation_status!=='VALIDATED'||o.delivery_test_status!=='PASS')continue;
       const id='APPROVED-'+(o.product_id||o.offer_id);if(byId[id])continue;
-      byId[id]={id,name:o.name,price_nzd:Number(o.price),href:link,tag:o.silo||'approved'};}}}
+      const route={id,name:o.name,price_nzd:Number(o.price),href:'/buy/'+String(o.product_id||''),tag:o.silo||'approved',checkout_enabled:true,commercial_validation_status:o.commercial_validation_status,delivery_test_status:o.delivery_test_status,commercial_truth:o.commercial_truth};
+      if(routeIsVerified(route))byId[id]=route;
+    }}}
   catch(_){}
   return byId;
 }
@@ -34,8 +42,8 @@ function css(){return `:root{--bg:#0a0b0f;--surface:#141722;--ink:#f4f1ea;--mute
 function offerCard(route,hero){return `<article class="card${hero?' hero':''}"><div class="tag">${esc(route.tag||'Offer')}</div><h2>${esc(route.name)}</h2><div class="price">NZ$${esc(route.price_nzd)}</div><a class="btn" href="${esc(route.href)}">Pay on Stripe →</a></article>`;}
 function emitMoney(face,registry,routesById){const cards=(face.primary_offer_ids||[]).map((id,i)=>{const r=routesById[id];return r?offerCard(r,i===0):'';}).join('\n');
   return shell({title:face.title,canonical:'https://dreamledger.org/money.html',body:`<div class="wrap">${navHtml(registry)}<span class="badge">emitted by WebsiteFaceCompiler · face=${esc(face.id)}</span><p class="eyebrow">${esc(face.eyebrow)}</p><h1>${esc(face.headline)}</h1><p class="lead">${esc(face.lead)}</p><div class="grid">${cards}</div><p class="note">Generated from face-registry.json.</p></div>`});}
-function emitHome(face,registry,routesById){const primary=routesById[(face.primary_offer_ids||[])[0]];const secondary=(face.secondary_links||[]).map(l=>`<a class="btn ghost" href="${esc(l.href)}">${esc(l.label)}</a>`).join('');
-  return shell({title:face.title,canonical:'https://dreamledger.org/',body:`<div class="wrap">${navHtml(registry)}<span class="badge">emitted by WebsiteFaceCompiler · face=${esc(face.id)}</span><p class="eyebrow">${esc(face.eyebrow)}</p><h1>${esc(face.headline)}</h1><p class="lead">${esc(face.lead)}</p><div class="actions">${primary?`<a class="btn" href="${esc(primary.href)}">Pay NZ$${esc(primary.price_nzd)} on Stripe →</a>`:''}${secondary}</div><p class="note">Compiler exhaust.</p></div>`});}
+function emitHome(face,registry,routesById){const primary=routesById[(face.primary_offer_ids||[])[0]];const headline=esc(face.headline).replace('Make the next decision &lt;span&gt;easier to prove&lt;/span&gt;','Make the next decision <span>easier to prove</span>');const secondary=(face.secondary_links||[]).map(l=>`<a class="btn ghost" href="${esc(l.href)}">${esc(l.label)}</a>`).join('');
+  return shell({title:face.title,canonical:'https://dreamledger.org/',body:`<div class="wrap">${navHtml(registry)}<span class="badge">emitted by WebsiteFaceCompiler · face=${esc(face.id)}</span><p class="eyebrow">${esc(face.eyebrow)}</p><h1>${headline}</h1><p class="lead">${esc(face.lead)}</p><div class="actions">${primary?`<a class="btn" href="${esc(primary.href)}">Pay NZ$${esc(primary.price_nzd)} on Stripe →</a>`:''}${secondary}</div><p class="note">Explore the Supplier Quote Comparison Worksheet and the Commander Deck Diagnostic, currently held while end-to-end fulfillment is verified. See <a href="/truth-oracle.html">Truth Oracle</a> for evidence standards.</p></div>`});}
 function emitShop(face,registry,routesById){const list=sortedRoutes(registry,routesById);const banner=routesById[face.banner_offer_id];const cards=list.map((r,i)=>offerCard(r,i===0)).join('\n');
   return shell({title:face.title,canonical:'https://dreamledger.org/shop.html',body:`<div class="wrap">${navHtml(registry)}<span class="badge">emitted by WebsiteFaceCompiler · face=${esc(face.id)}</span><p class="eyebrow">${esc(face.eyebrow)}</p><h1>${esc(face.headline)}</h1><p class="lead">${esc(face.lead)}</p>${banner?`<div class="banner"><div><strong>Fastest path:</strong> ${esc(banner.name)} · NZ$${esc(banner.price_nzd)}</div><a class="btn" href="${esc(banner.href)}">Pay NZ$${esc(banner.price_nzd)} →</a></div>`:''}<div class="grid">${cards}</div><p class="note">Sorted by price from registry.</p></div>`});}
 function emitStart(face,registry){const doors=(face.doors||[]).map(d=>`<article class="card door"><h2>${esc(d.label)}</h2><p>${esc(d.blurb||'')}</p><a class="btn" href="${esc(d.href)}">Open →</a></article>`).join('\n');

@@ -2,6 +2,7 @@
 // Storefront server — public/ is Render rootDir. Whitelist + safe file fallback.
 const http=require('http'),fs=require('fs'),path=require('path'),{URL}=require('url');
 const commercialCell=require('../BEC-PRIME/routes/commercialCell');
+const {isPublicPurchaseReady,isSafeStripeCheckoutUrl}=require('./checkout-readiness');
 const tollRoad=require('../BEC-PRIME/routes/tollRoad');
 const TollRuntime=require('../BEC-PRIME/runtime/TollRoad');
 const PORT=Number(process.env.PORT||10000);
@@ -117,7 +118,28 @@ http.createServer(async (req,res)=>{
       return send(res,200,JSON.stringify({schema:'dreamledger/offers/v1',count:listed.length,offers:listed}),'application/json; charset=utf-8');
     }catch(error){ return send(res,500,JSON.stringify({error:'CATALOG_UNAVAILABLE'}),'application/json; charset=utf-8'); }
   }
-  if(p.startsWith('/api/toll')||p.startsWith('/toll/')) return proxyTollToEngine(req,res,p);
+  if(p.startsWith('/buy/')){
+    if(req.method!=='GET'&&req.method!=='HEAD') return send(res,405,'Method Not Allowed','text/plain; charset=utf-8');
+    let productId='';
+    try{productId=decodeURIComponent(p.slice('/buy/'.length)).replace(/\/+$/,'');}catch(_){return send(res,400,'Invalid product ID','text/plain; charset=utf-8');}
+    if(!productId||productId.includes('/')||productId.includes('..')) return send(res,404,'Offer not found','text/plain; charset=utf-8');
+    let product;
+    try{
+      const catalogue=JSON.parse(fs.readFileSync(path.join(ROOT,'catalog.json'),'utf8'));
+      product=(Array.isArray(catalogue.products)?catalogue.products:[]).find(x=>x&&x.id===productId);
+    }catch(_){return send(res,503,JSON.stringify({error:'catalog_unavailable'}),'application/json; charset=utf-8');}
+    if(!isPublicPurchaseReady(product)) return send(res,409,JSON.stringify({error:'checkout_held',product_id:productId,message:'This offer is not currently available for purchase.'}),'application/json; charset=utf-8');
+    let target;
+    try{target=new URL(product.checkout_url);}catch(_){return send(res,409,JSON.stringify({error:'checkout_url_invalid',product_id:productId}),'application/json; charset=utf-8');}
+    if(!isSafeStripeCheckoutUrl(product.checkout_url)){
+      return send(res,409,JSON.stringify({error:'checkout_provider_invalid',product_id:productId}),'application/json; charset=utf-8');
+    }
+    res.statusCode=302;
+    res.setHeader('Location',target.href);
+    res.setHeader('Cache-Control','no-store');
+    return res.end();
+  }
+  if(p.startsWith('/api/toll/v1/')||p.startsWith('/toll/')) return proxyTollToEngine(req,res,p);
   if(p.startsWith('/swarm/')||p.startsWith('/api/swarm')) return proxySwarm(req,res,p);
   if(p.startsWith('/api/commercial/') || p==='/api/webhooks/stripe'){
     try{

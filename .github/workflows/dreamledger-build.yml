@@ -27,6 +27,8 @@ jobs:
       - name: Install
         run: npm install
       - name: Compile
+        env:
+          DREAMLEDGER_SAFE_HOLD_BUILD: 'true'
         run: npm run compile
       - name: Kelplantis tests
         run: npm run kelplantis:test

@@ -1,0 +1,108 @@
+{
+  "schema_version": "BECKPRIME-MCP-CLIENT-REGISTRY-1.0",
+  "gateway": "dreamledger-gateway",
+  "default_deny": true,
+  "identity_binding": {
+    "required_environment_variable": "BEC_MCP_CLIENT_ID",
+    "require_client_info_name_alias": true,
+    "boundary": "host-configured local stdio process",
+    "note": "The protocol client name is a claimed alias; the gateway binds it to the host-injected service identity. This does not authenticate remote cloud connectors or change their OAuth scopes."
+  },
+  "lifecycle": {
+    "owner_required": true,
+    "revocation": "Remove or disable the client record, regenerate the pinned config/launch lock, and restart the client.",
+    "reapproval_on_scope_change": true
+  },
+  "clients": [
+    {
+      "client_id": "ci-verifier",
+      "owner": "repository-maintainers",
+      "purpose": "Automated gateway behavioral verification only",
+      "client_name_aliases": [
+        "behavioural-verifier"
+      ],
+      "allowed_tools": [
+        "dl_read_cartridge",
+        "dl_read_inventory",
+        "dl_read_ledger",
+        "dl_verify_proof",
+        "dl_propose_checkout"
+      ],
+      "allowed_silos": [
+        "MTG"
+      ],
+      "authority": "PROPOSAL_ONLY",
+      "external_actions": false
+    },
+    {
+      "client_id": "lmstudio-proposer",
+      "owner": "local-operator",
+      "purpose": "Local BECK proposal and verification workflow",
+      "client_name_aliases": [
+        "LM Studio",
+        "LMStudio",
+        "lm-studio"
+      ],
+      "allowed_tools": [
+        "dl_read_cartridge",
+        "dl_read_inventory",
+        "dl_read_ledger",
+        "dl_verify_proof",
+        "dl_propose_offer",
+        "dl_propose_checkout"
+      ],
+      "allowed_silos": [
+        "CORE",
+        "MTG",
+        "DREAMIEZ"
+      ],
+      "authority": "PROPOSAL_ONLY",
+      "external_actions": false
+    },
+    {
+      "client_id": "beck-readonly",
+      "owner": "local-operator",
+      "purpose": "Local BECK observation and evidence verification",
+      "client_name_aliases": [
+        "BECK",
+        "BECK Cortex",
+        "BrownEye Cortex"
+      ],
+      "allowed_tools": [
+        "dl_read_cartridge",
+        "dl_read_inventory",
+        "dl_read_ledger",
+        "dl_verify_proof"
+      ],
+      "allowed_silos": [
+        "CORE",
+        "MTG",
+        "DREAMIEZ"
+      ],
+      "authority": "READ_ONLY",
+      "external_actions": false
+    },
+    {
+      "client_id": "chatgpt-readonly",
+      "owner": "connection-owner",
+      "purpose": "Read-only MCP role for an explicitly configured local ChatGPT-capable host",
+      "client_name_aliases": [
+        "ChatGPT",
+        "OpenAI ChatGPT"
+      ],
+      "allowed_tools": [
+        "dl_read_cartridge",
+        "dl_read_inventory",
+        "dl_read_ledger",
+        "dl_verify_proof"
+      ],
+      "allowed_silos": [
+        "CORE",
+        "MTG",
+        "DREAMIEZ"
+      ],
+      "authority": "READ_ONLY",
+      "external_actions": false
+    }
+  ]
+}

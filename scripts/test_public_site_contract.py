@@ -11,14 +11,15 @@ HOME = (ROOT / "public" / "home.html").read_text(encoding="utf-8")
 TRUST = (ROOT / "public" / "trust.html").read_text(encoding="utf-8")
 ABOUT = (ROOT / "public" / "about.html").read_text(encoding="utf-8")
 CATALOGUE = json.loads((ROOT / "public" / "catalog.json").read_text(encoding="utf-8"))
+QUOTE_TOOL = (ROOT / "public" / "quote-comparison" / "index.html").read_text(encoding="utf-8")
 
 checks = {
     "root maps to designed homepage": "'/':'home.html'" in SERVER,
     "about route maps to page": "'/about/':'about.html'" in SERVER,
     "trust route maps to page": "'/trust/':'trust.html'" in SERVER,
     "homepage has responsive viewport": 'name="viewport"' in HOME,
-    "homepage has a free quote worksheet": "quote-tool" in HOME and "comparison-template.csv" in HOME,
-    "homepage explains browser-local CSV": "No supplier data was uploaded" in HOME,
+    "homepage links to a free quote worksheet": 'href="/quote-comparison/"' in HOME and 'id="quotes"' in QUOTE_TOOL and 'id="compare"' in QUOTE_TOOL,
+    "quote worksheet exports browser-local CSV": "does not upload your information to DreamLedger" in QUOTE_TOOL and "supplier-quote-comparison.csv" in QUOTE_TOOL and "Data stays in this browser" in QUOTE_TOOL,
     "trust page defines evidence boundary": "VERIFIED" in TRUST and "UNVERIFIED" in TRUST,
     "about page is present": "DreamLedger" in ABOUT and len(ABOUT) > 1000,
     "no fake customer metrics on homepage": not re.search(r"\b(?:10,000\+ customers|100% uptime|SOC 2 certified|ISO 27001 certified)\b", HOME, re.I),
@@ -36,7 +37,7 @@ for target in internal_links:
         continue
     # /buy/<product_id> is a dynamic storefront route. Accept it only when the
     # catalog exposes that exact product as published and checkout-enabled.
-    if route.startswith("/buy/") and "p.startsWith('/buy/')" in SERVER:
+    if route.startswith("/buy/") and re.search(r"""p\.startsWith\(\s*['"]\/buy\/['"]\s*\)""", SERVER):
         product_id = route[len("/buy/"):]
         if any(
             product.get("id") == product_id

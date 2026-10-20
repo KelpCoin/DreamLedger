@@ -4,11 +4,11 @@
   "updated": "2026-09-04",
   "entries": {
     "BILLBOARD-SMALL": {
-      "ready": true,
+      "ready": false,
       "type": "automatic_service_activation",
       "delivery_target": "dreamledger.org/billboard",
       "activation": "verified_paid_stripe_session -> signed_webhook -> exact_amount_currency_validation -> buyer_field_validation -> public_image_fetch_validation -> automatic_moderation -> atomic_first_available_100x100_grid_allocation -> media_persist -> billboard_state_persist -> publication -> durable_fulfillment_proof",
-      "operator_required": false,
+      "operator_required": true,
       "idempotency_key": "stripe_checkout_session_id",
       "buyer_inputs": [
         "tile_image_url",
@@ -23,14 +23,15 @@
         "delivery_url",
         "proof_url"
       ],
-      "failure_behavior": "payment remains recorded but publication is not marked complete until every fulfillment step succeeds; retry is idempotent"
+      "failure_behavior": "payment remains recorded but publication is not marked complete until every fulfillment step succeeds; retry is idempotent",
+      "reason": "Held until secure intake, live inventory reservation, and end-to-end payment-to-delivery proof are independently verified; no public checkout is authorized."
     },
     "OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001": {
-      "ready": true,
+      "ready": false,
       "type": "automatic_service_activation",
       "delivery_target": "dreamledger.org/billboard",
       "activation": "verified_paid_stripe_session -> signed_webhook -> exact_amount_currency_validation -> buyer_field_validation -> public_image_fetch_validation -> automatic_moderation -> atomic_first_available_100x100_grid_allocation -> media_persist -> billboard_state_persist -> publication -> durable_fulfillment_proof",
-      "operator_required": false,
+      "operator_required": true,
       "idempotency_key": "stripe_checkout_session_id",
       "buyer_inputs": [
         "destination_url",
@@ -46,7 +47,8 @@
         "proof_url"
       ],
       "failure_behavior": "payment remains recorded but publication is not marked complete until every fulfillment step succeeds; retry is idempotent",
-      "canonical_product_id": "DREAMLEDGER-BILLBOARD-FOUNDING-001"
+      "canonical_product_id": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "reason": "Held until secure intake, live inventory reservation, and end-to-end payment-to-delivery proof are independently verified; no public checkout is authorized."
     },
     "BILLBOARD-MEDIUM": {
       "ready": false,
@@ -69,9 +71,9 @@
       "reason": "not approved for sale"
     },
     "COMMANDER-DECK-DIAGNOSTIC-001": {
-      "ready": true,
-      "operator_required": false,
-      "reason": "Automated MTG digital fulfillment contract validated by the MTG Diagnostic Fulfillment Gate; public sale readiness enabled 2026-08-26."
+      "ready": false,
+      "operator_required": true,
+      "reason": "Held until a live payment, database entitlement, deterministic report delivery, and durable receipt are proven end to end. Public checkout remains disabled."
     },
     "BEC-PRIME-ARCHITECTURE-AUDIT-001": {
       "ready": false,

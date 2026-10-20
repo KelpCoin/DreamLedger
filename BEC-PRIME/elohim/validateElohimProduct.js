@@ -33,15 +33,19 @@ function getAjvValidators() {
     return { product: _ajvValidateProduct, candidate: _ajvValidateCandidate };
   }
   let Ajv;
+  const productSchema = loadSchema('elohim-product.schema.json');
+  const candidateSchema = loadSchema('elohim-candidate.schema.json');
+  const needs2020 = [productSchema, candidateSchema].some(schema =>
+    String(schema.$schema || '').includes('/draft/2020-12/schema')
+  );
   try {
-    Ajv = require('ajv');
-  } catch (_)
-  {
+    Ajv = needs2020 ? require('ajv/dist/2020') : require('ajv');
+  } catch (_) {
     return null;
   }
   const ajv = new Ajv({ allErrors: true, strict: false });
-  _ajvValidateProduct = ajv.compile(loadSchema('elohim-product.schema.json'));
-  _ajvValidateCandidate = ajv.compile(loadSchema('elohim-candidate.schema.json'));
+  _ajvValidateProduct = ajv.compile(productSchema);
+  _ajvValidateCandidate = ajv.compile(candidateSchema);
   return { product: _ajvValidateProduct, candidate: _ajvValidateCandidate };
 }
 

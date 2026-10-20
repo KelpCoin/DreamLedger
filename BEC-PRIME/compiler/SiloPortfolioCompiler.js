@@ -45,6 +45,7 @@ function digest(value) {
 
 const source = readJson(APPROVED);
 const offers = Array.isArray(source.approved) ? source.approved : [];
+const safeHoldEnabled = process.env.DREAMLEDGER_SAFE_HOLD_BUILD === 'true';
 
 function demandEvidenceForOffer(offer, radar) {
   if (!radar || !Array.isArray(radar.active)) return null;
@@ -72,9 +73,9 @@ function demandEvidenceForOffer(offer, radar) {
 }
 
 const demandRadar = fs.existsSync(DEMAND_RADAR) ? readJson(DEMAND_RADAR) : null;
-if (!offers.length) throw new Error('No explicitly approved offers found. Refusing to publish an empty commercial portfolio.');
+if (!offers.length && !safeHoldEnabled) throw new Error('No explicitly approved offers found. Refusing to publish an empty commercial portfolio.');
 
-const eligible = offers.filter(o =>
+let eligible = offers.filter(o =>
   o &&
   o.approved_by === 'operator' &&
   o.payment_link_status === 'ACTIVE_LIVEMODE' &&
@@ -85,9 +86,11 @@ const eligible = offers.filter(o =>
   o.currency === 'NZD'
 );
 
-if (!eligible.length) {
+const safeHold = eligible.length === 0 && (safeHoldEnabled || offers.length > 0);
+if (!eligible.length && !safeHold) {
   throw new Error('No approved livemode Stripe offers available. Refusing to publish a non-purchasable portfolio.');
 }
+if (safeHold) eligible = [];
 
 fs.mkdirSync(OUT_DIR, { recursive: true });
 fs.mkdirSync(CATALOG_DIR, { recursive: true });
@@ -132,7 +135,7 @@ const compiled = eligible.map((offer, index) => {
 
 const catalog = {
   schema: 'BEC-PRIME/SLEEPING-COMMERCE-PORTFOLIO/v1',
-  status: 'COMPILED',
+  status: safeHold ? 'SAFE_HOLD' : 'COMPILED',
   compiler: 'SiloPortfolioCompiler',
   compiled_at: new Date().toISOString(),
   source_hash: digest(fs.readFileSync(APPROVED, 'utf8')),
@@ -143,6 +146,8 @@ const catalog = {
     only_active_livemode_stripe_links: true,
     payment_claims_allowed: false,
     external_actions_allowed: false,
+    safe_hold_build: safeHold,
+    reason: safeHold ? 'No offer has validated live checkout and delivery; public portfolio sales remain held.' : null,
     private_material_excluded: true
   },
   offer_count: compiled.length,
@@ -162,7 +167,7 @@ for (const offer of compiled) {
 
 const carouselManifest = {
   schema: 'BEC-PRIME/SILO-CAROUSEL-MANIFEST/v1',
-  status: 'COMPILED',
+  status: safeHold ? 'SAFE_HOLD' : 'COMPILED',
   compiler: 'SiloPortfolioCompiler',
   trend_engine: 'BEC-PRIME/trends/TrendFlywheel.js',
   compiled_at: catalog.compiled_at,
@@ -215,9 +220,9 @@ const publicCards = rankOffers(compiled).map(offer => `
 
 const publicIndex = `<!doctype html>
 <html lang="en-NZ"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="robots" content="index,follow"><link rel="canonical" href="https://dreamledger.org/portfolio/">
+<meta name="robots" content="${safeHold ? 'noindex,follow' : 'index,follow'}"><link rel="canonical" href="https://dreamledger.org/portfolio/">
 <title>DreamLedger Commercial Portfolio</title>
-<meta name="description" content="Current DreamLedger commercial inventory ranked by the trend-aware portfolio compiler.">
+<meta name="description" content="${safeHold ? 'Commercial checkout is held until provider parity and delivery evidence are verified.' : 'Current DreamLedger commercial inventory ranked by the trend-aware portfolio compiler.'}">
 <style>
 body{margin:0;background:#080a0d;color:#f5f3eb;font:16px/1.55 system-ui}.wrap{max-width:1100px;margin:auto;padding:32px 20px 70px}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:16px}.card{border:1px solid #303541;background:#151820;border-radius:18px;padding:22px}
@@ -225,7 +230,7 @@ body{margin:0;background:#080a0d;color:#f5f3eb;font:16px/1.55 system-ui}.wrap{ma
 a{color:#d8b56b}.buy{display:inline-block;padding:12px 18px;border-radius:10px;background:#d8b66b;color:#111;text-decoration:none;font-weight:900}
 </style></head><body><main class="wrap"><p class="eyebrow">ONE COMMERCE SUBSTRATE · TREND-AWARE INVENTORY</p>
 <h1>DreamLedger Commercial Portfolio</h1>
-<p>Approved, live-checkout offers ranked by the existing trend flywheel. Unknown market evidence remains unknown. Trend state does not imply revenue.</p>
+<p>${safeHold ? 'Checkout is temporarily held. The portfolio will appear after an offer passes live-provider parity, fulfillment, delivery proof, and ledger reconciliation.' : 'Approved, live-checkout offers ranked by the existing trend flywheel. Unknown market evidence remains unknown. Trend state does not imply revenue.'}</p>
 <section class="grid">${publicCards}</section>
 <p style="color:#a8adb8">Settlement, fulfillment and economic verification remain governed by the existing commerce and Truth machinery.</p>
 </main></body></html>`;
@@ -319,7 +324,7 @@ const index = `<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="robots" content="index,follow">
+<meta name="robots" content="${safeHold ? 'noindex,follow' : 'index,follow'}">
 <link rel="canonical" href="/portfolio/">
 <title>DreamLedger Commercial Portfolio</title>
 <meta name="description" content="Decision products and commercial services compiled from explicitly approved DreamLedger offers.">
@@ -337,7 +342,7 @@ h1{font-size:44px;line-height:1.05}
 <main class="wrap">
 <p class="eyebrow">ONE COMMERCE SUBSTRATE · MULTIPLE OFFERS</p>
 <h1>DreamLedger Commercial Portfolio</h1>
-<p>Live commercial offers compiled from the existing approved-offer catalog. Each offer resolves to its canonical page and existing Stripe livemode checkout.</p>
+<p>${safeHold ? 'Checkout is held. No currently approved offer has both an active provider link and a validated fulfillment path.' : 'Live commercial offers compiled from the existing approved-offer catalog. Each offer resolves to its canonical page and existing Stripe livemode checkout.'}</p>
 <div class="grid">${cards}</div>
 <p class="eyebrow">The portfolio compiler does not create economic claims. Settlement, fulfillment and verification remain governed by the existing commerce and evidence machinery.</p>
 </main>
@@ -348,10 +353,12 @@ fs.writeFileSync(path.join(OUT_DIR, 'index.html'), index, 'utf8');
 
 const proof = {
   schema: 'BEC-PRIME/SLEEPING-COMMERCE-PORTFOLIO/v1',
-  status: 'PASS',
+  status: safeHold ? 'SAFE_HOLD' : 'PASS',
   compiled_at: catalog.compiled_at,
   source_hash: catalog.source_hash,
   offer_count: compiled.length,
+  safe_hold: safeHold,
+  public_checkout_available: !safeHold && compiled.length > 0,
   offers: compiled.map(o => ({
     offer_id: o.offer_id,
     name: o.name,
@@ -377,4 +384,14 @@ const proof = {
 };
 
 fs.writeFileSync(PROOF, JSON.stringify(proof, null, 2) + '\n', 'utf8');
+if (safeHold) {
+  const publicPortfolioDir = path.join(ROOT, '..', 'public', 'portfolio');
+  const heldPage = '<!doctype html><html lang="en-NZ"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Portfolio checkout held | DreamLedger</title></head><body><main><h1>Commercial portfolio temporarily held</h1><p>Checkout is disabled until live-provider parity, fulfillment, delivery proof, and ledger reconciliation are verified.</p><p>No purchase is being requested on this page.</p><a href="/">Return to DreamLedger</a></main></body></html>\n';
+  fs.mkdirSync(publicPortfolioDir, { recursive: true });
+  for (const name of fs.readdirSync(publicPortfolioDir)) {
+    if (name.endsWith('.html') && name !== 'index.html') {
+      fs.writeFileSync(path.join(publicPortfolioDir, name), heldPage, 'utf8');
+    }
+  }
+}
 console.log(JSON.stringify(proof, null, 2));

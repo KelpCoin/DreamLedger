@@ -33,7 +33,7 @@ check('POLICY_NO_ENV_INTERPOLATION', policy.secrets.environment_interpolation ==
 check('POLICY_NO_SHADOWING', policy.tools.allow_shadowing === false, 'tool shadowing denied');
 check('TOOLS_EXACT', manifest.tools.map(x=>x.name).join('|') === 'dl_read_cartridge|dl_read_inventory|dl_read_ledger|dl_propose_offer|dl_verify_proof|dl_propose_checkout', 'exact six-tool allowlist');
 
-const child = spawn(process.execPath, [GATEWAY], {cwd:ROOT, env:{...process.env, BEC_LEDGER_DIR:path.join(ROOT,'data','proofs','mcp-test-ledger')}, stdio:['pipe','pipe','pipe']});
+const child = spawn(process.execPath, [GATEWAY], {cwd:ROOT, env:{...process.env, BEC_MCP_CLIENT_ID:'ci-verifier', BEC_LEDGER_DIR:path.join(ROOT,'data','proofs','mcp-test-ledger')}, stdio:['pipe','pipe','pipe']});
 let buffer = '';
 let pending = [];
 function rpc(req) { return new Promise((resolve,reject)=>{ pending.push({resolve,reject}); child.stdin.write(JSON.stringify(req)+'\n'); }); }
@@ -41,7 +41,7 @@ child.stdout.on('data',chunk=>{ buffer += chunk.toString(); let idx; while((idx=
 (async()=>{
   try {
     let r = await rpc({jsonrpc:'2.0',id:1,method:'tools/list',params:{}}); check('LIFECYCLE_REJECT_BEFORE_INIT', r.error && r.error.code === -32002, 'initialize required');
-    r = await rpc({jsonrpc:'2.0',id:2,method:'initialize',params:{protocolVersion:'2025-11-25',clientInfo:{name:'behavioural-verifier',version:'1'}}}); check('INITIALIZE', r.result && r.result.protocolVersion === '2025-11-25', 'protocol negotiated');
+    r = await rpc({jsonrpc:'2.0',id:2,method:'initialize',params:{protocolVersion:'2025-11-25',clientInfo:{name:'behavioural-verifier',version:'1'}}}); check('INITIALIZE', r.result && r.result.protocolVersion === '2025-11-25', 'host-bound CI identity negotiated');
     r = await rpc({jsonrpc:'2.0',id:3,method:'initialized',params:{}}); check('INITIALIZED', !r.error, 'initialized accepted');
     r = await rpc({jsonrpc:'2.0',id:4,method:'tools/list',params:{}}); check('TOOLS_LIST', Array.isArray(r.result && r.result.tools) && r.result.tools.length === 6, 'six tools exposed after handshake');
     r = await rpc({jsonrpc:'2.0',id:5,method:'tools/call',params:{name:'dl_propose_checkout',arguments:{checkout:{sku:'EDH_0001',amount:40000,customer_ref:'CUST-TEST-001'},silo:'MTG'}}});
@@ -58,7 +58,10 @@ child.stdout.on('data',chunk=>{ buffer += chunk.toString(); let idx; while((idx=
         payload.court.truth === 'PASS';
       check('COURT_GAUNTLET_TRUTH_PATH', ok, 'Gauntlet PASS -> Truth Oracle PASS -> Court eligibility -> human approval');
     } else check('COURT_GAUNTLET_TRUTH_PATH', false, JSON.stringify(r));
-    r = await rpc({jsonrpc:'2.0',id:6,method:'tools/call',params:{name:'dl_execute_powershell',arguments:{command:'whoami'}}}); check('DANGEROUS_TOOL_REJECTED', r.error && r.error.code === -32000, 'unknown execution tool rejected');
+    r = await rpc({jsonrpc:'2.0',id:6,method:'tools/call',params:{name:'dl_propose_offer',arguments:{offer:{sku:'UNLISTED-INVENTORY',price:29},silo:'MTG'}}}); const toolScope = r.result && r.result.content ? JSON.parse(r.result.content[0].text) : {}; check('PER_CLIENT_TOOL_SCOPE', toolScope.error === 'Client tool scope denied' && toolScope.status === 'REFUSE', 'CI identity is refused offer-proposal capability');
+    r = await rpc({jsonrpc:'2.0',id:7,method:'tools/call',params:{name:'dl_read_cartridge',arguments:{sku:'EDH_0001',silo:'DREAMIEZ'}}}); const scoped = r.result && r.result.content ? JSON.parse(r.result.content[0].text) : {}; check('PER_CLIENT_SILO_SCOPE', scoped.error === 'Client silo scope denied', 'CI identity limited to MTG');
+    r = await rpc({jsonrpc:'2.0',id:8,method:'initialize',params:{protocolVersion:'2025-11-25',clientInfo:{name:'unregistered-client',version:'1'}}}); check('CLIENT_IDENTITY_SPOOF_REJECTED', r.error && r.error.code === -32000, 'unregistered identity denied');
+    r = await rpc({jsonrpc:'2.0',id:9,method:'tools/call',params:{name:'dl_execute_powershell',arguments:{command:'whoami'}}}); check('DANGEROUS_TOOL_REJECTED', r.error && r.error.code === -32000, 'unknown execution tool rejected');
   } catch (err) { check('BEHAVIOURAL_HARNESS', false, err.message); }
   child.kill();
   const result = {schema_version:'BECKPRIME-MCP-VERIFICATION-1.2',status:checks.every(x=>x.status==='PASS')?'PASS':'FAIL',checks,checked_at:new Date().toISOString()};

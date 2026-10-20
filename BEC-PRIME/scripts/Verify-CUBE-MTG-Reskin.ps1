@@ -16,6 +16,7 @@ $html = Get-Content $surface -Raw
 $forbidden = @('Amplissa','HappyHomarid','CollectorsCoast','DreamMeez','adult')
 foreach ($token in $forbidden) { if ($html -match [regex]::Escape($token)) { throw "Forbidden token leaked into MTG surface: $token" } }
 if ($html -notmatch 'Commander Deck Diagnostic') { throw 'Diagnostic missing from MTG surface' }
-if ($html -notmatch 'NZ\$29') { throw 'Price missing from MTG surface' }
-if ($html -notmatch '/api/mtg/diagnostic/intake') { throw 'Automated checkout route missing' }
-Write-Host '[PASS] CUBE MTG reskin: manifest + isolation + public surface + automated checkout route'
+if ($html -notmatch 'Currently held') { throw 'Held status missing from MTG surface' }
+if ($html -notmatch 'not available for purchase') { throw 'MTG surface does not state purchase is held' }
+if ($html -match 'NZ\$29' -or $html -match '/api/mtg/diagnostic/intake') { throw 'Held MTG surface exposes price or intake route' }
+Write-Host '[PASS] CUBE MTG reskin: manifest + silo isolation + explicit held state + no checkout route'
