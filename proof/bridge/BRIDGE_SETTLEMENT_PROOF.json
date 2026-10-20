@@ -1,0 +1,98 @@
+{
+  "schema": "dreamledger/bridge-settlement-proof/v1",
+  "created_at": "2026-10-20",
+  "overall_status": "BLOCKED",
+  "verified_revenue_nzd": "0.00",
+  "live_base_mainnet_settlement_proven": false,
+  "public_listing_published": false,
+  "records": [
+    {
+      "tool": "relay_message",
+      "status": "NOT_RUN",
+      "price_usdc": "0.05",
+      "scheme": "exact",
+      "network": "eip155:8453",
+      "settlement_tx_hash": null,
+      "external_buyer_verified": false,
+      "delivery_payload_sha256": null,
+      "blockers": [
+        "No independently verified mainnet transaction and delivery receipt was present in this change."
+      ]
+    },
+    {
+      "tool": "metered_inference",
+      "status": "NOT_RUN",
+      "maximum_price_usdc": "0.10",
+      "scheme": "upto",
+      "network": "eip155:8453",
+      "rate_usdc_per_generated_token": "0.0001",
+      "charge_examples": {
+        "100_tokens": "0.01",
+        "900_tokens": "0.09",
+        "1000_tokens": "0.10"
+      },
+      "settlement_tx_hash": null,
+      "delivery_payload_sha256": null,
+      "blockers": [
+        "No configured inference worker accessible to the cloud runtime was verified.",
+        "No Base wallet/payTo address was supplied for a mainnet payment challenge.",
+        "No real upto scheme challenge or settlement override was exercised."
+      ]
+    },
+    {
+      "tool": "async_task",
+      "status": "BLOCKED",
+      "price_usdc": "0.25",
+      "settlement_model": "onchain_escrow",
+      "settlement_tx_hash": null,
+      "delivery_payload_sha256": null,
+      "escrow_release_tx_hash": null,
+      "escrow_refund_tx_hash": null,
+      "blockers": [
+        "No approved escrow contract address and verified ABI are configured.",
+        "No evaluator identity/key and dispute/timeout policy have been approved.",
+        "No funded escrow, task delivery, approval, release, or refund was verified."
+      ]
+    },
+    {
+      "tool": "pontage_mcp_gating",
+      "status": "NOT_RUN",
+      "price_usdc": "0.05",
+      "settlement_model": "self_settling_direct_chain",
+      "settlement_tx_hash": null,
+      "blockers": [
+        "No pontage adapter was installed or exercised in this branch.",
+        "The existing x402 upto EVM scheme documented by x402 requires Permit2 and a facilitator; do not claim facilitator-free settlement for that route."
+      ]
+    },
+    {
+      "tool": "agentsvc_listing",
+      "status": "NOT_RUN",
+      "listing_id": null,
+      "publicly_published": false
+    },
+    {
+      "tool": "fiatdock_listing",
+      "status": "NOT_RUN",
+      "listing_id": null,
+      "publicly_published": false
+    }
+  ],
+  "verification_policy": {
+    "mocked_payment_is_revenue": false,
+    "http_402_is_revenue": false,
+    "testnet_is_mainnet_revenue": false,
+    "delivery_hash_must_be_recomputed_from_actual_response_bytes": true,
+    "revenue_recognized": false,
+    "human_review_required": true
+  },
+  "unit_tests": {
+    "file": "BEC-PRIME/runtime/BridgeSettlementModels.test.js",
+    "status": "NOT_RUN_IN_GITHUB_RUNTIME",
+    "expected_command": "node --test BEC-PRIME/runtime/BridgeSettlementModels.test.js"
+  },
+  "notes": [
+    "At 0.0001 USDC per generated token, 100 generated tokens cost 0.01 USDC, not 0.09 USDC; 900 generated tokens cost 0.09 USDC.",
+    "This artifact records current evidence state for this branch. It is not evidence that any production endpoint has been deployed."
+  ]
+}
