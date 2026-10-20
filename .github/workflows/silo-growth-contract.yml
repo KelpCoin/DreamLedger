@@ -5,6 +5,12 @@ on:
     paths:
       - 'config/silo-growth-defaults.json'
       - 'BEC-PRIME/scripts/verify-silo-growth-contract.js'
+      - 'BEC-PRIME/scripts/agentic-engineering-stack.test.js'
+      - 'BEC-PRIME/scripts/verify-agentic-engineering-stack.js'
+      - 'BEC-PRIME/scripts/evaluate-customization-eligibility.test.js'
+      - 'BEC-PRIME/scripts/evaluate-customization-eligibility.js'
+      - 'config/agentic-engineering-stack.json'
+      - 'config/offer-customization-defaults.json'
       - 'BEC-PRIME/scripts/render-silo-growth-promo.js'
       - 'BEC-PRIME/scripts/render-silo-growth-promo.test.js'
       - 'docs/SILO_MARKETING_AND_DISTRIBUTION_TEMPLATE.md'
@@ -34,3 +40,7 @@ jobs:
         run: node BEC-PRIME/scripts/verify-silo-growth-contract.js
       - name: Test fail-closed creator support renderer
         run: node --test BEC-PRIME/scripts/render-silo-growth-promo.test.js
+      - name: Verify customization eligibility gates
+        run: node --test BEC-PRIME/scripts/evaluate-customization-eligibility.test.js
+      - name: Verify five-layer engineering stack
+        run: node BEC-PRIME/scripts/verify-agentic-engineering-stack.js && node --test BEC-PRIME/scripts/agentic-engineering-stack.test.js
