@@ -1,0 +1,788 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dreamledger.org/schemas/MTG-BUYLIST-MAXIMIZER-REPORT.schema.json",
+  "title": "MTG Buylist Maximizer Report",
+  "description": "A source-stamped, auditable comparison of external buylist offers. Quoted values, assumptions, derived estimates, and missing evidence are kept distinct. Does not imply an offer is guaranteed or that any card has been shipped or paid for. Source capture hashes are SHA-256 of the exact EXTRACTED_TEXT_UTF8 string stored in capture_text, not the origin server's raw HTTP bytes.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "report_id",
+    "status",
+    "created_at_utc",
+    "input_origin",
+    "silo",
+    "currency",
+    "input_cards",
+    "sources",
+    "offers",
+    "best_net",
+    "caveats"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "dreamledger/mtg-buylist-maximizer-report/v1"
+    },
+    "report_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120
+    },
+    "status": {
+      "enum": [
+        "DRAFT",
+        "INCOMPLETE",
+        "READY_FOR_HUMAN_REVIEW",
+        "DELIVERED"
+      ]
+    },
+    "created_at_utc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "silo": {
+      "const": "mtg"
+    },
+    "currency": {
+      "const": "NZD"
+    },
+    "input_cards": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "input_card_id",
+          "card_name",
+          "quantity",
+          "condition",
+          "finish"
+        ],
+        "properties": {
+          "input_card_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "card_name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "set_name": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 160
+          },
+          "set_code": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 20
+          },
+          "collector_number": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 40
+          },
+          "language": {
+            "type": "string",
+            "default": "English"
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "condition": {
+            "enum": [
+              "NM",
+              "LP",
+              "MP",
+              "HP",
+              "DMG",
+              "UNKNOWN"
+            ]
+          },
+          "finish": {
+            "enum": [
+              "NONFOIL",
+              "FOIL",
+              "ETCHED",
+              "UNKNOWN"
+            ]
+          },
+          "identity_status": {
+            "enum": [
+              "USER_SUPPLIED",
+              "SCRYFALL_RESOLVED",
+              "AMBIGUOUS",
+              "UNRESOLVED",
+              "SAMPLE_INPUT"
+            ],
+            "default": "USER_SUPPLIED"
+          },
+          "identity_source_url": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uri"
+          },
+          "identity_retrieved_at_utc": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "identity_response_sha256": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        }
+      }
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "source_id",
+          "vendor",
+          "source_url",
+          "source_kind",
+          "retrieved_at_utc",
+          "capture_sha256",
+          "capture_text",
+          "capture_representation",
+          "source_currency",
+          "price_basis",
+          "coverage_status"
+        ],
+        "properties": {
+          "source_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "vendor": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "source_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "source_kind": {
+            "enum": [
+              "OFFICIAL_BUYLIST",
+              "BUYLIST_AGGREGATOR",
+              "OFFICIAL_POLICY_OR_TERMS",
+              "OTHER_PUBLIC_SOURCE"
+            ]
+          },
+          "retrieved_at_utc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "http_etag": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "http_last_modified": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "http_status": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 100,
+            "maximum": 599
+          },
+          "capture_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "capture_representation": {
+            "enum": [
+              "RAW_RESPONSE_BYTES",
+              "EXTRACTED_TEXT_UTF8",
+              "CANONICAL_JSON_UTF8"
+            ]
+          },
+          "source_currency": {
+            "enum": [
+              "NZD",
+              "USD",
+              "EUR",
+              "GBP",
+              "MIXED",
+              "UNKNOWN"
+            ]
+          },
+          "price_basis": {
+            "enum": [
+              "CASH_BUYLIST",
+              "STORE_CREDIT",
+              "BULK_RATE",
+              "TERMS_ONLY",
+              "UNKNOWN"
+            ]
+          },
+          "coverage_status": {
+            "enum": [
+              "CARD_LEVEL_PRICES_AVAILABLE",
+              "BULK_ONLY",
+              "TERMS_ONLY",
+              "NO_CARD_PRICE_EXTRACTED",
+              "ACCESS_RESTRICTED",
+              "ERROR"
+            ]
+          },
+          "excerpt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 1200
+          },
+          "notes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 500
+            }
+          },
+          "capture_text": {
+            "type": "string",
+            "maxLength": 20000,
+            "description": "Exact extracted text string whose UTF-8 bytes are hashed into capture_sha256."
+          }
+        }
+      }
+    },
+    "offers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "offer_id",
+          "input_card_id",
+          "vendor",
+          "quote_status",
+          "source_id",
+          "source_url",
+          "retrieved_at_utc",
+          "response_sha256",
+          "price",
+          "condition_rule",
+          "shipping_assumption",
+          "net_estimate"
+        ],
+        "properties": {
+          "offer_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 140
+          },
+          "input_card_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "vendor": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "quote_status": {
+            "enum": [
+              "QUOTED",
+              "NOT_BUYING",
+              "NOT_FOUND",
+              "AMBIGUOUS_MATCH",
+              "ACCESS_RESTRICTED",
+              "SOURCE_ERROR",
+              "ESTIMATE_ONLY"
+            ]
+          },
+          "source_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 100
+          },
+          "source_url": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uri"
+          },
+          "retrieved_at_utc": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "response_sha256": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "matched_card_name": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 200
+          },
+          "set_or_printing_match": {
+            "enum": [
+              "EXACT",
+              "LIKELY",
+              "UNCONFIRMED",
+              "NO_MATCH"
+            ]
+          },
+          "finish_match": {
+            "enum": [
+              "EXACT",
+              "LIKELY",
+              "UNCONFIRMED",
+              "NO_MATCH"
+            ]
+          },
+          "price": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "additionalProperties": false,
+            "required": [
+              "amount",
+              "currency",
+              "basis",
+              "condition"
+            ],
+            "properties": {
+              "amount": {
+                "type": "number",
+                "minimum": 0
+              },
+              "currency": {
+                "enum": [
+                  "NZD",
+                  "USD",
+                  "EUR",
+                  "GBP"
+                ]
+              },
+              "basis": {
+                "enum": [
+                  "CASH_BUYLIST",
+                  "STORE_CREDIT",
+                  "BULK_RATE",
+                  "OTHER"
+                ]
+              },
+              "condition": {
+                "enum": [
+                  "NM",
+                  "LP",
+                  "MP",
+                  "HP",
+                  "DMG",
+                  "UNKNOWN"
+                ]
+              },
+              "quantity_limit": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 1
+              }
+            }
+          },
+          "condition_rule": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "rule_text",
+              "rule_source_url",
+              "applied_adjustment_status"
+            ],
+            "properties": {
+              "rule_text": {
+                "type": "string",
+                "maxLength": 700
+              },
+              "rule_source_url": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "uri"
+              },
+              "applied_adjustment_pct": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "minimum": -100,
+                "maximum": 1000
+              },
+              "applied_adjustment_status": {
+                "enum": [
+                  "SOURCE_PUBLISHED",
+                  "CALCULATED_FROM_SOURCE",
+                  "NOT_APPLIED",
+                  "UNKNOWN"
+                ]
+              }
+            }
+          },
+          "shipping_assumption": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "amount",
+              "currency",
+              "basis",
+              "source_url"
+            ],
+            "properties": {
+              "amount": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "minimum": 0
+              },
+              "currency": {
+                "enum": [
+                  "NZD",
+                  "USD",
+                  "EUR",
+                  "GBP",
+                  "UNKNOWN"
+                ]
+              },
+              "basis": {
+                "enum": [
+                  "SOURCE_PUBLISHED",
+                  "USER_SUPPLIED",
+                  "ESTIMATED",
+                  "NOT_INCLUDED",
+                  "UNKNOWN"
+                ]
+              },
+              "source_url": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "uri"
+              },
+              "notes": {
+                "type": "string",
+                "maxLength": 500
+              }
+            }
+          },
+          "fx": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "additionalProperties": false,
+            "required": [
+              "rate",
+              "base_currency",
+              "quote_currency",
+              "retrieved_at_utc",
+              "source_url"
+            ],
+            "properties": {
+              "rate": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "base_currency": {
+                "enum": [
+                  "USD",
+                  "EUR",
+                  "GBP"
+                ]
+              },
+              "quote_currency": {
+                "const": "NZD"
+              },
+              "retrieved_at_utc": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "source_url": {
+                "type": "string",
+                "format": "uri"
+              }
+            }
+          },
+          "net_estimate": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "amount_nzd",
+              "status",
+              "formula"
+            ],
+            "properties": {
+              "amount_nzd": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "minimum": 0
+              },
+              "status": {
+                "enum": [
+                  "CALCULATED",
+                  "PARTIAL",
+                  "NOT_CALCULABLE"
+                ]
+              },
+              "formula": {
+                "type": "string",
+                "maxLength": 700
+              },
+              "excluded_costs": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "maxLength": 240
+                }
+              }
+            }
+          },
+          "evidence_excerpt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 1200
+          },
+          "caveats": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 500
+            }
+          }
+        }
+      }
+    },
+    "best_net": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "vendor_allocation",
+        "total_estimated_net_nzd",
+        "comparison_basis"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "CALCULATED",
+            "PARTIAL",
+            "NO_COMPARABLE_QUOTES"
+          ]
+        },
+        "vendor_allocation": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "vendor",
+              "input_card_ids",
+              "estimated_net_nzd"
+            ],
+            "properties": {
+              "vendor": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 120
+              },
+              "input_card_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "estimated_net_nzd": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "minimum": 0
+              }
+            }
+          }
+        },
+        "total_estimated_net_nzd": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "single_vendor_baseline_nzd": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "incremental_gain_nzd": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "incremental_gain_pct": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "comparison_basis": {
+          "type": "string",
+          "maxLength": 1200
+        },
+        "optimizer_status": {
+          "enum": [
+            "NOT_RUN",
+            "DETERMINISTIC_SPLIT",
+            "SINGLE_VENDOR_ONLY",
+            "INSUFFICIENT_DATA"
+          ]
+        }
+      }
+    },
+    "caveats": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 1000
+      }
+    },
+    "human_review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "required",
+        "status"
+      ],
+      "properties": {
+        "required": {
+          "type": "boolean"
+        },
+        "status": {
+          "enum": [
+            "PENDING",
+            "APPROVED",
+            "REJECTED",
+            "NOT_REQUIRED"
+          ]
+        },
+        "reviewer_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "reviewed_at_utc": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "notes": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 1500
+        }
+      }
+    },
+    "delivery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "NOT_DELIVERED",
+            "DELIVERED",
+            "DELIVERY_FAILED"
+          ]
+        },
+        "delivery_reference": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 300
+        },
+        "delivered_at_utc": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "content_sha256": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "input_origin": {
+      "enum": [
+        "CUSTOMER_SUPPLIED",
+        "SYNTHETIC_SAMPLE"
+      ]
+    }
+  }
+}
