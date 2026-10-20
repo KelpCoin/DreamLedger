@@ -39,6 +39,12 @@ jobs:
       - name: Marketplace listing contract fixtures
         run: node ../webapp/agentic-commerce/marketplace-listing.contract.test.js
 
+      - name: Unified B2B and A2A marketplace contract
+        run: |
+          node --check routes/marketplaceKernel.js
+          node --check start.js
+          node scripts/verify-unified-marketplace.js
+
       - name: Public observatory link contract
         shell: bash
         run: |
