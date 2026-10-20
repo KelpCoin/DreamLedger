@@ -10,6 +10,7 @@ const factory = read('BEC-PRIME/cube/CUBE-SILO-FACTORY-CONTRACT.json');
 const cloneContract = read('BEC-PRIME/cube/CUBE-CLONE-CONTRACT.json');
 const money = read('BEC-PRIME/cube/CUBE-MONEY-SURFACES.json');
 const scaling = read('BEC-PRIME/cube/CUBE-SWARM-ECONOMIC-GATES.json');
+const scaleGate = fs.readFileSync(path.join(root, "workers/economic/cube_swarm_scale_gate.py"), "utf8");
 const queue = read('ops/silo-factory/CUBE-SILO-EXPANSION-QUEUE.json');
 
 test('CUBE registry and factory agree on every canonical slug', () => {
@@ -86,4 +87,16 @@ test('the expansion queue does not count simulations or generated signals as rev
   assert.equal(queue.economic_truth.active_worker_scaling_evidence, false);
   assert.ok(queue.economic_truth.claim_exclusions.includes('simulation throughput'));
   assert.ok(queue.rollout_gates.includes('unit contribution margin is positive after fees, refunds, fulfillment and platform costs'));
+});
+
+test('scale gate uses platform revenue, not GMV, and remains decision-only', () => {
+  assert.equal(scaling.evidence_schema, 'bec/cube-scale-evidence/v2');
+  assert.ok(scaling.contribution_formula.includes('platform_revenue_nzd'));
+  assert.ok(scaling.contribution_formula.includes('gross_amount_nzd represents GMV'));
+  assert.ok(scaling.zero_fee_marketplace_rule.includes('0%'));
+  assert.ok(scaling.visitor_denominator_rule.includes('cannot exceed'));
+  assert.ok(scaleGate.includes('platform_revenue_nzd - fees - fulfilment_cost - provider_cost - platform_refund_cost'));
+  assert.ok(scaleGate.includes('BUYER_COUNT_EXCEEDS_QUALIFIED_VISITOR_DENOMINATOR'));
+  assert.equal(scaling.current_action.new_workers_authorized, 0);
+  assert.equal(scaling.current_action.production_scale_mutation, false);
 });
