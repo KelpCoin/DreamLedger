@@ -1,0 +1,3 @@
+# Cloudflare Pages / Netlify-style redirects
+/mtg /mtg/ 301
+/mtg-list /mtg-list/ 301
