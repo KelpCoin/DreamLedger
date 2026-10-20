@@ -6,6 +6,9 @@ const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
 const stripeSecret = Deno.env.get("STRIPE_SECRET_KEY") || Deno.env.get("STRIPE_API_KEY") || "";
 const publicBase = (Deno.env.get("PUBLIC_BASE_URL") || "https://dreamledger.org").replace(/\/$/, "");
 
+// Fail closed until the production webhook grants the same account-bound entitlement and receipt.
+const COSMETIC_CHECKOUT_RELEASE_HOLD = true;
+
 const COSMETICS: Record<string, { name: string; amount: number; currency: string }> = {
   "dreammeez-founder-cloak": { name: "DreamMeez Founder Cloak", amount: 500, currency: "nzd" },
   "dreammeez-pirate-crown": { name: "DreamMeez Pirate Crown", amount: 700, currency: "nzd" },
@@ -16,13 +19,21 @@ const COSMETICS: Record<string, { name: string; amount: number; currency: string
 };
 
 const supabase = createClient(supabaseUrl, serviceRoleKey);
-const stripe = new Stripe(stripeSecret, { apiVersion: "2025-06-30.basil" });
+const stripe = new Stripe(stripeSecret, { apiVersion: "2026-08-26.dahlia" });
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: cors() });
   }
   if (req.method !== "POST") return json({ error: "POST only" }, 405);
+  if (COSMETIC_CHECKOUT_RELEASE_HOLD) {
+    return json({
+      ok: false,
+      code: "COSMETIC_FULFILLMENT_NOT_VERIFIED",
+      error: "Paid cosmetic checkout is held until production payment-to-entitlement delivery is verified.",
+      checkout_available: false,
+    }, 503);
+  }
 
   if (!supabaseUrl || !serviceRoleKey || !stripeSecret) {
     return json({ error: "checkout service not configured" }, 503);

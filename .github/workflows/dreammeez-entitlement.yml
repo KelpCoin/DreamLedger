@@ -1,45 +1,54 @@
-name: DreamMeez Paid Entitlement
+name: DreamMeez Checkout Hold and Entitlement Safety
 
 on:
   pull_request:
+    branches: [main]
     paths:
       - 'public/avatar.html'
+      - 'public/assets/avatar-identity.js'
+      - 'public/billboard.html'
+      - 'public/catalog.json'
       - 'supabase/functions/dreammeez-cosmetic-checkout/index.ts'
+      - 'supabase/functions/dreammeez-cosmetic-checkout/deno.json'
       - 'BEC-PRIME/lib/dreammeezPaidEntitlement.js'
       - 'BEC-PRIME/routes/marketplaceWebhook.js'
       - 'BEC-PRIME/scripts/test-dreammeez-paid-entitlement.js'
+      - 'scripts/verify-dreammeez-billboard-integrity.mjs'
       - '.github/workflows/dreammeez-entitlement.yml'
   push:
     branches:
+      - 'fix/dreammeez-billboard-integrity-20261019'
       - 'feat/dreammeez-paid-entitlements'
+  workflow_dispatch:
 
 permissions:
   contents: read
 
+concurrency:
+  group: dreammeez-entitlement-safety-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
-  entitlement-test:
+  entitlement-safety:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
         with:
-          node-version: 20
-      - uses: denoland/setup-deno@v2
+          node-version: 24
+      - name: Set up Deno
+        uses: denoland/setup-deno@v2
         with:
           deno-version: v2.x
-      - name: Syntax check
+      - name: Syntax check local entitlement handler
         run: |
           node --check BEC-PRIME/lib/dreammeezPaidEntitlement.js
           node --check BEC-PRIME/routes/marketplaceWebhook.js
-      - name: DreamMeez checkout type check
-        run: deno check supabase/functions/dreammeez-cosmetic-checkout/index.ts
-      - name: Cosmetic catalog guard
-        run: |
-          grep -q 'dreammeez-founder-cloak' public/avatar.html
-          grep -q 'dreammeez-pirate-crown' public/avatar.html
-          grep -q 'dreammeez-cosmic-hoodie' public/avatar.html
-          grep -q 'dreammeez-chrome-boots' public/avatar.html
-          grep -q 'dreammeez-dragon-mark' public/avatar.html
-          grep -q 'dreammeez-neon-sneakers' public/avatar.html
-      - name: Entitlement unit test
+      - name: Type-check held cosmetic checkout endpoint
+        run: deno check --node-modules-dir=auto supabase/functions/dreammeez-cosmetic-checkout/index.ts
+      - name: Test local idempotent entitlement helper
         run: node BEC-PRIME/scripts/test-dreammeez-paid-entitlement.js
+      - name: Verify public and endpoint fail-closed gates
+        run: node scripts/verify-dreammeez-billboard-integrity.mjs

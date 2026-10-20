@@ -1,0 +1,48 @@
+name: DreamMeez and Billboard Integrity Gate
+
+on:
+  push:
+    paths:
+      - "public/avatar.html"
+      - "public/assets/avatar-identity.js"
+      - "public/billboard.html"
+      - "public/catalog.json"
+      - "scripts/verify-dreammeez-billboard-integrity.mjs"
+      - ".github/workflows/dreammeez-billboard-integrity.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "public/avatar.html"
+      - "public/assets/avatar-identity.js"
+      - "public/billboard.html"
+      - "public/catalog.json"
+      - "scripts/verify-dreammeez-billboard-integrity.mjs"
+      - ".github/workflows/dreammeez-billboard-integrity.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dreammeez-billboard-integrity-\${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  integrity:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Run fail-closed surface and entitlement checks
+        run: node scripts/verify-dreammeez-billboard-integrity.mjs
+      - name: Upload machine-readable proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dreammeez-billboard-integrity-proof
+          path: proof-artifacts/DREAMMEEZ_BILLBOARD_INTEGRITY.json
+          if-no-files-found: warn

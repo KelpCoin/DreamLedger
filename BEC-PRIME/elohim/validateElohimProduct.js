@@ -34,10 +34,16 @@ function getAjvValidators() {
   }
   let Ajv;
   try {
-    Ajv = require('ajv');
-  } catch (_)
-  {
-    return null;
+    // The Elohim schemas declare JSON Schema Draft 2020-12. Ajv's default
+    // export validates Draft 7 and throws for the 2020-12 meta-schema.
+    const Ajv2020 = require('ajv/dist/2020');
+    Ajv = Ajv2020.default || Ajv2020;
+  } catch (_) {
+    try {
+      Ajv = require('ajv');
+    } catch (_) {
+      return null;
+    }
   }
   const ajv = new Ajv({ allErrors: true, strict: false });
   _ajvValidateProduct = ajv.compile(loadSchema('elohim-product.schema.json'));

@@ -115,6 +115,9 @@
       });
       if (!d.equipped || typeof d.equipped !== 'object') d.equipped = defaultState().equipped;
       if (!Array.isArray(d.owned)) d.owned = [];
+      // Browser storage is user-editable and is never proof of paid ownership.
+      d.owned = [];
+      d.equipped = defaultState().equipped;
       return d;
     } catch (e) {
       return defaultState();
@@ -123,6 +126,9 @@
 
   function save(state) {
     state = state || load();
+    // Persist appearance only. Ownership and equipped paid items must come from a trusted server.
+    state.owned = [];
+    state.equipped = defaultState().equipped;
     state.updated_at = new Date().toISOString();
     global.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     try {
@@ -139,9 +145,8 @@
   }
 
   function own(id) {
-    var s = load();
-    if (s.owned.indexOf(id) === -1) s.owned.push(id);
-    return save(s);
+    // Compatibility stub: this browser-only API cannot grant an entitlement.
+    return load();
   }
 
   function equip(id) {
