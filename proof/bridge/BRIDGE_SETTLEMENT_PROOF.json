@@ -99,6 +99,6 @@
   },
   "notes": [
     "At 0.0001 USDC per generated token, 100 generated tokens cost 0.01 USDC, not 0.09 USDC; 900 generated tokens cost 0.09 USDC.",
-    This artifact records current evidence state for this branch. It is not evidence that any production endpoint has been deployed.
+    "This artifact records current evidence state for this branch. It is not evidence that any production endpoint has been deployed."
   ]
 }
