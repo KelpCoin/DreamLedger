@@ -1,0 +1,108 @@
+{
+  "schema": "dreamledger.bridge-settlement-agent-card/v1",
+  "name": "BrownEye Agent Bridge",
+  "description": "Proposal for metered model inference and escrowed async tasks on the existing DreamLedger bridge.",
+  "publication_status": "PRIVATE_PROPOSAL_NOT_PUBLISHED",
+  "service_origin": "https://dreamledger.org",
+  "protocols": ["HTTP+JSON", "MCP", "x402-v2", "A2A-x402-payment-extension"],
+  "capabilities": [
+    {
+      "id": "relay_message",
+      "method": "POST",
+      "path": "/v1/relay_message",
+      "price": { "amount": "0.05", "currency": "USDC", "network": "eip155:8453", "scheme": "exact" },
+      "input_schema": {
+        "type": "object",
+        "required": ["message"],
+        "properties": {
+          "message": { "type": "string", "minLength": 1, "maxLength": 12000 },
+          "correlation_id": { "type": "string", "maxLength": 128 },
+          "silo_id": { "type": "string", "maxLength": 64 }
+        },
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "type": "object",
+        "required": ["delivery_id", "payload_sha256"],
+        "properties": {
+          "delivery_id": { "type": "string" },
+          "payload_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+          "delivered_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "metered_inference",
+      "method": "POST",
+      "path": "/v1/metered_inference",
+      "price": { "maximum": "0.10", "currency": "USDC", "network": "eip155:8453", "scheme": "upto" },
+      "metering": { "unit": "generated_token", "rate_usdc_per_token": "0.0001", "cap_usdc": "0.10" },
+      "input_schema": {
+        "type": "object",
+        "required": ["prompt"],
+        "properties": {
+          "prompt": { "type": "string", "minLength": 1, "maxLength": 20000 },
+          "max_output_tokens": { "type": "integer", "minimum": 1, "maximum": 1000 }
+        },
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "type": "object",
+        "required": ["text", "usage", "delivery_receipt"],
+        "properties": {
+          "text": { "type": "string" },
+          "usage": { "type": "object", "required": ["generated_tokens"] },
+          "delivery_receipt": { "type": "object", "required": ["payload_sha256"] }
+        }
+      },
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "async_task",
+      "method": "POST",
+      "path": "/v1/async_task",
+      "price": { "amount": "0.25", "currency": "USDC", "network": "eip155:8453", "scheme": "escrow" },
+      "settlement": {
+        "model": "onchain_escrow",
+        "release_condition": "independent_evaluator_approved_and_delivery_hash_verified",
+        "maximum_revisions": 5,
+        "failure_condition": "refund_buyer",
+        "contract": null
+      },
+      "input_schema": {
+        "type": "object",
+        "required": ["task", "reviewer_request"],
+        "properties": {
+          "task": { "type": "string", "minLength": 1, "maxLength": 12000 },
+          "reviewer_request": { "type": "string", "minLength": 1, "maxLength": 4000 },
+          "silo_id": { "type": "string", "maxLength": 64 }
+        },
+        "additionalProperties": false
+      },
+      "output_schema": {
+        "type": "object",
+        "required": ["task_id", "state"],
+        "properties": {
+          "task_id": { "type": "string" },
+          "state": { "enum": ["CREATED", "FUNDED", "QUEUED", "RUNNING", "SUBMITTED", "APPROVED", "RELEASED", "REFUND_PENDING", "REFUNDED"] }
+        }
+      },
+      "status": "BLOCKED"
+    }
+  ],
+  "capabilities_extensions": [
+    {
+      "uri": "https://github.com/google-agentic-commerce/a2a-x402/blob/main/spec/v0.1/spec.md",
+      "name": "a2a-x402-payment-extension",
+      "status": "PROPOSED_NOT_ENABLED"
+    }
+  ],
+  "security": {
+    "gauntlet_and_judge_exposed": false,
+    "public_publication_authorized": false,
+    "autonomous_spend_nzd": 0,
+    "cross_silo_access": false
+  },
+  "truth_boundary": "This private proposed card is not a live listing. No revenue is recognized from discovery, challenge issuance, simulations, or internal tests."
+}
