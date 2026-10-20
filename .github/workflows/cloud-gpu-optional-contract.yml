@@ -1,0 +1,35 @@
+name: cloud-gpu-optional-contract
+
+on:
+  push:
+    paths:
+      - ".github/workflows/economic-gpu-opportunistic.yml"
+      - ".github/workflows/cloud-gpu-optional-contract.yml"
+      - "scripts/validate_cloud_gpu_optional.py"
+      - "docs/ELOHIM-CUBE-CLOUD-GPU-CONTRACT.md"
+  pull_request:
+    paths:
+      - ".github/workflows/economic-gpu-opportunistic.yml"
+      - ".github/workflows/cloud-gpu-optional-contract.yml"
+      - "scripts/validate_cloud_gpu_optional.py"
+      - "docs/ELOHIM-CUBE-CLOUD-GPU-CONTRACT.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cloud-gpu-optional-contract-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Verify cloud-first and optional GPU boundary
+        run: python scripts/validate_cloud_gpu_optional.py
