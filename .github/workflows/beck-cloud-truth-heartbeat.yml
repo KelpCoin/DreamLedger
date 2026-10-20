@@ -21,8 +21,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 8
     env:
-      BASE_URL: https://dreamledger1.onrender.com
+      EDGE_HEALTH_URL: https://wbwgroygjeyukkspnqiy.supabase.co/functions/v1/economic-radar-heartbeat/healthz
+      STATIC_ORIGIN_URL: https://dreamledger-org.onrender.com
       PUBLIC_URL: https://dreamledger.org
+      LEGACY_RENDER_API_URL: https://dreamledger1.onrender.com
       SUPABASE_URL: ${{ secrets.SUPABASE_URL || 'https://wbwgroygjeyukkspnqiy.supabase.co' }}
       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
       SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
@@ -32,53 +34,66 @@ jobs:
           ref: main
           fetch-depth: 1
 
-      - name: Probe cloud runtime and write immutable evidence
+      - name: Probe cloud-first runtime and write immutable evidence
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p proof/beck
           now="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           sha="$(git rev-parse HEAD)"
-          health_code="$(curl -sS -H 'Accept: application/json' --retry 2 --retry-all-errors --retry-delay 2 --connect-timeout 10 --max-time 60 -o /tmp/health.json -w '%{http_code}' "$BASE_URL/healthz" || true)"
-          version_code="$(curl -sS -H 'Accept: application/json' --retry 2 --retry-all-errors --retry-delay 2 --connect-timeout 10 --max-time 60 -o /tmp/version.json -w '%{http_code}' "$BASE_URL/version" || true)"
-          public_site_code="$(curl -sS --retry 2 --retry-all-errors --retry-delay 2 --connect-timeout 10 --max-time 60 -o /tmp/public-site.html -w '%{http_code}' "$PUBLIC_URL/" || true)"
-          health_ok=false
-          version_ok=false
-          public_site_ok=false
-          [ "$health_code" = "200" ] && health_ok=true
-          [ "$version_code" = "200" ] && version_ok=true
-          [ "$public_site_code" = "200" ] && public_site_ok=true
-          live_sha=""
-          if [ "$version_ok" = true ]; then
-            live_sha="$(node -e 'const x=require("/tmp/version.json");process.stdout.write(String(x.commit||x.sha||x.version_sha||x.git_sha||""))' 2>/dev/null || true)"
+          edge_code="$(curl -sS --retry 2 --retry-all-errors --retry-delay 2 --connect-timeout 10 --max-time 40 -o /tmp/edge-health.json -w '%{http_code}' "$EDGE_HEALTH_URL" || true)"
+          origin_code="$(curl -sS --retry 2 --retry-all-errors --retry-delay 2 --connect-timeout 10 --max-time 40 -o /tmp/origin.html -w '%{http_code}' "$STATIC_ORIGIN_URL/" || true)"
+          oracle_code="$(curl -sS --retry 2 --retry-all-errors --retry-delay 2 --connect-timeout 10 --max-time 40 -o /tmp/origin-truth-oracle.html -w '%{http_code}' "$STATIC_ORIGIN_URL/truth-oracle.html" || true)"
+          public_site_code="$(curl -sS --retry 2 --retry-all-errors --retry-delay 2 --connect-timeout 10 --max-time 40 -o /tmp/public-site.html -w '%{http_code}' "$PUBLIC_URL/" || true)"
+          legacy_api_code="$(curl -sS --connect-timeout 5 --max-time 10 -o /tmp/legacy-api-health.json -w '%{http_code}' "$LEGACY_RENDER_API_URL/healthz" || true)"
+          edge_contract_ok=false
+          edge_version=""
+          edge_function=""
+          if [ "$edge_code" = "200" ]; then
+            edge_contract_ok="$(node -e 'try { const x=JSON.parse(require("fs").readFileSync("/tmp/edge-health.json","utf8")); process.stdout.write(x.status==="healthy" && x.function==="economic-radar-heartbeat" && Number(x.version)>=27 ? "true" : "false") } catch { process.stdout.write("false") }')"
+            edge_version="$(node -e 'try { const x=JSON.parse(require("fs").readFileSync("/tmp/edge-health.json","utf8")); process.stdout.write(String(x.version||"")) } catch {}')"
+            edge_function="$(node -e 'try { const x=JSON.parse(require("fs").readFileSync("/tmp/edge-health.json","utf8")); process.stdout.write(String(x.function||"")) } catch {}')"
           fi
-          deploy_match=false
-          [ -n "$live_sha" ] && [ "$live_sha" = "$sha" ] && deploy_match=true
+          edge_ok=false
+          origin_ok=false
+          oracle_ok=false
+          public_site_ok=false
+          [ "$edge_contract_ok" = "true" ] && edge_ok=true
+          [ "$origin_code" = "200" ] && origin_ok=true
+          [ "$oracle_code" = "200" ] && oracle_ok=true
+          [ "$public_site_code" = "200" ] && public_site_ok=true
+          core_ok=false
+          [ "$edge_ok" = "true" ] && [ "$origin_ok" = "true" ] && [ "$oracle_ok" = "true" ] && core_ok=true
           overall=false
-          [ "$health_ok" = true ] && [ "$version_ok" = true ] && [ "$public_site_ok" = true ] && [ "$deploy_match" = true ] && overall=true
-          mkdir -p proof/beck
-          export NOW="$now" EXPECTED_SHA="$sha" HEALTH_CODE="$health_code" VERSION_CODE="$version_code" PUBLIC_SITE_CODE="$public_site_code" PUBLIC_SITE_OK="$public_site_ok" LIVE_SHA="$live_sha" HEALTH_OK="$health_ok" VERSION_OK="$version_ok" DEPLOY_MATCH="$deploy_match" OVERALL="$overall"
+          [ "$core_ok" = "true" ] && [ "$public_site_ok" = "true" ] && overall=true
+          export NOW="$now" EXPECTED_SHA="$sha" EDGE_CODE="$edge_code" EDGE_FUNCTION="$edge_function" EDGE_VERSION="$edge_version" EDGE_OK="$edge_ok" ORIGIN_CODE="$origin_code" ORIGIN_OK="$origin_ok" ORACLE_CODE="$oracle_code" ORACLE_OK="$oracle_ok" PUBLIC_SITE_CODE="$public_site_code" PUBLIC_SITE_OK="$public_site_ok" LEGACY_API_CODE="$legacy_api_code" CORE_OK="$core_ok" OVERALL="$overall"
           node <<'NODE'
           const fs=require('fs');
           const p={
-            schema:'BECK-CLOUD-HEARTBEAT/v1',
+            schema:'BECK-CLOUD-HEARTBEAT/v2',
             proof_type:'CLOUD_RUNTIME_HEARTBEAT',
             agent_id:'cloud-beck',
             observed_at_utc:process.env.NOW,
             github_sha:process.env.EXPECTED_SHA,
             production:{
-              api_base_url:process.env.BASE_URL,
-              public_site_base_url:process.env.PUBLIC_URL,
-              health_http:Number(process.env.HEALTH_CODE),
-              version_http:Number(process.env.VERSION_CODE),
+              cloud_control_url:process.env.EDGE_HEALTH_URL,
+              cloud_control_http:Number(process.env.EDGE_CODE),
+              cloud_control_function:process.env.EDGE_FUNCTION||null,
+              cloud_control_version:process.env.EDGE_VERSION||null,
+              cloud_control_ok:process.env.EDGE_OK==='true',
+              static_origin_url:process.env.STATIC_ORIGIN_URL,
+              static_origin_http:Number(process.env.ORIGIN_CODE),
+              static_origin_ok:process.env.ORIGIN_OK==='true',
+              truth_oracle_http:Number(process.env.ORACLE_CODE),
+              truth_oracle_ok:process.env.ORACLE_OK==='true',
+              public_site_url:process.env.PUBLIC_URL,
               public_site_http:Number(process.env.PUBLIC_SITE_CODE),
-              live_sha:process.env.LIVE_SHA||null,
-              health_ok:process.env.HEALTH_OK==='true',
-              version_ok:process.env.VERSION_OK==='true',
               public_site_ok:process.env.PUBLIC_SITE_OK==='true',
-              deployment_matches_main:process.env.DEPLOY_MATCH==='true'
+              legacy_render_api_url:process.env.LEGACY_RENDER_API_URL,
+              legacy_render_api_http:Number(process.env.LEGACY_API_CODE),
+              legacy_render_api_is_required:false
             },
-            status:process.env.OVERALL==='true'?'CLOUD_ENDPOINTS_RESPOND':'CLOUD_DEGRADED',
+            status:process.env.OVERALL==='true'?'CLOUD_HEALTHY':process.env.CORE_OK==='true'?'CLOUD_CONTROL_UP_SURFACE_DEGRADED':'CLOUD_DEGRADED',
             local_accelerator:{status:'NOT_CONNECTED',note:'Local heartbeat requires authenticated ingestion; absence is not treated as local health.'},
             revenue:{claimed_nzd:0,status:'NOT_ASSERTED_BY_HEARTBEAT'},
             side_effects:{public_posts:false,checkout_attempts:false,deploy_triggered:false}
@@ -149,7 +164,7 @@ jobs:
           fi
           heartbeat_id="$(node -e 'const fs=require("fs");const p=JSON.parse(fs.readFileSync("proof/beck/latest-cloud-heartbeat-row.json","utf8"));process.stdout.write(p.heartbeat_id)')"
           readback_code="$(curl -sS --max-time 30 -o /tmp/readback.json -w '%{http_code}' \
-            "${auth_headers[@]}" \\
+            "${auth_headers[@]}" \
             "$base/rest/v1/cortex_heartbeat?select=heartbeat_id,seq,current_hash,previous_hash&heartbeat_id=eq.$heartbeat_id&limit=1" || true)"
           if [ "$readback_code" != "200" ]; then
             echo "Supabase heartbeat read-back failed: HTTP $readback_code"
@@ -203,6 +218,26 @@ jobs:
           const record={...prior,schema:'BECK-CLOUD-PERSISTENCE/v1',persisted,readback_verified:readbackVerified,workflow_step_outcome:outcome,agent_id:p.agent_id,observed_at_utc:p.observed_at_utc};
           fs.writeFileSync(persistencePath,JSON.stringify(record,null,2)+'\n');
           console.log(JSON.stringify({schema:record.schema,persisted:record.persisted,readback_verified:record.readback_verified,workflow_step_outcome:record.workflow_step_outcome,agent_id:record.agent_id,observed_at_utc:record.observed_at_utc},null,2));
+          NODE
+
+      - name: Require live control plane, public surface, and database read-back
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s proof/beck/latest-cloud-heartbeat.json
+          node <<'NODE'
+          const fs=require('fs');
+          const p=JSON.parse(fs.readFileSync('proof/beck/latest-cloud-heartbeat.json','utf8'));
+          const persisted=p.database_persistence?.persisted===true;
+          const readback=p.database_persistence?.readback_verified===true;
+          const control=p.production?.cloud_control_ok===true;
+          const staticOrigin=p.production?.static_origin_ok===true;
+          const truthOracle=p.production?.truth_oracle_ok===true;
+          const publicSite=p.production?.public_site_ok===true;
+          const gates={control,staticOrigin,truthOracle,publicSite,persisted,readback};
+          console.log(JSON.stringify({schema:'BECK-CLOUD-ACCEPTANCE/v1',status:Object.values(gates).every(Boolean)?'PASS':'BLOCKED',gates},null,2));
+          if(!Object.values(gates).every(Boolean)) process.exit(1);
           NODE
 
       - name: Upload cloud proof

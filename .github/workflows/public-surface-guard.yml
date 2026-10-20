@@ -59,7 +59,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          grep -q "p.startsWith('/api/toll/v1/')" public/server.js
+          grep -q "p.startsWith('/api/toll')" public/server.js
+          grep -q "p.startsWith('/toll/')" public/server.js
           grep -q "async function proxyTollToEngine(req,res,p)" public/server.js
           grep -q "ENGINE_INTERNAL_URL" public/server.js
           grep -q "/api/swarm-100k/" public/server.js

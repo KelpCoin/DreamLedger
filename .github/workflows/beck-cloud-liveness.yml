@@ -4,6 +4,12 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/beck-cloud-liveness.yml'
+      - '.github/workflows/beck-cloud-truth-heartbeat.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/beck-cloud-liveness.yml'
+      - '.github/workflows/beck-cloud-truth-heartbeat.yml'
   schedule:
     - cron: '*/10 * * * *'
   workflow_dispatch:
@@ -17,26 +23,59 @@ concurrency:
 
 jobs:
   liveness:
-    name: Independent cloud and public-host liveness
+    name: Independent cloud control-plane and public-surface liveness
     runs-on: ubuntu-latest
-    timeout-minutes: 3
+    timeout-minutes: 4
     steps:
-      - name: Check public health endpoint
-        id: health
+      - name: Probe read-only cloud and public surfaces
         shell: bash
         run: |
           set -euo pipefail
-          code="$(curl --silent --show-error --retry 3 --retry-delay 5 --retry-all-errors --output /tmp/health.txt --write-out '%{http_code}' --max-time 20 https://dreamledger-silo-gateway.onrender.com/healthz)"
-          test "$code" = "200"
-          echo "health_http=$code" >> "$GITHUB_OUTPUT"
-          cat /tmp/health.txt || true
+          edge_url='https://wbwgroygjeyukkspnqiy.supabase.co/functions/v1/economic-radar-heartbeat/healthz'
+          origin_url='https://dreamledger-org.onrender.com'
+          public_url='https://dreamledger.org'
+          legacy_api_url='https://dreamledger1.onrender.com'
+          edge_code="$(curl -sS --connect-timeout 10 --max-time 30 -o "$RUNNER_TEMP/edge-health.json" -w '%{http_code}' "$edge_url" || true)"
+          origin_code="$(curl -sS --connect-timeout 10 --max-time 30 -o /dev/null -w '%{http_code}' "$origin_url/" || true)"
+          oracle_code="$(curl -sS --connect-timeout 10 --max-time 30 -o /dev/null -w '%{http_code}' "$origin_url/truth-oracle.html" || true)"
+          public_code="$(curl -sS --connect-timeout 10 --max-time 30 -o /dev/null -w '%{http_code}' "$public_url/" || true)"
+          legacy_api_code="$(curl -sS --connect-timeout 5 --max-time 10 -o /dev/null -w '%{http_code}' "$legacy_api_url/healthz" || true)"
+          export EDGE_CODE="$edge_code" ORIGIN_CODE="$origin_code" ORACLE_CODE="$oracle_code" PUBLIC_CODE="$public_code" LEGACY_API_CODE="$legacy_api_code" EDGE_URL="$edge_url" ORIGIN_URL="$origin_url" PUBLIC_URL="$public_url" LEGACY_API_URL="$legacy_api_url"
+          node <<'NODE'
+          const fs=require('fs');
+          let h={};
+          try { h=JSON.parse(fs.readFileSync(process.env.RUNNER_TEMP+'/edge-health.json','utf8')); } catch {}
+          const edgeOk=process.env.EDGE_CODE==='200' && h.status==='healthy' && h.function==='economic-radar-heartbeat' && Number(h.version)>=27;
+          const originOk=process.env.ORIGIN_CODE==='200';
+          const oracleOk=process.env.ORACLE_CODE==='200';
+          const publicOk=process.env.PUBLIC_CODE==='200';
+          const coreOk=edgeOk && originOk && oracleOk;
+          const pass=coreOk && publicOk;
+          const proof={
+            schema:'DREAMLEDGER-CLOUD-LIVENESS/v2',
+            observed_at_utc:new Date().toISOString(),
+            status:pass?'PASS':(coreOk?'CORE_UP_PUBLIC_DOMAIN_DEGRADED':'CORE_DEGRADED'),
+            probes:{
+              cloud_control:{url:process.env.EDGE_URL,http:Number(process.env.EDGE_CODE),function:h.function||null,version:h.version||null,ok:edgeOk},
+              static_origin:{url:process.env.ORIGIN_URL,http:Number(process.env.ORIGIN_CODE),ok:originOk},
+              truth_oracle:{url:process.env.ORIGIN_URL+'/truth-oracle.html',http:Number(process.env.ORACLE_CODE),ok:oracleOk},
+              public_domain:{url:process.env.PUBLIC_URL,http:Number(process.env.PUBLIC_CODE),ok:publicOk},
+              legacy_render_api:{url:process.env.LEGACY_API_URL,http:Number(process.env.LEGACY_API_CODE),required:false,ok:process.env.LEGACY_API_CODE==='200'}
+            },
+            revenue_claimed_nzd:0,
+            public_actions:false,
+            production_mutations:false
+          };
+          fs.writeFileSync(process.env.RUNNER_TEMP+'/beck-cloud-liveness-proof.json',JSON.stringify(proof,null,2)+'\n');
+          console.log(JSON.stringify(proof,null,2));
+          if(!pass) process.exit(1);
+          NODE
 
-      - name: Check canonical public Truth Oracle page
-        shell: bash
-        run: |
-          set -euo pipefail
-          code="$(curl --location --silent --show-error --retry 3 --retry-delay 3 --retry-all-errors --output /dev/null --write-out '%{http_code}' --max-time 30 https://dreamledger.org/truth-oracle.html)"
-          test "$code" = "200"
-          echo "truth_oracle_http=$code"
-          echo '{"schema":"DREAMLEDGER-CLOUD-LIVENESS/v1","status":"PASS","external_action":"NONE","production_mutation":"NONE","revenue_claimed_nzd":0,"payment_claimed":0,"buyer_claimed":0}' > "$RUNNER_TEMP/cloud-liveness-proof.json"
-          cat "$RUNNER_TEMP/cloud-liveness-proof.json"
+      - name: Upload liveness evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: beck-cloud-liveness-proof-${{ github.run_id }}
+          path: ${{ runner.temp }}/beck-cloud-liveness-proof.json
+          if-no-files-found: warn
+          retention-days: 30
