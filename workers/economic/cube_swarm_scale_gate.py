@@ -142,6 +142,9 @@ def recommend_scale(evidence: dict[str, Any]) -> dict[str, Any]:
         if amount <= 0 or min(fees, fulfilment_cost, provider_cost, refund) < 0 or refund > amount:
             blockers.append(f"ORDER_{index}_NEGATIVE_OR_INVALID_AMOUNT")
             continue
+        if refund >= amount:
+            blockers.append(f"ORDER_{index}_FULLY_REFUNDED_NOT_COUNTED")
+            continue
 
         seen_payments.add(payment_id)
         seen_sessions.add(payment_key)
