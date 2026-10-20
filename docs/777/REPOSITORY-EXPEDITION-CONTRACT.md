@@ -15,3 +15,8 @@ A repository lead found by a cloud or local GPU worker can cross the offline/onl
 Use schema `dreamledger.777.repository-expedition.v1`. The packet must identify the public repo and default-branch SHA, cite metadata and licence evidence URLs, name the concrete gap and existing-stack check, describe maintenance/security/compatibility/cost, recommend one of `REFERENCE_ONLY`, `DEPENDENCY_CANDIDATE`, `CODE_IMPORT_CANDIDATE`, or `REJECTED`, and include fail-closed controls. Unknown licence means reference-only or rejected, never code-import candidate.
 
 The validator accepts only `ONLINE_VALIDATED` packets with public metadata and a timestamped evidence trail. Offline observations alone remain a lead, not an admitted compounding artifact.
+
+
+## Durable return to xBiggie
+
+When the online validation and compounding gate pass, the membrane workflow opens an unmerged GitHub pull request containing only the validated JSON packet under `data/777/repository-expeditions/`. This gives the evidence a durable, versioned home after review; the run also uploads a 90-day artifact copy. The PR does not import any candidate code, install a dependency, deploy anything, or assert revenue. A person must still review and merge the data packet, and any later reuse proposal requires separate licence/security/compatibility and release gates.
