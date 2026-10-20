@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """Fail-closed checks for the cloud-first / optional-GPU execution boundary."""
 from pathlib import Path
-import re
+from datetime import datetime, timezone
+import json
+import os
 
 ROOT = Path(__file__).resolve().parents[1]
 gpu_path = ROOT / ".github/workflows/economic-gpu-opportunistic.yml"
@@ -34,8 +36,28 @@ if errors:
         print(f"FAIL: {error}")
     raise SystemExit(1)
 
+proof = {
+    "contract": "ELOHIM_FIRST_CLOUD_OPTIONAL_GPU",
+    "status": "PASS",
+    "checked_at_utc": datetime.now(timezone.utc).isoformat(),
+    "repository": os.environ.get("GITHUB_REPOSITORY", "local"),
+    "revision": os.environ.get("GITHUB_SHA", "unavailable"),
+    "checks": {
+        "cloud_ci_does_not_require_gpu": True,
+        "gpu_worker_is_opt_in": True,
+        "explicit_lm_studio_health_gate": True,
+        "empty_or_malformed_output_fails_closed": True,
+        "bounded_timeouts_and_candidate_count": True,
+        "no_payment_or_database_side_effects": True,
+    },
+    "revenue_claim": "NONE",
+}
+proof_path = ROOT / "artifacts" / "cloud-gpu-contract-proof.json"
+proof_path.parent.mkdir(parents=True, exist_ok=True)
+proof_path.write_text(json.dumps(proof, indent=2) + "\\n", encoding="utf-8")
 print("CLOUD_GPU_OPTIONAL_CONTRACT=PASS")
 print("CLOUD_CI_DOES_NOT_REQUIRE_GPU=PASS")
 print("LM_STUDIO_HEALTH_GATE=PASS")
 print("BOUNDED_LOCAL_INFERENCE=PASS")
 print("NO_PAYMENT_OR_DATABASE_SIDE_EFFECTS=PASS")
+print(f"PROOF_ARTIFACT={proof_path}")
