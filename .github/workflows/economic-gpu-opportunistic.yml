@@ -31,10 +31,24 @@ jobs:
           $ErrorActionPreference = "Stop"
           try {
             $r = Invoke-RestMethod -Uri "http://127.0.0.1:1234/v1/models" -TimeoutSec 5
-            $r | ConvertTo-Json -Depth 8 | Set-Content -Encoding UTF8 gpu-lmstudio-models.json
+            $modelCount = @($r.data).Count
+            $state = [ordered]@{
+              online = $true
+              model_count = $modelCount
+              checked_at = (Get-Date).ToUniversalTime().ToString("o")
+              reason = $null
+            }
+            $state | ConvertTo-Json -Depth 8 | Set-Content -Encoding UTF8 gpu-lmstudio-models.json
             Write-Host "LM_STUDIO=ONLINE"
+            Write-Host "LM_STUDIO_MODEL_COUNT=$modelCount"
           } catch {
-            '{"online":false,"reason":"LM Studio unavailable; GPU worker remains non-blocking."}' | Set-Content -Encoding UTF8 gpu-lmstudio-models.json
+            $state = [ordered]@{
+              online = $false
+              model_count = 0
+              checked_at = (Get-Date).ToUniversalTime().ToString("o")
+              reason = "LM Studio unavailable; GPU worker remains optional and non-blocking."
+            }
+            $state | ConvertTo-Json -Depth 8 | Set-Content -Encoding UTF8 gpu-lmstudio-models.json
             Write-Host "LM_STUDIO=OFFLINE"
           }
 
@@ -42,7 +56,13 @@ jobs:
         shell: powershell
         run: |
           $ErrorActionPreference = "Stop"
-          if ((Get-Content gpu-lmstudio-models.json -Raw) -notmatch '"online"') {
+          $state = Get-Content gpu-lmstudio-models.json -Raw | ConvertFrom-Json
+          if ($state.online -ne $true) {
+            Write-Host "LOCAL_INFERENCE=SKIPPED_GPU_OPTIONAL"
+            exit 0
+          }
+          if ([int]$state.model_count -lt 1) {
+            Write-Host "LOCAL_INFERENCE=SKIPPED_NO_MODELS"
             exit 0
           }
           try {
