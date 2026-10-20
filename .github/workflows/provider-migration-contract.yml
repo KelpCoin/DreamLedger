@@ -61,6 +61,22 @@ jobs:
         run: node --test ops/silo-factory/cube-silo-economic-contract.test.mjs
       - name: Test revenue-evidence-gated CUBE scaler
         run: python3 -m unittest workers/economic/test_cube_swarm_scale_gate.py
+      - name: Test offline CUBE silo scaffold factory
+        run: python3 ops/silo-factory/test_silo_scaffold_generator.py
+      - name: Generate private CUBE silo scaffold preview pack
+        run: |
+          set -euo pipefail
+          out="$RUNNER_TEMP/cube-silo-scaffold"
+          python3 ops/silo-factory/generate_silo_scaffolds.py --output-dir "$out"
+          python3 -c 'import json,sys; p=json.load(open(sys.argv[1]+"/manifest-index.json",encoding="utf-8")); assert p["silo_count"] >= 30; assert p["candidate_scaffold_count"] == p["silo_count"]-1; assert p["verified_external_revenue_nzd"] == 0; assert not p["production_mutation"]; print("CUBE_SILO_SCAFFOLD_PACK=PASS_NOT_PROVISIONED",p["silo_count"],p["candidate_scaffold_count"])' "$out"
+      - name: Upload private CUBE scaffold artifact (not a deployment)
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cube-silo-scaffolds-${{ github.sha }}
+          path: ${{ runner.temp }}/cube-silo-scaffold
+          if-no-files-found: error
+          retention-days: 30
       - name: Verify CUBE silo registry consistency
         shell: pwsh
         run: .\BEC-PRIME\scripts\Verify-CUBE-SiloIsolation.ps1
