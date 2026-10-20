@@ -1,7 +1,7 @@
 {
   "schema": "dreamledger/free-provider-exit/v1",
   "status": "NOT_RUN",
-  "updated_at": "2026-10-20",
+  "updated_at": "2026-10-21",
   "objective": "Remove Render as a runtime/origin dependency and remove Supabase as an application database dependency without breaking the public storefront, MTG master silo, billboard/avatar surfaces, durable state, authentication boundaries, or Stripe settlement/fulfillment.",
   "target_stack": {
     "static_assets": "Cloudflare Pages",
@@ -89,19 +89,20 @@
     },
     {
       "id": "G02",
-      "name": "Inventory every persistent write before moving databases",
+      "name": "Inventory persistent writes and all-schema dependencies before selecting dump scope",
       "status": "NOT_RUN",
       "pass_evidence": [
-        "inventory of transaction JSON files",
-        "revenueLedger JSONL journals/events/fulfillment",
-        "proof files and first-payment proof",
-        "AgentBridgeEventLedger rows",
-        "DemandRadar observations",
-        "Sentinel proof",
-        "cube observations and any other Supabase tables"
+        "inventory of persistent transaction JSON, revenueLedger JSONL, journals/events/fulfillment, proof files, AgentBridgeEventLedger, DemandRadar, Sentinel, CUBE observations and all Supabase table consumers",
+        "all-schema inventory from PostgreSQL catalogs: namespaces, tables, views, materialized views, sequences, enum/domain types, extensions, functions/procedures, triggers, indexes, constraints, grants and dependencies",
+        "RLS enabled/forced flags and policies across all application schemas, including any custom policies or triggers attached to auth, storage and realtime objects",
+        "custom functions and triggers classified by owning schema and referenced tables/functions; cross-schema dependency graph retained",
+        "Supabase-managed internals explicitly separated from application-owned customizations; required replacement behavior specified before choosing target schema scope",
+        "Storage buckets and object inventory recorded separately from SQL dump scope, including owner/path/metadata and checksums when readable",
+        "scope decision recorded as include, reimplement, replace or exclude with a reason and proof reference before any export/import"
       ],
       "blocks": [
-        "Do not retire source storage until every write, read, retention requirement and recovery path is mapped."
+        "Do not choose a public-only dump or retire source storage until every custom cross-schema dependency, persistent write, read, retention requirement and recovery path is mapped.",
+        "Never restore Supabase-managed auth/storage internals blindly into Neon; recreate only application-owned behavior on the target platform."
       ],
       "human_action_required": false
     },
@@ -145,15 +146,17 @@
       "name": "Map local file-backed ledger to durable database transactions",
       "status": "NOT_RUN",
       "pass_evidence": [
-        "transactional tables for payment events, idempotency keys, orders, ledger journals, ledger entries, fulfillment and evidence",
-        "unique constraint for Stripe event IDs and transaction/session IDs",
-        "atomic payment + ledger + fulfillment state transition",
-        "duplicate webhook replay test",
-        "crash/retry recovery test",
-        "no production route writes to ephemeral local filesystem"
+        "transactional tables for payment events, unique event claims, idempotency keys, orders, ledger journals, ledger entries, fulfillment, delivery receipts and evidence",
+        "unique constraints for Stripe event IDs, checkout-session/payment IDs, fulfillment identity and deterministic outbox idempotency keys",
+        "signed webhook validation followed by one database transaction for durable event claim and all database ledger/order/payment state changes",
+        "external fulfillment delivered through a durable outbox with a stable idempotency key recognized by the fulfillment receiver; external effects are never assumed rolled back by a database rollback",
+        "duplicate webhook replay, concurrent duplicate delivery, crash/retry and outbox replay tests prove one fulfillment and one ledger effect",
+        "a deduplication claim is not deleted after an uncertain failure if any external side effect may already have occurred; reconcile or retry with the same idempotency key",
+        "no production route writes authoritative payment, fulfillment or proof state to an ephemeral local filesystem"
       ],
       "blocks": [
-        "Current Node runtime writes revenue journal, fulfillment, transaction and proof files locally. Workers local filesystem is not a durable substitute."
+        "Current Node runtime writes revenue journal, fulfillment, transaction and proof files locally. Workers local filesystem is not a durable substitute.",
+        "Deleting a deduplication record is safe only if the associated database changes and all associated external side effects are known to have rolled back; external fulfillment requires receiver-side idempotency or reconciliation."
       ],
       "human_action_required": false
     },
@@ -162,12 +165,12 @@
       "name": "Move app database access from Supabase to Neon",
       "status": "NOT_RUN",
       "pass_evidence": [
-        "enumeration of every Supabase REST/SQL/Auth/Storage call",
-        "Neon-compatible repository adapter",
-        "source data export and row-count/hash manifest",
-        "import followed by key-by-key or hash-based read-back",
-        "dual-run comparison without duplicated writes or buyer messages",
-        "rollback/export proof"
+        "enumeration of every Supabase REST/SQL/Auth/Storage/Realtime/Vault call and every SQL dependency from G02",
+        "Neon-compatible repository adapter plus explicit replacement of any required Auth/Storage/Realtime behavior",
+        "source data export and row-count/hash manifest scoped by the G02 dependency inventory",
+        "import followed by key-by-key or hash-based read-back, with cross-schema dependencies validated",
+        "dual-run comparison without duplicated writes, buyer messages or fulfillment",
+        "rollback/export proof and retained source backup"
       ],
       "blocks": [
         "Do not delete/pause the Supabase project before application reads, writes, scheduled jobs and recovery paths are proven independent of it."
@@ -204,8 +207,10 @@
         "GET / and /mtg/ return expected HTML",
         "GET /healthz returns the documented preview/production status",
         "GET /api/products and /api/offers match current published-only contract",
-        "MTG manifest/catalog and truth-oracle routes pass",
-        "GET /billboard and GET /mtg/ return the expected HTML on pages.dev",
+        "MTG manifest and /data/mtg-catalog.json parse with silo=mtg and currency=NZD",
+        "every product with status=published in the deployed MTG catalogue has a detail_url returning 200 HTML with the correct product identity and a working declared claim action",
+        "all published MTG catalogue routes are probed from the deployed catalogue itself, including directory-style /buy/ routes; held products are not represented as buyable",
+        "root /404.html exists and a unique nonexistent HTML path returns actual HTTP 404 with the not-found document, never the homepage/SPA body",
         "static assets bypass Functions so they do not consume the 100,000/day runtime quota",
         "GET /version SHA is identical to the deployed Git commit SHA"
       ],
@@ -235,11 +240,12 @@
       "name": "Stripe test-mode webhook and checkout acceptance",
       "status": "NOT_RUN",
       "pass_evidence": [
-        "test-mode signed webhook verification passes",
-        "invalid and stale signatures rejected",
-        "duplicate event replay is idempotent",
+        "test-mode signed webhook verification passes; invalid and stale signatures rejected",
+        "a unique durable claim for each Stripe event ID is enforced atomically with database-side order/payment/ledger state changes",
+        "duplicate and concurrent event replay return the prior outcome without duplicate entitlement or fulfillment",
+        "external fulfillment uses an idempotent durable outbox; failures before an external effect remain retryable, and uncertain outcomes are reconciled without deleting the event claim or creating a second delivery",
         "payment → attribution → ledger → fulfillment → retrievable delivery proof reconciles",
-        "event/outbox retry and crash/restart tests pass",
+        "event/outbox retry and crash/restart tests pass across process restart",
         "no secret or raw payment payload appears in logs"
       ],
       "blocks": [
@@ -424,5 +430,7 @@
     "proof/migration/persistence-migration-report.json",
     "proof/migration/stripe-test-mode-acceptance.json",
     "proof/migration/final-exit-acceptance.json"
-  ]
+  ],
+  "database_dump_scope_status": "NOT_SELECTED_PENDING_G02_DEPENDENCY_INVENTORY",
+  "database_scope_rule": "Never assume public is the complete application schema. First inventory all custom tables, views, sequences, types, functions, triggers, RLS policies, grants, extensions and cross-schema dependencies. Treat Supabase-managed auth/storage/realtime/vault objects separately from customizations that depend on them. Do not copy managed platform internals blindly into Neon; recreate or replace application-owned behaviors explicitly, and inventory Storage object data separately from SQL schema."
 }
