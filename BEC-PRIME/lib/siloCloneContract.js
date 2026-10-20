@@ -105,6 +105,32 @@ function validateSiloCloneContract(contract) {
     }
   }
 
+  const security = contract.security;
+  const requiredSecurityControls = [
+    'gauntlet_required',
+    'secret_scan_required',
+    'dependency_scan_required',
+    'silo_isolation_required',
+    'offline_first',
+    'signed_release_required',
+    'human_release_approval_required',
+    'local_worker_inbound_disabled',
+    'online_release_allowlist_only'
+  ];
+  if (!security || typeof security !== 'object' || Array.isArray(security)) {
+    add('SECURITY_CONTRACT_REQUIRED', 'Declare Gauntlet, supply-chain, silo-isolation, offline-first and release controls.');
+  } else {
+    for (const field of requiredSecurityControls) {
+      if (security[field] !== true) add('SECURITY_CONTROL_REQUIRED', 'security.' + field + ' must be explicitly true.');
+    }
+    const membrane = security.offline_online_membrane;
+    if (!membrane || membrane.directionality !== 'FIGURE_EIGHT' ||
+        membrane.online_to_offline !== 'QUARANTINED_INPUT_ONLY' ||
+        membrane.offline_to_online !== 'SIGNED_APPROVED_ARTIFACTS_ONLY') {
+      add('FIGURE_EIGHT_MEMBRANE_POLICY_REQUIRED', 'Online-to-offline inputs must be quarantined; offline-to-online outputs must be signed and explicitly approved.');
+    }
+  }
+
   const x402 = contract.x402;
   if (!x402 || typeof x402.enabled !== 'boolean') {
     add('X402_POLICY_REQUIRED', 'Declare x402.enabled explicitly; missing configuration must remain fail-closed.');
