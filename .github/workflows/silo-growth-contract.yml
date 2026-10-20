@@ -5,6 +5,8 @@ on:
     paths:
       - 'config/silo-growth-defaults.json'
       - 'BEC-PRIME/scripts/verify-silo-growth-contract.js'
+      - 'BEC-PRIME/scripts/render-silo-growth-promo.js'
+      - 'BEC-PRIME/scripts/render-silo-growth-promo.test.js'
       - 'docs/SILO_MARKETING_AND_DISTRIBUTION_TEMPLATE.md'
       - '.github/workflows/silo-growth-contract.yml'
   push:
@@ -12,6 +14,8 @@ on:
     paths:
       - 'config/silo-growth-defaults.json'
       - 'BEC-PRIME/scripts/verify-silo-growth-contract.js'
+      - 'BEC-PRIME/scripts/render-silo-growth-promo.js'
+      - 'BEC-PRIME/scripts/render-silo-growth-promo.test.js'
       - 'docs/SILO_MARKETING_AND_DISTRIBUTION_TEMPLATE.md'
       - '.github/workflows/silo-growth-contract.yml'
 
@@ -28,3 +32,5 @@ jobs:
           node-version: 22
       - name: Verify reusable silo growth contract
         run: node BEC-PRIME/scripts/verify-silo-growth-contract.js
+      - name: Test fail-closed creator support renderer
+        run: node --test BEC-PRIME/scripts/render-silo-growth-promo.test.js
