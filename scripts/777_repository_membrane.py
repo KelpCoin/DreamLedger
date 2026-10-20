@@ -107,7 +107,7 @@ def hydrate_lead(lead: dict[str, Any], fetch_json: Callable[[str], dict[str, Any
     repo = lead["source"]["repository_full_name"]
     base = "https://api.github.com/repos/" + repo
     metadata = fetch_json(base)
-    if metadata.get("_not_found") or metadata.get("private") is True or metadata.get("visibility") not in {"public", None}:
+    if metadata.get("_not_found") or metadata.get("private") is True or not (metadata.get("private") is False or metadata.get("visibility") == "public"):
         raise ValueError("repository is not confirmed publicly accessible")
     default_branch = metadata.get("default_branch")
     if not isinstance(default_branch, str) or not default_branch.strip():
@@ -134,7 +134,7 @@ def hydrate_lead(lead: dict[str, Any], fetch_json: Callable[[str], dict[str, Any
     original_assessment = lead["assessment"]
     recommendation = original_assessment["reuse_recommendation"]
     next_gate = original_assessment.get("next_gate") or "Review current compatibility, security, licence and operational cost."
-    if recommendation == "CODE_IMPORT_CANDIDATE" and license_status != "VERIFIED_PERMISSIVE":
+    if recommendation in {"CODE_IMPORT_CANDIDATE", "DEPENDENCY_CANDIDATE"} and license_status != "VERIFIED_PERMISSIVE":
         recommendation = "REFERENCE_ONLY"
         next_gate = "Licence is not confirmed as permissive; reference-only until a human verifies licence, security and compatibility."
     assessment = {
