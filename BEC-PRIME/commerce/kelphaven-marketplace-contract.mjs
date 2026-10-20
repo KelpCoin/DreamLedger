@@ -7,8 +7,8 @@
  * publication and any irreversible commercial action.
  */
 
-export const MARKETPLACE_NAME = "Kelphaven";
-export const MARKETPLACE_VERSION = "0.1.0-contract";
+export const MARKETPLACE_NAME = "Kelphaven.n";
+export const MARKETPLACE_VERSION = "0.2.0-evidence-gated-pipeline";
 
 export const PRODUCT_STATES = Object.freeze({
   DRAFT: "DRAFT",
