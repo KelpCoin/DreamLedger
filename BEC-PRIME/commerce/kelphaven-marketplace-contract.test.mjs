@@ -1,6 +1,11 @@
+test("uses the canonical Kelphaven.n name", () => {
+  assert.equal(MARKETPLACE_NAME, "Kelphaven.n");
+});
+
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
+  MARKETPLACE_NAME,
   proposePrice,
   judgeWithGauntlet,
   transitionTrade,
