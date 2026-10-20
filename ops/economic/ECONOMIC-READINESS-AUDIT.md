@@ -59,7 +59,7 @@ The intended implementation is **one shared marketplace contract with mandatory 
 
 ## CUBE scaling policy
 
-The manifest records the requested EPV policy (NZ$25 pruning floor, NZ$120 expansion threshold, 64-worker ceiling) as **proposed and not validated against a connected runtime**. Scaling is disabled. There is no claim that 64 worker processes exist.
+The manifest records the requested EPV policy (NZ$25 pruning floor, NZ$120 expansion threshold, 64-worker ceiling) as **proposed and not validated against a connected runtime**. Scaling is disabled. There is no claim that 64 worker processes exist. The added `ops/economic/cube_epv_gate.py` requires HMAC-SHA256 attestation for a reconciled ledger export, 20 settled-and-fulfilled transactions over at least 30 days, and explicit runtime/queue/fencing/replay/budget gates. It calculates net contribution EPV, emits `WOULD_*` decisions only, and has `APPLY_ENABLED = False`; it never invokes a worker provider. Without the trusted reconciler key and a live runtime, it returns `HOLD_NO_SCALE`.
 
 The EPV input must be measured net contribution: settled attributed revenue minus refunds, provider fees and variable fulfillment costs, divided by unique qualified visitors over a defined window. Pipeline value, predicted conversion, local simulation throughput, hashes alone and traffic volume cannot drive live expansion. A conservative proposal is to require at least 20 independently settled-and-fulfilled transactions over a 30-day window before expansion is considered, plus durable queue, fencing, tenant-boundary, worker health, budget and rollback evidence.
 
