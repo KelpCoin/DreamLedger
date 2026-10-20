@@ -91,6 +91,11 @@ function evaluateCustomizationEligibility(input) {
 
   const actualCardCount = cardCount(input.decklist);
   if (actualCardCount !== requirements.decklist_card_count) reasons.push('DECKLIST_CARD_COUNT_INVALID');
+  if (input.decklist && input.decklist.format && input.decklist.format !== 'commander') reasons.push('DECKLIST_FORMAT_INVALID');
+  if (input.decklist && input.decklist.commander && input.decklist.boards &&
+      (!Array.isArray(input.decklist.boards.commander) || !input.decklist.boards.commander.includes(input.decklist.commander))) {
+    reasons.push('COMMANDER_NOT_PRESENT_IN_DECKLIST');
+  }
   if (product.commander && input.decklist && input.decklist.commander !== product.commander) {
     reasons.push('DECKLIST_COMMANDER_MISMATCH');
   }
