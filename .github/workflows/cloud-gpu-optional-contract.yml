@@ -33,3 +33,10 @@ jobs:
           python-version: "3.12"
       - name: Verify cloud-first and optional GPU boundary
         run: python scripts/validate_cloud_gpu_optional.py
+      - name: Upload verifier proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: cloud-gpu-contract-proof-${{ github.run_id }}
+          path: artifacts/cloud-gpu-contract-proof.json
+          if-no-files-found: error
+          retention-days: 90
