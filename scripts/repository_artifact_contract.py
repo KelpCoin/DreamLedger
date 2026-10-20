@@ -108,7 +108,9 @@ def validate_packet(packet: Any) -> list[str]:
         errors.append("source.checked_at must be timezone-aware")
     if source.get("license_status") not in _LICENSE:
         errors.append("source.license_status must explicitly represent licence evidence or uncertainty")
-    if source.get("license_status") in {"UNKNOWN", "NOASSERTION", "VERIFIED_OTHER"} and packet.get("assessment", {}).get("reuse_recommendation") == "CODE_IMPORT_CANDIDATE":
+    packet_assessment = packet.get("assessment")
+    reuse_recommendation = packet_assessment.get("reuse_recommendation") if isinstance(packet_assessment, dict) else None
+    if source.get("license_status") in {"UNKNOWN", "NOASSERTION", "VERIFIED_OTHER"} and reuse_recommendation == "CODE_IMPORT_CANDIDATE":
         errors.append("code import requires a reviewed, compatible permissive licence")
 
     assessment = packet.get("assessment")
