@@ -10,14 +10,9 @@ import {
 } from "./kelphaven-marketplace-contract.mjs";
 
 const validCandidate = {
-  sku: "DEMO-001",
-  siloId: "mtg",
-  currency: "NZD",
-  unitCostNzd: 10,
-  transactionCostNzd: 1,
-  fulfilmentCostNzd: 2,
-  taxReserveNzd: 0,
-  targetMarginPct: 30,
+  sku: "DEMO-001", siloId: "mtg", currency: "NZD",
+  unitCostNzd: 10, transactionCostNzd: 1, fulfilmentCostNzd: 2,
+  taxReserveNzd: 0, targetMarginPct: 30,
   evidence: [{ source: "seller-cost-record:demo-1", retrievedAt: "2026-10-20T00:00:00Z", kind: "cost" }],
 };
 
@@ -35,42 +30,34 @@ test("pricing rejects missing evidence and fabricated costless candidates", () =
 });
 
 test("Gauntlet blocks without independent seller, silo, checkout and delivery checks", () => {
-  const proposal = proposePrice(validCandidate);
-  const verdict = judgeWithGauntlet(proposal);
+  const verdict = judgeWithGauntlet(proposePrice(validCandidate));
   assert.equal(verdict.verdict, "REJECT");
   assert.equal(verdict.mayPublish, false);
   assert.equal(verdict.mayClaimRevenue, false);
 });
 
 test("Gauntlet can only pass a proposal to human review, never publish", () => {
-  const proposal = proposePrice(validCandidate);
-  const verdict = judgeWithGauntlet(proposal, {
-    sellerVerified: true,
-    siloBoundaryPassed: true,
-    policyPassed: true,
-    checkoutVerified: true,
-    fulfillmentVerified: true,
+  const verdict = judgeWithGauntlet(proposePrice(validCandidate), {
+    sellerVerified: true, siloBoundaryPassed: true, policyPassed: true,
+    checkoutVerified: true, fulfillmentVerified: true,
   });
   assert.equal(verdict.verdict, "PASS_TO_HUMAN_REVIEW");
   assert.equal(verdict.mayPublish, false);
 });
 
-test("A2A and B2B trades require verified checkout, settlement and delivery receipts", () => {
+test("B2B and A2A trades require verified checkout, settlement and delivery receipts", () => {
   let result = transitionTrade({ id: "t1", buyerId: "buyer-a", state: TRADE_STATES.INTENT }, {
     type: "ACCEPT_OFFER", sellerId: "seller-b", offerId: "offer-1",
   });
   assert.equal(result.ok, true);
   result = transitionTrade(result.trade, { type: "CREATE_CHECKOUT", checkoutVerified: false });
   assert.equal(result.ok, false);
-
   result = transitionTrade(result.trade, { type: "CREATE_CHECKOUT", checkoutVerified: true, checkoutReference: "checkout-1" });
   assert.equal(result.trade.state, TRADE_STATES.PAYMENT_PENDING);
-  const blockedSettlement = transitionTrade(result.trade, {
+  assert.equal(transitionTrade(result.trade, {
     type: "VERIFY_SETTLEMENT", providerVerified: false, settled: true,
     paymentReference: "pay-1", webhookEventId: "evt-1",
-  });
-  assert.equal(blockedSettlement.ok, false);
-
+  }).ok, false);
   result = transitionTrade(result.trade, {
     type: "VERIFY_SETTLEMENT", providerVerified: true, settled: true,
     paymentReference: "pay-1", webhookEventId: "evt-1",
@@ -78,8 +65,7 @@ test("A2A and B2B trades require verified checkout, settlement and delivery rece
   assert.equal(result.trade.state, TRADE_STATES.PAID_VERIFIED);
   result = transitionTrade(result.trade, { type: "BEGIN_FULFILLMENT" });
   assert.equal(result.trade.state, TRADE_STATES.FULFILLMENT_PENDING);
-  const noReceipt = transitionTrade(result.trade, { type: "VERIFY_DELIVERY", delivered: true });
-  assert.equal(noReceipt.ok, false);
+  assert.equal(transitionTrade(result.trade, { type: "VERIFY_DELIVERY", delivered: true }).ok, false);
   result = transitionTrade(result.trade, {
     type: "VERIFY_DELIVERY", delivered: true, deliveryReceiptId: "receipt-1", recipientId: "buyer-a",
   });
@@ -94,21 +80,16 @@ test("self-trading is blocked", () => {
   assert.equal(result.error, "SELF_TRADE_BLOCKED");
 });
 
-test("unapproved, unpriced, or unverified products never enter public catalogue projection", () => {
+test("only published, Gauntlet-passed, human-approved products are projected", () => {
   const product = {
     sku: "DEMO-001", title: "Demo", priceNzd: 10, sellerId: "seller",
     siloId: "mtg", state: PRODUCT_STATES.READY_FOR_HUMAN_APPROVAL,
     gauntletVerdict: "PASS", humanApproved: true,
   };
   assert.equal(publicProductProjection(product), null);
-  assert.equal(publicProductProjection({ ...product, state: PRODUCT_STATES.PUBLISHED }), null);
-  assert.ok(publicProductProjection({
-    ...product, state: PRODUCT_STATES.PUBLISHED, priceNzd: 10,
-  }) === null); // explicit evidence verdict is still required
-  assert.deepEqual(publicProductProjection({
-    ...product, state: PRODUCT_STATES.PUBLISHED, priceNzd: 10,
-    gauntletVerdict: "PASS", humanApproved: true,
-  }), {
+  assert.equal(publicProductProjection({ ...product, state: PRODUCT_STATES.PUBLISHED, humanApproved: false }), null);
+  assert.equal(publicProductProjection({ ...product, state: PRODUCT_STATES.PUBLISHED, gauntletVerdict: "PENDING" }), null);
+  assert.deepEqual(publicProductProjection({ ...product, state: PRODUCT_STATES.PUBLISHED }), {
     sku: "DEMO-001", title: "Demo", priceNzd: 10, currency: "NZD",
     sellerId: "seller", siloId: "mtg", availability: "unknown",
     evidenceStatus: "UNVERIFIED_UNTIL_ORDER_RECONCILIATION",
