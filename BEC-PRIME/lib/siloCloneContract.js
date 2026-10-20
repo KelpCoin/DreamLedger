@@ -132,7 +132,30 @@ function validateSiloCloneContract(contract) {
   };
 }
 
-function validateCloneManifest(manifest) {
+function mergePolicy(base, override) {
+  if (!base || typeof base !== 'object' || Array.isArray(base)) return override;
+  const result = { ...base };
+  if (!override || typeof override !== 'object' || Array.isArray(override)) return result;
+  for (const [key, value] of Object.entries(override)) {
+    result[key] = value && typeof value === 'object' && !Array.isArray(value)
+      ? mergePolicy(result[key] || {}, value)
+      : value;
+  }
+  return result;
+}
+
+function buildContractForManifest(manifest, policyDefinition) {
+  const id = manifest && (manifest.slug || manifest.silo_id || manifest.silo_name);
+  if (typeof id !== 'string' || !id) return null;
+  const defaults = policyDefinition && policyDefinition.clone_contract_defaults;
+  if (!defaults || typeof defaults !== 'object') return null;
+  const overrides = (policyDefinition.silo_overrides && policyDefinition.silo_overrides[id]) || {};
+  const contract = mergePolicy(defaults, overrides);
+  contract.silo_id = id;
+  return contract;
+}
+
+function validateCloneManifest(manifest, contractOverride = null) {
   if (!manifest || typeof manifest !== 'object' || Array.isArray(manifest)) {
     const verdict = validateSiloCloneContract(null);
     verdict.errors.unshift({ code: 'CLONE_MANIFEST_OBJECT_REQUIRED', message: 'A clone manifest object is required.' });
@@ -140,7 +163,7 @@ function validateCloneManifest(manifest) {
     return verdict;
   }
 
-  const contract = manifest.clone_contract;
+  const contract = contractOverride || manifest.clone_contract;
   const verdict = validateSiloCloneContract(contract);
   const add = (code, message) => verdict.errors.push({ code, message });
   const manifestId = manifest.slug || manifest.silo_id || manifest.silo_name;
@@ -193,4 +216,4 @@ function createSignedVerdict(payload, privateKeyPem) {
   };
 }
 
-module.exports = { validateSiloCloneContract, validateCloneManifest, stableStringify, createSignedVerdict };
+module.exports = { validateSiloCloneContract, validateCloneManifest, buildContractForManifest, stableStringify, createSignedVerdict };
