@@ -1,0 +1,15 @@
+{
+  "name": "dreamledger-deterministic-quote-verifier",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {"start": "node server.js", "test": "node --test"},
+  "dependencies": {
+    "@x402/core": "^2.6.0",
+    "@x402/evm": "^2.6.0",
+    "@x402/express": "^2.6.0",
+    "@x402/extensions": "^2.6.0",
+    "canonicalize": "^2.1.0",
+    "express": "^5.1.0"
+  }
+}
