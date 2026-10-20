@@ -22,7 +22,13 @@
     "content": true,
     "promotion": true
   },
-  "capabilities_by_ref": ["catalog", "gauntlet", "commerce-spine", "news-carousel", "fossil"],
+  "capabilities_by_ref": [
+    "catalog",
+    "gauntlet",
+    "commerce-spine",
+    "news-carousel",
+    "fossil"
+  ],
   "inventory_policy": "empty_until_verified_supply",
   "payment_truth": "settled_payment_only",
   "browse_free": true,
@@ -30,11 +36,33 @@
   "success_fee_peer": 0,
   "currency": "NZD",
   "listing_template_ref": "AGENT_BUS/SILOS/MTG-LISTING-TEMPLATE.md",
-  "listing_fields_required": ["title", "condition", "finish", "price_nzd", "city", "meetup_or_post"],
-  "listing_fields_optional": ["photos", "language", "quantity", "bundle_discount", "trades_wanted"],
+  "listing_fields_required": [
+    "title",
+    "condition",
+    "finish",
+    "price_nzd",
+    "city",
+    "meetup_or_post"
+  ],
+  "listing_fields_optional": [
+    "photos",
+    "language",
+    "quantity",
+    "bundle_discount",
+    "trades_wanted"
+  ],
   "product_kinds": [
-    {"id": "single", "label": "Single", "primary": true},
-    {"id": "commander-deck", "label": "Commander deck", "detail_pattern": "/mtg/{slug}.html", "grid_capability": "card_image_grid"}
+    {
+      "id": "single",
+      "label": "Single",
+      "primary": true
+    },
+    {
+      "id": "commander-deck",
+      "label": "Commander deck",
+      "detail_pattern": "/mtg/{slug}.html",
+      "grid_capability": "card_image_grid"
+    }
   ],
   "clone": {
     "rule": "Clone shell + capability bindings. Never copy inventory. Never invent templates outside factory.",
@@ -46,7 +74,13 @@
       "Cube compile_candidate then gauntlet_check then publish_approval_gate",
       "Activate only with verified supply atom and buyer path"
     ],
-    "do_not_copy": ["product inventory rows", "customer data", "stripe credentials", "analytics identities", "other silo promotion"]
+    "do_not_copy": [
+      "product inventory rows",
+      "customer data",
+      "stripe credentials",
+      "analytics identities",
+      "other silo promotion"
+    ]
   },
   "gauntlet": {
     "accept_when": [
@@ -64,13 +98,83 @@
     ]
   },
   "surface": {
-    "hero_pills": ["Singles first", "0% success fee", "See the cards"],
-    "primary_cta": {"label": "Sell a single", "href_key": "list_route"},
-    "secondary_cta": {"label": "Browse decks", "href": "#decks"},
+    "hero_pills": [
+      "Singles first",
+      "0% success fee",
+      "See the cards"
+    ],
+    "primary_cta": {
+      "label": "Sell a single",
+      "href_key": "list_route"
+    },
+    "secondary_cta": {
+      "label": "Browse decks",
+      "href": "#decks"
+    },
     "community_blocks": [
-      {"title": "List a single", "body": "Name, condition, NZD price, city. Buyers see a clean card face — not a blurry album."},
-      {"title": "Buy with eyes open", "body": "Open lists for decks. Clear terms for singles. Confirm before you pay or ship."},
-      {"title": "Trade carefully", "body": "Accounts keep people reachable. Deals stay between humans who show up as themselves."}
+      {
+        "title": "List a single",
+        "body": "Name, condition, NZD price, city. Buyers see a clean card face — not a blurry album."
+      },
+      {
+        "title": "Buy with eyes open",
+        "body": "Open lists for decks. Clear terms for singles. Confirm before you pay or ship."
+      },
+      {
+        "title": "Trade carefully",
+        "body": "Accounts keep people reachable. Deals stay between humans who show up as themselves."
+      }
     ]
+  },
+  "clone_contract": {
+    "silo_id": "mtg",
+    "fee_policy": {
+      "platform_fee_bps": 0,
+      "zero_fee_override": true,
+      "policy": "PERMANENT_MTG_ZERO_PLATFORM_FEE"
+    },
+    "authorship": {
+      "declared_tier": "AAC",
+      "production_mode": "AI_ASSISTED",
+      "human_review_required": true
+    },
+    "support": {
+      "status": "NOT_CONFIGURED"
+    },
+    "content": {
+      "canonical_record_id": "public/silos/mtg/silo.json",
+      "public_cutoff": "NONE",
+      "paid_content_public_distribution": false
+    },
+    "measurement": {
+      "evidence_path": "BEC-PRIME/RUN-PROOFS/SILO-FACE-COMPILER-PROOF.json"
+    },
+    "commerce": {
+      "checkout_enabled": false,
+      "inventory_verified": false,
+      "fulfillment_contract_verified": false,
+      "settlement_required": true,
+      "delivery_proof_required": true
+    },
+    "x402": {
+      "enabled": false,
+      "live_approved": false
+    },
+    "security": {
+      "gauntlet_required": true,
+      "secret_scan_required": true,
+      "dependency_scan_required": true,
+      "silo_isolation_required": true,
+      "offline_first": true,
+      "signed_release_required": true,
+      "human_release_approval_required": true,
+      "local_worker_inbound_disabled": true,
+      "online_release_allowlist_only": true,
+      "offline_online_membrane": {
+        "directionality": "FIGURE_EIGHT",
+        "online_to_offline": "QUARANTINED_INPUT_ONLY",
+        "offline_to_online": "SIGNED_APPROVED_ARTIFACTS_ONLY"
+      }
+    }
   }
 }

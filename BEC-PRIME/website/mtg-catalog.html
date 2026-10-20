@@ -20,10 +20,19 @@
 @media(min-width:960px){.grid{grid-template-columns:1fr 1fr 1fr}}
 .deck{background:var(--silo-surface);border:1px solid var(--silo-line);border-radius:var(--silo-radius);overflow:hidden;display:flex;flex-direction:column;transition:border-color .15s,transform .15s}
 .deck:hover{border-color:rgba(216,181,107,.45);transform:translateY(-2px)}
-.deck-banner{height:88px;background:linear-gradient(135deg,#2a2418,#12151c 55%,#0e1520);display:flex;align-items:flex-end;justify-content:space-between;padding:12px 14px;gap:8px}
-.deck-banner span{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(232,200,122,.9)}
-.deck-banner .stock{font-size:10px;padding:4px 8px;border-radius:999px;background:rgba(61,155,110,.2);color:#8fd3a2;border:1px solid rgba(61,155,110,.35)}
+.deck-banner{position:relative;isolation:isolate;min-height:132px;background:linear-gradient(135deg,#2a2418,#12151c 55%,#0e1520);display:flex;align-items:flex-end;justify-content:space-between;padding:14px;gap:8px;overflow:hidden}
+.deck-banner.has-image{min-height:188px}
+.deck-banner .hero-art{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2}
+.deck-banner.has-image:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(7,9,14,.92),rgba(7,9,14,.46) 70%,rgba(7,9,14,.18));z-index:-1}
+.deck-banner .hero-copy{display:flex;flex-direction:column;gap:5px;max-width:75%}
+.deck-banner .hero-copy span{font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:rgba(232,200,122,.96)}
+.deck-banner .hero-copy strong{font-size:clamp(1rem,2.4vw,1.3rem);line-height:1.14;color:#fff;text-wrap:balance}
+.deck-banner .hero-copy p{margin:0;font-size:12px;line-height:1.4;color:rgba(255,255,255,.82)}
+.deck-banner .stock{flex-shrink:0;font-size:10px;padding:4px 8px;border-radius:999px;background:rgba(61,155,110,.2);color:#8fd3a2;border:1px solid rgba(61,155,110,.35);align-self:flex-start}
 .deck-banner .stock.out{background:rgba(239,146,146,.12);color:#ef9292;border-color:rgba(239,146,146,.3)}
+.deck-banner .stock.unknown{background:rgba(210,210,210,.1);color:#ddd;border-color:rgba(210,210,210,.28)}
+.deck .actions a.primary{background:linear-gradient(180deg,var(--silo-accent-bright),var(--silo-accent));color:#14120c}
+.deck .actions a.secondary{background:var(--silo-surface-2);border:1px solid var(--silo-line);color:var(--silo-ink)}
 .deck-body{padding:16px 16px 18px;display:flex;flex-direction:column;flex:1}
 .deck .tag{font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--silo-accent);margin-bottom:6px}
 .deck h3{font-family:var(--silo-serif);font-size:1.35rem;font-weight:400;margin:0 0 8px;letter-spacing:-.02em;line-height:1.15}
@@ -153,16 +162,35 @@
       }
       status.textContent=decks.length+' deck'+(decks.length===1?'':'s')+' · open a listing for the full card grid';
       grid.innerHTML=decks.map(p=>{
-        const price=Number(p.price)||0;
-        const detail=p.detail_url||'/mtg/';
-        const inv=Number(p.inventory)>0;
-        const stock=inv?'<span class="stock">In stock</span>':'<span class="stock out">—</span>';
+        const rawPrice=Number(p.price);
+        const unit=String(p.price_unit||'').toLowerCase();
+        const price=(Number.isFinite(rawPrice)?((unit==='minor'||unit==='cents')?rawPrice/100:rawPrice):null);
+        const priceText=price===null?'Price on listing':'NZ
+    }catch(e){
+      status.className='status-bar error';
+      status.textContent=e.message||'Load failed';
+    }
+  }
+  load();
+})();
+</script>
+</body>
+</html>
++price.toFixed(2);
+        const detail=p.detail_url||p.listing_url||p.claim_url||'/mtg/';
+        const image=[p.hero_image_url,p.image_url,p.imageUrl,p.image].find(v=>typeof v==='string'&&/^https:\/\//i.test(v))||'';
+        const title=typeof p.hero_headline==='string'&&p.hero_headline.trim()?p.hero_headline.trim():String(p.name||p.id||'MTG listing');
+        const summary=typeof p.hero_subtitle==='string'&&p.hero_subtitle.trim()?p.hero_subtitle.trim():String(p.description||'');
+        const badge=typeof p.hero_badge==='string'&&p.hero_badge.trim()?p.hero_badge.trim():(p.commander?'COMMANDER DECK':'MTG LISTING');
+        const verifiedInventory=p.inventory_verified===true;
+        const units=Number(p.inventory);
+        const inStock=verifiedInventory&&Number.isFinite(units)&&units>0;
+        const stock=inStock?'<span class="stock">Verified stock</span>':(verifiedInventory?'<span class="stock out">Out of stock</span>':'<span class="stock unknown">Availability unverified</span>');
         const cond=p.condition?('<span>'+esc(p.condition)+'</span>'):'';
         const cmd=p.commander?('<span>'+esc(p.commander)+'</span>'):'';
-        const buy=inv
-          ? '<a class="buy" href="'+esc(detail)+'">See cards &amp; buy · NZ$'+price+'</a>'
-          : '<a class="buy" href="'+esc(detail)+'" style="opacity:.65">View listing</a>';
-        return '<article class="deck" role="listitem"><div class="deck-banner"><span>Commander</span>'+stock+'</div><div class="deck-body"><div class="tag">'+(p.commander?esc(p.commander):'EDH')+'</div><h3>'+esc(p.name)+'</h3><p class="desc">'+esc(p.description||'')+'</p><div class="meta">'+cmd+cond+'<span>NZ shipping noted on listing</span></div><div class="price">NZ$'+price+'</div><div class="actions">'+buy+'<a class="see" href="'+esc(detail)+'">Open full card grid</a></div></div></article>';
+        const cta=typeof p.cta_label==='string'&&p.cta_label.trim()?p.cta_label.trim():(inStock?'See cards &amp; confirm':'View listing');
+        const art=image?'<img class="hero-art" src="'+esc(image)+'" alt="" loading="lazy" decoding="async">':'';
+        return '<article class="deck" role="listitem"><div class="deck-banner '+(image?'has-image':'')+'">'+art+'<div class="hero-copy"><span>'+esc(badge)+'</span><strong>'+esc(title)+'</strong>'+(summary?'<p>'+esc(summary)+'</p>':'')+'</div>'+stock+'</div><div class="deck-body"><h3>'+esc(p.name||p.id||'MTG listing')+'</h3><p class="desc">'+esc(p.description||'See the listing for card-by-card contents, condition and seller terms.')+'</p><div class="meta">'+cmd+cond+'<span>Confirm condition, shipping and seller terms before paying</span></div><div class="price">'+priceText+'</div><div class="actions"><a class="buy primary" href="'+esc(detail)+'">'+esc(cta)+'</a><a class="see secondary" href="'+esc(detail)+'">Open full card grid</a></div></div></article>';
       }).join('');
     }catch(e){
       status.className='status-bar error';
