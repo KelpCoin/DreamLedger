@@ -34,10 +34,21 @@ function getAjvValidators() {
   }
   let Ajv;
   try {
-    Ajv = require('ajv');
-  } catch (_)
-  {
-    return null;
+    // Both product and candidate schemas declare JSON Schema 2020-12.
+    // The default Ajv constructor is draft-07 and rejects their $schema URI.
+    Ajv = require('ajv/dist/2020');
+  } catch (error) {
+    // Preserve the existing dependency-optional fallback if Ajv is unavailable,
+    // but do not silently fall back to an incompatible default-draft constructor.
+    try {
+      require.resolve('ajv');
+      throw new Error('Ajv 2020-12 support is required but ajv/dist/2020 could not be loaded: ' + error.message);
+    } catch (resolveError) {
+      if (resolveError && resolveError.message && resolveError.message.indexOf('Ajv 2020-12 support is required') === 0) {
+        throw resolveError;
+      }
+      return null;
+    }
   }
   const ajv = new Ajv({ allErrors: true, strict: false });
   _ajvValidateProduct = ajv.compile(loadSchema('elohim-product.schema.json'));

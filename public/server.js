@@ -16,7 +16,7 @@ const PUBLIC_FILES={
   '/app.js':'app.js',
   '/sell.html':'sell.html','/sell':'sell.html','/sell/':'sell.html',
   '/billboard':'billboard.html','/billboard/':'billboard.html','/billboard.html':'billboard.html',
-  '/mtg':'mtg/master.html','/mtg/':'mtg/master.html','/mtg.html':'mtg/master.html',
+  '/mtg':'mtg/index.html','/mtg/':'mtg/index.html','/mtg.html':'mtg/index.html',
   '/demand-services':'demand-services.html','/demand-services/':'demand-services.html',
   '/fightedge':'fightedge/index.html','/fightedge/':'fightedge/index.html',
   '/commander-guide':'commander-guide.html','/commander-guide/':'commander-guide.html',
@@ -104,7 +104,7 @@ http.createServer(async (req,res)=>{
     return send(res,200,JSON.stringify({ok:true,service:'dreamledger-storefront'}),'application/json; charset=utf-8');
   }
   if(req.method==='GET'&&p==='/version'){
-    return send(res,200,JSON.stringify({service:'dreamledger-storefront',status:'ok',mtg:'master'}),'application/json; charset=utf-8');
+    return send(res,200,JSON.stringify({service:'dreamledger-storefront',status:'ok',mtg:'master',commit:COMMIT}),'application/json; charset=utf-8');
   }
   if(req.method==='GET' && (p==='/api/offers' || p==='/api/products')){
     try{

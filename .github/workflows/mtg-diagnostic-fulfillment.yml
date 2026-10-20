@@ -25,12 +25,20 @@ jobs:
         run: |
           $p = Get-Content BEC-PRIME/catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json -Raw | ConvertFrom-Json
           $f = Get-Content BEC-PRIME/fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json -Raw | ConvertFrom-Json
+          $entry = $f.entries.'COMMANDER-DECK-DIAGNOSTIC-001'
           if ($p.price -ne 29) { throw 'Commander diagnostic price contract failed' }
-          if ($p.fulfillment.mode -ne 'automated') { throw 'Automated fulfillment contract failed' }
-          if ($p.fulfillment.operator_required -ne $false) { throw 'Operator-free fulfillment contract failed' }
-          if ($f.entries.'COMMANDER-DECK-DIAGNOSTIC-001'.operator_required -ne $false) { throw 'Registry still requires operator' }
-          if ($f.entries.'COMMANDER-DECK-DIAGNOSTIC-001'.ready -ne $true) { throw 'Registry is not ready' }
-          Write-Host '[PASS] MTG diagnostic commercial and fulfillment contract'
+          if ($p.status -ne 'held') { throw 'Commander diagnostic must remain held pending proof' }
+          if ($p.inventory -ne 0) { throw 'Held diagnostic inventory must remain zero' }
+          if ($p.checkout.mode -ne 'disabled') { throw 'Held diagnostic checkout must remain disabled' }
+          if ($null -ne $p.checkout.url) { throw 'Held diagnostic must not expose a checkout URL' }
+          if ($p.commercial_truth.approval_required -ne $true) { throw 'Human approval gate must remain required' }
+          if ($p.commercial_truth.sellable -ne $false) { throw 'Held diagnostic must not be marked sellable' }
+          if ($p.fulfillment.mode -ne 'disabled') { throw 'Fulfillment must remain disabled until independently verified' }
+          if ($p.fulfillment.operator_required -ne $true) { throw 'Held diagnostic must require operator review' }
+          if ($entry.operator_required -ne $true) { throw 'Fulfillment registry must require operator review' }
+          if ($entry.ready -ne $false) { throw 'Fulfillment registry must not claim public readiness' }
+          if ($entry.reason -notmatch 'Held until settlement') { throw 'Fulfillment registry reason must explain the hold' }
+          Write-Host '[PASS] MTG diagnostic remains safely held until settlement, entitlement, and fulfillment are verified'
       - name: Compile MTG surface
         run: node BEC-PRIME/compiler/MTGCatalogCompiler.js
       - name: Verify CUBE MTG reskin

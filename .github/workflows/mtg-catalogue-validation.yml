@@ -1,56 +1,50 @@
-name: MTG catalogue validation
+name: MTG Catalogue Truth Validation
 
 on:
   pull_request:
     paths:
-      - "public/catalog.json"
-      - "mtg/**"
-      - "public/mtg/**"
-      - ".github/workflows/mtg-catalogue-validation.yml"
+      - 'public/server.js'
+      - 'public/catalog.json'
+      - 'public/data/mtg-catalog.json'
+      - 'public/mtg/**'
+      - 'BEC-PRIME/catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json'
+      - 'scripts/test-mtg-public-contract.js'
+      - 'scripts/verify-mtg-public-contract.js'
+      - '.github/workflows/mtg-catalogue-validation.yml'
   push:
     branches: [main]
     paths:
-      - "public/catalog.json"
-      - "mtg/**"
-      - "public/mtg/**"
-      - ".github/workflows/mtg-catalogue-validation.yml"
+      - 'public/server.js'
+      - 'public/catalog.json'
+      - 'public/data/mtg-catalog.json'
+      - 'public/mtg/**'
+      - 'BEC-PRIME/catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json'
+      - 'scripts/test-mtg-public-contract.js'
+      - 'scripts/verify-mtg-public-contract.js'
+      - '.github/workflows/mtg-catalogue-validation.yml'
+
+permissions:
+  contents: read
 
 jobs:
   validate-mtg-listings:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
-      - name: Validate catalogue records and buyer routes
-        run: |
-          node <<'NODE'
-          const fs = require('fs');
-          const catalog = JSON.parse(fs.readFileSync('public/catalog.json', 'utf8'));
-          const required = [
-            ['EDH_0001', null],
-            ['EDH_QUINTORIUS_0002', 'mtg/quintorius-field-historian.html'],
-            ['EDH_DWYNEN_0003', 'mtg/dwynen-gilt-leaf-daen.html']
-          ];
-          const products = catalog.products || [];
-          for (const [id, page] of required) {
-            const p = products.find(x => x.id === id);
-            if (!p || p.status !== 'published') throw new Error('Missing/unpublished MTG listing: ' + id);
-            if (page && !fs.existsSync(page)) throw new Error('Missing buyer route: ' + page);
-            if (id !== 'EDH_0001' && (p.checkout_available !== false || p.sale_mode !== 'claim_by_message' || !p.claim_url)) {
-              throw new Error('Claim-only deck must not claim direct checkout: ' + id);
-            }
-          }
-          const html = fs.readFileSync('mtg/index.html', 'utf8');
-          if (!html.includes('/public/catalog.json')) throw new Error('Root preview catalogue must use tracked public catalogue data');
-          const liveHtml = fs.readFileSync('public/mtg/index.html', 'utf8');
-          if (!liveHtml.includes("get('/catalog.json')")) throw new Error('Live public MTG page must load the tracked catalogue.json');
-          for (const page of ['public/mtg/quintorius-field-historian.html', 'public/mtg/dwynen-gilt-leaf-daen.html']) {
-            if (!fs.existsSync(page)) throw new Error('Missing deployed public route: ' + page);
-          }
-          if (!html.includes('EDH_QUINTORIUS_0002') || !html.includes('EDH_DWYNEN_0003')) throw new Error('Catalogue must prioritize the new decks');
-          for (const page of ['mtg/quintorius-field-historian.html', 'mtg/dwynen-gilt-leaf-daen.html']) {
-            const body = fs.readFileSync(page, 'utf8');
-            if (!body.includes('decklist') && !body.includes('decklist')) throw new Error('Missing decklist reference in ' + page);
-          }
-          console.log('MTG catalogue validation passed.');
-          NODE
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Test canonical MTG route, catalogue, and sales-hold contract
+        run: node --test scripts/test-mtg-public-contract.js
+      - name: Emit catalogue truth proof
+        run: node scripts/verify-mtg-public-contract.js --out proof/mtg-catalogue-truth.json
+      - name: Retain MTG catalogue truth proof
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: mtg-catalogue-truth-${{ github.run_id }}
+          path: proof/mtg-catalogue-truth.json
+          if-no-files-found: error
+          retention-days: 30
