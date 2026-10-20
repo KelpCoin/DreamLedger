@@ -2,11 +2,87 @@
   "schema_version": "CUBE-CLONE-CONTRACT-1.0",
   "source_repo": "KelpCoin/DreamLedger",
   "purpose": "Clone isolated commercial surfaces without copying private control-plane material.",
-  "allowed_silos": ["mtg", "crypto", "media_music", "digital_products"],
+  "allowed_silos": [
+    "mtg",
+    "crypto",
+    "media_music",
+    "digital_products"
+  ],
   "neutral_host": "dreamledger",
-  "isolation": {"catalog": true, "checkout": true, "analytics": true, "customer_data": true, "content": true, "promotion": true, "credentials": true},
-  "forbidden_source_paths": ["BEC-PRIME/catalog/ip-capabilities.json", ".env", ".env.*", "secrets", "private", "proofs/private"],
-  "required_inputs": ["silo_name", "product_name", "price_nzd", "stripe_product_id"],
+  "isolation": {
+    "catalog": true,
+    "checkout": true,
+    "analytics": true,
+    "customer_data": true,
+    "content": true,
+    "promotion": true,
+    "credentials": true
+  },
+  "forbidden_source_paths": [
+    "BEC-PRIME/catalog/ip-capabilities.json",
+    ".env",
+    ".env.*",
+    "secrets",
+    "private",
+    "proofs/private"
+  ],
+  "required_inputs": [
+    "silo_name",
+    "product_name",
+    "price_nzd",
+    "stripe_product_id"
+  ],
   "activation_rule": "Generation does not imply public activation. Deployment and promotion remain explicit operations.",
-  "money_claim_rule": "No revenue claim without verified payment evidence."
+  "money_claim_rule": "No revenue claim without verified payment evidence.",
+  "clone_contract_defaults": {
+    "fee_policy": {
+      "platform_fee_bps": 1500,
+      "zero_fee_override": false,
+      "policy": "DEFAULT_EXPLICIT_PER_SILO_RATE"
+    },
+    "authorship": {
+      "declared_tier": "AAC",
+      "production_mode": "AI_ASSISTED",
+      "human_review_required": true
+    },
+    "support": {
+      "status": "NOT_CONFIGURED"
+    },
+    "content": {
+      "canonical_record_id": "GENERATED_CLONE_MANIFEST",
+      "public_cutoff": "NONE",
+      "paid_content_public_distribution": false
+    },
+    "measurement": {
+      "evidence_path": "proofs/",
+      "required_economic_evidence": [
+        "independent_buyer",
+        "settled_payment",
+        "correct_attribution",
+        "fulfillment",
+        "delivery_proof",
+        "reconciliation"
+      ]
+    },
+    "commerce": {
+      "checkout_enabled": false,
+      "inventory_verified": false,
+      "fulfillment_contract_verified": false,
+      "settlement_required": true,
+      "delivery_proof_required": true
+    },
+    "x402": {
+      "enabled": false,
+      "live_approved": false
+    }
+  },
+  "silo_overrides": {
+    "mtg": {
+      "fee_policy": {
+        "platform_fee_bps": 0,
+        "zero_fee_override": true,
+        "policy": "PERMANENT_MTG_ZERO_PLATFORM_FEE"
+      }
+    }
+  }
 }
