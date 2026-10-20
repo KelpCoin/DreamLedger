@@ -1,0 +1,41 @@
+name: Elohim Enterprise Design Tokens
+
+on:
+  push:
+    branches: [main, "feat/**"]
+    paths:
+      - "BEC-PRIME/design/enterprise.tokens.json"
+      - "BEC-PRIME/compiler/DesignTokenCompiler.js"
+      - "package.json"
+      - "public/assets/dl-design-tokens.css"
+      - "public/assets/silo-master.css"
+      - "public/assets/dl-enterprise-grid.css"
+      - "index.html"
+      - "public/index.html"
+      - ".github/workflows/elohim-design-tokens.yml"
+  pull_request:
+    paths:
+      - "BEC-PRIME/design/enterprise.tokens.json"
+      - "BEC-PRIME/compiler/DesignTokenCompiler.js"
+      - "package.json"
+      - "public/assets/dl-design-tokens.css"
+      - "public/assets/silo-master.css"
+      - "public/assets/dl-enterprise-grid.css"
+      - "index.html"
+      - "public/index.html"
+      - ".github/workflows/elohim-design-tokens.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-and-compile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Validate DTCG tokens and generated CSS
+        run: node BEC-PRIME/compiler/DesignTokenCompiler.js

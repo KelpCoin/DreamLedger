@@ -1,0 +1,62 @@
+@import url("/assets/dl-design-tokens.css");
+
+/* Elohim enterprise grid: semantic values are token-backed, not page-invented. */
+body.dl-enterprise {
+  background: var(--dl-color-surface-base);
+  color: var(--dl-color-text-primary);
+  font-family: var(--dl-typography-font-family-sans);
+  font-size: var(--dl-typography-font-size-body);
+  line-height: var(--dl-typography-line-height-normal);
+}
+body.dl-enterprise a { color: var(--dl-color-accent-light); }
+body.dl-enterprise .wrap { width: min(var(--dl-layout-container-max), calc(100% - 32px)); margin-inline: auto; }
+body.dl-enterprise .top { gap: var(--dl-spacing-space-4); border-bottom: var(--dl-border-width-hairline) solid var(--dl-color-border-subtle); }
+body.dl-enterprise .brand { color: var(--dl-color-text-primary); font-family: var(--dl-typography-font-family-sans); letter-spacing: -.035em; }
+body.dl-enterprise nav { gap: var(--dl-spacing-space-2); }
+body.dl-enterprise nav a { color: var(--dl-color-text-secondary); }
+body.dl-enterprise nav a:hover { color: var(--dl-color-text-primary); }
+body.dl-enterprise .hero { padding-block: var(--dl-spacing-space-16) var(--dl-spacing-space-8); }
+body.dl-enterprise h1,
+body.dl-enterprise h2,
+body.dl-enterprise h3 { font-family: var(--dl-typography-font-family-sans); font-weight: var(--dl-typography-font-weight-semibold); }
+body.dl-enterprise h1 { max-width: 20ch; font-size: clamp(2rem, 5vw, 3.5rem); line-height: var(--dl-typography-line-height-tight); letter-spacing: -.04em; }
+body.dl-enterprise h2 { font-size: clamp(1.5rem, 3vw, var(--dl-typography-font-size-h1)); line-height: var(--dl-typography-line-height-tight); }
+body.dl-enterprise h3 { font-size: var(--dl-typography-font-size-h3); line-height: var(--dl-typography-line-height-tight); }
+body.dl-enterprise .eyebrow { color: var(--dl-color-accent-light); letter-spacing: .09em; }
+body.dl-enterprise .lede,
+body.dl-enterprise .section-lead,
+body.dl-enterprise .card p,
+body.dl-enterprise .money p { color: var(--dl-color-text-secondary); }
+body.dl-enterprise .grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--dl-layout-grid-min-card)), 1fr)); gap: var(--dl-spacing-space-4); }
+body.dl-enterprise .card,
+body.dl-enterprise .tool,
+body.dl-enterprise .lead,
+body.dl-enterprise .step,
+body.dl-enterprise .money,
+body.dl-enterprise .out { background: var(--dl-color-surface-raised); border: var(--dl-border-width-hairline) solid var(--dl-color-border-default); border-radius: var(--dl-border-radius-md); box-shadow: none; }
+body.dl-enterprise .card { padding: var(--dl-spacing-space-6); }
+body.dl-enterprise .card .tag,
+body.dl-enterprise .card .tag.free { color: var(--dl-color-accent-light); }
+body.dl-enterprise .money { padding: var(--dl-spacing-space-6); }
+body.dl-enterprise .btn { min-height: 48px; border-radius: var(--dl-border-radius-sm); border-color: var(--dl-color-border-default); color: var(--dl-color-text-primary); font-family: var(--dl-typography-font-family-sans); }
+body.dl-enterprise .btn.primary,
+body.dl-enterprise .btn.gold { background: var(--dl-color-accent-primary); border-color: var(--dl-color-accent-primary); color: var(--dl-color-text-on-accent); }
+body.dl-enterprise input,
+body.dl-enterprise textarea,
+body.dl-enterprise select,
+body.dl-enterprise .out { background: var(--dl-color-surface-overlay); color: var(--dl-color-text-primary); border-color: var(--dl-color-border-default); border-radius: var(--dl-border-radius-sm); }
+body.dl-enterprise label,
+body.dl-enterprise .small,
+body.dl-enterprise footer { color: var(--dl-color-text-muted); }
+body.dl-enterprise a:focus-visible,
+body.dl-enterprise button:focus-visible,
+body.dl-enterprise input:focus-visible,
+body.dl-enterprise textarea:focus-visible,
+body.dl-enterprise select:focus-visible { outline: var(--dl-border-width-strong) solid var(--dl-color-border-interactive); outline-offset: 2px; }
+@media (max-width: 720px) {
+  body.dl-enterprise .hero { padding-top: var(--dl-spacing-space-8); }
+  body.dl-enterprise .grid { grid-template-columns: minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) {
+  body.dl-enterprise *, body.dl-enterprise *::before, body.dl-enterprise *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
+}
