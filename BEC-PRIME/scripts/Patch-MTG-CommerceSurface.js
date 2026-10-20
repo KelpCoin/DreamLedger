@@ -8,24 +8,26 @@ const SOURCE = path.join(ROOT, 'website', 'mtg-catalog.html');
 const PROOF = path.join(ROOT, 'PROOF-MTG-COMMERCE-SURFACE.json');
 const MARKER = 'data-dreamledger-mtg-commerce-v2';
 
-function writeProof() {
+function writeProof(mode = 'PATCHED_OR_MARKED') {
+  const modern = mode === 'MODERN_SHELL_NOOP';
   const proof = {
     schema: 'BEC-PRIME/MTG-COMMERCE-SURFACE/v2',
     status: 'PASS',
+    mode,
     source: 'BEC-PRIME/website/mtg-catalog.html',
-    marker: MARKER,
+    marker: modern ? null : MARKER,
     route: '/mtg',
     aliases: ['/mtg', '/mtg/', '/MTG', '/MTG/'],
-    inventory_endpoint: '/api/products',
-    checkout_endpoint: '/api/offer-checkout/create',
-    horizontal_catalogue: true,
-    displays: ['image', 'name', 'price_nzd', 'availability', 'buy_button', 'condition_for_verified_singles_only'],
+    inventory_endpoint: modern ? '/data/mtg-catalog.json' : '/api/products',
+    checkout_endpoint: modern ? null : '/api/offer-checkout/create',
+    horizontal_catalogue: !modern,
+    displays: modern ? ['name', 'price_nzd', 'availability', 'listing_link'] : ['image', 'name', 'price_nzd', 'availability', 'buy_button', 'condition_for_verified_singles_only'],
+    notes: modern ? ['Modern catalog shell detected; legacy renderer patch was not applied.', 'Single-card inventory and end-to-end checkout remain separately unverified.'] : [],
     generated_at: new Date().toISOString()
   };
   fs.writeFileSync(PROOF, JSON.stringify(proof, null, 2) + '\n', 'utf8');
   console.log(JSON.stringify(proof, null, 2));
 }
-
 function patch() {
   let html = fs.readFileSync(SOURCE, 'utf8');
   if (html.includes(MARKER)) {
@@ -33,6 +35,13 @@ function patch() {
     return;
   }
   const original = html;
+  const modernShell = html.includes("const CATALOG='/data/mtg-catalog.json';")
+    && html.includes('async function load(){')
+    && html.includes('No verified deck supply listed yet.');
+  if (modernShell) {
+    writeProof('MODERN_SHELL_NOOP');
+    return;
+  }
 
   html = html.replace(
     '.rail{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;padding:10px 0 18px}',
