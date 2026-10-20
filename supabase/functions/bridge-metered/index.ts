@@ -50,6 +50,37 @@ async function sha256Utf8Async(value: string): Promise<string> {
 }
 
 const app = new Hono();
+
+// The payment middleware settles after the handler returns. This outer middleware
+// copies the facilitator-reported transaction reference into the delivery envelope
+// without changing the SHA-256 digest of the delivered text. Independent chain
+// reconciliation is still required, so this does not recognize revenue.
+app.use("*", async (c, next) => {
+  await next();
+  if (c.req.path !== "/v1/metered_inference" || !c.res || c.res.status >= 400) return;
+  const encoded = c.res.headers.get("PAYMENT-RESPONSE");
+  if (!encoded) return;
+  try {
+    const payment = JSON.parse(atob(encoded));
+    if (payment.success !== true) return;
+    const tx = payment.transaction || payment.txHash || payment.tx_hash || null;
+    if (typeof tx !== "string" || !/^0x[0-9a-fA-F]{64}$/.test(tx)) return;
+    const original = c.res;
+    const body = await original.clone().json();
+    if (!body || !body.delivery_receipt || !HASH_RE.test(body.delivery_receipt.payload_sha256 || "")) return;
+    body.delivery_receipt.settlement_tx_hash = tx;
+    body.delivery_receipt.settlement_finality = "FACILITATOR_REPORTED_SUCCESS_PENDING_INDEPENDENT_CHAIN_RECONCILIATION";
+    body.delivery_receipt.revenue_recognized = false;
+    c.res = new Response(JSON.stringify(body), {
+      status: original.status,
+      statusText: original.statusText,
+      headers: new Headers(original.headers)
+    });
+  } catch {
+    // Keep the original handler response if the optional receipt envelope is malformed.
+  }
+});
+
 const workerUrl = safeConfiguredWorkerUrl(WORKER_URL);
 const paymentReady = Boolean(ENABLED && PAY_TO && FACILITATOR_URL && workerUrl && WORKER_TOKEN);
 
