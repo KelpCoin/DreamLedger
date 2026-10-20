@@ -62,7 +62,7 @@
       "id": "async_task",
       "method": "POST",
       "path": "/v1/async_task",
-      "price": { "amount": "0.25", "currency": "USDC", "network": "eip155:8453", "scheme": "escrow" },
+      "price": { "amount": "0.25", "currency": "USDC", "network": "eip155:8453", "settlement_model": "onchain_escrow" },
       "settlement": {
         "model": "onchain_escrow",
         "release_condition": "independent_evaluator_approved_and_delivery_hash_verified",
