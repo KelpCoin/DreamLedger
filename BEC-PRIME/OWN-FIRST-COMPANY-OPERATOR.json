@@ -143,13 +143,13 @@
   "narrowing_chain": {
     "schema": "DREAMLEDGER/ECONOMIC-NARROWING-CHAIN/v1",
     "mode": "FIRST_EXTERNAL_PAYMENT",
-    "objective": "Obtain the first independently verified external payment with the smallest existing offer and no incremental spend.",
+    "objective": "Obtain the first independently verified external payment by resolving the existing billboard offer's checkout and fulfillment contract first, while building Magic: The Gathering as the canonical marketplace master silo and staging clone-ready marketplace verticals without provisioning unsupported production infrastructure.",
     "decision_rule": "Commit to one offer and one distribution channel for each experiment; do not expand scope before the evidence gate is evaluated.",
     "offer": {
-      "id": "QUOTE-COMPARE-49",
-      "name": "Supplier Quote Comparison",
-      "price_nzd": 49,
-      "source": "existing published offer; availability and checkout must be rechecked before distribution"
+      "id": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "name": "DreamLedger Founding Billboard Tile",
+      "price_nzd": 50,
+      "source": "Existing public billboard offer. The source product manifest currently declares checkout held with a null payment_link and missing secure intake, while the public HTML contains a Stripe checkout link. Treat the mismatch as a blocker, not as proof of a working paid-delivery path."
     },
     "channel": {
       "id": "DIRECT_BUYER_OUTREACH",
@@ -231,6 +231,23 @@
       "Do not multiply offers or channels until the current experiment has an evidence-backed result."
     ],
     "authority_boundary": "Planning may be autonomous. External messages, account actions, payments, and other consequential actions require existing authorization. This contract does not authorize sending or spending.",
-    "truth_boundary": "VERIFIED_EXTERNAL_REVENUE remains unchanged until all required independent evidence exists."
+    "truth_boundary": "VERIFIED_EXTERNAL_REVENUE remains unchanged until all required independent evidence exists.",
+    "mission_alignment": {
+      "order": [
+        "billboard_founder_tile_checkout_fulfillment_reconciliation",
+        "avatar_cosmetics_independent_checkout_and_delivery_proof",
+        "nz_mtg_master_silo_schema_rls_and_trade_lifecycle_proof",
+        "free_b2b_marketplace_route_and_tenant_isolation",
+        "clone_only_verticals_after_master_silo_acceptance"
+      ],
+      "seller_listing_fee_nzd": 0,
+      "marketplace_transaction_take_rate_pct_until_evidence_review": 0,
+      "b2b_listing_fee_nzd": 0,
+      "do_not_spawn_database_or_worker_infrastructure_per_vertical": true,
+      "cube_autoscaling_enabled_until_real_contribution_evidence": false,
+      "verified_revenue_nzd": 0,
+      "external_actions": "PREPARE_ONLY",
+      "truth_rule": "A visible Stripe URL, product catalog row, checkout initiation, test, simulation, or public page does not count as settled revenue or completed fulfillment."
+    }
   }
 }
