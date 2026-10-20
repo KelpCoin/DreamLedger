@@ -11,7 +11,12 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable
 
-from repository_artifact_contract import SCHEMA, canonical_packet_sha256, validate_packet
+try:
+    from repository_artifact_contract import SCHEMA, canonical_packet_sha256, validate_packet
+except ModuleNotFoundError:
+    # The CLI is run from scripts/, while unit tests may load this file by path.
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from repository_artifact_contract import SCHEMA, canonical_packet_sha256, validate_packet
 
 LEAD_SCHEMA = "dreamledger.777.repository-lead.v1"
 REPO_RE = re.compile(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$")
