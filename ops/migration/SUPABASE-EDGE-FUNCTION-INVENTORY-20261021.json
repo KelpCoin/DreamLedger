@@ -1,0 +1,264 @@
+{
+  "schema": "dreamledger/provider-dependency-inventory/v1",
+  "generated_at_utc": "2026-10-21T02:53:19.138Z",
+  "classification": "INTERNAL_MIGRATION_EVIDENCE",
+  "source_project": {
+    "project_ref": "wbwgroygjeyukkspnqiy",
+    "control_plane_status": "ACTIVE_HEALTHY",
+    "postgres_version": "17.6.1.127",
+    "region": "ap-southeast-1"
+  },
+  "source_sql_plane": {
+    "status": "BLOCKED",
+    "observed_error": "Supabase list_tables/list_migrations/execute_sql return ECONNREFUSED to IPv6 2406:da18:1691:a200::3484:5432",
+    "no_data_export_performed": true
+  },
+  "edge_functions": {
+    "listed_count": 66,
+    "inspected_count": 8,
+    "complete": false,
+    "items": [
+      {
+        "slug": "dreamledger-stripe-webhook",
+        "status": "ACTIVE",
+        "version": 5,
+        "verify_jwt": false,
+        "source_files": [
+          "index.ts",
+          "deno.json"
+        ],
+        "env_keys": [
+          "STRIPE_WEBHOOK_SECRET",
+          "SUPABASE_SERVICE_ROLE_KEY",
+          "SUPABASE_URL"
+        ],
+        "tables": [],
+        "rpc": [],
+        "storage_buckets": [],
+        "external_hosts": [],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": false,
+        "uses_stripe": false,
+        "uses_email": false
+      },
+      {
+        "slug": "dreamledger-stripe-webhook-v2",
+        "status": "ACTIVE",
+        "version": 6,
+        "verify_jwt": false,
+        "source_files": [
+          "index.ts"
+        ],
+        "env_keys": [],
+        "tables": [],
+        "rpc": [],
+        "storage_buckets": [],
+        "external_hosts": [],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": false,
+        "uses_stripe": false,
+        "uses_email": false
+      },
+      {
+        "slug": "dreamledger-stripe-webhook-v3",
+        "status": "ACTIVE",
+        "version": 13,
+        "verify_jwt": false,
+        "source_files": [
+          "index.ts"
+        ],
+        "env_keys": [
+          "STRIPE_API_KEY",
+          "STRIPE_SECRET_KEY",
+          "STRIPE_WEBHOOK_SECRET",
+          "SUPABASE_SERVICE_ROLE_KEY",
+          "SUPABASE_URL"
+        ],
+        "tables": [],
+        "rpc": [],
+        "storage_buckets": [],
+        "external_hosts": [],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": false,
+        "uses_stripe": true,
+        "uses_email": false
+      },
+      {
+        "slug": "dreamledger-billboard-webhook",
+        "status": "ACTIVE",
+        "version": 13,
+        "verify_jwt": false,
+        "source_files": [
+          "index.ts",
+          "import_map.json"
+        ],
+        "env_keys": [
+          "STRIPE_SECRET_KEY",
+          "STRIPE_WEBHOOK_SECRET",
+          "SUPABASE_SERVICE_ROLE_KEY",
+          "SUPABASE_URL"
+        ],
+        "tables": [],
+        "rpc": [],
+        "storage_buckets": [],
+        "external_hosts": [],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": false,
+        "uses_stripe": true,
+        "uses_email": false
+      },
+      {
+        "slug": "stripe-revenue-41104f355d6878cdd6d1f9dc",
+        "status": "ACTIVE",
+        "version": 28,
+        "verify_jwt": false,
+        "source_files": [
+          "index.ts",
+          "shared/marketplace-transfers.ts",
+          "deno.json"
+        ],
+        "env_keys": [
+          "STRIPE_API_KEY",
+          "STRIPE_SECRET_KEY",
+          "STRIPE_WEBHOOK_SECRET",
+          "STRIPE_WEBHOOK_SIGNING_SECRET",
+          "SUPABASE_SERVICE_ROLE_KEY",
+          "SUPABASE_URL"
+        ],
+        "tables": [
+          "control_reconciliations",
+          "economic_events",
+          "economic_execution_packets",
+          "event_ledger",
+          "fulfillment_requests",
+          "marketplace_listings",
+          "marketplace_order_items",
+          "marketplace_orders",
+          "marketplace_payments",
+          "marketplace_payouts",
+          "marketplace_seller_accounts",
+          "marketplace_transfers",
+          "revenue_catalog",
+          "revenue_entitlements",
+          "revenue_orders",
+          "skus",
+          "stripe_webhook_events"
+        ],
+        "rpc": [
+          "marketplace_settle_stripe_payment",
+          "queue_economic_fulfillment_job"
+        ],
+        "storage_buckets": [],
+        "external_hosts": [],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": false,
+        "uses_stripe": true,
+        "uses_email": false
+      },
+      {
+        "slug": "revenue-redeem-41104f355d6878cdd6d1f9dc",
+        "status": "ACTIVE",
+        "version": 6,
+        "verify_jwt": false,
+        "source_files": [
+          "index.ts"
+        ],
+        "env_keys": [
+          "SUPABASE_SERVICE_ROLE_KEY",
+          "SUPABASE_URL"
+        ],
+        "tables": [],
+        "rpc": [],
+        "storage_buckets": [],
+        "external_hosts": [],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": false,
+        "uses_stripe": false,
+        "uses_email": false
+      },
+      {
+        "slug": "revenue-submit-41104f355d6878cdd6d1f9dc",
+        "status": "ACTIVE",
+        "version": 6,
+        "verify_jwt": false,
+        "source_files": [
+          "index.ts"
+        ],
+        "env_keys": [
+          "SUPABASE_SERVICE_ROLE_KEY",
+          "SUPABASE_URL"
+        ],
+        "tables": [],
+        "rpc": [],
+        "storage_buckets": [],
+        "external_hosts": [],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": false,
+        "uses_stripe": false,
+        "uses_email": false
+      },
+      {
+        "slug": "economic-router",
+        "status": "ACTIVE",
+        "version": 5,
+        "verify_jwt": true,
+        "source_files": [
+          "index.ts"
+        ],
+        "env_keys": [
+          "SUPABASE_SERVICE_ROLE_KEY",
+          "SUPABASE_URL"
+        ],
+        "tables": [
+          "economic_actions",
+          "economic_candidate_assessments",
+          "economic_disagreements"
+        ],
+        "rpc": [],
+        "storage_buckets": [],
+        "external_hosts": [],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": false,
+        "uses_stripe": false,
+        "uses_email": false
+      }
+    ]
+  },
+  "storage_auth_realtime_inventory": {
+    "status": "NOT_COMPLETE",
+    "reason": "Management API lists edge functions, but storage bucket/auth/realtime SQL inventory depends on a reachable SQL data plane."
+  },
+  "neon_staging": {
+    "project_id": "falling-base-50259456",
+    "name": "dreamledger-migration-staging",
+    "verified_tables": [
+      "beck_recovery_events",
+      "commercial_evidence",
+      "commercial_offers",
+      "commercial_orders",
+      "commercial_payments",
+      "cortex_heartbeat"
+    ],
+    "source_data_imported": false
+  },
+  "gates": {
+    "G02": "PARTIAL_SOURCE_EDGE_FUNCTIONS_INVENTORY_IN_PROGRESS",
+    "G06": "BLOCKED_SOURCE_SQL_PLANE",
+    "G08": "BLOCKED_CLOUDFLARE_SECRETS",
+    "G16": "NOT_RUN",
+    "G17": "NOT_RUN"
+  },
+  "notes": [
+    "No production mutation performed.",
+    "Do not copy Supabase-managed auth/storage/realtime internals blindly.",
+    "Do not retire the source project or Render services until full schema/dependency inventory, data parity, deployment route tests, rollback, and production soak pass."
+  ]
+}
