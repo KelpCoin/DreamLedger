@@ -49,3 +49,17 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy dist/cloudflare-pages --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME }}
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+      - name: Verify deployed Pages routes and catalogue payloads
+        env:
+          CF_PAGES_PROJECT_NAME: ${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://${CF_PAGES_PROJECT_NAME}.pages.dev"
+          for route in / /mtg/ /catalog.json /data/mtg-catalog.json; do
+            code="$(curl -sS -L --max-time 30 -o /tmp/pages-route.body -w '%{http_code}' "$base$route")"
+            test "$code" = "200" || { echo "Route failed: $route HTTP $code"; exit 1; }
+          done
+          curl -fsS --max-time 30 "$base/catalog.json" -o /tmp/public-catalog.json
+          curl -fsS --max-time 30 "$base/data/mtg-catalog.json" -o /tmp/mtg-catalog.json
+          node -e 'for (const f of ["/tmp/public-catalog.json","/tmp/mtg-catalog.json"]) { const x=JSON.parse(require("fs").readFileSync(f,"utf8")); if(!Array.isArray(x.products)) throw Error("bad catalogue shape: "+f); const p=x.products.find(y=>y.id==="EDH_0001"); if(!p||p.status==="published"||Object.prototype.hasOwnProperty.call(p,"price")) throw Error("EDH_0001 is not safely held: "+f); }'
