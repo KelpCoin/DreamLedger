@@ -2,6 +2,12 @@ name: DreamLedger Cloudflare Migration Preview
 
 on:
   workflow_dispatch:
+  # GitHub cannot manually dispatch a workflow that does not exist on the
+  # default branch. This additional preview-only route stays on the PR branch
+  # and requires an explicit approval marker in the head commit message.
+  push:
+    branches:
+      - beck/provider-migration-neon-cloudflare-20261019
 
 permissions:
   contents: read
@@ -12,7 +18,10 @@ concurrency:
 
 jobs:
   deploy-and-probe-preview:
-    if: github.ref == 'refs/heads/beck/provider-migration-neon-cloudflare-20261019'
+    if: >-
+      github.ref == 'refs/heads/beck/provider-migration-neon-cloudflare-20261019' &&
+      (github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'push' && contains(github.event.head_commit.message, '[approve-cloudflare-preview]')))
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
@@ -50,6 +59,28 @@ jobs:
             exit 2
           fi
           echo "CLOUDFLARE_PREVIEW_CONFIGURATION=PASS"
+
+      - name: Verify Pages target is NOT the production branch
+        # Read-only Cloudflare API call. Never create a Pages project or alter a
+        # production branch from the migration candidate.
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          const account = process.env.CLOUDFLARE_ACCOUNT_ID;
+          const project = process.env.CLOUDFLARE_PAGES_PROJECT;
+          const token = process.env.CLOUDFLARE_API_TOKEN;
+          const u = 'https://api.cloudflare.com/client/v4/accounts/' +
+            encodeURIComponent(account) + '/pages/projects/' + encodeURIComponent(project);
+          const r = await fetch(u,{headers:{Authorization:'Bearer '+token}});
+          if (!r.ok) throw new Error('CLOUDFLARE_PAGES_PROJECT_PREFLIGHT_HTTP_'+r.status);
+          const j = await r.json();
+          if (!j.success || !j.result || !j.result.production_branch)
+            throw new Error('CLOUDFLARE_PRODUCTION_BRANCH_UNVERIFIED');
+          if (j.result.production_branch === 'provider-migration-preview')
+            throw new Error('BLOCKED_PREVIEW_BRANCH_IS_PRODUCTION_BRANCH');
+          console.log('CLOUDFLARE_BRANCH_ISOLATION=PASS');
+          NODE
 
       - name: Build fail-closed static preview bundle
         run: |

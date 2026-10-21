@@ -15,6 +15,7 @@ on:
       - "ops/migration/README.md"
       - "BEC-PRIME/catalog/featured-offer.json"
       - ".github/workflows/provider-migration-static-safety.yml"
+      - ".github/workflows/cloudflare-migration-preview.yml"
   push:
     branches:
       - beck/provider-migration-neon-cloudflare-20261019
@@ -30,6 +31,7 @@ on:
       - "ops/migration/README.md"
       - "BEC-PRIME/catalog/featured-offer.json"
       - ".github/workflows/provider-migration-static-safety.yml"
+      - ".github/workflows/cloudflare-migration-preview.yml"
 
 permissions:
   contents: read
@@ -55,6 +57,10 @@ jobs:
         run: |
           set -euo pipefail
           node -e 'const fs=require("fs"),assert=require("assert");const sql=fs.readFileSync("ops/migration/supabase-to-neon/preflight.sql","utf8").replace(/^--.*$/gm,"").trim();assert.match(sql,/^SELECT\b/i,"inventory must be a read-only SELECT");assert.doesNotMatch(sql,/\b(INSERT|UPDATE|DELETE|MERGE|DROP|ALTER|TRUNCATE|CREATE|GRANT|REVOKE)\b/i,"inventory must not contain mutating SQL");const ps=fs.readFileSync("ops/migration/supabase-to-neon/Export-Supabase-ForensicBackup.ps1","utf8");assert.match(ps,/pgRestore\.Source --list/,"backup must validate archive by listing only");assert.doesNotMatch(ps,/pg_restore.{0,80}(--clean|--create|--dbname)/i,"backup runner must not restore or mutate a target");assert(ps.includes("Get-FileHash")&&ps.includes("-Algorithm SHA256"),"backup must hash private output");assert(ps.includes("finally {")&&ps.includes("Remove-Item Env:PGPASSWORD"),"password must be cleared in finally");console.log("SOURCE_BACKUP_TOOLING_READ_ONLY=PASS")'
+      - name: Verify preview deployment cannot auto-run on an ordinary push
+        run: |
+          set -euo pipefail
+          node -e 'const fs=require("fs"),assert=require("assert");const y=fs.readFileSync(".github/workflows/cloudflare-migration-preview.yml","utf8");assert(y.includes("github.event_name == '\''workflow_dispatch'\''"));assert(y.includes("[approve-cloudflare-preview]"));assert(y.includes("github.ref == '\''refs/heads/beck/provider-migration-neon-cloudflare-20261019'\''"));assert(y.includes("BLOCKED_PREVIEW_BRANCH_IS_PRODUCTION_BRANCH"));assert(y.includes("CLOUDFLARE_BRANCH_ISOLATION=PASS"));console.log("PREVIEW_DISPATCH_APPROVAL_AND_BRANCH_ISOLATION=PASS")'
       - name: Build the non-production candidate and enforce catalogue safety
         run: node ops/migration/cloudflare-preview/build-preview.mjs
       - name: Confirm expected routes and honest degraded behavior
