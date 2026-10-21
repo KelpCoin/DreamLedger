@@ -151,8 +151,11 @@ def ingest_verified_payment(conn: sqlite3.Connection, payload: dict, *, signatur
             "stripe_signature_verified",
         ),
     )
-    # External revenue only if livemode AND caller marks external (default false for safety)
-    external = bool(payload.get("dreamledger_external_buyer")) and livemode
+    # A payment event cannot establish external buyer independence OR fulfillment.
+    # This ingestion stage deliberately records PAYMENT_ONLY and NEVER verified
+    # external revenue. A separate independent settlement + delivery evidence
+    # reconciler must attest the full commercial outcome.
+    external = False
     conn.execute(
         "INSERT INTO commercial_economic_events VALUES (?,?,?,?,?,?,?,?,?)",
         (
@@ -175,6 +178,7 @@ def ingest_verified_payment(conn: sqlite3.Connection, payload: dict, *, signatur
         "economic_event_id": econ_id,
         "counts_as_verified_external_revenue": external,
         "livemode": livemode,
+        "economic_state": "PAYMENT_ONLY_AWAITING_FULFILLMENT_PROOF" if livemode else "TEST_OR_UNVERIFIED",
     }
 
 
@@ -186,6 +190,9 @@ def main() -> None:
     p_ing.add_argument("path")
     p_ing.add_argument("--external", action="store_true")
     args = ap.parse_args()
+
+    if args.cmd == "ingest-fixture" and args.external:
+        ap.error("--external cannot certify revenue; independently verified delivery evidence is required")
 
     conn = connect()
     if args.cmd == "init-db":
