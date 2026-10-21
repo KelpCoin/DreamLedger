@@ -15,7 +15,7 @@
   },
   "edge_functions": {
     "listed_count": 66,
-    "inspected_count": 8,
+    "inspected_count": 16,
     "complete": false,
     "items": [
       {
@@ -227,6 +227,240 @@
         "uses_auth": false,
         "uses_realtime": false,
         "uses_storage": false,
+        "uses_stripe": false,
+        "uses_email": false
+      },
+      {
+        "slug": "economic-calibrate",
+        "status": "ACTIVE",
+        "version": 5,
+        "verify_jwt": true,
+        "source_hash": "491eb3500875770dc2b0fb3051ac6f3ac17c91c9b5b6167a82818db3961e0963",
+        "source_files": [
+          "index.ts"
+        ],
+        "env_keys": [
+          "SUPABASE_SERVICE_ROLE_KEY",
+          "SUPABASE_URL"
+        ],
+        "tables": [
+          "economic_calibration",
+          "economic_candidate_assessments",
+          "economic_outcomes"
+        ],
+        "rpc": [],
+        "storage_buckets": [],
+        "external_hosts": [],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": false,
+        "uses_stripe": false,
+        "uses_email": false
+      },
+      {
+        "slug": "truth-oracle-execute",
+        "status": "ACTIVE",
+        "version": 14,
+        "verify_jwt": false,
+        "source_hash": "c8c15580c35404f2805bce8786700bc0b5e39bc970faf55c9606f8a474b905b8",
+        "source_files": [
+          "index.ts"
+        ],
+        "env_keys": [
+          "STRIPE_SECRET_KEY",
+          "SUPABASE_SERVICE_ROLE_KEY",
+          "SUPABASE_URL"
+        ],
+        "tables": [
+          "economic_activation_auth",
+          "economic_demand_signals",
+          "economic_events",
+          "revenue_catalog",
+          "skus",
+          "stripe_webhook_observations",
+          "truth_oracle_claims",
+          "truth_oracle_evidence",
+          "truth_oracle_runs"
+        ],
+        "rpc": [],
+        "storage_buckets": [],
+        "external_hosts": [],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": false,
+        "uses_stripe": true,
+        "uses_email": false
+      },
+      {
+        "slug": "agent-bridge-proxy",
+        "status": "ACTIVE",
+        "version": 15,
+        "verify_jwt": false,
+        "source_hash": "81fce591da895c5239b0cbd11da317723bc4a782e52a632de75ca2c803d8883d",
+        "source_files": [
+          "index.ts"
+        ],
+        "env_keys": [
+          "SUPABASE_SECRET_KEYS",
+          "SUPABASE_SERVICE_ROLE_KEY",
+          "SUPABASE_URL"
+        ],
+        "tables": [],
+        "rpc": [],
+        "storage_buckets": [],
+        "external_hosts": [],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": false,
+        "uses_stripe": false,
+        "uses_email": false
+      },
+      {
+        "slug": "commerce-supervisor",
+        "status": "ACTIVE",
+        "version": 4,
+        "verify_jwt": true,
+        "source_hash": "1022142e13a5b8a8f2f218badc2d2975c4e32ce597df658e2f887d021a7a8ddc",
+        "source_files": [
+          "index.ts",
+          "deno.json"
+        ],
+        "env_keys": [
+          "SUPABASE_SERVICE_ROLE_KEY",
+          "SUPABASE_URL"
+        ],
+        "tables": [
+          "commerce_cell_state_events",
+          "commerce_cells",
+          "commerce_supervisor_runs",
+          "fulfillment_requests",
+          "revenue_orders"
+        ],
+        "rpc": [],
+        "storage_buckets": [],
+        "external_hosts": [
+          "esm.sh"
+        ],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": false,
+        "uses_stripe": false,
+        "uses_email": false
+      },
+      {
+        "slug": "maximona-fulfillment",
+        "status": "ACTIVE",
+        "version": 5,
+        "verify_jwt": true,
+        "source_hash": "46f27f367729f85aaba2138611e0f1b3f0e580a6dccfe3b1146077d9e61ecce0",
+        "source_files": [
+          "index.ts",
+          "deno.json"
+        ],
+        "env_keys": [
+          "SUPABASE_SERVICE_ROLE_KEY",
+          "SUPABASE_URL"
+        ],
+        "tables": [
+          "control_reconciliations",
+          "economic_events",
+          "evidence_artifacts",
+          "fulfillment_requests",
+          "revenue_entitlements",
+          "revenue_orders"
+        ],
+        "rpc": [],
+        "storage_buckets": [],
+        "external_hosts": [],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": false,
+        "uses_stripe": false,
+        "uses_email": false
+      },
+      {
+        "slug": "marketplace-diagnostic-input",
+        "status": "ACTIVE",
+        "version": 6,
+        "verify_jwt": false,
+        "source_hash": "786ef4f6bd36d9c635ebdea46f6cf635a6e132cd048b105d16a7c62b8364164b",
+        "source_files": [
+          "index.ts",
+          "deno.json"
+        ],
+        "env_keys": [
+          "STRIPE_API_KEY",
+          "STRIPE_SECRET_KEY",
+          "SUPABASE_SERVICE_ROLE_KEY",
+          "SUPABASE_URL"
+        ],
+        "tables": [
+          "marketplace_fulfillments"
+        ],
+        "rpc": [
+          "marketplace_submit_diagnostic_input"
+        ],
+        "storage_buckets": [],
+        "external_hosts": [],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": false,
+        "uses_stripe": true,
+        "uses_email": false
+      },
+      {
+        "slug": "marketplace-diagnostic-delivery",
+        "status": "ACTIVE",
+        "version": 11,
+        "verify_jwt": false,
+        "source_hash": "867bd7bad6f4c2c21f406a064b984a3bed6aa010ca4c5d23691e678dcb4e2e95",
+        "source_files": [
+          "index.ts",
+          "deno.json"
+        ],
+        "env_keys": [
+          "STRIPE_API_KEY",
+          "STRIPE_SECRET_KEY",
+          "SUPABASE_SERVICE_ROLE_KEY",
+          "SUPABASE_URL"
+        ],
+        "tables": [
+          "marketplace_orders"
+        ],
+        "rpc": [],
+        "storage_buckets": [],
+        "external_hosts": [],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": false,
+        "uses_stripe": true,
+        "uses_email": false
+      },
+      {
+        "slug": "marketplace-diagnostic-verify",
+        "status": "ACTIVE",
+        "version": 4,
+        "verify_jwt": true,
+        "source_hash": "9d8404fd399800c1c856fba624ada30a9a83975c1a749c446d33f1ffb3902700",
+        "source_files": [
+          "index.ts",
+          "deno.json"
+        ],
+        "env_keys": [
+          "SUPABASE_SERVICE_ROLE_KEY",
+          "SUPABASE_URL"
+        ],
+        "tables": [
+          "marketplace_fulfillments"
+        ],
+        "rpc": [
+          "marketplace_complete_diagnostic_fulfillment"
+        ],
+        "storage_buckets": [],
+        "external_hosts": [],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": true,
         "uses_stripe": false,
         "uses_email": false
       }
