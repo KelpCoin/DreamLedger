@@ -69,3 +69,33 @@ def test_verified_requires_full_join():
     )
     assert t.state_after is None
     assert t.missing_field == "evidence_joined"
+
+# Existing GitHub Actions invokes "python3 test_state_transition_engine.py".
+# Running a file of plain test_* functions does not execute those tests.
+# This runner makes that existing CI job assertion-bearing without a new workflow.
+if __name__ == "__main__":
+    import inspect
+    import importlib
+    import unittest
+    test_modules = [
+        "test_state_transition_engine",
+        "test_event_projection",
+        "test_production_observation_probe",
+        "test_stripe_observation_adapter",
+    ]
+    bare_executed = 0
+    for name in test_modules:
+        module = importlib.import_module(name)
+        cases = [(n, f) for n, f in vars(module).items()
+                 if n.startswith("test_") and inspect.isfunction(f)
+                 and len(inspect.signature(f).parameters) == 0]
+        if not cases:
+            raise SystemExit("ECONOMIC_TEST_MODULE_EMPTY:" + name)
+        for case_name, callback in sorted(cases):
+            callback()
+            bare_executed += 1
+    suite = unittest.defaultTestLoader.loadTestsFromName("test_dispatch_provenance_unittest")
+    result = unittest.TextTestRunner(verbosity=1).run(suite)
+    if not result.wasSuccessful() or result.testsRun < 10 or bare_executed < 10:
+        raise SystemExit("ECONOMIC_DISPATCH_TESTS_FAILED")
+    print("ECONOMIC_DISPATCH_TESTS_EXECUTED", bare_executed, result.testsRun)
