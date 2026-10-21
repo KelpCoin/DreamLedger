@@ -9,9 +9,9 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 [Console]::OutputEncoding = [System.Text.Encoding]::ASCII
 
-$RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\\..")).Path
-$RunDir = if (Test-Path "D:\\") { "D:\\BrownEyeCortex\\LAKE\\FIGURE8\\logs\\NORTH-STAR-SUPERVISOR" } else { Join-Path $RepoRoot "runtime\\lm_studio\\runs" }
-$ProofDir = if (Test-Path "D:\\") { "D:\\BrownEyeCortex\\LAKE\\FIGURE8\\proof\\NORTH-STAR-SUPERVISOR" } else { Join-Path $RepoRoot "runtime\\lm_studio\\runs" }
+$RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
+$RunDir = if (Test-Path "D:\") { "D:\BrownEyeCortex\LAKE\FIGURE8\logs\NORTH-STAR-SUPERVISOR" } else { Join-Path $RepoRoot "runtime\lm_studio\runs" }
+$ProofDir = if (Test-Path "D:\") { "D:\BrownEyeCortex\LAKE\FIGURE8\proof\NORTH-STAR-SUPERVISOR" } else { Join-Path $RepoRoot "runtime\lm_studio\runs" }
 New-Item -ItemType Directory -Force -Path $RunDir,$ProofDir | Out-Null
 
 $LmsPath = $null
@@ -23,23 +23,24 @@ if (-not $LmsPath) {
 }
 if (-not $LmsPath) {
     foreach ($candidate in @(
-        (Join-Path $env:USERPROFILE ".lmstudio\\bin\\lms.exe"),
-        (Join-Path $env:LOCALAPPDATA "Programs\\LM Studio\\resources\\app\\.webpack\\lms.exe"),
-        (Join-Path $env:LOCALAPPDATA "Programs\\LM Studio\\resources\\app\\.webpack\\bin\\lms.exe")
+        (Join-Path $env:USERPROFILE ".lmstudio\bin\lms.exe"),
+        (Join-Path $env:LOCALAPPDATA "Programs\LM Studio\resources\app\.webpack\lms.exe"),
+        (Join-Path $env:LOCALAPPDATA "Programs\LM Studio\resources\app\.webpack\bin\lms.exe")
     )) {
         if (Test-Path -LiteralPath $candidate) { $LmsPath = $candidate; break }
     }
 }
 if (-not $LmsPath) { throw "LM Studio CLI 'lms' not found. Install LM Studio and make its CLI available first." }
 
-$Python = Get-Command python.exe -ErrorAction SilentlyContinue
-if (-not $Python -and (Test-Path "C:\\Python314\\python.exe")) { $Python = Get-Item "C:\\Python314\\python.exe" }
-if (-not $Python) { $Python = Get-Command python -ErrorAction SilentlyContinue }
-if (-not $Python) { throw "Python was not found. No models, packages, or runtimes were downloaded." }
+$PythonCommand = Get-Command python.exe -ErrorAction SilentlyContinue
+$PythonPath = if ($PythonCommand) { $PythonCommand.Source } else { $null }
+if (-not $PythonPath -and (Test-Path "C:\Python314\python.exe")) { $PythonPath = "C:\Python314\python.exe" }
+if (-not $PythonPath) { $PythonCommand = Get-Command python -ErrorAction SilentlyContinue; if ($PythonCommand) { $PythonPath = $PythonCommand.Source } }
+if (-not $PythonPath) { throw "Python was not found. No models, packages, or runtimes were downloaded." }
 
-$Controller = Join-Path $RepoRoot "runtime\\lm_studio\\economic_swarm_controller.py"
-$Supervisor = Join-Path $RepoRoot "runtime\\lm_studio\\north_star_supervisor.py"
-$Audit = Join-Path $RepoRoot "runtime\\lm_studio\\north_star_priority_audit.py"
+$Controller = Join-Path $RepoRoot "runtime\lm_studio\economic_swarm_controller.py"
+$Supervisor = Join-Path $RepoRoot "runtime\lm_studio\north_star_supervisor.py"
+$Audit = Join-Path $RepoRoot "runtime\lm_studio\north_star_priority_audit.py"
 foreach ($required in @($Controller,$Supervisor,$Audit)) {
     if (-not (Test-Path -LiteralPath $required -PathType Leaf)) { throw "Required local runtime file missing: $required" }
 }
@@ -95,8 +96,10 @@ function Ensure-LocalServer {
     }
     $serverStatus = $null
     try { $serverStatus = Get-LmsJson @("server","status","--json","--quiet") } catch {}
-    if ($serverStatus -and $serverStatus.running -and $serverStatus.port -and [int]$serverStatus.port -ne 1234) {
-        throw ("LM Studio is already serving on port {0}. Refusing to start a second server or guess a replacement port." -f $serverStatus.port)
+    $serverRunning = (Get-Field $serverStatus @("running")) -eq "true"
+    $serverPort = Get-Field $serverStatus @("port")
+    if ($serverStatus -and $serverRunning -and $serverPort -and [int]$serverPort -ne 1234) {
+        throw ("LM Studio is already serving on port {0}. Refusing to start a second server or guess a replacement port." -f $serverPort)
     }
     $null = Invoke-Lms -Arguments @("server","start","--port","1234")
     for ($n=0; $n -lt 60; $n++) {
@@ -120,11 +123,11 @@ $env:DREAMLEDGER_LOCAL_ONLY = "1"
 $env:DREAMLEDGER_ALLOW_REMOTE_READS = "0"
 $env:LM_STUDIO_BASE_URL = "http://127.0.0.1:1234"
 $env:DREAMLEDGER_ROOT = $RepoRoot
-if (Test-Path "D:\\") { $env:BROWNEYE_ROOT = "D:\\BrownEyeCortex" }
+if (Test-Path "D:\") { $env:BROWNEYE_ROOT = "D:\BrownEyeCortex" }
 
-& $Python.Source $Supervisor --self-test
+& $PythonPath $Supervisor --self-test
 if ($LASTEXITCODE -ne 0) { throw "North Star supervisor offline self-test failed." }
-& $Python.Source $Audit --self-test
+& $PythonPath $Audit --self-test
 if ($LASTEXITCODE -ne 0) { throw "North Star priority audit offline self-test failed." }
 
 Ensure-LocalServer
@@ -199,8 +202,8 @@ Write-Host ("LOCAL_ONLY=TRUE")
 Write-Host ("BOOT_PROOF=" + $proofPath)
 
 if ($Once) {
-    & $Python.Source -u $Controller --once
+    & $PythonPath -u $Controller --once
     exit $LASTEXITCODE
 }
-& $Python.Source -u $Supervisor --interval-seconds $IntervalSeconds --cycle-timeout-seconds $CycleTimeoutSeconds
+& $PythonPath -u $Supervisor --interval-seconds $IntervalSeconds --cycle-timeout-seconds $CycleTimeoutSeconds
 exit $LASTEXITCODE
