@@ -1,0 +1,47 @@
+name: North Star Local Runtime Contract
+
+on:
+  pull_request:
+    paths:
+      - "runtime/lm_studio/**"
+      - ".github/workflows/north-star-local-runtime-contract.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  local-runtime-contract:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Parse PowerShell 5.1 scripts
+        shell: powershell
+        run: |
+          $ErrorActionPreference = "Stop"
+          $files = @(
+            "runtime/lm_studio/Start-NorthStarLocal.ps1",
+            "runtime/lm_studio/Install-NorthStarSupervisorTask.ps1"
+          )
+          foreach ($file in $files) {
+            $tokens = $null
+            $parseErrors = $null
+            $null = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $PWD $file), [ref]$tokens, [ref]$parseErrors)
+            if ($parseErrors -and $parseErrors.Count -gt 0) {
+              $parseErrors | Format-List | Out-String | Write-Host
+              throw "PowerShell parse failed: $file"
+            }
+            Write-Host "POWERSHELL_PARSE_PASS=$file"
+          }
+      - name: Run offline-only audit self-test
+        shell: pwsh
+        run: python runtime/lm_studio/north_star_priority_audit.py --self-test
+      - name: Run local-runtime contract tests
+        shell: pwsh
+        run: python -m unittest discover -s runtime/lm_studio -p "test_local_northstar_contract.py" -v
