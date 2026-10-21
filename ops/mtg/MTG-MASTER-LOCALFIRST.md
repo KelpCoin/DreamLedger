@@ -53,3 +53,13 @@ Example is fixture syntax only. Do **not** treat the example URL or price as a m
 A: import real scans -> B: identify exact printing and inspect stock -> C: verify condition/photos and approved price -> D: stage private catalogue JSON -> E: approve listing to MTG only -> F: demonstrate buyer inquiry, payment and fulfill/delivery evidence. Source Supabase is currently storage exhausted; don't migrate by dumping a failed server or deleting WAL. Use new local-first inventory independently while source recovery is handled via support.
 
 Verifier: `python -m unittest discover -s tests -p test_mtg_market_kernel.py -v` and `Run-MTG.ps1 -Verify` after a boot.
+
+The PowerShell installer also searches Downloads, Documents and Desktop for CSV/TSV/TXT exports with filenames containing `ManaBox`, `mtg scan`, `magic inventory` or `card scan`, within a 25MB per-file cap. It copies matching files into the local private inbox under a content-hash filename. It does not delete or edit originals, and it never publishes the resulting drafts. If no matching file is found, the inbox stays empty until you copy your raw dump there.
+
+## Optional high-volume identification without API rate-limit abuse
+
+For a large ManaBox inventory, use Scryfall's freely available *bulk default cards* JSONL.gz file, downloaded from Scryfall's official bulk-data endpoint into your private machine. Once the file is present, run:
+
+`python ops/mtg/mtg_market_kernel.py --db DBPATH enrich --bulk PATH_TO_DEFAULT_CARDS.jsonl.gz --out OUTPATH`
+
+This performs one offline streaming pass by exact set + collector number + matching card name/finish and only records matching Scryfall UUIDs. It cannot verify that a physical card exists, its condition, seller ownership, or its market price. This is optional because large data downloads need available storage and bandwidth. No Scryfall API calls are performed during the default import.
