@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import pathlib
 import re
 from datetime import datetime, timezone
@@ -178,6 +179,9 @@ def main():
     p.add_argument("--input", required=True, help="Owner-authorized signal JSON file")
     p.add_argument("--output", required=True, help="Private draft proof JSON")
     p.add_argument("--verify", action="store_true")
+    p.add_argument("--local-model", action="store_true", help="Opt-in localhost LM Studio only")
+    p.add_argument("--lmstudio-base", default="", help="Discovered localhost LM Studio base URL")
+    p.add_argument("--model-id", default="", help="Actual model id from /v1/models")
     a = p.parse_args()
     if a.verify:
         print(json.dumps({"verified": verify_packet(a.output)}))
@@ -185,7 +189,18 @@ def main():
     src = pathlib.Path(a.input)
     if src.stat().st_size > 65536:
         raise ValueError("INPUT_TOO_LARGE")
-    packet = build_draft(json.loads(src.read_text(encoding="utf-8")))
+    signal = json.loads(src.read_text(encoding="utf-8"))
+    packet = build_draft(signal)
+    if a.local_model:
+        from lmstudio_copy_adapter import draft_from_local_model
+        endpoint = a.lmstudio_base or os.environ.get("LM_STUDIO_BASE_URL", "")
+        if not endpoint:
+            raise ValueError("LOCAL_ENDPOINT_DISCOVERY_REQUIRED")
+        content, model_id = draft_from_local_model(signal, endpoint, a.model_id)
+        packet["content"] = content
+        packet["content_sha256"] = hashlib.sha256(content.encode("utf-8")).hexdigest()
+        packet["model_observation"] = {"provider": "LM_STUDIO_LOOPBACK", "model_id": model_id}
+        # A real local inference does not authorize publication or payment.
     digest = save_packet(packet, a.output)
     print(json.dumps({"status": packet["status"], "sha256": digest, "path": a.output}))
 
