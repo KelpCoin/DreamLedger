@@ -1,0 +1,23 @@
+{
+  "schema": "dreamledger/migration-state/v1",
+  "status": "MIGRATION_IN_PROGRESS",
+  "source": {
+    "render": "ACTIVE_OR_SUSPENDED_BY_SERVICE",
+    "supabase_project_ref": "wbwgroygjeyukkspnqiy",
+    "supabase_control_plane_status": "ACTIVE_HEALTHY",
+    "database_connectivity": "ECONNREFUSED_DURING_AUDIT"
+  },
+  "targets": {
+    "cloudflare_pages": "NOT_DEPLOYED_CREDENTIALS_AND_PROJECT_UNVERIFIED",
+    "cloudflare_workers": "NOT_DEPLOYED",
+    "cloudflare_r2": "NOT_PROVISIONED",
+    "neon": "NO_PROJECT_FOUND"
+  },
+  "commercial_safety": {
+    "mtg_edh_0001": "HELD_PRICE_UNOBSERVABLE",
+    "commander_diagnostic": "HELD",
+    "stripe_payment_link_deactivation": "UNCONFIRMED"
+  },
+  "decommission_permitted": false,
+  "reason": "No source backup, target import, auth/storage migration, production route acceptance, or remote Stripe link deactivation has been proven."
+}
