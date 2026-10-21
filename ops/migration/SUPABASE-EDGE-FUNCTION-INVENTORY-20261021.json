@@ -15,7 +15,7 @@
   },
   "edge_functions": {
     "listed_count": 66,
-    "inspected_count": 48,
+    "inspected_count": 56,
     "complete": false,
     "items": [
       {
@@ -1392,6 +1392,220 @@
           "economic_activation_auth",
           "gtm_opportunities"
         ],
+        "rpc": [],
+        "storage_buckets": [],
+        "external_hosts": [],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": false,
+        "uses_stripe": false,
+        "uses_email": false
+      },
+      {
+        "slug": "figure-eight-esrt-worker",
+        "status": "ACTIVE",
+        "version": 4,
+        "verify_jwt": false,
+        "source_hash": "f5912e6f26ac63217c8ff19f5e9b07a23421be133cb28fb62f193fe4194ce271",
+        "source_files": [
+          "index.ts"
+        ],
+        "env_keys": [
+          "FIGURE_EIGHT_WORKER_KEY",
+          "SUPABASE_SERVICE_ROLE_KEY",
+          "SUPABASE_URL"
+        ],
+        "tables": [],
+        "rpc": [
+          "figure_eight_esrt_api"
+        ],
+        "storage_buckets": [],
+        "external_hosts": [],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": false,
+        "uses_stripe": false,
+        "uses_email": false
+      },
+      {
+        "slug": "economic-assessment-consumer",
+        "status": "ACTIVE",
+        "version": 7,
+        "verify_jwt": true,
+        "source_hash": "35bd17b1b3bb2342b4abab54c2b735f7484642fe161737666c2256b5da36fd18",
+        "source_files": [
+          "index.ts"
+        ],
+        "env_keys": [
+          "ECONOMIC_BASE_LUNA",
+          "SUPABASE_SERVICE_ROLE_KEY",
+          "SUPABASE_URL"
+        ],
+        "tables": [
+          "control_bridge_notes",
+          "economic_model_tasks"
+        ],
+        "rpc": [
+          "claim_economic_control_bridge_note",
+          "complete_control_bridge_note",
+          "record_fenced_economic_assessment"
+        ],
+        "storage_buckets": [],
+        "external_hosts": [
+          "api.anthropic.com",
+          "api.deepseek.com",
+          "api.openai.com",
+          "api.x.ai"
+        ],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": false,
+        "uses_stripe": false,
+        "uses_email": false
+      },
+      {
+        "slug": "n8n-automation-rescue-worker-test",
+        "status": "ACTIVE",
+        "version": 4,
+        "verify_jwt": true,
+        "source_hash": "b7e1b434ac6ccd12e6271ee0dda88f92ded28d6caf8b30061f8844bdfb76cfe7",
+        "source_files": [
+          "index.ts",
+          "deno.json"
+        ],
+        "env_keys": [],
+        "tables": [],
+        "rpc": [],
+        "storage_buckets": [],
+        "external_hosts": [],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": false,
+        "uses_stripe": false,
+        "uses_email": false
+      },
+      {
+        "slug": "truth-oracle-public",
+        "status": "ACTIVE",
+        "version": 5,
+        "verify_jwt": false,
+        "source_hash": "c888e5f5f5c4180d33424c123fed4a4dbc532a4bf2cc04ab7bda58cb5d6e57fa",
+        "source_files": [
+          "index.ts",
+          "deno.json"
+        ],
+        "env_keys": [
+          "SUPABASE_SERVICE_ROLE_KEY",
+          "SUPABASE_URL"
+        ],
+        "tables": [
+          "truth_oracle_claims",
+          "truth_oracle_evidence"
+        ],
+        "rpc": [],
+        "storage_buckets": [],
+        "external_hosts": [],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": false,
+        "uses_stripe": false,
+        "uses_email": false
+      },
+      {
+        "slug": "truth-oracle-fuel-public",
+        "status": "ACTIVE",
+        "version": 4,
+        "verify_jwt": false,
+        "source_hash": "ca4a94c67b8f73f78b202efc73e3d0b4346442c820f36ddcf4e8059b75f021a3",
+        "source_files": [
+          "index.ts",
+          "deno.json"
+        ],
+        "env_keys": [
+          "SUPABASE_ANON_KEY",
+          "SUPABASE_URL"
+        ],
+        "tables": [
+          "truth_oracle_public_latest_fuel"
+        ],
+        "rpc": [],
+        "storage_buckets": [],
+        "external_hosts": [],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": false,
+        "uses_stripe": false,
+        "uses_email": false
+      },
+      {
+        "slug": "truth-oracle-fuel-ingest",
+        "status": "ACTIVE",
+        "version": 4,
+        "verify_jwt": true,
+        "source_hash": "8e7d233b08a0b37d31309e1c19661f74e154a647f496b3ea0493c567ead60c42",
+        "source_files": [
+          "index.ts",
+          "deno.json"
+        ],
+        "env_keys": [
+          "SUPABASE_SERVICE_ROLE_KEY",
+          "SUPABASE_URL"
+        ],
+        "tables": [
+          "truth_oracle_public_observations"
+        ],
+        "rpc": [],
+        "storage_buckets": [],
+        "external_hosts": [
+          "petrolmate.com.au"
+        ],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": false,
+        "uses_stripe": false,
+        "uses_email": false
+      },
+      {
+        "slug": "truth-oracle-fuel-ingest-v2",
+        "status": "ACTIVE",
+        "version": 4,
+        "verify_jwt": true,
+        "source_hash": "b467a7a0824482ddd2dfee7a6dcd461e4141b4cdb029431ba7aa074141eafa99",
+        "source_files": [
+          "index.ts"
+        ],
+        "env_keys": [
+          "SUPABASE_SERVICE_ROLE_KEY",
+          "SUPABASE_URL"
+        ],
+        "tables": [
+          "truth_oracle_public_observations"
+        ],
+        "rpc": [],
+        "storage_buckets": [],
+        "external_hosts": [
+          "petrolmate.com.au"
+        ],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": false,
+        "uses_stripe": false,
+        "uses_email": false
+      },
+      {
+        "slug": "cube-toll-public",
+        "status": "ACTIVE",
+        "version": 4,
+        "verify_jwt": false,
+        "source_hash": "cf32507fbc496e7da695c8170f3512c0913814a5396c2298d6025bd9cc47e19f",
+        "source_files": [
+          "index.ts"
+        ],
+        "env_keys": [
+          "SUPABASE_ANON_KEY",
+          "SUPABASE_URL"
+        ],
+        "tables": [],
         "rpc": [],
         "storage_buckets": [],
         "external_hosts": [],
