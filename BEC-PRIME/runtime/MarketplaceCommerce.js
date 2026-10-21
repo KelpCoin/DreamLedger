@@ -156,18 +156,24 @@ async function handle(req,res,url){
   if(req.method==='POST'&&url==='/api/marketplace/v2/offers'){
     try{
       const {id:userId}=verifiedUser(req),b=await body(req),key=idem(req,b);
-      const prior=replay(key,'offer_create',userId);if(prior)return json(res,200,prior);
       const listingId=String(b.listing_id||''),amount=Number(b.amount_nzd),quantity=qty(b.quantity||1);
       if(!listingId||!Number.isFinite(amount)||amount<=0||!quantity)return json(res,422,{error:'listing_id, positive amount_nzd and valid quantity required'});
+      const sameRequest=x=>x&&x.offer?.listing_id===listingId&&x.offer?.quantity===quantity&&x.offer?.amount_nzd===Math.round(amount*100)/100;
+      const prior=replay(key,'offer_create',userId);
+      if(prior)return sameRequest(prior)?json(res,200,{...prior,idempotent:true}):json(res,409,{error:'offer_idempotency_payload_changed'});
       const response=withLock(()=>{
+        // Recheck while holding the cross-process state lock; the first
+        // caller may have committed the same key after our initial read.
+        const raced=replay(key,'offer_create',userId);
+        if(raced)return sameRequest(raced)?{...raced,idempotent:true}:{status:409,error:'offer_idempotency_payload_changed'};
         const listings=read(LISTINGS,[]),offers=read(OFFERS,[]),listing=listings.find(x=>x.id===listingId&&x.status==='APPROVED');
         if(!listing)return {error:'listing_not_found'};
         if(listing.seller_id===userId)return {error:'seller_cannot_offer_on_own_listing'};
         const now=new Date(),o={id:idFn('off'),listing_id:listingId,buyer_id:userId,seller_id:listing.seller_id,amount_nzd:Math.round(amount*100)/100,quantity,status:'PENDING_SELLER',expires_at:new Date(now.getTime()+48*60*60*1000).toISOString(),created_at:now.toISOString(),updated_at:now.toISOString()};
         offers.push(o);write(OFFERS,offers);const out={ok:true,offer:offerPublic(o),commercial_truth:'OFFER_PENDING_NOT_REVENUE'};remember(key,'offer_create',out,userId);return out;
       });
-      if(response.error)return json(res,response.error==='listing_not_found'?404:403,response);
-      return json(res,201,response);
+      if(response.error)return json(res,response.status|| (response.error==='listing_not_found'?404:403),{error:response.error});
+      return json(res,response.idempotent?200:201,response);
     }catch(e){return json(res,e.statusCode||400,{error:e.message});}
   }
 
