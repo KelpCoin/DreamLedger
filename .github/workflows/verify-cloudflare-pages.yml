@@ -1,0 +1,42 @@
+name: Verify Cloudflare Pages candidate
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "data/mtg-catalog.json"
+      - "public/catalog.json"
+      - "public/mtg/**"
+      - "mtg/**"
+      - "BEC-PRIME/catalog/featured-offer.json"
+      - "BEC-PRIME/compiled/website/**"
+      - "scripts/build-cloudflare-pages.mjs"
+      - "scripts/verify-mtg-catalogue-safety.mjs"
+      - "package.json"
+      - ".github/workflows/verify-cloudflare-pages.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Verify catalogue safety contract
+        run: npm run verify:mtg-catalogue-safety
+      - name: Build static Cloudflare Pages artifact
+        run: npm run build:cloudflare-pages
+      - name: Upload candidate artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cloudflare-pages-candidate-${{ github.sha }}
+          path: dist/cloudflare-pages
+          if-no-files-found: error
+          retention-days: 14
