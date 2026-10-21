@@ -25,7 +25,12 @@ def observe_action(row: dict[str, Any]) -> dict[str, Any]:
             "events": events,
         }
 
-    for candidate in events:
+    actionable_events = (
+        [e for e in events if e["event_type"] in
+         {"ACTION_DISPATCHED", "EXTERNAL_ACTION_SENT", "EXTERNAL_RESULT_OBSERVED"}]
+        if state == "AUTHORIZED" else events
+    )
+    for candidate in actionable_events:
         decision = transition_opportunity(
             state,
             candidate["event_type"],
