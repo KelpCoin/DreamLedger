@@ -8,8 +8,8 @@ const STRUCTURED_EVENT_TYPES = new Set(['CANDIDATE_FOUND','EVIDENCE_ATTACHED','D
 const NOTE_TYPES = new Set(['HANDOFF','QUESTION','FINDING','WARNING','DECISION','LOVE_NOTE','STRUCTURED_EVENT']);
 const ROUTING_LANES = new Set(['discovery','evidence','evaluation','approval','execution','payment','fulfillment','reconciliation','arbitrage']);
 
-function config(){const url=String(process.env.SUPABASE_URL||'').replace(/\/$/,'');const token=String(process.env.DREAMLEDGER_AGENT_BRIDGE_TOKEN||'');const proxy=String(process.env.AGENT_BRIDGE_PROXY_URL||`${url}/functions/v1/agent-bridge-proxy`).replace(/\/$/,'');return {url,token,proxy};}
-function configured(){const c=config();return Boolean(c.url&&c.token&&c.proxy);}
+function config(){const url=String(process.env.SUPABASE_URL||'').replace(/\/$/,'');const token=String(process.env.DREAMLEDGER_AGENT_BRIDGE_TOKEN||'');const proxy=String(process.env.AGENT_BRIDGE_PROXY_URL||(url?`${url}/functions/v1/agent-bridge-proxy`:'' )).replace(/\/$/,'');return {url,token,proxy};}
+function configured(){const c=config();return Boolean(c.token&&c.proxy&&/^https:\/\//i.test(c.proxy));}
 function authorized(req){const c=config();return configured()&&String(req.headers['x-dreamledger-agent-token']||'')===c.token;}
 function send(res,status,body){if(res.writableEnded)return;res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'});res.end(JSON.stringify(body));}
 async function readJson(req){let body='';for await(const chunk of req){body+=chunk;if(body.length>200000)throw Object.assign(new Error('Request too large'),{statusCode:413});}try{return JSON.parse(body||'{}')}catch{throw Object.assign(new Error('Invalid JSON'),{statusCode:400})}}
