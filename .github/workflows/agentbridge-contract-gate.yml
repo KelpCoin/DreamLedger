@@ -2,7 +2,7 @@ name: AgentBridge Contract Gate
 
 on:
   push:
-    branches: [main]
+    branches: [main, 'beck/provider-migration-neon-cloudflare-20261019']
     paths:
       - 'BEC-PRIME/runtime/AgentBridge.js'
       - 'BEC-PRIME/runtime/AgentBridgeFencedAdapter.js'
