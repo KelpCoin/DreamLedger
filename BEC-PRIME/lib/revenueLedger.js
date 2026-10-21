@@ -25,11 +25,18 @@ function ensure() {
   fs.mkdirSync(DATA_ROOT, { recursive: true });
 }
 
-function appendUnique(file, key, value) {
+function appendUnique(file, key, record) {
   ensure();
+  // Persist the complete journal or ledger entry, not its identifying string.
+  // The stable unique identity is record[key]; comparing an object to a string
+  // silently failed every duplicate test in the legacy implementation.
+  if (!record || typeof record !== 'object' || typeof record[key] !== 'string') {
+    throw new Error('appendUnique requires a structured record with a stable key');
+  }
+  const identity = record[key];
   const lines = fs.existsSync(file) ? fs.readFileSync(file, 'utf8').split(/\r?\n/).filter(Boolean) : [];
-  if (lines.some(line => { try { return JSON.parse(line)[key] === value; } catch { return false; } })) return false;
-  fs.appendFileSync(file, JSON.stringify(value) + '\n', 'utf8');
+  if (lines.some(line => { try { return JSON.parse(line)[key] === identity; } catch { return false; } })) return false;
+  fs.appendFileSync(file, JSON.stringify(record) + '\n', 'utf8');
   return true;
 }
 
@@ -75,7 +82,7 @@ function postJournal({ journalId, eventId, description, currency, lines, metadat
     metadata,
     created_at: new Date().toISOString()
   };
-  if (!appendUnique(JOURNAL_FILE, 'journal_id', journalId)) return { duplicate: true, journal };
+  if (!appendUnique(JOURNAL_FILE, 'journal_id', journal)) return { duplicate: true, journal };
   for (let i = 0; i < lines.length; i += 1) {
     const line = lines[i];
     const account = ACCOUNTS[line.account];
