@@ -23,8 +23,11 @@ on:
       - "public/catalog.json"
       - "public/data/mtg-catalog.json"
       - "public/data/economic-pulse.json"
+      - "public/portfolio/commander-deck-diagnostic.html"
       - "public/mtg/**"
       - "ops/migration/cloudflare-preview/**"
+      - "ops/migration/supabase-to-neon/**"
+      - "ops/migration/README.md"
       - "BEC-PRIME/catalog/featured-offer.json"
       - ".github/workflows/provider-migration-static-safety.yml"
 
@@ -51,7 +54,7 @@ jobs:
       - name: Verify source backup tooling is read-only
         run: |
           set -euo pipefail
-          node -e 'const fs=require("fs"),assert=require("assert");const sql=fs.readFileSync("ops/migration/supabase-to-neon/preflight.sql","utf8").replace(/^--.*$/gm,"").trim();assert.match(sql,/^SELECT\\b/i,"inventory must be a read-only SELECT");assert.doesNotMatch(sql,/\\b(INSERT|UPDATE|DELETE|MERGE|DROP|ALTER|TRUNCATE|CREATE|GRANT|REVOKE)\\b/i,"inventory must not contain mutating SQL");const ps=fs.readFileSync("ops/migration/supabase-to-neon/Export-Supabase-ForensicBackup.ps1","utf8");assert.match(ps,/pgRestore\\.Source --list/,"backup must validate archive by listing only");assert.doesNotMatch(ps,/pg_restore.{0,80}(--clean|--create|--dbname)/i,"backup runner must not restore or mutate a target");assert.match(ps,/Get-FileHash[^\\n]*SHA256/,"backup must hash private output");assert.match(ps,/finally\\s*\\{[\\s\\S]*Remove-Item Env:PGPASSWORD/,"password must be cleared in finally");console.log("SOURCE_BACKUP_TOOLING_READ_ONLY=PASS")'
+          node -e 'const fs=require("fs"),assert=require("assert");const sql=fs.readFileSync("ops/migration/supabase-to-neon/preflight.sql","utf8").replace(/^--.*$/gm,"").trim();assert.match(sql,/^SELECT\b/i,"inventory must be a read-only SELECT");assert.doesNotMatch(sql,/\b(INSERT|UPDATE|DELETE|MERGE|DROP|ALTER|TRUNCATE|CREATE|GRANT|REVOKE)\b/i,"inventory must not contain mutating SQL");const ps=fs.readFileSync("ops/migration/supabase-to-neon/Export-Supabase-ForensicBackup.ps1","utf8");assert.match(ps,/pgRestore\.Source --list/,"backup must validate archive by listing only");assert.doesNotMatch(ps,/pg_restore.{0,80}(--clean|--create|--dbname)/i,"backup runner must not restore or mutate a target");assert(ps.includes("Get-FileHash")&&ps.includes("-Algorithm SHA256"),"backup must hash private output");assert(ps.includes("finally {")&&ps.includes("Remove-Item Env:PGPASSWORD"),"password must be cleared in finally");console.log("SOURCE_BACKUP_TOOLING_READ_ONLY=PASS")'
       - name: Build the non-production candidate and enforce catalogue safety
         run: node ops/migration/cloudflare-preview/build-preview.mjs
       - name: Confirm expected routes and honest degraded behavior
