@@ -52,6 +52,18 @@ CREATE TABLE IF NOT EXISTS commercial_payments (
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+-- One Checkout Session may produce many signed Stripe events and retries,
+-- but it must not create multiple commercial orders.
+CREATE UNIQUE INDEX IF NOT EXISTS idx_commercial_orders_checkout_session
+  ON commercial_orders (stripe_checkout_session_id)
+  WHERE stripe_checkout_session_id IS NOT NULL;
+
+-- A Stripe charge cannot be attributed to two different payment rows.
+-- Event history belongs in evidence/ledger records, not duplicate charge rows.
+CREATE UNIQUE INDEX IF NOT EXISTS idx_commercial_payments_stripe_charge
+  ON commercial_payments (stripe_charge_id)
+  WHERE stripe_charge_id IS NOT NULL;
+
 CREATE TABLE IF NOT EXISTS commercial_evidence (
   evidence_id TEXT PRIMARY KEY,
   source TEXT NOT NULL,
