@@ -122,7 +122,7 @@ def ingest_verified_payment(conn: sqlite3.Connection, payload: dict, *, signatur
     now = utc()
 
     conn.execute(
-        "INSERT INTO commercial_orders VALUES (?,?,?,?,?,?,?,?,?)",
+        "INSERT INTO commercial_orders VALUES (?,?,?,?,?,?,?,?)",
         (
             order_id,
             data.get("client_reference_id") or data.get("metadata", {}).get("offer_id"),
