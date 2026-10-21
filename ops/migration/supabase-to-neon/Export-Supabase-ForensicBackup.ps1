@@ -5,11 +5,6 @@ param(
 $ErrorActionPreference = "Stop"
 $ProgressPreference = "SilentlyContinue"
 
-foreach ($name in @("PGHOST", "PGDATABASE", "PGUSER", "PGPASSWORD")) {
-  if ([string]::IsNullOrWhiteSpace([Environment]::GetEnvironmentVariable($name))) {
-    throw "Set $name in this PowerShell process using the approved Supabase connection details. Do not paste credentials into chat or commit them."
-  }
-}
 $psql = Get-Command psql -ErrorAction SilentlyContinue
 $pgDump = Get-Command pg_dump -ErrorAction SilentlyContinue
 $pgRestore = Get-Command pg_restore -ErrorAction SilentlyContinue
@@ -17,29 +12,56 @@ if (-not $psql -or -not $pgDump -or -not $pgRestore) {
   throw "Install PostgreSQL client tools (psql, pg_dump, and pg_restore) before running this export."
 }
 
-try {
-  if (-not (Test-Path -LiteralPath "D:\")) { throw "D: unavailable" }
-  New-Item -ItemType Directory -Path $OutputRoot -Force | Out-Null
-} catch {
-  if ([string]::IsNullOrWhiteSpace($env:LOCALAPPDATA)) { throw "No writable private proof location is available." }
-  $OutputRoot = Join-Path $env:LOCALAPPDATA "DreamLedger\migration-proof"
-  New-Item -ItemType Directory -Path $OutputRoot -Force | Out-Null
+# Prompt for connection fields in the local terminal when not already supplied.
+# A secure password prompt avoids putting the password in command history.
+if ([string]::IsNullOrWhiteSpace($env:PGHOST)) { $env:PGHOST = Read-Host "Supabase Postgres host (use the dashboard connection details)" }
+if ([string]::IsNullOrWhiteSpace($env:PGDATABASE)) { $env:PGDATABASE = Read-Host "Database name (usually postgres)" }
+if ([string]::IsNullOrWhiteSpace($env:PGUSER)) { $env:PGUSER = Read-Host "Database username from the dashboard connection details" }
+if ([string]::IsNullOrWhiteSpace($env:PGPORT)) {
+  $portInput = Read-Host "Database port (press Enter for 5432)"
+  $env:PGPORT = if ([string]::IsNullOrWhiteSpace($portInput)) { "5432" } else { $portInput.Trim() }
+}
+if ([string]::IsNullOrWhiteSpace($env:PGPASSWORD)) {
+  $securePassword = Read-Host "Database password (input hidden)" -AsSecureString
+  $passwordPointer = [IntPtr]::Zero
+  try {
+    $passwordPointer = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($securePassword)
+    $env:PGPASSWORD = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($passwordPointer)
+  } finally {
+    if ($passwordPointer -ne [IntPtr]::Zero) {
+      [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($passwordPointer)
+    }
+    if ($securePassword) { $securePassword.Dispose() }
+  }
+}
+foreach ($name in @("PGHOST", "PGDATABASE", "PGUSER", "PGPASSWORD", "PGPORT")) {
+  if ([string]::IsNullOrWhiteSpace([Environment]::GetEnvironmentVariable($name))) {
+    throw "Required connection field $name is blank. No connection or database changes were attempted."
+  }
 }
 
 try {
+  try {
+    if (-not (Test-Path -LiteralPath "D:\")) { throw "D: unavailable" }
+    New-Item -ItemType Directory -Path $OutputRoot -Force | Out-Null
+  } catch {
+    if ([string]::IsNullOrWhiteSpace($env:LOCALAPPDATA)) { throw "No writable private proof location is available." }
+    $OutputRoot = Join-Path $env:LOCALAPPDATA "DreamLedger\migration-proof"
+    New-Item -ItemType Directory -Path $OutputRoot -Force | Out-Null
+  }
+
   $stamp = [DateTime]::UtcNow.ToString("yyyyMMddTHHmmssZ")
   $dest = Join-Path $OutputRoot $stamp
   New-Item -ItemType Directory -Path $dest -Force | Out-Null
 
   $env:PGSSLMODE = "require"
   $env:PGCONNECT_TIMEOUT = "15"
-  if ([string]::IsNullOrWhiteSpace($env:PGPORT)) { $env:PGPORT = "5432" }
-
   $connArgs = @("-h", $env:PGHOST, "-p", $env:PGPORT, "-U", $env:PGUSER, "-d", $env:PGDATABASE, "-w")
+
   $inventoryPath = Join-Path $dest "source-inventory.json"
   $inventory = & $psql.Source @connArgs -X -v ON_ERROR_STOP=1 -A -t -f (Join-Path $PSScriptRoot "preflight.sql") 2>&1
   if ($LASTEXITCODE -ne 0) {
-    throw "Read-only database inventory failed. No database changes were made. Check source connectivity and credentials, then retry."
+    throw "Read-only database inventory failed. No database changes were made. If the direct endpoint is unreachable, try the Supabase Session Pooler details."
   }
   ($inventory -join [Environment]::NewLine) | Set-Content -LiteralPath $inventoryPath -Encoding UTF8
 
@@ -52,7 +74,7 @@ try {
   $schemaPath = Join-Path $dest "supabase-full-schema.sql"
   & $pgDump.Source @connArgs --schema-only --no-owner --no-acl --file $schemaPath 2>&1 | Out-Null
   if ($LASTEXITCODE -ne 0) {
-    throw "Schema backup failed. The full backup may exist already; inspect the private proof directory before retrying."
+    throw "Schema backup failed. The full backup may already exist; inspect the private proof directory before retrying."
   }
 
   $restoreListingPath = Join-Path $dest "pg-restore-list.txt"
