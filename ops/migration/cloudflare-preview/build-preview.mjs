@@ -68,6 +68,45 @@ await fs.rm(output, { recursive:true, force:true });
 await fs.mkdir(output, { recursive:true });
 await walk(source);
 await fs.copyFile(workerSource, path.join(output, '_worker.js'));
+
+// Validate all published catalogue projections before any preview upload.
+const publicCataloguePath = path.join(output, 'catalog.json');
+const mtgCataloguePath = path.join(output, 'data', 'mtg-catalog.json');
+const pulsePath = path.join(output, 'data', 'economic-pulse.json');
+const readJson = async p => JSON.parse(await fs.readFile(p, 'utf8'));
+const own = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
+const publicCatalogue = await readJson(publicCataloguePath);
+const mtgCatalogue = await readJson(mtgCataloguePath);
+for (const [doc, id, label] of [
+  [publicCatalogue, 'EDH_0001', 'public EDH_0001'],
+  [mtgCatalogue, 'EDH_0001', 'MTG EDH_0001'],
+  [publicCatalogue, 'COMMANDER-DECK-DIAGNOSTIC-001', 'public Commander Diagnostic'],
+  [mtgCatalogue, 'COMMANDER-DECK-DIAGNOSTIC-001', 'MTG Commander Diagnostic']
+]) {
+  const product = (doc.products || []).find(p => p.id === id);
+  if (!product) throw new Error('CATALOGUE_PRODUCT_MISSING: ' + label);
+  if (product.status === 'published') throw new Error('UNSAFE_HELD_PRODUCT_PUBLISHED: ' + label);
+  if (typeof product.price === 'number' || own(product, 'checkout_url') || own(product, 'payment_link_url')) {
+    throw new Error('UNSAFE_HELD_PRODUCT_PRICE_OR_CHECKOUT: ' + label);
+  }
+  if (product.price_status !== 'UNOBSERVABLE' || product.price_evidence_status !== 'UNVERIFIED') {
+    throw new Error('MISSING_UNOBSERVABLE_PRICE_STATE: ' + label);
+  }
+}
+if (await fs.stat(pulsePath).catch(() => null)) {
+  const pulse = await readJson(pulsePath);
+  const blobs = JSON.stringify(pulse);
+  if (blobs.includes('eVqeVdc1T01n1DV3gwdwc30') ||
+      (pulse.commercial_surfaces || []).some(x => x.id === 'OFFER-CMD-DIAG-29-NZD') ||
+      (pulse.cells || []).some(x => x.id === 'CMD-DIAG-29-QR-001')) {
+    throw new Error('HELD_DIAGNOSTIC_LEAKED_IN_ECONOMIC_PULSE');
+  }
+}
+const staleLink = 'https://buy.stripe.com/eVqeVdc1T01n1DV3gwdwc30';
+for (const item of manifest.included) {
+  const contents = await fs.readFile(path.join(output, item.path), 'utf8').catch(() => '');
+  if (contents.includes(staleLink)) throw new Error('HELD_DIAGNOSTIC_PAYMENT_URL_IN_PREVIEW_ASSET: ' + item.path);
+}
 const missingPage = path.join(output, '404.html');
 if (!(await fs.stat(missingPage).catch(() => null))?.isFile()) {
   throw new Error('ROOT_404_REQUIRED: missing public/404.html; Pages would enable its default SPA fallback.');
