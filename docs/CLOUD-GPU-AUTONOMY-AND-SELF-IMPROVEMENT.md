@@ -75,3 +75,12 @@ The BECK scheduler may coordinate AMPLISSA, DreamLedger, the game, and future ap
 - Local GPU use is opportunistic, observable, and optional.
 - Improvements reduce measured failures or user effort, not merely increase commits or tokens.
 - No secret exposure, unauthorized production changes, or false revenue claims.
+
+
+## Elohim-first Cube Swarm and Figure 8 compatibility
+
+- Elohim package validation is the required upstream gate before Cube verifies supply or compiles a silo candidate.
+- The cloud control plane remains authoritative. Cloud CPU orchestration and validation must not require a self-hosted runner or local LM Studio.
+- The opportunistic GPU workflow is manually dispatched and optional. It checks LM Studio via a structured status file and selects a model ID returned by `/v1/models`; offline or missing-model states skip local inference without blocking cloud work.
+- A future Figure 8 runner may be registered with GitHub Actions labels `self-hosted`, `gpu`, and `figure8`. The GPU job requests `self-hosted` and `gpu`, so it can use that runner without a Figure 8-specific dependency. Runner provisioning, network restrictions, signed task admission, model allowlisting, resource limits, and cost approval must be completed before enabling it.
+- A valid Elohim package is not a release approval. Production publishing, payment/provider changes, spend, and external communications remain explicitly gated.

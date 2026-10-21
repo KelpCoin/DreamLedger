@@ -1,5 +1,7 @@
 name: Economic GPU Opportunistic Worker
 
+# Optional accelerator only. Cloud CPU workflows remain independent of this runner.
+# A future Figure 8 runner can carry labels [self-hosted, gpu, figure8].
 on:
   workflow_dispatch:
 
@@ -29,56 +31,64 @@ jobs:
         shell: powershell
         run: |
           $ErrorActionPreference = "Stop"
+          $status = [ordered]@{ online = $false; checked_at = (Get-Date).ToUniversalTime().ToString("o"); model_count = 0; model_ids = @(); reason = $null }
           try {
             $r = Invoke-RestMethod -Uri "http://127.0.0.1:1234/v1/models" -TimeoutSec 5
-            $r | ConvertTo-Json -Depth 8 | Set-Content -Encoding UTF8 gpu-lmstudio-models.json
-            Write-Host "LM_STUDIO=ONLINE"
+            $ids = @($r.data | ForEach-Object { [string]$_.id } | Where-Object { $_ })
+            if ($ids.Count -gt 0) {
+              $status.online = $true
+              $status.model_count = $ids.Count
+              $status.model_ids = $ids
+              $r | ConvertTo-Json -Depth 8 | Set-Content -Encoding UTF8 gpu-lmstudio-models.json
+              Write-Host "LM_STUDIO=ONLINE"
+            } else {
+              $status.reason = "LM Studio returned no model IDs."
+              '{"data":[]}' | Set-Content -Encoding UTF8 gpu-lmstudio-models.json
+              Write-Host "LM_STUDIO=OFFLINE_NO_MODELS"
+            }
           } catch {
-            '{"online":false,"reason":"LM Studio unavailable; GPU worker remains non-blocking."}' | Set-Content -Encoding UTF8 gpu-lmstudio-models.json
+            $status.reason = "LM Studio unavailable; GPU worker remains non-blocking."
+            '{"data":[]}' | Set-Content -Encoding UTF8 gpu-lmstudio-models.json
             Write-Host "LM_STUDIO=OFFLINE"
           }
+          $status | ConvertTo-Json -Depth 8 | Set-Content -Encoding UTF8 gpu-lmstudio-status.json
 
       - name: Bounded local inference probe
         shell: powershell
         run: |
           $ErrorActionPreference = "Stop"
-          if ((Get-Content gpu-lmstudio-models.json -Raw) -notmatch '"online"') {
+          $status = Get-Content gpu-lmstudio-status.json -Raw | ConvertFrom-Json
+          if (-not $status.online) {
+            Write-Host "LOCAL_INFERENCE=SKIPPED (cloud operation is unaffected)"
             exit 0
           }
           try {
+            $modelId = [string]$status.model_ids[0]
+            if ([string]::IsNullOrWhiteSpace($modelId)) { throw "No usable model ID returned by LM Studio." }
             $body = @{
-              model = "local"
+              model = $modelId
               messages = @(
-                @{ role="system"; content="Return concise machine-readable JSON. Do not claim revenue or external demand. Identify three adjacent, low-risk, machine-fulfillable service ideas from this task: economic opportunity selection, competitive intelligence, public-record research, quote comparison, contradiction detection, agent tooling." },
-                @{ role="user"; content="Generate ideas only. Each object must contain name, buyer, deliverable, likely price_band_nzd, fulfillment_mode, evidence_required, and why_it_is_adjacent." }
+                @{ role="system"; content="Return concise machine-readable JSON. Do not claim revenue or external demand. Identify low-risk, machine-fulfillable service ideas." },
+                @{ role="user"; content="Return a JSON array only. Each object must contain name, buyer, deliverable, price_band_nzd, fulfillment_mode, evidence_required, and why_it_is_adjacent." }
               )
               temperature = 0.2
               max_tokens = 800
             } | ConvertTo-Json -Depth 8
             $resp = Invoke-RestMethod -Uri "http://127.0.0.1:1234/v1/chat/completions" -Method Post -ContentType "application/json" -Body $body -TimeoutSec 120
-            $candidate = [ordered]@{
-              research_id = [guid]::NewGuid().ToString()
-              generated_at = (Get-Date).ToUniversalTime().ToString("o")
-              gpu_node = "self-hosted"
-              capability = "adjacent_service_research"
-              inputs = [ordered]@{ candidate_count = 6; mechanisms = @("competitive_intelligence","public_record_research","quote_comparison","contradiction_detection","agent_tooling","evidence_compilation") }
-              outputs = [ordered]@{ candidates = @() }
-              bounded_cost_usd = 0.00
-              evidence_hash = $null
+            $candidate = [ordered]@{ research_id = [guid]::NewGuid().ToString(); generated_at = (Get-Date).ToUniversalTime().ToString("o"); gpu_node = "self-hosted"; model_id = $modelId; capability = "adjacent_service_research"; inputs = [ordered]@{ candidate_count = 6; mechanisms = @("competitive_intelligence","public_record_research","quote_comparison","contradiction_detection","agent_tooling","evidence_compilation") }; outputs = [ordered]@{ candidates = @() }; bounded_cost_usd = 0.00; evidence_hash = $null; truth_status = "INTERNAL" }
+            $obj = ([string]$resp.choices[0].message.content) | ConvertFrom-Json
+            foreach ($i in @($obj)) {
+              if ([string]::IsNullOrWhiteSpace([string]$i.name) -or [string]::IsNullOrWhiteSpace([string]$i.buyer) -or [string]::IsNullOrWhiteSpace([string]$i.deliverable)) { continue }
+              $candidate.outputs.candidates += [ordered]@{ service_id = [guid]::NewGuid().ToString(); name = [string]$i.name; buyer = [string]$i.buyer; deliverable = [string]$i.deliverable; price_band_nzd = [string]$i.price_band_nzd; fulfillment_mode = [string]$i.fulfillment_mode; evidence_required = [string]$i.evidence_required; why_it_is_adjacent = [string]$i.why_it_is_adjacent; expected_value = 0.0; confidence = 0.0; evidence_refs = @(); approval_required = $true }
             }
-            try {
-              $obj = $resp.choices[0].message.content | ConvertFrom-Json
-              foreach ($i in @($obj)) {
-                $candidate.outputs.candidates += [ordered]@{ service_id = [guid]::NewGuid().ToString(); name = [string]$i.name; buyer = [string]$i.buyer; deliverable = [string]$i.deliverable; price_band_nzd = [string]$i.price_band_nzd; fulfillment_mode = [string]$i.fulfillment_mode; evidence_required = [string]$i.evidence_required; why_it_is_adjacent = [string]$i.why_it_is_adjacent; expected_value = 0.0; confidence = 0.0; evidence_refs = @() }
-              }
-            } catch { }
+            if (@($candidate.outputs.candidates).Count -lt 1) { throw "Model response contained no structurally valid candidates." }
             $canonical = $candidate | ConvertTo-Json -Depth 20 -Compress
             $sha = [System.Security.Cryptography.SHA256]::Create().ComputeHash([System.Text.Encoding]::UTF8.GetBytes($canonical))
             $candidate.evidence_hash = "sha256:" + (($sha | ForEach-Object { $_.ToString("x2") }) -join "")
             $candidate | ConvertTo-Json -Depth 20 | Set-Content -Encoding UTF8 gpu-adjacent-offer-research.json
             Write-Host "LOCAL_INFERENCE=PASS"
           } catch {
-            $skip = [ordered]@{ research_id=[guid]::NewGuid().ToString(); generated_at=(Get-Date).ToUniversalTime().ToString("o"); gpu_node="self-hosted"; capability="adjacent_service_research"; inputs=[ordered]@{candidate_count=6;mechanisms=@()}; outputs=[ordered]@{candidates=@()}; bounded_cost_usd=0.00; evidence_hash=$null; status="SKIPPED"; reason="Local inference endpoint unavailable or rejected the bounded probe." }
+            $skip = [ordered]@{ research_id=[guid]::NewGuid().ToString(); generated_at=(Get-Date).ToUniversalTime().ToString("o"); gpu_node="self-hosted"; capability="adjacent_service_research"; inputs=[ordered]@{candidate_count=6;mechanisms=@()}; outputs=[ordered]@{candidates=@()}; bounded_cost_usd=0.00; evidence_hash=$null; truth_status="INTERNAL"; status="SKIPPED"; reason="Local inference endpoint unavailable or output failed validation." }
             $canonical=$skip | ConvertTo-Json -Depth 20 -Compress
             $sha=[System.Security.Cryptography.SHA256]::Create().ComputeHash([System.Text.Encoding]::UTF8.GetBytes($canonical))
             $skip.evidence_hash="sha256:"+(($sha | ForEach-Object { $_.ToString("x2") }) -join "")
@@ -93,6 +103,7 @@ jobs:
           name: economic-gpu-research-${{ github.run_id }}
           path: |
             gpu-lmstudio-models.json
+            gpu-lmstudio-status.json
             gpu-adjacent-offer-research.json
           if-no-files-found: warn
           retention-days: 14
