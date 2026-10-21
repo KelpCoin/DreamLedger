@@ -25,7 +25,7 @@ function str(v, max=180) {
 }
 function safePage(v) {
   const s = str(v, 320);
-  return /^\/mtg\/[A-Za-z0-9/_-]+(?:\.html)?$/.test(s) ? s : null;
+  return /^\/mtg\/(?:[A-Za-z0-9/_-]+(?:\.html)?)?$/.test(s) ? s : null;
 }
 function safeImage(v) {
   const s = str(v, 1000);
