@@ -1,0 +1,89 @@
+name: DreamLedger Cloudflare Migration Preview
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dreamledger-cloudflare-migration-preview
+  cancel-in-progress: false
+
+jobs:
+  deploy-and-probe-preview:
+    if: github.ref == 'refs/heads/beck/provider-migration-neon-cloudflare-20261019'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      CLOUDFLARE_PAGES_PROJECT: ${{ secrets.CLOUDFLARE_PAGES_PROJECT }}
+      GITHUB_SHA: ${{ github.sha }}
+      MIGRATION_PROOF_PATH: proof/migration/cloudflare-preview-route-probe.json
+
+    steps:
+      - name: Checkout migration candidate
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 1
+
+      - name: Setup Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Validate account configuration without printing secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+          missing=()
+          [ -n "${CLOUDFLARE_API_TOKEN:-}" ] || missing+=("CLOUDFLARE_API_TOKEN")
+          [ -n "${CLOUDFLARE_ACCOUNT_ID:-}" ] || missing+=("CLOUDFLARE_ACCOUNT_ID")
+          [ -n "${CLOUDFLARE_PAGES_PROJECT:-}" ] || missing+=("CLOUDFLARE_PAGES_PROJECT")
+          if [ "${#missing[@]}" -gt 0 ]; then
+            printf '{"schema":"dreamledger/cloudflare-preview-deploy/v1","status":"BLOCKED_MISSING_GITHUB_SECRETS","missing":[' > proof-placeholder.json
+            printf '"%s",' "${missing[@]}" | sed 's/,$//' >> proof-placeholder.json
+            printf '],"production_mutation":false,"dns_changed":false,"verified_revenue_nzd":0}\n' >> proof-placeholder.json
+            cat proof-placeholder.json
+            exit 2
+          fi
+          echo "CLOUDFLARE_PREVIEW_CONFIGURATION=PASS"
+
+      - name: Build fail-closed static preview bundle
+        run: |
+          set -euo pipefail
+          node ops/migration/cloudflare-preview/build-preview.mjs
+          node --check ops/migration/cloudflare-preview/_worker.js
+          node --check ops/migration/cloudflare-preview/smoke-preview.mjs
+          test -s ops/migration/cloudflare-preview/dist/_worker.js
+          node -e 'const fs=require("fs");const p="ops/migration/cloudflare-preview/dist";for(const f of ["index.html","404.html","mtg/index.html","truth-oracle.html","silos/mtg/silo.json","data/mtg-catalog.json","_worker.js"])if(!fs.existsSync(p+"/"+f))throw new Error("missing "+f);console.log("CLOUDFLARE_PREVIEW_BUILD=PASS")'
+
+      - name: Deploy preview branch only
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx --yes wrangler@4 pages deploy ops/migration/cloudflare-preview/dist \
+            --project-name "$CLOUDFLARE_PAGES_PROJECT" \
+            --branch provider-migration-preview \
+            --commit-hash "$GITHUB_SHA" \
+            --commit-message "DreamLedger migration preview $GITHUB_SHA" \
+            --skip-caching
+
+      - name: Probe public read-only routes and blocked stateful routes
+        env:
+          CLOUDFLARE_PREVIEW_URL: https://provider-migration-preview.${{ secrets.CLOUDFLARE_PAGES_PROJECT }}.pages.dev
+        run: node ops/migration/cloudflare-preview/smoke-preview.mjs
+
+      - name: Retain migration preview evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cloudflare-migration-preview-${{ github.run_id }}
+          path: |
+            proof/migration/cloudflare-preview-route-probe.json
+            ops/migration/cloudflare-preview/build-proof.json
+            proof-placeholder.json
+          if-no-files-found: warn
+          retention-days: 30
