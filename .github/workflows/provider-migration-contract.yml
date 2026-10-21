@@ -51,6 +51,7 @@ jobs:
       - name: Validate contract JSON and JavaScript syntax
         run: |
           node -e 'JSON.parse(require("fs").readFileSync("ops/migration/CLOUDFLARE-ROUTE-PARITY-CONTRACT.json","utf8"))'
+          node -e 'const fs=require("fs");const c=JSON.parse(fs.readFileSync("ops/migration/FREE-EXIT-CHECKLIST.json","utf8"));const gates=new Map((c.gates||[]).map(g=>[g.id,g]));const t=c.terminal_acceptance||{};const required=t.required_pass_gates||[];for(const [id,re,key] of [["G16",/render/i,"render_dependency"],["G17",/supabase/i,"supabase_dependency"]]){const g=gates.get(id);if(!g||!re.test(g.name||"")||!Array.isArray(g.pass_evidence)||!g.pass_evidence.length)throw Error("missing dual-provider gate "+id);if(!required.includes(id))throw Error("terminal acceptance omits "+id);if(t[key]==="PROVEN_REMOVED"&&g.status!=="PASS")throw Error("provider retirement claimed without "+id+" PASS");}const allPass=required.every(id=>gates.get(id)?.status==="PASS");if(!allPass&&(t.dns_cutover_authorized!==false||t.production_deployment_authorized!==false||t.stripe_production_mutation_authorized!==false))throw Error("mutation authorized before all terminal gates PASS");console.log("DUAL_PROVIDER_EXIT_GATES=PASS_BOTH_REQUIRED")'
           node --check ops/recovery/neon-endpoint.mjs
           node --check ops/recovery/cloudflare-pages.mjs
           node --check ops/recovery/provider-recovery-contract.test.mjs
