@@ -20,7 +20,15 @@ if (-not (Test-Path -LiteralPath $Launcher -PathType Leaf)) { throw "Local launc
 if (-not (Test-Path -LiteralPath $Audit -PathType Leaf)) { throw "Priority audit source missing: $Audit" }
 $Lms = Get-Command lms.exe -ErrorAction SilentlyContinue
 if (-not $Lms) { $Lms = Get-Command lms -ErrorAction SilentlyContinue }
-if (-not $Lms -and -not (Test-Path (Join-Path $env:USERPROFILE ".lmstudio\bin\lms.exe"))) { throw "LM Studio CLI not found. Nothing was registered." }
+if (-not $Lms) {
+    $LmsCandidates = @(
+        (Join-Path $env:USERPROFILE ".lmstudio\bin\lms.exe"),
+        (Join-Path $env:LOCALAPPDATA "Programs\LM Studio\resources\app\.webpack\lms.exe"),
+        (Join-Path $env:LOCALAPPDATA "Programs\LM Studio\resources\app\.webpack\bin\lms.exe")
+    )
+    $LmsPath = $LmsCandidates | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
+    if (-not $LmsPath) { throw "LM Studio CLI not found. Nothing was registered." }
+}
 if ($IntervalSeconds -lt 30) { throw "IntervalSeconds must be >= 30." }
 if ($CycleTimeoutSeconds -lt 60) { throw "CycleTimeoutSeconds must be >= 60." }
 
