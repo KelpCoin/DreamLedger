@@ -13,6 +13,29 @@ $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
 $RunDir = if (Test-Path "D:\") { "D:\BrownEyeCortex\LAKE\FIGURE8\logs\NORTH-STAR-SUPERVISOR" } else { Join-Path $RepoRoot "runtime\lm_studio\runs" }
 $ProofDir = if (Test-Path "D:\") { "D:\BrownEyeCortex\LAKE\FIGURE8\proof\NORTH-STAR-SUPERVISOR" } else { Join-Path $RepoRoot "runtime\lm_studio\runs" }
 New-Item -ItemType Directory -Force -Path $RunDir,$ProofDir | Out-Null
+trap {
+    $reason = [string]$_.Exception.Message
+    if ($reason.Length -gt 500) { $reason = $reason.Substring(0,500) }
+    try {
+        $failedProof = [ordered]@{
+            schema = "DREAMLEDGER/LOCAL-NORTH-STAR-BOOT/v1"
+            generated_at_utc = [DateTime]::UtcNow.ToString("o")
+            status = "BLOCKED"
+            reason = $reason
+            external_actions_enabled = $false
+            remote_reads_enabled = $false
+            economic_truth = [ordered]@{ verified_external_revenue_nzd = 0; settled_external_payments = 0; independent_external_buyers = 0; paid_fulfilled_orders = 0 }
+        }
+        $failedPath = Join-Path $ProofDir "LOCAL-NORTH-STAR-BOOT-LATEST.json"
+        $failedTmp = $failedPath + ".tmp"
+        $failedProof | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $failedTmp -Encoding ASCII
+        Move-Item -LiteralPath $failedTmp -Destination $failedPath -Force
+        Write-Host ("BLOCKED_PROOF=" + $failedPath)
+    } catch {}
+    Write-Host ("LOCAL_NORTH_STAR_BOOT=BLOCKED")
+    Write-Error $reason
+    exit 2
+}
 
 $LmsPath = $null
 $cmd = Get-Command lms.exe -ErrorAction SilentlyContinue
@@ -101,7 +124,7 @@ function Ensure-LocalServer {
     if ($serverStatus -and $serverRunning -and $serverPort -and [int]$serverPort -ne 1234) {
         throw ("LM Studio is already serving on port {0}. Refusing to start a second server or guess a replacement port." -f $serverPort)
     }
-    $null = Invoke-Lms -Arguments @("server","start","--port","1234")
+    $null = Invoke-Lms -Arguments @("server","start","--port","1234","--bind","127.0.0.1")
     for ($n=0; $n -lt 60; $n++) {
         Start-Sleep -Seconds 1
         try {
