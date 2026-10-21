@@ -1,0 +1,37 @@
+name: Provider Residue Safety Contract
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'ops/migration/provider-residue-gate.mjs'
+      - 'ops/migration/provider-residue-gate.test.mjs'
+      - 'ops/migration/RENDER-SERVICE-INVENTORY-20261021.json'
+      - 'ops/migration/SUPABASE-EDGE-FUNCTION-INVENTORY-20261021.json'
+      - '.github/workflows/provider-residue-safety.yml'
+permissions:
+  contents: read
+jobs:
+  read-only-residue:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify fail-closed inventory and evidence contracts
+        run: node --test ops/migration/provider-residue-gate.test.mjs
+      - name: Build read-only provider residue receipt
+        run: node ops/migration/provider-residue-gate.mjs
+      - name: Verify receipt hash
+        run: node ops/migration/provider-residue-gate.mjs --verify
+      - name: Retain gate snapshot
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: provider-residue-gate
+          path: |
+            proof/migration/provider-residue-latest.json
+            proof/migration/provider-residue-latest.json.sha256
+          retention-days: 14
+          if-no-files-found: warn
