@@ -8,6 +8,7 @@ on:
       - "public/catalog.json"
       - "public/data/mtg-catalog.json"
       - "public/data/economic-pulse.json"
+      - "public/portfolio/commander-deck-diagnostic.html"
       - "public/mtg/**"
       - "ops/migration/cloudflare-preview/**"
       - "BEC-PRIME/catalog/featured-offer.json"
