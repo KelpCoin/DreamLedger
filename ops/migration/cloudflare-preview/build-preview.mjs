@@ -77,6 +77,24 @@ const readJson = async p => JSON.parse(await fs.readFile(p, 'utf8'));
 const own = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
 const publicCatalogue = await readJson(publicCataloguePath);
 const mtgCatalogue = await readJson(mtgCataloguePath);
+// Fail closed: no MTG listing is marketable without a verified upstream supply atom.
+ // This preview has no live independent supply verifier, so a published listing is never admitted.
+ // Do not replace this check with a self-declared 'verified' flag; verify the actual evidence
+ // and its origin before enabling the published state in a future reviewed release.
+const mtgIds = new Set((mtgCatalogue.products || []).map(p => p.id));
+for (const [sourceName, records] of [['mtg',mtgCatalogue.products],['public',publicCatalogue.products]]) {
+  if (!Array.isArray(records)) throw new Error('INVALID_CATALOGUE_PRODUCTS: ' + sourceName);
+  for (const product of records) {
+    if (!product || typeof product !== 'object') throw new Error('INVALID_CATALOGUE_PRODUCT: ' + sourceName);
+    if (!(sourceName === 'mtg' || mtgIds.has(product.id) || product.silo === 'mtg')) continue;
+    if (product.status === 'published') throw new Error('MTG_PUBLISHED_WITHOUT_INDEPENDENT_SUPPLY_VERIFIER: ' + product.id);
+    if (product.status === 'held' && (
+      own(product, 'price') || own(product, 'patreon_price') ||
+      own(product, 'claim_url') || own(product, 'checkout_url') ||
+      own(product, 'payment_link_url') || product.checkout_available === true
+    )) throw new Error('HELD_MTG_HAS_PRICE_OR_CLAIM: ' + product.id);
+  }
+}
 for (const [doc, id, label] of [
   [publicCatalogue, 'EDH_0001', 'public EDH_0001'],
   [mtgCatalogue, 'EDH_0001', 'MTG EDH_0001'],

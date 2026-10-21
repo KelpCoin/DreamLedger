@@ -157,27 +157,22 @@
       "sku": "EDH-QUINTORIUS-FIELD-HISTORIAN-THIS-IS-NOT-AN-ELEPHANT-DECK-001",
       "silo": "mtg",
       "name": "Quintorius, Field Historian – This Is Not An Elephant Deck",
-      "description": "Boros graveyard-recursion Commander deck. Cards leaving your graveyard build a Spirit army. Seller reports the deck is fully sleeved and extensively playtested. NZ$90 with free shipping throughout Aotearoa New Zealand. Patreon subscribers: NZ$80 and first priority. Message to claim; online checkout is not yet enabled for this listing.",
-      "price": 90,
+      "description": "Historical deck reference only. Listing unavailable until supply, seller terms, and inventory are independently verified.",
       "currency": "nzd",
-      "inventory": 1,
-      "status": "published",
+      "inventory": 0,
+      "status": "held",
       "seller": "Biggie",
       "condition": "Seller reports fully sleeved; extensively playtested",
       "fulfillment_method": "physical_delivery",
       "image_url": null,
       "checkout_available": false,
-      "checkout_url": null,
-      "sale_mode": "claim_by_message",
-      "claim_url": "/mtg/quintorius-field-historian.html",
+      "sale_mode": "held_review",
       "decklist_url": "https://manabox.app/decks/AZ4-aMxndkWrpKZVph4TSA",
       "metadata": {
         "commander": "Quintorius, Field Historian",
         "archetype": "The Necromancer",
         "strategy": "Boros graveyard recursion and Spirit token generation",
-        "patron_price_nzd": 80,
         "patron_url": "https://patreon.com/happyhomarid",
-        "shipping": "Free shipping throughout Aotearoa New Zealand",
         "tags": [
           "mtg",
           "magicthegathering",
@@ -190,44 +185,41 @@
           "edhcommunity",
           "graveyard",
           "MeatiestMagic"
-        ],
-        "payment_note": "DM to claim. Listing-specific online checkout not yet enabled."
+        ]
       },
       "commercial_truth": {
-        "approval_required": false,
+        "approval_required": true,
         "checkout_available": false,
         "fulfillment_required": true,
         "evidence_required": true,
         "payment_link": null
       },
-      "default_offer_id": "EDH_QUINTORIUS_0002"
+      "availability": "held_review",
+      "price_status": "UNOBSERVABLE",
+      "price_evidence_status": "UNVERIFIED",
+      "hold_reason": "No independently verified supply atom, condition, seller location, and fulfillment terms. Not offered for sale."
     },
     {
       "id": "EDH_DWYNEN_0003",
       "sku": "EDH-DWYNEN-GILT-LEAF-DAEN-THAT-SPELLS-LIFE-001",
       "silo": "mtg",
       "name": "Dwynen, Gilt-Leaf Daen – That Spells Life!",
-      "description": "Mono-green Elf tribal Commander deck. Build mana with Priest of Titania and Elvish Archdruid, grow the board with Lys Alana Huntmaster and Imperious Perfect, and draw cards with Voice of Many. Dwynen boosts your Elves and rewards wide attacks with life gain. Seller reports the deck is sleeved and extensively playtested. NZ$90 with free shipping throughout Aotearoa New Zealand; Patreon subscribers pay NZ$80 and get first priority. Message to claim; online checkout is not enabled for this listing.",
-      "price": 90,
+      "description": "Historical deck reference only. Listing unavailable until supply, seller terms, and inventory are independently verified.",
       "currency": "nzd",
-      "inventory": 1,
-      "status": "published",
+      "inventory": 0,
+      "status": "held",
       "seller": "HappyHomarid",
       "condition": "Seller reports sleeved and extensively playtested",
       "fulfillment_method": "physical_delivery",
       "image_url": null,
       "checkout_available": false,
-      "checkout_url": null,
-      "sale_mode": "claim_by_message",
-      "claim_url": "/mtg/dwynen-gilt-leaf-daen.html",
+      "sale_mode": "held_review",
       "decklist_url": "https://manabox.app/decks/AZ46QrurcOObBGF6V5oWTA",
       "metadata": {
         "commander": "Dwynen, Gilt-Leaf Daen",
         "archetype": "The Swarm Lord",
         "strategy": "Mono-green Elf tribal, mana ramp, wide board, life gain, rebuilding after removal",
-        "patron_price_nzd": 80,
         "patron_url": "https://patreon.com/happyhomarid",
-        "shipping": "Free shipping throughout Aotearoa New Zealand",
         "tags": [
           "mtg",
           "magicthegathering",
@@ -240,17 +232,19 @@
           "edhcommunity",
           "budgetedh",
           "MeatiestMagic"
-        ],
-        "payment_note": "DM to claim. Listing-specific online checkout not yet enabled."
+        ]
       },
       "commercial_truth": {
-        "approval_required": false,
+        "approval_required": true,
         "checkout_available": false,
         "fulfillment_required": true,
         "evidence_required": true,
         "payment_link": null
       },
-      "default_offer_id": "EDH_DWYNEN_0003"
+      "availability": "held_review",
+      "price_status": "UNOBSERVABLE",
+      "price_evidence_status": "UNVERIFIED",
+      "hold_reason": "No independently verified supply atom, condition, seller location, and fulfillment terms. Not offered for sale."
     },
     {
       "id": "DREAMLEDGER-DOOH-CAMPAIGN-500",
@@ -440,17 +434,13 @@
       "silo": "mtg",
       "category": "mtg",
       "name": "Jon Irenicus, Shattered One – Give Them the Problem",
-      "description": "Chaotic Dimir Commander deck that gives opponents dangerous or restrictive creatures they are forced to keep. Fully sleeved, rigorously playtested, and ready to play. NZ$220, or NZ$200 for Patreon subscribers. Free shipping within Aotearoa New Zealand. Message to claim; Patreon members get first priority.",
-      "price": 220,
+      "description": "Historical deck reference only. Listing unavailable until supply, seller terms, and inventory are independently verified.",
       "currency": "nzd",
-      "inventory": 1,
+      "inventory": 0,
       "inventory_type": "physical",
-      "status": "published",
+      "status": "held",
       "checkout_available": false,
-      "checkout_url": null,
-      "sale_mode": "claim_by_message",
-      "claim_url": "mailto:hello@dreamledger.org?subject=Claim%20Jon%20Irenicus%20Commander%20Deck&body=I%27d%20like%20to%20claim%20the%20Jon%20Irenicus%2C%20Shattered%20One%20Commander%20deck%20(NZ%24220%2C%20or%20NZ%24200%20for%20Patreon%20members).%20Please%20confirm%20availability%20and%20shipping.",
-      "detail_url": "/mtg/jon-irenicus-shattered-one.html",
+      "sale_mode": "held_review",
       "decklist_url": "https://manabox.app/decks/AZ2BaCy-c-a8MpZUUcgxqw",
       "seller": "HappyHomarid",
       "condition": "Fully sleeved, playtested rigorously and ready to play",
@@ -459,12 +449,16 @@
       "patron_url": "https://patreon.com/happyhomarid",
       "shipping": "Free shipping within Aotearoa New Zealand",
       "commercial_truth": {
-        "approval_required": false,
+        "approval_required": true,
         "checkout_available": false,
         "fulfillment_required": true,
         "evidence_required": true,
         "payment_link": null
-      }
+      },
+      "availability": "held_review",
+      "price_status": "UNOBSERVABLE",
+      "price_evidence_status": "UNVERIFIED",
+      "hold_reason": "No independently verified supply atom, condition, seller location, and fulfillment terms. Not offered for sale."
     }
   ]
 }
