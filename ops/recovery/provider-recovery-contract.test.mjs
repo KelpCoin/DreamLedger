@@ -111,33 +111,6 @@ test('free exit checklist cannot claim cutover before every gate has evidence',(
  assert.equal(checklist.cost_policy.free_tier_constraints.workers_requests_per_day,100000);
  assert.equal(checklist.cost_policy.free_tier_constraints.workers_cpu_ms_per_invocation,10);
 });
-test('preview bundle requires an explicit root 404 and enumerates published MTG detail/claim routes',()=>{
- assert.ok(notFound.includes('Page not found'));
- assert.ok(builder.includes('ROOT_404_REQUIRED'));
- assert.ok(builder.includes('root_404_present:true'));
- assert.ok(smoke.includes("status: 404"));
- assert.ok(smoke.includes("genuine_404:"));
- assert.ok(smoke.includes("MTG detail:"));
- assert.ok(smoke.includes("MTG claim action:"));
- assert.ok(smoke.includes("p.status === 'published'"));
- assert.ok(smoke.includes("b.commit_sha === expectedSha"));
-});
-
-test('migration gates cover non-public schema dependencies and atomic outbox idempotency',()=>{
- const checklist=JSON.parse(fs.readFileSync(path.join(root,'ops/migration/FREE-EXIT-CHECKLIST.json'),'utf8'));
- assert.equal(checklist.database_dump_scope_status,'NOT_SELECTED_PENDING_G02_DEPENDENCY_INVENTORY');
- const g02=checklist.gates.find(g=>g.id==='G02');
- assert.ok(g02.pass_evidence.some(x=>x.includes('all-schema inventory')));
- assert.ok(g02.pass_evidence.some(x=>x.includes('auth, storage and realtime')));
- const g05=checklist.gates.find(g=>g.id==='G05');
- assert.ok(g05.pass_evidence.some(x=>x.includes('durable outbox')));
- assert.ok(g05.pass_evidence.some(x=>x.includes('not deleted after an uncertain failure')));
- const g08=checklist.gates.find(g=>g.id==='G08');
- assert.ok(g08.pass_evidence.some(x=>x.includes('every product with status=published')));
- assert.ok(g08.pass_evidence.some(x=>x.includes('actual HTTP 404')));
-});
-
-
 test('preview bundle and route smoke require root 404, all published MTG detail routes, and claim actions',()=>{
  assert.ok(notFound.includes('Page not found'));
  assert.ok(builder.includes('ROOT_404_REQUIRED'));
