@@ -110,6 +110,9 @@ const routeChecks = [
     b.currency === 'NZD' && Array.isArray(b.products) },
   { path: '/healthz', status: 200, type: 'json', validate: b =>
     b.status === 'DEGRADED_STATIC_PREVIEW' && b.ready === false && b.production_ready === false },
+  { path: '/migration-preview-release.json', status: 200, type: 'json', validate: b =>
+    Boolean(expectedSha) && b.schema === 'dreamledger/cloudflare-preview-release/v1' &&
+    b.commit_sha === expectedSha && b.production_ready === false },
   { path: '/version', status: 200, type: 'json', validate: b =>
     Boolean(expectedSha) && b.commit_sha === expectedSha && b.production_ready === false },
   { path: '/api/products', status: 200, type: 'json', validate: b =>

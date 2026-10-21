@@ -69,6 +69,25 @@ await fs.mkdir(output, { recursive:true });
 await walk(source);
 await fs.copyFile(workerSource, path.join(output, '_worker.js'));
 
+// A self-contained release-identity document makes Direct Upload verifiable.
+// CF_PAGES_COMMIT_SHA is not assumed to exist as a runtime Worker binding.
+const candidateSha = String(process.env.GITHUB_SHA || '').trim();
+if (candidateSha && !/^[a-f0-9]{40}$/i.test(candidateSha))
+  throw new Error('INVALID_GITHUB_SHA_FOR_PREVIEW_RELEASE');
+const releaseName = 'migration-preview-release.json';
+const releaseBytes = Buffer.from(JSON.stringify({
+  schema: 'dreamledger/cloudflare-preview-release/v1',
+  commit_sha: candidateSha || null,
+  production_ready: false,
+  source: 'GITHUB_SHA_AT_BUILD'
+}, null, 2) + '\n', 'utf8');
+await fs.writeFile(path.join(output, releaseName), releaseBytes);
+manifest.included.push({
+  path: releaseName,
+  bytes: releaseBytes.length,
+  sha256: crypto.createHash('sha256').update(releaseBytes).digest('hex')
+});
+
 // Validate all published catalogue projections before any preview upload.
 const publicCataloguePath = path.join(output, 'catalog.json');
 const mtgCataloguePath = path.join(output, 'data', 'mtg-catalog.json');

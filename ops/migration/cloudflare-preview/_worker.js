@@ -19,7 +19,20 @@ export default {async fetch(request,env){
  }
  if(p==='/version'){
   if(!['GET','HEAD'].includes(request.method))return json({error:'METHOD_NOT_ALLOWED'},405,{allow:'GET, HEAD'});
-  return json({schema:'dreamledger/cloudflare-preview-version/v1',status:'DEGRADED_STATIC_PREVIEW',commit_sha:env?.CF_PAGES_COMMIT_SHA||null,branch:env?.CF_PAGES_BRANCH||null,production_ready:false,note:'Missing commit SHA fails release identity acceptance.',revenue_claimed_nzd:0});
+  try {
+   if(!env?.ASSETS||typeof env.ASSETS.fetch!=='function')throw new Error('ASSETS_BINDING_UNAVAILABLE');
+   const release=await env.ASSETS.fetch(new Request(new URL('/migration-preview-release.json',request.url),{headers:{accept:'application/json'}}));
+   if(!release.ok)throw new Error('RELEASE_IDENTITY_HTTP_'+release.status);
+   const identity=await release.json();
+   const sha=identity?.commit_sha;
+   if(identity?.schema!=='dreamledger/cloudflare-preview-release/v1'||typeof sha!=='string'||!/^[a-f0-9]{40}$/i.test(sha))
+     throw new Error('INVALID_RELEASE_IDENTITY');
+   if(env?.CF_PAGES_COMMIT_SHA && env.CF_PAGES_COMMIT_SHA!==sha)
+     throw new Error('DEPLOYMENT_SHA_MISMATCH');
+   return json({schema:'dreamledger/cloudflare-preview-version/v1',status:'DEGRADED_STATIC_PREVIEW',commit_sha:sha,branch:env?.CF_PAGES_BRANCH||null,production_ready:false,source:'VERIFIED_BUILD_ARTIFACT',revenue_claimed_nzd:0});
+  } catch(e) {
+   return json({schema:'dreamledger/cloudflare-preview-version/v1',status:'BLOCKED_RELEASE_IDENTITY',production_ready:false,reason:String(e?.message||'RELEASE_IDENTITY_UNAVAILABLE')},503);
+  }
  }
  if(p==='/api/products'||p==='/api/offers'){
   if(request.method!=='GET')return json({error:'METHOD_NOT_ALLOWED',allowed:['GET']},405,{allow:'GET'});
