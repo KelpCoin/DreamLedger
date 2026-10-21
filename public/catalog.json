@@ -104,16 +104,16 @@
       "sku": "CMD-DIAG-29",
       "name": "Commander Deck Diagnostic",
       "description": "Held. Digital service, not a physical card or deck. Not currently offered for purchase.",
-      "price": 29,
       "currency": "nzd",
       "status": "held",
       "checkout_available": false,
-      "payment_link_id": "plink_1UKS00EGgEAnUFF9kUjraaL5",
-      "stripe_price_id": "price_1UFFY1EGgEAnUFF9Yq03zIa7",
       "category": "mtg",
       "delivery_test_status": "UNVERIFIED",
       "commercial_validation_status": "UNVALIDATED",
-      "inventory": 0
+      "inventory": 0,
+      "price_status": "UNOBSERVABLE",
+      "price_evidence_status": "UNVERIFIED",
+      "checkout_hold_reason": "Held until payment deactivation, price, settlement, and delivery readiness are verified."
     },
     {
       "id": "DISCORD-WEBHOOK-STARTER-KIT-001",
@@ -131,12 +131,10 @@
     {
       "id": "EDH_0001",
       "name": "Edward Kenway – Pacin’ On The Plank",
-      "description": "Edward Kenway Pirate/Vehicle Commander deck. Public listing price: NZ$230. The connected live Stripe Payment Link currently charges NZ$400, so purchase is held until price and payment link are reconciled. This listing is visible for transparency but is not purchasable.",
-      "price": 230,
+      "description": "Edward Kenway Pirate/Vehicle Commander deck. Listing held pending source, inventory, and price reconciliation. No price or checkout is advertised.",
       "currency": "nzd",
-      "status": "published",
+      "status": "held",
       "checkout_available": false,
-      "checkout_url": null,
       "sku": "EDH-EDWARD-KENWAY-PACIN-ON-THE-PLANK-001",
       "decklist_url": "https://manabox.app/decks/AZ5j98lSddyD5z5e5scYCw",
       "seller": "Biggie",
@@ -148,11 +146,11 @@
         "piratetribal",
         "mtgsale"
       ],
-      "patron_price_nzd": 200,
-      "patron_url": "https://patreon.com/happyhomarid",
       "category": "mtg",
-      "availability": "review_required",
-      "checkout_hold_reason": "Live Stripe checkout charges NZ$400 while public listing is NZ$230; checkout remains held until parity is restored."
+      "availability": "held_review",
+      "checkout_hold_reason": "Held: reconcile the source listing, inventory, and payment-link amount before release.",
+      "price_status": "UNOBSERVABLE",
+      "price_evidence_status": "UNVERIFIED"
     },
     {
       "id": "EDH_QUINTORIUS_0002",
