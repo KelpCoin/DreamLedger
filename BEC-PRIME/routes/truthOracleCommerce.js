@@ -19,6 +19,8 @@ function send(res, status, body) { if (res.writableEnded) return true; res.write
 function form(params) { const out = new URLSearchParams(); for (const [key,value] of Object.entries(params)) out.set(key,String(value)); return out; }
 function plans() { return read(PRICING).plans || []; }
 function paidPlan(tier) { return plans().find(p => p.tier === tier && Number(p.price_nzd_month) > 0 && p.stripe_price_id) || null; }
+// Existing subscriber entitlements remain readable; new subscriptions need explicit release proof.
+function checkoutPlan(tier) { const plan = paidPlan(tier); return plan && plan.checkout_enabled === true ? plan : null; }
 function getCookie(req,name) { const raw=String(req.headers.cookie||''); const match=raw.match(new RegExp('(?:^|;\\s*)'+name+'=([^;]+)')); return match ? decodeURIComponent(match[1]) : null; }
 function currentUser(req) { const sessionId=getCookie(req,COOKIE); if(!sessionId)return null; try { const users=read(path.join(DATA_ROOT,'users.json')); return Array.isArray(users) ? users.find(u => u.id===sessionId && u.email) || null : null; } catch { return null; } }
 function billing() { try { const state=read(BILLING_STATE); return state && typeof state==='object' ? state : {}; } catch { return {}; } }
@@ -45,7 +47,7 @@ function isoFromUnix(value) { return Number.isFinite(Number(value)) ? new Date(N
 function rememberEvent(record,event) { const events={...(record.provider_events||{})}; events[event.id]={type:event.type,timestamp:event.created||null,livemode:event.livemode===true,processed_at:new Date().toISOString()}; const ids=Object.keys(events); while(ids.length>100){delete events[ids.shift()];} record.provider_events=events; record.last_provider_event_id=event.id; return record; }
 
 async function handle(req,res,url) {
-  if(req.method==='GET'&&url==='/api/truth-oracle/plans') return send(res,200,{plans:plans().map(p=>({tier:p.tier,display_name:p.display_name||p.tier,price_nzd_month:Number(p.price_nzd_month),disclosure_class:p.disclosure_class,description:p.description}))});
+  if(req.method==='GET'&&url==='/api/truth-oracle/plans') return send(res,200,{plans:plans().map(p=>({tier:p.tier,display_name:p.display_name||p.tier,price_nzd_month:Number(p.price_nzd_month),disclosure_class:p.disclosure_class,description:p.description,checkout_enabled:p.checkout_enabled === true,commercial_state:p.commercial_state || 'UNKNOWN'}))});
   if(req.method==='GET'&&url==='/api/truth-oracle/entitlement') {
     const user=currentUser(req); if(!user)return send(res,401,{error:'authentication_required'});
     return send(res,200,{entitlement:getEntitlement(user.id),truth_unchanged:true});
@@ -54,7 +56,7 @@ async function handle(req,res,url) {
     const user=currentUser(req); if(!user)return send(res,401,{error:'authentication_required'});
     let raw=''; for await(const chunk of req){raw+=chunk;if(raw.length>20000)return send(res,413,{error:'Request too large'});}
     let body={};try{body=JSON.parse(raw||'{}');}catch{return send(res,400,{error:'Invalid JSON'});}
-    const plan=paidPlan(String(body.tier||'')); if(!plan)return send(res,400,{error:'Unknown or unavailable Truth Oracle tier'});
+    const plan=checkoutPlan(String(body.tier||'')); if(!plan)return send(res,409,{error:'Truth Oracle premium checkout not released; fulfillability and approval required'});
     try {
       const session=await stripePost('checkout/sessions',{
         mode:'subscription',
