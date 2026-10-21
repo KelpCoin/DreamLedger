@@ -1,0 +1,174 @@
+# Main-registered dispatcher for the pre-existing DreamLedger Cloudflare migration PR.
+# No schedule, push, pull_request, production environment or DNS mutation.
+name: DreamLedger Cloudflare Preview Dispatcher (isolated)
+on:
+  workflow_dispatch:
+    inputs:
+      expected_migration_sha:
+        description: "Optional pinned 40-character SHA from migration PR #777; mismatch fails closed"
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dreamledger-cloudflare-preview-dispatcher-only
+  cancel-in-progress: false
+
+jobs:
+  preview-only:
+    if: github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      CLOUDFLARE_PAGES_PROJECT: ${{ secrets.CLOUDFLARE_PAGES_PROJECT }}
+      MIGRATION_PROOF_PATH: proof/migration/cloudflare-preview-route-probe.json
+
+    steps:
+      - name: Checkout main control plane (read-only)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Resolve exact existing migration branch SHA
+        id: migration
+        shell: bash
+        env:
+          EXPECTED_MIGRATION_SHA: ${{ inputs.expected_migration_sha }}
+        run: |
+          set -euo pipefail
+          branch='refs/heads/beck/provider-migration-neon-cloudflare-20261019'
+          observed="$(git ls-remote https://github.com/KelpCoin/DreamLedger.git "$branch" | cut -f1)"
+          if [[ ! "$observed" =~ ^[0-9a-f]{40}$ ]]; then
+            echo 'HOLD_MIGRATION_BRANCH_NOT_RESOLVED'
+            exit 2
+          fi
+          if [[ -n "$EXPECTED_MIGRATION_SHA" ]]; then
+            if [[ ! "$EXPECTED_MIGRATION_SHA" =~ ^[0-9a-f]{40}$ ]] || [[ "$observed" != "$EXPECTED_MIGRATION_SHA" ]]; then
+              echo 'HOLD_MIGRATION_SHA_MISMATCH'
+              exit 2
+            fi
+          fi
+          echo "sha=$observed" >> "$GITHUB_OUTPUT"
+          mkdir -p proof/migration
+          printf '{"schema":"dreamledger/main-preview-dispatch/v1","migration_source_sha":"%s","production_mutation":false,"dns_changed":false,"status":"SOURCE_BOUND_PENDING_ISOLATION_CHECK"}\n' "$observed" > proof/migration/main-preview-dispatch.json
+          echo 'MIGRATION_SOURCE_REF_PINNED=PASS'
+
+      - name: Verify required secrets and dedicated preview-only Pages project (GET only)
+        shell: bash
+        run: |
+          set -euo pipefail
+          node <<'NODE'
+          const fs = require('node:fs');
+          const e = process.env;
+          const proofPath = 'proof/migration/main-preview-dispatch.json';
+          const proof = JSON.parse(fs.readFileSync(proofPath,'utf8'));
+          const fail = (code) => {
+            proof.status = code; proof.production_mutation = false; proof.dns_changed = false;
+            fs.writeFileSync(proofPath,JSON.stringify(proof,null,2)+'\n');
+            console.error(code);
+            process.exitCode = 2;
+          };
+          const t=e.CLOUDFLARE_API_TOKEN, a=e.CLOUDFLARE_ACCOUNT_ID, p=e.CLOUDFLARE_PAGES_PROJECT;
+          if (![t,a,p].every(x=>typeof x==='string'&&x.trim())) {
+            fail('HOLD_THREE_CLOUDFLARE_SECRETS_REQUIRED');
+          } else if (!/^[a-z0-9-]{3,63}$/i.test(p)||!/preview/i.test(p)) {
+            fail('HOLD_DEDICATED_PREVIEW_PROJECT_NAME_REQUIRED');
+          } else {
+            (async () => {
+              const controller = new AbortController();
+              const timeout = setTimeout(()=>controller.abort(),10000);
+              try {
+                const endpoint = 'https://api.cloudflare.com/client/v4/accounts/'+encodeURIComponent(a)+'/pages/projects/'+encodeURIComponent(p);
+                const r=await fetch(endpoint,{method:'GET',headers:{Authorization:'Bearer '+t,Accept:'application/json'},signal:controller.signal,redirect:'error'});
+                let data=null;
+                try{data=await r.json();}catch{}
+                if(!r.ok||!data||data.success!==true||!data.result||data.result.name!==p){
+                  return fail('HOLD_PREVIEW_PROJECT_NOT_VERIFIED');
+                }
+                const project=data.result;
+                if(project.production_branch==='provider-migration-preview') {
+                  return fail('HOLD_PREVIEW_BRANCH_IS_PRODUCTION_BRANCH');
+                }
+                const domains=Array.isArray(project.domains)?project.domains:[];
+                if(domains.some(d=>typeof d!=='string'||!d.endsWith('.pages.dev'))){
+                  return fail('HOLD_PROJECT_HAS_CUSTOM_DOMAINS');
+                }
+                proof.status='DEDICATED_PREVIEW_PROJECT_VERIFIED';
+                proof.project_class='PREVIEW_NO_CUSTOM_DOMAINS';
+                proof.preview_branch='provider-migration-preview';
+                proof.production_mutation=false;
+                fs.writeFileSync(proofPath,JSON.stringify(proof,null,2)+'\n');
+                console.log('DEDICATED_PREVIEW_PROJECT_VERIFIED=PASS');
+              } catch {
+                fail('HOLD_PREVIEW_PROJECT_API_READ_FAILED');
+              } finally {clearTimeout(timeout);}
+            })().catch(()=>fail('HOLD_PREVIEW_PROJECT_CHECK_ERROR'));
+          }
+          NODE
+
+      - name: Checkout pinned migration candidate (never production main)
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.migration.outputs.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Setup Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Build fail-closed preview from migration branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          node ops/migration/cloudflare-preview/build-preview.mjs
+          node --check ops/migration/cloudflare-preview/_worker.js
+          node --check ops/migration/cloudflare-preview/smoke-preview.mjs
+          node -e 'const fs=require("fs"),p="ops/migration/cloudflare-preview/dist/";for(const f of ["index.html","404.html","mtg/index.html","silos/mtg/silo.json","data/mtg-catalog.json","_worker.js"])if(!fs.existsSync(p+f))throw Error("HOLD_PREVIEW_ASSET_MISSING "+f);console.log("PREVIEW_STATIC_SAFETY=PASS")'
+
+      - name: Deploy only dedicated Pages project and named preview branch
+        shell: bash
+        env:
+          MIGRATION_SOURCE_SHA: ${{ steps.migration.outputs.sha }}
+        run: |
+          set -euo pipefail
+          npx --yes wrangler@4 pages deploy ops/migration/cloudflare-preview/dist \
+            --project-name "$CLOUDFLARE_PAGES_PROJECT" \
+            --branch provider-migration-preview \
+            --commit-hash "$MIGRATION_SOURCE_SHA" \
+            --commit-message "DreamLedger isolated migration preview $MIGRATION_SOURCE_SHA" \
+            --skip-caching
+
+      - name: Probe deployed G08 preview routes against exact SHA
+        shell: bash
+        env:
+          MIGRATION_SOURCE_SHA: ${{ steps.migration.outputs.sha }}
+        run: |
+          set -euo pipefail
+          export CLOUDFLARE_PREVIEW_URL="https://provider-migration-preview.${CLOUDFLARE_PAGES_PROJECT}.pages.dev"
+          GITHUB_SHA="$MIGRATION_SOURCE_SHA" node ops/migration/cloudflare-preview/smoke-preview.mjs
+
+      - name: Seal dispatcher proof (not provider-exit acceptance)
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          node -e 'const fs=require("fs"),p="proof/migration/main-preview-dispatch.json",d=JSON.parse(fs.readFileSync(p));d.status="PREVIEW_PROBE_EXECUTED";d.production_ready=false;d.g06="NOT_PROVEN";d.g16="NOT_RUN";d.g17="NOT_RUN";d.verified_revenue_nzd=0;fs.writeFileSync(p,JSON.stringify(d,null,2)+"\n")'
+
+      - name: Retain dispatcher, build and G08 route evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cloudflare-migration-dispatcher-${{ github.run_id }}
+          path: |
+            proof/migration/main-preview-dispatch.json
+            proof/migration/cloudflare-preview-route-probe.json
+            ops/migration/cloudflare-preview/build-proof.json
+          if-no-files-found: warn
+          retention-days: 30
