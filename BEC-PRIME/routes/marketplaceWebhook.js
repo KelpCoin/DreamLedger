@@ -73,6 +73,15 @@ async function handle(req, res) {
     const cosmeticFulfillment = String(session.metadata?.fulfillment || '').trim() === 'dreammeez_entitlement';
 
     if (cosmeticId && cosmeticFulfillment) {
+      // Fail closed on forged or mismatched cosmetic prices before writing any ledger record.
+      // These three products are intentionally fixed-price until a canonical DB offer resolver
+      // with checkout Session line-item verification is deployed.
+      const priceMinorBySku = { 'COSMIC-HOODIE': 500, CAPE: 1000, 'CHROME-BOOTS': 900 };
+      if (session.currency !== 'nzd' || !Number.isInteger(session.amount_total) ||
+          session.amount_total !== priceMinorBySku[sku]) {
+        throw new Error('DreamMeez product amount/currency does not match canonical SKU');
+      }
+      if (session.livemode !== true) throw new Error('DreamMeez production entitlement requires a live Stripe event');
       const transactionId = session.id;
       fs.mkdirSync(DATA, { recursive: true });
       fs.mkdirSync(PROOFS, { recursive: true });
@@ -94,12 +103,8 @@ async function handle(req, res) {
         offerId: null,
         silo: 'DREAMMEEZ'
       });
-      if (payment.duplicate) {
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ received: true, idempotent: true }));
-        return { handled: true };
-      }
-
+      // Payment may have been journaled before a previous crash. Do not return
+      // 'idempotent' merely because its event exists: retry the missing entitlement.
       const fulfillment = revenueLedger.createFulfillment({
         transactionId,
         productId: sku,
@@ -109,24 +114,29 @@ async function handle(req, res) {
         currency: session.currency,
         customerEmail: session.customer_details?.email
       });
-      const revenue = revenueLedger.recordFulfillment({
-        eventId: `${event.id}:fulfillment`,
-        transactionId,
-        amountMinor: session.amount_total,
-        currency: session.currency,
-        fulfillmentId: fulfillment.fulfillment.fulfillment_id,
-        productId: sku,
-        offerId: null,
-        silo: 'DREAMMEEZ'
-      });
-
       const entitlement = dreammeezEntitlement.grantPaidCosmetic({
         eventId: event.id,
         transactionId,
         session,
         sku
       });
+      if (!entitlement.handled) throw new Error('DreamMeez entitlement was not handled');
       const fulfillmentStatus = entitlement.status === 'GRANTED' ? 'GRANTED' : 'PENDING_ACCOUNT';
+      // A payment awaiting an account is DEFERRED, not delivered revenue.
+      // Existing file journals remain a legacy compatibility path until the
+      // transactional Neon inbox/outbox runtime is cut over and reconciled.
+      const revenue = fulfillmentStatus === 'GRANTED'
+        ? revenueLedger.recordFulfillment({
+            eventId: `${event.id}:fulfillment`,
+            transactionId,
+            amountMinor: session.amount_total,
+            currency: session.currency,
+            fulfillmentId: fulfillment.fulfillment.fulfillment_id,
+            productId: sku,
+            offerId: null,
+            silo: 'DREAMMEEZ'
+          })
+        : null;
       const now = new Date().toISOString();
       const tx = {
         transaction_id: transactionId,
@@ -144,7 +154,11 @@ async function handle(req, res) {
         platform_fee: fee,
         fulfillment_id: fulfillment.fulfillment.fulfillment_id,
         fulfillment_status: fulfillment.fulfillment.status,
-        ledger: { payment_journal_id: payment.journal_id, revenue_journal_id: revenue.journal_id },
+        ledger: {
+          payment_journal_id: payment.journal_id || `JE-PAY-${transactionId}`,
+          revenue_journal_id: revenue?.journal_id || null,
+          status: revenue ? 'EARNED_LOCAL_UNVERIFIED' : 'DEFERRED_AWAITING_ACCOUNT'
+        },
         created_at: now
       };
       fs.writeFileSync(txFile, JSON.stringify(tx, null, 2) + '\n', { flag: 'wx' });
@@ -165,7 +179,7 @@ async function handle(req, res) {
         proof_source: 'stripe.checkout.session.completed.webhook',
         entitlement_status: fulfillmentStatus,
         fulfillment_status: fulfillment.fulfillment.status,
-        ledger_status: 'BALANCED',
+        ledger_status: revenue ? 'EARNED_LOCAL_UNVERIFIED' : 'DEFERRED_AWAITING_ACCOUNT',
         recorded_at: now
       };
       writeProof(path.join(PROOFS, `${transactionId}.json`), proof);
