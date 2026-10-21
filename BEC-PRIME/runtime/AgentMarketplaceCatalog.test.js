@@ -51,3 +51,24 @@ test('public URLs fail closed and only allow local MTG routes',()=>{
   assert.equal(out.listings[1].image_url,null);
   assert.equal(out.listings[1].detail_url,'/mtg/');
 });
+
+test('existing public marketplace page compiles its browser scripts and uses read-only catalog',()=>{
+  const fs=require('node:fs');
+  const path=require('node:path');
+  const page=fs.readFileSync(path.join(__dirname,'..','..','public','marketplace.html'),'utf8');
+  const scripts=[...page.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)].map(m=>m[1]);
+  assert.ok(scripts.length>=2,'existing page and MTG discovery script expected');
+  for(const src of scripts) assert.doesNotThrow(()=>new Function(src));
+  assert.match(page,/id="mtg-market-search"/);
+  assert.match(page,/fetch\('\/api\/marketplace\/v2\/agent-catalog'/);
+  assert.doesNotMatch(page,/id="mtg-market-results"[^>]*>[\s\S]*?Stripe Checkout/);
+});
+
+test('production server exposes read-only agent catalog without mounting unsafe v2 handlers',()=>{
+  const fs=require('node:fs');
+  const path=require('node:path');
+  const start=fs.readFileSync(path.join(__dirname,'..','start.js'),'utf8');
+  assert.match(start,/req\.method==='GET'&&requestPath==='\/api\/marketplace\/v2\/agent-catalog'/);
+  assert.match(start,/AgentMarketplaceCatalog'\)\.snapshot\(\)/);
+  assert.doesNotMatch(start,/MarketplaceCommerce\.handle\(req,res,requestPath\)/);
+});
