@@ -15,7 +15,7 @@
   },
   "edge_functions": {
     "listed_count": 66,
-    "inspected_count": 24,
+    "inspected_count": 32,
     "complete": false,
     "items": [
       {
@@ -705,6 +705,241 @@
         "external_hosts": [
           "dreamledger.org"
         ],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": false,
+        "uses_stripe": false,
+        "uses_email": false
+      },
+      {
+        "slug": "marketplace-seller-onboarding",
+        "status": "ACTIVE",
+        "version": 4,
+        "verify_jwt": true,
+        "source_hash": "e21b7c0b4d78044b1f1c654beafab6f64eba84dc07f7be1a7b82c92479ea72cc",
+        "source_files": [
+          "index.ts"
+        ],
+        "env_keys": [
+          "STRIPE_SECRET_KEY",
+          "SUPABASE_ANON_KEY",
+          "SUPABASE_PUBLISHABLE_KEY",
+          "SUPABASE_SERVICE_ROLE_KEY",
+          "SUPABASE_URL"
+        ],
+        "tables": [
+          "marketplace_seller_accounts",
+          "marketplace_sellers"
+        ],
+        "rpc": [],
+        "storage_buckets": [],
+        "external_hosts": [
+          "dreamledger.org",
+          "esm.sh"
+        ],
+        "uses_auth": true,
+        "uses_realtime": false,
+        "uses_storage": false,
+        "uses_stripe": true,
+        "uses_email": false
+      },
+      {
+        "slug": "marketplace-connect-webhook",
+        "status": "ACTIVE",
+        "version": 4,
+        "verify_jwt": false,
+        "source_hash": "45417c40123384d8980ddb3c3548cab28bbebee6c152752063bb1af72c16c16c",
+        "source_files": [
+          "index.ts"
+        ],
+        "env_keys": [
+          "STRIPE_CONNECT_WEBHOOK_SECRET",
+          "SUPABASE_SERVICE_ROLE_KEY",
+          "SUPABASE_URL"
+        ],
+        "tables": [
+          "dreamledger_telemetry_events",
+          "marketplace_seller_accounts",
+          "marketplace_sellers",
+          "marketplace_transfers"
+        ],
+        "rpc": [],
+        "storage_buckets": [],
+        "external_hosts": [
+          "esm.sh"
+        ],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": false,
+        "uses_stripe": false,
+        "uses_email": false
+      },
+      {
+        "slug": "marketplace-stripe-connect-webhook",
+        "status": "ACTIVE",
+        "version": 4,
+        "verify_jwt": false,
+        "source_hash": "342f8a64e466a02576fa681355bd8b3d8ef4fb7299e601e3605520bb011e578c",
+        "source_files": [
+          "index.ts"
+        ],
+        "env_keys": [
+          "STRIPE_CONNECT_WEBHOOK_SECRET",
+          "STRIPE_SECRET_KEY",
+          "SUPABASE_SERVICE_ROLE_KEY",
+          "SUPABASE_URL"
+        ],
+        "tables": [
+          "marketplace_seller_accounts",
+          "marketplace_sellers",
+          "marketplace_transfers"
+        ],
+        "rpc": [],
+        "storage_buckets": [],
+        "external_hosts": [
+          "dreamledger.org",
+          "esm.sh"
+        ],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": false,
+        "uses_stripe": true,
+        "uses_email": false
+      },
+      {
+        "slug": "economic-demand-scan",
+        "status": "ACTIVE",
+        "version": 5,
+        "verify_jwt": false,
+        "source_hash": "5e26b337666f64542ff562e13f670b16bcc2b3ff4a0bae2c7a37edae148a4bf9",
+        "source_files": [
+          "index.ts",
+          "deno.json"
+        ],
+        "env_keys": [],
+        "tables": [],
+        "rpc": [],
+        "storage_buckets": [],
+        "external_hosts": [],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": false,
+        "uses_stripe": false,
+        "uses_email": false
+      },
+      {
+        "slug": "economic-demand-scan-v2",
+        "status": "ACTIVE",
+        "version": 9,
+        "verify_jwt": false,
+        "source_hash": "46bed4b47b0088ae2e339e7fde9460e83b62c23861e822a16be98375029cd199",
+        "source_files": [
+          "index.ts"
+        ],
+        "env_keys": [
+          "SUPABASE_SERVICE_ROLE_KEY",
+          "SUPABASE_URL"
+        ],
+        "tables": [
+          "dreamledger_telemetry_events",
+          "economic_activation_auth",
+          "economic_demand_signals"
+        ],
+        "rpc": [
+          "route_economic_demand",
+          "stage_openjobs_bounty"
+        ],
+        "storage_buckets": [],
+        "external_hosts": [
+          "api.github.com",
+          "community.n8n.io",
+          "openjobs.bot"
+        ],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": false,
+        "uses_stripe": false,
+        "uses_email": false
+      },
+      {
+        "slug": "stripe-checkout-abandonment",
+        "status": "ACTIVE",
+        "version": 4,
+        "verify_jwt": false,
+        "source_hash": "eddd8067386a236c9a7bac46738fd3bb7dad5005a5259713dbee8853b0167ae4",
+        "source_files": [
+          "index.ts",
+          "deno.json"
+        ],
+        "env_keys": [
+          "STRIPE_API_KEY",
+          "STRIPE_SECRET_KEY",
+          "STRIPE_WEBHOOK_SIGNING_SECRET",
+          "SUPABASE_SERVICE_ROLE_KEY",
+          "SUPABASE_URL"
+        ],
+        "tables": [
+          "control_remediation_runs",
+          "stripe_webhook_events"
+        ],
+        "rpc": [
+          "record_checkout_abandonment"
+        ],
+        "storage_buckets": [],
+        "external_hosts": [],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": false,
+        "uses_stripe": true,
+        "uses_email": false
+      },
+      {
+        "slug": "economic-actuator-bridge",
+        "status": "ACTIVE",
+        "version": 6,
+        "verify_jwt": false,
+        "source_hash": "0926b767abb15ff97048aa1a10e1d0fb0afc8eb44cd08954b2e5aa68c1a00ce2",
+        "source_files": [
+          "index.ts",
+          "import_map.json"
+        ],
+        "env_keys": [
+          "SUPABASE_SECRET_KEYS",
+          "SUPABASE_SERVICE_ROLE_KEY",
+          "SUPABASE_URL"
+        ],
+        "tables": [],
+        "rpc": [],
+        "storage_buckets": [],
+        "external_hosts": [],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": false,
+        "uses_stripe": false,
+        "uses_email": false
+      },
+      {
+        "slug": "economic-approve",
+        "status": "ACTIVE",
+        "version": 4,
+        "verify_jwt": false,
+        "source_hash": "43347e5a409e562409d02006c510b9362079395a5d539215f77b114de22b8bdd",
+        "source_files": [
+          "index.ts",
+          "deno.json"
+        ],
+        "env_keys": [
+          "SUPABASE_SERVICE_ROLE_KEY",
+          "SUPABASE_URL"
+        ],
+        "tables": [
+          "economic_activation_auth"
+        ],
+        "rpc": [
+          "economic_issue_action_authorization"
+        ],
+        "storage_buckets": [],
+        "external_hosts": [],
         "uses_auth": false,
         "uses_realtime": false,
         "uses_storage": false,
