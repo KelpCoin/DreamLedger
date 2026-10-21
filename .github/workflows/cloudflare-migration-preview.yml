@@ -1,14 +1,6 @@
 name: DreamLedger Cloudflare Migration Preview
 
 on:
-  push:
-    branches:
-      - beck/provider-migration-neon-cloudflare-20261019
-    paths:
-      - 'public/**'
-      - 'ops/migration/**'
-      - 'ops/recovery/provider-recovery-contract.test.mjs'
-      - '.github/workflows/cloudflare-migration-preview.yml'
   workflow_dispatch:
 
 permissions:
