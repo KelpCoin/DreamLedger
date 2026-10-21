@@ -8,10 +8,17 @@ param(
 $ErrorActionPreference = "Stop"
 $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
 $Supervisor = Join-Path $PSScriptRoot "north_star_supervisor.py"
+$Launcher = Join-Path $PSScriptRoot "Start-NorthStarLocal.ps1"
+$Audit = Join-Path $PSScriptRoot "north_star_priority_audit.py"
 $Python = Get-Command python.exe -ErrorAction SilentlyContinue
 if (-not $Python) { $Python = Get-Command python -ErrorAction SilentlyContinue }
 if (-not $Python) { throw "Python was not found on PATH. No packages or models are installed by this script." }
 if (-not (Test-Path -LiteralPath $Supervisor -PathType Leaf)) { throw "Supervisor source missing: $Supervisor" }
+if (-not (Test-Path -LiteralPath $Launcher -PathType Leaf)) { throw "Local launcher source missing: $Launcher" }
+if (-not (Test-Path -LiteralPath $Audit -PathType Leaf)) { throw "Priority audit source missing: $Audit" }
+$Lms = Get-Command lms.exe -ErrorAction SilentlyContinue
+if (-not $Lms) { $Lms = Get-Command lms -ErrorAction SilentlyContinue }
+if (-not $Lms -and -not (Test-Path (Join-Path $env:USERPROFILE ".lmstudio\\bin\\lms.exe"))) { throw "LM Studio CLI not found. Nothing was registered." }
 if ($IntervalSeconds -lt 30) { throw "IntervalSeconds must be >= 30." }
 if ($CycleTimeoutSeconds -lt 60) { throw "CycleTimeoutSeconds must be >= 60." }
 
@@ -25,7 +32,9 @@ Write-Host "  Default log folder: D:\BrownEyeCortex\LAKE\FIGURE8\logs\NORTH-STAR
 Write-Host "  External actions, payments, publication, outreach, credential changes, and revenue-truth writes are not enabled."
 
 & $Python.Source $Supervisor --self-test
-if ($LASTEXITCODE -ne 0) { throw "Offline self-test failed. No task was changed." }
+if ($LASTEXITCODE -ne 0) { throw "Supervisor offline self-test failed. No task was changed." }
+& $Python.Source $Audit --self-test
+if ($LASTEXITCODE -ne 0) { throw "Priority audit offline self-test failed. No task was changed." }
 
 $Existing = Get-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue
 if ($Existing -and -not $ReplaceExisting) { throw "Task '$TaskName' already exists. Nothing changed. Use -ReplaceExisting only after reviewing the existing task." }
@@ -39,12 +48,12 @@ if ($Existing -and $ReplaceExisting) {
     Stop-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue
     Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false
 }
-$Arguments = '"{0}" --interval-seconds {1} --cycle-timeout-seconds {2}' -f $Supervisor, $IntervalSeconds, $CycleTimeoutSeconds
-$Action = New-ScheduledTaskAction -Execute $Python.Source -Argument $Arguments -WorkingDirectory $RepoRoot
+$Arguments = '-NoProfile -ExecutionPolicy Bypass -File "{0}" -IntervalSeconds {1} -CycleTimeoutSeconds {2}' -f $Launcher, $IntervalSeconds, $CycleTimeoutSeconds
+$Action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument $Arguments -WorkingDirectory $RepoRoot
 $Trigger = New-ScheduledTaskTrigger -AtLogOn -User $env:USERNAME
 $Settings = New-ScheduledTaskSettingsSet -StartWhenAvailable -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -MultipleInstances IgnoreNew -RestartCount 3 -RestartInterval (New-TimeSpan -Minutes 1) -ExecutionTimeLimit ([TimeSpan]::Zero)
 $Principal = New-ScheduledTaskPrincipal -UserId $env:USERNAME -LogonType Interactive -RunLevel Limited
-Register-ScheduledTask -TaskName $TaskName -Action $Action -Trigger $Trigger -Settings $Settings -Principal $Principal -Description "DreamLedger local North Star supervisor. Internal bounded cycles only; no external commercial actions." | Out-Null
+Register-ScheduledTask -TaskName $TaskName -Action $Action -Trigger $Trigger -Settings $Settings -Principal $Principal -Description "DreamLedger local North Star launcher. Starts loopback LM Studio, loads three installed models, and runs local-only bounded cycles." | Out-Null
 Start-ScheduledTask -TaskName $TaskName
 Write-Host "TASK_REGISTERED_AND_START_REQUESTED=$TaskName"
 Write-Host "Read supervisor-events.jsonl and cycle stdout/stderr logs for the actual state. Registration is not a cycle PASS."
