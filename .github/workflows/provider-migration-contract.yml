@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'ops/migration/**'
+      - 'public/**'
       - 'ops/recovery/neon-endpoint.mjs'
       - 'ops/recovery/cloudflare-pages.mjs'
       - 'ops/recovery/provider-recovery-contract.test.mjs'
@@ -18,6 +19,7 @@ on:
       - 'beck/provider-migration-neon-cloudflare-20261019'
     paths:
       - 'ops/migration/**'
+      - 'public/**'
       - 'ops/recovery/neon-endpoint.mjs'
       - 'ops/recovery/cloudflare-pages.mjs'
       - 'ops/recovery/provider-recovery-contract.test.mjs'
