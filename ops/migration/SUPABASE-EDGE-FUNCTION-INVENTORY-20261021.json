@@ -15,7 +15,7 @@
   },
   "edge_functions": {
     "listed_count": 66,
-    "inspected_count": 32,
+    "inspected_count": 40,
     "complete": false,
     "items": [
       {
@@ -940,6 +940,223 @@
         ],
         "storage_buckets": [],
         "external_hosts": [],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": false,
+        "uses_stripe": false,
+        "uses_email": false
+      },
+      {
+        "slug": "phinhaven-mvp",
+        "status": "ACTIVE",
+        "version": 5,
+        "verify_jwt": false,
+        "source_hash": "0001dd6eb7fe9abddd141075ab935d8be72d253c5b0df69fbdd227c4c14aaea4",
+        "source_files": [
+          "index.ts"
+        ],
+        "env_keys": [
+          "SUPABASE_SECRET_KEYS",
+          "SUPABASE_SERVICE_ROLE_KEY",
+          "SUPABASE_URL"
+        ],
+        "tables": [
+          "phinhaven_chat_messages",
+          "phinhaven_players"
+        ],
+        "rpc": [],
+        "storage_buckets": [],
+        "external_hosts": [],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": false,
+        "uses_stripe": false,
+        "uses_email": false
+      },
+      {
+        "slug": "cube-http-verifier",
+        "status": "ACTIVE",
+        "version": 7,
+        "verify_jwt": false,
+        "source_hash": "41c5cb7aa2b4a4b758f41674a7eef865bf8afe9a37408876ed13c4ab5a4f0954",
+        "source_files": [
+          "index.ts"
+        ],
+        "env_keys": [],
+        "tables": [],
+        "rpc": [],
+        "storage_buckets": [],
+        "external_hosts": [
+          "dreamledger.org"
+        ],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": false,
+        "uses_stripe": false,
+        "uses_email": false
+      },
+      {
+        "slug": "cube-million-batch",
+        "status": "ACTIVE",
+        "version": 5,
+        "verify_jwt": false,
+        "source_hash": "28e6a5b074a5d13725d9b3510805d8c50c46eebe93862e238fdde1b5c625f1a9",
+        "source_files": [
+          "index.ts"
+        ],
+        "env_keys": [],
+        "tables": [],
+        "rpc": [],
+        "storage_buckets": [],
+        "external_hosts": [
+          "dreamledger.org"
+        ],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": false,
+        "uses_stripe": false,
+        "uses_email": false
+      },
+      {
+        "slug": "catalog-cta",
+        "status": "ACTIVE",
+        "version": 5,
+        "verify_jwt": false,
+        "source_hash": "a2a7a7eb11e81a7b46cd5fec2eab6c2a7f3e318bd122b3a71efe98dc6f59e338",
+        "source_files": [
+          "index.ts"
+        ],
+        "env_keys": [
+          "SUPABASE_SERVICE_ROLE_KEY",
+          "SUPABASE_URL"
+        ],
+        "tables": [
+          "commerce_cells"
+        ],
+        "rpc": [],
+        "storage_buckets": [],
+        "external_hosts": [
+          "esm.sh"
+        ],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": false,
+        "uses_stripe": false,
+        "uses_email": false
+      },
+      {
+        "slug": "economic-proof-loop",
+        "status": "ACTIVE",
+        "version": 5,
+        "verify_jwt": false,
+        "source_hash": "d45cd00781b7f10847199d71b8933a90feddc9459fd85c33d10ae530f32d20c0",
+        "source_files": [
+          "index.ts",
+          "deno.json"
+        ],
+        "env_keys": [
+          "SUPABASE_SERVICE_ROLE_KEY",
+          "SUPABASE_URL"
+        ],
+        "tables": [
+          "approval_queue",
+          "economic_demand_signals",
+          "economic_silo_loops"
+        ],
+        "rpc": [
+          "ensure_economic_silo_loop"
+        ],
+        "storage_buckets": [],
+        "external_hosts": [],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": false,
+        "uses_stripe": false,
+        "uses_email": false
+      },
+      {
+        "slug": "economic-radar-heartbeat",
+        "status": "ACTIVE",
+        "version": 27,
+        "verify_jwt": false,
+        "source_hash": "d2e9f6b7a52832ab90e2825fbfad477095ba6762d0a6198633186d046ba20581",
+        "source_files": [
+          "index.ts"
+        ],
+        "env_keys": [
+          "SUPABASE_SERVICE_ROLE_KEY",
+          "SUPABASE_URL"
+        ],
+        "tables": [
+          "cube_radar_runs",
+          "economic_demand_signals",
+          "gtm_signals"
+        ],
+        "rpc": [
+          "verify_economic_activation_token"
+        ],
+        "storage_buckets": [],
+        "external_hosts": [
+          "www.data.gov.au"
+        ],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": false,
+        "uses_stripe": false,
+        "uses_email": false
+      },
+      {
+        "slug": "economic-reality-reconciler",
+        "status": "ACTIVE",
+        "version": 5,
+        "verify_jwt": false,
+        "source_hash": "2ad2b5bcf33a587340ee5580d11c144cb1943526844ba9414c70b11ce666a287",
+        "source_files": [
+          "index.ts",
+          "deno.json"
+        ],
+        "env_keys": [
+          "SUPABASE_SERVICE_ROLE_KEY",
+          "SUPABASE_URL"
+        ],
+        "tables": [
+          "commerce_cells",
+          "economic_outcomes",
+          "economic_silo_loops",
+          "fulfillment_requests",
+          "revenue_orders"
+        ],
+        "rpc": [],
+        "storage_buckets": [],
+        "external_hosts": [],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": false,
+        "uses_stripe": false,
+        "uses_email": false
+      },
+      {
+        "slug": "mtg-catalog-sync",
+        "status": "ACTIVE",
+        "version": 4,
+        "verify_jwt": true,
+        "source_hash": "006318dc8765bd8ccf7a97b830082c14f35668cf4ac1a62ec90510a02ce945e6",
+        "source_files": [
+          "index.ts"
+        ],
+        "env_keys": [
+          "SUPABASE_SERVICE_ROLE_KEY",
+          "SUPABASE_URL"
+        ],
+        "tables": [
+          "mtg_price_observations",
+          "scryfall_catalog"
+        ],
+        "rpc": [],
+        "storage_buckets": [],
+        "external_hosts": [
+          "api.scryfall.com"
+        ],
         "uses_auth": false,
         "uses_realtime": false,
         "uses_storage": false,
