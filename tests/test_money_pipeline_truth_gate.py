@@ -1,6 +1,7 @@
 """Regression tests for the commercial payment-only truth gate (no dependencies)."""
 from __future__ import annotations
 import importlib.util
+from concurrent.futures import ThreadPoolExecutor
 import sqlite3
 import subprocess
 import sys
@@ -59,6 +60,30 @@ class PaymentTruthGateTests(unittest.TestCase):
         duplicate = money.ingest_verified_payment(self.conn, self.event(True), signature_verified=True)
         self.assertTrue(duplicate["idempotent"])
         self.assertEqual(self.conn.execute("SELECT COUNT(*) FROM commercial_payments").fetchone()[0], 1)
+
+    def test_concurrent_redelivery_claim_is_atomic(self):
+        db = Path(self.dir.name) / "concurrent.sqlite3"
+        first = sqlite3.connect(str(db))
+        money.init_db(first)
+        first.close()
+
+        def worker(_):
+            c = sqlite3.connect(str(db), timeout=15)
+            c.row_factory = sqlite3.Row
+            try:
+                return money.ingest_verified_payment(c, self.event(True), signature_verified=True)
+            finally:
+                c.close()
+
+        with ThreadPoolExecutor(max_workers=6) as pool:
+            results = list(pool.map(worker, range(12)))
+        self.assertEqual(sum(not x.get("idempotent", False) for x in results), 1)
+        self.assertEqual(sum(bool(x.get("idempotent")) for x in results), 11)
+        check = sqlite3.connect(str(db))
+        self.assertEqual(check.execute("SELECT COUNT(*) FROM stripe_event_inbox").fetchone()[0], 1)
+        self.assertEqual(check.execute("SELECT COUNT(*) FROM commercial_orders").fetchone()[0], 1)
+        self.assertEqual(check.execute("SELECT COUNT(*) FROM commercial_economic_events").fetchone()[0], 1)
+        check.close()
 
     def test_fixture_external_override_is_rejected(self):
         with tempfile.TemporaryDirectory() as directory:
