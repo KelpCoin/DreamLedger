@@ -1,0 +1,30 @@
+name: External Actuator Dispatch Evidence Contract
+
+on:
+  pull_request:
+    paths:
+      - "ops/external/**"
+      - "tests/external-actuator-dispatch-contract.test.mjs"
+      - ".github/workflows/external-actuator-contract.yml"
+      - ".github/workflows/777-social-distribution.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ops/external/**"
+      - "tests/external-actuator-dispatch-contract.test.mjs"
+      - ".github/workflows/external-actuator-contract.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Verify fail-closed dispatch evidence contract
+        run: node --test tests/external-actuator-dispatch-contract.test.mjs

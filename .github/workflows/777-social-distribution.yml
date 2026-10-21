@@ -59,7 +59,33 @@ jobs:
           json.dump(packet,open("operator-proof/777-distribution-packet.json","w"),indent=2)
           PY
 
+      - name: Confirm public acquisition doorway is healthy before posting
+        id: target_health
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os, urllib.request, urllib.error
+          packet=json.load(open("operator-proof/777-distribution-packet.json", encoding="utf-8"))
+          target=packet["target_url"].split("?", 1)[0]
+          status="UNREACHABLE"
+          healthy=False
+          try:
+              request=urllib.request.Request(target, headers={"User-Agent":"DreamLedger-777-HealthCheck/1.0"}, method="GET")
+              with urllib.request.urlopen(request, timeout=10) as response:
+                  status=str(response.status)
+                  healthy=200 <= response.status < 400
+          except urllib.error.HTTPError as error:
+              status=str(error.code)
+          except Exception as error:
+              status=type(error).__name__
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
+              output.write("healthy=" + ("true" if healthy else "false") + "\n")
+          print("ACQUISITION_DOORWAY_HTTP=" + status)
+          print("SOCIAL_PUBLICATION_GATE=" + ("PASS" if healthy else "SKIP_UNHEALTHY_DOORWAY"))
+          PY
+
       - name: Publish to Tumblr when credentials are configured
+        if: steps.target_health.outputs.healthy == 'true'
         env:
           TUMBLR_CONSUMER_KEY: ${{ secrets.TUMBLR_CONSUMER_KEY }}
           TUMBLR_CONSUMER_SECRET: ${{ secrets.TUMBLR_CONSUMER_SECRET }}
@@ -91,6 +117,7 @@ jobs:
           PY
 
       - name: Publish to X when credentials are configured
+        if: steps.target_health.outputs.healthy == 'true'
         env:
           X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
           EVENT_NAME: ${{ github.event_name }}

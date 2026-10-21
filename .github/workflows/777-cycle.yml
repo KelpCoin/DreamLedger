@@ -11,6 +11,9 @@ on:
       - "scripts/777_cycle.py"
       - "scripts/sync_agent_bridge_catalog.py"
       - "scripts/777_compounding_gate.py"
+      - "scripts/repository_artifact_contract.py"
+      - "tests/test_777_repository_artifact_contract.py"
+      - "data/777/repository-expeditions/**"
       - "scripts/validate_777_long_horizon_task_graph.py"
       - "scripts/publish_777_pulse_to_site.py"
       - "pulse/**"
@@ -92,8 +95,13 @@ jobs:
           # Some generated public pulse paths may match repository ignore rules.
           # Stage HTML candidates before the gate so it evaluates the exact files the commit step can publish.
           git add -f agent-bridge-catalog.json webapp/pulse/*.html webapp/index.html webapp/phinhaven/index.html public/pulse/*.html pulse/*.html
+          if compgen -G "data/777/repository-expeditions/*.json" > /dev/null; then
+            git add -f data/777/repository-expeditions/*.json
+          fi
       - name: Regression test compounding gate environment binding
         run: python -m unittest discover -s tests -p 'test_777_compounding_gate_import.py'
+      - name: Validate returned repository expedition artifacts
+        run: python -m unittest discover -s tests -p 'test_777_repository_artifact_contract.py'
       - name: Enforce compounding output
         run: python scripts/777_compounding_gate.py
       - name: Preserve generated pulse as a reviewable artifact
@@ -103,6 +111,7 @@ jobs:
           name: 777-economic-pulse-${{ github.run_id }}
           path: |
             agent-bridge-catalog.json
+            data/777/repository-expeditions/
             webapp/pulse/
             webapp/index.html
             webapp/phinhaven/index.html

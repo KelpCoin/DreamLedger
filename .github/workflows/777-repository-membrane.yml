@@ -1,0 +1,107 @@
+name: 777 Offline-Online Repository Membrane
+
+on:
+  pull_request:
+    paths:
+      - "data/777/repository-handoffs/**"
+      - "scripts/777_repository_membrane.py"
+      - "scripts/repository_artifact_contract.py"
+      - "tests/test_777_repository_artifact_contract.py"
+      - "tests/test_777_repository_membrane.py"
+      - ".github/workflows/777-repository-membrane.yml"
+  push:
+    branches: [main]
+    paths:
+      - "data/777/repository-handoffs/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: 777-repository-membrane-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  hydrate-and-verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    outputs:
+      has_packets: ${{ steps.packet_status.outputs.has_packets }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Hydrate leads using public GitHub metadata only
+        if: github.event_name != 'pull_request'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python scripts/777_repository_membrane.py
+      - name: Test repository artifact contract
+        run: |
+          python -m unittest discover -s tests -p 'test_777_repository_artifact_contract.py'
+          python -m unittest discover -s tests -p 'test_777_repository_membrane.py'
+      - name: Run 777 compounding gate on hydrated artifacts
+        if: github.event_name != 'pull_request'
+        run: python scripts/777_compounding_gate.py
+      - name: Detect validated repository packets
+        id: packet_status
+        if: github.event_name != 'pull_request'
+        run: |
+          if compgen -G "data/777/repository-expeditions/*.json" > /dev/null; then
+            echo "has_packets=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_packets=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Return validated repository artifacts to xBiggie
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: 777-repository-expedition-${{ github.run_id }}
+          path: |
+            data/777/repository-expeditions/
+            webapp/pulse/777-compounding-receipt-*.json
+          if-no-files-found: warn
+          retention-days: 90
+
+  persist-review-pr:
+    needs: hydrate-and-verify
+    if: github.event_name != 'pull_request' && needs.hydrate-and-verify.outputs.has_packets == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      actions: read
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/download-artifact@v4
+        with:
+          name: 777-repository-expedition-${{ github.run_id }}
+          path: incoming-artifact
+      - name: Open a reviewable PR for versioned repository artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if ! compgen -G "incoming-artifact/data/777/repository-expeditions/*.json" > /dev/null; then
+            echo "REPOSITORY_ARTIFACT_PR=NO_PACKET_IN_WORKFLOW_ARTIFACT"
+            exit 1
+          fi
+          mkdir -p data/777/repository-expeditions
+          cp -f incoming-artifact/data/777/repository-expeditions/*.json data/777/repository-expeditions/
+          git add -f data/777/repository-expeditions/*.json
+          if git diff --cached --quiet; then
+            echo "REPOSITORY_ARTIFACT_PR=NO_NEW_VERSIONED_CONTENT"
+            exit 0
+          fi
+          branch="777/repository-expedition-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch --create "$branch"
+          git commit -m "Add validated 777 repository expedition artifact"
+          git push origin "$branch"
+          gh pr create --base main --head "$branch" --title "777 repository expedition artifacts (${GITHUB_RUN_ID})" --body "Automated data-only repository expedition packet(s), independently hydrated from public GitHub repository metadata, current default-branch HEAD and licence evidence. Schema and compounding-gate validation passed in workflow run ${GITHUB_RUN_ID}. Truth remains UNVERIFIED. No repository source code was downloaded or executed; no dependency installed; no production, external action, credential, private-data or revenue claim. Human review is required before any reuse or promotion."

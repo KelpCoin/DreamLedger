@@ -4,6 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import process from 'node:process';
 import { chromium } from 'playwright';
+import { notDispatchedEvidence, validateSubmissionContract } from './dispatch-contract.mjs';
 
 const SUPABASE_URL = String(process.env.SUPABASE_URL || '').replace(/\/$/, '');
 const BRIDGE_TOKEN = String(process.env.EXTERNAL_ACTUATOR_TOKEN || '');
@@ -41,12 +42,10 @@ async function executeJob(job,page){
   const a=p.exact_action||{};
   const spec=a.browser_action||p.browser_action||{};
   const url=required(spec.url||a.target_url,'BROWSER_URL');
-  const submit=spec.submit===true;
-  const submitSelector=spec.submit_selector;
-  const proposalText=spec.proposal_text||spec.body||'';
-
-  if(submit&&!submitSelector) throw new Error('MISSING_SUBMIT_SELECTOR');
-  if(submit&&!proposalText&&!spec.fields) throw new Error('MISSING_ACTION_PAYLOAD');
+  const submissionContract = validateSubmissionContract(spec);
+  const submit = submissionContract.submit;
+  const submitSelector = spec.submit_selector;
+  const proposalText = spec.proposal_text || spec.body || '';
 
   await page.goto(url,{waitUntil:'domcontentloaded',timeout:45000});
 
@@ -61,22 +60,40 @@ async function executeJob(job,page){
     await page.locator(spec.proposal_selector||'textarea').first().fill(String(proposalText));
   }
 
-  if(spec.before_submit_selector) await page.locator(spec.before_submit_selector).click();
-
-  if(!submit){
-    return {dispatch_state:'EXTERNAL_SENT',evidence:{url:page.url(),title:await page.title().catch(()=> '')},submitted:false};
+  if (!submit) {
+    return notDispatchedEvidence({
+      url: page.url(),
+      title: await page.title().catch(() => '')
+    });
   }
+
+  if (spec.before_submit_selector) await page.locator(spec.before_submit_selector).click();
 
   await page.locator(submitSelector).click({timeout:15000});
-  await page.waitForTimeout(Number(spec.post_submit_wait_ms||1500));
+  await page.waitForTimeout(Number(spec.post_submit_wait_ms || 1500));
 
-  if(spec.success_selector) await page.locator(spec.success_selector).waitFor({state:'visible',timeout:15000});
-  if(spec.success_text){
-    const body=await page.locator('body').innerText({timeout:10000});
-    if(!body.includes(String(spec.success_text))) throw new Error('SUBMISSION_CONFIRMATION_NOT_OBSERVED');
+  let confirmation;
+  if (spec.success_selector) {
+    await page.locator(spec.success_selector).waitFor({state: 'visible', timeout: 15000});
+    confirmation = {type: 'selector_visible', selector: String(spec.success_selector)};
+  } else if (spec.success_text) {
+    const body = await page.locator('body').innerText({timeout: 10000});
+    if (!body.includes(String(spec.success_text))) throw new Error('SUBMISSION_CONFIRMATION_NOT_OBSERVED');
+    confirmation = {type: 'success_text_observed'};
+  } else {
+    // Defensive duplicate check: never call a submit successful without a post-submit witness.
+    throw new Error('MISSING_SUBMISSION_CONFIRMATION_CONTRACT');
   }
 
-  return {dispatch_state:'EXTERNAL_SENT',evidence:{url:page.url(),title:await page.title().catch(()=> '')},submitted:true};
+  return {
+    dispatch_state: 'EXTERNAL_SENT',
+    evidence: {
+      url: page.url(),
+      title: await page.title().catch(() => ''),
+      submitted: true,
+      confirmation
+    }
+  };
 }
 
 const tmp=path.join(os.tmpdir(),'dreamledger-external-actuator-' + process.pid + '.json');

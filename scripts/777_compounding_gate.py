@@ -6,6 +6,8 @@ import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
 
+from repository_artifact_contract import validate_file as validate_repository_artifact
+
 ROOT = Path(__file__).resolve().parents[1]
 PULSE = ROOT / "webapp" / "pulse"
 RECEIPT_DIR = PULSE
@@ -56,12 +58,12 @@ try:
 except Exception:
     valid_noop = False
 
-if revenue <= 0 and not artifact_files and not valid_noop:
+if revenue <= 0 and not artifact_files and not repository_artifacts and not valid_noop:
     raise SystemExit(
         "777_COMPOUNDING_GATE=FAIL: cycle produced neither verified revenue evidence "
         "nor a new or changed public HTML artifact or current-run no-op receipt."
     )
-if revenue <= 0 and not artifact_files and valid_noop:
+if revenue <= 0 and not artifact_files and not repository_artifacts and valid_noop:
     print("777_COMPOUNDING_GATE=PASS_NOOP")
     print("TRUTH_STATUS=UNVERIFIED")
     print("VERIFIED_REVENUE_NZD=0.00")
@@ -76,8 +78,9 @@ receipt = {
     "truth_status": "VERIFIED" if revenue > 0 else "UNVERIFIED",
     "verified_revenue_nzd": revenue,
     "new_website_artifacts": sorted(artifact_files),
-    "artifact_count": len(artifact_files),
-    "rule": "VERIFIED_REVENUE_OR_DURABLE_PUBLIC_HTML",
+    "new_repository_artifacts": sorted(repository_artifacts),
+    "artifact_count": len(artifact_files) + len(repository_artifacts),
+    "rule": "VERIFIED_REVENUE_OR_DURABLE_PUBLIC_HTML_OR_VALIDATED_REPOSITORY_EXPEDITION",
     "economic_revenue_claim": revenue > 0,
 }
 target = RECEIPT_DIR / f"777-compounding-receipt-{now.strftime('%Y%m%dT%H%M%SZ')}.json"
@@ -85,5 +88,6 @@ target.write_text(json.dumps(receipt, indent=2, sort_keys=True) + "\n", encoding
 print("777_COMPOUNDING_GATE=PASS")
 print(f"TRUTH_STATUS={receipt['truth_status']}")
 print(f"VERIFIED_REVENUE_NZD={revenue:.2f}")
-print(f"ARTIFACT_COUNT={len(artifact_files)}")
+print(f"ARTIFACT_COUNT={len(artifact_files) + len(repository_artifacts)}")
+print(f"REPOSITORY_ARTIFACT_COUNT={len(repository_artifacts)}")
 print(f"RECEIPT={target.relative_to(ROOT).as_posix()}")
