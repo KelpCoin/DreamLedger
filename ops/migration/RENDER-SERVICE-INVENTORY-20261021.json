@@ -1,0 +1,153 @@
+{
+  "schema": "dreamledger/render-dependency-inventory/v1",
+  "generated_at_utc": "2026-10-21T03:07:18.348Z",
+  "classification": "INTERNAL_MIGRATION_EVIDENCE",
+  "workspace_id": "tea-d7l1ebq8qa3s73fq2cd0",
+  "include_previews": false,
+  "listed_service_count": 14,
+  "source": "Read-only Render service inventory",
+  "services": [
+    {
+      "name": "dreamledger-quote-verifier-prime",
+      "id": "srv-db26uv17lnhs73drj0p0",
+      "type": "web_service",
+      "status": "suspended",
+      "suspenders": [
+        "billing"
+      ],
+      "purpose": "quote verifier API"
+    },
+    {
+      "name": "dreamledger-silo-gateway",
+      "id": "srv-das8k4d9fdbs73cbbmlg",
+      "type": "web_service",
+      "status": "suspended",
+      "suspenders": [
+        "billing"
+      ],
+      "purpose": "public silo gateway"
+    },
+    {
+      "name": "fightedge-web-live",
+      "id": "srv-das8genpn0mc73f9f6ig",
+      "type": "web_service",
+      "status": "suspended",
+      "suspenders": [
+        "billing"
+      ]
+    },
+    {
+      "name": "fightedge-web",
+      "id": "srv-das8g6npn0mc73f9e680",
+      "type": "web_service",
+      "status": "suspended",
+      "suspenders": [
+        "billing"
+      ]
+    },
+    {
+      "name": "cube-economic-heartbeat",
+      "id": "crn-dari7qgjo6nc738336ag",
+      "type": "cron_job",
+      "status": "not_suspended",
+      "schedule": "*/15 * * * *",
+      "critical_dependency": "Calls SUPABASE_URL/functions/v1/economic-radar-heartbeat using SUPABASE_URL and CUBE_HEARTBEAT_SECRET environment variables",
+      "migration_consequence": "Render and Supabase dependency remains active; must be migrated and proven before either provider exit gate can pass."
+    },
+    {
+      "name": "DreamLedger1",
+      "id": "srv-d8ud55lckfvc73f1t4eg",
+      "type": "web_service",
+      "status": "suspended",
+      "suspenders": [
+        "billing"
+      ],
+      "purpose": "public Node storefront/API rootDir public"
+    },
+    {
+      "name": "render-ingestor-1",
+      "id": "srv-d8poidegvqtc739cr3t0",
+      "type": "web_service",
+      "status": "suspended",
+      "suspenders": [
+        "billing"
+      ]
+    },
+    {
+      "name": "dreamledger-org",
+      "id": "srv-d8mclrnlk1mc738hdg2g",
+      "type": "static_site",
+      "status": "not_suspended",
+      "purpose": "static public content hosted by Render"
+    },
+    {
+      "name": "render-ingestor",
+      "id": "srv-d8f2rjsm0tmc73egs540",
+      "type": "web_service",
+      "status": "suspended",
+      "suspenders": [
+        "billing"
+      ]
+    },
+    {
+      "name": "DreamLedger carousel runtime",
+      "id": "srv-d8b7pq4m0tmc73da8hh0",
+      "type": "web_service",
+      "status": "suspended",
+      "suspenders": [
+        "user",
+        "billing"
+      ]
+    },
+    {
+      "name": "homarid-api",
+      "id": "srv-d8aimjmk1jcs7380una0",
+      "type": "web_service",
+      "status": "suspended",
+      "suspenders": [
+        "billing"
+      ]
+    },
+    {
+      "name": "carousel-catalog",
+      "id": "srv-d7ne5qbbc2fs738okf5g",
+      "type": "web_service",
+      "status": "suspended",
+      "suspenders": [
+        "billing"
+      ]
+    },
+    {
+      "name": "DreamLedger quote verifier prime",
+      "id": "srv-db26uv17lnhs73drj0p0",
+      "type": "web_service",
+      "status": "suspended",
+      "suspenders": [
+        "billing"
+      ],
+      "note": "duplicate alias of dreamledger-quote-verifier-prime service ID in the inventory"
+    },
+    {
+      "name": "legacy/non-core services",
+      "id": null,
+      "type": "aggregate",
+      "status": "not_assessed",
+      "note": "Only services returned by includePreviews=false are represented; full Render workspace dependency inventory and preview services are not included."
+    }
+  ],
+  "gate_assessment": {
+    "G16_RENDER_EXIT": "NOT_PASS",
+    "evidence": [
+      "The Render static site dreamledger-org remains not suspended and still serves the live public billboard page.",
+      "The DreamLedger1 storefront/API is suspended by billing.",
+      "The cube-economic-heartbeat cron job is not suspended and runs every 15 minutes while calling a Supabase Edge Function.",
+      "Other listed web services are suspended by billing, not retired or replaced."
+    ]
+  },
+  "safety": {
+    "production_mutation_performed": false,
+    "service_suspended_or_resumed": false,
+    "secrets_values_recorded": false,
+    "note": "This is a read-only inventory. Do not suspend or delete the cron job until an equivalent replacement is deployed and verified."
+  }
+}
