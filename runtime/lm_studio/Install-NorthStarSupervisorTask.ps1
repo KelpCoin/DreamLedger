@@ -12,7 +12,7 @@ $Launcher = Join-Path $PSScriptRoot "Start-NorthStarLocal.ps1"
 $Audit = Join-Path $PSScriptRoot "north_star_priority_audit.py"
 $PythonCommand = Get-Command python.exe -ErrorAction SilentlyContinue
 $PythonPath = if ($PythonCommand) { $PythonCommand.Source } else { $null }
-if (-not $PythonPath -and (Test-Path "C:\\Python314\\python.exe")) { $PythonPath = "C:\\Python314\\python.exe" }
+if (-not $PythonPath -and (Test-Path "C:\Python314\python.exe")) { $PythonPath = "C:\Python314\python.exe" }
 if (-not $PythonPath) { $PythonCommand = Get-Command python -ErrorAction SilentlyContinue; if ($PythonCommand) { $PythonPath = $PythonCommand.Source } }
 if (-not $PythonPath) { throw "Python was not found. Nothing was registered." }
 if (-not (Test-Path -LiteralPath $Supervisor -PathType Leaf)) { throw "Supervisor source missing: $Supervisor" }
