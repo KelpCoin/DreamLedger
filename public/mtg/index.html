@@ -58,20 +58,7 @@ h1{font-size:clamp(2.2rem,6vw,3.6rem);line-height:1.02;letter-spacing:-.04em;mar
       return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c];
     });
   }
-  var FALLBACK = [
-    { id: 'EDH_QUINTORIUS_0002', name: 'Quintorius, Field Historian', price: 90, status: 'published', category: 'commander-deck', silo: 'mtg',
-      description: 'Boros graveyard-recursion Commander. NZ$90 free NZ shipping. Patreon NZ$80.',
-      claim_url: 'mailto:hello@dreamledger.org?subject=Buy%20Quintorius%20Commander%20deck%20NZ%2490' },
-    { id: 'EDH_DWYNEN_0003', name: 'Dwynen, Gilt-Leaf Daen', price: 90, status: 'published', category: 'commander-deck', silo: 'mtg',
-      description: 'Mono-green Elf tribal. NZ$90 free NZ shipping. Patreon NZ$80.',
-      claim_url: 'mailto:hello@dreamledger.org?subject=Buy%20Dwynen%20Commander%20deck%20NZ%2490' },
-    { id: 'EDH_JON_IRENICUS_0004', name: 'Jon Irenicus, Shattered One', price: 220, status: 'published', category: 'commander-deck', silo: 'mtg',
-      description: 'Physical Commander deck. Claim to confirm availability and shipping.',
-      claim_url: 'mailto:hello@dreamledger.org?subject=Claim%20Jon%20Irenicus%20Commander%20Deck' },
-    { id: 'EDH_0001', name: 'Commander deck EDH_0001', price: 400, status: 'published', category: 'commander-deck', silo: 'mtg',
-      description: 'Physical Commander deck. Claim to confirm availability.',
-      claim_url: 'mailto:hello@dreamledger.org?subject=Buy%20EDH_0001%20Commander%20deck%20NZ%24400' }
-  ];
+  var FALLBACK = [];
   var statusEl = document.getElementById('status');
   var grid = document.getElementById('grid');
   function isMtgDeck(p) {
@@ -81,13 +68,19 @@ h1{font-size:clamp(2.2rem,6vw,3.6rem);line-height:1.02;letter-spacing:-.04em;mar
     return silo === 'mtg' || cat === 'commander-deck' || /^EDH_/i.test(id);
   }
   function render(decks, note) {
-    statusEl.innerHTML = '<strong>' + decks.length + ' deck' + (decks.length === 1 ? '' : 's') + '</strong> · physical · NZ · claim confirms stock' + (note ? ' · ' + note : '');
+    decks = Array.isArray(decks) ? decks : [];
+    if (!decks.length) {
+      statusEl.textContent = /loading/i.test(note || '')
+        ? 'Loading catalogue…'
+        : 'Catalogue unavailable or no published deck listings.';
+      grid.innerHTML = '<p class="notice">No deck cards are shown until catalogue data is available. The offline fallback intentionally contains no prices or checkout links.</p>';
+      return;
+    }
+    statusEl.textContent = decks.length + ' deck' + (decks.length === 1 ? '' : 's') + ' · physical · NZ · claim confirms stock' + (note ? ' · ' + note : '');
     grid.innerHTML = decks.map(function (p) {
-      var claim = p.claim_url || ('mailto:hello@dreamledger.org?subject=' + encodeURIComponent('Buy ' + (p.name || 'deck') + ' NZ$' + (p.price || '')));
+      var claim = (typeof p.claim_url === 'string' && /^(https:\/\/|mailto:)/i.test(p.claim_url)) ? p.claim_url : '';
       var price = Number(p.price);
-      return '<article class="deck"><h3>' + esc(p.name || p.id) + '</h3><p>' + esc(p.description || '') + '</p><div class="price">' +
-        (Number.isFinite(price) ? ('NZ$' + price.toFixed(2)) : '') + '</div><a class="silo-btn silo-btn-ghost" href="' + esc(claim) + '">Request deck</a></article>';
-    }).join('');
+      var priceLabel = Number.isFinite(price) && price > 0 ? 'NZ).join('');
   }
   function tryFetch(url) {
     return fetch(url, { cache: 'no-store' }).then(function (r) {
@@ -95,14 +88,41 @@ h1{font-size:clamp(2.2rem,6vw,3.6rem);line-height:1.02;letter-spacing:-.04em;mar
       return r.json();
     });
   }
-  render(FALLBACK, 'loading feeds…');
+  render([], 'offline catalogue');
   tryFetch('/data/mtg-catalog.json')
     .catch(function () { return tryFetch('/catalog.json'); })
     .then(function (d) {
       var decks = ((d && d.products) || []).filter(isMtgDeck);
-      render(decks.length ? decks : FALLBACK, decks.length ? '' : 'fallback');
+      render(decks, decks.length ? '' : 'no published listings');
     })
-    .catch(function () { render(FALLBACK, 'offline catalogue'); });
+    .catch(function () { render([], 'offline catalogue'); });
+})();
+</script>
+</body>
+</html>
+ + price.toFixed(2) : 'Price to be confirmed';
+      var action = claim
+        ? '<a class="silo-btn silo-btn-ghost" href="' + esc(claim) + '">Request deck</a>'
+        : '<span class="silo-btn silo-btn-ghost">Contact route unavailable</span>';
+      return '<article class="deck"><h3>' + esc(p.name || p.id) + '</h3><p>' + esc(p.description || '') + '</p><div class="price">' +
+        esc(priceLabel) + '</div>' + action + '</article>';
+    }).join('');
+  }).join('');
+  }
+  function tryFetch(url) {
+    return fetch(url, { cache: 'no-store' }).then(function (r) {
+      if (!r.ok) throw new Error(String(r.status));
+      return r.json();
+    });
+  }
+  render([], 'offline catalogue');
+  tryFetch('/data/mtg-catalog.json')
+    .catch(function () { return tryFetch('/catalog.json'); })
+    .then(function (d) {
+      var decks = ((d && d.products) || []).filter(isMtgDeck);
+      render(decks, decks.length ? '' : 'no published listings');
+    })
+    .catch(function () { render([], 'offline catalogue'); });
 })();
 </script>
 </body>
