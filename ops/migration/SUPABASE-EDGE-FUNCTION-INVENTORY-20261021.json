@@ -15,8 +15,8 @@
   },
   "edge_functions": {
     "listed_count": 66,
-    "inspected_count": 56,
-    "complete": false,
+    "inspected_count": 66,
+    "complete": true,
     "items": [
       {
         "slug": "dreamledger-stripe-webhook",
@@ -1604,6 +1604,298 @@
         "env_keys": [
           "SUPABASE_ANON_KEY",
           "SUPABASE_URL"
+        ],
+        "tables": [],
+        "rpc": [],
+        "storage_buckets": [],
+        "external_hosts": [],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": false,
+        "uses_stripe": false,
+        "uses_email": false
+      },
+      {
+        "slug": "traversable-opportunity-discovery",
+        "status": "ACTIVE",
+        "version": 4,
+        "verify_jwt": false,
+        "source_hash": "be5413ba40dc0ccd8f228f85c6190a253876135baea5578e7c3f653b2a751cb8",
+        "source_files": [
+          "index.ts"
+        ],
+        "env_keys": [],
+        "tables": [],
+        "rpc": [],
+        "storage_buckets": [],
+        "external_hosts": [
+          "api.github.com",
+          "www.gets.govt.nz"
+        ],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": false,
+        "uses_stripe": false,
+        "uses_email": false
+      },
+      {
+        "slug": "quote-intake",
+        "status": "ACTIVE",
+        "version": 6,
+        "verify_jwt": false,
+        "source_hash": "cd39151c379c788e27c5283f7773d756539b9d4b85b09b55c2f2bb0d5f5fff31",
+        "source_files": [
+          "index.ts"
+        ],
+        "env_keys": [
+          "STRIPE_API_KEY",
+          "STRIPE_SECRET_KEY",
+          "SUPABASE_SERVICE_ROLE_KEY",
+          "SUPABASE_URL"
+        ],
+        "tables": [
+          "fulfillment_requests",
+          "revenue_entitlements",
+          "revenue_orders"
+        ],
+        "rpc": [],
+        "storage_buckets": [],
+        "external_hosts": [
+          "dreamledger.org"
+        ],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": true,
+        "uses_stripe": true,
+        "uses_email": false
+      },
+      {
+        "slug": "quote-fulfillment",
+        "status": "ACTIVE",
+        "version": 5,
+        "verify_jwt": true,
+        "source_hash": "cdf95be19a15b3d38f9b1bee260719c6d34c1416391f0ab487491e779a5dc1b6",
+        "source_files": [
+          "index.ts"
+        ],
+        "env_keys": [
+          "SUPABASE_SERVICE_ROLE_KEY",
+          "SUPABASE_URL"
+        ],
+        "tables": [
+          "fulfillment_requests",
+          "revenue_entitlements"
+        ],
+        "rpc": [],
+        "storage_buckets": [],
+        "external_hosts": [],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": true,
+        "uses_stripe": false,
+        "uses_email": false
+      },
+      {
+        "slug": "x402-reconcile",
+        "status": "ACTIVE",
+        "version": 6,
+        "verify_jwt": false,
+        "source_hash": "7fbd6cec30900792f32f8741fab8dfde4a466dd8d2576293368f25538756b716",
+        "source_files": [
+          "index.ts"
+        ],
+        "env_keys": [
+          "SUPABASE_SERVICE_ROLE_KEY",
+          "SUPABASE_URL",
+          "X402_RECONCILE_TOKEN"
+        ],
+        "tables": [
+          "agent_toll_calls",
+          "economic_events",
+          "x402_settlements"
+        ],
+        "rpc": [],
+        "storage_buckets": [],
+        "external_hosts": [
+          "api.frankfurter.app",
+          "mainnet.base.org",
+          "sepolia.base.org"
+        ],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": false,
+        "uses_stripe": false,
+        "uses_email": false
+      },
+      {
+        "slug": "economic-opportunity-compiler-live",
+        "status": "ACTIVE",
+        "version": 8,
+        "verify_jwt": false,
+        "source_hash": "26ccdacdee2f7994256ef8ba454be7bf8c732341078dea87ac9f6616a8b4169b",
+        "source_files": [
+          "index.ts",
+          "deno.json"
+        ],
+        "env_keys": [
+          "SUPABASE_SERVICE_ROLE_KEY",
+          "SUPABASE_URL"
+        ],
+        "tables": [
+          "cube_mechanisms",
+          "cube_opportunities",
+          "economic_demand_signals"
+        ],
+        "rpc": [
+          "economic_circuit_check",
+          "economic_circuit_record",
+          "verify_economic_activation_token"
+        ],
+        "storage_buckets": [],
+        "external_hosts": [
+          "esm.sh"
+        ],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": false,
+        "uses_stripe": false,
+        "uses_email": false
+      },
+      {
+        "slug": "c2-checkout",
+        "status": "ACTIVE",
+        "version": 4,
+        "verify_jwt": false,
+        "source_hash": "d40d5dd7a3bb8fbe58b00196aab0a56761722f6f0486d4807824fdc58555f3ce",
+        "source_files": [
+          "index.ts"
+        ],
+        "env_keys": [
+          "STRIPE_API_KEY",
+          "STRIPE_SECRET_KEY",
+          "SUPABASE_SERVICE_ROLE_KEY",
+          "SUPABASE_URL"
+        ],
+        "tables": [
+          "evidence_records"
+        ],
+        "rpc": [],
+        "storage_buckets": [],
+        "external_hosts": [
+          "dreamledger.org"
+        ],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": false,
+        "uses_stripe": true,
+        "uses_email": false
+      },
+      {
+        "slug": "c2-result",
+        "status": "ACTIVE",
+        "version": 7,
+        "verify_jwt": false,
+        "source_hash": "e85cab115e1d1178f682a22d08602ab9e1009aace4b86b1c51d8fa87e4296fb4",
+        "source_files": [
+          "index.ts"
+        ],
+        "env_keys": [
+          "STRIPE_API_KEY",
+          "STRIPE_SECRET_KEY",
+          "SUPABASE_SERVICE_ROLE_KEY",
+          "SUPABASE_URL"
+        ],
+        "tables": [
+          "economic_events",
+          "economic_outcomes",
+          "evidence_records",
+          "fulfillment_requests",
+          "revenue_entitlements",
+          "revenue_orders"
+        ],
+        "rpc": [],
+        "storage_buckets": [],
+        "external_hosts": [
+          "dreamledger.org"
+        ],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": false,
+        "uses_stripe": true,
+        "uses_email": false
+      },
+      {
+        "slug": "mtg-deck-catalog",
+        "status": "ACTIVE",
+        "version": 5,
+        "verify_jwt": false,
+        "source_hash": "ae67cd116207bc5a32be1e924fde66e23c5bbd0ac3dfbe1625caf3a63a6224e3",
+        "source_files": [
+          "index.ts"
+        ],
+        "env_keys": [
+          "SUPABASE_ANON_KEY",
+          "SUPABASE_PUBLISHABLE_KEY",
+          "SUPABASE_SECRET_KEY",
+          "SUPABASE_SECRET_KEYS",
+          "SUPABASE_SERVICE_ROLE_KEY",
+          "SUPABASE_URL"
+        ],
+        "tables": [
+          "mtg_decks"
+        ],
+        "rpc": [],
+        "storage_buckets": [],
+        "external_hosts": [
+          "dreamledger.org",
+          "esm.sh"
+        ],
+        "uses_auth": true,
+        "uses_realtime": false,
+        "uses_storage": false,
+        "uses_stripe": false,
+        "uses_email": false
+      },
+      {
+        "slug": "verify-nzbn",
+        "status": "ACTIVE",
+        "version": 5,
+        "verify_jwt": false,
+        "source_hash": "308776ef8f94ef3d50f30ac97b601c1a2eeae0a0c256289cba60cb5998d7a3dd",
+        "source_files": [
+          "index.ts",
+          "deno.json"
+        ],
+        "env_keys": [
+          "FOSSIL_PRIVATE_KEY_JWK",
+          "NZBN_API_KEY",
+          "SUPABASE_SERVICE_ROLE_KEY",
+          "SUPABASE_URL"
+        ],
+        "tables": [],
+        "rpc": [],
+        "storage_buckets": [],
+        "external_hosts": [
+          "api.business.govt.nz"
+        ],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": false,
+        "uses_stripe": false,
+        "uses_email": false
+      },
+      {
+        "slug": "fossil-public-key",
+        "status": "ACTIVE",
+        "version": 5,
+        "verify_jwt": false,
+        "source_hash": "e68917f504c40300f9bc0b540459bd8d0c23d7a8b9a2d76e6c70717ebad78bd6",
+        "source_files": [
+          "index.ts",
+          "deno.json"
+        ],
+        "env_keys": [
+          "FOSSIL_PRIVATE_KEY_JWK"
         ],
         "tables": [],
         "rpc": [],
