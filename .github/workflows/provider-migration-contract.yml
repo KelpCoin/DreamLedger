@@ -60,6 +60,8 @@ jobs:
           node --check ops/migration/cloudflare-preview/smoke-preview.mjs
       - name: Test recovery controls without provider credentials
         run: node --test ops/recovery/provider-recovery-contract.test.mjs
+      - name: Test Neon staging heartbeat idempotency without credentials
+        run: node --test ops/migration/neon-shadow-heartbeat.test.mjs
       - name: Test CUBE silo registry and economic gates
         run: node --test ops/silo-factory/cube-silo-economic-contract.test.mjs
       - name: Test revenue-evidence-gated CUBE scaler
