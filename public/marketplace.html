@@ -22,6 +22,15 @@
 <article class="card"><div class="price">NZ$29 · LEDGER-GATED CHECKOUT</div><h2>Commander Deck Diagnostic</h2><p class="muted">Submit a decklist through the first-party intake. Checkout is created only while settlement recording is reachable; a listing or checkout start is not proof of delivery.</p><a class="btn" href="/mtg/diagnostic.html">Start decklist intake</a></article>
 <article class="card"><div class="price">NZ$79 · DELIVERY TEST PENDING</div><h2>Discord Webhook Starter Kit</h2><p class="muted">A downloadable Stripe-to-Discord webhook kit. The ZIP and session-verified endpoint exist, but the post-payment delivery path has not yet passed an end-to-end receipt test.</p><a class="btn" href="https://buy.stripe.com/4gMcN56HzaG1dmDeZedwc1n">Open checkout</a></article>
 </div></div></section>
+<section id="mtg-agent-discovery" class="section"><div class="wrap">
+<h2>New Zealand MTG marketplace</h2>
+<p class="muted">Browse the first marketplace silo. Listings are discovery records, not a guarantee of stock. Seller confirmation and buyer authorization are required before payment.</p>
+<label for="mtg-market-search" style="display:block;font-weight:800;margin-bottom:8px">Find a Commander deck or card</label>
+<input id="mtg-market-search" type="search" inputmode="search" autocomplete="off" placeholder="Search cards and decks" aria-controls="mtg-market-results" style="box-sizing:border-box;width:100%;max-width:620px;min-height:48px;font:inherit;background:#0d151e;color:#eef3f7;border:1px solid #587184;border-radius:10px;padding:12px">
+<p id="mtg-market-state" class="muted" role="status" aria-live="polite">Checking the marketplace catalogue. No live stock is assumed.</p>
+<div id="mtg-market-results" class="grid" aria-live="polite"></div>
+<p><a class="btn alt" href="/mtg/">Open the MTG marketplace</a> <a class="btn alt" href="/api/marketplace/v2/agent-catalog">Machine-readable catalogue</a></p>
+</div></section>
 <section id="agent-bridge-catalog" class="section"><div class="wrap"><h2>Agent Bridge live transaction status</h2><p class="muted">This panel reads the canonical gateway manifest, not the cached catalogue snapshot. It reports held routes and missing checkout/execution fields rather than treating a listing as sellable.</p><div id="bridge-offers" class="grid" aria-live="polite"><article class="card"><h2>Checking gateway status…</h2><p class="muted">No availability is inferred while the manifest is loading.</p></article></div><p id="bridge-status" class="muted" role="status">Contacting canonical Agent Bridge manifest.</p><p><a class="btn alt" href="https://dreamledger.org/api/toll/v1/manifest">Open raw machine manifest</a></p></div></section>
 <section class="section"><div class="wrap"><div class="card"><h2>What makes this a marketplace?</h2><p class="muted">Discovery is shared. Offers are structured. Agents can consume the catalog. Buyers retain authorization. Existing Stripe settlement and fulfillment remain the economic authority. B2B browsing is free; A2A usage is priced per capability and must disclose its unit and budget. Digital goods need a licence and versioned delivery receipt. DOOH inventory must be owner-authorized, and GPU work must be opt-in and isolated. The first objective is one independent buyer crossing the wallet, then repeatable fulfilment.</p></div></div></section>
 <section><div class="wrap truth">VERIFIED_EXTERNAL_REVENUE = NZ$0.00<br>Listings, clicks, checkout starts and internal orders do not count as revenue.</div></section>
@@ -62,4 +71,43 @@
 </script>
 
 <!-- Canonical Agent Bridge status panel. -->
+<script>
+(function(){
+ const input=document.getElementById('mtg-market-search');
+ const root=document.getElementById('mtg-market-results');
+ const state=document.getElementById('mtg-market-state');
+ let rows=[];
+ const text=(tag,value,cls)=>{const el=document.createElement(tag);el.textContent=String(value==null?'':value);if(cls)el.className=cls;return el;};
+ function render(){
+  const q=input.value.trim().toLowerCase();
+  const matches=rows.filter(x=>(x.title+' '+x.description).toLowerCase().includes(q)).slice(0,25);
+  root.replaceChildren();
+  if(!matches.length){root.append(text('p',rows.length?'No matching listings.':'No listings currently verified as available.','muted'));return;}
+  for(const item of matches){
+   const article=text('article','','card');
+   article.append(text('div',item.listing_type==='PHYSICAL_DECK'?'COMMANDER DECK':'MTG LISTING','price'));
+   article.append(text('h3',item.title));
+   article.append(text('p',item.description,'muted'));
+   const amount=item.price&&Number.isSafeInteger(item.price.amount_minor)?'NZ</html>+(item.price.amount_minor/100).toFixed(2):'Price not stated';
+   article.append(text('p',amount+' · Seller confirmation required'));
+   if(typeof item.detail_url==='string'&&/^\/mtg\/[A-Za-z0-9/_-]+(?:\.html)?$/.test(item.detail_url)){
+    const link=text('a','View listing','btn alt');link.href=item.detail_url;article.append(link);
+   }
+   root.append(article);
+  }
+ }
+ input.addEventListener('input',render);
+ fetch('/api/marketplace/v2/agent-catalog',{headers:{Accept:'application/json'},cache:'no-store'})
+ .then(r=>{if(!r.ok)throw Error('Catalog HTTP '+r.status);return r.json();})
+ .then(data=>{
+   if(data.schema!=='dreamledger.marketplace.agent_catalog.v1')throw Error('Unknown catalog schema');
+   rows=Array.isArray(data.listings)?data.listings.filter(x=>x&&x.silo_id==='mtg'):[];
+   const states=data.source_state||{};
+   state.textContent=states.master==='UNOBSERVABLE'||states.peer==='UNOBSERVABLE'?
+    'Some catalogue sources are temporarily unavailable. Shown listings still require seller confirmation.':
+    'Showing '+rows.length+' discovery listing(s). All purchases require buyer approval.';
+   render();
+ }).catch(()=>{state.textContent='Catalogue unavailable. Browse the MTG reference marketplace instead.';root.replaceChildren();});
+})();
+</script>
 </body></html>
