@@ -15,7 +15,7 @@
   },
   "edge_functions": {
     "listed_count": 66,
-    "inspected_count": 16,
+    "inspected_count": 24,
     "complete": false,
     "items": [
       {
@@ -461,6 +461,253 @@
         "uses_auth": false,
         "uses_realtime": false,
         "uses_storage": true,
+        "uses_stripe": false,
+        "uses_email": false
+      },
+      {
+        "slug": "marketplace-commander-access",
+        "status": "ACTIVE",
+        "version": 5,
+        "verify_jwt": true,
+        "source_hash": "91e6068c31d2cafc8aa5b693e5c84b6f7bf8d4ef17664d2a63a226538a60dfcc",
+        "source_files": [
+          "index.ts",
+          "deno.json"
+        ],
+        "env_keys": [
+          "SUPABASE_ANON_KEY",
+          "SUPABASE_PUBLISHABLE_KEY",
+          "SUPABASE_SERVICE_ROLE_KEY",
+          "SUPABASE_URL"
+        ],
+        "tables": [
+          "marketplace_fulfillments",
+          "marketplace_orders"
+        ],
+        "rpc": [
+          "claim_marketplace_guest_order",
+          "submit_marketplace_commander_decklist"
+        ],
+        "storage_buckets": [],
+        "external_hosts": [],
+        "uses_auth": true,
+        "uses_realtime": false,
+        "uses_storage": true,
+        "uses_stripe": false,
+        "uses_email": false
+      },
+      {
+        "slug": "b2b-evidence-audit-fulfillment",
+        "status": "ACTIVE",
+        "version": 4,
+        "verify_jwt": false,
+        "source_hash": "d578e3cda7c20ea40d2714fad7a697453aa7c61d6c2860052579d901d4e9b586",
+        "source_files": [
+          "index.ts",
+          "deno.json"
+        ],
+        "env_keys": [
+          "STRIPE_API_KEY",
+          "STRIPE_SECRET_KEY",
+          "SUPABASE_SERVICE_ROLE_KEY",
+          "SUPABASE_URL"
+        ],
+        "tables": [
+          "marketplace_audit_events",
+          "marketplace_fulfillment_artifacts",
+          "marketplace_fulfillment_events",
+          "marketplace_fulfillments",
+          "marketplace_listings",
+          "marketplace_orders"
+        ],
+        "rpc": [],
+        "storage_buckets": [],
+        "external_hosts": [],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": true,
+        "uses_stripe": true,
+        "uses_email": false
+      },
+      {
+        "slug": "cube-controller",
+        "status": "ACTIVE",
+        "version": 7,
+        "verify_jwt": true,
+        "source_hash": "9cf75afd77137f507f7da65129a83a2eccf1cd0e63afc560732133ba67cb60c9",
+        "source_files": [
+          "index.ts",
+          "deno.json"
+        ],
+        "env_keys": [
+          "SUPABASE_SERVICE_ROLE_KEY",
+          "SUPABASE_URL"
+        ],
+        "tables": [
+          "approval_queue",
+          "cube_cells",
+          "cube_controller_artifacts",
+          "economic_silo_registry",
+          "jobs"
+        ],
+        "rpc": [],
+        "storage_buckets": [],
+        "external_hosts": [],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": false,
+        "uses_stripe": false,
+        "uses_email": false
+      },
+      {
+        "slug": "beck-loop-001",
+        "status": "ACTIVE",
+        "version": 7,
+        "verify_jwt": false,
+        "source_hash": "65d33a25adf02d5ab49c69eb5ecb39fa7d090a8af7818a3f8f77967d783a8391",
+        "source_files": [
+          "index.ts"
+        ],
+        "env_keys": [
+          "SUPABASE_DB_URL",
+          "SUPABASE_SECRET_KEYS",
+          "SUPABASE_SERVICE_ROLE_KEY",
+          "SUPABASE_URL"
+        ],
+        "tables": [
+          "agent_memory",
+          "cube_evidence_vault"
+        ],
+        "rpc": [],
+        "storage_buckets": [],
+        "external_hosts": [
+          "gamma-api.polymarket.com"
+        ],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": true,
+        "uses_stripe": false,
+        "uses_email": false
+      },
+      {
+        "slug": "elohim-cube",
+        "status": "ACTIVE",
+        "version": 12,
+        "verify_jwt": false,
+        "source_hash": "ff047be8eaeb2ab8c09380bb47320ed038c73cf92eba59a96521c4499bf7b6c2",
+        "source_files": [
+          "index.ts",
+          "deno.json"
+        ],
+        "env_keys": [
+          "SUPABASE_SERVICE_ROLE_KEY",
+          "SUPABASE_URL"
+        ],
+        "tables": [
+          "economic_activation_auth",
+          "economic_demand_signals",
+          "economic_silo_registry",
+          "silo_agent_runs"
+        ],
+        "rpc": [],
+        "storage_buckets": [],
+        "external_hosts": [],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": false,
+        "uses_stripe": false,
+        "uses_email": false
+      },
+      {
+        "slug": "gauntlet-cube",
+        "status": "ACTIVE",
+        "version": 10,
+        "verify_jwt": false,
+        "source_hash": "b57ec9d065922cc8b3fd79df6bae5b33a6da957dec93b04ab85191e60a2778fe",
+        "source_files": [
+          "index.ts"
+        ],
+        "env_keys": [
+          "SUPABASE_SERVICE_ROLE_KEY",
+          "SUPABASE_URL"
+        ],
+        "tables": [
+          "evidence_artifacts",
+          "evidence_records",
+          "gauntlet_memory",
+          "gauntlet_runs"
+        ],
+        "rpc": [],
+        "storage_buckets": [],
+        "external_hosts": [],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": false,
+        "uses_stripe": false,
+        "uses_email": false
+      },
+      {
+        "slug": "economic-activation",
+        "status": "ACTIVE",
+        "version": 21,
+        "verify_jwt": false,
+        "source_hash": "ed76ab193c5370f0d2a98a299cb7b6ce20aee8a60588d2193071432041e5775d",
+        "source_files": [
+          "index.ts",
+          "deno.json"
+        ],
+        "env_keys": [
+          "SUPABASE_SERVICE_ROLE_KEY",
+          "SUPABASE_URL"
+        ],
+        "tables": [
+          "cube_cells",
+          "cube_opportunities",
+          "economic_actions",
+          "economic_activation_auth",
+          "economic_demand_signals",
+          "economic_execution_packets",
+          "economic_vst",
+          "jobs"
+        ],
+        "rpc": [
+          "economic_claim_outbox",
+          "economic_compile_actuator_action",
+          "economic_complete_vst",
+          "economic_finish_outbox",
+          "economic_seed_vst",
+          "evaluate_economic_authorization_legacy_text"
+        ],
+        "storage_buckets": [],
+        "external_hosts": [],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": false,
+        "uses_stripe": false,
+        "uses_email": false
+      },
+      {
+        "slug": "mtg-collection-import",
+        "status": "ACTIVE",
+        "version": 4,
+        "verify_jwt": true,
+        "source_hash": "181fa99d0138e1f1740e05da5c310ec6bf804e78c7258b8025c7f9be2a9728ce",
+        "source_files": [
+          "index.ts",
+          "deno.json"
+        ],
+        "env_keys": [],
+        "tables": [
+          "mtg_collection_inventory"
+        ],
+        "rpc": [],
+        "storage_buckets": [],
+        "external_hosts": [
+          "dreamledger.org"
+        ],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": false,
         "uses_stripe": false,
         "uses_email": false
       }
