@@ -60,3 +60,12 @@ test('static root publication contains the manifest-driven MTG master paths', ()
   assert.ok(master.some(p => p.id === 'COMMANDER-DECK-DIAGNOSTIC-001' && p.status === 'held'));
   assert.ok(!published.some(p => p.id === 'COMMANDER-DECK-DIAGNOSTIC-001'), 'held diagnostic must not appear for purchase');
 });
+
+test('MTG master never routes to held legacy diagnostic checkout', () => {
+  const source = read('BEC-PRIME/website/mtg-catalog.html');
+  assert.doesNotMatch(source, /8x228r1nfg0l3M32csdwc2I/);
+  assert.match(source, /href="\/commander-deck-diagnostic\.html"/);
+  const patch = read('BEC-PRIME/scripts/Patch-MTG-CommerceSurface.js');
+  assert.match(patch, /NOT_APPLICABLE/);
+  assert.match(patch, /function isPhysical/);
+});
