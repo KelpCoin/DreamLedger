@@ -88,3 +88,20 @@ test('offer replay with colliding key stays inside verified buyer account',async
   assert.equal(repeat.status,200);
   assert.equal(repeat.body.offer.id,a.body.offer.id);
 });
+
+test('offer terms cannot change under an existing buyer key',async()=>{
+  const r=await api('POST','/api/marketplace/v2/offers',{listing_id:'listing_2',amount_nzd:999},'b','same-offer-key');
+  assert.equal(r.status,409);
+  assert.equal(r.body.error,'offer_idempotency_payload_changed');
+});
+test('parallel repeated offer request produces only one saved offer ID',async()=>{
+  const url='/api/marketplace/v2/offers';
+  const [a,b]=await Promise.all([
+    api('POST',url,{listing_id:'listing_3',amount_nzd:21},'a','atomic-offer'),
+    api('POST',url,{listing_id:'listing_3',amount_nzd:21},'a','atomic-offer')
+  ]);
+  assert.deepEqual([a.status,b.status].sort(),[200,201]);
+  assert.equal(a.body.offer.id,b.body.offer.id);
+  const offers=JSON.parse(fs.readFileSync(commerce.paths.OFFERS,'utf8'));
+  assert.equal(offers.filter(x=>x.id===a.body.offer.id).length,1);
+});
