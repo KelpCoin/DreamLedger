@@ -25,3 +25,15 @@ Sample input:
 The example is a **synthetic drafting fixture** and is NOT evidence of market demand, user interaction or posting. The file's `publication` remains `HUMAN_APPROVAL_REQUIRED`.
 
 Immediate next economic gate: independently test one paid input -> accepted signed event -> deterministic processing -> retrievable delivery -> replay/refund handling, then acquire one authorized real buyer. No production mutation was performed by this PR.
+
+## Optional private LM Studio rewriting (2026-10-22)
+The **same** canonical `draft_campaign.py` supports an opt-in local rewrite after its deterministic source and offer validation. This is not a second campaign factory.
+
+```sh
+LM_STUDIO_BASE_URL=http://127.0.0.1:1235/v1 python runtime/distribution/draft_campaign.py \
+  --input candidate.json --output private_draft.json --local-model
+```
+
+Discover the actual LM Studio port and model before enabling; do not assume 1235 or 1234 is currently live. The companion `lmstudio_copy_adapter.py` is loopback-only, requests a JSON object and rejects unapproved checkout links, paid claims, cross-silo internal names and other URLs. Failures do not publish a draft, charge a user, or advance revenue truth. A source-bound deterministic draft remains available without LM Studio. `test_lmstudio_copy_adapter.py` adds five offline checks; no real local inference has been observed in the cloud session.
+
+GitHub CI and independent buyer/paid-delivery acceptance are separate gates. Neon Function scheduling is an option, but none has been deployed by this work.
