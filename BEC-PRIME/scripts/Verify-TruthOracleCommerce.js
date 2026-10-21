@@ -33,7 +33,26 @@ if (!failures.length) {
   for (const rule of ['authentication_required','client_reference_id:user.id','metadata[user_id]','stripeProof.verifyStripeSignature','invoice.paid','customer.subscription.deleted']) if (!route.includes(rule)) failures.push('billing-boundary:' + rule);
   if (!start.includes("require('./routes/truthOracleCommerce')")) failures.push('truth-route-not-mounted');
   if (!start.includes('truthOracleCommerce.handleStripeWebhook')) failures.push('truth-webhook-not-mounted');
-  for (const price of ['NZ$4.99','NZ$7.99','NZ$9.99']) if (!page.includes(price)) failures.push('public-price:' + price);
+  // A price proposal in the private plan registry is not an authorization to sell.
+  const released = pricing.plans.filter(p => p.checkout_enabled === true && Number(p.price_nzd_month)>0);
+  for (const plan of released) if (!page.includes('NZ
+  // Accept published canonical copy and the historical verifier phrase.
+  if (!/Payment never changes the underlying verdict|payment.*underlying verdict|cannot pay to make reality look better|underlying truth calculation does not change/i.test(page)) failures.push('public-truth-rule');
+  if (!/cannot pay to make reality look better|payment.*verdict.*confidence|underlying truth calculation does not change/i.test(page)) failures.push('commercial-rule');
+  if (!route.includes("tier:'public'")) failures.push('public-default-entitlement');
+  if (!route.includes("record.environment!=='live'")) failures.push('live-environment-boundary');
+}
+if (failures.length) { console.error('FAIL Truth Oracle commerce verification'); console.error(JSON.stringify(failures,null,2)); process.exit(1); }
+console.log('PASS Truth Oracle commerce verification');
+console.log('Economic Truth Oracle: present');
+console.log('Legacy prices preserved as proposals; new checkout is release-gated');
+console.log('Free public layer: present');
+console.log('Authenticated server entitlement: present');
+console.log('Truth/payment separation: present');
++Number(plan.price_nzd_month).toFixed(2))) failures.push('released-public-price:' + plan.tier);
+  if (released.length === 0 && /data-tier=["']/.test(page)) failures.push('unreleased-public-checkout');
+  if (!page.includes('/cost-of-living.html') || !page.includes('/quote-comparison/')) failures.push('free-nz-umbrella-links');
+  if (!route.includes('checkoutPlan(String(body.tier')) failures.push('server-checkout-release-gate');
   // Accept published canonical copy and the historical verifier phrase.
   if (!/Payment never changes the underlying verdict|payment.*underlying verdict|cannot pay to make reality look better|underlying truth calculation does not change/i.test(page)) failures.push('public-truth-rule');
   if (!/cannot pay to make reality look better|payment.*verdict.*confidence|underlying truth calculation does not change/i.test(page)) failures.push('commercial-rule');
