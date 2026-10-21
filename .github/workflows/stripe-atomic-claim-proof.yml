@@ -1,0 +1,87 @@
+name: Stripe Atomic Claim Postgres Proof
+
+on:
+  push:
+    branches:
+      - 'beck/provider-migration-neon-cloudflare-20261019'
+    paths:
+      - 'ops/migration/STRIPE-ATOMIC-CLAIM-FUNCTION.sql'
+      - 'ops/migration/TEST-STRIPE-ATOMIC-CLAIM.sql'
+      - '.github/workflows/stripe-atomic-claim-proof.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  disposable-pg17-claim:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: fixture-not-production
+          POSTGRES_DB: stripe_claim_fixture
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d stripe_claim_fixture"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      PGHOST: 127.0.0.1
+      PGPORT: '5432'
+      PGUSER: postgres
+      PGPASSWORD: fixture-not-production
+      PGDATABASE: stripe_claim_fixture
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Test event claim and outbox in disposable Postgres 17
+        shell: bash
+        run: |
+          set -euo pipefail
+          psql -X -v ON_ERROR_STOP=1 -f ops/migration/TEST-STRIPE-ATOMIC-CLAIM.sql
+          # Concurrent duplicate webhook claims must produce one event/order/job.
+          for n in 1 2; do
+            psql -X -v ON_ERROR_STOP=1 -Atc "SELECT claimed FROM public.claim_verified_stripe_checkout('evt_CONCURRENT','checkout.session.completed','cs_live_CONCURRENT','pi_CONCURRENT','DREAMMEEZ','COSMIC-HOODIE',500,'NZD',repeat('f',64),true,null)" > "/tmp/concurrent-$n" &
+          done
+          wait
+          psql -X -v ON_ERROR_STOP=1 -Atc "SELECT
+             (SELECT count(*) FROM stripe_event_inbox WHERE event_id='evt_CONCURRENT') AS event_claims,
+             (SELECT count(*) FROM commercial_orders WHERE stripe_checkout_session_id='cs_live_CONCURRENT') AS orders,
+             (SELECT count(*) FROM commercial_fulfillment_outbox WHERE delivery_key='deliver:cs_live_CONCURRENT') AS deliveries" |
+             grep -qx '1|1|1' || {
+               echo 'CONCURRENT_EVENT_ORDER_OUTBOX_COUNTS=FAIL'; exit 1;
+             }
+          test "$(cat /tmp/concurrent-1 /tmp/concurrent-2 | grep -c '^t$')" = 1
+          test "$(cat /tmp/concurrent-1 /tmp/concurrent-2 | grep -c '^f$')" = 1
+          echo 'CONCURRENT_WEBHOOK_CLAIM=PASS'
+      - name: Record bounded proof without payment or revenue claims
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p proof/figure8
+          python - <<'PY'
+          import datetime,hashlib,json,os,pathlib
+          d={'schema':'dreamledger/stripe-atomic-claim-test/v1',
+             'mode':'SYNTHETIC_DISPOSABLE_POSTGRES',
+             'run_id':os.getenv('GITHUB_RUN_ID'),
+             'commit_sha':os.getenv('GITHUB_SHA'),
+             'observed_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),
+             'production_deployed':False,'source_data_migrated':False,
+             'economic_claim':'NOT_VERIFIED','verified_revenue_nzd':0}
+          d['sha256']=hashlib.sha256(json.dumps(d,sort_keys=True,separators=(',',':')).encode()).hexdigest()
+          pathlib.Path('proof/figure8/stripe-atomic-claim-ci.json').write_text(json.dumps(d,indent=2)+'\n')
+          PY
+      - name: Retain proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stripe-atomic-claim-${{ github.run_id }}
+          path: proof/figure8/stripe-atomic-claim-ci.json
+          retention-days: 7
