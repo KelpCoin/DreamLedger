@@ -436,10 +436,10 @@
   "preview_execution": {
     "observed_at_utc": "2026-10-21T00:00:54Z",
     "status": "BLOCKED_MISSING_GITHUB_SECRETS",
-    "workflow_run_id": 39518655819,
-    "workflow_run_url": "https://github.com/KelpCoin/DreamLedger/actions/runs/39518655819",
+    "workflow_run_id": 39519067885,
+    "workflow_run_url": "https://github.com/KelpCoin/DreamLedger/actions/runs/39519067885",
     "workflow": "DreamLedger Cloudflare Migration Preview",
-    "tested_commit_sha": "f9d1c7855255f39f9e4892a4c1b6ce7998584ba4",
+    "tested_commit_sha": "9caf5f8c0dbcf419f84d9b0e67108c1c569861f4",
     "failed_gate": "Validate account configuration without printing secrets",
     "missing_secret_names": [
       "CLOUDFLARE_API_TOKEN",
@@ -459,11 +459,12 @@
     "verified_revenue_nzd": 0,
     "contract_ci": {
       "workflow": "BECK Provider Migration Contract",
-      "run_number": 120,
-      "commit_short_sha": "f9d1c78",
+      "run_number": 121,
+      "commit_short_sha": "9caf5f8",
       "conclusion": "success",
-      "run_url": "https://github.com/KelpCoin/DreamLedger/actions/workflows/provider-migration-contract.yml"
+      "run_url": "https://github.com/KelpCoin/DreamLedger/actions/runs/39519067918"
     },
-    "next_required_human_action": "Add CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_PAGES_PROJECT in the GitHub repository's protected Actions secrets UI. Do not paste their values into chat or repository files."
+    "dispatch_policy": "Manual workflow_dispatch only. Automatic branch-push runs are disabled until credentials are configured, avoiding repeated no-secret failures.",
+    "next_required_human_action": "Add CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_PAGES_PROJECT in the GitHub repository's protected Actions secrets UI. Do not paste their values into chat or repository files. Then manually run DreamLedger Cloudflare Migration Preview against the migration branch."
   }
 }
