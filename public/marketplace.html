@@ -88,9 +88,9 @@
    article.append(text('div',item.listing_type==='PHYSICAL_DECK'?'COMMANDER DECK':'MTG LISTING','price'));
    article.append(text('h3',item.title));
    article.append(text('p',item.description,'muted'));
-   const amount=item.price&&Number.isSafeInteger(item.price.amount_minor)?'NZ</html>+(item.price.amount_minor/100).toFixed(2):'Price not stated';
+   const amount=item.price&&Number.isSafeInteger(item.price.amount_minor)?'NZD '+(item.price.amount_minor/100).toFixed(2):'Price not stated';
    article.append(text('p',amount+' · Seller confirmation required'));
-   if(typeof item.detail_url==='string'&&/^\/mtg\/[A-Za-z0-9/_-]+(?:\.html)?$/.test(item.detail_url)){
+   if(typeof item.detail_url==='string'&&/^\/mtg\/(?:[A-Za-z0-9/_-]+(?:\.html)?)?$/.test(item.detail_url)){
     const link=text('a','View listing','btn alt');link.href=item.detail_url;article.append(link);
    }
    root.append(article);
