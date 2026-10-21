@@ -1,0 +1,51 @@
+name: BECK Neon Shadow Heartbeat
+
+# Never replaces the legacy Render/Supabase job before migration gate acceptance.
+# Main-branch scheduling does no work unless the explicit staging flag is enabled.
+on:
+  schedule:
+    - cron: '7,22,37,52 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: beck-neon-shadow-staging
+  cancel-in-progress: false
+
+jobs:
+  staging-shadow-heartbeat:
+    if: github.ref == 'refs/heads/main' && vars.BECK_NEON_SHADOW_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      BECK_NEON_SHADOW_ENABLED: 'true'
+      BECK_NEON_TARGET: migration-staging
+      BECK_ALLOW_STAGING_HEARTBEAT_WRITE: 'true'
+      NEON_SHADOW_STAGING_DATABASE_URL: ${{ secrets.NEON_SHADOW_STAGING_DATABASE_URL }}
+      BECK_SHADOW_PROOF_PATH: proof/fleet/neon-shadow-heartbeat.json
+    steps:
+      - name: Checkout verified main
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Install PostgreSQL client only if missing
+        shell: bash
+        run: |
+          if ! command -v psql >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq postgresql-client
+          fi
+      - name: Test idempotent shadow write contract
+        run: node --test ops/migration/neon-shadow-heartbeat.test.mjs
+      - name: Record one shadow heartbeat and read it back
+        run: node ops/migration/neon-shadow-heartbeat.mjs
+      - name: Upload redacted evidence even on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: beck-neon-shadow-${{ github.run_id }}
+          path: proof/fleet/neon-shadow-heartbeat.json
+          if-no-files-found: warn
+          retention-days: 30
