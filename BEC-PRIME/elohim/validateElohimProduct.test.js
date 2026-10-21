@@ -117,3 +117,23 @@ test('Elohim candidate with checkout_available true is rejected', () => {
   assert.equal(r.ok, false);
   assert.ok(r.errors.some(e => e.code === 'CHECKOUT_GATE'));
 });
+
+test('Draft 2020-12 rejects unknown status even with valid business fields', () => {
+  const result = validateCatalogProduct({
+    id:'DL-TEST-VALID', name:'Private digital deliverable',price:29,
+    currency:'nzd',silo:'digital_products',status:'CLAIMED_PAID_WITHOUT_EVIDENCE'
+  });
+  assert.equal(result.ok,false);
+  assert.ok(result.errors.some(e=>e.code==='SCHEMA'),JSON.stringify(result.errors));
+});
+
+test('Draft 2020-12 candidate rejects nonnumeric price proposals', () => {
+  const result = validateElohimCandidate({
+    id:'DL-DRAFT-TEST',schema_version:'v1',status:'candidate',
+    silo:'digital_products',name:'Candidate digital output',
+    price_proposal_nzd:['not-a-number'],checkout_available:false,
+    approval_required:true,created_by:'ELOHIM'
+  });
+  assert.equal(result.ok,false);
+  assert.ok(result.errors.some(e=>e.code==='SCHEMA'),JSON.stringify(result.errors));
+});
