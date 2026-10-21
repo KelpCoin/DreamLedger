@@ -15,7 +15,7 @@
   },
   "edge_functions": {
     "listed_count": 66,
-    "inspected_count": 40,
+    "inspected_count": 48,
     "complete": false,
     "items": [
       {
@@ -1157,6 +1157,244 @@
         "external_hosts": [
           "api.scryfall.com"
         ],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": false,
+        "uses_stripe": false,
+        "uses_email": false
+      },
+      {
+        "slug": "silo-factory",
+        "status": "ACTIVE",
+        "version": 5,
+        "verify_jwt": false,
+        "source_hash": "603ed9945aa254e981e6ca335bbf091190570d0f683cc52d0a3586e0ab130db3",
+        "source_files": [
+          "index.ts"
+        ],
+        "env_keys": [
+          "SUPABASE_SERVICE_ROLE_KEY",
+          "SUPABASE_URL"
+        ],
+        "tables": [
+          "silo_factory_batches"
+        ],
+        "rpc": [
+          "seed_silo_candidates"
+        ],
+        "storage_buckets": [],
+        "external_hosts": [],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": false,
+        "uses_stripe": false,
+        "uses_email": false
+      },
+      {
+        "slug": "silo-orchestrator",
+        "status": "ACTIVE",
+        "version": 13,
+        "verify_jwt": false,
+        "source_hash": "fa61b1cd1756f637afc67d853e18a0281f6f91aa6a71c5e0f8fa659acbe4cc02",
+        "source_files": [
+          "index.ts",
+          "deno.json"
+        ],
+        "env_keys": [
+          "SUPABASE_SERVICE_ROLE_KEY",
+          "SUPABASE_URL"
+        ],
+        "tables": [
+          "cube_silo_registry",
+          "economic_demand_signals",
+          "economic_silo_registry",
+          "silo_agent_runs"
+        ],
+        "rpc": [
+          "economic_silo_registry_summary",
+          "verify_economic_activation_token"
+        ],
+        "storage_buckets": [],
+        "external_hosts": [],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": false,
+        "uses_stripe": false,
+        "uses_email": false
+      },
+      {
+        "slug": "company-autopilot",
+        "status": "ACTIVE",
+        "version": 9,
+        "verify_jwt": false,
+        "source_hash": "eae15c5fe87d12bcca867818c26685928f286f6de7a928c44cecdd9757770688",
+        "source_files": [
+          "index.ts"
+        ],
+        "env_keys": [
+          "SUPABASE_SERVICE_ROLE_KEY",
+          "SUPABASE_URL"
+        ],
+        "tables": [
+          "commerce_cells",
+          "company_autopilot_runs",
+          "company_autopilot_state",
+          "economic_activation_auth",
+          "economic_execution_packets",
+          "economic_outcomes",
+          "economic_silo_registry"
+        ],
+        "rpc": [],
+        "storage_buckets": [],
+        "external_hosts": [],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": false,
+        "uses_stripe": false,
+        "uses_email": false
+      },
+      {
+        "slug": "acnc-research-worker",
+        "status": "ACTIVE",
+        "version": 7,
+        "verify_jwt": true,
+        "source_hash": "b3c470c54ae6c8fa813020282cc9386af4f9ee41b5ae0c2e0d23abdfebe4689b",
+        "source_files": [
+          "index.ts",
+          "import_map.json"
+        ],
+        "env_keys": [],
+        "tables": [],
+        "rpc": [],
+        "storage_buckets": [],
+        "external_hosts": [
+          "www.acnc.gov.au",
+          "www.data.gov.au"
+        ],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": false,
+        "uses_stripe": false,
+        "uses_email": false
+      },
+      {
+        "slug": "economic-fulfillment-dispatch",
+        "status": "ACTIVE",
+        "version": 6,
+        "verify_jwt": true,
+        "source_hash": "f79cdbc0d76464269fef30964922ecbb807f08c9f47fc796335076c5c7e34e9d",
+        "source_files": [
+          "index.ts",
+          "deno.json"
+        ],
+        "env_keys": [
+          "SUPABASE_SERVICE_ROLE_KEY",
+          "SUPABASE_URL"
+        ],
+        "tables": [
+          "economic_actions",
+          "economic_execution_packets"
+        ],
+        "rpc": [],
+        "storage_buckets": [],
+        "external_hosts": [],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": false,
+        "uses_stripe": false,
+        "uses_email": false
+      },
+      {
+        "slug": "agent-toll-road",
+        "status": "ACTIVE",
+        "version": 15,
+        "verify_jwt": false,
+        "source_hash": "2371c42fd2c6b7c8a656ce7492d67b175a43f683fe166377b0e7ced7b54e348f",
+        "source_files": [
+          "index.ts",
+          "deno.json"
+        ],
+        "env_keys": [
+          "SUPABASE_SERVICE_ROLE_KEY",
+          "SUPABASE_URL",
+          "X402_FACILITATOR_URL",
+          "X402_NETWORK",
+          "X402_PAY_TO",
+          "X402_PAY_TO_ADDRESS",
+          "X402_QUOTE_ENABLED",
+          "X402_TESTNET"
+        ],
+        "tables": [
+          "agent_toll_calls",
+          "agent_toll_products",
+          "economic_attribution",
+          "economic_events",
+          "economic_outcomes",
+          "revenue_orders",
+          "runtime_proofs",
+          "x402_settlements"
+        ],
+        "rpc": [
+          "x402_replay_reserve"
+        ],
+        "storage_buckets": [],
+        "external_hosts": [
+          "x402.org"
+        ],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": false,
+        "uses_stripe": false,
+        "uses_email": false
+      },
+      {
+        "slug": "gtm-signal-detector",
+        "status": "ACTIVE",
+        "version": 4,
+        "verify_jwt": false,
+        "source_hash": "97e42ee5b617f6afbf7062ad8eec374ef1afda9494b69bb54ea641772dd6c77f",
+        "source_files": [
+          "index.ts"
+        ],
+        "env_keys": [
+          "SUPABASE_SERVICE_ROLE_KEY",
+          "SUPABASE_URL"
+        ],
+        "tables": [
+          "economic_activation_auth",
+          "gtm_signals"
+        ],
+        "rpc": [],
+        "storage_buckets": [],
+        "external_hosts": [
+          "www.data.gov.au"
+        ],
+        "uses_auth": false,
+        "uses_realtime": false,
+        "uses_storage": false,
+        "uses_stripe": false,
+        "uses_email": false
+      },
+      {
+        "slug": "gtm-outreach-packet",
+        "status": "ACTIVE",
+        "version": 4,
+        "verify_jwt": false,
+        "source_hash": "b728891ef6517649deea3ac3624ed08606141f1335fb1387cd290adcf9502ad5",
+        "source_files": [
+          "index.ts"
+        ],
+        "env_keys": [
+          "SUPABASE_SERVICE_ROLE_KEY",
+          "SUPABASE_URL"
+        ],
+        "tables": [
+          "economic_activation_auth",
+          "gtm_opportunities"
+        ],
+        "rpc": [],
+        "storage_buckets": [],
+        "external_hosts": [],
         "uses_auth": false,
         "uses_realtime": false,
         "uses_storage": false,
