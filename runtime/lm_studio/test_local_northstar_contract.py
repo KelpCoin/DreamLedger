@@ -60,5 +60,42 @@ class LocalNorthStarContractTests(unittest.TestCase):
         self.assertNotIn('Invoke-Lms -Arguments @("pull"', launcher)
 
 
+    def test_supervisor_duplicate_lock_timeout_and_fail_closed_exit(self):
+        supervisor = self.read("runtime/lm_studio/north_star_supervisor.py")
+        installer = self.read("runtime/lm_studio/Install-NorthStarSupervisorTask.ps1")
+        self.assertIn("SUPERVISOR_ALREADY_RUNNING", supervisor)
+        self.assertIn("msvcrt.locking", supervisor)
+        self.assertIn("fcntl.flock", supervisor)
+        self.assertIn("proc.wait(timeout=timeout_seconds)", supervisor)
+        self.assertIn('"CONTROLLER_NONZERO_EXIT"', supervisor)
+        self.assertIn('"CONTROLLER_OUTPUT_NOT_VALID_JSON"', supervisor)
+        self.assertIn('"taskkill.exe"', supervisor)
+        self.assertIn("MultipleInstances IgnoreNew", installer)
+        self.assertIn("-RestartCount 3", installer)
+
+    def test_no_unsafe_public_monetization_components_are_bootstrapped(self):
+        launcher = self.read("runtime/lm_studio/Start-NorthStarLocal.ps1")
+        installer = self.read("runtime/lm_studio/Install-NorthStarSupervisorTask.ps1")
+        combined = launcher + "\\n" + installer
+        for unsafe_component in (
+            "satgate",
+            "stripe listen",
+            "cloudflared tunnel",
+            "WinSW",
+            "LIGHTNING_KEY",
+            "WEBHOOK_SIGNING_SECRET",
+        ):
+            self.assertNotIn(unsafe_component.lower(), combined.lower())
+        self.assertIn('New-ScheduledTaskPrincipal -UserId $env:USERNAME -LogonType Interactive', installer)
+        self.assertIn('DREAMLEDGER_ALLOW_REMOTE_READS = "0"', launcher)
+
+    def test_supervisor_contract_is_documented_without_claiming_full_autonomy(self):
+        doc = self.read("runtime/lm_studio/BECK_BOOTSTRAP.md")
+        self.assertIn("not a general-purpose", doc)
+        self.assertIn("At least two successful observed cycles", doc)
+        self.assertIn("Verified external revenue remains NZ$0.00", doc)
+        self.assertIn("No Stripe webhook server/listener", doc)
+
+
 if __name__ == "__main__":
     unittest.main()
