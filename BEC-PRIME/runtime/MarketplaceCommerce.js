@@ -32,17 +32,27 @@ function verifiedUser(req){const id=userId(req);if(!id)throw Object.assign(new E
 function body(req){return new Promise((resolve,reject)=>{let s='';req.on('data',c=>{s+=c;if(s.length>1000000)req.destroy();});req.on('end',()=>{try{resolve(s?JSON.parse(s):{});}catch(e){reject(Object.assign(new Error('Invalid JSON'),{statusCode:400}));}});req.on('error',reject);});}
 function json(res,status,data){if(res.writableEnded)return true;res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'});res.end(JSON.stringify(data));return true;}
 function idem(req,b){return String(req.headers['idempotency-key']||b.idempotency_key||'').trim().slice(0,180);}
-function remember(key,operation,response){
+function remember(key,operation,response,ownerId){
   if(!key)return;
   const items=read(IDEMPOTENCY,[]);
   const now=new Date().toISOString();
-  items.push({key,operation,response,created_at:now});
+  items.push({key,operation,owner_id:ownerId,response,created_at:now});
   write(IDEMPOTENCY,items.slice(-5000));
 }
-function replay(key,operation){
-  if(!key)return null;
-  const hit=read(IDEMPOTENCY,[]).find(x=>x.key===key&&x.operation===operation);
+function replay(key,operation,ownerId){
+  if(!key||!ownerId)return null;
+  // Old receipts have no owner_id; check the original buyer ID, never
+  // silently replay another buyer's cart/offer or expose their information.
+  const hit=read(IDEMPOTENCY,[]).find(x=>x.key===key&&x.operation===operation&&
+    (x.owner_id===ownerId||(!x.owner_id&&
+      (x.response?.cart?.buyer_id===ownerId||x.response?.offer?.buyer_id===ownerId))));
   return hit?hit.response:null;
+}
+function cartItemsMatch(requested,recorded){
+  if(!Array.isArray(requested)||!Array.isArray(recorded))return false;
+  const norm=arr=>arr.map(x=>[String(x?.listing_id||''),qty(x?.quantity||1)])
+    .sort((a,b)=>a[0].localeCompare(b[0]));
+  return JSON.stringify(norm(requested))===JSON.stringify(norm(recorded));
 }
 function idFn(prefix){return prefix+'_'+crypto.randomBytes(10).toString('hex');}
 function qty(n){const q=Number(n);return Number.isInteger(q)&&q>0&&q<=1000?q:null;}
@@ -68,7 +78,15 @@ function reapExpiredReservations(){
 function reserveCart(ownerId,items,key){
   return withLock(()=>{
     reapExpiredReservations();
-    const existing=key?replay(key,'cart_prepare'):null;if(existing)return existing;
+    const existing=key?replay(key,'cart_prepare',ownerId):null;
+    if(existing){
+      const stored=read(CARTS,[]).find(x=>x.id===existing.cart?.id&&x.buyer_id===ownerId);
+      if(!stored||stored.status!=='RESERVED'||Date.parse(stored.expires_at||'')<=Date.now())
+        throw Object.assign(new Error('cart_idempotency_key_expired_use_new_key'),{statusCode:409});
+      if(!cartItemsMatch(items,stored.items))
+        throw Object.assign(new Error('cart_idempotency_payload_changed'),{statusCode:409});
+      return existing;
+    }
     const listings=read(LISTINGS,[]),carts=read(CARTS,[]);
     const normalized=[];
     let total=0;
@@ -90,7 +108,7 @@ function reserveCart(ownerId,items,key){
     const cart={id:idFn('cart'),buyer_id:ownerId,items:normalized,total_nzd:Math.round(total*100)/100,status:'RESERVED',expires_at:expires,created_at:now.toISOString(),updated_at:now.toISOString()};
     carts.push(cart);write(LISTINGS,listings);write(CARTS,carts);
     const response={ok:true,cart:cartPublic(cart),commercial_truth:'CART_RESERVED_NOT_REVENUE'};
-    remember(key,'cart_prepare',response);
+    remember(key,'cart_prepare',response,ownerId);
     return response;
   });
 }
@@ -114,6 +132,11 @@ function releaseCart(cartId,ownerId){
 async function handle(req,res,url){
   if(!url.startsWith('/api/marketplace/v2/'))return false;
 
+  if(req.method==='GET'&&url==='/api/marketplace/v2/agent-catalog'){
+    const catalog=require('./AgentMarketplaceCatalog').snapshot();
+    return json(res,200,catalog);
+  }
+
   if(req.method==='GET'&&url==='/api/marketplace/v2/capabilities'){
     return json(res,200,{schema:'dreamledger-marketplace-capabilities/v2',version:2,fees:{listing_nzd:0,success_nzd:0,buyer_mandatory_nzd:0},commerce:{catalogue:true,cart_prepare:true,offers:true,checkout:true,shipping:true,disputes:true,reputation:true},agent:{discovery:true,cart_prepare:true,purchase_requires_explicit_authorization:true,scopes:['DISCOVERY','CART_PREPARE','PURCHASE_AUTHORIZE']},idempotency:true,inventory_reservation:{enabled:true,ttl_minutes:15},truth:{settled_payment_required:true,fulfillment_required:true,independent_evidence_required:true}});
   }
@@ -133,7 +156,7 @@ async function handle(req,res,url){
   if(req.method==='POST'&&url==='/api/marketplace/v2/offers'){
     try{
       const {id:userId}=verifiedUser(req),b=await body(req),key=idem(req,b);
-      const prior=replay(key,'offer_create');if(prior)return json(res,200,prior);
+      const prior=replay(key,'offer_create',userId);if(prior)return json(res,200,prior);
       const listingId=String(b.listing_id||''),amount=Number(b.amount_nzd),quantity=qty(b.quantity||1);
       if(!listingId||!Number.isFinite(amount)||amount<=0||!quantity)return json(res,422,{error:'listing_id, positive amount_nzd and valid quantity required'});
       const response=withLock(()=>{
@@ -141,7 +164,7 @@ async function handle(req,res,url){
         if(!listing)return {error:'listing_not_found'};
         if(listing.seller_id===userId)return {error:'seller_cannot_offer_on_own_listing'};
         const now=new Date(),o={id:idFn('off'),listing_id:listingId,buyer_id:userId,seller_id:listing.seller_id,amount_nzd:Math.round(amount*100)/100,quantity,status:'PENDING_SELLER',expires_at:new Date(now.getTime()+48*60*60*1000).toISOString(),created_at:now.toISOString(),updated_at:now.toISOString()};
-        offers.push(o);write(OFFERS,offers);const out={ok:true,offer:offerPublic(o),commercial_truth:'OFFER_PENDING_NOT_REVENUE'};remember(key,'offer_create',out);return out;
+        offers.push(o);write(OFFERS,offers);const out={ok:true,offer:offerPublic(o),commercial_truth:'OFFER_PENDING_NOT_REVENUE'};remember(key,'offer_create',out,userId);return out;
       });
       if(response.error)return json(res,response.error==='listing_not_found'?404:403,response);
       return json(res,201,response);
