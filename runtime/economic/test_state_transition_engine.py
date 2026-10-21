@@ -25,10 +25,26 @@ def test_missing_authority_blocks_exactly():
     assert t.missing_field == "authority_confirmed"
 
 
-def test_dispatch_requires_worker_trace():
-    t = transition_opportunity("AUTHORIZED", "ACTION_DISPATCHED", {})
+def test_dispatch_cannot_prove_external_execution_even_with_worker_trace():
+    t = transition_opportunity("AUTHORIZED", "ACTION_DISPATCHED", {"worker_trace": True})
     assert t.state_after is None
-    assert t.missing_field == "worker_trace"
+    assert t.error_class == "EXTERNAL_RESULT_REQUIRED"
+    assert t.missing_field == "external_result_receipt_id"
+
+
+def test_sent_is_not_observed():
+    t = transition_opportunity("AUTHORIZED", "EXTERNAL_ACTION_SENT", {"worker_trace": True})
+    assert t.state_after is None
+    assert t.error_class == "EXTERNAL_RESULT_REQUIRED"
+
+
+def test_observed_result_requires_upstream_authentication():
+    t = transition_opportunity("AUTHORIZED", "EXTERNAL_RESULT_OBSERVED", {"external_result_receipt_id": "platform_123"})
+    assert t.state_after is None
+    assert t.error_class == "EXTERNAL_RESULT_UNVERIFIED"
+    t = transition_opportunity("AUTHORIZED", "EXTERNAL_RESULT_OBSERVED", {
+        "external_result_receipt_id": "platform_123", "external_result_verified": True})
+    assert t.state_after == "EXECUTED"
 
 
 def test_payment_does_not_advance_without_buyer_and_settlement():
