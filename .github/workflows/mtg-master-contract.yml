@@ -1,0 +1,47 @@
+name: MTG Master Silo Contract
+on:
+  pull_request:
+    paths:
+      - 'public/mtg/**'
+      - 'ops/mtg/**'
+      - '.github/workflows/mtg-master-contract.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  mtg-master:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Assert free listing, private inventory and no invented stock
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path('ops/mtg/marketplace_policy.json').read_text())
+          assert p['master_silo']=='mtg'
+          assert p['status']=='DRAFT_NOT_DEPLOYED'
+          assert p['human_to_human']['listing_fee_nzd']==0
+          assert p['human_to_human']['platform_commission_percent']==0
+          assert p['b2b']['listing_fee_nzd']==0
+          assert p['b2b']['platform_commission_percent']==0
+          assert p['paid_visibility']['label']=='Sponsored'
+          assert p['a2a']['production_enabled'] is False
+          assert p['publication']=='OWNER_APPROVAL_REQUIRED'
+          assert p['mtg']['inventory_default']=='PRIVATE'
+          assert ['mtg','amplissa'] in p['silos_must_not_mix']
+          page=Path('public/mtg/arbitrage.html').read_text()
+          assert "connect-src 'none'" in page
+          assert 'CANDIDATE_NOT_EXECUTED' in page
+          assert 'REVIEW_ONLY' in page
+          assert 'file.text()' in page
+          main=Path('public/mtg/index.html').read_text()
+          assert 'var FALLBACK' not in main
+          assert 'render(FALLBACK' not in main
+          assert '/mtg/arbitrage.html' in main
+          assert '/mtg-list' in main
+          print('MTG_MASTER_CONTRACT_PASS')
+          PY
