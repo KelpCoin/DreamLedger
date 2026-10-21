@@ -39,7 +39,12 @@ test('route contract covers required routes and keeps cutover blocked',()=>{
 });
 test('Worker reports degraded liveness and never claims readiness',async()=>{
  const mod=await import('data:text/javascript;base64,'+Buffer.from(worker).toString('base64'));
- const env={CF_PAGES_COMMIT_SHA:'fixture-sha',CF_PAGES_BRANCH:'preview',ASSETS:{fetch:async()=>new Response('{}',{status:200})}};
+ const fixtureSha='0123456789abcdef0123456789abcdef01234567';
+ const env={CF_PAGES_COMMIT_SHA:fixtureSha,CF_PAGES_BRANCH:'preview',ASSETS:{fetch:async req=>
+   new URL(req.url).pathname==='/migration-preview-release.json'
+     ? new Response(JSON.stringify({schema:'dreamledger/cloudflare-preview-release/v1',commit_sha:fixtureSha,production_ready:false}),{status:200,headers:{'content-type':'application/json'}})
+     : new Response('{}',{status:200})}};
+
  const r=await mod.default.fetch(new Request('https://preview.pages.dev/healthz'),env);
  assert.equal(r.status,200);
  const b=await r.json();
@@ -47,7 +52,12 @@ test('Worker reports degraded liveness and never claims readiness',async()=>{
  assert.equal(b.ready,false);
  assert.equal(b.production_ready,false);
  const v=await mod.default.fetch(new Request('https://preview.pages.dev/version'),env);
- assert.equal((await v.json()).commit_sha,'fixture-sha');
+ assert.equal(v.status,200);
+ assert.equal((await v.json()).commit_sha,fixtureSha);
+ const wrongEnv={...env,CF_PAGES_COMMIT_SHA:'fedcba9876543210fedcba9876543210fedcba98'};
+ const mismatch=await mod.default.fetch(new Request('https://preview.pages.dev/version'),wrongEnv);
+ assert.equal(mismatch.status,503);
+ assert.equal((await mismatch.json()).status,'BLOCKED_RELEASE_IDENTITY');
 });
 test('Worker exposes only published catalogue records through read-only APIs',async()=>{
  const mod=await import('data:text/javascript;base64,'+Buffer.from(worker).toString('base64'));
