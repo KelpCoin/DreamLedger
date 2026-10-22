@@ -147,13 +147,13 @@ jobs:
           if [ "$EVENT_NAME" != "workflow_dispatch" ] || [ "$DRY_RUN" != "false" ] || [ "$APPROVAL" != "APPROVED" ]; then echo "TUMBLR=DRY_RUN"; exit 0; fi
           if [ -z "$TUMBLR_CONSUMER_KEY" ] || [ -z "$TUMBLR_CONSUMER_SECRET" ] || [ -z "$TUMBLR_TOKEN" ] || [ -z "$TUMBLR_TOKEN_SECRET" ] || [ -z "$TUMBLR_BLOG" ]; then echo "TUMBLR=SKIPPED_CREDENTIALS_NOT_CONFIGURED"; exit 0; fi
           python3 - <<'PY'
-          import json,urllib.request
+          import json,urllib.parse,urllib.request
           packet=json.load(open("operator-proof/777-distribution-packet.json"))
           url=packet["target_url"]
           request=urllib.request.Request(url,headers={"User-Agent":"DreamLedger-777-release-preflight/1.0"})
           with urllib.request.urlopen(request,timeout=15) as response:
               if response.status != 200: raise SystemExit("PUBLIC_TARGET_NOT_READY")
-              if "dreamledger.org" not in response.url: raise SystemExit("PUBLIC_TARGET_LEFT_FIRST_PARTY_HOST")
+              if urllib.parse.urlparse(response.url).hostname not in ("dreamledger.org", "www.dreamledger.org"): raise SystemExit("PUBLIC_TARGET_LEFT_FIRST_PARTY_HOST")
           print("PUBLIC_TARGET_REACHABILITY=PASS")
           PY
           python3 - <<'PY'
