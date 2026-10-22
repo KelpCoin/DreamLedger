@@ -47,6 +47,7 @@
 <h2>My offers</h2>
 <div id="requests" class="status">Log in to see your buy/trade requests.</div>
 </section>
+<section class="panel"><h2>My listings</h2><div id="mine" class="status">Log in to manage your listings.</div></section>
 </div>
 <script>
 (function(){
@@ -61,6 +62,9 @@ function render(d){
  document.querySelectorAll('[data-buy]').forEach(b=>b.onclick=()=>offer(b.dataset.buy,'buy'));
  document.querySelectorAll('[data-trade]').forEach(b=>b.onclick=()=>offer(b.dataset.trade,'trade'));
  $('requests').innerHTML=(d.requests||[]).length?d.requests.map(r=>'<div class="request"><strong>'+esc(r.type.toUpperCase())+'</strong> · '+esc(r.status)+'<div class="small">Listing '+esc(r.listing_id)+(r.offered_amount_nzd?' · NZ$'+Number(r.offered_amount_nzd).toFixed(2):'')+(r.trade_offer?' · '+esc(r.trade_offer):'')+'</div>'+((r.seller_id===window.__accountId)&&r.status==='pending_seller_acceptance'?'<div class="actions"><button class="btn primary" data-accept="'+esc(r.id)+'">Accept</button><button class="btn" data-decline="'+esc(r.id)+'">Decline</button></div>':'')+'</div>').join(''):'No requests yet.';
+ $('mine').innerHTML=(d.mine||[]).length?(d.mine||[]).map(x=>'<div class="request"><strong>'+esc(x.title)+'</strong> <span class="pill">'+esc(x.status)+'</span><div class="small">'+esc(x.set_name||'Set unspecified')+'</div>'+(['active','reserved'].includes(x.status)?'<div class="actions"><button class="btn primary" data-sold="'+esc(x.id)+'">Mark sold</button><button class="btn" data-withdraw="'+esc(x.id)+'">Withdraw</button></div>':'')+'</div>').join(''):'No listings managed by this account.';
+ document.querySelectorAll('[data-sold]').forEach(b=>b.onclick=()=>updateListing(b.dataset.sold,'sold'));
+ document.querySelectorAll('[data-withdraw]').forEach(b=>b.onclick=()=>updateListing(b.dataset.withdraw,'withdrawn'));
  document.querySelectorAll('[data-accept]').forEach(b=>b.onclick=()=>decision(b.dataset.accept,'accept'));
  document.querySelectorAll('[data-decline]').forEach(b=>b.onclick=()=>decision(b.dataset.decline,'decline'));
 }
@@ -71,6 +75,7 @@ async function offer(id,type){
  else{trade=prompt('What are you offering in trade?');if(!trade)return;}
  try{await api('/api/mtg/marketplace/request',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({listing_id:id,type,offered_amount_nzd:amount,trade_offer:trade})});await load();alert(type==='buy'?'Buy request sent.':'Trade request sent.');}catch(e){alert(e.message);}
 }
+async function updateListing(id,status){if(!confirm('Change listing status to '+status+'?'))return;try{await api('/api/mtg/marketplace/listing/status',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({listing_id:id,status})});await load();}catch(e){alert(e.message);}}
 async function decision(id,decision){try{await api('/api/mtg/marketplace/request/decision',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({request_id:id,decision})});await load();}catch(e){alert(e.message);}}
 $('listingForm').addEventListener('submit',async e=>{e.preventDefault();const fd=new FormData(e.currentTarget);const body=Object.fromEntries(fd.entries());body.accepts_buy=fd.get('accepts_buy')==='on';body.accepts_trade=fd.get('accepts_trade')==='on';try{await api('/api/mtg/marketplace/list',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});$('listingStatus').className='status success';$('listingStatus').textContent='Card listed. NZ$0 Magic marketplace fee.';e.currentTarget.reset();fd.get('accepts_buy');await load();}catch(err){$('listingStatus').className='status error';$('listingStatus').textContent=err.message;}});
 load();
