@@ -118,12 +118,15 @@ jobs:
           }
           Write-Host 'BOOTSTRAP_CLOUD_LIVENESS_CONTRACT=PASS'
 
-      - name: Run read-only economic bootstrap and inspect fail-closed evidence
+      - name: Validate economic code and inspect fail-closed verdict
         shell: powershell
         env:
           STRIPE_LIVE_ENABLED: 'false'
         run: |
           npm run validate:economics
+          $syntaxExit = $LASTEXITCODE
+          if ($syntaxExit -ne 0) { throw "Economic syntax validation failed: $syntaxExit" }
+          node ops/commerce/gauntlet-economic-verdict.mjs
           $validationExit = $LASTEXITCODE
           $gauntletPath = Join-Path $PWD 'proof/commerce/latest-gauntlet-economic-verdict.json'
           if (-not (Test-Path -LiteralPath $gauntletPath)) {

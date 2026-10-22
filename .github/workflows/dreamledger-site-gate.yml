@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 1
       - name: Validate public storefront files
@@ -130,7 +130,7 @@ jobs:
           }
           JSON
       - name: Upload proof
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: dreammeez-public-surface-proof
           path: PROOF/DREAMLEDGER_PUBLIC_SURFACE_GATE.json

@@ -117,8 +117,21 @@ http.createServer(async (req,res)=>{
       return send(res,200,JSON.stringify({schema:'dreamledger/offers/v1',count:listed.length,offers:listed}),'application/json; charset=utf-8');
     }catch(error){ return send(res,500,JSON.stringify({error:'CATALOG_UNAVAILABLE'}),'application/json; charset=utf-8'); }
   }
+  if (p.startsWith('/buy/')) {
+    if(req.method!=='GET'&&req.method!=='HEAD') return send(res,405,'Method Not Allowed','text/plain; charset=utf-8');
+    try {
+      const id=decodeURIComponent(p.slice(5));
+      const catalogue=JSON.parse(fs.readFileSync(path.join(ROOT,'catalog.json'),'utf8'));
+      const product=(catalogue.products||[]).find(x=>x.id===id);
+      if(!product)return send(res,404,'Product not found','text/plain; charset=utf-8');
+      if(product.status!=='published'||product.checkout_available!==true)return send(res,409,'Ordering is currently unavailable','text/plain; charset=utf-8');
+      const target=new URL(product.checkout_url);
+      if(target.protocol!=='https:'||!['buy.stripe.com','checkout.stripe.com','dreamledger.org'].includes(target.hostname)||target.username||target.password) return send(res,503,'Checkout unavailable','text/plain; charset=utf-8');
+      res.statusCode=303;res.setHeader('Location',target.href);res.setHeader('Cache-Control','no-store');return res.end();
+    }catch{return send(res,503,'Checkout unavailable','text/plain; charset=utf-8');}
+  }
   if(p==='/api/auctions'||p.startsWith('/api/auctions/')){res.setHeader('Cache-Control','no-store');return proxyTollToEngine(req,res,p);}
-  if(p.startsWith('/api/toll')||p.startsWith('/toll/')) return proxyTollToEngine(req,res,p);
+  if(p.startsWith('/api/toll/v1/')||p.startsWith('/toll/')) return proxyTollToEngine(req,res,p);
   if(p.startsWith('/swarm/')||p.startsWith('/api/swarm')) return proxySwarm(req,res,p);
   if(p.startsWith('/api/commercial/') || p==='/api/webhooks/stripe'){
     try{

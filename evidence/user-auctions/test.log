@@ -1,14 +1,14 @@
-✔ drafts private; same copy cannot have two active auctions; seller scoped copies (5.971206ms)
-✔ integer money and category isolation (0.998481ms)
-✔ first bid at start, self-bid forbidden, increment, replay and changed replay (1.912795ms)
-✔ future and expired bids rejected; views never restart ended auction (2.11872ms)
-✔ anti-sniping extends; close creates exactly one unpaid order and locks stock (1.716079ms)
-✔ reserve not met creates no order; seller cannot cancel after a bid (1.191841ms)
-✔ secure session expires and logout revokes token (1.322217ms)
-✔ concurrent database connections accept only one equal bid and survive reopen (141.911243ms)
-✔ HTTP: existing password -> secure session -> draft -> reviewer -> bid; spoofed identity denied (289.705389ms)
-✔ auction page parses, matches compiled artifact and never fabricates lots (1.639014ms)
-✔ HTTP route defaults disabled rather than falling through to unsafe legacy endpoints (0.216976ms)
+✔ drafts private; same copy cannot have two active auctions; seller scoped copies (7.900435ms)
+✔ integer money and category isolation (0.798403ms)
+✔ first bid at start, self-bid forbidden, increment, replay and changed replay (1.800121ms)
+✔ future and expired bids rejected; views never restart ended auction (1.788244ms)
+✔ anti-sniping extends; close creates exactly one unpaid order and locks stock (3.233ms)
+✔ reserve not met creates no order; seller cannot cancel after a bid (1.245936ms)
+✔ secure session expires and logout revokes token (0.925374ms)
+✔ concurrent database connections accept only one equal bid and survive reopen (199.960927ms)
+✔ HTTP: existing password -> secure session -> draft -> reviewer -> bid; spoofed identity denied (442.287362ms)
+✔ auction page parses, matches compiled artifact and never fabricates lots (1.723236ms)
+✔ HTTP route defaults disabled rather than falling through to unsafe legacy endpoints (0.340853ms)
 ℹ tests 11
 ℹ suites 0
 ℹ pass 11
@@ -16,4 +16,4 @@
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 586.920677
+ℹ duration_ms 860.092397

@@ -16,6 +16,13 @@ $html = Get-Content $surface -Raw
 $forbidden = @('Amplissa','HappyHomarid','CollectorsCoast','DreamMeez','adult')
 foreach ($token in $forbidden) { if ($html -match [regex]::Escape($token)) { throw "Forbidden token leaked into MTG surface: $token" } }
 if ($html -notmatch 'Commander Deck Diagnostic') { throw 'Diagnostic missing from MTG surface' }
+$product = Get-Content (Join-Path $Root 'catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json') -Raw | ConvertFrom-Json
+if ($product.status -eq 'held') {
+    if ($html -notmatch 'Currently held' -or $html -match 'buy.stripe.com|/api/mtg/diagnostic/intake') { throw 'Held diagnostic page exposes checkout or omits hold' }
+    Write-Host '[PASS] CUBE MTG isolation and held public surface'
+} else {
 if ($html -notmatch 'NZ\$29') { throw 'Price missing from MTG surface' }
 if ($html -notmatch '/api/mtg/diagnostic/intake') { throw 'Automated checkout route missing' }
 Write-Host '[PASS] CUBE MTG reskin: manifest + isolation + public surface + automated checkout route'
+
+}
