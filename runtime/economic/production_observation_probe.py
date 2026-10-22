@@ -32,7 +32,15 @@ def inspect_action(row: dict[str, Any]) -> dict[str, Any]:
             "events": events,
         }
 
-    for event in events:
+    # On an already AUTHORIZED opportunity, ACTION_AUTHORIZED is a historical
+    # observation rather than a new transition. Evaluate external evidence
+    # instead of stopping prematurely on that unrelated event.
+    actionable_events = (
+        [e for e in events if e["event_type"] in
+         {"ACTION_DISPATCHED", "EXTERNAL_ACTION_SENT", "EXTERNAL_RESULT_OBSERVED"}]
+        if current == "AUTHORIZED" else events
+    )
+    for event in actionable_events:
         transition = transition_opportunity(
             current,
             event["event_type"],

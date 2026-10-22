@@ -53,10 +53,23 @@ def transition_opportunity(state: str, event: str, context: dict[str, Any]) -> T
             return Transition("AUTHORIZED", event)
         return Transition(None, "ACTION_BLOCKED", "AUTHORITY_FAILURE", "blocked", "authorization_granted")
 
-    if state == "AUTHORIZED" and event == "ACTION_DISPATCHED":
-        if context.get("worker_trace"):
-            return Transition("EXECUTED", event)
-        return Transition(None, "ACTION_BLOCKED", "DEPENDENCY_FAILURE", "unverified", "worker_trace")
+    # An internal worker trace, route or externally sent request is not proof
+    # that the external platform observed the requested economic effect.
+    if state == "AUTHORIZED" and event in {"ACTION_DISPATCHED", "EXTERNAL_ACTION_SENT"}:
+        return Transition(None, "ACTION_BLOCKED", "EXTERNAL_RESULT_REQUIRED",
+                          "EXTERNAL_RESULT_UNOBSERVED", "external_result_receipt_id")
+
+    if state == "AUTHORIZED" and event == "EXTERNAL_RESULT_OBSERVED":
+        # Only an upstream authenticated platform-observation adapter may
+        # populate these fields. This pure transition function does not verify
+        # a platform signature or independently fetch a result.
+        if not isinstance(context.get("external_result_receipt_id"), str) or not context["external_result_receipt_id"].strip():
+            return Transition(None, "ACTION_BLOCKED", "EXTERNAL_RESULT_REQUIRED",
+                              "EXTERNAL_RESULT_UNOBSERVED", "external_result_receipt_id")
+        if context.get("external_result_verified") is not True:
+            return Transition(None, "ACTION_BLOCKED", "EXTERNAL_RESULT_UNVERIFIED",
+                              "OBSERVATION_NOT_AUTHENTICATED", "external_result_verified")
+        return Transition("EXECUTED", event)
 
     if state == "EXECUTED" and event == "PAYMENT_SETTLED":
         if context.get("independent_buyer") and context.get("settlement_evidence"):
