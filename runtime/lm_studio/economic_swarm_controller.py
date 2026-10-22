@@ -8,6 +8,8 @@ MODELS={
     "synthesis": os.environ.get("DREAMLEDGER_SYNTHESIS_MODEL","qwen_qwen2.5-vl-7b-instruct"),
 }
 INTERVAL=max(30,int(os.environ.get("DREAMLEDGER_SWARM_INTERVAL_SECONDS","300")))
+# Local North Star cycles are offline-first. Remote reads require an explicit opt-in.
+LOCAL_ONLY = os.environ.get("DREAMLEDGER_ALLOW_REMOTE_READS","").strip() != "1"
 SUPA=os.environ.get("SUPABASE_URL","").rstrip("/")
 KEY=os.environ.get("SUPABASE_ANON_KEY","")
 ROOT=os.environ.get("DREAMLEDGER_ROOT") or os.getcwd()
@@ -64,7 +66,9 @@ def run_priority_audit():
     if not os.path.isfile(PRIORITY_AUDIT_SCRIPT):
         return {"status":"BLOCKED_PRIORITY_AUDIT_SCRIPT_MISSING","task_id":"MTG-CMD-DIAG-29-READ-ONLY-AUDIT","external_action_performed":False}
     try:
-        p=subprocess.run([sys.executable,PRIORITY_AUDIT_SCRIPT,"--json"],cwd=ROOT,capture_output=True,text=True,timeout=60)
+        child_env=os.environ.copy()
+        child_env["DREAMLEDGER_LOCAL_ONLY"] = "1" if LOCAL_ONLY else "0"
+        p=subprocess.run([sys.executable,PRIORITY_AUDIT_SCRIPT,"--json"],cwd=ROOT,env=child_env,capture_output=True,text=True,timeout=60)
         value=json.loads(p.stdout) if p.stdout.strip() else {}
         if not isinstance(value,dict):
             return {"status":"BLOCKED_PRIORITY_AUDIT_INVALID_OUTPUT","external_action_performed":False}
@@ -136,14 +140,14 @@ def snapshot():
             }
         except Exception as ex:
             e["777_error"]=str(ex)
-    if SUPA and KEY:
+    if not LOCAL_ONLY and SUPA and KEY:
         try:
             q=urllib.parse.urlencode({"select":"opportunity_id,source,subject,status,expected_value_nzd,expected_cost_nzd,time_budget_minutes,authority_lane,observed_at","order":"expected_value_nzd.desc.nullslast","limit":"30"})
             e["opportunities"]=get(SUPA+"/rest/v1/cube_opportunities?"+q,{"apikey":KEY,"Authorization":"Bearer "+KEY})
         except Exception as ex:
             e["opportunities_error"]=str(ex)
     else:
-        e["opportunities_status"]="UNAVAILABLE_NO_SUPABASE_READ_CREDENTIALS"
+        e["opportunities_status"]="SKIPPED_LOCAL_ONLY" if LOCAL_ONLY else "UNAVAILABLE_NO_SUPABASE_READ_CREDENTIALS"
     return e
 
 def compact_model_snapshot(e, max_chars=5200):

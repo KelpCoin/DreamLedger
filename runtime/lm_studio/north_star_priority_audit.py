@@ -97,6 +97,20 @@ def get_probe_cache() -> dict:
 
 
 def probe_delivery_gate() -> dict:
+    # The laptop/desktop heartbeat must not quietly call Supabase. Remote probing is opt-in.
+    if os.environ.get("DREAMLEDGER_LOCAL_ONLY") == "1":
+        return {
+            "checked_at_utc": None,
+            "http_status": None,
+            "branch_classification": "SKIPPED_LOCAL_ONLY",
+            "response_error_code": "",
+            "fake_session_used": False,
+            "session_id_recorded": False,
+            "secret_value_read_or_written": False,
+            "reused_cached_result": False,
+            "network_requested": False,
+            "interpretation": "External probes are disabled for this local-only cycle. No payment or delivery conclusion is inferred.",
+        }
     cached = get_probe_cache()
     if cached:
         return cached
@@ -421,7 +435,7 @@ def build_report() -> dict:
         ],
         "external_action_performed": False,
         "external_commercial_action_performed": False,
-        "read_only_remote_probe_performed": bool(probe.get("checked_at_utc")),
+        "read_only_remote_probe_performed": probe.get("network_requested") is True or (bool(probe.get("checked_at_utc")) and probe.get("branch_classification") != "SKIPPED_LOCAL_ONLY"),
         "database_write_performed": False,
         "payment_verified": False,
         "fulfillment_verified": False,
@@ -440,6 +454,22 @@ def self_test() -> int:
     assert classify_probe_status(503, "STRIPE_CONFIG_MISSING") == "STRIPE_CONFIG_MISSING"
     assert classify_probe_status(500, "STRIPE_SESSION_LOOKUP_FAILED") == "SESSION_LOOKUP_FAILED_KEY_VALIDITY_NOT_CONFIRMED"
     assert classify_probe_status(None) == "NOT_VERIFIED_NETWORK_OR_REQUEST_FAILURE"
+    previous_local = os.environ.get("DREAMLEDGER_LOCAL_ONLY")
+    original_urlopen = globals()["urlopen"]
+    def forbidden_network_call(*args, **kwargs):
+        raise AssertionError("Network call attempted while DREAMLEDGER_LOCAL_ONLY=1")
+    try:
+        os.environ["DREAMLEDGER_LOCAL_ONLY"] = "1"
+        globals()["urlopen"] = forbidden_network_call
+        local_probe = probe_delivery_gate()
+        assert local_probe["branch_classification"] == "SKIPPED_LOCAL_ONLY"
+        assert local_probe["network_requested"] is False
+    finally:
+        globals()["urlopen"] = original_urlopen
+        if previous_local is None:
+            os.environ.pop("DREAMLEDGER_LOCAL_ONLY", None)
+        else:
+            os.environ["DREAMLEDGER_LOCAL_ONLY"] = previous_local
     assert check_inline_javascript("<script>const x = 1;</script>")["status"] in {"PASS", "NOT_VERIFIED"}
     syntax_result = check_inline_javascript("<script>const x = ;</script>")
     assert syntax_result["status"] in {"FAIL", "NOT_VERIFIED"}
