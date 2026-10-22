@@ -4,10 +4,10 @@
   "silo": "mtg",
   "name": "Edward Kenway – Pacin’ On The Plank",
   "description": "Grixis Pirate/Vehicle Commander deck built around treasure generation, stealing cards, Pirates, Assassins and Vehicles. Physical Commander deck. Free shipping in Aotearoa New Zealand.",
-  "price": 23000,
+  "price": 40000,
   "currency": "nzd",
   "inventory": 1,
-  "status": "published",
+  "status": "held",
   "seller": "Biggie",
   "condition": "Real physical Commander deck",
   "fulfillment_method": "physical_delivery",
@@ -25,16 +25,20 @@
       "mtgsale"
     ],
     "shipping": "Free shipping Aotearoa New Zealand",
-    "patron_price_nzd": 200,
     "patron_url": "https://patreon.com/happyhomarid",
-    "payment_note": "Stripe checkout; Afterpay availability is determined by Stripe."
+    "payment_note": "Owner approved NZD 400 canonical price on 2026-10-23. Stock, listing release and fulfillment approval remain separate gates. Do not distribute checkout."
   },
   "commercial_truth": {
-    "approval_required": false,
-    "checkout_available": true,
+    "approval_required": true,
+    "checkout_available": false,
     "fulfillment_required": true,
     "evidence_required": true,
-    "payment_link": null
+    "payment_link": null,
+    "approved_payment_link_id": "plink_1U6V3BEGgEAnUFF93nnPFUmr",
+    "price_approved_nzd": 400,
+    "stock_limited": true,
+    "collects_nz_shipping_address": true,
+    "public_activation_approved": false
   },
   "default_offer_id": "EDH_0001"
 }
