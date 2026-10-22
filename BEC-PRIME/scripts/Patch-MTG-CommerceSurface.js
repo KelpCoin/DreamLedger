@@ -8,12 +8,13 @@ const SOURCE = path.join(ROOT, 'website', 'mtg-catalog.html');
 const PROOF = path.join(ROOT, 'PROOF-MTG-COMMERCE-SURFACE.json');
 const MARKER = 'data-dreamledger-mtg-commerce-v2';
 
-function writeProof() {
+function writeProof(status = 'PASS') {
   const proof = {
     schema: 'BEC-PRIME/MTG-COMMERCE-SURFACE/v2',
-    status: 'PASS',
+    status,
     source: 'BEC-PRIME/website/mtg-catalog.html',
     marker: MARKER,
+    note: status === 'NOT_APPLICABLE' ? 'Current MTG master renderer is already source-bound; obsolete legacy commerce patch intentionally skipped.' : 'Legacy commerce patch applied or already present.',
     route: '/mtg',
     aliases: ['/mtg', '/mtg/', '/MTG', '/MTG/'],
     inventory_endpoint: '/api/products',
@@ -41,7 +42,19 @@ function patch() {
 
   const start = html.indexOf('function render(items){');
   const end = html.indexOf('async function load(){', start);
-  if (start < 0 || end < 0) throw new Error('MTG render function boundary not found');
+  if (start < 0 || end < 0) {
+    // The modern MTG master renders an existing verified catalogue directly
+    // and has no legacy render(items) boundary. Never splice checkout code
+    // into an unrelated function or assert that the old patch was applied.
+    const modern = html.includes("function isPhysical(p)") &&
+      html.includes("const CATALOG='/data/mtg-catalog.json'") &&
+      html.includes("grid.innerHTML=decks.map(p=>");
+    if (modern) {
+      writeProof('NOT_APPLICABLE');
+      return;
+    }
+    throw new Error('MTG render function boundary not found');
+  }
 
   const render = String.raw`function render(items){
 const decks=items.filter(isMtg);

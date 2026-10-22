@@ -34,7 +34,10 @@ function getAjvValidators() {
   }
   let Ajv;
   try {
-    Ajv = require('ajv');
+    // Both Elohim schemas declare JSON Schema 2020-12. The default Ajv
+    // constructor only preloads draft-07 and fails during compilation.
+    const Ajv2020 = require('ajv/dist/2020');
+    Ajv = Ajv2020.default || Ajv2020;
   } catch (_)
   {
     return null;
