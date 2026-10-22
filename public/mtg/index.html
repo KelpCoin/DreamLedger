@@ -87,7 +87,7 @@ h1{font-size:clamp(2.2rem,6vw,3.6rem);line-height:1.02;letter-spacing:-.04em;mar
       var claim = p.claim_url || ('mailto:hello@dreamledger.org?subject=' + encodeURIComponent('Buy ' + (p.name || 'deck') + ' NZ$' + (p.price || '')));
       var price = Number(p.price);
       var hero = String(p.image_url || '');
-      var art = /^\\/mtg\\/assets\\/edh\\/[a-z0-9-]+\\.svg$/.test(hero)
+      var art = /^\/mtg\/assets\/edh\/[a-z0-9-]+\.svg$/.test(hero)
         ? '<img src="' + esc(hero) + '" loading="lazy" alt="Distinctive monochrome illustration for ' + esc(p.hero_subtitle || p.name || 'Commander deck') + '">'
         : '';
       return '<article class="deck edh-card"><div class="edh-art' + (art ? '' : ' edh-art--empty') + '">' + art + '</div>' +
