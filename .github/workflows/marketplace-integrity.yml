@@ -2,6 +2,14 @@ name: Marketplace Integrity
 
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - 'BEC-PRIME/marketplace/**'
+      - 'BEC-PRIME/routes/userAuctions.js'
+      - 'BEC-PRIME/auction-engine.js'
+      - 'public/auctions.html'
+      - 'scripts/verify-user-auctions.cjs'
+      - '.github/workflows/marketplace-integrity.yml'
   push:
     branches: [main]
     paths:
@@ -23,6 +31,16 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Verify user auctions
+        run: node scripts/verify-user-auctions.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: user-auction-proof
+          path: evidence/user-auctions/
       - name: Validate marketplace contract
         run: python -m json.tool BEC-PRIME/marketplace/marketplace-contract.json >/dev/null
       - name: Validate marketplace runtime

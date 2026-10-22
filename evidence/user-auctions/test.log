@@ -1,0 +1,19 @@
+✔ drafts private; same copy cannot have two active auctions; seller scoped copies (4.721005ms)
+✔ integer money and category isolation (0.704692ms)
+✔ first bid at start, self-bid forbidden, increment, replay and changed replay (1.545559ms)
+✔ future and expired bids rejected; views never restart ended auction (2.2694ms)
+✔ anti-sniping extends; close creates exactly one unpaid order and locks stock (1.634313ms)
+✔ reserve not met creates no order; seller cannot cancel after a bid (0.971204ms)
+✔ secure session expires and logout revokes token (1.103293ms)
+✔ concurrent database connections accept only one equal bid and survive reopen (117.742617ms)
+✔ HTTP: existing password -> secure session -> draft -> reviewer -> bid; spoofed identity denied (288.743625ms)
+✔ auction page parses, matches compiled artifact and never fabricates lots (1.264536ms)
+✔ HTTP route defaults disabled rather than falling through to unsafe legacy endpoints (0.247583ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 563.04831
