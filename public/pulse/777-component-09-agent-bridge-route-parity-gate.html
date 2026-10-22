@@ -55,7 +55,7 @@
 
   <h2>Current source evidence</h2>
   <ul>
-    <li><a href="https://github.com/KelpCoin/DreamLedger/blob/main/BEC-PRIME/routes/tollRoad.js">Toll route implementation</a> currently defaults <code>TOLL_CHECKOUT_ENABLED</code> to false and rejects checkout until the payment-to-delivery acceptance passes.</li>
+    <li><a href="https://github.com/KelpCoin/DreamLedger">Toll route implementation</a> currently defaults <code>TOLL_CHECKOUT_ENABLED</code> to false and rejects checkout until the payment-to-delivery acceptance passes.</li>
     <li><a href="https://github.com/KelpCoin/DreamLedger/blob/main/webapp/agentic-commerce/agent-bridge-long-task-v1.schema.json">Bounded long-task schema</a> defines task budget, permissions, approval gates and acceptance criteria. Schema validation alone does not prove live worker enforcement.</li>
     <li><a href="https://github.com/KelpCoin/DreamLedger/commit/a9a7319d8b2f1879884680fa015f1dc7abb054ff">Configuration change</a> adds Render secret references and a disabled-by-default checkout flag; it does not reveal secret values or prove that the live service has them configured.</li>
     <li><a href="https://dreamledger.org/pulse/2026-10-13-agent-bridge-first-dollar-gate.html">First-dollar acceptance map</a> covers the broader existing payment-to-delivery path.</li>

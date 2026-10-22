@@ -64,6 +64,19 @@ if (
   errors.push('SKU_DRIFT');
 }
 
+// The canonical product's held state takes precedence over historical payment
+// link metadata. A live Stripe link alone is not authorization to sell.
+if (product.status === 'held') {
+  if (product.checkout?.mode !== 'disabled' || product.inventory !== 0 ||
+      product.commercial_truth?.approval_required !== true ||
+      product.commercial_truth?.sellable !== false ||
+      product.commercial_truth?.payment_link) errors.push('HELD_PRODUCT_CHECKOUT_LEAK');
+  const compiled = readJson('catalog/offers/products.json');
+  const published = (compiled.products || []).find(x => x.id === product.id);
+  if (published && (published.checkout_available === true || published.commercial_truth?.sellable === true)) {
+    errors.push('HELD_PRODUCT_COMPILED_AS_SELLABLE');
+  }
+} else {
 const paymentLink = product.commercial_truth?.payment_link || '';
 
 if (
@@ -80,6 +93,8 @@ if (offer && offer.payment_link_status !== 'ACTIVE_LIVEMODE') {
 
 if (product.commercial_truth?.approval_required !== false || product.commercial_truth?.sellable !== true) {
   errors.push('PRODUCT_NOT_SELLABLE');
+}
+
 }
 
 const homepageFile = path.join(root, 'compiled/website/index.html');
@@ -113,7 +128,9 @@ const result = {
     offer_id: 'OFFER-CMD-DIAG-29-NZD',
     sku: 'CMD-DIAG-29',
     price_nzd: 29,
-    payment_link_status: offer?.payment_link_status || null
+    payment_link_status: offer?.payment_link_status || null,
+    product_status: product.status,
+    checkout_authorized: product.status !== 'held' && product.commercial_truth?.sellable === true
   },
   excluded_surfaces: ['cinema', 'private-adult-boundary'],
   errors

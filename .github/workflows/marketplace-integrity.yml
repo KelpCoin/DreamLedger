@@ -54,7 +54,7 @@ jobs:
       - name: Build marketplace manifest
         run: |
           mkdir -p evidence
-          sha256sum BEC-PRIME/marketplace/* CORTEX/ecosystem_spine.py > evidence/marketplace-manifest.sha256
+          git ls-files -z BEC-PRIME/marketplace CORTEX/ecosystem_spine.py | sort -z | xargs -0 sha256sum > evidence/marketplace-manifest.sha256
       - name: Attest marketplace manifest
         uses: actions/attest@v4
         with:

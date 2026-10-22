@@ -28,3 +28,11 @@ Model review is advisory, capped at three calls and 1500 output tokens per call;
 missing model secrets produce an explicit blocked artifact. No automatic merge,
 deployment, payment activation or second work queue. Local auction suite: 11/11 PASS.
 Browser QA and live payment validation remain NOT_RUN.
+
+User expanded acceptance: publish visible website changes and repair CI (2026-10-22).
+Scope now includes fixing observed compiler/schema/layout drift, public auction route
+and authenticated proxy wiring, homepage source preservation, held-product checks,
+manifest hashing and test-secret fixture. No tests are disabled to claim green.
+Local full compile and Gauntlet pass in isolated checkout; auction tests 11/11,
+existing npm test 20/20. Cloud review credentials absent in first run. Existing
+production storefront is Render-backed; deployment awaits CI and workspace selection.

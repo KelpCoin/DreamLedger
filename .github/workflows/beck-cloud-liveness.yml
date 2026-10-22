@@ -31,6 +31,13 @@ jobs:
           echo "health_http=$code" >> "$GITHUB_OUTPUT"
           cat /tmp/health.txt || true
 
+      - name: Check gateway version endpoint
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --max-time 20 https://dreamledger-silo-gateway.onrender.com/version > "$RUNNER_TEMP/gateway-version.json"
+          node -e "const fs=require('fs');const data=JSON.parse(fs.readFileSync(process.env.RUNNER_TEMP+'/gateway-version.json'));if(!data||typeof data!=='object')process.exit(1)"
+
       - name: Check canonical public Truth Oracle page
         shell: bash
         run: |

@@ -32,6 +32,20 @@ function patch() {
     writeProof();
     return;
   }
+  // The manifest-driven grid supersedes the older rail renderer. Validate the
+  // actual contract instead of searching for obsolete function delimiters.
+  if (html.includes("const CATALOG='/data/mtg-catalog.json'")) {
+    if (!html.includes('conditionEligible') || !html.includes('async function load()') || !html.includes('grid.innerHTML=decks.map')) {
+      throw new Error('Manifest MTG catalogue contract incomplete');
+    }
+    const proof = { schema: 'BEC-PRIME/MTG-COMMERCE-SURFACE/v3', status: 'PASS',
+      source: 'BEC-PRIME/website/mtg-catalog.html', route: '/mtg',
+      inventory_endpoint: '/data/mtg-catalog.json', renderer: 'manifest-grid',
+      checkout_enabled_by_patch: false, generated_at: new Date().toISOString() };
+    fs.writeFileSync(PROOF, JSON.stringify(proof, null, 2) + '\n');
+    console.log(JSON.stringify(proof));
+    return;
+  }
   const original = html;
 
   html = html.replace(

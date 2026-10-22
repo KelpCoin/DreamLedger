@@ -40,7 +40,7 @@ h1{font-size:clamp(1.8rem,5vw,2.8rem);letter-spacing:-.04em;line-height:1.08;mar
 <div class="status" id="status"></div>
 <div class="grid">
   <article class="card"><h3>Catalog</h3><p>Inventory is silo-isolated. Empty catalog is honest — not fabricated stock.</p></article>
-  <article class="card"><h3>Gauntlet</h3><p>Public activation requires scorecard PASS. Shell candidates stay non-commercial.</p></article>
+  <article class="card"><h3>Verification</h3><p>Public activation requires scorecard PASS. Shell candidates stay non-commercial.</p></article>
   <article class="card"><h3>Commerce</h3><p>Checkout only via approved Stripe routes. No revenue without settlement.</p></article>
 </div>
 <p id="cta"></p>
@@ -63,7 +63,7 @@ h1{font-size:clamp(1.8rem,5vw,2.8rem);letter-spacing:-.04em;line-height:1.08;mar
     if(silo.accent) document.documentElement.style.setProperty('--accent', silo.accent);
     const cta=document.getElementById('cta');
     if(silo.slug==='mtg'||silo.route==='/mtg/') cta.innerHTML='<a class="btn" href="/mtg/">Open Magic silo →</a>';
-    else if(silo.status==='shell_candidate') cta.innerHTML='<span class="note">Shell only — gauntlet + supply verification required before activation.</span>';
+    else if(silo.status==='shell_candidate') cta.innerHTML='<span class="note">Shell only — verification + supply verification required before activation.</span>';
     else cta.innerHTML='<a class="btn" href="'+esc(silo.route||'#')+'">Open silo →</a>';
   }).catch(()=>{document.getElementById('title').textContent='Registry unavailable';});
 })();

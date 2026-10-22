@@ -20,18 +20,27 @@ function read(rel) {
 const index = read('public/home.html');
 const catalogText = read('public/catalog.json');
 const catalog = JSON.parse(catalogText);
-const mtg = read('public/mtg.html');
+const mtg = read('public/mtg/index.html');
 const truthPricing = JSON.parse(read('BEC-PRIME/catalog/truth-oracle/pricing.json'));
 
 check('homepage-canonical-doors',
   ['DreamLedger', 'Truth Oracle', 'Supplier Quote Comparison Worksheet'].every((x) => index.toLowerCase().includes(x.toLowerCase())) && !/Agent Delivery Proof Audit|agent-delivery-proof-audit/i.test(index),
   'Homepage exposes Truth Oracle and supplier quote comparison; the retired audit offer is absent.');
+const diagnostic = JSON.parse(read('BEC-PRIME/catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json'));
+if (diagnostic.status === 'held') {
+  const exposed = catalog.products.find(x => x.id === diagnostic.id);
+  check('diagnostic-public-hold', diagnostic.checkout.mode === 'disabled' && diagnostic.commercial_truth.sellable === false &&
+    (!exposed || (exposed.checkout_available !== true && exposed.status !== 'published')), 'Held diagnostic is not offered for sale.');
+  check('diagnostic-hold-disclosed', /Ordering is held/i.test(mtg) && !/Buy diagnostic/i.test(mtg), 'MTG surface discloses unavailable diagnostic ordering.');
+} else {
 check('diagnostic-current-public-catalog',
   Array.isArray(catalog.products) && catalog.products.some((x) => x && x.id === 'COMMANDER-DECK-DIAGNOSTIC-001' && x.sku === 'CMD-DIAG-29' && Number(x.price) === 29 && String(x.currency || '').toUpperCase() === 'NZD' && x.status === 'published' && x.checkout_available === true && x.checkout_url === 'https://dreamledger.org/mtg/diagnostic.html'),
   'Current Commander Deck Diagnostic CMD-DIAG-29 is published at NZD 29 in public/catalog.json.' );
 check('diagnostic-current-public-mtg',
   /Commander Deck Diagnostic/i.test(mtg) && /29/i.test(mtg),
   'Current Commander Deck Diagnostic remains discoverable at the canonical NZD 29 public MTG surface.');
+
+}
 
 const plans = Array.isArray(truthPricing.plans) ? truthPricing.plans : [];
 const expected = { SIGNAL: 4.99, INTELLIGENCE: 7.99, DEEP_EVIDENCE: 9.99 };
