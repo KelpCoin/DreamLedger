@@ -1,0 +1,222 @@
+name: BECK Cloud Fleet
+
+on:
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: beck-cloud-fleet-main
+  cancel-in-progress: false
+
+jobs:
+  cloud-health-and-recovery:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      BECK_HEARTBEAT_ORIGIN: https://dreamledger.org
+      NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+      NEON_PROJECT_ID: ${{ secrets.NEON_PROJECT_ID }}
+      NEON_ENDPOINT_ID: ${{ secrets.NEON_ENDPOINT_ID }}
+      NEON_DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      CLOUDFLARE_PAGES_PROJECT: ${{ secrets.CLOUDFLARE_PAGES_PROJECT }}
+      CLOUDFLARE_DEPLOY_HOOK_URL: ${{ secrets.CLOUDFLARE_DEPLOY_HOOK_URL }}
+      CLOUDFLARE_PREVIEW_URL: ${{ secrets.CLOUDFLARE_PREVIEW_URL }}
+      CLOUDFLARE_CUSTOM_DOMAIN_URL: https://dreamledger.org/mtg/
+    steps:
+      - name: Checkout default branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - name: Setup Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Install PostgreSQL client for read-only SELECT 1 probe
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-client
+
+      - name: Restore one-hour recovery cooldown state
+        uses: actions/cache/restore@v4
+        with:
+          path: .beck-recovery-state
+          key: beck-auto-recovery-state-${{ github.run_id }}
+          restore-keys: |
+            beck-auto-recovery-state-
+
+      - name: Initialize cooldown store
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .beck-recovery-state proof/fleet proof/beck
+          test -f .beck-recovery-state/initialized.txt || printf 'initialized\n' > .beck-recovery-state/initialized.txt
+
+      - name: Probe public production routes
+        id: public_probe
+        continue-on-error: true
+        env:
+          BECK_HEARTBEAT_PATH: proof/fleet/public-heartbeat.json
+        run: node ops/fleet/heartbeat.mjs
+
+      - name: Probe Neon SQL connectivity without mutation
+        id: neon_probe
+        continue-on-error: true
+        env:
+          BECK_NEON_PROBE_PATH: proof/fleet/neon-sql-probe-before.json
+        run: node ops/fleet/neon-sql-probe.mjs
+
+      - name: Inspect Neon provider state
+        id: neon_inspect
+        continue-on-error: true
+        env:
+          BECK_RECOVERY_ACTION: inspect
+          BECK_RECOVERY_EVIDENCE_PATH: proof/beck/neon-inspect.json
+        run: node ops/recovery/neon-endpoint.mjs
+
+      - name: Inspect Cloudflare Pages and route probes
+        id: cloudflare_inspect
+        continue-on-error: true
+        env:
+          BECK_RECOVERY_ACTION: inspect
+          BECK_RECOVERY_EVIDENCE_PATH: proof/beck/cloudflare-inspect.json
+        run: node ops/recovery/cloudflare-pages.mjs
+
+      - name: Auto-recover Neon after a classified connectivity failure
+        id: neon_recovery
+        if: steps.neon_probe.outputs.recoverable == 'true'
+        shell: bash
+        continue-on-error: true
+        env:
+          BECK_RECOVERY_EVIDENCE_PATH: proof/beck/neon-recovery.json
+        run: |
+          set -u
+          mkdir -p proof/beck .beck-recovery-state
+          if [ -z "${NEON_API_KEY:-}" ] || [ -z "${NEON_PROJECT_ID:-}" ] || [ -z "${NEON_ENDPOINT_ID:-}" ] || [ -z "${NEON_DATABASE_URL:-}" ]; then
+            echo "NEON_RECOVERY=BLOCKED_MISSING_SECRET" | tee -a "$GITHUB_STEP_SUMMARY"
+            echo "Missing one or more required GitHub secrets: NEON_API_KEY, NEON_PROJECT_ID, NEON_ENDPOINT_ID, NEON_DATABASE_URL" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          now="$(date -u +%s)"
+          if [ -s .beck-recovery-state/neon-last-action.txt ]; then
+            last="$(cat .beck-recovery-state/neon-last-action.txt)"
+            last_epoch="$(date -u -d "$last" +%s 2>/dev/null || printf '0')"
+            age=$((now-last_epoch))
+            if [ "$last_epoch" -gt 0 ] && [ "$age" -lt 3600 ]; then
+              echo "NEON_RECOVERY=COOLDOWN_ACTIVE age_seconds=$age" | tee -a "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
+          fi
+          printf '%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > .beck-recovery-state/neon-last-action.txt
+          set +e
+          BECK_RECOVERY_ACTION=recover BECK_ALLOW_PRODUCTION_RECOVERY=true node ops/recovery/neon-endpoint.mjs
+          rc=$?
+          set -e
+          echo "NEON_RECOVERY_EXIT=$rc" | tee -a "$GITHUB_STEP_SUMMARY"
+          echo "The adapter issues at most one provider mutation per run and never retries the POST." >> "$GITHUB_STEP_SUMMARY"
+          exit 0
+
+      - name: Re-probe Neon SQL after recovery attempt
+        id: neon_post_probe
+        if: steps.neon_recovery.outcome == 'success'
+        continue-on-error: true
+        env:
+          BECK_NEON_PROBE_PATH: proof/fleet/neon-sql-probe-after.json
+        run: node ops/fleet/neon-sql-probe.mjs
+
+      - name: Automatic Cloudflare recovery gate
+        id: cloudflare_recovery
+        if: steps.public_probe.outputs.degraded == 'true'
+        shell: bash
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          status="$(node -e 'const c=require("./ops/migration/CLOUDFLARE-ROUTE-PARITY-CONTRACT.json"); console.log(c.status||"UNKNOWN")')"
+          if [ "$status" != "FULL_DYNAMIC_ROUTE_PARITY_VERIFIED" ]; then
+            echo "CLOUDFLARE_RECOVERY=BLOCKED_ROUTE_PARITY" | tee -a "$GITHUB_STEP_SUMMARY"
+            echo "Public route probe degraded, but the production deployment gate remains closed: $status. No deploy hook was called." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          if [ -z "${CLOUDFLARE_API_TOKEN:-}" ] || [ -z "${CLOUDFLARE_ACCOUNT_ID:-}" ] || [ -z "${CLOUDFLARE_PAGES_PROJECT:-}" ] || [ -z "${CLOUDFLARE_DEPLOY_HOOK_URL:-}" ]; then
+            echo "CLOUDFLARE_RECOVERY=BLOCKED_MISSING_SECRET" | tee -a "$GITHUB_STEP_SUMMARY"
+            echo "Missing one or more required GitHub secrets: CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_PAGES_PROJECT, CLOUDFLARE_DEPLOY_HOOK_URL" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          now="$(date -u +%s)"
+          if [ -s .beck-recovery-state/cloudflare-last-action.txt ]; then
+            last="$(cat .beck-recovery-state/cloudflare-last-action.txt)"
+            last_epoch="$(date -u -d "$last" +%s 2>/dev/null || printf '0')"
+            age=$((now-last_epoch))
+            if [ "$last_epoch" -gt 0 ] && [ "$age" -lt 3600 ]; then
+              echo "CLOUDFLARE_RECOVERY=COOLDOWN_ACTIVE age_seconds=$age" | tee -a "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
+          fi
+          printf '%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > .beck-recovery-state/cloudflare-last-action.txt
+          set +e
+          BECK_RECOVERY_ACTION=deploy BECK_ALLOW_PRODUCTION_RECOVERY=true BECK_RECOVERY_EVIDENCE_PATH=proof/beck/cloudflare-recovery.json node ops/recovery/cloudflare-pages.mjs
+          rc=$?
+          set -e
+          echo "CLOUDFLARE_RECOVERY_EXIT=$rc" | tee -a "$GITHUB_STEP_SUMMARY"
+          echo "The deploy hook is not called unless the complete dynamic route parity contract is marked verified." >> "$GITHUB_STEP_SUMMARY"
+          exit 0
+
+      - name: Re-probe public routes after recovery attempt
+        id: public_post_probe
+        if: steps.public_probe.outputs.degraded == 'true'
+        continue-on-error: true
+        env:
+          BECK_HEARTBEAT_PATH: proof/fleet/public-heartbeat-after.json
+        run: node ops/fleet/heartbeat.mjs
+
+      - name: Final health gate and summary
+        if: always()
+        shell: bash
+        run: |
+          set -u
+          public_degraded='${{ steps.public_post_probe.outputs.degraded }}'
+          if [ -z "$public_degraded" ]; then public_degraded='${{ steps.public_probe.outputs.degraded }}'; fi
+          neon_healthy='${{ steps.neon_post_probe.outputs.healthy }}'
+          if [ -z "$neon_healthy" ]; then neon_healthy='${{ steps.neon_probe.outputs.healthy }}'; fi
+          echo "## BECK cloud fleet health" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Commit: $GITHUB_SHA" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Public degraded: ${public_degraded:-unknown}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Neon SQL healthy: ${neon_healthy:-unknown}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Neon provider inspection: ${{ steps.neon_inspect.outcome }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Cloudflare provider inspection: ${{ steps.cloudflare_inspect.outcome }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Missing secrets and failed probes remain BLOCKED; they never count as success." >> "$GITHUB_STEP_SUMMARY"
+          echo "- Revenue asserted: NZD 0 unless reconciled from provider settlement plus attribution and delivery." >> "$GITHUB_STEP_SUMMARY"
+          if [ "$public_degraded" != "false" ] || [ "$neon_healthy" != "true" ]; then
+            echo "- FLEET_STATUS=DEGRADED_OR_BLOCKED" >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+          echo "- FLEET_STATUS=HEALTHY" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload redacted health and recovery evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: beck-cloud-fleet-${{ github.run_id }}
+          path: |
+            proof/fleet/
+            proof/beck/
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Save recovery cooldown state
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: .beck-recovery-state
+          key: beck-auto-recovery-state-${{ github.run_id }}

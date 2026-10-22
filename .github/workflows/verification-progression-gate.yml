@@ -1,0 +1,28 @@
+name: Verification Progression Contract
+on:
+  push:
+    branches:
+      - 'beck/provider-migration-neon-cloudflare-20261019'
+    paths:
+      - 'BEC-PRIME/runtime/VerificationProgression.js'
+      - 'BEC-PRIME/runtime/VerificationProgression.test.js'
+      - '.github/workflows/verification-progression-gate.yml'
+  pull_request:
+    paths:
+      - 'BEC-PRIME/runtime/VerificationProgression.js'
+      - 'BEC-PRIME/runtime/VerificationProgression.test.js'
+      - '.github/workflows/verification-progression-gate.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verification-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a
+        with:
+          node-version: '24'
+      - run: node --check BEC-PRIME/runtime/VerificationProgression.js
+      - run: node --test BEC-PRIME/runtime/VerificationProgression.test.js

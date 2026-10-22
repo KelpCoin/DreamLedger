@@ -64,12 +64,60 @@ async function main() {
     assert.equal(manifest.status, 200);
     assert.equal(manifest.json.schema_version, bridge.BRIDGE_SCHEMA_VERSION);
     assert.equal(manifest.json.schema_version, 'BECK-AGENT-BRIDGE-1.3');
-    assert.equal(manifest.json.authentication, 'x-dreamledger-agent-token');
-    assert.equal(manifest.json.external_actions, 'policy_gated');
-    assert.equal(manifest.json.payment_truth, 'RA_000001 requires independently verified external payment');
-    assert.equal(manifest.json.endpoints.events.path, '/api/agent-bridge/events');
-    assert.equal(manifest.json.endpoints.correlation.path, '/api/agent-bridge/correlations/:id');
-    assert.equal(manifest.json.endpoints.approve_action.path, '/api/agent-bridge/actions/:id/approve');
+    assert.equal(manifest.json.authentication_header, 'x-dreamledger-agent-token');
+    assert.equal(manifest.json.external_actions, 'human_approval_required');
+    assert.equal(manifest.json.economic_truth, 'Bridge activity is not revenue');
+    assert.ok(manifest.json.work_routes.includes('/api/agent-bridge/events'));
+    assert.ok(manifest.json.work_routes.includes('/api/agent-bridge/jobs'));
+    assert.ok(manifest.json.work_routes.includes('/api/agent-bridge/correlations/:id'));
+    assert.equal(manifest.json.work_routes.some(route => route.endsWith('/approve')), false);
+
+    // Exercise the real job handler with a standalone HTTPS proxy and no Supabase URL.
+    const names = ['SUPABASE_URL', 'AGENT_BRIDGE_PROXY_URL', 'DREAMLEDGER_AGENT_BRIDGE_TOKEN'];
+    const original = Object.fromEntries(names.map(k => [k, process.env[k]]));
+    const previousFetch = global.fetch;
+    try {
+      delete process.env.SUPABASE_URL;
+      process.env.AGENT_BRIDGE_PROXY_URL = 'https://bridge.example.invalid/api';
+      process.env.DREAMLEDGER_AGENT_BRIDGE_TOKEN = 'contract-fixture-token';
+      assert.equal(bridge.configured(), true);
+      let requests = 0;
+      global.fetch = async (destination, options) => {
+        requests++;
+        assert.equal(destination, 'https://bridge.example.invalid/api');
+        assert.equal(options.headers['x-dreamledger-agent-token'], 'contract-fixture-token');
+        assert.equal(JSON.parse(options.body).path, 'rpc/claim_job');
+        return { ok: true, status: 200, text: async () => 'null' };
+      };
+      const claim = await new Promise((resolve, reject) => {
+        const req = http.request({
+          hostname: '127.0.0.1', port, path: '/api/agent-bridge/jobs/claim',
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-dreamledger-agent-token': 'contract-fixture-token' }
+        }, res => {
+          let data = '';
+          res.on('data', chunk => { data += chunk; });
+          res.on('end', () => {
+            try { resolve({ status: res.statusCode, body: JSON.parse(data) }); }
+            catch (error) { reject(error); }
+          });
+        });
+        req.once('error', reject);
+        req.end(JSON.stringify({ worker_id: 'contract-worker', lease_seconds: 90 }));
+      });
+      assert.equal(claim.status, 200);
+      assert.equal(claim.body.claimed, false);
+      assert.equal(claim.body.reason, 'NO_JOB');
+      assert.equal(requests, 1);
+      delete process.env.DREAMLEDGER_AGENT_BRIDGE_TOKEN;
+      assert.equal(bridge.configured(), false, 'no credentials, no work');
+    } finally {
+      global.fetch = previousFetch;
+      for (const key of names) {
+        if (original[key] === undefined) delete process.env[key];
+        else process.env[key] = original[key];
+      }
+    }
 
     console.log(JSON.stringify({
       schema: 'BEC-AGENT-BRIDGE-CONTRACT-VERIFY/v2',
@@ -77,7 +125,8 @@ async function main() {
       manifest: 'PASS',
       event_contract: 'PASS',
       role_gate: 'PASS',
-      consequential_action_gate: 'policy_gated',
+      consequential_action_gate: 'human_approval_required',
+      provider_independent_job_claim: 'PASS',
       note_write_performed: false,
       checked_at: new Date().toISOString()
     }, null, 2));

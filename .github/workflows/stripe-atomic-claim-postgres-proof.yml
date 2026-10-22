@@ -1,0 +1,90 @@
+name: Stripe Atomic Claim Postgres Proof
+
+on:
+  push:
+    branches: [beck/provider-migration-neon-cloudflare-20261019]
+    paths:
+      - "ops/migration/STRIPE-ATOMIC-CLAIM-FUNCTION.sql"
+      - "ops/migration/TEST-STRIPE-ATOMIC-CLAIM.sql"
+      - ".github/workflows/stripe-atomic-claim-postgres-proof.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  disposable-postgres:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: fixture_only
+          POSTGRES_DB: fixture
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d fixture"
+          --health-interval 3s
+          --health-timeout 3s
+          --health-retries 15
+    env:
+      PGHOST: localhost
+      PGPORT: 5432
+      PGUSER: postgres
+      PGPASSWORD: fixture_only
+      PGDATABASE: fixture
+    steps:
+      - uses: actions/checkout@v4
+      - name: Confirm Postgres 17 and load exact transaction function
+        shell: bash
+        run: |
+          set -euo pipefail
+          psql --version
+          psql -X -v ON_ERROR_STOP=1 -f ops/migration/TEST-STRIPE-ATOMIC-CLAIM.sql
+      - name: Prove two simultaneous event claims yield one order and outbox row
+        shell: bash
+        run: |
+          set -euo pipefail
+          sql="SELECT claimed FROM public.claim_verified_stripe_checkout('evt_C02','checkout.session.completed','cs_live_C02','pi_C02','DREAMMEEZ','COSMIC-HOODIE',500,'NZD',repeat('e',64),true,null)"
+          psql -XAt -v ON_ERROR_STOP=1 -c "$sql" > /tmp/claim1.txt &
+          p1=$!
+          psql -XAt -v ON_ERROR_STOP=1 -c "$sql" > /tmp/claim2.txt &
+          p2=$!
+          wait "$p1"
+          wait "$p2"
+          cat /tmp/claim1.txt /tmp/claim2.txt
+          test "$(cat /tmp/claim1.txt /tmp/claim2.txt | grep -xc 't' || true)" -eq 1
+          test "$(cat /tmp/claim1.txt /tmp/claim2.txt | grep -xc 'f' || true)" -eq 1
+          psql -X -v ON_ERROR_STOP=1 <<'SQL'
+          DO $$
+          BEGIN
+            IF (SELECT count(*) FROM public.stripe_event_inbox WHERE event_id='evt_C02')<>1 OR
+               (SELECT count(*) FROM public.commercial_orders WHERE stripe_checkout_session_id='cs_live_C02')<>1 OR
+               (SELECT count(*) FROM public.commercial_fulfillment_outbox WHERE delivery_key='deliver:cs_live_C02')<>1
+            THEN RAISE EXCEPTION 'Concurrent event claim duplicated an order or outbox job'; END IF;
+            RAISE NOTICE 'CONCURRENT_INSERT_FIRST_POSTGRES=PASS';
+          END $$;
+          SQL
+      - name: Preserve bounded synthetic proof
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p proof/figure8
+          node <<'NODE'
+          const fs=require('fs'),crypto=require('crypto');
+          const p={schema:'dreamledger/stripe-atomic-ci/v1',mode:'SYNTHETIC_DISPOSABLE_POSTGRES_17',
+            verified_external_revenue_nzd:0,live_stripe_webhook_accepted:false,production_mutation:false,
+            run_id:process.env.GITHUB_RUN_ID,commit:process.env.GITHUB_SHA,
+            claim_function_sha256:crypto.createHash('sha256').update(fs.readFileSync('ops/migration/STRIPE-ATOMIC-CLAIM-FUNCTION.sql')).digest('hex'),
+            observed_at_utc:new Date().toISOString()};
+          fs.writeFileSync('proof/figure8/stripe-atomic-ci.json',JSON.stringify(p,null,2)+'\n');
+          NODE
+      - name: Retain CI result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stripe-atomic-claim-proof-${{ github.run_id }}
+          path: proof/figure8/stripe-atomic-ci.json
+          retention-days: 14

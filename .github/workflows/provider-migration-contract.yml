@@ -1,0 +1,111 @@
+name: BECK Provider Migration Contract
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'ops/migration/**'
+      - 'public/**'
+      - 'ops/recovery/neon-endpoint.mjs'
+      - 'ops/recovery/cloudflare-pages.mjs'
+      - 'ops/recovery/provider-recovery-contract.test.mjs'
+      - 'BEC-PRIME/cube/**'
+      - 'BEC-PRIME/scripts/Verify-CUBE-SiloIsolation.ps1'
+      - 'workers/economic/**'
+      - 'ops/silo-factory/**'
+      - '.github/workflows/provider-migration-contract.yml'
+  push:
+    branches:
+      - 'beck/provider-migration-neon-cloudflare-20261019'
+    paths:
+      - 'ops/migration/**'
+      - 'public/**'
+      - 'ops/recovery/neon-endpoint.mjs'
+      - 'ops/recovery/cloudflare-pages.mjs'
+      - 'ops/recovery/provider-recovery-contract.test.mjs'
+      - 'BEC-PRIME/cube/**'
+      - 'BEC-PRIME/scripts/Verify-CUBE-SiloIsolation.ps1'
+      - 'workers/economic/**'
+      - 'ops/silo-factory/**'
+      - '.github/workflows/provider-migration-contract.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: provider-migration-contract-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Validate contract JSON and JavaScript syntax
+        run: |
+          node -e 'JSON.parse(require("fs").readFileSync("ops/migration/CLOUDFLARE-ROUTE-PARITY-CONTRACT.json","utf8"))'
+          node -e 'const fs=require("fs");const c=JSON.parse(fs.readFileSync("ops/migration/FREE-EXIT-CHECKLIST.json","utf8"));const gates=new Map((c.gates||[]).map(g=>[g.id,g]));const t=c.terminal_acceptance||{};const required=t.required_pass_gates||[];for(const [id,re,key] of [["G16",/render/i,"render_dependency"],["G17",/supabase/i,"supabase_dependency"]]){const g=gates.get(id);if(!g||!re.test(g.name||"")||!Array.isArray(g.pass_evidence)||!g.pass_evidence.length)throw Error("missing dual-provider gate "+id);if(!required.includes(id))throw Error("terminal acceptance omits "+id);if(t[key]==="PROVEN_REMOVED"&&g.status!=="PASS")throw Error("provider retirement claimed without "+id+" PASS");}const allPass=required.every(id=>gates.get(id)?.status==="PASS");if(!allPass&&(t.dns_cutover_authorized!==false||t.production_deployment_authorized!==false||t.stripe_production_mutation_authorized!==false))throw Error("mutation authorized before all terminal gates PASS");console.log("DUAL_PROVIDER_EXIT_GATES=PASS_BOTH_REQUIRED")'
+          node --check ops/recovery/neon-endpoint.mjs
+          node --check ops/recovery/cloudflare-pages.mjs
+          node --check ops/recovery/provider-recovery-contract.test.mjs
+          node --check ops/migration/cloudflare-preview/_worker.js
+          node --check ops/migration/cloudflare-preview/build-preview.mjs
+          node --check ops/migration/cloudflare-preview/smoke-preview.mjs
+      - name: Test recovery controls without provider credentials
+        run: node --test ops/recovery/provider-recovery-contract.test.mjs
+      - name: Test Neon staging heartbeat idempotency without credentials
+        run: node --test ops/migration/neon-shadow-heartbeat.test.mjs
+      - name: Test CUBE silo registry and economic gates
+        run: node --test ops/silo-factory/cube-silo-economic-contract.test.mjs
+      - name: Test revenue-evidence-gated CUBE scaler
+        run: python3 -m unittest workers/economic/test_cube_swarm_scale_gate.py
+      - name: Test offline CUBE silo scaffold factory
+        run: python3 ops/silo-factory/test_silo_scaffold_generator.py
+      - name: Generate private CUBE silo scaffold preview pack
+        run: |
+          set -euo pipefail
+          out="$RUNNER_TEMP/cube-silo-scaffold"
+          python3 ops/silo-factory/generate_silo_scaffolds.py --output-dir "$out"
+          python3 -c 'import json,sys; p=json.load(open(sys.argv[1]+"/manifest-index.json",encoding="utf-8")); assert p["silo_count"] >= 30; assert p["candidate_scaffold_count"] == p["silo_count"]-1; assert p["verified_external_revenue_nzd"] == 0; assert not p["production_mutation"]; print("CUBE_SILO_SCAFFOLD_PACK=PASS_NOT_PROVISIONED",p["silo_count"],p["candidate_scaffold_count"])' "$out"
+      - name: Upload private CUBE scaffold artifact (not a deployment)
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cube-silo-scaffolds-${{ github.sha }}
+          path: ${{ runner.temp }}/cube-silo-scaffold
+          if-no-files-found: error
+          retention-days: 30
+      - name: Verify CUBE silo registry consistency
+        shell: pwsh
+        run: .\BEC-PRIME\scripts\Verify-CUBE-SiloIsolation.ps1
+      - name: Build fail-closed Cloudflare preview and verify sensitive handlers are excluded
+        run: |
+          node ops/migration/cloudflare-preview/build-preview.mjs
+          node -e '
+            const fs=require("fs"),path=require("path");
+            const root="ops/migration/cloudflare-preview/dist";
+            for (const p of ["index.html","mtg/index.html","data/mtg-catalog.json","silos/mtg/silo.json","_worker.js"]) {
+              if(!fs.existsSync(path.join(root,p))) throw new Error("missing static route asset: "+p);
+            }
+            for (const p of ["server.js","paidCheckoutWebhook.js","package.json","brand-preload.js","discordCommercePreload.js"]) {
+              if(fs.existsSync(path.join(root,p))) throw new Error("server-side/internal file copied into preview: "+p);
+            }
+            const w=fs.readFileSync(path.join(root,"_worker.js"),"utf8");
+            if(!w.includes("BLOCKED_ROUTE_NOT_MIGRATED")||!w.includes("503")) throw new Error("preview runtime not fail-closed");
+            console.log("PREVIEW_BUILD_CONTRACT=PASS_BLOCKED_UNTIL_RUNTIME_PARITY");
+          '
+      - name: Upload preview build proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cloudflare-preview-migration-proof-${{ github.run_id }}
+          path: ops/migration/cloudflare-preview/build-proof.json
+          if-no-files-found: warn
+          retention-days: 30

@@ -71,6 +71,9 @@ jobs:
           print(f"PASS public observatory links={len(parser.hrefs)}; all targets exist")
           PY
 
+      - name: Prepare MTG condition contract from canonical source
+        run: node scripts/Patch-MTG-CommerceSurface.js
+
       - name: Unit policy tests
         run: npm test
 
@@ -105,9 +108,6 @@ jobs:
       - name: Verify commercial integration
         run: npm run verify:integration
 
-      - name: Verify production contract
-        run: npm run verify:production-contract
-
       - name: Verify economic north-star contract
         run: npm run verify:economic-north-star
 
@@ -122,6 +122,9 @@ jobs:
 
       - name: Worker smoke test
         run: npm run smoke:worker
+
+      - name: Release gate: production commerce acceptance
+        run: npm run verify:production-contract
 
       - name: Capture proof
         if: always()

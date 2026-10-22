@@ -1,0 +1,28 @@
+# Cloudflare migration preview: partial read-only runtime
+
+Implemented: Pages ASSETS static serving; GET /healthz returns DEGRADED_STATIC_PREVIEW with ready=false; GET /version reports Cloudflare commit metadata where available; GET /api/products and /api/offers project published entries only from public/catalog.json. POST to those read-only routes is rejected.
+
+The preview workflow is **manual-dispatch only**. PR #805 registered it on the default branch on 2026-10-22; no deploy is implied by that registration. To execute it, select the canonical migration branch in Actions, set input `preview_ref=beck/provider-migration-neon-cloudflare-20261019` and explicitly type `approval_marker=[approve-cloudflare-preview]`. GitHub repository secrets `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_PAGES_PROJECT` must be privately configured for a dedicated `-preview` Cloudflare Pages project. Missing secrets or project isolation failures block deployment. The deployment target is the `provider-migration-preview` Pages branch only; the immutable deployment URL, SHA and route-probe proof must pass before G08 is considered accepted. Never treat GitHub's native Pages publishing as isolated: it auto-deployed on the PR #805 main-branch merge even with `[skip ci]`.
+
+## Static-route acceptance
+
+The bundle requires public/404.html. This file disables Pages' default root-SPA fallback behavior for unmatched paths. The deployed smoke probe checks:
+- root, /mtg/, Truth Oracle, the MTG silo manifest and the MTG catalogue;
+- every catalogue item with status published has a safe detail_url returning 200 HTML with a matching product identity;
+- every published MTG item has a syntactically safe claim_url, and its detail page exposes a claim control; claim-by-message remains a message action, not online checkout;
+- a unique nonexistent .html path returns an actual HTTP 404 and the dedicated not-found marker, rather than returning the homepage with status 200;
+- /version exactly matches the deployed Git commit SHA;
+- unported payment, toll and webhook APIs remain 503 and explicitly not production-ready.
+
+Run the preview route smoke probe after deployment:
+node ops/migration/cloudflare-preview/smoke-preview.mjs
+
+## Deliberately not production-ready
+
+Toll, commercial, Stripe webhook and unknown API routes still return HTTP 503. No settlement or fulfillment is mocked. This is not production-ready.
+
+Neon DB connectivity/read-write/read-back, dynamic commerce and engine routes, signed webhook/idempotency, data import reconciliation, backup/restore and rollback remain blocked. The preview workflow does not change production DNS, payment URLs or provider configuration. The build/preview route proof is not migration acceptance.
+
+Before any database dump scope is selected, inventory all schemas and custom dependencies, including RLS policies and custom triggers/functions attached to Supabase auth, storage and realtime objects. Do not copy Supabase-managed platform internals blindly into Neon.
+
+Webhook correctness is also a separate gate: transactionally claim unique Stripe events and update database-side ledger state, then use a durable idempotent outbox for external fulfillment. Never delete an event claim after an uncertain side effect; reconcile or retry using the same idempotency key.

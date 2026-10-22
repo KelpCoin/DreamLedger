@@ -23,3 +23,7 @@ jobs:
         run: node --check routes/mvpRoutes.js
       - name: Syntax check payment patch
         run: node --check lib/commercePaymentContractPreload.js
+      - name: Guest-paid DreamMeez cosmetic claim on verified account
+        run: node scripts/test-dreammeez-paid-entitlement.js
+      - name: Synthetic paid webhook ordering and duplicate replay
+        run: node scripts/test-dreammeez-webhook-revenue-order.js

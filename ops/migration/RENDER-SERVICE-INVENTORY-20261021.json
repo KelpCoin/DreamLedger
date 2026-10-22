@@ -1,0 +1,18 @@
+{
+  "schema": "dreamledger/provider-exit-gate-summary/v1",
+  "generated_at_utc": "2026-10-21T03:12:36.828Z",
+  "classification": "PUBLIC_MIGRATION_GATE_SUMMARY",
+  "confidentiality_note": "Service and scheduled-job identifiers are retained in the internal operations workspace; this public artifact reports only aggregate status.",
+  "provider": "Render",
+  "non_preview_services_listed": 12,
+  "preview_services_included": false,
+  "services_suspended_by_billing": 10,
+  "services_not_suspended": 2,
+  "active_scheduled_jobs_calling_the_legacy_database_platform": 1,
+  "public_static_site_still_served_by_legacy_host": 1,
+  "gate": "G16_NOT_PASS",
+  "reason": "The legacy public static host still serves content and an active scheduled job still calls the legacy database platform. Other application services are suspended by billing, not retired or replaced.",
+  "production_mutations_performed": false,
+  "services_retired": false,
+  "scope_note": "This is a read-only non-preview inventory. Missing from this query does not prove a service or dependency is absent."
+}

@@ -4,7 +4,17 @@
   "factory_rule": "Clone the shell and capability bindings, never the inventory. A silo becomes economically active only when a verified supply atom and a buyer/payment atom exist.",
   "capability_manifest": "BEC-PRIME/cube/CUBE-ASSET-CAPABILITY-MANIFEST.json",
   "economic_event_library": "BEC-PRIME/economics/CUBE-ECONOMIC-EVENTS-100.json",
-  "default_capabilities": ["catalog","cinema","auction","compiler","news-carousel","dreammeez","gauntlet","commerce-spine","fossil"],
+  "default_capabilities": [
+    "catalog",
+    "cinema",
+    "auction",
+    "compiler",
+    "news-carousel",
+    "dreammeez",
+    "gauntlet",
+    "commerce-spine",
+    "fossil"
+  ],
   "activation_pipeline": [
     "discover_signal",
     "verify_supply",
@@ -32,7 +42,17 @@
     "media-music",
     "digital-products",
     "nz-secondhand",
+    "womens-clothing",
     "b2b",
+    "b2b-quotes",
+    "nz-rdti",
+    "contractor-tax",
+    "mcp-audit",
+    "subcontractor-variations",
+    "saas-usage",
+    "legal-evidence",
+    "iso-device",
+    "esg-carbon",
     "electronics-appliances",
     "home-garden",
     "health-beauty",
@@ -42,17 +62,70 @@
     "baby-kids",
     "automotive",
     "food-pantry",
-    "education-courses"
+    "education-courses",
+    "local-services",
+    "delivery-eta",
+    "crypto",
+    "accounting",
+    "production-verification"
   ],
   "economic_event_mapping": {
-    "catalog": ["catalog_view","offer_click","checkout_start","paid_order"],
-    "cinema": ["free_preview","paid_replay","proof_artifact"],
-    "auction": ["bid","auction_win","deposit","settled_sale"],
-    "compiler": ["candidate_compile","offer_compile","surface_compile"],
-    "news-carousel": ["signal_view","content_click","offer_discovery"],
-    "dreammeez": ["identity_session","streak","reward_unlock","repeat_purchase"],
-    "gauntlet": ["candidate_pass","candidate_quarantine","evidence_emit"],
-    "commerce-spine": ["checkout","payment","fulfilment","settlement_evidence"],
-    "fossil": ["payment_fossil","fulfilment_fossil","experiment_memory"]
+    "catalog": [
+      "catalog_view",
+      "offer_click",
+      "checkout_start",
+      "paid_order"
+    ],
+    "cinema": [
+      "free_preview",
+      "paid_replay",
+      "proof_artifact"
+    ],
+    "auction": [
+      "bid",
+      "auction_win",
+      "deposit",
+      "settled_sale"
+    ],
+    "compiler": [
+      "candidate_compile",
+      "offer_compile",
+      "surface_compile"
+    ],
+    "news-carousel": [
+      "signal_view",
+      "content_click",
+      "offer_discovery"
+    ],
+    "dreammeez": [
+      "identity_session",
+      "streak",
+      "reward_unlock",
+      "repeat_purchase"
+    ],
+    "gauntlet": [
+      "candidate_pass",
+      "candidate_quarantine",
+      "evidence_emit"
+    ],
+    "commerce-spine": [
+      "checkout",
+      "payment",
+      "fulfilment",
+      "settlement_evidence"
+    ],
+    "fossil": [
+      "payment_fossil",
+      "fulfilment_fossil",
+      "experiment_memory"
+    ]
+  },
+  "candidate_provisioning_policy": "Registry and manifest generation never creates DNS, databases, auth users, payment endpoints or production workers.",
+  "clone_policy": {
+    "source_of_truth": "BEC-PRIME/cube/CUBE-SILO-REGISTRY.json",
+    "inventory_policy": "empty_until_verified_supply",
+    "candidate_status": "SCAFFOLD_ONLY_NOT_PROVISIONED",
+    "domain_binding_requires_explicit_gate": true,
+    "checkout_requires_settlement_and_fulfillment_acceptance": true
   }
 }

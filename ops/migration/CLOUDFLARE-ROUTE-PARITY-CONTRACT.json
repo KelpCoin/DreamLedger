@@ -1,0 +1,137 @@
+{
+  "schema": "dreamledger/provider-route-parity/v1",
+  "status": "PARTIAL_READ_ONLY_RUNTIME_IMPLEMENTED_DYNAMIC_COMMERCE_BLOCKED",
+  "target": {
+    "static": "Cloudflare Pages",
+    "dynamic_runtime": "Cloudflare Pages Functions or Advanced Mode Worker",
+    "database": "Neon",
+    "source": "KelpCoin/DreamLedger current public route and runtime contracts"
+  },
+  "compatibility_rule": "A static-only upload is not a valid migration. Dynamic routes, webhook verification, engine proxy and durable state must be preserved before DNS cutover.",
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/",
+      "expected": "200 HTML",
+      "purpose": "Public storefront"
+    },
+    {
+      "method": "GET",
+      "path": "/mtg/",
+      "expected": "200 HTML",
+      "purpose": "MTG master silo"
+    },
+    {
+      "method": "GET",
+      "path": "/healthz",
+      "expected": "200 JSON liveness with status DEGRADED_STATIC_PREVIEW; ready=false and production_ready=false; not full acceptance",
+      "purpose": "Runtime health"
+    },
+    {
+      "method": "GET",
+      "path": "/version",
+      "expected": "200 JSON diagnostic with CF_PAGES_COMMIT_SHA when supplied; missing SHA fails deployment identity acceptance; production_ready=false",
+      "purpose": "Deployment identity"
+    },
+    {
+      "method": "GET",
+      "path": "/api/products",
+      "expected": "Read-only published product projection from public/catalog.json using dreamledger/products/v1",
+      "purpose": "Product catalogue API"
+    },
+    {
+      "method": "GET",
+      "path": "/api/offers",
+      "expected": "Read-only published offer projection from public/catalog.json using dreamledger/offers/v1",
+      "purpose": "Offer catalogue API"
+    },
+    {
+      "method": "GET",
+      "path": "/api/toll/v1/manifest",
+      "expected": "Current contract parity, held state preserved",
+      "purpose": "Agent Bridge manifest"
+    },
+    {
+      "method": "GET",
+      "path": "/api/toll/v1/probe",
+      "expected": "Current held/fail-closed contract",
+      "purpose": "Agent Bridge probe"
+    },
+    {
+      "method": "POST",
+      "path": "/api/webhooks/stripe",
+      "expected": "Signature verification, idempotent processing, no raw secrets in logs",
+      "purpose": "Payment event ingress"
+    },
+    {
+      "method": "GET",
+      "path": "/truth-oracle.html",
+      "expected": "200 HTML",
+      "purpose": "Evidence surface"
+    },
+    {
+      "method": "GET",
+      "path": "/silos/mtg/silo.json",
+      "expected": "200 JSON",
+      "purpose": "MTG silo manifest"
+    },
+    {
+      "method": "GET",
+      "path": "/data/mtg-catalog.json",
+      "expected": "200 JSON",
+      "purpose": "MTG catalogue"
+    },
+    {
+      "method": "GET",
+      "path": "/404.html",
+      "expected": "200 HTML dedicated not-found document",
+      "purpose": "Explicit Pages not-found document preventing default SPA fallback"
+    },
+    {
+      "method": "GET",
+      "path": "/__preview-unique-not-found-probe__.html",
+      "expected": "404 HTML containing the dedicated not-found marker, not the homepage",
+      "purpose": "Genuine unknown-route behavior"
+    }
+  ],
+  "stateful_dependencies": [
+    "commerce settlement and webhook idempotency",
+    "engine internal proxy and authentication",
+    "durable state and storage reconciliation",
+    "Neon connectivity, write/read-back and transaction behavior",
+    "restore/export rollback and stable correlation IDs"
+  ],
+  "cutover_gates": [
+    "all listed routes tested against a preview deployment",
+    "expected status codes, headers and cache behavior verified",
+    "no secret or private endpoint exposed to browser",
+    "test-mode signed webhook duplicate replay proves idempotency",
+    "Neon SQL read/write/read-back and backup/restore proof passes",
+    "origin and dreamledger.org custom domain independently return expected responses",
+    "current main provider and data export retained until cutover acceptance",
+    "explicit approval before production DNS/domain or payment-path mutation",
+    "deployed GET /data/mtg-catalog.json is valid and confined to silo=mtg",
+    "each product with status=published in the deployed MTG catalogue has a detail_url returning 200 HTML with matching product identity",
+    "every published MTG deck claim_url is present, syntactically safe, and agrees with the user-visible detail-page claim control; held products remain non-purchasable",
+    "root /404.html exists and a unique unknown path returns actual HTTP 404 with the not-found marker, never the homepage/SPA body",
+    "deployment identity from /version matches the exact Git commit SHA used for the route probe"
+  ],
+  "current_production_mutation": false,
+  "verified_revenue_nzd": 0,
+  "preview_implementation": {
+    "static_assets": "Pages ASSETS binding",
+    "liveness": "Degraded-only diagnostic endpoint",
+    "version": "CF_PAGES_COMMIT_SHA and CF_PAGES_BRANCH when present",
+    "read_only_catalogue": "GET /api/products and /api/offers read published entries only from public/catalog.json",
+    "blocked_until_ported": [
+      "/api/toll/*",
+      "/toll/*",
+      "/api/commercial/*",
+      "/api/webhooks/stripe",
+      "other /api/*"
+    ],
+    "no_fake_readiness": true,
+    "not_found": "Root public/404.html is required; smoke test probes a unique nonexistent path and expects 404 with Page not found marker.",
+    "mtg_routes": "Smoke test enumerates each published product from /data/mtg-catalog.json, requests its declared detail_url, checks identity and claim-action contract."
+  }
+}

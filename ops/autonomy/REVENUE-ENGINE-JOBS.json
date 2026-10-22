@@ -1,0 +1,107 @@
+{
+  "schema": "dreamledger/autonomy-revenue-jobs/v1",
+  "mission": "Autonomous revenue engine",
+  "verified_external_revenue_nzd": 0,
+  "human_builder_forbidden": true,
+  "priority_rule": "Ball C (external pay) outranks architecture. Jobs that do not move L1-L3 are deferred.",
+  "levels": {
+    "L1": "Settlement Sync runs; meter honest at 0; buy routers reach Stripe",
+    "L2": "Webhook to fulfil proven on one product (self-test not counted as revenue)",
+    "L3": "First external pay + fulfil + fossil",
+    "L4": "Second pay without new architecture",
+    "L5": "Multi-offer settlement + digital auto-fulfil",
+    "L6": "Demand automation assists (never fabricates buyers)"
+  },
+  "jobs": [
+    {
+      "id": "REV-001",
+      "title": "Inventory live Payment Links vs approved catalog",
+      "level": "L1",
+      "status": "OPEN",
+      "acceptance": "Single source of truth file listing every live plink, amount_nzd, sku, and whether Settlement Sync watches it",
+      "evidence_path": "proof/autonomy/latest-plink-inventory.json",
+      "blocks": ["REV-003", "REV-010"]
+    },
+    {
+      "id": "REV-002",
+      "title": "Settlement Sync dry-run produces honest zero meter",
+      "level": "L1",
+      "status": "OPEN",
+      "acceptance": "Workflow or script exits 0 with verified_external_revenue_nzd=0 and no fabricated sessions",
+      "evidence_path": "proof/autonomy/latest-settlement-sync.json",
+      "blocks": ["REV-010"]
+    },
+    {
+      "id": "REV-003",
+      "title": "Primary CTA surface points only at approved live plink",
+      "level": "L1",
+      "status": "OPEN",
+      "acceptance": "dreamledger.org storefront and /mtg primary CTA resolve to one approved Stripe Payment Link; no dead or test links in the path",
+      "evidence_path": "proof/autonomy/latest-cta-probe.json",
+      "blocks": ["REV-010"]
+    },
+    {
+      "id": "REV-004",
+      "title": "Webhook signature + idempotency self-test",
+      "level": "L2",
+      "status": "OPEN",
+      "acceptance": "Signed test event processed once; duplicate replay is no-op; evidence written; not counted as revenue",
+      "evidence_path": "proof/autonomy/latest-webhook-idempotency.json",
+      "blocks": ["REV-011"]
+    },
+    {
+      "id": "REV-005",
+      "title": "Digital fulfil path for one SKU (wall or diagnostic)",
+      "level": "L2",
+      "status": "OPEN",
+      "acceptance": "After simulated or test paid session, buyer can claim deliverable; operator_required=false for that SKU",
+      "evidence_path": "proof/autonomy/latest-fulfil-selftest.json",
+      "blocks": ["REV-011"]
+    },
+    {
+      "id": "REV-010",
+      "title": "Ball C — first external live purchase",
+      "level": "L3",
+      "status": "OPEN",
+      "acceptance": "Stranger completes live Checkout; Settlement Sync records matching session; fulfil completes; fossil sealed; meter increments only from that evidence",
+      "evidence_path": "proof/autonomy/latest-external-sale-fossil.json",
+      "blocks": ["REV-012"],
+      "note": "Cannot be closed by agents alone. Requires real external buyer. Agents may only prepare surfaces and evidence paths."
+    },
+    {
+      "id": "REV-011",
+      "title": "Post-pay alert on fulfil failure",
+      "level": "L2",
+      "status": "OPEN",
+      "acceptance": "Paid-but-unfulfilled state raises durable alert artifact within defined SLA; no silent drop",
+      "evidence_path": "proof/autonomy/latest-fulfil-alert-proof.json"
+    },
+    {
+      "id": "REV-012",
+      "title": "Second external pay without architecture change",
+      "level": "L4",
+      "status": "BLOCKED_UNTIL_L3",
+      "acceptance": "Second independent external session settles and fulfils using the same path as REV-010",
+      "evidence_path": "proof/autonomy/latest-second-sale-fossil.json"
+    },
+    {
+      "id": "REV-020",
+      "title": "Neon heartbeat persistence cutover",
+      "level": "infra",
+      "status": "BLOCKED_ON_SECRETS",
+      "acceptance": "Write + read-back of cortex_heartbeat on Neon with evidence; recovery adapter inspect mode passes",
+      "evidence_path": "proof/beck/latest-neon-readback.json",
+      "note": "Parallel to revenue. Does not close L3."
+    },
+    {
+      "id": "REV-021",
+      "title": "Cloudflare preview full route probe",
+      "level": "infra",
+      "status": "OPEN",
+      "acceptance": "Preview deployment returns contract statuses for all routes in CLOUDFLARE-ROUTE-PARITY-CONTRACT; commerce routes remain 503 until ported",
+      "evidence_path": "proof/beck/latest-cf-preview-probe.json",
+      "note": "Parallel to revenue. Does not close L3."
+    }
+  ],
+  "claim_rule": "One agent claims one OPEN job. Write evidence path before marking done. Never mark REV-010 done without external fossil."
+}

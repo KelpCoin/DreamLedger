@@ -1,0 +1,49 @@
+{
+  "schema": "dreamledger/beck-cloud-jobs/v1",
+  "human_coding_forbidden": true,
+  "jobs": [
+    {
+      "id": "CLOUD-001",
+      "title": "Run receipt, settlement, stripe fee, and join regressions",
+      "cwd": ".",
+      "command": "node --test ops/beck/receipts/historical-receipt-regression.test.mjs ops/beck/settlement-truth.test.mjs ops/beck/stripe-fee-reconcile.test.mjs ops/beck/settlement-join.test.mjs ops/beck/run-cloud-jobs.test.mjs",
+      "evidence": "proof/beck/latest-gate-unit-tests.json",
+      "on_fail": "FAIL",
+      "evidence_mode": "runner_summary",
+      "timeout_ms": 120000
+    },
+    {
+      "id": "CLOUD-002",
+      "title": "Emit spine status proof report",
+      "command": "node ops/autonomy/run-revenue-spine-status.mjs",
+      "evidence": "proof/autonomy/latest-spine-status.json",
+      "on_fail": "FAIL",
+      "evidence_env": "AUTONOMY_STATUS_PATH",
+      "timeout_ms": 30000
+    },
+    {
+      "id": "CLOUD-003",
+      "title": "Provider recovery inspect (no mutation)",
+      "command": "node ops/recovery/neon-endpoint.mjs",
+      "env": {
+        "BECK_RECOVERY_ACTION": "inspect",
+        "BECK_RECOVERY_EVIDENCE_PATH": "proof/beck/latest-neon-recovery.json"
+      },
+      "evidence": "proof/beck/latest-neon-recovery.json",
+      "on_missing_secrets": "NOT_RUN",
+      "timeout_ms": 30000
+    },
+    {
+      "id": "CLOUD-004",
+      "title": "Cloudflare recovery inspect (no mutation)",
+      "command": "node ops/recovery/cloudflare-pages.mjs",
+      "env": {
+        "BECK_RECOVERY_ACTION": "inspect",
+        "BECK_RECOVERY_EVIDENCE_PATH": "proof/beck/latest-cloudflare-recovery.json"
+      },
+      "evidence": "proof/beck/latest-cloudflare-recovery.json",
+      "on_missing_secrets": "NOT_RUN",
+      "timeout_ms": 30000
+    }
+  ]
+}

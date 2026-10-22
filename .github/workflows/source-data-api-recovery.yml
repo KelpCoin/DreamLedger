@@ -1,0 +1,56 @@
+name: Source Data API Recovery Probe
+
+on:
+  push:
+    branches:
+      - 'beck/provider-migration-neon-cloudflare-20261019'
+    paths:
+      - '.github/workflows/source-data-api-recovery.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  non-mutating-source-probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      SOURCE_URL: https://wbwgroygjeyukkspnqiy.supabase.co
+      SOURCE_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+      FALLBACK_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+    steps:
+      - name: Probe REST without logging credentials or customer records
+        shell: bash
+        run: |
+          set -euo pipefail
+          key="${SOURCE_KEY:-${FALLBACK_KEY:-}}"
+          if [ -z "$key" ]; then
+            echo "SOURCE_REST=BLOCKED_MISSING_SECRET"
+            exit 2
+          fi
+          # Modern sb_secret_ keys belong in apikey, not a Bearer header.
+          auth_args=(-H "apikey: $key")
+          if [[ "$key" == eyJ* ]]; then auth_args+=(-H "Authorization: Bearer $key"); fi
+          statuses=()
+          success=0
+          for table in marketplace_orders economic_jobs control_bridge_notes economic_outcomes; do
+            response_headers="$(mktemp)"
+            code="$(curl -sS -I -o /dev/null -D "$response_headers" --connect-timeout 10 --max-time 25 \
+              -H 'Prefer: count=exact' -H 'Accept: application/json' \
+              "${auth_args[@]}" "${SOURCE_URL}/rest/v1/${table}?select=*" -w '%{http_code}')" || code=000
+            rm -f "$response_headers"
+            if [[ "$code" =~ ^2 ]]; then
+              echo "${table}:SOURCE_REST_REACHABLE"
+              success=$((success+1))
+            else
+              echo "${table}:HTTP_${code}"
+            fi
+          done
+          echo "source_rest_tables_reachable=${success}/4"
+          if [ "$success" -eq 0 ]; then
+            echo "SOURCE_REST=BLOCKED_NO_READABLE_TABLE"
+            exit 3
+          fi
+          echo "SOURCE_REST=PARTIAL_READ_ONLY_PATH_AVAILABLE"
+          echo "No data migrated, no customer data stored, no production changes."

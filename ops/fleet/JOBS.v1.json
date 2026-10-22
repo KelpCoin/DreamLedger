@@ -1,0 +1,144 @@
+{
+  "schema": "dreamledger.beck-fleet-jobs/v1",
+  "version": 1,
+  "policy": {
+    "human_is_not_recovery_operator": true,
+    "execution": "cloud_first",
+    "local_gpu": "optional_when_pc_on",
+    "fail_closed_on_missing_credentials": true,
+    "public_posts": "approval_gated",
+    "production_dns_or_payment_cutover": "explicit_owner_consent_required",
+    "financial_identity_legal_consent": "explicit_owner_consent_required",
+    "evidence_required_for_completion": true,
+    "generated_revenue_default_nzd": 0
+  },
+  "jobs": [
+    {
+      "id": "FLEET-001",
+      "title": "Contract tests and evidence bootstrap",
+      "lane": "cloud",
+      "depends_on": [],
+      "state": "READY",
+      "executor": "github-actions",
+      "acceptance": [
+        "machine-readable contract parses",
+        "recovery contract tests pass without provider secrets",
+        "heartbeat tests use a local fixture server",
+        "historical receipt, settlement-truth and Stripe fee adapter regressions pass on the exact checked-out commit",
+        "Stripe adapter tests cover live mode, fee-detail pending, malformed fields and provider-read failure without real credentials",
+        "proof artifact records the exact checked-out commit SHA and GitHub Actions run ID",
+        "missing provider secrets produce BLOCKED or NOT_RUN rather than a success claim",
+        "proof artifact is retained"
+      ],
+      "mutations": []
+    },
+    {
+      "id": "FLEET-002",
+      "title": "Cloud heartbeat and provider inspection",
+      "lane": "cloud",
+      "depends_on": [
+        "FLEET-001"
+      ],
+      "state": "BLOCKED_UNTIL_PR_MERGED",
+      "executor": "scheduled-github-actions",
+      "requires": [
+        "NEON_API_KEY",
+        "NEON_PROJECT_ID",
+        "NEON_ENDPOINT_ID",
+        "NEON_DATABASE_URL",
+        "CLOUDFLARE_API_TOKEN",
+        "CLOUDFLARE_ACCOUNT_ID",
+        "CLOUDFLARE_PAGES_PROJECT"
+      ],
+      "acceptance": [
+        "heartbeat proof records route status and commit identity",
+        "Neon SQL SELECT 1 is verified without recording credentials",
+        "Cloudflare project/deployment/domain state is recorded",
+        "missing credentials yield BLOCKED_CONFIGURATION and no mutation"
+      ],
+      "mutations": [
+        "one state-aware Neon recovery request after classified connectivity failure",
+        "one Cloudflare preview deploy request after preview failure"
+      ]
+    },
+    {
+      "id": "FLEET-003",
+      "title": "Neon persistence and recovery acceptance",
+      "lane": "cloud",
+      "depends_on": [
+        "FLEET-002"
+      ],
+      "state": "BLOCKED_MISSING_PROVIDER_CREDENTIALS",
+      "executor": "scheduled-github-actions",
+      "requires": [
+        "NEON_DATABASE_URL"
+      ],
+      "acceptance": [
+        "SQL connectivity is proven",
+        "idempotent write/read-back succeeds in a dedicated non-production acceptance namespace",
+        "backup and restore evidence exists",
+        "historical evidence remains verifiable"
+      ],
+      "mutations": [
+        "non-production acceptance namespace only"
+      ]
+    },
+    {
+      "id": "FLEET-004",
+      "title": "Cloudflare dynamic route parity",
+      "lane": "cloud",
+      "depends_on": [
+        "FLEET-001"
+      ],
+      "state": "BLOCKED_DYNAMIC_RUNTIME_NOT_PORTED",
+      "executor": "github-actions",
+      "acceptance": [
+        "all routes in CLOUDFLARE-ROUTE-PARITY-CONTRACT.json pass",
+        "signed Stripe webhook and duplicate-event idempotency tests pass",
+        "preview deployment identity is present",
+        "database persistence and rollback/export are proven"
+      ],
+      "mutations": [],
+      "note": "Static preview currently returns 503 for unported stateful routes. No production DNS or payment-path cutover is permitted by this job."
+    },
+    {
+      "id": "FLEET-005",
+      "title": "Local Figure Eight worker installation and heartbeat",
+      "lane": "local",
+      "depends_on": [
+        "FLEET-001"
+      ],
+      "state": "READY_FOR_ONE_TIME_INSTALLER",
+      "executor": "windows-task-scheduler",
+      "acceptance": [
+        "installer is idempotent",
+        "task uses loopback-only LM Studio",
+        "PC-off state does not block cloud heartbeat",
+        "local proof says UNAVAILABLE rather than fabricating health when LM Studio is off"
+      ],
+      "mutations": [
+        "creates or updates the named per-user scheduled task after installer execution"
+      ]
+    },
+    {
+      "id": "FLEET-006",
+      "title": "Enable autonomous recovery on configured cloud target",
+      "lane": "cloud",
+      "depends_on": [
+        "FLEET-002",
+        "FLEET-003",
+        "FLEET-004"
+      ],
+      "state": "BLOCKED_ACCEPTANCE_GATES",
+      "executor": "scheduled-github-actions",
+      "acceptance": [
+        "provider recovery evidence is retained",
+        "one mutation maximum per incident",
+        "post-action health is independently probed",
+        "no credentials or provider response bodies enter artifacts",
+        "production readiness is not claimed from provider API success alone"
+      ],
+      "mutations": []
+    }
+  ]
+}

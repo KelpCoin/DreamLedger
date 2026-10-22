@@ -1,56 +1,37 @@
-name: MTG catalogue validation
+name: Manual legacy MTG validation (deprecated)
+
+# DEPRECATED: canonical MTG source/manifest/catalog and condition contracts run in .github/workflows/ci.yml.
+# Keep this manual-only entry for an explicit legacy compatibility check. It no longer competes
+# with CI on pushes or pull requests and does not assert that production commerce is enabled.
 
 on:
-  pull_request:
-    paths:
-      - "public/catalog.json"
-      - "mtg/**"
-      - "public/mtg/**"
-      - ".github/workflows/mtg-catalogue-validation.yml"
-  push:
-    branches: [main]
-    paths:
-      - "public/catalog.json"
-      - "mtg/**"
-      - "public/mtg/**"
-      - ".github/workflows/mtg-catalogue-validation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: legacy-mtg-validation-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  validate-mtg-listings:
+  legacy-contract:
+    name: Run canonical MTG contract tests
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-      - name: Validate catalogue records and buyer routes
-        run: |
-          node <<'NODE'
-          const fs = require('fs');
-          const catalog = JSON.parse(fs.readFileSync('public/catalog.json', 'utf8'));
-          const required = [
-            ['EDH_0001', null],
-            ['EDH_QUINTORIUS_0002', 'mtg/quintorius-field-historian.html'],
-            ['EDH_DWYNEN_0003', 'mtg/dwynen-gilt-leaf-daen.html']
-          ];
-          const products = catalog.products || [];
-          for (const [id, page] of required) {
-            const p = products.find(x => x.id === id);
-            if (!p || p.status !== 'published') throw new Error('Missing/unpublished MTG listing: ' + id);
-            if (page && !fs.existsSync(page)) throw new Error('Missing buyer route: ' + page);
-            if (id !== 'EDH_0001' && (p.checkout_available !== false || p.sale_mode !== 'claim_by_message' || !p.claim_url)) {
-              throw new Error('Claim-only deck must not claim direct checkout: ' + id);
-            }
-          }
-          const html = fs.readFileSync('mtg/index.html', 'utf8');
-          if (!html.includes('/public/catalog.json')) throw new Error('Root preview catalogue must use tracked public catalogue data');
-          const liveHtml = fs.readFileSync('public/mtg/index.html', 'utf8');
-          if (!liveHtml.includes("get('/catalog.json')")) throw new Error('Live public MTG page must load the tracked catalogue.json');
-          for (const page of ['public/mtg/quintorius-field-historian.html', 'public/mtg/dwynen-gilt-leaf-daen.html']) {
-            if (!fs.existsSync(page)) throw new Error('Missing deployed public route: ' + page);
-          }
-          if (!html.includes('EDH_QUINTORIUS_0002') || !html.includes('EDH_DWYNEN_0003')) throw new Error('Catalogue must prioritize the new decks');
-          for (const page of ['mtg/quintorius-field-historian.html', 'mtg/dwynen-gilt-leaf-daen.html']) {
-            const body = fs.readFileSync(page, 'utf8');
-            if (!body.includes('decklist') && !body.includes('decklist')) throw new Error('Missing decklist reference in ' + page);
-          }
-          console.log('MTG catalogue validation passed.');
-          NODE
+      - name: Setup Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Install locked dependencies
+        run: npm ci --ignore-scripts
+        working-directory: BEC-PRIME
+      - name: Apply deterministic condition guard
+        run: node scripts/Patch-MTG-CommerceSurface.js
+        working-directory: BEC-PRIME
+      - name: Verify canonical MTG source, catalogue and root publication
+        run: node --test scripts/mtg-condition-contract.test.js
+        working-directory: BEC-PRIME

@@ -1,0 +1,51 @@
+{
+  "schema": "dreamledger/provider-migration-gate-summary/v1",
+  "generated_at_utc": "2026-10-21T03:12:36.333Z",
+  "classification": "PUBLIC_MIGRATION_GATE_SUMMARY",
+  "confidentiality_note": "Detailed function names, schema identifiers, RPC names, internal silo names and environment-variable names are kept out of this public artifact. The source-level inventory is retained in the internal operations workspace.",
+  "source_platform": {
+    "provider": "Supabase",
+    "control_plane_status": "ACTIVE_HEALTHY",
+    "postgres_major_version": 17,
+    "direct_sql_plane_status": "BLOCKED",
+    "observed_error_class": "ECONNREFUSED",
+    "data_export_performed": false
+  },
+  "edge_function_source_scan": {
+    "active_functions_listed": 66,
+    "function_sources_inspected": 66,
+    "source_read_errors": 0,
+    "source_scan_complete": true,
+    "distinct_source_referenced_table_names": 76,
+    "rpc_dependencies_detected": 27,
+    "functions_with_payment_provider_dependencies": 13,
+    "functions_with_auth_dependency_patterns": 3,
+    "functions_with_storage_dependency_patterns": 6,
+    "functions_with_realtime_dependency_patterns": 0,
+    "limitation": "Source scan is not a complete PostgreSQL schema/row inventory; it does not cover all columns, constraints, policies, grants, triggers, function definitions, stored data, or full managed Auth/Storage/Realtime configuration."
+  },
+  "database_staging": {
+    "destination_provider": "Neon",
+    "destination_reachable": true,
+    "initial_staging_tables": 6,
+    "source_schema_imported": false,
+    "source_rows_imported": false,
+    "production_cutover": false
+  },
+  "gates": {
+    "G02": "BLOCKED_SOURCE_SQL_SCHEMA_AND_MANAGED_SERVICE_INVENTORY",
+    "G06": "BLOCKED_NO_SOURCE_DATA_EXPORT_OR_IMPORT",
+    "G08": "BLOCKED_CLOUDFLARE_PREVIEW_CREDENTIALS_REQUIRED",
+    "G16": "NOT_RUN_RENDER_EXIT",
+    "G17": "NOT_RUN_SUPABASE_EXIT"
+  },
+  "next_requirements": [
+    "Restore read-only source SQL access or provide a secure source dump through an authorized route.",
+    "Inventory every relevant schema, policy, trigger, grant, stored procedure, auth/storage/realtime dependency and data set.",
+    "Migrate source schema and data to Neon, then verify checksummed export, row/constraint parity and restore.",
+    "Configure required Cloudflare preview secrets privately in GitHub Actions and prove a real preview deployment and route acceptance.",
+    "Pass runtime parity, payment/delivery, rollback and soak gates before either legacy provider is retired."
+  ],
+  "production_mutations_performed": false,
+  "legacy_providers_retired": false
+}

@@ -1,0 +1,45 @@
+✔ public/mtg/index.html: complete executable script (1.57302ms)
+✔ public/mtg/index.html: empty never invents inventory (1.91806ms)
+✔ public/mtg/index.html: published-without-proof never invents inventory (0.799515ms)
+✔ public/mtg/index.html: offline never invents inventory (0.906215ms)
+✔ public/mtg/index.html: invalid never invents inventory (0.718813ms)
+✔ mtg/index.html: complete executable script (0.225109ms)
+✔ mtg/index.html: empty never invents inventory (0.799514ms)
+✔ mtg/index.html: published-without-proof never invents inventory (0.689118ms)
+✔ mtg/index.html: offline never invents inventory (0.854147ms)
+✔ mtg/index.html: invalid never invents inventory (0.980087ms)
+✔ site key never leaked without all owner-approved credentials (6.05291ms)
+✔ private intake fails closed without configured backend (0.819375ms)
+✔ cross-origin request denied before verification or write (0.801117ms)
+✔ malformed and oversize data denied without writes (5.223891ms)
+✔ failed Turnstile challenge blocks write (1.220239ms)
+✔ no 202 without durable Airtable confirmation (9.833968ms)
+✔ stored lead gets truthful receipt, no money or delivery claim (2.002096ms)
+✔ B2B inline JavaScript parses and never stores leads in browser (0.608827ms)
+✔ degraded Cloudflare preview disables even fully configured private intake (2.247336ms)
+✔ 15-minute slot and deterministic evidence (4.336133ms)
+✔ one-statement idempotent insert with readback (0.653575ms)
+✔ disabled until staging and explicit write guard both set (0.405561ms)
+✔ readback insists on matching hash and noncommercial mode (0.399472ms)
+✔ TLS Neon endpoint enforced (0.686855ms)
+✔ fake psql exercises insert, repeat, collision and failure safely (0.834818ms)
+✔ Neon adapter defaults to inspect and gates mutation (1.330164ms)
+✔ Cloudflare adapter defaults to inspect and allowlists deploy-hook mutations (0.203326ms)
+✔ route contract covers required routes and keeps cutover blocked (0.334694ms)
+✔ Worker reports degraded liveness and never claims readiness (10.045997ms)
+✔ Worker exposes only published catalogue records through read-only APIs (2.625126ms)
+✔ Stateful commerce, toll and webhooks remain fail-closed (1.329003ms)
+✔ Preview builder excludes sensitive Node runtime files (0.143126ms)
+✔ MTG surfaces keep dated empty-by-default proof board and Happy Homarid CTA (0.50454ms)
+✔ free exit checklist cannot claim cutover before every gate has evidence (0.894198ms)
+✔ preview bundle and route smoke require root 404, all published MTG detail routes, and claim actions (0.385701ms)
+✔ migration gates inventory all schemas and enforce atomic idempotent fulfillment (0.379182ms)
+✔ Cloudflare preview probe is scoped to pages.dev and asserts deployment SHA (0.122795ms)
+ℹ tests 37
+ℹ suites 0
+ℹ pass 37
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 132.386102

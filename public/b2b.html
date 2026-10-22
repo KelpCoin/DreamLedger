@@ -59,7 +59,7 @@ textarea{min-height:90px;resize:vertical}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:.55rem}
 @media(max-width:560px){.row2{grid-template-columns:1fr}}
 .note{font-size:.72rem;color:var(--mut);margin-top:.65rem}
-.status{font-size:.8rem;margin-top:.5rem;color:var(--ok);display:none}.status.show{display:block}
+.status{font-size:.8rem;margin-top:.5rem;color:var(--ok);display:none}.status.show{display:block}.honeypot{position:absolute;left:-9999px;height:0;overflow:hidden}
 .steps{display:grid;gap:.5rem}
 .step{display:grid;grid-template-columns:32px 1fr;gap:.55rem;align-items:start;background:var(--p);border:1px solid var(--line);border-radius:12px;padding:.7rem .8rem}
 .n{width:28px;height:28px;border-radius:50%;background:var(--gold);color:#1a1408;font-weight:800;font-size:.72rem;display:grid;place-items:center}
@@ -89,12 +89,12 @@ body{padding-bottom:calc(5.2rem + var(--sb))}
     <div class="ctas">
       <a class="btn ok" href="#rfq">Request supplier interest</a>
       <a class="btn gold" href="/sell.html">Wholesale listings paused</a>
-      <a class="btn line" href="https://buy.stripe.com/bJe7sL7LD4hDeqH04kdwc3e">Quote comparison NZ$49</a>
+      <a class="btn line" href="/quote-comparison/">Free quote worksheet</a>
     </div>
     <div class="metrics">
       <div class="m"><b>0%</b><span>Platform success fee</span></div>
-      <div class="m"><b>NZD</b><span>NZD checkout</span></div>
-      <div class="m"><b>RFQ</b><span>Buyer demand intake</span></div>
+      <div class="m"><b>HELD</b><span>Paid services pending verification</span></div>
+      <div class="m"><b>RFQ</b><span>Private enquiries when available</span></div>
       <div class="m"><b>Truth</b><span>Misrep removed</span></div>
     </div>
   </section>
@@ -105,8 +105,8 @@ body{padding-bottom:calc(5.2rem + var(--sb))}
     <div class="grid cols3">
       <a class="card feat" href="#rfq"><h3>Request for quote</h3><p>Describe what you need. We can review your request, but supplier matching is not guaranteed while community listings are paused.</p><span class="go">Request supplier interest →</span></a>
       <a class="card" href="/sell.html"><h3>Wholesale listings</h3><p>MOQ, lead time, GST, trading name. 0% success fee on peer sales.</p><span class="go">Marketplace status →</span></a>
-      <a class="card" href="https://buy.stripe.com/bJe7sL7LD4hDeqH04kdwc3e"><h3>Quote comparison</h3><p>2–5 supplier quotes → clear comparison report. Fixed NZ$49.</p><span class="go">Buy tool →</span></a>
-      <a class="card" href="/buy/SELLER-PROFIT-AUDIT-001"><h3>Seller profit audit</h3><p>Channel fees, shipping, margin leaks. NZ$29 fixed scope.</p><span class="go">Buy audit →</span></a>
+      <a class="card" href="/quote-comparison/"><h3>Free quote worksheet</h3><p>Compare 2–5 supplier quotes locally; assisted review is by enquiry once private intake is verified.</p><span class="go">Open free worksheet →</span></a>
+      <a class="card" href="/truth-oracle.html"><h3>Evidence review</h3><p>Scope evidence checks and keep unknowns visible. Paid delivery is not currently available.</p><span class="go">Explore Truth Oracle →</span></a>
       <a class="card" href="/truth-oracle.html"><h3>Supplier checks</h3><p>Entity checks and evidence. Missing details stay visible.</p><span class="go">Open Oracle →</span></a>
       <a class="card" href="/agent-commerce.json"><h3>AI-assisted discovery</h3><p>Product information can be read by software; people approve purchases.</p><span class="go">Developer information →</span></a>
     </div>
@@ -129,8 +129,13 @@ body{padding-bottom:calc(5.2rem + var(--sb))}
 
   <section class="sec" id="rfq">
     <h2>Request supplier interest</h2>
-    <p class="sub">Describe your requirement. We can review the request, but supplier matching is not guaranteed while community listings are paused. No platform success fee on resulting peer deals.</p>
+    <p class="sub">Request interest or a bounded review. The secure private inbox is not yet live; this form will only activate when the server can confirm receipt. Supplier matching is not guaranteed.</p>
     <form class="form" id="rfqForm">
+      <label for="service">Type of request</label>
+      <select id="service" name="service" required>
+        <option value="verification_review">Assisted quote or invoice review</option>
+        <option value="supplier_interest">Supplier interest request</option>
+      </select>
       <label for="company">Company</label>
       <input id="company" name="company" required maxlength="120" placeholder="Trading name"/>
       <div class="row2">
@@ -168,9 +173,10 @@ body{padding-bottom:calc(5.2rem + var(--sb))}
           <input id="region" name="region" required placeholder="e.g. Auckland"/>
         </div>
       </div>
-      <button class="btn ok" type="submit" style="width:100%;margin-top:1rem">Submit RFQ · free</button>
-      <p class="note">An RFQ is a request, not a guarantee of supplier response. Platform success fee remains 0% on peer B2B sales.</p>
-      <p class="status" id="status">RFQ saved. Reference will appear here.</p>
+      <div class="honeypot" aria-hidden="true"><label for="website">Leave blank</label><input id="website" name="website" tabindex="-1" autocomplete="off"></div><div id="turnstileMount" style="margin-top:1rem"></div>
+      <button class="btn ok" type="submit" disabled style="width:100%;margin-top:1rem">Request review</button>
+      <p class="note">Do not include confidential files, card numbers, passwords or private supplier documents. This first form accepts only a brief non-sensitive description. No payment is requested and no quote or fulfilment is promised. See <a href="/privacy.html">privacy</a>.</p>
+      <p class="status show" id="status" role="status" aria-live="polite">Private enquiries are currently unavailable.</p>
     </form>
   </section>
 
@@ -179,7 +185,7 @@ body{padding-bottom:calc(5.2rem + var(--sb))}
     <div class="steps">
       <div class="step"><div class="n">1</div><div><strong>Demand or supply enters</strong><span>RFQ or wholesale listing. Marketplace statusing details may be reviewed.</span></div></div>
       <div class="step"><div class="n">2</div><div><strong>Match & negotiate</strong><span>Structured fields: MOQ, lead time, GST, region.</span></div></div>
-      <div class="step"><div class="n">3</div><div><strong>Settle via Stripe when using platform pay</strong><span>Payment confirmation and delivery are checked separately.</span></div></div>
+      <div class="step"><div class="n">3</div><div><strong>Only pay after service activation</strong><span>Payment links and delivery remain unavailable until verification passes.</span></div></div>
       <div class="step"><div class="n">4</div><div><strong>You keep the margin</strong><span>0% DreamLedger success fee on peer merchandise.</span></div></div>
     </div>
   </section>
@@ -192,8 +198,8 @@ body{padding-bottom:calc(5.2rem + var(--sb))}
         <tr><td>Platform success fee (peer B2B)</td><td class="okt">0%</td></tr>
         <tr><td>RFQ post</td><td class="okt">Free</td></tr>
         <tr><td>Wholesale list intake</td><td class="okt">Free to submit</td></tr>
-        <tr><td>Quote comparison tool</td><td>NZ$49 fixed</td></tr>
-        <tr><td>Seller profit audit</td><td>NZ$29 fixed</td></tr>
+        <tr><td>Quote comparison worksheet</td><td>Free</td></tr>
+        <tr><td>Assisted evidence review</td><td>Paid intake not open</td></tr>
         <tr><td>Stripe processing</td><td>Processor rates on card payments</td></tr>
       </tbody>
     </table>
@@ -212,25 +218,68 @@ body{padding-bottom:calc(5.2rem + var(--sb))}
 
 <script>
 (function(){
-  var form=document.getElementById('rfqForm');
-  var status=document.getElementById('status');
-  form.addEventMarketplace statusener('submit',function(e){
+  'use strict';
+  const form=document.getElementById('rfqForm');
+  const status=document.getElementById('status');
+  const button=form.querySelector('button[type="submit"]');
+  let challengeToken='';
+  let widgetId=null;
+  function message(value){ status.textContent=value; status.classList.add('show'); }
+  function disable(){ button.disabled=true; challengeToken=''; }
+  async function init(){
+    disable();
+    message('Checking whether private enquiries are available...');
+    try {
+      const response=await fetch('/api/inquiry-config',{cache:'no-store',credentials:'same-origin'});
+      if(!response.ok)throw Error('NOT_AVAILABLE');
+      const config=await response.json();
+      if(!config.enabled||typeof config.turnstile_site_key!=='string')
+        throw Error('NOT_AVAILABLE');
+      const script=document.createElement('script');
+      script.src='https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+      script.async=true;
+      script.onload=function(){
+        if(!window.turnstile){message('Private enquiry verification unavailable.');return;}
+        widgetId=window.turnstile.render('#turnstileMount',{
+          sitekey:config.turnstile_site_key,
+          callback:function(token){challengeToken=token;button.disabled=false;},
+          'expired-callback':disable,
+          'error-callback':disable
+        });
+        message('Complete the verification check to send a private enquiry.');
+      };
+      script.onerror=function(){message('Private enquiries are temporarily unavailable. Nothing was submitted.');};
+      document.head.appendChild(script);
+    }catch(_){
+      message('Private enquiries are temporarily unavailable. Nothing was submitted. You can still use the free quote comparison worksheet.');
+    }
+  }
+  form.addEventListener('submit',async function(e){
     e.preventDefault();
-    var data=Object.fromEntries(new FormData(form).entries());
-    data.id='RFQ-'+Date.now();
-    data.createdAt=new Date().toISOString();
-    data.status='open';
-    data.source='b2b.html';
-    try{
-      var key='dl_b2b_rfqs';
-      var all=JSON.parse(localStorage.getItem(key)||'[]');
-      all.unshift(data);
-      localStorage.setItem(key,JSON.stringify(all.slice(0,50)));
-    }catch(_){}
-    status.textContent='RFQ accepted · ref '+data.id+' · stored for matching';
-    status.classMarketplace status.add('show');
-    form.reset();
+    if(!challengeToken){message('Complete the verification check first.');return;}
+    button.disabled=true;
+    const values=Object.fromEntries(new FormData(form).entries());
+    values.turnstile_token=challengeToken;
+    try {
+      const response=await fetch('/api/rfq',{
+        method:'POST',credentials:'same-origin',
+        headers:{'content-type':'application/json'},
+        body:JSON.stringify(values)
+      });
+      const result=await response.json().catch(()=>({}));
+      if(response.status!==202||result.status!=='RECEIVED_UNVERIFIED'||!result.request_id)
+        throw Error('RECEIPT_NOT_CONFIRMED');
+      form.reset();
+      message('Your enquiry was received. Reference: '+result.request_id+
+        '. This is not an accepted paid order or a promise of supplier matching.');
+    }catch(_){
+      message('Your enquiry was not confirmed as received. No payment was taken. Please try again when private intake is available.');
+    }finally{
+      disable();
+      if(window.turnstile&&widgetId!==null)window.turnstile.reset(widgetId);
+    }
   });
+  init();
 })();
 </script>
 </body>

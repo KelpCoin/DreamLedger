@@ -1,0 +1,32 @@
+name: DreamMeez Guest Claim Proof
+
+on:
+  push:
+    branches:
+      - 'beck/provider-migration-neon-cloudflare-20261019'
+    paths:
+      - 'BEC-PRIME/routes/dreamiez.js'
+      - 'BEC-PRIME/lib/dreammeezPaidEntitlement.js'
+      - 'BEC-PRIME/scripts/test-dreammeez-paid-entitlement.js'
+      - '.github/workflows/dreammeez-guest-claim-proof.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verified-email-entitlement:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Syntax checks
+        run: |
+          node --check BEC-PRIME/routes/dreamiez.js
+          node --check BEC-PRIME/lib/dreammeezPaidEntitlement.js
+          node --check BEC-PRIME/scripts/test-dreammeez-paid-entitlement.js
+      - name: Paid guest -> verified account -> persistent cosmetic
+        run: node BEC-PRIME/scripts/test-dreammeez-paid-entitlement.js

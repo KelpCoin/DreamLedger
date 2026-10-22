@@ -1,0 +1,54 @@
+{
+  "schema": "BEC-PRIME/CUBE-SWARM-ECONOMIC-GATES/v1",
+  "status": "HOLD_NO_VERIFIED_ECONOMIC_EVIDENCE",
+  "observed_at_utc": "2026-10-20",
+  "verified_external_revenue_nzd": 0,
+  "source_snapshot": {
+    "repository": "KelpCoin/DreamLedger",
+    "pull_request": 777,
+    "tested_head_before_this_change": "b7025ca9b0b0fdc64dcbfba25c7249294d3d3577",
+    "provider_migration_contract": "PASS at run 79; contract/preview build only",
+    "fleet_contract": "PASS at run 72; does not prove live payments",
+    "mtg_diagnostic_fulfillment_gate": "FAIL: catalog fulfillment.mode is disabled, operator_required true, checkout disabled",
+    "ecommerce_smoke": "FAIL: customer storefront contract check failed",
+    "commerce_cicd": "FAIL: dynamic checkout, paid webhook and Supabase-backed inventory checks failed",
+    "public_surface_guard": "FAIL: public residue/truth-oracle/agent-bridge pages contain prohibited copy",
+    "live_stripe_product_and_payment_probe": "NOT_VERIFIED: connected Stripe API tool rejected the linked account selector; no product/payment result inferred",
+    "live_database_schema_probe": "NOT_VERIFIED: Supabase read-only table/SQL calls hit connection timeouts/refusal",
+    "current_production_worker_inventory": "NOT_VERIFIED"
+  },
+  "epv_definition": "Observed net contribution margin per unique qualified visitor, calculated only from verified external settled orders that are correctly attributed and fulfilled, after refunds, processor/network fees, direct fulfillment costs, and provider costs.",
+  "thresholds_nzd": {
+    "prune_below": 25,
+    "clone_expand_candidate_at_or_above": 120,
+    "queue_scaling_workers_per_pending_verified_signal_group": 10,
+    "hard_ceiling_workers": 64
+  },
+  "policy_rules": [
+    "Unknown EPV is not zero and is not a number to be optimised; it is a HOLD.",
+    "A simulation, generated signal, synthetic fossil hash or claimed signals-per-second benchmark cannot satisfy a scale gate.",
+    "Each order counted must have independent external buyer evidence, settlement evidence, exact offer attribution, fulfillment completion, and a retrievable non-empty payload proof hash.",
+    "An empty-payload SHA-256 digest is explicitly rejected as delivery proof.",
+    "A `SETTLED` row is not equivalent to `FULFILLED`, and a paid post is not marked COMPLETED until delivery proof exists.",
+    "This module only recommends a target. It does not create, terminate, or resize workers."
+  ],
+  "prerequisites_for_any_recommendation": [
+    "upstream provider-backed settlement reconciliation marks its evidence bundle VERIFIED and signed",
+    "at least three distinct independent external buyers settled within the measured seven-day window",
+    "all included orders are correctly attributed and fulfilled",
+    "no paid-but-unfulfilled items remain",
+    "positive aggregate contribution margin after refunds, fees and fulfillment/provider costs",
+    "unique qualified-visitor denominator and window are observed",
+    "quota and capacity guardrails are PASS"
+  ],
+  "current_action": {
+    "action": "HOLD_BASELINE_PREPARE_ONLY",
+    "new_workers_authorized": 0,
+    "provisioned_by_this_change": 0,
+    "production_scale_mutation": false
+  },
+  "evidence_schema": "bec/cube-scale-evidence/v2",
+  "contribution_formula": "platform_revenue_nzd - processor_fees_nzd - direct_fulfillment_cost_nzd - provider_cost_nzd - refund_cost_nzd. gross_amount_nzd represents GMV and is never treated as DreamLedger revenue or contribution.",
+  "zero_fee_marketplace_rule": "For a 0% peer success-fee silo such as MTG, GMV is not platform revenue. If no independently evidenced platform revenue offsets platform-borne costs, net contribution is non-positive and CUBE remains HOLD.",
+  "visitor_denominator_rule": "The count of distinct independent buyer hashes cannot exceed the observed unique qualified visitor denominator."
+}

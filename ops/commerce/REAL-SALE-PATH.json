@@ -1,0 +1,71 @@
+{
+  "schema": "dreamledger/real-sale-path/v1",
+  "observed_at_utc": "2026-10-19T23:30:00Z",
+  "verified_external_revenue_nzd": 0,
+  "rejected_inventions": [
+    "landing_page_copy_v3 NZ$299 Agent Readiness Diagnostic not present in KelpCoin/DreamLedger",
+    "Phase-2 auto price NZ$1500-3000 without three paid fossils"
+  ],
+  "authorized_phase1_skus": [
+    {
+      "offer_id": "OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "name": "Founding Billboard Tile",
+      "price_nzd": 50,
+      "cell": "ops/commercial/cells/CELL-PHASE1-TILE-50.json",
+      "status": "authorized",
+      "buy_path": "https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "fulfilment": "digital tile review / permanent placement",
+      "priority": 1
+    },
+    {
+      "offer_id": "OFFER-CMD-DIAG-29-NZD",
+      "name": "Commander Deck Diagnostic",
+      "price_nzd": 29,
+      "cell": "ops/commercial/cells/CELL-PHASE1-DIAG-29.json",
+      "status": "authorized",
+      "buy_path": "https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001",
+      "fulfilment": "digital diagnostic report",
+      "priority": 2
+    }
+  ],
+  "not_yet_sellable": [
+    {
+      "name": "Builder stack NZ$99",
+      "blocker": "MANUAL_UNTIL_STRIPE_BUNDLE"
+    },
+    {
+      "name": "Founder pack NZ$129",
+      "blocker": "MANUAL_UNTIL_STRIPE_BUNDLE"
+    }
+  ],
+  "live_surface_probe": {
+    "stripe_checkout": {
+      "url": "https://buy.stripe.com/28EcN54zraG13M3g3idwc1t",
+      "http": 200,
+      "note": "Only confirmed live checkout HTTP 200 in this probe"
+    },
+    "dreamledger_org_root": { "http": 429 },
+    "dreamledger_org_mtg": { "http": 429 },
+    "dreamledger_org_billboard": { "http": 503 },
+    "buy_billboard_path": { "http": 503 },
+    "buy_diag_path": { "http": 503 }
+  },
+  "ball_c_execution": {
+    "primary_sku": "OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001",
+    "rule": "Do not invent new products. Sell authorized Phase-1 only.",
+    "checkout_until_domain_fixed": "https://buy.stripe.com/28EcN54zraG13M3g3idwc1t",
+    "acquisition": "owned channels only (Discord, existing Patreon/Happy Homarid, Linktree). No cold spam.",
+    "on_payment": [
+      "Settlement Sync records livemode session",
+      "Fulfil tile or diagnostic per registry",
+      "Fee join + fossil before meter moves",
+      "verified_external_revenue_nzd increments only from full chain"
+    ],
+    "success": "≥1 independent livemode external payment + delivery proof + fossil"
+  },
+  "beck_alignment": {
+    "settlement": "ops/beck/settlement-join.mjs required before revenue PASS",
+    "production_webhook_fee_join": "NOT wired; requires explicit authorization",
+    "public_domain": "503/429 is BLOCKED for buy-path acceptance; Stripe host still usable for Ball C"
+  }
+}

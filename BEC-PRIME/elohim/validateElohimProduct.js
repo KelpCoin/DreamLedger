@@ -34,7 +34,8 @@ function getAjvValidators() {
   }
   let Ajv;
   try {
-    Ajv = require('ajv');
+    // The schemas declare draft 2020-12; Ajv's default entry point targets draft-07.
+    Ajv = require('ajv/dist/2020');
   } catch (_)
   {
     return null;

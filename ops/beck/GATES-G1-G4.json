@@ -1,0 +1,96 @@
+{
+  "schema": "dreamledger/beck-gates/v1",
+  "verified_external_revenue_nzd": 0,
+  "human_builder_forbidden": true,
+  "gates": [
+    {
+      "id": "G1",
+      "name": "Build and independent verification",
+      "exit": "A real code change passes tests and produces a verifiable proof artifact (PASS|BLOCKED|NOT_RUN distinguished).",
+      "requires": ["self_builder_bootstrap", "bounded_repair_loop", "proof_report"],
+      "status": "IN_PROGRESS"
+    },
+    {
+      "id": "G2",
+      "name": "First verified sale",
+      "exit": "Independent buyer pays, receives promised item, transaction reconciled with delivery evidence.",
+      "requires": ["correct_offer_path", "settlement_truth", "fulfil_proof", "fossil"],
+      "status": "BLOCKED",
+      "blocker": "No external live purchase has closed the evidence chain."
+    },
+    {
+      "id": "G3",
+      "name": "MTG master template clone",
+      "exit": "Clean clone passes acceptance without inheriting private data, credentials, inventory, or payment links.",
+      "requires": [
+        "unique_identifiers",
+        "required_fields",
+        "source_freshness",
+        "licence_compliance",
+        "silo_isolation",
+        "secrets_absent",
+        "pii_absent",
+        "repeatable_acceptance"
+      ],
+      "status": "BLOCKED",
+      "note": "Card-count bands alone are not proof of a valid catalogue or clone-ready silo."
+    },
+    {
+      "id": "G4",
+      "name": "Scale what sells",
+      "exit": "Measured acquisition, conversion, delivery cost, contribution margin, and repeat purchases drive expansion.",
+      "requires": ["G2_pass", "repeatable_channel"],
+      "status": "BLOCKED_UNTIL_G2"
+    }
+  ],
+  "lane_economics": {
+    "rule": "Arithmetic illustrations are not inventory or demand proof.",
+    "billboard": {
+      "example_play_price_nzd": 0.3,
+      "plays_for_1m_gross": 3333334,
+      "example_weekly_package_nzd": 150,
+      "packages_for_1m_gross": 6667,
+      "status": "ILLUSTRATION_ONLY",
+      "not_evidence_of": ["available_inventory", "buyer_demand", "net_proceeds"]
+    },
+    "avatar_cosmetics": {
+      "modeled_independent_hosting_net_pct": 97,
+      "status": "MODEL_ASSUMPTION",
+      "requires_before_rule": [
+        "processor_fees_reconciled",
+        "refunds_observed",
+        "tax_treatment_recorded",
+        "vrchat_split_source_verified",
+        "transaction_path_verified"
+      ]
+    },
+    "mtg_master_silo": {
+      "card_count_band_not_sufficient": true,
+      "clone_requires": [
+        "unique_identifiers",
+        "required_fields",
+        "source_freshness",
+        "licence_compliance",
+        "silo_isolation",
+        "no_secrets",
+        "no_pii",
+        "repeatable_acceptance_tests"
+      ]
+    }
+  },
+  "settlement_truth": {
+    "insufficient_alone": ["status=succeeded", "livemode=true"],
+    "required": [
+      "matched_to_correct_offer",
+      "independent_buyer",
+      "fulfillment_completed_or_claimable",
+      "delivery_proof_retrievable"
+    ],
+    "pending_fee_detail": "Must remain pending for fee reconciliation; must not shortcut the full revenue gate."
+  },
+  "kill_criteria": {
+    "verified_revenue_decision": "Based only on fully reconciled verified sales.",
+    "data_quality_warnings": "Separate from verified-revenue decision; unverified/rejected rows do not zero out a legitimate verified sale.",
+    "fourteen_day_clock": "Must be defined explicitly with attempted-lane evidence; absence of attempts is NOT_RUN not PASS."
+  }
+}

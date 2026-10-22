@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "dreamledger/beck-proof-report/v1",
+  "type": "object",
+  "required": ["schema", "observed_at_utc", "results", "verified_external_revenue_nzd"],
+  "properties": {
+    "schema": { "const": "DREAMLEDGER-BECK-PROOF-REPORT/v1" },
+    "observed_at_utc": { "type": "string" },
+    "commit_sha": { "type": "string" },
+    "verified_external_revenue_nzd": { "type": "number" },
+    "results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "status"],
+        "properties": {
+          "id": { "type": "string" },
+          "status": { "enum": ["PASS", "BLOCKED", "NOT_RUN", "FAIL"] },
+          "evidence_path": { "type": "string" },
+          "reason": { "type": "string" }
+        }
+      }
+    },
+    "production_mutation": { "type": "boolean" },
+    "revenue_claimed": { "type": "boolean" }
+  }
+}

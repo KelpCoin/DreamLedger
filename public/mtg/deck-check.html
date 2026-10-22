@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en-NZ" data-silo="mtg">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0c1016">
+<meta name="description" content="Run a free browser-only Commander decklist structure check. No account, upload, payment or invented simulation results.">
+<title>Free Commander Deck Check | DreamLedger Magic</title>
+<link rel="canonical" href="https://dreamledger.org/mtg/deck-check.html">
+<link rel="stylesheet" href="/assets/silo-master.css">
+<style>
+:root{--silo-accent:#d8b56b;--silo-accent-bright:#e8c87a}
+.check-layout{max-width:850px;margin:30px auto 100px}
+.check-panel{border:1px solid var(--silo-line);background:var(--silo-surface);border-radius:17px;padding:22px;margin-top:18px}
+.check-panel label{display:block;margin:0 0 8px;font-weight:700}
+.check-panel textarea{box-sizing:border-box;display:block;width:100%;min-height:270px;padding:14px;resize:vertical;
+  background:var(--silo-surface-2);border:1px solid var(--silo-line);border-radius:12px;color:var(--silo-ink);
+  font:14px/1.6 ui-monospace,Consolas,monospace}
+.check-panel button{margin-top:12px;min-height:48px;border:0;border-radius:12px;padding:0 20px;cursor:pointer;
+  color:#171309;background:var(--silo-accent);font:700 15px system-ui}
+.check-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:10px}
+.check-stat{padding:12px;border-radius:12px;background:var(--silo-surface-2);border:1px solid var(--silo-line)}
+.check-stat strong{display:block;font-size:26px}
+.check-stat small{color:var(--silo-muted)}
+.check-panel li{margin-bottom:10px}
+.check-note{color:var(--silo-muted);font-size:13px;line-height:1.55}
+#check-error{color:#ffb0a0;min-height:20px}
+#check-output[hidden]{display:none}
+</style>
+</head>
+<body class="silo-body">
+<header class="silo-hdr"><div class="silo-hdr-inner">
+<a class="silo-logo" href="/mtg/">Dream<em>Ledger</em> · Magic</a>
+<nav class="silo-nav"><a href="/mtg/">MTG home</a><a href="/mtg-search.html">Singles status</a>
+<a class="silo-cta" href="/mtg-list.html">Draft a listing</a></nav>
+</div></header>
+<main class="silo-wrap check-layout">
+<p class="silo-eyebrow">Free tool · Commander · Local to this browser</p>
+<h1 class="silo-display">Check your deck's basic structure</h1>
+<p class="silo-lead">Paste a Commander decklist to get an immediate first-pass check of card count,
+recognised land names, familiar ramp, draw and interaction. No account or payment. Your decklist stays on this device and is not sent to our servers.</p>
+<section class="check-panel">
+<label for="decklist">Decklist, one card per line</label>
+<textarea id="decklist" aria-describedby="deck-help" placeholder="1 Sol Ring&#10;1 Arcane Signet&#10;1 Command Tower&#10;1 Forest&#10;1 Counterspell&#10;..."></textarea>
+<p class="check-note" id="deck-help">Accepts ManaBox-style lines such as “1 Sol Ring (CMM) 396”.
+Include at least 10 lines. This is not Scryfall validation, Monte Carlo simulation, or a full paid diagnostic.</p>
+<button type="button" id="run-check">Check my deck free</button>
+<p role="alert" id="check-error"></p>
+</section>
+<section class="check-panel" id="check-output" hidden aria-live="polite">
+<h2 class="silo-h2">Your structural snapshot</h2>
+<p id="check-count"></p>
+<div class="check-stats" id="check-stats"></div>
+<h3>Things to review</h3><ul id="check-notes"></ul>
+<p class="check-note" id="check-caveat"></p>
+</section>
+<div class="check-panel">
+<p><strong>Want the full Commander Deck Diagnostic?</strong> The paid service is held
+until payment, intake, analysis and delivery are proven end to end.
+This free check is available independently and does not represent a paid purchase.</p>
+<a href="/commander-deck-diagnostic.html">See paid-service availability</a>
+</div>
+</main>
+<footer class="silo-footer silo-wrap"><a href="/mtg/">Magic home</a><a href="/">DreamLedger</a></footer>
+<script src="/assets/mtg-deck-check.js"></script>
+<script>
+(function(){
+'use strict';
+var button=document.getElementById('run-check');
+button.addEventListener('click',function(){
+  var error=document.getElementById('check-error');
+  var panel=document.getElementById('check-output');
+  error.textContent='';panel.hidden=true;
+  try{
+    var data=window.DreamLedgerMtgDeckCheck.analyze(document.getElementById('decklist').value);
+    var count=document.getElementById('check-count');
+    count.textContent=data.declared_card_count+' cards across '+data.card_lines+' lines supplied.';
+    var metrics=document.getElementById('check-stats');metrics.replaceChildren();
+    [['land','Recognised lands'],['ramp','Familiar ramp'],['draw','Familiar draw'],
+     ['interaction','Familiar interaction']].forEach(function(item){
+       var tile=document.createElement('div');tile.className='check-stat';
+       var number=document.createElement('strong');
+       number.textContent=String(data.recognised_by_name[item[0]]);
+       var label=document.createElement('small');label.textContent=item[1];
+       tile.appendChild(number);tile.appendChild(label);metrics.appendChild(tile);
+     });
+    var notes=document.getElementById('check-notes');notes.replaceChildren();
+    data.review_notes.forEach(function(line){
+      var li=document.createElement('li');li.textContent=line;notes.appendChild(li);
+    });
+    document.getElementById('check-caveat').textContent=data.caveat;
+    panel.hidden=false;
+  }catch(err){
+    error.textContent=String(err.message||'The decklist could not be analysed.');
+  }
+});
+})();
+</script>
+</body></html>

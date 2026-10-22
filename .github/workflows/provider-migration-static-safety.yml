@@ -1,0 +1,129 @@
+name: Provider migration static safety contract
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "data/mtg-catalog.json"
+      - "public/catalog.json"
+      - "public/data/mtg-catalog.json"
+      - "public/data/economic-pulse.json"
+      - "public/portfolio/commander-deck-diagnostic.html"
+      - "public/mtg/**"
+      - "public/mtg-search.html"
+      - "public/mtg-list.html"
+      - "public/mtg-list/**"
+      - "public/assets/mtg-deck-check.js"
+      - "public/mtg-search.html"
+      - "public/mtg-search/**"
+      - "public/mtg-list.html"
+      - "public/mtg-list/**"
+      - "public/assets/mtg-deck-check.js"
+      - "public/commander-deck-diagnostic.html"
+      - "public/diagnostic-input.html"
+      - "public/thanks-diagnostic.html"
+      - "public/mtg-marketplace.html"
+      - "public/mtg-marketplace/**"
+      - "public/b2b.html"
+      - "public/contact.html"
+      - "public/quote-comparison/**"
+      - "public/portfolio/supplier-quote-comparison.html"
+      - "ops/migration/cloudflare-preview/**"
+      - "ops/migration/supabase-to-neon/**"
+      - "ops/migration/README.md"
+      - "BEC-PRIME/catalog/featured-offer.json"
+      - ".github/workflows/provider-migration-static-safety.yml"
+      - ".github/workflows/cloudflare-migration-preview.yml"
+  push:
+    branches:
+      - beck/provider-migration-neon-cloudflare-20261019
+    paths:
+      - "data/mtg-catalog.json"
+      - "public/catalog.json"
+      - "public/data/mtg-catalog.json"
+      - "public/data/economic-pulse.json"
+      - "public/portfolio/commander-deck-diagnostic.html"
+      - "public/mtg/**"
+      - "public/mtg-search.html"
+      - "public/mtg-list.html"
+      - "public/mtg-list/**"
+      - "public/assets/mtg-deck-check.js"
+      - "public/mtg-search.html"
+      - "public/mtg-search/**"
+      - "public/mtg-list.html"
+      - "public/mtg-list/**"
+      - "public/assets/mtg-deck-check.js"
+      - "public/commander-deck-diagnostic.html"
+      - "public/diagnostic-input.html"
+      - "public/thanks-diagnostic.html"
+      - "public/mtg-marketplace.html"
+      - "public/mtg-marketplace/**"
+      - "public/b2b.html"
+      - "public/contact.html"
+      - "public/quote-comparison/**"
+      - "public/portfolio/supplier-quote-comparison.html"
+      - "ops/migration/cloudflare-preview/**"
+      - "ops/migration/supabase-to-neon/**"
+      - "ops/migration/README.md"
+      - "BEC-PRIME/catalog/featured-offer.json"
+      - ".github/workflows/provider-migration-static-safety.yml"
+      - ".github/workflows/cloudflare-migration-preview.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  safety-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Syntax-check the preview runtime and builder
+        run: |
+          set -euo pipefail
+          node --check ops/migration/cloudflare-preview/build-preview.mjs
+          node --check ops/migration/cloudflare-preview/smoke-preview.mjs
+          node --check ops/migration/cloudflare-preview/_worker.js
+      - name: Verify source backup tooling is read-only
+        run: |
+          set -euo pipefail
+          node -e 'const fs=require("fs"),assert=require("assert");const sql=fs.readFileSync("ops/migration/supabase-to-neon/preflight.sql","utf8").replace(/^--.*$/gm,"").trim();assert.match(sql,/^SELECT\b/i,"inventory must be a read-only SELECT");assert.doesNotMatch(sql,/\b(INSERT|UPDATE|DELETE|MERGE|DROP|ALTER|TRUNCATE|CREATE|GRANT|REVOKE)\b/i,"inventory must not contain mutating SQL");const ps=fs.readFileSync("ops/migration/supabase-to-neon/Export-Supabase-ForensicBackup.ps1","utf8");assert.match(ps,/pgRestore\.Source --list/,"backup must validate archive by listing only");assert.doesNotMatch(ps,/pg_restore.{0,80}(--clean|--create|--dbname)/i,"backup runner must not restore or mutate a target");assert(ps.includes("Get-FileHash")&&ps.includes("-Algorithm SHA256"),"backup must hash private output");assert(ps.includes("finally {")&&ps.includes("Remove-Item Env:PGPASSWORD"),"password must be cleared in finally");console.log("SOURCE_BACKUP_TOOLING_READ_ONLY=PASS")'
+      - name: Verify preview deployment cannot auto-run on an ordinary push
+        run: |
+          set -euo pipefail
+          node -e 'const fs=require("fs"),assert=require("assert");const y=fs.readFileSync(".github/workflows/cloudflare-migration-preview.yml","utf8");assert(y.includes("github.event_name == '\''workflow_dispatch'\''"));assert(y.includes("[approve-cloudflare-preview]"));assert(y.includes("github.ref == '\''refs/heads/beck/provider-migration-neon-cloudflare-20261019'\''"));assert(y.includes("BLOCKED_PREVIEW_BRANCH_IS_PRODUCTION_BRANCH"));assert(y.includes("CLOUDFLARE_BRANCH_ISOLATION=PASS"));console.log("PREVIEW_DISPATCH_APPROVAL_AND_BRANCH_ISOLATION=PASS")'
+      - name: Verify private inbound intake, no fake receipts, and Cloudflare challenge
+        run: |
+          node --check ops/migration/cloudflare-preview/templates/rfq-inbox.worker.mjs
+          node --test ops/migration/cloudflare-preview/test-rfq-inbox.mjs
+          node -e 'const fs=require("fs");const s=fs.readFileSync("public/b2b.html","utf8");if(s.includes("localStorage.setItem")||s.includes("statusener")||s.includes("https://buy.stripe.com/"))throw Error("UNSAFE_B2B_INTAKE_OR_PAYMENT");if(!s.includes("/api/inquiry-config")||!s.includes("response.status!==202"))throw Error("INBOUND_ACK_CONTRACT_MISSING");console.log("B2B_INBOUND_FAIL_CLOSED=PASS")'
+      - name: Build the non-production candidate and enforce catalogue safety
+        run: node ops/migration/cloudflare-preview/build-preview.mjs
+      - name: Verify MTG scripts execute without fallback inventory
+        run: node --test ops/migration/cloudflare-preview/test-mtg-held-page.mjs
+      - name: Verify MTG free deck-check and private listing scripts
+        run: node --test ops/migration/cloudflare-preview/test-mtg-free-tools.mjs
+      - name: Verify MTG free deck utility and honest singles inventory
+        run: |
+          node --check public/assets/mtg-deck-check.js
+          node --test ops/migration/cloudflare-preview/test-mtg-free-utility.mjs
+          node -e 'const fs=require("fs");for(const x of ["ops/migration/cloudflare-preview/dist/mtg/deck-check.html","ops/migration/cloudflare-preview/dist/assets/mtg-deck-check.js","ops/migration/cloudflare-preview/dist/mtg-search.html","ops/migration/cloudflare-preview/dist/mtg-list.html"])if(!fs.existsSync(x))throw Error("PREVIEW_MTG_ROUTE_MISSING: "+x);console.log("MTG_LOCAL_UTILITY_ROUTES=PASS")'
+      - name: Confirm expected routes and honest degraded behavior
+        run: |
+          set -euo pipefail
+          node -e 'const fs=require("fs");const root="ops/migration/cloudflare-preview/dist";for(const f of ["index.html","404.html","mtg/index.html","truth-oracle.html","silos/mtg/silo.json","data/mtg-catalog.json","catalog.json","data/economic-pulse.json","_worker.js","migration-preview-release.json"])if(!fs.existsSync(root+"/"+f))throw Error("missing "+f);for(const f of ["catalog.json","data/mtg-catalog.json"]){const c=JSON.parse(fs.readFileSync(root+"/"+f,"utf8"));if(!Array.isArray(c.products))throw Error("invalid "+f);for(const id of ["EDH_0001","COMMANDER-DECK-DIAGNOSTIC-001"]){const p=c.products.find(x=>x.id===id);if(!p||p.status==="published"||Object.prototype.hasOwnProperty.call(p,"price")||Object.prototype.hasOwnProperty.call(p,"checkout_url")||p.price_status!=="UNOBSERVABLE"||p.price_evidence_status!=="UNVERIFIED")throw Error("unsafe held listing "+id+" in "+f)}}const b=JSON.parse(fs.readFileSync("ops/migration/cloudflare-preview/build-proof.json","utf8"));if(b.status!=="PREVIEW_BUNDLE_BUILT_NOT_PRODUCTION_READY"||b.production_mutation!==false||b.dns_changed!==false||b.revenue_claimed_nzd!==0)throw Error("build proof contract mismatch");console.log("PROVIDER_MIGRATION_STATIC_SAFETY=PASS")'
+      - name: Upload non-production build proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: provider-migration-static-safety-${{ github.sha }}
+          path: |
+            ops/migration/cloudflare-preview/build-proof.json
+            ops/migration/cloudflare-preview/dist
+          if-no-files-found: warn
+          retention-days: 14

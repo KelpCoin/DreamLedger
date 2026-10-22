@@ -1,0 +1,27 @@
+{
+  "date_nz": "2026-10-22",
+  "parent_pr": 777,
+  "migration_parent": "9e299ffdb52a6af703b005cd2855c7e5a1e7de8e",
+  "main_merged_into_candidate": "c4fca15adc36bd382b666dd15816f6c5461a971d",
+  "conflicts_resolved": [
+    "mtg/index.html",
+    "public/mtg/index.html",
+    "public/data/mtg-catalog.json",
+    "public/mtg/dwynen-gilt-leaf-daen.html"
+  ],
+  "resolution": "Preserve migration held inventory; repair truncated inline scripts; no fallback sales",
+  "tests_passed": 37,
+  "tests_failed": 0,
+  "preview_build": "PASS_LOCAL_ONLY",
+  "source_probe": "ECONNREFUSED",
+  "source_postgres_log": {
+    "timestamp_utc": "2026-10-22T03:48:56.855000Z",
+    "message": "could not write to file pg_wal/xlogtemp.1658364: No space left on device",
+    "subsequent_state": "startup process failed; database system is shut down"
+  },
+  "source_recovered": false,
+  "data_imported": false,
+  "production_deployed": false,
+  "provider_retired": false,
+  "migration_complete": false
+}

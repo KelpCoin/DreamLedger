@@ -10,7 +10,7 @@ function config() {
   const proxy = String(process.env.AGENT_BRIDGE_PROXY_URL || `${url}/functions/v1/agent-bridge-proxy`).replace(/\/$/, '');
   return { url, token, proxy };
 }
-function configured() { const c = config(); return Boolean(c.url && c.token && c.proxy); }
+function configured() { const c = config(); return Boolean(c.token && c.proxy && c.proxy.startsWith('https://')); }
 function authorized(req) { const c = config(); return configured() && String(req.headers['x-dreamledger-agent-token'] || '') === c.token; }
 function correlationId(req) { return String(req.headers['x-correlation-id'] || '').trim() || crypto.randomUUID(); }
 function send(res, status, body, correlation) {

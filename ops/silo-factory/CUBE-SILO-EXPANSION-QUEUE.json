@@ -1,0 +1,717 @@
+{
+  "schema": "BEC-PRIME/CUBE-SILO-EXPANSION-QUEUE/v1",
+  "observed_at_utc": "2026-10-20",
+  "status": "CANDIDATES_REGISTERED_NOT_PROVISIONED",
+  "master_silo": "mtg",
+  "candidate_count": 31,
+  "domain_binding_performed": false,
+  "database_tenant_provisioning_performed": false,
+  "public_routes_created": false,
+  "production_workers_created": 0,
+  "prioritization_rule": "Existing assets and verifiable path proximity rank ahead of speculative new categories. Rank is a work-order, not validated demand.",
+  "rollout_gates": [
+    "candidate manifest validates against the CUBE clone contract",
+    "current silo isolation verifier and route tests pass",
+    "supply atom is real and source-evidenced",
+    "buyer action is observed, not generated",
+    "live checkout URL, amount, currency and SKU match",
+    "settlement is reconciled and idempotent",
+    "fulfillment is exercised end-to-end with retrievable delivery proof",
+    "unit contribution margin is positive after fees, refunds, fulfillment and platform costs",
+    "domain and publication receive explicit approval"
+  ],
+  "scaling_rule": "Do not provision worker nodes for a silo on signal count, generated copy, mock EPV, synthetic SHA-256, or simulation throughput. Build scaffolds now; activate commerce only after the economic gates pass.",
+  "priority_queue": [
+    {
+      "id": "mtg",
+      "slug": "mtg",
+      "name": "Magic: The Gathering",
+      "priority": 1,
+      "status": "MASTER_REFERENCE_EXISTING_SURFACE",
+      "source_paths": [
+        "public/silos/mtg/silo.json",
+        "public/data/mtg-catalog.json",
+        "public/mtg/index.html"
+      ],
+      "proposed_custom_domain": "mtg.dreamledger.org",
+      "custom_domain_bound": false,
+      "provisioned": false,
+      "scale_authorized": false,
+      "initial_economic_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": 0,
+        "listing_policy": "FREE_LISTINGS",
+        "paid_offer_policy": "NO_NEW_PAID_OFFER_UNTIL_EXISTING_CHECKOUT_AND_SUPPLY_ARE_VERIFIED",
+        "success_fee_peer_pct": 0
+      },
+      "next_step": "Keep this as the master template; validate listing, seller identity, offer, trade-lock and delivery evidence; do not copy inventory."
+    },
+    {
+      "id": "dreammeez",
+      "slug": "dreammeez",
+      "name": "Avatar Cosmetics",
+      "priority": 2,
+      "status": "EXISTING_SURFACE_NEEDS_CHECKOUT_VERIFICATION",
+      "source_paths": [
+        "public/avatar.html"
+      ],
+      "proposed_custom_domain": "dreammeez.dreamledger.org",
+      "custom_domain_bound": false,
+      "provisioned": false,
+      "scale_authorized": false,
+      "initial_economic_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": null,
+        "listing_policy": "FREE_CANDIDATE_DIRECTORY_OR_CATALOG",
+        "paid_offer_policy": "UNVALIDATED_DO_NOT_PUBLISH_A_PRICE_OR_ENABLE_CHECKOUT"
+      },
+      "next_step": "Audit existing cosmetic SKU-to-Stripe link and automated cosmetic delivery before promotion."
+    },
+    {
+      "id": "b2b",
+      "slug": "b2b",
+      "name": "Free B2B Directory",
+      "priority": 3,
+      "status": "SCAFFOLD_CANDIDATE_FREE_LISTING",
+      "source_paths": [],
+      "proposed_custom_domain": "b2b.dreamledger.org",
+      "custom_domain_bound": false,
+      "provisioned": false,
+      "scale_authorized": false,
+      "initial_economic_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": 0,
+        "listing_policy": "FREE_LISTINGS",
+        "paid_offer_policy": "OPTIONAL_PROMOTION_OR_TRANSACTION_MONETIZATION_ONLY_AFTER_BUYER_AND_SELLER_EVIDENCE"
+      },
+      "next_step": "Build a free supplier directory/buyer request surface first; no paid gate until the first buyer signal and delivery path are proven."
+    },
+    {
+      "id": "b2b_quotes",
+      "slug": "b2b-quotes",
+      "name": "B2B Supplier Quotes",
+      "priority": 4,
+      "status": "EXISTING_OFFER_DEPENDENCY_UNVERIFIED",
+      "source_paths": [
+        "public/quote-comparison/index.html",
+        "BEC-PRIME/fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json"
+      ],
+      "proposed_custom_domain": "b2b-quotes.dreamledger.org",
+      "custom_domain_bound": false,
+      "provisioned": false,
+      "scale_authorized": false,
+      "initial_economic_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": null,
+        "listing_policy": "FREE_INTAKE_OR_DIRECTORY",
+        "paid_offer_policy": "EXISTING_QUOTE_COMPARE_49_REQUIRES_LIVE_CHECKOUT_AND_FULFILLMENT_REVALIDATION"
+      },
+      "next_step": "Resolve current Supabase-linked fulfillment dependency and prove paid quote processing and artifact delivery."
+    },
+    {
+      "id": "nz_secondhand",
+      "slug": "nz-secondhand",
+      "name": "NZ Secondhand Marketplace",
+      "priority": 5,
+      "status": "SCAFFOLD_CANDIDATE_FREE_LISTING",
+      "source_paths": [],
+      "proposed_custom_domain": "nz-secondhand.dreamledger.org",
+      "custom_domain_bound": false,
+      "provisioned": false,
+      "scale_authorized": false,
+      "initial_economic_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": 0,
+        "listing_policy": "FREE_LISTINGS",
+        "paid_offer_policy": "OPTIONAL_PROMOTION_OR_TRANSACTION_MONETIZATION_ONLY_AFTER_BUYER_AND_SELLER_EVIDENCE"
+      },
+      "next_step": "Use as general TradeMe-style category shell only after MTG master and cross-silo data fences are verified."
+    },
+    {
+      "id": "womens_clothing",
+      "slug": "womens-clothing",
+      "name": "Women's Clothing",
+      "priority": 6,
+      "status": "SCAFFOLD_ONLY_NOT_PROVISIONED",
+      "source_paths": [],
+      "proposed_custom_domain": "womens-clothing.dreamledger.org",
+      "custom_domain_bound": false,
+      "provisioned": false,
+      "scale_authorized": false,
+      "initial_economic_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": 0,
+        "listing_policy": "FREE_LISTINGS",
+        "paid_offer_policy": "OPTIONAL_PROMOTION_OR_TRANSACTION_MONETIZATION_ONLY_AFTER_BUYER_AND_SELLER_EVIDENCE"
+      },
+      "next_step": "Create empty category scaffold; do not invent sellers, inventory or marketplace demand."
+    },
+    {
+      "id": "baby_kids",
+      "slug": "baby-kids",
+      "name": "Baby and Kids",
+      "priority": 7,
+      "status": "SCAFFOLD_ONLY_NOT_PROVISIONED",
+      "source_paths": [],
+      "proposed_custom_domain": "baby-kids.dreamledger.org",
+      "custom_domain_bound": false,
+      "provisioned": false,
+      "scale_authorized": false,
+      "initial_economic_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": 0,
+        "listing_policy": "FREE_LISTINGS",
+        "paid_offer_policy": "OPTIONAL_PROMOTION_OR_TRANSACTION_MONETIZATION_ONLY_AFTER_BUYER_AND_SELLER_EVIDENCE"
+      },
+      "next_step": "Create empty category scaffold with recall and product-safety exclusions before any listing is allowed."
+    },
+    {
+      "id": "media_music",
+      "slug": "media-music",
+      "name": "Music and Media",
+      "priority": 8,
+      "status": "SCAFFOLD_ONLY_NOT_PROVISIONED",
+      "source_paths": [],
+      "proposed_custom_domain": "media-music.dreamledger.org",
+      "custom_domain_bound": false,
+      "provisioned": false,
+      "scale_authorized": false,
+      "initial_economic_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": 0,
+        "listing_policy": "FREE_LISTINGS",
+        "paid_offer_policy": "OPTIONAL_PROMOTION_OR_TRANSACTION_MONETIZATION_ONLY_AFTER_BUYER_AND_SELLER_EVIDENCE"
+      },
+      "next_step": "Create empty creator/release discovery scaffold; verify rights and supply before commerce."
+    },
+    {
+      "id": "digital_products",
+      "slug": "digital-products",
+      "name": "Digital Products",
+      "priority": 9,
+      "status": "SCAFFOLD_ONLY_NOT_PROVISIONED",
+      "source_paths": [],
+      "proposed_custom_domain": "digital-products.dreamledger.org",
+      "custom_domain_bound": false,
+      "provisioned": false,
+      "scale_authorized": false,
+      "initial_economic_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": null,
+        "listing_policy": "FREE_CANDIDATE_DIRECTORY_OR_CATALOG",
+        "paid_offer_policy": "UNVALIDATED_DO_NOT_PUBLISH_A_PRICE_OR_ENABLE_CHECKOUT"
+      },
+      "next_step": "Generate manifest and empty catalogue only; leave checkout, domain and scale gates closed."
+    },
+    {
+      "id": "delivery_eta",
+      "slug": "delivery-eta",
+      "name": "Delivery and ETA Tracking",
+      "priority": 10,
+      "status": "SCAFFOLD_ONLY_NOT_PROVISIONED",
+      "source_paths": [],
+      "proposed_custom_domain": "delivery-eta.dreamledger.org",
+      "custom_domain_bound": false,
+      "provisioned": false,
+      "scale_authorized": false,
+      "initial_economic_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": null,
+        "listing_policy": "FREE_CANDIDATE_DIRECTORY_OR_CATALOG",
+        "paid_offer_policy": "UNVALIDATED_DO_NOT_PUBLISH_A_PRICE_OR_ENABLE_CHECKOUT"
+      },
+      "next_step": "Build timestamps and exception visibility; never sell guaranteed ETAs without observed carrier data."
+    },
+    {
+      "id": "nz_rdti",
+      "slug": "nz-rdti",
+      "name": "NZ RDTI",
+      "priority": 50,
+      "status": "SCAFFOLD_ONLY_NOT_PROVISIONED",
+      "source_paths": [],
+      "proposed_custom_domain": "nz-rdti.dreamledger.org",
+      "custom_domain_bound": false,
+      "provisioned": false,
+      "scale_authorized": false,
+      "initial_economic_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": null,
+        "listing_policy": "FREE_CANDIDATE_DIRECTORY_OR_CATALOG",
+        "paid_offer_policy": "UNVALIDATED_DO_NOT_PUBLISH_A_PRICE_OR_ENABLE_CHECKOUT"
+      },
+      "next_step": "Generate manifest and empty catalogue only; leave checkout, domain and scale gates closed."
+    },
+    {
+      "id": "contractor_tax",
+      "slug": "contractor-tax",
+      "name": "Contractor Tax and Payroll",
+      "priority": 50,
+      "status": "SCAFFOLD_ONLY_NOT_PROVISIONED",
+      "source_paths": [],
+      "proposed_custom_domain": "contractor-tax.dreamledger.org",
+      "custom_domain_bound": false,
+      "provisioned": false,
+      "scale_authorized": false,
+      "initial_economic_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": null,
+        "listing_policy": "FREE_CANDIDATE_DIRECTORY_OR_CATALOG",
+        "paid_offer_policy": "UNVALIDATED_DO_NOT_PUBLISH_A_PRICE_OR_ENABLE_CHECKOUT"
+      },
+      "next_step": "Generate manifest and empty catalogue only; leave checkout, domain and scale gates closed."
+    },
+    {
+      "id": "mcp_audit",
+      "slug": "mcp-audit",
+      "name": "MCP and Agent Infrastructure",
+      "priority": 50,
+      "status": "SCAFFOLD_ONLY_NOT_PROVISIONED",
+      "source_paths": [],
+      "proposed_custom_domain": "mcp-audit.dreamledger.org",
+      "custom_domain_bound": false,
+      "provisioned": false,
+      "scale_authorized": false,
+      "initial_economic_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": null,
+        "listing_policy": "FREE_CANDIDATE_DIRECTORY_OR_CATALOG",
+        "paid_offer_policy": "UNVALIDATED_DO_NOT_PUBLISH_A_PRICE_OR_ENABLE_CHECKOUT"
+      },
+      "next_step": "Generate manifest and empty catalogue only; leave checkout, domain and scale gates closed."
+    },
+    {
+      "id": "subcontractor_variations",
+      "slug": "subcontractor-variations",
+      "name": "Subcontractor Variations",
+      "priority": 50,
+      "status": "SCAFFOLD_ONLY_NOT_PROVISIONED",
+      "source_paths": [],
+      "proposed_custom_domain": "subcontractor-variations.dreamledger.org",
+      "custom_domain_bound": false,
+      "provisioned": false,
+      "scale_authorized": false,
+      "initial_economic_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": null,
+        "listing_policy": "FREE_CANDIDATE_DIRECTORY_OR_CATALOG",
+        "paid_offer_policy": "UNVALIDATED_DO_NOT_PUBLISH_A_PRICE_OR_ENABLE_CHECKOUT"
+      },
+      "next_step": "Generate manifest and empty catalogue only; leave checkout, domain and scale gates closed."
+    },
+    {
+      "id": "saas_usage",
+      "slug": "saas-usage",
+      "name": "SaaS Usage and Churn",
+      "priority": 50,
+      "status": "SCAFFOLD_ONLY_NOT_PROVISIONED",
+      "source_paths": [],
+      "proposed_custom_domain": "saas-usage.dreamledger.org",
+      "custom_domain_bound": false,
+      "provisioned": false,
+      "scale_authorized": false,
+      "initial_economic_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": null,
+        "listing_policy": "FREE_CANDIDATE_DIRECTORY_OR_CATALOG",
+        "paid_offer_policy": "UNVALIDATED_DO_NOT_PUBLISH_A_PRICE_OR_ENABLE_CHECKOUT"
+      },
+      "next_step": "Generate manifest and empty catalogue only; leave checkout, domain and scale gates closed."
+    },
+    {
+      "id": "legal_evidence",
+      "slug": "legal-evidence",
+      "name": "Legal Evidence",
+      "priority": 50,
+      "status": "SCAFFOLD_ONLY_NOT_PROVISIONED",
+      "source_paths": [],
+      "proposed_custom_domain": "legal-evidence.dreamledger.org",
+      "custom_domain_bound": false,
+      "provisioned": false,
+      "scale_authorized": false,
+      "initial_economic_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": null,
+        "listing_policy": "FREE_CANDIDATE_DIRECTORY_OR_CATALOG",
+        "paid_offer_policy": "UNVALIDATED_DO_NOT_PUBLISH_A_PRICE_OR_ENABLE_CHECKOUT"
+      },
+      "next_step": "Generate manifest and empty catalogue only; leave checkout, domain and scale gates closed."
+    },
+    {
+      "id": "iso_device",
+      "slug": "iso-device",
+      "name": "ISO and Device Compliance",
+      "priority": 50,
+      "status": "SCAFFOLD_ONLY_NOT_PROVISIONED",
+      "source_paths": [],
+      "proposed_custom_domain": "iso-device.dreamledger.org",
+      "custom_domain_bound": false,
+      "provisioned": false,
+      "scale_authorized": false,
+      "initial_economic_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": null,
+        "listing_policy": "FREE_CANDIDATE_DIRECTORY_OR_CATALOG",
+        "paid_offer_policy": "UNVALIDATED_DO_NOT_PUBLISH_A_PRICE_OR_ENABLE_CHECKOUT"
+      },
+      "next_step": "Generate manifest and empty catalogue only; leave checkout, domain and scale gates closed."
+    },
+    {
+      "id": "esg_carbon",
+      "slug": "esg-carbon",
+      "name": "ESG and Carbon Supply Chain",
+      "priority": 50,
+      "status": "SCAFFOLD_ONLY_NOT_PROVISIONED",
+      "source_paths": [],
+      "proposed_custom_domain": "esg-carbon.dreamledger.org",
+      "custom_domain_bound": false,
+      "provisioned": false,
+      "scale_authorized": false,
+      "initial_economic_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": null,
+        "listing_policy": "FREE_CANDIDATE_DIRECTORY_OR_CATALOG",
+        "paid_offer_policy": "UNVALIDATED_DO_NOT_PUBLISH_A_PRICE_OR_ENABLE_CHECKOUT"
+      },
+      "next_step": "Generate manifest and empty catalogue only; leave checkout, domain and scale gates closed."
+    },
+    {
+      "id": "electronics_appliances",
+      "slug": "electronics-appliances",
+      "name": "Electronics and Appliances",
+      "priority": 50,
+      "status": "SCAFFOLD_ONLY_NOT_PROVISIONED",
+      "source_paths": [],
+      "proposed_custom_domain": "electronics-appliances.dreamledger.org",
+      "custom_domain_bound": false,
+      "provisioned": false,
+      "scale_authorized": false,
+      "initial_economic_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": null,
+        "listing_policy": "FREE_CANDIDATE_DIRECTORY_OR_CATALOG",
+        "paid_offer_policy": "UNVALIDATED_DO_NOT_PUBLISH_A_PRICE_OR_ENABLE_CHECKOUT"
+      },
+      "next_step": "Generate manifest and empty catalogue only; leave checkout, domain and scale gates closed."
+    },
+    {
+      "id": "home_garden",
+      "slug": "home-garden",
+      "name": "Home and Garden",
+      "priority": 50,
+      "status": "SCAFFOLD_ONLY_NOT_PROVISIONED",
+      "source_paths": [],
+      "proposed_custom_domain": "home-garden.dreamledger.org",
+      "custom_domain_bound": false,
+      "provisioned": false,
+      "scale_authorized": false,
+      "initial_economic_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": null,
+        "listing_policy": "FREE_CANDIDATE_DIRECTORY_OR_CATALOG",
+        "paid_offer_policy": "UNVALIDATED_DO_NOT_PUBLISH_A_PRICE_OR_ENABLE_CHECKOUT"
+      },
+      "next_step": "Generate manifest and empty catalogue only; leave checkout, domain and scale gates closed."
+    },
+    {
+      "id": "health_beauty",
+      "slug": "health-beauty",
+      "name": "Health and Beauty",
+      "priority": 50,
+      "status": "SCAFFOLD_ONLY_NOT_PROVISIONED",
+      "source_paths": [],
+      "proposed_custom_domain": "health-beauty.dreamledger.org",
+      "custom_domain_bound": false,
+      "provisioned": false,
+      "scale_authorized": false,
+      "initial_economic_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": null,
+        "listing_policy": "FREE_CANDIDATE_DIRECTORY_OR_CATALOG",
+        "paid_offer_policy": "UNVALIDATED_DO_NOT_PUBLISH_A_PRICE_OR_ENABLE_CHECKOUT"
+      },
+      "next_step": "Generate manifest and empty catalogue only; leave checkout, domain and scale gates closed."
+    },
+    {
+      "id": "pet",
+      "slug": "pet",
+      "name": "Pet Supplies",
+      "priority": 50,
+      "status": "SCAFFOLD_ONLY_NOT_PROVISIONED",
+      "source_paths": [],
+      "proposed_custom_domain": "pet.dreamledger.org",
+      "custom_domain_bound": false,
+      "provisioned": false,
+      "scale_authorized": false,
+      "initial_economic_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": null,
+        "listing_policy": "FREE_CANDIDATE_DIRECTORY_OR_CATALOG",
+        "paid_offer_policy": "UNVALIDATED_DO_NOT_PUBLISH_A_PRICE_OR_ENABLE_CHECKOUT"
+      },
+      "next_step": "Generate manifest and empty catalogue only; leave checkout, domain and scale gates closed."
+    },
+    {
+      "id": "books_stationery",
+      "slug": "books-stationery",
+      "name": "Books and Stationery",
+      "priority": 50,
+      "status": "SCAFFOLD_ONLY_NOT_PROVISIONED",
+      "source_paths": [],
+      "proposed_custom_domain": "books-stationery.dreamledger.org",
+      "custom_domain_bound": false,
+      "provisioned": false,
+      "scale_authorized": false,
+      "initial_economic_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": null,
+        "listing_policy": "FREE_CANDIDATE_DIRECTORY_OR_CATALOG",
+        "paid_offer_policy": "UNVALIDATED_DO_NOT_PUBLISH_A_PRICE_OR_ENABLE_CHECKOUT"
+      },
+      "next_step": "Generate manifest and empty catalogue only; leave checkout, domain and scale gates closed."
+    },
+    {
+      "id": "sports_outdoors",
+      "slug": "sports-outdoors",
+      "name": "Sports and Outdoors",
+      "priority": 50,
+      "status": "SCAFFOLD_ONLY_NOT_PROVISIONED",
+      "source_paths": [],
+      "proposed_custom_domain": "sports-outdoors.dreamledger.org",
+      "custom_domain_bound": false,
+      "provisioned": false,
+      "scale_authorized": false,
+      "initial_economic_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": null,
+        "listing_policy": "FREE_CANDIDATE_DIRECTORY_OR_CATALOG",
+        "paid_offer_policy": "UNVALIDATED_DO_NOT_PUBLISH_A_PRICE_OR_ENABLE_CHECKOUT"
+      },
+      "next_step": "Generate manifest and empty catalogue only; leave checkout, domain and scale gates closed."
+    },
+    {
+      "id": "automotive",
+      "slug": "automotive",
+      "name": "Automotive",
+      "priority": 50,
+      "status": "SCAFFOLD_ONLY_NOT_PROVISIONED",
+      "source_paths": [],
+      "proposed_custom_domain": "automotive.dreamledger.org",
+      "custom_domain_bound": false,
+      "provisioned": false,
+      "scale_authorized": false,
+      "initial_economic_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": null,
+        "listing_policy": "FREE_CANDIDATE_DIRECTORY_OR_CATALOG",
+        "paid_offer_policy": "UNVALIDATED_DO_NOT_PUBLISH_A_PRICE_OR_ENABLE_CHECKOUT"
+      },
+      "next_step": "Generate manifest and empty catalogue only; leave checkout, domain and scale gates closed."
+    },
+    {
+      "id": "food-pantry",
+      "slug": "food-pantry",
+      "name": "Food and Pantry",
+      "priority": 50,
+      "status": "SCAFFOLD_ONLY_NOT_PROVISIONED",
+      "source_paths": [],
+      "proposed_custom_domain": "food-pantry.dreamledger.org",
+      "custom_domain_bound": false,
+      "provisioned": false,
+      "scale_authorized": false,
+      "initial_economic_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": null,
+        "listing_policy": "FREE_CANDIDATE_DIRECTORY_OR_CATALOG",
+        "paid_offer_policy": "UNVALIDATED_DO_NOT_PUBLISH_A_PRICE_OR_ENABLE_CHECKOUT"
+      },
+      "next_step": "Generate manifest and empty catalogue only; leave checkout, domain and scale gates closed."
+    },
+    {
+      "id": "education-courses",
+      "slug": "education-courses",
+      "name": "Education and Courses",
+      "priority": 50,
+      "status": "SCAFFOLD_ONLY_NOT_PROVISIONED",
+      "source_paths": [],
+      "proposed_custom_domain": "education-courses.dreamledger.org",
+      "custom_domain_bound": false,
+      "provisioned": false,
+      "scale_authorized": false,
+      "initial_economic_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": null,
+        "listing_policy": "FREE_CANDIDATE_DIRECTORY_OR_CATALOG",
+        "paid_offer_policy": "UNVALIDATED_DO_NOT_PUBLISH_A_PRICE_OR_ENABLE_CHECKOUT"
+      },
+      "next_step": "Generate manifest and empty catalogue only; leave checkout, domain and scale gates closed."
+    },
+    {
+      "id": "local_services",
+      "slug": "local-services",
+      "name": "Local Services",
+      "priority": 50,
+      "status": "SCAFFOLD_ONLY_NOT_PROVISIONED",
+      "source_paths": [],
+      "proposed_custom_domain": "local-services.dreamledger.org",
+      "custom_domain_bound": false,
+      "provisioned": false,
+      "scale_authorized": false,
+      "initial_economic_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": null,
+        "listing_policy": "FREE_CANDIDATE_DIRECTORY_OR_CATALOG",
+        "paid_offer_policy": "UNVALIDATED_DO_NOT_PUBLISH_A_PRICE_OR_ENABLE_CHECKOUT"
+      },
+      "next_step": "Generate manifest and empty catalogue only; leave checkout, domain and scale gates closed."
+    },
+    {
+      "id": "crypto",
+      "slug": "crypto",
+      "name": "Crypto",
+      "priority": 50,
+      "status": "SCAFFOLD_ONLY_NOT_PROVISIONED",
+      "source_paths": [],
+      "proposed_custom_domain": "crypto.dreamledger.org",
+      "custom_domain_bound": false,
+      "provisioned": false,
+      "scale_authorized": false,
+      "initial_economic_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": null,
+        "listing_policy": "FREE_CANDIDATE_DIRECTORY_OR_CATALOG",
+        "paid_offer_policy": "UNVALIDATED_DO_NOT_PUBLISH_A_PRICE_OR_ENABLE_CHECKOUT"
+      },
+      "next_step": "Generate manifest and empty catalogue only; leave checkout, domain and scale gates closed."
+    },
+    {
+      "id": "accounting",
+      "slug": "accounting",
+      "name": "Agentic Accounting",
+      "priority": 50,
+      "status": "SCAFFOLD_ONLY_NOT_PROVISIONED",
+      "source_paths": [],
+      "proposed_custom_domain": "accounting.dreamledger.org",
+      "custom_domain_bound": false,
+      "provisioned": false,
+      "scale_authorized": false,
+      "initial_economic_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": null,
+        "listing_policy": "FREE_CANDIDATE_DIRECTORY_OR_CATALOG",
+        "paid_offer_policy": "UNVALIDATED_DO_NOT_PUBLISH_A_PRICE_OR_ENABLE_CHECKOUT"
+      },
+      "next_step": "Generate manifest and empty catalogue only; leave checkout, domain and scale gates closed."
+    },
+    {
+      "id": "production_verification",
+      "slug": "production-verification",
+      "name": "Production Verification",
+      "priority": 50,
+      "status": "SCAFFOLD_ONLY_NOT_PROVISIONED",
+      "source_paths": [],
+      "proposed_custom_domain": "production-verification.dreamledger.org",
+      "custom_domain_bound": false,
+      "provisioned": false,
+      "scale_authorized": false,
+      "initial_economic_model": {
+        "initial_listing_fee_nzd": 0,
+        "peer_success_fee_pct": null,
+        "listing_policy": "FREE_CANDIDATE_DIRECTORY_OR_CATALOG",
+        "paid_offer_policy": "UNVALIDATED_DO_NOT_PUBLISH_A_PRICE_OR_ENABLE_CHECKOUT"
+      },
+      "next_step": "Generate manifest and empty catalogue only; leave checkout, domain and scale gates closed."
+    }
+  ],
+  "commercial_surfaces": [
+    {
+      "id": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "name": "Founding Billboard Tile",
+      "source_paths": [
+        "BEC-PRIME/catalog/products/DREAMLEDGER-BILLBOARD-FOUNDING-001.json",
+        "public/billboard.html"
+      ],
+      "listed_price_nzd": 50,
+      "status": "PUBLIC_BUY_BUTTON_EXISTS_BUT_SECURE_INTAKE_AND_INVENTORY_RESERVATION_UNVERIFIED",
+      "payment_link_in_product_record": null,
+      "production_checkout_verified": false,
+      "fulfillment_verified": false,
+      "expansion_priority": 1,
+      "blockers": [
+        "Product record says checkout held because secure intake and live inventory reservation routes are missing.",
+        "Public page exposes Stripe buy URLs, but the full pay-to-delivery route has not been independently verified. Do not promote until reconciled."
+      ]
+    },
+    {
+      "id": "COMMANDER-DECK-DIAGNOSTIC-001",
+      "name": "Commander Deck Diagnostic",
+      "source_paths": [
+        "BEC-PRIME/catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json",
+        "BEC-PRIME/fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json"
+      ],
+      "listed_price_nzd": 29,
+      "status": "HELD",
+      "production_checkout_verified": false,
+      "fulfillment_verified": false,
+      "expansion_priority": 99,
+      "blockers": [
+        "Catalog checkout disabled; fulfillment.mode disabled and operator_required=true.",
+        "Existing MTG master silo remains the reference, but this SKU is not a current sellable offer."
+      ]
+    },
+    {
+      "id": "DREAMMEEZ-SUPPORTER-SPROUT",
+      "name": "DreamMeez Supporter Sprout",
+      "source_paths": [
+        "public/avatar.html",
+        "public/money.html"
+      ],
+      "listed_price_nzd": null,
+      "status": "SKU_AND_LIVE_CHECKOUT_NOT_INDEPENDENTLY_VERIFIED",
+      "production_checkout_verified": false,
+      "fulfillment_verified": false,
+      "expansion_priority": 2,
+      "blockers": [
+        "Avatar surface contains low-ticket cosmetic pricing copy, but this audit did not establish a matching live product/price, successful settlement or delivery receipt."
+      ]
+    },
+    {
+      "id": "QUOTE-COMPARE-49",
+      "name": "Supplier Quote Comparison",
+      "source_paths": [
+        "BEC-PRIME/fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json",
+        "public/quote-comparison/index.html"
+      ],
+      "listed_price_nzd": 49,
+      "status": "FULFILLMENT_REGISTRY_CLAIM_NOT_REVALIDATED",
+      "production_checkout_verified": false,
+      "fulfillment_verified": false,
+      "expansion_priority": 3,
+      "blockers": [
+        "Registry points to Supabase Edge Functions and a worker; database and production route were not independently verified in this audit.",
+        "Free browser worksheet is not a paid order."
+      ]
+    }
+  ],
+  "economic_truth": {
+    "verified_external_revenue_nzd": 0,
+    "active_worker_scaling_evidence": false,
+    "claim_exclusions": [
+      "impressions",
+      "generated signals",
+      "simulation throughput",
+      "EPV forecast",
+      "payment link existence",
+      "checkout start",
+      "database row",
+      "synthetic hash"
+    ],
+    "evidence_required": [
+      "independent external buyer",
+      "settled payment",
+      "correct attribution",
+      "fulfillment",
+      "retrievable delivery proof",
+      "net contribution reconciliation"
+    ]
+  }
+}
