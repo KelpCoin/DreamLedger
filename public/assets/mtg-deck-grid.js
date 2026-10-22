@@ -60,7 +60,7 @@
     if(preview){const link=make('a','mtg-grid-source','See full deck and all cards →');link.href=String(node.getAttribute('data-detail-url')||'/mtg/');node.appendChild(link);}
     node.appendChild(make('p','mtg-grid-note','Card names and counts are from the seller decklist. Artwork via Scryfall. Confirm the exact printings, condition and availability with the seller.'));
   }
-  window.DreamLedgerDeckGrid={render,sectionData,lookUp};
+  window.DreamLedgerDeckGrid={render,sectionData,lookUp,cardArt:name=>art(cache.get(normal(name)))};
   function boot(){document.querySelectorAll('[data-mtg-deck]').forEach(n=>render(n));}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();
