@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-22T15:21:11.577917+00:00",
+  "generated_at": "2026-10-22T20:10:24.782481+00:00",
   "max_active": 12,
   "active": [
     {
@@ -16,7 +16,7 @@
         {
           "source": "github",
           "query": "Supabase RLS production security",
-          "count": 78814
+          "count": 79137
         },
         {
           "source": "hackernews",
@@ -31,12 +31,12 @@
         {
           "source": "github",
           "query": "Supabase PostgreSQL production problems",
-          "count": 2826
+          "count": 2840
         },
         {
           "source": "hackernews",
           "query": "Supabase PostgreSQL production problems",
-          "count": 9
+          "count": 4
         },
         {
           "source": "stackoverflow",
@@ -44,7 +44,7 @@
           "count": 1
         }
       ],
-      "score": 82253
+      "score": 82585
     },
     {
       "slug": "ai-saas-verification",
@@ -60,7 +60,7 @@
         {
           "source": "github",
           "query": "AI generated SaaS production bugs",
-          "count": 3219
+          "count": 3220
         },
         {
           "source": "hackernews",
@@ -75,7 +75,7 @@
         {
           "source": "github",
           "query": "AI software production verification",
-          "count": 66189
+          "count": 66357
         },
         {
           "source": "hackernews",
@@ -88,7 +88,51 @@
           "count": 0
         }
       ],
-      "score": 69825
+      "score": 69994
+    },
+    {
+      "slug": "stripe-reconciliation",
+      "name": "Stripe Production Reconciliation",
+      "tag": "B2B / Trust",
+      "price": "NZ$1,500+",
+      "queries": [
+        "stripe reconciliation production",
+        "stripe webhook duplicate payment"
+      ],
+      "pitch": "Find mismatches between Stripe payments, orders, entitlements and fulfillment before they become expensive.",
+      "signals": [
+        {
+          "source": "github",
+          "query": "stripe reconciliation production",
+          "count": 17473
+        },
+        {
+          "source": "hackernews",
+          "query": "stripe reconciliation production",
+          "count": 1
+        },
+        {
+          "source": "stackoverflow",
+          "query": "stripe reconciliation production",
+          "count": 0
+        },
+        {
+          "source": "github",
+          "query": "stripe webhook duplicate payment",
+          "count": 28080
+        },
+        {
+          "source": "hackernews",
+          "query": "stripe webhook duplicate payment",
+          "count": 2
+        },
+        {
+          "source": "stackoverflow",
+          "query": "stripe webhook duplicate payment",
+          "count": 1
+        }
+      ],
+      "score": 46057
     },
     {
       "slug": "webhook-reliability",
@@ -104,7 +148,7 @@
         {
           "source": "github",
           "query": "webhook reliability stripe discord",
-          "count": 0
+          "count": 657
         },
         {
           "source": "hackernews",
@@ -119,7 +163,7 @@
         {
           "source": "github",
           "query": "webhook duplicate events idempotency",
-          "count": 32119
+          "count": 32159
         },
         {
           "source": "hackernews",
@@ -132,7 +176,7 @@
           "count": 1
         }
       ],
-      "score": 32522
+      "score": 33319
     },
     {
       "slug": "discord-automation",
@@ -148,12 +192,12 @@
         {
           "source": "github",
           "query": "Discord webhook automation",
-          "count": 13891
+          "count": 13899
         },
         {
           "source": "hackernews",
           "query": "Discord webhook automation",
-          "count": 8
+          "count": 7
         },
         {
           "source": "stackoverflow",
@@ -176,51 +220,95 @@
           "count": 0
         }
       ],
-      "score": 22748
+      "score": 22755
     },
     {
-      "slug": "stripe-reconciliation",
-      "name": "Stripe Production Reconciliation",
-      "tag": "B2B / Trust",
-      "price": "NZ$1,500+",
+      "slug": "digital-offer-audit",
+      "name": "Digital Offer Audit",
+      "tag": "Commerce / Conversion",
+      "price": "NZ$149+",
       "queries": [
-        "stripe reconciliation production",
-        "stripe webhook duplicate payment"
+        "digital product offer conversion audit",
+        "landing page checkout conversion problems"
       ],
-      "pitch": "Find mismatches between Stripe payments, orders, entitlements and fulfillment before they become expensive.",
+      "pitch": "Find the gaps between what a page promises, what checkout sells and what the buyer actually receives.",
       "signals": [
         {
           "source": "github",
-          "query": "stripe reconciliation production",
-          "count": 17422
+          "query": "digital product offer conversion audit",
+          "count": 16887
         },
         {
           "source": "hackernews",
-          "query": "stripe reconciliation production",
-          "count": 1
+          "query": "digital product offer conversion audit",
+          "count": 3
         },
         {
           "source": "stackoverflow",
-          "query": "stripe reconciliation production",
+          "query": "digital product offer conversion audit",
           "count": 0
         },
         {
           "source": "github",
-          "query": "stripe webhook duplicate payment",
-          "count": 0
+          "query": "landing page checkout conversion problems",
+          "count": 2550
         },
         {
           "source": "hackernews",
-          "query": "stripe webhook duplicate payment",
-          "count": 2
+          "query": "landing page checkout conversion problems",
+          "count": 4
         },
         {
           "source": "stackoverflow",
-          "query": "stripe webhook duplicate payment",
+          "query": "landing page checkout conversion problems",
           "count": 1
         }
       ],
-      "score": 17826
+      "score": 19945
+    },
+    {
+      "slug": "small-saas-healthcheck",
+      "name": "Small SaaS Healthcheck",
+      "tag": "B2B / Audit",
+      "price": "NZ$299+",
+      "queries": [
+        "small SaaS production audit",
+        "SaaS health check security payments"
+      ],
+      "pitch": "A fixed-scope healthcheck across deployment, payments, database state, monitoring and customer delivery.",
+      "signals": [
+        {
+          "source": "github",
+          "query": "small SaaS production audit",
+          "count": 10054
+        },
+        {
+          "source": "hackernews",
+          "query": "small SaaS production audit",
+          "count": 10
+        },
+        {
+          "source": "stackoverflow",
+          "query": "small SaaS production audit",
+          "count": 0
+        },
+        {
+          "source": "github",
+          "query": "SaaS health check security payments",
+          "count": 5106
+        },
+        {
+          "source": "hackernews",
+          "query": "SaaS health check security payments",
+          "count": 1
+        },
+        {
+          "source": "stackoverflow",
+          "query": "SaaS health check security payments",
+          "count": 0
+        }
+      ],
+      "score": 15571
     },
     {
       "slug": "qr-microsite",
@@ -236,12 +324,12 @@
         {
           "source": "github",
           "query": "QR code landing page business",
-          "count": 4581
+          "count": 4583
         },
         {
           "source": "hackernews",
           "query": "QR code landing page business",
-          "count": 3
+          "count": 4
         },
         {
           "source": "stackoverflow",
@@ -251,7 +339,7 @@
         {
           "source": "github",
           "query": "QR code microsite conversion",
-          "count": 0
+          "count": 20
         },
         {
           "source": "hackernews",
@@ -264,7 +352,7 @@
           "count": 0
         }
       ],
-      "score": 4784
+      "score": 4907
     },
     {
       "slug": "payment-attribution",
@@ -280,7 +368,7 @@
         {
           "source": "github",
           "query": "Stripe payment attribution checkout metadata",
-          "count": 2814
+          "count": 2739
         },
         {
           "source": "hackernews",
@@ -293,9 +381,9 @@
           "count": 1
         },
         {
-          "source": "github_error:HTTP Error 403: Forbidden",
+          "source": "github",
           "query": "Stripe conversion attribution problems",
-          "count": 0
+          "count": 497
         },
         {
           "source": "hackernews",
@@ -308,7 +396,7 @@
           "count": 1
         }
       ],
-      "score": 3218
+      "score": 3740
     },
     {
       "slug": "production-incident-pack",
@@ -324,7 +412,7 @@
         {
           "source": "github",
           "query": "production incident checklist SaaS",
-          "count": 1370
+          "count": 1378
         },
         {
           "source": "hackernews",
@@ -339,7 +427,7 @@
         {
           "source": "github",
           "query": "SaaS incident response checklist",
-          "count": 1355
+          "count": 1359
         },
         {
           "source": "hackernews",
@@ -352,7 +440,7 @@
           "count": 0
         }
       ],
-      "score": 2925
+      "score": 2937
     },
     {
       "slug": "commander-deck-diagnostic",
@@ -368,7 +456,7 @@
         {
           "source": "github",
           "query": "Commander deck upgrade help",
-          "count": 500
+          "count": 502
         },
         {
           "source": "hackernews",
@@ -396,95 +484,7 @@
           "count": 0
         }
       ],
-      "score": 794
-    },
-    {
-      "slug": "digital-offer-audit",
-      "name": "Digital Offer Audit",
-      "tag": "Commerce / Conversion",
-      "price": "NZ$149+",
-      "queries": [
-        "digital product offer conversion audit",
-        "landing page checkout conversion problems"
-      ],
-      "pitch": "Find the gaps between what a page promises, what checkout sells and what the buyer actually receives.",
-      "signals": [
-        {
-          "source": "github_error:HTTP Error 403: Forbidden",
-          "query": "digital product offer conversion audit",
-          "count": 0
-        },
-        {
-          "source": "hackernews",
-          "query": "digital product offer conversion audit",
-          "count": 2
-        },
-        {
-          "source": "stackoverflow",
-          "query": "digital product offer conversion audit",
-          "count": 0
-        },
-        {
-          "source": "github_error:HTTP Error 403: Forbidden",
-          "query": "landing page checkout conversion problems",
-          "count": 0
-        },
-        {
-          "source": "hackernews",
-          "query": "landing page checkout conversion problems",
-          "count": 4
-        },
-        {
-          "source": "stackoverflow",
-          "query": "landing page checkout conversion problems",
-          "count": 1
-        }
-      ],
-      "score": 307
-    },
-    {
-      "slug": "small-saas-healthcheck",
-      "name": "Small SaaS Healthcheck",
-      "tag": "B2B / Audit",
-      "price": "NZ$299+",
-      "queries": [
-        "small SaaS production audit",
-        "SaaS health check security payments"
-      ],
-      "pitch": "A fixed-scope healthcheck across deployment, payments, database state, monitoring and customer delivery.",
-      "signals": [
-        {
-          "source": "github_error:HTTP Error 403: Forbidden",
-          "query": "small SaaS production audit",
-          "count": 0
-        },
-        {
-          "source": "hackernews",
-          "query": "small SaaS production audit",
-          "count": 10
-        },
-        {
-          "source": "stackoverflow",
-          "query": "small SaaS production audit",
-          "count": 0
-        },
-        {
-          "source": "github_error:HTTP Error 403: Forbidden",
-          "query": "SaaS health check security payments",
-          "count": 0
-        },
-        {
-          "source": "hackernews",
-          "query": "SaaS health check security payments",
-          "count": 1
-        },
-        {
-          "source": "stackoverflow",
-          "query": "SaaS health check security payments",
-          "count": 0
-        }
-      ],
-      "score": 211
+      "score": 796
     },
     {
       "slug": "game-economy-audit",
@@ -515,7 +515,7 @@
         {
           "source": "github",
           "query": "game economy inflation balancing",
-          "count": 0
+          "count": 220
         },
         {
           "source": "hackernews",
@@ -528,7 +528,7 @@
           "count": 0
         }
       ],
-      "score": 191
+      "score": 511
     }
   ],
   "all": [
@@ -546,7 +546,7 @@
         {
           "source": "github",
           "query": "Supabase RLS production security",
-          "count": 78814
+          "count": 79137
         },
         {
           "source": "hackernews",
@@ -561,12 +561,12 @@
         {
           "source": "github",
           "query": "Supabase PostgreSQL production problems",
-          "count": 2826
+          "count": 2840
         },
         {
           "source": "hackernews",
           "query": "Supabase PostgreSQL production problems",
-          "count": 9
+          "count": 4
         },
         {
           "source": "stackoverflow",
@@ -574,7 +574,7 @@
           "count": 1
         }
       ],
-      "score": 82253
+      "score": 82585
     },
     {
       "slug": "ai-saas-verification",
@@ -590,7 +590,7 @@
         {
           "source": "github",
           "query": "AI generated SaaS production bugs",
-          "count": 3219
+          "count": 3220
         },
         {
           "source": "hackernews",
@@ -605,7 +605,7 @@
         {
           "source": "github",
           "query": "AI software production verification",
-          "count": 66189
+          "count": 66357
         },
         {
           "source": "hackernews",
@@ -618,7 +618,51 @@
           "count": 0
         }
       ],
-      "score": 69825
+      "score": 69994
+    },
+    {
+      "slug": "stripe-reconciliation",
+      "name": "Stripe Production Reconciliation",
+      "tag": "B2B / Trust",
+      "price": "NZ$1,500+",
+      "queries": [
+        "stripe reconciliation production",
+        "stripe webhook duplicate payment"
+      ],
+      "pitch": "Find mismatches between Stripe payments, orders, entitlements and fulfillment before they become expensive.",
+      "signals": [
+        {
+          "source": "github",
+          "query": "stripe reconciliation production",
+          "count": 17473
+        },
+        {
+          "source": "hackernews",
+          "query": "stripe reconciliation production",
+          "count": 1
+        },
+        {
+          "source": "stackoverflow",
+          "query": "stripe reconciliation production",
+          "count": 0
+        },
+        {
+          "source": "github",
+          "query": "stripe webhook duplicate payment",
+          "count": 28080
+        },
+        {
+          "source": "hackernews",
+          "query": "stripe webhook duplicate payment",
+          "count": 2
+        },
+        {
+          "source": "stackoverflow",
+          "query": "stripe webhook duplicate payment",
+          "count": 1
+        }
+      ],
+      "score": 46057
     },
     {
       "slug": "webhook-reliability",
@@ -634,7 +678,7 @@
         {
           "source": "github",
           "query": "webhook reliability stripe discord",
-          "count": 0
+          "count": 657
         },
         {
           "source": "hackernews",
@@ -649,7 +693,7 @@
         {
           "source": "github",
           "query": "webhook duplicate events idempotency",
-          "count": 32119
+          "count": 32159
         },
         {
           "source": "hackernews",
@@ -662,7 +706,7 @@
           "count": 1
         }
       ],
-      "score": 32522
+      "score": 33319
     },
     {
       "slug": "discord-automation",
@@ -678,12 +722,12 @@
         {
           "source": "github",
           "query": "Discord webhook automation",
-          "count": 13891
+          "count": 13899
         },
         {
           "source": "hackernews",
           "query": "Discord webhook automation",
-          "count": 8
+          "count": 7
         },
         {
           "source": "stackoverflow",
@@ -706,51 +750,95 @@
           "count": 0
         }
       ],
-      "score": 22748
+      "score": 22755
     },
     {
-      "slug": "stripe-reconciliation",
-      "name": "Stripe Production Reconciliation",
-      "tag": "B2B / Trust",
-      "price": "NZ$1,500+",
+      "slug": "digital-offer-audit",
+      "name": "Digital Offer Audit",
+      "tag": "Commerce / Conversion",
+      "price": "NZ$149+",
       "queries": [
-        "stripe reconciliation production",
-        "stripe webhook duplicate payment"
+        "digital product offer conversion audit",
+        "landing page checkout conversion problems"
       ],
-      "pitch": "Find mismatches between Stripe payments, orders, entitlements and fulfillment before they become expensive.",
+      "pitch": "Find the gaps between what a page promises, what checkout sells and what the buyer actually receives.",
       "signals": [
         {
           "source": "github",
-          "query": "stripe reconciliation production",
-          "count": 17422
+          "query": "digital product offer conversion audit",
+          "count": 16887
         },
         {
           "source": "hackernews",
-          "query": "stripe reconciliation production",
-          "count": 1
+          "query": "digital product offer conversion audit",
+          "count": 3
         },
         {
           "source": "stackoverflow",
-          "query": "stripe reconciliation production",
+          "query": "digital product offer conversion audit",
           "count": 0
         },
         {
           "source": "github",
-          "query": "stripe webhook duplicate payment",
-          "count": 0
+          "query": "landing page checkout conversion problems",
+          "count": 2550
         },
         {
           "source": "hackernews",
-          "query": "stripe webhook duplicate payment",
-          "count": 2
+          "query": "landing page checkout conversion problems",
+          "count": 4
         },
         {
           "source": "stackoverflow",
-          "query": "stripe webhook duplicate payment",
+          "query": "landing page checkout conversion problems",
           "count": 1
         }
       ],
-      "score": 17826
+      "score": 19945
+    },
+    {
+      "slug": "small-saas-healthcheck",
+      "name": "Small SaaS Healthcheck",
+      "tag": "B2B / Audit",
+      "price": "NZ$299+",
+      "queries": [
+        "small SaaS production audit",
+        "SaaS health check security payments"
+      ],
+      "pitch": "A fixed-scope healthcheck across deployment, payments, database state, monitoring and customer delivery.",
+      "signals": [
+        {
+          "source": "github",
+          "query": "small SaaS production audit",
+          "count": 10054
+        },
+        {
+          "source": "hackernews",
+          "query": "small SaaS production audit",
+          "count": 10
+        },
+        {
+          "source": "stackoverflow",
+          "query": "small SaaS production audit",
+          "count": 0
+        },
+        {
+          "source": "github",
+          "query": "SaaS health check security payments",
+          "count": 5106
+        },
+        {
+          "source": "hackernews",
+          "query": "SaaS health check security payments",
+          "count": 1
+        },
+        {
+          "source": "stackoverflow",
+          "query": "SaaS health check security payments",
+          "count": 0
+        }
+      ],
+      "score": 15571
     },
     {
       "slug": "qr-microsite",
@@ -766,12 +854,12 @@
         {
           "source": "github",
           "query": "QR code landing page business",
-          "count": 4581
+          "count": 4583
         },
         {
           "source": "hackernews",
           "query": "QR code landing page business",
-          "count": 3
+          "count": 4
         },
         {
           "source": "stackoverflow",
@@ -781,7 +869,7 @@
         {
           "source": "github",
           "query": "QR code microsite conversion",
-          "count": 0
+          "count": 20
         },
         {
           "source": "hackernews",
@@ -794,7 +882,7 @@
           "count": 0
         }
       ],
-      "score": 4784
+      "score": 4907
     },
     {
       "slug": "payment-attribution",
@@ -810,7 +898,7 @@
         {
           "source": "github",
           "query": "Stripe payment attribution checkout metadata",
-          "count": 2814
+          "count": 2739
         },
         {
           "source": "hackernews",
@@ -823,9 +911,9 @@
           "count": 1
         },
         {
-          "source": "github_error:HTTP Error 403: Forbidden",
+          "source": "github",
           "query": "Stripe conversion attribution problems",
-          "count": 0
+          "count": 497
         },
         {
           "source": "hackernews",
@@ -838,7 +926,7 @@
           "count": 1
         }
       ],
-      "score": 3218
+      "score": 3740
     },
     {
       "slug": "production-incident-pack",
@@ -854,7 +942,7 @@
         {
           "source": "github",
           "query": "production incident checklist SaaS",
-          "count": 1370
+          "count": 1378
         },
         {
           "source": "hackernews",
@@ -869,7 +957,7 @@
         {
           "source": "github",
           "query": "SaaS incident response checklist",
-          "count": 1355
+          "count": 1359
         },
         {
           "source": "hackernews",
@@ -882,7 +970,7 @@
           "count": 0
         }
       ],
-      "score": 2925
+      "score": 2937
     },
     {
       "slug": "commander-deck-diagnostic",
@@ -898,7 +986,7 @@
         {
           "source": "github",
           "query": "Commander deck upgrade help",
-          "count": 500
+          "count": 502
         },
         {
           "source": "hackernews",
@@ -926,95 +1014,7 @@
           "count": 0
         }
       ],
-      "score": 794
-    },
-    {
-      "slug": "digital-offer-audit",
-      "name": "Digital Offer Audit",
-      "tag": "Commerce / Conversion",
-      "price": "NZ$149+",
-      "queries": [
-        "digital product offer conversion audit",
-        "landing page checkout conversion problems"
-      ],
-      "pitch": "Find the gaps between what a page promises, what checkout sells and what the buyer actually receives.",
-      "signals": [
-        {
-          "source": "github_error:HTTP Error 403: Forbidden",
-          "query": "digital product offer conversion audit",
-          "count": 0
-        },
-        {
-          "source": "hackernews",
-          "query": "digital product offer conversion audit",
-          "count": 2
-        },
-        {
-          "source": "stackoverflow",
-          "query": "digital product offer conversion audit",
-          "count": 0
-        },
-        {
-          "source": "github_error:HTTP Error 403: Forbidden",
-          "query": "landing page checkout conversion problems",
-          "count": 0
-        },
-        {
-          "source": "hackernews",
-          "query": "landing page checkout conversion problems",
-          "count": 4
-        },
-        {
-          "source": "stackoverflow",
-          "query": "landing page checkout conversion problems",
-          "count": 1
-        }
-      ],
-      "score": 307
-    },
-    {
-      "slug": "small-saas-healthcheck",
-      "name": "Small SaaS Healthcheck",
-      "tag": "B2B / Audit",
-      "price": "NZ$299+",
-      "queries": [
-        "small SaaS production audit",
-        "SaaS health check security payments"
-      ],
-      "pitch": "A fixed-scope healthcheck across deployment, payments, database state, monitoring and customer delivery.",
-      "signals": [
-        {
-          "source": "github_error:HTTP Error 403: Forbidden",
-          "query": "small SaaS production audit",
-          "count": 0
-        },
-        {
-          "source": "hackernews",
-          "query": "small SaaS production audit",
-          "count": 10
-        },
-        {
-          "source": "stackoverflow",
-          "query": "small SaaS production audit",
-          "count": 0
-        },
-        {
-          "source": "github_error:HTTP Error 403: Forbidden",
-          "query": "SaaS health check security payments",
-          "count": 0
-        },
-        {
-          "source": "hackernews",
-          "query": "SaaS health check security payments",
-          "count": 1
-        },
-        {
-          "source": "stackoverflow",
-          "query": "SaaS health check security payments",
-          "count": 0
-        }
-      ],
-      "score": 211
+      "score": 796
     },
     {
       "slug": "game-economy-audit",
@@ -1045,7 +1045,7 @@
         {
           "source": "github",
           "query": "game economy inflation balancing",
-          "count": 0
+          "count": 220
         },
         {
           "source": "hackernews",
@@ -1058,7 +1058,7 @@
           "count": 0
         }
       ],
-      "score": 191
+      "score": 511
     }
   ]
 }
