@@ -10,6 +10,12 @@ on:
       - "public/data/economic-pulse.json"
       - "public/portfolio/commander-deck-diagnostic.html"
       - "public/mtg/**"
+      - "public/mtg-search.html"
+      - "public/mtg-search/**"
+      - "public/mtg-list.html"
+      - "public/mtg-list/**"
+      - "public/assets/mtg-deck-check.js"
+      - "public/commander-deck-diagnostic.html"
       - "public/b2b.html"
       - "public/contact.html"
       - "public/quote-comparison/**"
@@ -30,6 +36,12 @@ on:
       - "public/data/economic-pulse.json"
       - "public/portfolio/commander-deck-diagnostic.html"
       - "public/mtg/**"
+      - "public/mtg-search.html"
+      - "public/mtg-search/**"
+      - "public/mtg-list.html"
+      - "public/mtg-list/**"
+      - "public/assets/mtg-deck-check.js"
+      - "public/commander-deck-diagnostic.html"
       - "public/b2b.html"
       - "public/contact.html"
       - "public/quote-comparison/**"
@@ -78,6 +90,11 @@ jobs:
         run: node ops/migration/cloudflare-preview/build-preview.mjs
       - name: Verify MTG scripts execute without fallback inventory
         run: node --test ops/migration/cloudflare-preview/test-mtg-held-page.mjs
+      - name: Verify MTG free deck utility and honest singles inventory
+        run: |
+          node --check public/assets/mtg-deck-check.js
+          node --test ops/migration/cloudflare-preview/test-mtg-free-utility.mjs
+          node -e 'const fs=require("fs");for(const x of ["ops/migration/cloudflare-preview/dist/mtg/deck-check.html","ops/migration/cloudflare-preview/dist/assets/mtg-deck-check.js","ops/migration/cloudflare-preview/dist/mtg-search.html","ops/migration/cloudflare-preview/dist/mtg-list.html"])if(!fs.existsSync(x))throw Error("PREVIEW_MTG_ROUTE_MISSING: "+x);console.log("MTG_LOCAL_UTILITY_ROUTES=PASS")'
       - name: Confirm expected routes and honest degraded behavior
         run: |
           set -euo pipefail
