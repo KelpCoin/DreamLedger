@@ -166,7 +166,7 @@
       "seller": "Biggie",
       "condition": "Seller reports fully sleeved; extensively playtested",
       "fulfillment_method": "physical_delivery",
-      "image_url": "/mtg/assets/edh/quintorius-spirits.svg",
+      "image_url": null,
       "checkout_available": false,
       "checkout_url": null,
       "sale_mode": "claim_by_message",
@@ -201,10 +201,7 @@
         "evidence_required": true,
         "payment_link": null
       },
-      "default_offer_id": "EDH_QUINTORIUS_0002",
-      "hero_title": "This Is Not An Elephant Deck",
-      "hero_subtitle": "Quintorius, Field Historian",
-      "hero_strategy": "Boros / Graveyard / Spirits"
+      "default_offer_id": "EDH_QUINTORIUS_0002"
     },
     {
       "id": "EDH_DWYNEN_0003",
@@ -219,7 +216,7 @@
       "seller": "HappyHomarid",
       "condition": "Seller reports sleeved and extensively playtested",
       "fulfillment_method": "physical_delivery",
-      "image_url": "/mtg/assets/edh/dwynen-elf-leaf.svg",
+      "image_url": null,
       "checkout_available": false,
       "checkout_url": null,
       "sale_mode": "claim_by_message",
@@ -254,10 +251,7 @@
         "evidence_required": true,
         "payment_link": null
       },
-      "default_offer_id": "EDH_DWYNEN_0003",
-      "hero_title": "That Spells Life!",
-      "hero_subtitle": "Dwynen, Gilt-Leaf Daen",
-      "hero_strategy": "Mono-Green / Elves / Life Gain"
+      "default_offer_id": "EDH_DWYNEN_0003"
     },
     {
       "id": "DREAMLEDGER-DOOH-CAMPAIGN-500",
@@ -471,11 +465,7 @@
         "fulfillment_required": true,
         "evidence_required": true,
         "payment_link": null
-      },
-      "image_url": "/mtg/assets/edh/jon-irenicus-marionette.svg",
-      "hero_title": "Give Them the Problem",
-      "hero_subtitle": "Jon Irenicus, Shattered One",
-      "hero_strategy": "Dimir / Political Control / Gifted Creatures"
+      }
     }
   ]
 }
