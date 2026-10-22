@@ -37,7 +37,7 @@ h1{font-size:clamp(2.2rem,6vw,3.6rem);line-height:1.02;letter-spacing:-.04em;mar
 <body>
 <div class="wrap">
 <header class="top"><a class="brand" href="/">Dream<span>Ledger</span> · Magic</a>
-<nav><a href="/mtg/">Decks</a><a href="https://patreon.com/happyhomarid" target="_blank" rel="noopener">Patreon</a><a href="/">Home</a></nav></header>
+<nav><a href="/mtg/">Decks</a><a href="/mtg-search.html">Cards</a><a href="/mtg-marketplace.html#list-card">List a card</a><a href="https://patreon.com/happyhomarid" target="_blank" rel="noopener">Patreon</a><a href="/">Home</a></nav></header>
 <section class="hero">
 <p class="kicker">Commander · New Zealand · Happy Homarid</p>
 <div class="pills"><span class="pill pill-gold">0% marketplace fee</span><span class="pill">Claim by message</span><span class="pill">#MeatiestMagic</span></div>
@@ -59,17 +59,6 @@ h1{font-size:clamp(2.2rem,6vw,3.6rem);line-height:1.02;letter-spacing:-.04em;mar
       return ({ '&': '&', '<': '<', '>': '>', '"': '"', "'": '&#39;' })[c];
     });
   }
-  var FALLBACK = [
-    { id: 'EDH_QUINTORIUS_0002', name: 'Quintorius, Field Historian – This Is Not An Elephant Deck', price: 90, status: 'published', category: 'commander-deck',
-      description: 'Boros graveyard-recursion Commander. NZ$90 free NZ shipping. Patreon NZ$80.',
-      claim_url: 'mailto:hello@dreamledger.org?subject=Buy%20Quintorius%20Commander%20deck%20NZ%2490' },
-    { id: 'EDH_DWYNEN_0003', name: 'Dwynen, Gilt-Leaf Daen – That Spells Life!', price: 90, status: 'published', category: 'commander-deck',
-      description: 'Mono-green Elf tribal. NZ$90 free NZ shipping. Patreon NZ$80.',
-      claim_url: 'mailto:hello@dreamledger.org?subject=Buy%20Dwynen%20Commander%20deck%20NZ%2490' },
-    { id: 'EDH_JON_IRENICUS_0004', name: 'Jon Irenicus, Shattered One', price: 220, status: 'published', category: 'commander-deck',
-      description: 'Physical Commander deck. Claim to confirm availability and shipping.',
-      claim_url: 'mailto:hello@dreamledger.org?subject=Claim%20Jon%20Irenicus%20Commander%20Deck' }
-  ];
   var statusEl = document.getElementById('status');
   var grid = document.getElementById('grid');
   function render(decks, note) {
@@ -86,11 +75,11 @@ h1{font-size:clamp(2.2rem,6vw,3.6rem);line-height:1.02;letter-spacing:-.04em;mar
     .then(function (d) {
       var products = d.products || [];
       var decks = products.filter(function (p) {
-        return p.status === 'published' && (p.category === 'commander-deck' || /^EDH/i.test(p.id || ''));
+        return p.status === 'published' && Number(p.inventory) > 0 && p.silo === 'mtg' && (p.category === 'commander-deck' || /^EDH/i.test(p.id || ''));
       });
-      render(decks.length ? decks : FALLBACK, decks.length ? '' : 'fallback');
+      render(decks, decks.length ? '' : 'no currently published stock');
     })
-    .catch(function () { render(FALLBACK, 'offline catalogue'); });
+    .catch(function () { statusEl.textContent='Deck catalogue unavailable. Stock cannot be confirmed at this time.'; grid.replaceChildren(); });
 })();
 </script>
 </body>
