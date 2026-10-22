@@ -1,12 +1,50 @@
 {
   "schema": "BEC-PRIME/LIVE-COMMERCE/v1",
   "truth_rule": "Only Stripe-confirmed external payments count as revenue.",
-  "updated_at": "2026-08-25",
+  "updated_at": "2026-10-22",
   "offers": [
-    {"offer_id":"OFFER-BEC-PRIME-ARCHITECTURE-AUDIT-002","price_nzd":49,"checkout":"https://buy.stripe.com/5kQ00j7LD9BXfuLaIYdwc2k","status":"ACTIVE_LIVEMODE","silo":"commerce"},
-    {"offer_id":"OFFER-BEC-PRIME-AGENT-READINESS-099","price_nzd":99,"checkout":"https://buy.stripe.com/5kQaEX1nf5lH1DV2csdwc2j","status":"ACTIVE_LIVEMODE","silo":"commerce"},
-    {"offer_id":"OFFER-CMD-DIAG-29-NZD","price_nzd":29,"checkout":"https://buy.stripe.com/8x228r1nfg0l3M32csdwc2I","status":"ACTIVE_LIVEMODE","silo":"mtg"},
-    {"offer_id":"DREAMLEDGER-BILLBOARD-NZ-100X100","price_nzd":50,"checkout":"https://buy.stripe.com/5kQeVdc1Tg0l4Q718odwc2a","status":"ACTIVE_LIVEMODE","silo":"commerce"}
+    {
+      "offer_id": "OFFER-BEC-PRIME-ARCHITECTURE-AUDIT-002",
+      "price_nzd": 49,
+      "checkout": "https://buy.stripe.com/5kQ00j7LD9BXfuLaIYdwc2k",
+      "status": "INACTIVE_STRIPE_CONFIRMED_2026_10_22",
+      "silo": "commerce",
+      "checkout_available": false
+    },
+    {
+      "offer_id": "OFFER-BEC-PRIME-AGENT-READINESS-099",
+      "price_nzd": 99,
+      "checkout": "https://buy.stripe.com/5kQaEX1nf5lH1DV2csdwc2j",
+      "status": "INACTIVE_STRIPE_CONFIRMED_2026_10_22",
+      "silo": "commerce",
+      "checkout_available": false
+    },
+    {
+      "offer_id": "OFFER-CMD-DIAG-29-NZD",
+      "price_nzd": 29,
+      "checkout": "https://buy.stripe.com/8x228r1nfg0l3M32csdwc2I",
+      "status": "INACTIVE_STRIPE_CONFIRMED_2026_10_22",
+      "silo": "mtg",
+      "checkout_available": false
+    },
+    {
+      "offer_id": "DREAMLEDGER-BILLBOARD-NZ-100X100",
+      "price_nzd": 50,
+      "checkout": "https://buy.stripe.com/5kQeVdc1Tg0l4Q718odwc2a",
+      "status": "INACTIVE_STRIPE_CONFIRMED_2026_10_22",
+      "silo": "commerce",
+      "checkout_available": false
+    }
   ],
-  "revenue": {"verified_external_nzd":0,"self_purchases":0}
+  "revenue": {
+    "verified_external_nzd": 0,
+    "self_purchases": 0
+  },
+  "provider_audit": {
+    "observed_at_utc": "2026-10-22",
+    "source": "Stripe live Payment Links GET readback; no changes made to provider account",
+    "scope": "four listed static URLs only",
+    "status": "NO_ACTIVE_LINKS_IN_THIS_CATALOGUE",
+    "independent_payment_or_delivery_verified": false
+  }
 }
