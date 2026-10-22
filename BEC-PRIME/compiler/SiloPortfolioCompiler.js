@@ -86,7 +86,51 @@ const eligible = offers.filter(o =>
 );
 
 if (!eligible.length) {
-  throw new Error('No approved livemode Stripe offers available. Refusing to publish a non-purchasable portfolio.');
+  // Internal compilation must not require a customer to have an active checkout.
+  // Keep the public commerce output empty instead of treating stale payment link
+  // metadata as proof that a product is available. Production gates stay separate.
+  fs.rmSync(OUT_DIR, { recursive: true, force: true }); // generated output only
+  fs.mkdirSync(OUT_DIR, { recursive: true });
+  fs.mkdirSync(CATALOG_DIR, { recursive: true });
+  fs.mkdirSync(path.dirname(CAROUSEL_OUT), { recursive: true });
+  fs.mkdirSync(path.dirname(PUBLIC_PORTFOLIO_INDEX), { recursive: true });
+  const state = 'HOLD_NO_PROVIDER_CONFIRMED_SELLABLE_OFFERS';
+  const hash = digest(fs.readFileSync(APPROVED, 'utf8'));
+  const held = {
+    schema: 'BEC-PRIME/SLEEPING-COMMERCE-PORTFOLIO/v1',
+    status: state, compiler: 'SiloPortfolioCompiler',
+    compiled_at: new Date().toISOString(), source_hash: hash,
+    activation_policy: { only_active_livemode_stripe_links: true, payment_claims_allowed: false,
+      external_actions_allowed: false, approval_required_for_activation: true },
+    offer_count: 0, offers: []
+  };
+  const siloRegistry = readJson(SILO_REGISTRY);
+  const carousel = {
+    schema: 'BEC-PRIME/SILO-CAROUSEL-MANIFEST/v1',
+    status: state, compiler: 'SiloPortfolioCompiler', compiled_at: held.compiled_at,
+    source_hash: hash, silos: (siloRegistry.silos || []).map(x => ({
+      silo_id: x.id, route: x.route, status: x.status, offer_count: 0, carousel: []
+    }))
+  };
+  const publicHtml = '<!doctype html><html lang="en-NZ"><head><meta charset="utf-8">' +
+    '<meta name="viewport" content="width=device-width,initial-scale=1">' +
+    '<meta name="robots" content="noindex,follow"><title>DreamLedger products</title></head>' +
+    '<body><main><h1>Products are temporarily unavailable</h1>' +
+    '<p>Checkout is unavailable while payment and delivery are verified.</p>' +
+    '<p><a href="/">DreamLedger home</a></p></main></body></html>\n';
+  const proof = {
+    schema: held.schema, status: state, compiled_at: held.compiled_at,
+    source_hash: hash, offer_count: 0, active_checkout_claims: 0,
+    provider_verified_revenue_claimed: false, public_checkout_urls_emitted: false,
+    reason: 'No currently approved provider-active offer is eligible; fulfillment is unproven'
+  };
+  fs.writeFileSync(CATALOG, JSON.stringify(held, null, 2) + '\n', 'utf8');
+  fs.writeFileSync(CAROUSEL_OUT, JSON.stringify(carousel, null, 2) + '\n', 'utf8');
+  fs.writeFileSync(PUBLIC_PORTFOLIO_INDEX, publicHtml, 'utf8');
+  fs.writeFileSync(path.join(OUT_DIR, 'index.html'), publicHtml, 'utf8');
+  fs.writeFileSync(PROOF, JSON.stringify(proof, null, 2) + '\n', 'utf8');
+  console.log(JSON.stringify(proof, null, 2));
+  process.exit(0);
 }
 
 fs.mkdirSync(OUT_DIR, { recursive: true });
