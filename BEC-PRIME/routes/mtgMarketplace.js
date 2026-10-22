@@ -87,6 +87,24 @@ async function handle(req, res, url) {
     return json(res, 200, { fee_policy: 'MTG_ZERO_FEE', listings, mine, requests });
   }
 
+  if (req.method === 'POST' && route === '/api/mtg/marketplace/listing/status') {
+    const user = currentUser(req);
+    if (!user) return json(res, 401, { error: 'Log in before changing a listing.' });
+    const input = await body(req);
+    const target = clean(input.status, 20).toLowerCase();
+    if (!['sold', 'withdrawn'].includes(target)) return json(res, 422, { error: 'Only sold or withdrawn status is supported.' });
+    const listings = read(LISTINGS, []);
+    const listing = listings.find(x => x.id === clean(input.listing_id, 80));
+    if (!listing) return json(res, 404, { error: 'Listing not found.' });
+    if (listing.seller_id !== user.id) return json(res, 403, { error: 'Only the seller may change this listing.' });
+    if (listing.status === target) return json(res, 200, { ok: true, listing: safeListing(listing), unchanged: true });
+    if (!['active','reserved'].includes(listing.status)) return json(res, 409, { error: 'Cannot change this listing from its present status.' });
+    listing.status = target;
+    listing.updated_at = new Date().toISOString();
+    write(LISTINGS, listings);
+    return json(res, 200, { ok: true, listing: safeListing(listing) });
+  }
+
   if (req.method === 'POST' && route === '/api/mtg/marketplace/list') {
     const user = currentUser(req);
     if (!user) return json(res, 401, { error: 'Log in before listing a card.' });
@@ -184,6 +202,18 @@ async function handle(req, res, url) {
     if (request.seller_id !== user.id) return json(res, 403, { error: 'Only the seller can accept or decline this offer.' });
     const decision = String(input.decision || '').toLowerCase();
     if (!['accept','decline'].includes(decision)) return json(res, 422, { error: 'Decision must be accept or decline.' });
+    if (request.status !== 'pending_seller_acceptance') return json(res, 409, { error: 'This offer has already been decided.' });
+    if (decision === 'accept') {
+      const listings = read(LISTINGS, []);
+      const listing = listings.find(x => x.id === request.listing_id);
+      if (!listing || listing.seller_id !== user.id || listing.status !== 'active') {
+        return json(res, 409, { error: 'Listing is no longer active. Cannot accept another offer.' });
+      }
+      // Hide the one-off physical card before recording acceptance; failure must not reopen stock.
+      listing.status = 'reserved';
+      listing.updated_at = new Date().toISOString();
+      write(LISTINGS, listings);
+    }
     request.status = decision === 'accept' ? 'accepted_direct_contract_pending_settlement' : 'declined';
     request.updated_at = new Date().toISOString();
     write(REQUESTS, requests);
