@@ -2,14 +2,16 @@
   "schema_version": "truth-oracle-pricing-v2",
   "silo": "SILO_TRUTH_ORACLE",
   "currency": "NZD",
-  "principle": "Free access demonstrates the philosophy; paid access buys deeper transparency, never a better verdict.",
+  "principle": "New Zealand household cost-of-living utilities are permanently free. Quote comparison and digital arbitrage are Truth Oracle capabilities, not standalone SKUs. Paid access is restricted to distinct, verifiably fulfillable advanced intelligence; payment never changes a verdict.",
   "plans": [
     {
       "tier": "FREE",
       "display_name": "Public",
       "price_nzd_month": 0,
       "disclosure_class": "PUBLIC",
-      "description": "Public verdicts, confidence, evidence summaries, contradictions and unresolved items."
+      "description": "Public verdicts, confidence, evidence summaries, contradictions and unresolved items.",
+      "checkout_enabled": false,
+      "commercial_state": "FREE"
     },
     {
       "tier": "SIGNAL",
@@ -18,7 +20,9 @@
       "disclosure_class": "SIGNAL",
       "stripe_product_id": "prod_VBncpbTj8t0BUk",
       "stripe_price_id": "price_1UBQ1RJt4ieIQDFzRIItEG0Z",
-      "description": "Expanded evidence summaries, provenance and economic signal views."
+      "description": "Expanded evidence summaries, provenance and economic signal views.",
+      "checkout_enabled": false,
+      "commercial_state": "HELD_PENDING_DEMAND_FULFILLMENT_AND_AUTHORITY"
     },
     {
       "tier": "INTELLIGENCE",
@@ -27,7 +31,9 @@
       "disclosure_class": "INTELLIGENCE",
       "stripe_product_id": "prod_VBncKh0lv6UKZH",
       "stripe_price_id": "price_1UBQ1bJt4ieIQDFzv2rsdyKe",
-      "description": "Deeper provenance, evidence lineage, contradiction analysis and historical views."
+      "description": "Deeper provenance, evidence lineage, contradiction analysis and historical views.",
+      "checkout_enabled": false,
+      "commercial_state": "HELD_PENDING_DEMAND_FULFILLMENT_AND_AUTHORITY"
     },
     {
       "tier": "DEEP_EVIDENCE",
@@ -36,8 +42,62 @@
       "disclosure_class": "DEEP_EVIDENCE",
       "stripe_product_id": "prod_VBncosaTHebeLx",
       "stripe_price_id": "price_1UBQ1mJt4ieIQDFzgCNY2sS8",
-      "description": "Maximum permitted transparency, advanced evidence relationships and extended history."
+      "description": "Maximum permitted transparency, advanced evidence relationships and extended history.",
+      "checkout_enabled": false,
+      "commercial_state": "HELD_PENDING_DEMAND_FULFILLMENT_AND_AUTHORITY"
     }
   ],
-  "pricing_note": "Pricing is low-friction and can be recalibrated from observed conversion and retention without changing Truth Oracle calculations."
+  "pricing_note": "Legacy price amounts are proposals, not active or authorized subscriptions. Do not generate paid checkout from a proposal. Validate independent demand, licensed inputs, reliable unattended fulfillment and authorized entitlement first.",
+  "commercial_model": {
+    "scope": "TRUTH_ORACLE_UMBRELLA",
+    "standalone_capability_checkout": false,
+    "nz_cost_of_living_free": true,
+    "premium_requires_independent_demand": true,
+    "checkout_requires_verified_auto_fulfillment": true,
+    "no_new_paid_route_without_approval": true,
+    "verified_economic_evidence_required": true
+  },
+  "capabilities": [
+    {
+      "id": "NZ_COST_OF_LIVING",
+      "tier": "FREE",
+      "market": "NZ",
+      "price_nzd": 0,
+      "route": "/cost-of-living.html",
+      "public": true,
+      "checkout_enabled": false
+    },
+    {
+      "id": "SUPPLIER_QUOTE_COMPARISON",
+      "tier": "FREE",
+      "market": "NZ",
+      "price_nzd": 0,
+      "route": "/quote-comparison/",
+      "public": true,
+      "checkout_enabled": false,
+      "limitations": "Browser worksheet only; no automatic document extraction or paid reports"
+    },
+    {
+      "id": "DIGITAL_ARBITRAGE_INTELLIGENCE",
+      "tier": "PREMIUM_CANDIDATE",
+      "market": "GLOBAL",
+      "price_nzd": null,
+      "route": null,
+      "public": false,
+      "checkout_enabled": false,
+      "fulfillment_state": "NOT_PROVEN",
+      "claims": "No profit or opportunity guarantees"
+    },
+    {
+      "id": "ADVANCED_EVIDENCE_INTELLIGENCE",
+      "tier": "PREMIUM_CANDIDATE",
+      "market": "GLOBAL",
+      "price_nzd": null,
+      "route": null,
+      "public": false,
+      "checkout_enabled": false,
+      "fulfillment_state": "NOT_PROVEN",
+      "claims": "Paid analysis cannot alter underlying evidence"
+    }
+  ]
 }
