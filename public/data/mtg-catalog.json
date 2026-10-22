@@ -25,7 +25,8 @@
       "decklist_url": "https://manabox.app/decks/AZ4-aMxndkWrpKZVph4TSA",
       "commander": "Quintorius, Field Historian",
       "decklist_path": "/data/decklists/quintorius.json",
-      "decklist_provenance": "ManaBox export stored in repository"
+      "decklist_provenance": "ManaBox export stored in repository",
+      "simulation_report_path": "/data/simulations/quintorius.json"
     },
     {
       "id": "EDH_DWYNEN_0003",
