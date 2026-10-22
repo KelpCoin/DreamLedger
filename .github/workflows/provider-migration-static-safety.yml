@@ -11,6 +11,10 @@ on:
       - "public/portfolio/commander-deck-diagnostic.html"
       - "public/mtg/**"
       - "public/mtg-search.html"
+      - "public/mtg-list.html"
+      - "public/mtg-list/**"
+      - "public/assets/mtg-deck-check.js"
+      - "public/mtg-search.html"
       - "public/mtg-search/**"
       - "public/mtg-list.html"
       - "public/mtg-list/**"
@@ -36,6 +40,10 @@ on:
       - "public/data/economic-pulse.json"
       - "public/portfolio/commander-deck-diagnostic.html"
       - "public/mtg/**"
+      - "public/mtg-search.html"
+      - "public/mtg-list.html"
+      - "public/mtg-list/**"
+      - "public/assets/mtg-deck-check.js"
       - "public/mtg-search.html"
       - "public/mtg-search/**"
       - "public/mtg-list.html"
@@ -90,6 +98,8 @@ jobs:
         run: node ops/migration/cloudflare-preview/build-preview.mjs
       - name: Verify MTG scripts execute without fallback inventory
         run: node --test ops/migration/cloudflare-preview/test-mtg-held-page.mjs
+      - name: Verify MTG free deck-check and private listing scripts
+        run: node --test ops/migration/cloudflare-preview/test-mtg-free-tools.mjs
       - name: Verify MTG free deck utility and honest singles inventory
         run: |
           node --check public/assets/mtg-deck-check.js

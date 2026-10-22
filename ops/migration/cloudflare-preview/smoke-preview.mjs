@@ -102,6 +102,10 @@ async function probe(spec) {
 const routeChecks = [
   { path: '/', status: 200, type: 'html', marker: /DreamLedger|Dream Ledger/i },
   { path: '/mtg/', status: 200, type: 'html', marker: /Magic|MTG|Commander/i },
+  { path: '/mtg/deck-check.html', status: 200, type: 'html', marker: 'Free Commander deck check' },
+  { path: '/mtg-search.html', status: 200, type: 'html', marker: 'Magic singles and drafts' },
+  { path: '/mtg-list.html', status: 200, type: 'html', marker: 'Prepare an MTG single draft' },
+  { path: '/mtg-list/', status: 200, type: 'html', marker: 'MTG local listing draft' },
   { path: '/truth-oracle.html', status: 200, type: 'html' },
   { path: '/404.html', status: 200, type: 'html', marker: 'Page not found' },
   { path: '/silos/mtg/silo.json', status: 200, type: 'json' },
@@ -120,6 +124,10 @@ const routeChecks = [
   { path: '/api/offers', status: 200, type: 'json', validate: b =>
     b.schema === 'dreamledger/offers/v1' && Array.isArray(b.offers) },
   { path: '/api/toll/v1/manifest', status: 503, type: 'json', validate: b =>
+    b.status === 'BLOCKED_ROUTE_NOT_MIGRATED' && b.production_ready === false },
+  { path: '/api/mtg/marketplace/listings', status: 503, type: 'json', validate: b =>
+    b.status === 'BLOCKED_ROUTE_NOT_MIGRATED' && b.production_ready === false },
+  { path: '/api/account/register', status: 503, type: 'json', validate: b =>
     b.status === 'BLOCKED_ROUTE_NOT_MIGRATED' && b.production_ready === false },
   { path: '/api/webhooks/stripe', status: 503, type: 'json', validate: b =>
     b.status === 'BLOCKED_ROUTE_NOT_MIGRATED' && b.production_ready === false }
