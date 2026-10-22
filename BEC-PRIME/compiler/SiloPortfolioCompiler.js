@@ -74,6 +74,33 @@ function demandEvidenceForOffer(offer, radar) {
 const demandRadar = fs.existsSync(DEMAND_RADAR) ? readJson(DEMAND_RADAR) : null;
 if (!offers.length) throw new Error('No explicitly approved offers found. Refusing to publish an empty commercial portfolio.');
 
+// An old "ACTIVE_LIVEMODE" label never overrides a held product or disabled
+// delivery contract. Payments, entitlements and delivery remain separately gated.
+function hasSellableDeliveryContract(offer) {
+  const id = String(offer.product_id || '');
+  if (!/^[A-Za-z0-9][A-Za-z0-9._-]{1,120}$/.test(id)) return false;
+  const productFile = path.join(ROOT, 'catalog', 'products', id + '.json');
+  if (!fs.existsSync(productFile)) return false;
+  const product = readJson(productFile);
+  const truth = product.commercial_truth || {};
+  const fulfillment = product.fulfillment || {};
+  return product.id === id &&
+    product.silo === offer.silo &&
+    product.status === 'published' &&
+    Number(product.price) === Number(offer.price) &&
+    String(product.currency).toUpperCase() === offer.currency &&
+    truth.approval_required === false &&
+    truth.sellable === true &&
+    product.checkout?.mode !== 'disabled' &&
+    product.checkout_available !== false &&
+    fulfillment.mode === 'automated' &&
+    fulfillment.operator_required === false &&
+    typeof offer.fulfillment_route === 'string' &&
+    Boolean(offer.fulfillment_route.trim()) &&
+    typeof offer.proof_of_delivery === 'string' &&
+    Boolean(offer.proof_of_delivery.trim());
+}
+
 const eligible = offers.filter(o =>
   o &&
   o.approved_by === 'operator' &&
@@ -82,7 +109,8 @@ const eligible = offers.filter(o =>
   o.payment_link_url.startsWith('https://buy.stripe.com/') &&
   typeof o.price === 'number' &&
   o.price > 0 &&
-  o.currency === 'NZD'
+  o.currency === 'NZD' &&
+  hasSellableDeliveryContract(o)
 );
 
 if (!eligible.length) {
