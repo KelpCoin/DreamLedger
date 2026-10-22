@@ -64,6 +64,9 @@ jobs:
           assert.ok(marketplace.includes("/api/mtg/marketplace/listings"));
           const route = get('BEC-PRIME/routes/mtgMarketplace.js');
           assert.ok(route.includes("route === '/api/mtg/marketplace/listings'"));
+          assert.ok(route.includes("route === '/api/mtg/marketplace/listing/status'"));
+          assert.ok(route.includes("listing.status = 'reserved'"), 'Accepted offers must remove one-off stock from public view');
+          assert.ok(marketplace.includes('data-sold'), 'Sellers must be able to mark listings sold');
           for (const file of ['mtg/index.html','public/mtg/index.html']) {
             const html = get(file);
             assert.ok(html.includes('/data/mtg-catalog.json'));
