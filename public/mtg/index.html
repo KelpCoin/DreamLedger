@@ -31,7 +31,17 @@ h1{font-size:clamp(2.2rem,6vw,3.6rem);line-height:1.02;letter-spacing:-.04em;mar
 .silo-btn-ghost{border:1px solid var(--line);color:var(--ink)}
 .notice{margin-top:24px;padding:14px;border:1px solid var(--line);border-radius:12px;color:var(--muted);font-size:13px}
 .foot{margin-top:36px;padding-top:16px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:12px;font-size:13px}.foot a{color:var(--muted)}
+
+.deck-gallery{margin-top:10px;min-height:180px}.deck-gallery .mtg-grid-section{margin:8px 0}
+.deck-gallery .mtg-grid-section-title{margin-bottom:8px}.deck-gallery .mtg-card-grid-preview{grid-template-columns:repeat(auto-fill,minmax(77px,1fr));gap:5px}
+.deck-gallery .mtg-card{margin:0}.deck-gallery .mtg-card figcaption{display:none}
+.deck-gallery .mtg-grid-meta{font-size:11px}.deck-gallery .mtg-grid-note{font-size:10px}
+.deck-art{min-height:140px;display:flex;justify-content:center;align-items:center;background:#080b10;border-radius:12px;padding:8px}
+.deck-art img{max-height:165px;max-width:140px;object-fit:contain}
+.deck-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto}.deck-actions a{flex:1}
+.deck-gallery .mtg-grid-source{display:block;padding:8px 0}
 </style>
+<link rel="stylesheet" href="/assets/mtg-deck-grid.css"><script defer src="/assets/mtg-deck-grid.js"></script>
 </head>
 <body>
 <div class="wrap">
@@ -71,9 +81,27 @@ h1{font-size:clamp(2.2rem,6vw,3.6rem);line-height:1.02;letter-spacing:-.04em;mar
     grid.innerHTML = decks.map(function (p) {
       var claim = p.claim_url || ('mailto:hello@dreamledger.org?subject=' + encodeURIComponent('Buy ' + (p.name || 'deck') + ' NZ$' + (p.price || '')));
       var price = Number(p.price);
-      return '<article class="deck"><h3>' + esc(p.name || p.id) + '</h3><p>' + esc(p.description || '') + '</p><div class="price">' +
-        (Number.isFinite(price) ? ('NZ$' + price.toFixed(2)) : '') + '</div><a class="silo-btn silo-btn-ghost" href="' + esc(claim) + '">Request deck</a></article>';
+      var detail = String(p.detail_url || '').startsWith('/mtg/') ? p.detail_url : '/mtg/';
+      var source = String(p.decklist_path || '').startsWith('/data/decklists/') && String(p.decklist_path).endsWith('.json') ? p.decklist_path : '';
+      var gallery = source ? '<div class="deck-gallery" data-mtg-preview data-detail-url="' + esc(detail) + '" data-mtg-deck="' + esc(source) + '">Loading exact card grid…</div>'
+        : '<div class="deck-art" data-commander="' + esc(p.commander || '') + '"><span>Loading commander artwork…</span></div><p class="mtg-grid-meta">Complete local card grid pending an exported decklist.</p>';
+      var external = String(p.decklist_url || '').startsWith('https://manabox.app/decks/') ? '<a class="silo-btn silo-btn-ghost" rel="noopener" target="_blank" href="' + esc(p.decklist_url) + '">ManaBox list ↗</a>' : '';
+      return '<article class="deck"><h3>' + esc(p.name || p.id) + '</h3><div class="price">' + (Number.isFinite(price) ? ('NZ$' + price.toFixed(2)) : 'Ask price') + '</div>'
+        + gallery + '<p>' + esc(p.description || '') + '</p>'
+        + '<div class="deck-actions"><a class="silo-btn silo-btn-ghost" href="' + esc(detail) + '">View this deck</a>' + external
+        + '<a class="silo-btn silo-btn-ghost" href="' + esc(claim) + '">Request deck</a></div></article>';
     }).join('');
+    grid.querySelectorAll('[data-mtg-deck]').forEach(function(node) {
+      if(window.DreamLedgerDeckGrid) window.DreamLedgerDeckGrid.render(node);
+    });
+    var names = Array.from(grid.querySelectorAll('[data-commander]')).map(function(node){ return node.dataset.commander; }).filter(Boolean);
+    if(names.length && window.DreamLedgerDeckGrid) window.DreamLedgerDeckGrid.lookUp(names).then(function(){
+      grid.querySelectorAll('[data-commander]').forEach(function(node) {
+        var src=window.DreamLedgerDeckGrid.cardArt(node.dataset.commander);
+        if(src){var im=document.createElement('img');im.src=src;im.alt=node.dataset.commander;im.loading='lazy';node.replaceChildren(im);}
+        else node.textContent='Artwork unavailable · '+node.dataset.commander;
+      });
+    });
   }
   function tryFetch(url) {
     return fetch(url, { cache: 'no-store' }).then(function (r) {
