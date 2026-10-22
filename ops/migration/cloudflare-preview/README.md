@@ -2,7 +2,7 @@
 
 Implemented: Pages ASSETS static serving; GET /healthz returns DEGRADED_STATIC_PREVIEW with ready=false; GET /version reports Cloudflare commit metadata where available; GET /api/products and /api/offers project published entries only from public/catalog.json. POST to those read-only routes is rejected.
 
-The migration branch preview workflow builds and deploys only to the dedicated provider-migration-preview Pages branch. It never changes production DNS. It runs on relevant pushes to the migration branch (and can still be manually dispatched) and requires the existing owner-configured Cloudflare GitHub secrets. Missing secrets must produce an explicit BLOCKED result before any deploy command.
+The preview workflow is **manual-dispatch only**. PR #805 registered it on the default branch on 2026-10-22; no deploy is implied by that registration. To execute it, select the canonical migration branch in Actions, set input `preview_ref=beck/provider-migration-neon-cloudflare-20261019` and explicitly type `approval_marker=[approve-cloudflare-preview]`. GitHub repository secrets `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_PAGES_PROJECT` must be privately configured for a dedicated `-preview` Cloudflare Pages project. Missing secrets or project isolation failures block deployment. The deployment target is the `provider-migration-preview` Pages branch only; the immutable deployment URL, SHA and route-probe proof must pass before G08 is considered accepted. Never treat GitHub's native Pages publishing as isolated: it auto-deployed on the PR #805 main-branch merge even with `[skip ci]`.
 
 ## Static-route acceptance
 
