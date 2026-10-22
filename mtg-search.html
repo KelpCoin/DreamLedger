@@ -78,10 +78,7 @@ h1{font-family:var(--serif);font-size:clamp(1.8rem,5vw,2.3rem);font-weight:400;m
     $('count').textContent=items.length+' seller listing'+(items.length===1?'':'s')+' · live API';
     $('list').innerHTML=items.length?items.map(function(x){
       var price=Number(x.price_nzd);
-      var label=x.accepts_buy && Number.isFinite(price) && price>0 ? 'NZ
-</body>
-</html>
-+price.toFixed(2) : 'Trade only';
+      var label=x.accepts_buy && Number.isFinite(price) && price>0 ? 'NZ'+String.fromCharCode(36)+price.toFixed(2) : 'Trade only';
       return '<article class="card"><div class="tag">SELLER LISTING</div><h2>'+esc(x.title)+'</h2><div class="row"><span>'+esc(x.set_name||'Set unspecified')+' '+esc(x.collector_number?'#'+x.collector_number:'')+'</span><span>'+esc(x.condition||'Condition unspecified')+'</span></div><div class="price">'+esc(label)+'</div><div class="row">Seller: '+esc(x.seller_display_name||'Seller')+'</div><div class="row">'+esc(x.description||'')+'</div><a href="/mtg-marketplace.html?listing='+encodeURIComponent(x.id)+'" style="color:var(--gold-b)">View listing and request '+(x.accepts_trade?'trade / buy':'purchase')+' &#8594;</a></article>';
     }).join(''):'<div class="empty">No matching seller listings. <a href="/mtg-marketplace.html#list-card" style="color:var(--gold-b)">List a real card</a>.</div>';
   }
