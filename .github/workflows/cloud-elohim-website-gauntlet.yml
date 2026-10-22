@@ -4,6 +4,12 @@ on:
   pull_request:
     paths:
       - "index.html"
+      - "public/b2b.html"
+      - "public/contact.html"
+      - "public/privacy.html"
+      - "public/quote-comparison/**"
+      - "public/portfolio/supplier-quote-comparison.html"
+      - "ops/migration/cloudflare-preview/**"
       - "BEC-PRIME/**"
       - "package.json"
       - "package-lock.json"
@@ -91,11 +97,30 @@ jobs:
           grep -q 'NZ\$0.00' index.html
           echo "WEBSITE_SURFACE=PASS"
 
+      - name: Verify downstream public enquiry never claims an unpersisted lead
+        working-directory: .
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test ops/migration/cloudflare-preview/test-rfq-inbox.mjs
+          node - <<'NODE'
+          const fs=require('node:fs');
+          const page=fs.readFileSync('public/b2b.html','utf8');
+          const portfolio=fs.readFileSync('public/portfolio/supplier-quote-comparison.html','utf8');
+          if(page.includes('localStorage.setItem')||page.includes('statusener'))
+            throw Error('FALSE_RFQ_RECEIPT');
+          if(page.includes('https://buy.stripe.com/')||portfolio.includes('https://buy.stripe.com/'))
+            throw Error('UNVERIFIED_CHECKOUT_ROUTE_ON_HELD_INTAKE');
+          if(!page.includes('response.status!==202'))
+            throw Error('PERSISTED_RFQ_ACK_MISSING');
+          console.log('ELOHIM_DOWNSTREAM_INQUIRY_GAUNTLET=PASS_HELD');
+          NODE
+
       - name: Emit candidate judgment
         working-directory: .
         run: |
           mkdir -p proof
-          printf '{"status":"PASS","judge":"cloud-elohim-gauntlet","sha":"%s","website_surface":"PASS","commercial_truth":"checkout_is_not_revenue"}\n' "${GITHUB_SHA}" > proof/cloud-elohim-gauntlet.json
+          printf '{"status":"PASS_CANDIDATE_ONLY","judge":"cloud-elohim-gauntlet","sha":"%s","website_surface":"PASS_SOURCE_ONLY","inquiry_intake":"NOT_DEPLOYED","commercial_truth":"checkout_is_not_revenue"}\n' "${GITHUB_SHA}" > proof/cloud-elohim-gauntlet.json
           cat proof/cloud-elohim-gauntlet.json
 
       - name: Upload judgment
