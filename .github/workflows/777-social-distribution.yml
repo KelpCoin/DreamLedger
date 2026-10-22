@@ -18,6 +18,16 @@ on:
         required: true
         default: "HOLD"
         type: string
+      offer_id:
+        description: "Canonical offer identity (no freeform URL or price)"
+        required: true
+        default: "TRUTH_ORACLE"
+        type: choice
+        options:
+          - TRUTH_ORACLE
+          - QUOTE_COMPARE_49
+          - EDH_0001
+          - CMD-DIAG-29
       cell_id:
         description: "777 cell identity"
         required: true
@@ -41,23 +51,46 @@ jobs:
       - name: Build attributable distribution packet
         env:
           CELL_ID: ${{ inputs.cell_id || 'CMD-DIAG-29-QR-001' }}
+          OFFER_ID: ${{ inputs.offer_id || 'TRUTH_ORACLE' }}
         run: |
           set -euo pipefail
           python3 - <<'PY'
           import json, os, hashlib, datetime
           cell=os.environ["CELL_ID"]
-          target="https://dreamledger.org/go?utm_source=777&utm_medium=social&utm_campaign=cmd_diag_29&utm_content="+cell
-          variants=[
-            "Commander deck stuck in the middle? A NZ$29 diagnostic checks curve, ramp, draw, interaction, commander synergy and weak slots, then gives economical upgrade directions. "+target,
-            "Bought cards, changed the deck, still not sure what is actually weak? DreamLedger does a NZ$29 structured Commander Diagnostic with measurements and upgrade priorities. "+target,
-            "Deck advice gets noisy fast. The DreamLedger NZ$29 Commander Diagnostic turns a decklist into a bounded report on curve, ramp, draw, interaction, synergy and upgrade priorities. "+target,
-            "If your Commander deck dies in the details, the details are what we measure. NZ$29 for a structured diagnostic and economical upgrade path. "+target,
-            "One decklist. One structured pass. Curve, ramp, draw, interaction, commander synergy, weak slots and economical upgrades for NZ$29. "+target
-          ]
-          text=variants[datetime.datetime.now(datetime.timezone.utc).timetuple().tm_yday % len(variants)]
-          packet={"schema":"DREAMLEDGER/777-DISTRIBUTION-PACKET/v1","cell_id":cell,
-                  "offer_id":"CMD-DIAG-29","surface_family":"SOCIAL","target_url":target,
-                  "message":text,"authorization":"STANDING_EXTERNAL_ACTION_ENVELOPE",
+          offer=os.environ["OFFER_ID"]
+          offers={
+            "TRUTH_ORACLE": {
+              "title": "Truth Oracle | Evidence-backed decisions",
+              "message": "Compare New Zealand costs and supplier options with source-bound evidence. Free entry; paid analysis only when clearly offered.",
+              "campaign": "truth_oracle"
+            },
+            "QUOTE_COMPARE_49": {
+              "title": "Truth Oracle | Supplier quote comparison",
+              "message": "Compare supplier quotes side by side: totals, exclusions, lead times and missing information. Inspect the service and terms before paying.",
+              "campaign": "quote_compare"
+            },
+            "EDH_0001": {
+              "title": "Walk the Plank | Edward Kenway",
+              "message": "Walk the Plank. Edward Kenway Commander Deck. Grixis Pirates and Vehicles. Sleeved, playtested. NZ shipping. NZD 400.",
+              "campaign": "edh_0001"
+            },
+            "CMD-DIAG-29": {
+              "title": "Commander deck diagnostic",
+              "message": "Commander decklist review: mana, draw, interaction and upgrade priorities. Read the offer details first.",
+              "campaign": "cmd_diag"
+            }
+          }
+          if offer not in offers: raise SystemExit("UNKNOWN_OFFER")
+          data=offers[offer]
+          from urllib.parse import urlencode
+          target="https://dreamledger.org/go?"+urlencode({
+            "utm_source":"777","utm_medium":"social","utm_campaign":data["campaign"],
+            "utm_content":cell,"offer_id":offer})
+          packet={"schema":"DREAMLEDGER/777-DISTRIBUTION-PACKET/v1",
+                  "cell_id":cell,"offer_id":offer,"surface_family":"SOCIAL",
+                  "target_url":target,"title":data["title"],
+                  "message":data["message"]+" "+target,
+                  "authorization":"OWNER_DISPATCH_REQUIRED",
                   "external_revenue_status":"UNVERIFIED"}
           packet["packet_sha256"]=hashlib.sha256(json.dumps(packet,sort_keys=True).encode()).hexdigest()
           os.makedirs("operator-proof",exist_ok=True)
@@ -82,7 +115,7 @@ jobs:
           import json, os, time, hmac, hashlib, urllib.parse, urllib.request, secrets, base64
           p=json.load(open("operator-proof/777-distribution-packet.json"))
           base=f"https://api.tumblr.com/v2/blog/{os.environ['TUMBLR_BLOG']}/posts"
-          params={"type":"text","state":"published","title":"Commander deck diagnostic","body":p["message"]}
+          params={"type":"text","state":"published","title":p["title"],"body":p["message"]}
           oauth={"oauth_consumer_key":os.environ["TUMBLR_CONSUMER_KEY"],"oauth_token":os.environ["TUMBLR_TOKEN"],"oauth_nonce":secrets.token_hex(16),"oauth_timestamp":str(int(time.time())),"oauth_signature_method":"HMAC-SHA1","oauth_version":"1.0"}
           enc=lambda x: urllib.parse.quote(str(x),safe="~-._")
           normalized="&".join(f"{enc(k)}={enc(v)}" for k,v in sorted({**params,**oauth}.items()))
