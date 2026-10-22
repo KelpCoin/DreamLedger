@@ -2,15 +2,15 @@
 
 The canonical migration work is tracked in [PR #777](https://github.com/KelpCoin/DreamLedger/pull/777) on branch beck/provider-migration-neon-cloudflare-20261019. The target is Cloudflare Pages/Workers + Neon, preserving MTG silo boundaries and the evidence-gated economic contract. Do not create an alternate migration branch or claim the providers are replaced until the acceptance gates pass.
 
-## Current observed status (2026-10-21)
+## Current observed status (2026-10-22)
 
-- Production public routes /, /mtg/, /catalog.json, /data/mtg-catalog.json, and /healthz returned HTTP 503 during a read-only external probe.
-- Supabase control plane reported project wbwgroygjeyukkspnqiy as ACTIVE_HEALTHY, but direct SQL and migration-list calls failed with ECONNREFUSED. No source dump has been created or verified.
-- The linked Neon account returned no projects. No target database has been provisioned or imported.
-- The Cloudflare preview deployment is blocked until the owner privately configures the required GitHub Actions values and a Pages preview deployment is actually observed. Do not paste credentials into chat or source control.
-- The connected Stripe integration could not identify an eligible linked account, so remote deactivation of the Commander Diagnostic Payment Link is unconfirmed. Its price/link has been removed from the public catalogue and economic-pulse surfaces; the landing page now states that purchases are held.
-- The Provider migration static safety contract completed PASS in GitHub Actions run 39520681150; the preview builder validated the non-production 409-asset bundle and held catalogue state. This is not a production deployment or route-acceptance pass.
-- Verified external revenue remains NZ$0.00.
+- **G08 dispatcher registration prerequisite is complete:** PR #805 was merged to `main` at commit `c4fca15adc36bd382b666dd15816f6c5461a971d`; the preview workflow now exists on the default branch. Deployment is still BLOCKED until its three private Cloudflare Actions secrets are configured and the operator dispatches against `beck/provider-migration-neon-cloudflare-20261019` with input `approval_marker=[approve-cloudflare-preview]`. Only a real immutable pages.dev URL + exact tested SHA + successful route-probe artifact can prove G08.
+- **GitHub Pages source hazard:** the native `pages build and deployment` workflow was triggered by the `main` merge SHA despite a `[skip ci]` merge commit. [Run 39702416853](https://github.com/KelpCoin/DreamLedger/actions/runs/39702416853) completed deployment successfully. Therefore `[skip ci]` is not adequate protection for native Pages publishing; audit the repository Pages source before more `main` pushes. No DNS mutation was authorized.
+- **Public site:** `/`, `/mtg/`, `/healthz`, `/data/mtg-catalog.json` each returned HTTP 503 in read-only probes on 2026-10-22 (these routes were also observed at 503 before the merge). Production is not verified operational.
+- **G02/G06 source data:** Supabase DreamLedger `wbwgroygjeyukkspnqiy` is `ACTIVE_HEALTHY` at the control plane, but the SQL data plane fails with `ECONNREFUSED 2406:da18:1691:a200::3484:5432`. No verified complete source dump or source import exists; do not equate the 66-function source inventory with a database schema inventory.
+- **Neon staging now exists:** project `falling-base-50259456` (`dreamledger-migration-staging`, AWS Sydney). It has 11 staging application tables, all verified empty on 2026-10-22, including commercial orders/payments/evidence and agent-market jobs/receipts. This is a scaffold only; source row parity is not proven.
+- **Source backup fallback:** Direct Supabase database endpoints are IPv6 by default. If the direct endpoint is unreachable, use the project's exact session-pooler IPv4 host, port 5432 and `postgres.<project-ref>` username obtained privately from Supabase Connect. Never invent a pooler host. See `Export-Supabase-ForensicBackup.ps1`, which is source-read-only and stores dumps locally without committing them.
+- **G16/G17 exits:** NOT_RUN. Render and Supabase are not retired. Production route parity, auth, storage, payment settlement, durable fulfillment, rollback and soak acceptance are NOT PROVEN. Verified externally fulfilled revenue remains NZD 0.00.
 
 ## Make a private source backup before import
 
@@ -19,7 +19,7 @@ The canonical migration work is tracked in [PR #777](https://github.com/KelpCoin
 
    powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\ops\migration\supabase-to-neon\Export-Supabase-ForensicBackup.ps1
 
-3. The script prompts for the source host, database, username, port and hidden password when not already set in this PowerShell process. Use the exact connection details from the Supabase dashboard. If the direct database host is unreachable, try the Supabase Session Pooler connection details and port shown in the dashboard.
+3. The script prompts for the source host, database, username, port and hidden password when not already set in this PowerShell process. Use the exact connection details from the Supabase dashboard. If the IPv6 direct database host is unreachable, use the *exact* Supabase Session Pooler host and username shown in the project's Connect panel (usually port 5432), without guessing endpoint names.
 4. The script writes a private folder under D:\BrownEyeCortex\Proof\DreamLedger-Migration (with a LocalAppData fallback) containing:
    - read-only all-schema dependency inventory;
    - custom-format full database dump;
