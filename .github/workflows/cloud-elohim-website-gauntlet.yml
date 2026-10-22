@@ -39,6 +39,9 @@ jobs:
       - name: Install
         run: npm ci --no-audit --no-fund
 
+      - name: Elohim schema regression tests
+        run: node --test elohim/validateElohimProduct.test.js council/ElohimCreate.test.js council/ElohimCommercialPath.test.js
+
       - name: Cloud Elohim compile
         run: npm run compile
 
@@ -116,6 +119,12 @@ jobs:
       LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
       LLM_MODEL: ${{ secrets.LLM_MODEL }}
       LLM_MODELS: ${{ secrets.LLM_MODELS }}
+      CLOUD_MODEL_API_URL: ${{ secrets.CLOUD_MODEL_API_URL }}
+      CLOUD_MODEL_API_KEY: ${{ secrets.CLOUD_MODEL_API_KEY }}
+      CLOUD_MODEL_NAME: ${{ secrets.CLOUD_MODEL_NAME }}
+      BEC_CLOUD_LM_URL: ${{ secrets.BEC_CLOUD_LM_URL }}
+      BEC_CLOUD_LM_API_KEY: ${{ secrets.BEC_CLOUD_LM_API_KEY }}
+      BEC_CLOUD_LM_MODEL: ${{ secrets.BEC_CLOUD_LM_MODEL }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -140,6 +149,14 @@ jobs:
           REFINEMENT_PROMPT_FILE: evidence/user-auctions/review-input.txt
           REFINEMENT_OUT: evidence/user-auctions/cloud-review.md
         run: |
+          # Select a complete existing credential family; never mix endpoint/key pairs.
+          if [ -z "$LLM_API_URL" ] || [ -z "$LLM_API_KEY" ] || { [ -z "$LLM_MODELS" ] && [ -z "$LLM_MODEL" ]; }; then
+            if [ -n "$CLOUD_MODEL_API_URL" ] && [ -n "$CLOUD_MODEL_API_KEY" ] && [ -n "$CLOUD_MODEL_NAME" ]; then
+              export LLM_API_URL="$CLOUD_MODEL_API_URL" LLM_API_KEY="$CLOUD_MODEL_API_KEY" LLM_MODEL="$CLOUD_MODEL_NAME" LLM_MODELS=""
+            elif [ -n "$BEC_CLOUD_LM_URL" ] && [ -n "$BEC_CLOUD_LM_API_KEY" ] && [ -n "$BEC_CLOUD_LM_MODEL" ]; then
+              export LLM_API_URL="$BEC_CLOUD_LM_URL" LLM_API_KEY="$BEC_CLOUD_LM_API_KEY" LLM_MODEL="$BEC_CLOUD_LM_MODEL" LLM_MODELS=""
+            fi
+          fi
           if [ -z "$LLM_API_URL" ] || [ -z "$LLM_API_KEY" ] || { [ -z "$LLM_MODELS" ] && [ -z "$LLM_MODEL" ]; }; then
             echo '{"status":"BLOCKED_MISSING_MODEL_CONFIGURATION","calls":0}' > evidence/user-auctions/cloud-review-status.json
           else
