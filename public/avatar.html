@@ -390,8 +390,8 @@ buff{display:block;font-size:10px;color:var(--mint)}
     renderShop();
 
     var loadout = DreamLedgerAvatar.toPhinhavenLoadout();
-    $('phinExport').textContent = 'Phinhaven loadout: ' + loadout.cosmetics.length + ' equipped · buffs: ' +
-      (loadout.active_buffs.map(function(b){return b.label;}).join('; ') || 'none');
+    $('phinExport').textContent = 'Phinhaven loadout: ' + loadout.cosmetics.length + ' preview cosmetics · proposed effects (not active): ' +
+      (loadout.preview_buffs.map(function(b){return b.label;}).join('; ') || 'none');
   }
 
   function renderShop() {

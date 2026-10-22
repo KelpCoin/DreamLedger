@@ -168,6 +168,7 @@
   /** Payload for Phinhaven / other surfaces */
   function exportForSurface(surface) {
     surface = surface || 'web';
+    if (ALLOWED_SURFACES.indexOf(surface) === -1) throw new Error('Unsupported avatar surface');
     var s = load();
     var equipped = [];
     var buffs = [];
@@ -175,7 +176,7 @@
       var id = s.equipped[slot];
       if (!id) return;
       var item = getCosmetic(id);
-      if (!item) return;
+      if (!item || item.slot !== slot || s.owned.indexOf(id) === -1) return;
       equipped.push({
         id: item.id,
         slot: item.slot,
@@ -198,7 +199,9 @@
         hair: s.hair
       },
       equipped: equipped,
-      buffs: buffs,
+      authority: 'client-preview-only',
+      buffs: [],
+      preview_buffs: buffs,
       owned: s.owned.slice(),
       updated_at: s.updated_at
     };
@@ -217,10 +220,14 @@
           sku: e.id,
           slot: e.slot,
           visual: e.web,
-          buff: e.phinhaven || null
+          buff: null,
+          preview_effect: e.phinhaven || null
         };
       }),
-      active_buffs: payload.buffs,
+      authority: 'client-preview-only',
+      entitlement_verified: false,
+      active_buffs: [],
+      preview_buffs: payload.preview_buffs,
       body: payload.body
     };
   }

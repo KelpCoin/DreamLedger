@@ -1,0 +1,31 @@
+{
+  "schema": "dreamledger/avatar-gauntlet/v1",
+  "status": "PASS",
+  "source_sha256": "d5dafaed560ce68998accf9a9f2b596a497cec0a46db71c8b53b30bf216f830e",
+  "checks": [
+    {
+      "name": "catalogue identity is unique and every slot is supported",
+      "status": "PASS"
+    },
+    {
+      "name": "saved identity survives load and cross-surface export",
+      "status": "PASS"
+    },
+    {
+      "name": "demo unlock and equip never create authoritative buffs",
+      "status": "PASS"
+    },
+    {
+      "name": "tampered local equipment cannot promote ownership or wrong-slot effects",
+      "status": "PASS"
+    },
+    {
+      "name": "unsupported surfaces and malformed storage fail safely",
+      "status": "PASS"
+    }
+  ],
+  "production_ready": false,
+  "limitations": [
+    "Server entitlement integration and visual acceptance not verified"
+  ]
+}
