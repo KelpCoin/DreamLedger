@@ -10,6 +10,10 @@ on:
         default: beck/provider-migration-neon-cloudflare-20261019
         options:
           - beck/provider-migration-neon-cloudflare-20261019
+      approval_marker:
+        description: "Type [approve-cloudflare-preview] to authorize a PREVIEW-ONLY run"
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -21,7 +25,9 @@ concurrency:
 jobs:
   deploy-and-probe-preview:
     if: >-
+      github.event_name == 'workflow_dispatch' &&
       github.ref == 'refs/heads/beck/provider-migration-neon-cloudflare-20261019' &&
+      inputs.approval_marker == '[approve-cloudflare-preview]' &&
       inputs.preview_ref == 'beck/provider-migration-neon-cloudflare-20261019'
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -34,6 +40,15 @@ jobs:
       MIGRATION_PROOF_PATH: proof/migration/cloudflare-preview-route-probe.json
 
     steps:
+      - name: Verify explicit operator preview-only approval
+        shell: bash
+        env:
+          OPERATOR_APPROVAL_MARKER: ${{ inputs.approval_marker }}
+        run: |
+          set -euo pipefail
+          test "$OPERATOR_APPROVAL_MARKER" = '[approve-cloudflare-preview]' || { echo 'HOLD_PREVIEW_OPERATOR_APPROVAL_REQUIRED' >&2; exit 2; }
+          echo 'OPERATOR_PREVIEW_APPROVAL=PASS'
+
       - name: Checkout exact reviewed migration SHA
         uses: actions/checkout@v4
         with:
@@ -79,8 +94,10 @@ jobs:
               !doc.result.production_branch ||
               doc.result.production_branch === 'provider-migration-preview' ||
               (Array.isArray(doc.result.domains) && doc.result.domains.length > 0)) {
-            throw new Error('PAGES_PROJECT_NOT_ISOLATED');
+            throw new Error(doc.result?.production_branch === 'provider-migration-preview' ?
+              'BLOCKED_PREVIEW_BRANCH_IS_PRODUCTION_BRANCH' : 'PAGES_PROJECT_NOT_ISOLATED');
           }
+          console.log('CLOUDFLARE_BRANCH_ISOLATION=PASS');
           console.log('PAGES_PROJECT_ISOLATION=PASS');
           NODE
 
