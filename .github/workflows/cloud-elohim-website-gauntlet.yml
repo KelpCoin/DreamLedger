@@ -87,11 +87,15 @@ jobs:
         working-directory: .
         run: |
           set -euo pipefail
-          test -s index.html
-          grep -Eqi 'DreamLedger|Dream Ledger' index.html
-          grep -qi 'Magic' index.html
-          grep -qi 'VERIFIED EXTERNAL REVENUE' index.html
-          grep -q 'NZ\$0.00' index.html
+          # Check the deployed storefront and compiler input, not the legacy root page.
+          # Revenue is checked by economic gates, never by a hard-coded homepage total.
+          test -s public/home.html
+          cmp webapp/index.html public/home.html
+          grep -Eqi 'DreamLedger|Dream Ledger' public/home.html
+          grep -qi 'Magic' public/home.html
+          grep -q 'href="/auctions"' public/home.html
+          grep -q 'Ordering is held' public/home.html
+          test -s public/auctions.html
           echo "WEBSITE_SURFACE=PASS"
 
       - name: Emit candidate judgment

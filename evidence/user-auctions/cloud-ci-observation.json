@@ -1,0 +1,274 @@
+{
+  "schema": "dreamledger/cloud-ci-observation/v1",
+  "observed_at": "2026-10-22T02:15:07.029Z",
+  "tested_commit": "cc2315f85d5800613ad3e7bb502bef032c006286",
+  "scope": "GitHub connector returned PR workflow runs; not a claim that every repository workflow executed",
+  "counts": {
+    "success": 40,
+    "failure": 2,
+    "in_progress": 1
+  },
+  "runs": [
+    {
+      "name": "Public Surface Guard",
+      "id": 39709968139,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Ecosystem Integrity Gate",
+      "id": 39709968096,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Checkout Metadata Contract",
+      "id": 39709968161,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "money-first-integrity",
+      "id": 39709968212,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "DreamLedger build",
+      "id": 39709968205,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "DreamLedger production finisher gate",
+      "id": 39709968235,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Truth Oracle Ledger Gate",
+      "id": 39709968126,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "production-check",
+      "id": 39709968256,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Phin Haven Gauntlet",
+      "id": 39709968239,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Bootstrap Gauntlet",
+      "id": 39709968179,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Q-SWARM 100K Portfolio HTTP Proof",
+      "id": 39709968219,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "BECK Bootstrap Commissioning Gate",
+      "id": 39709968187,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "BECK Economic Gauntlet",
+      "id": 39709968175,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Public Website Contract",
+      "id": 39709968172,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Stripe Checkout Contract",
+      "id": 39709968267,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Security Baseline",
+      "id": 39709968249,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Browning Economic Gate",
+      "id": 39709968178,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "BEC-PRIME Gates",
+      "id": 39709968202,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "CI",
+      "id": 39709968192,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "wealth-engine-verify",
+      "id": 39709968255,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "IP Integrity and Commerce CI/CD",
+      "id": 39709968231,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "economic-revenue-gate",
+      "id": 39709968218,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "BECKPrime MCP Security Gate",
+      "id": 39709968223,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Marketplace Integrity",
+      "id": 39709968141,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "MTG Diagnostic Fulfillment Gate",
+      "id": 39709968158,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Compiler Pong Proof",
+      "id": 39709968095,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "FightEdge Consolidation Contract",
+      "id": 39709968250,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Acquisition Proof Gate",
+      "id": 39709968234,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "CUBE Marketplace Gate",
+      "id": 39709968247,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "DreamLedger Ignition Verifier",
+      "id": 39709968204,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "North Star supervisor contract",
+      "id": 39709968153,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "DreamLedger Compiler Gate",
+      "id": 39709968157,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Production Recovery Execute",
+      "id": 39709968136,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Forensic BEC Compiler Run",
+      "id": 39709968254,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Cloud Elohim Website Gauntlet",
+      "id": 39709968265,
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    {
+      "name": "DreamLedger Gauntlet Release Gate",
+      "id": 39709968211,
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    {
+      "name": "MTG catalogue validation",
+      "id": 39709967994,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "DreamLedger E-Commerce Smoke",
+      "id": 39709968066,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "DreamMeez Public Surface Gate",
+      "id": 39709968011,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "DreamLedger Public Surface Gate",
+      "id": 39709968040,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Economic Autonomy Staged CI",
+      "id": 39709968064,
+      "status": "in_progress",
+      "conclusion": null
+    },
+    {
+      "name": "Private Economic Cockpit",
+      "id": 39709968054,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Cortex CI/CD Live Release Gate",
+      "id": 39709968046,
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ],
+  "production": "BLOCKED",
+  "cloud_model_review": "BLOCKED_MISSING_MODEL_CONFIGURATION",
+  "next_change": "Repair website check to validate public/home.html against compiler input rather than legacy index.html and hardcoded revenue."
+}
