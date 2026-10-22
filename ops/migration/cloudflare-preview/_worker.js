@@ -34,6 +34,12 @@ export default {async fetch(request,env){
    return json({schema:'dreamledger/cloudflare-preview-version/v1',status:'BLOCKED_RELEASE_IDENTITY',production_ready:false,reason:String(e?.message||'RELEASE_IDENTITY_UNAVAILABLE')},503);
   }
  }
+ // Read-only status: public forms stay disabled until a gated, durable
+ // private backend has been reviewed and deployed. RFQ POST stays HTTP 503.
+ if(p==='/api/inquiry-config'){
+  if(request.method!=='GET')return json({error:'METHOD_NOT_ALLOWED'},405,{allow:'GET'});
+  return json({schema:'dreamledger/private-inquiry-availability/v1',enabled:false,turnstile_site_key:null,production_ready:false});
+ }
  if(p==='/api/products'||p==='/api/offers'){
   if(request.method!=='GET')return json({error:'METHOD_NOT_ALLOWED',allowed:['GET']},405,{allow:'GET'});
   try{const products=await published(env,request);return p==='/api/products'?json({schema:'dreamledger/products/v1',count:products.length,products}):json({schema:'dreamledger/offers/v1',count:products.length,offers:products})}

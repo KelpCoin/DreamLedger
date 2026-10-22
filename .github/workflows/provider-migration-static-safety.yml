@@ -10,6 +10,10 @@ on:
       - "public/data/economic-pulse.json"
       - "public/portfolio/commander-deck-diagnostic.html"
       - "public/mtg/**"
+      - "public/b2b.html"
+      - "public/contact.html"
+      - "public/quote-comparison/**"
+      - "public/portfolio/supplier-quote-comparison.html"
       - "ops/migration/cloudflare-preview/**"
       - "ops/migration/supabase-to-neon/**"
       - "ops/migration/README.md"
@@ -26,6 +30,10 @@ on:
       - "public/data/economic-pulse.json"
       - "public/portfolio/commander-deck-diagnostic.html"
       - "public/mtg/**"
+      - "public/b2b.html"
+      - "public/contact.html"
+      - "public/quote-comparison/**"
+      - "public/portfolio/supplier-quote-comparison.html"
       - "ops/migration/cloudflare-preview/**"
       - "ops/migration/supabase-to-neon/**"
       - "ops/migration/README.md"
@@ -61,6 +69,11 @@ jobs:
         run: |
           set -euo pipefail
           node -e 'const fs=require("fs"),assert=require("assert");const y=fs.readFileSync(".github/workflows/cloudflare-migration-preview.yml","utf8");assert(y.includes("github.event_name == '\''workflow_dispatch'\''"));assert(y.includes("[approve-cloudflare-preview]"));assert(y.includes("github.ref == '\''refs/heads/beck/provider-migration-neon-cloudflare-20261019'\''"));assert(y.includes("BLOCKED_PREVIEW_BRANCH_IS_PRODUCTION_BRANCH"));assert(y.includes("CLOUDFLARE_BRANCH_ISOLATION=PASS"));console.log("PREVIEW_DISPATCH_APPROVAL_AND_BRANCH_ISOLATION=PASS")'
+      - name: Verify private inbound intake, no fake receipts, and Cloudflare challenge
+        run: |
+          node --check ops/migration/cloudflare-preview/templates/rfq-inbox.worker.mjs
+          node --test ops/migration/cloudflare-preview/test-rfq-inbox.mjs
+          node -e 'const fs=require("fs");const s=fs.readFileSync("public/b2b.html","utf8");if(s.includes("localStorage.setItem")||s.includes("statusener")||s.includes("https://buy.stripe.com/"))throw Error("UNSAFE_B2B_INTAKE_OR_PAYMENT");if(!s.includes("/api/inquiry-config")||!s.includes("response.status!==202"))throw Error("INBOUND_ACK_CONTRACT_MISSING");console.log("B2B_INBOUND_FAIL_CLOSED=PASS")'
       - name: Build the non-production candidate and enforce catalogue safety
         run: node ops/migration/cloudflare-preview/build-preview.mjs
       - name: Confirm expected routes and honest degraded behavior
