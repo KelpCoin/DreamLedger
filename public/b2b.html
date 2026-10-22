@@ -59,7 +59,7 @@ textarea{min-height:90px;resize:vertical}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:.55rem}
 @media(max-width:560px){.row2{grid-template-columns:1fr}}
 .note{font-size:.72rem;color:var(--mut);margin-top:.65rem}
-.status{font-size:.8rem;margin-top:.5rem;color:var(--ok);display:none}.status.show{display:block}
+.status{font-size:.8rem;margin-top:.5rem;color:var(--ok);display:none}.status.show{display:block}.honeypot{position:absolute;left:-9999px;height:0;overflow:hidden}
 .steps{display:grid;gap:.5rem}
 .step{display:grid;grid-template-columns:32px 1fr;gap:.55rem;align-items:start;background:var(--p);border:1px solid var(--line);border-radius:12px;padding:.7rem .8rem}
 .n{width:28px;height:28px;border-radius:50%;background:var(--gold);color:#1a1408;font-weight:800;font-size:.72rem;display:grid;place-items:center}
@@ -93,8 +93,8 @@ body{padding-bottom:calc(5.2rem + var(--sb))}
     </div>
     <div class="metrics">
       <div class="m"><b>0%</b><span>Platform success fee</span></div>
-      <div class="m"><b>NZD</b><span>NZD checkout</span></div>
-      <div class="m"><b>RFQ</b><span>Buyer demand intake</span></div>
+      <div class="m"><b>HELD</b><span>Paid services pending verification</span></div>
+      <div class="m"><b>RFQ</b><span>Private enquiries when available</span></div>
       <div class="m"><b>Truth</b><span>Misrep removed</span></div>
     </div>
   </section>
@@ -173,7 +173,7 @@ body{padding-bottom:calc(5.2rem + var(--sb))}
           <input id="region" name="region" required placeholder="e.g. Auckland"/>
         </div>
       </div>
-      <div id="turnstileMount" style="margin-top:1rem"></div>
+      <div class="honeypot" aria-hidden="true"><label for="website">Leave blank</label><input id="website" name="website" tabindex="-1" autocomplete="off"></div><div id="turnstileMount" style="margin-top:1rem"></div>
       <button class="btn ok" type="submit" disabled style="width:100%;margin-top:1rem">Request review</button>
       <p class="note">Do not include confidential files, card numbers, passwords or private supplier documents. This first form accepts only a brief non-sensitive description. No payment is requested and no quote or fulfilment is promised. See <a href="/privacy.html">privacy</a>.</p>
       <p class="status show" id="status" role="status" aria-live="polite">Private enquiries are currently unavailable.</p>
@@ -185,7 +185,7 @@ body{padding-bottom:calc(5.2rem + var(--sb))}
     <div class="steps">
       <div class="step"><div class="n">1</div><div><strong>Demand or supply enters</strong><span>RFQ or wholesale listing. Marketplace statusing details may be reviewed.</span></div></div>
       <div class="step"><div class="n">2</div><div><strong>Match & negotiate</strong><span>Structured fields: MOQ, lead time, GST, region.</span></div></div>
-      <div class="step"><div class="n">3</div><div><strong>Settle via Stripe when using platform pay</strong><span>Payment confirmation and delivery are checked separately.</span></div></div>
+      <div class="step"><div class="n">3</div><div><strong>Only pay after service activation</strong><span>Payment links and delivery remain unavailable until verification passes.</span></div></div>
       <div class="step"><div class="n">4</div><div><strong>You keep the margin</strong><span>0% DreamLedger success fee on peer merchandise.</span></div></div>
     </div>
   </section>
@@ -199,7 +199,7 @@ body{padding-bottom:calc(5.2rem + var(--sb))}
         <tr><td>RFQ post</td><td class="okt">Free</td></tr>
         <tr><td>Wholesale list intake</td><td class="okt">Free to submit</td></tr>
         <tr><td>Quote comparison worksheet</td><td>Free</td></tr>
-        <tr><td>Seller profit audit</td><td>NZ$29 fixed</td></tr>
+        <tr><td>Assisted evidence review</td><td>Paid intake not open</td></tr>
         <tr><td>Stripe processing</td><td>Processor rates on card payments</td></tr>
       </tbody>
     </table>
@@ -260,7 +260,6 @@ body{padding-bottom:calc(5.2rem + var(--sb))}
     button.disabled=true;
     const values=Object.fromEntries(new FormData(form).entries());
     values.turnstile_token=challengeToken;
-    delete values.website;
     try {
       const response=await fetch('/api/rfq',{
         method:'POST',credentials:'same-origin',

@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { handleRfqIntake } from './templates/rfq-inbox.worker.mjs';
+import { readFileSync } from 'node:fs';
+import vm from 'node:vm';
 const origin='https://preview.example.pages.dev';
 const env={RFQ_INTAKE_ENABLED:'true',
   AIRTABLE_TOKEN:'pat_private_staging_test_token_xxxxxx',
@@ -71,4 +73,29 @@ test('stored lead gets truthful receipt, no money or delivery claim',async()=>{
   assert.equal(record.fields['Gauntlet State'],'NOT_RUN');
   assert.equal(record.fields['Contact Email'],values.email);
   assert.match(record.fields['Source Fingerprint SHA256'],/^[a-f0-9]{64}$/);
+});
+
+test('B2B inline JavaScript parses and never stores leads in browser',()=>{
+  const s=readFileSync('public/b2b.html','utf8');
+  const match=[...s.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)].at(-1);
+  assert.ok(match,'missing script');
+  assert.doesNotThrow(()=>new vm.Script(match[1]));
+  assert.ok(s.includes('id="website"'));
+  assert.ok(s.includes('/api/inquiry-config'));
+  assert.ok(s.includes('/api/rfq'));
+  assert.ok(!s.includes('localStorage.setItem'));
+  assert.ok(!s.includes('statusener'));
+  assert.ok(!s.includes('https://buy.stripe.com/'));
+  assert.ok(!s.includes('NZ$29 fixed'));
+});
+test('degraded Cloudflare preview disables even fully configured private intake',async()=>{
+  const code=readFileSync('ops/migration/cloudflare-preview/_worker.js','utf8');
+  const m=await import('data:text/javascript;base64,'+Buffer.from(code).toString('base64'));
+  const preview={...env,ASSETS:{fetch:async()=>new Response('not used')}};
+  const status=await m.default.fetch(new Request(origin+'/api/inquiry-config'),preview);
+  assert.equal(status.status,200);
+  assert.equal((await status.json()).enabled,false);
+  const post=await m.default.fetch(req(),preview);
+  assert.equal(post.status,503);
+  assert.equal((await post.json()).status,'BLOCKED_ROUTE_NOT_MIGRATED');
 });
