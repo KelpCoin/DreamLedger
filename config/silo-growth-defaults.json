@@ -1,0 +1,75 @@
+{
+  "schema_version": "1.0.0",
+  "contract_id": "DREAMLEDGER_SILO_GROWTH_DEFAULTS",
+  "purpose": "Reusable, low-friction audience and creator-support defaults for every cloned DreamLedger silo.",
+  "clone_inputs_required": [
+    "silo_id",
+    "silo_slug",
+    "canonical_url",
+    "marketplace_fee_policy",
+    "creator_support_label"
+  ],
+  "experience": {
+    "marketplace_is_primary": true,
+    "creator_support_is_optional": true,
+    "creator_support_must_not_gate_marketplace": true,
+    "promotion_style": "quiet",
+    "allowed_placements": ["sidebar", "article_end", "footer", "author_card"],
+    "forbidden_patterns": ["blocking_modal", "checkout_interstitial", "repeated_intrusive_banner"],
+    "mobile_first": true
+  },
+  "creator_support": {
+    "enabled_when_destination_verified": true,
+    "default_label": "Support original content",
+    "default_description": "Optional support helps fund original writing and research.",
+    "destination_url": null,
+    "destination_status": "UNVERIFIED",
+    "membership_entitlement_must_be_respected": true,
+    "paid_content_may_not_be_copied_to_public_channels": true
+  },
+  "qr": {
+    "enabled_when_canonical_url_verified": true,
+    "destination_policy": "stable_first_party_silo_url",
+    "destination_url": null,
+    "include_readable_url": true,
+    "source_tracking": ["print", "tumblr", "discord", "article", "event"],
+    "do_not_encode_temporary_third_party_urls": true
+  },
+  "distribution": {
+    "canonical_content_record_required": true,
+    "platform_adaptations_required": true,
+    "supported_channels": ["tumblr", "discord", "patreon", "owned_site"],
+    "external_auto_publish": false,
+    "approval_required_for_publication": true,
+    "link_check_required": true,
+    "source_attribution_required": true,
+    "no_unsolicited_bulk_messages": true
+  },
+  "measurement": {
+    "track_separately": [
+      "page_visits",
+      "article_reads",
+      "qr_visits",
+      "creator_support_clicks",
+      "free_memberships",
+      "paid_memberships",
+      "settled_revenue"
+    ],
+    "clicks_are_not_revenue": true,
+    "free_memberships_are_not_paid_revenue": true,
+    "revenue_requires_settlement_and_fulfillment_evidence": true
+  },
+  "human_gates": {
+    "first_publication_requires_approval": true,
+    "new_destination_requires_verification": true,
+    "paid_content_boundary_changes_require_approval": true,
+    "production_payment_changes_require_separate_approval": true
+  },
+  "silo_overrides": {
+    "mtg": {
+      "creator_support_label": "Support Happy Homarid's original Magic writing",
+      "creator_support_destination_url": null,
+      "status": "CONFIGURE_AFTER_LIVE_PATREON_URL_VERIFIED"
+    }
+  }
+}

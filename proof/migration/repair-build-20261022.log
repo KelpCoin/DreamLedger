@@ -1,0 +1,9 @@
+{
+  "status": "PREVIEW_BUNDLE_BUILT_NOT_PRODUCTION_READY",
+  "output_dir": "ops/migration/cloudflare-preview/dist",
+  "included_files": 410,
+  "excluded_files": 27,
+  "proof": "ops/migration/cloudflare-preview/build-proof.json",
+  "dynamic_routes": "BLOCKED_UNTIL_PORTED",
+  "production_mutation": false
+}

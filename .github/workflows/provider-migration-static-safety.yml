@@ -76,6 +76,8 @@ jobs:
           node -e 'const fs=require("fs");const s=fs.readFileSync("public/b2b.html","utf8");if(s.includes("localStorage.setItem")||s.includes("statusener")||s.includes("https://buy.stripe.com/"))throw Error("UNSAFE_B2B_INTAKE_OR_PAYMENT");if(!s.includes("/api/inquiry-config")||!s.includes("response.status!==202"))throw Error("INBOUND_ACK_CONTRACT_MISSING");console.log("B2B_INBOUND_FAIL_CLOSED=PASS")'
       - name: Build the non-production candidate and enforce catalogue safety
         run: node ops/migration/cloudflare-preview/build-preview.mjs
+      - name: Verify MTG scripts execute without fallback inventory
+        run: node --test ops/migration/cloudflare-preview/test-mtg-held-page.mjs
       - name: Confirm expected routes and honest degraded behavior
         run: |
           set -euo pipefail
