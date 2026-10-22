@@ -40,13 +40,13 @@ function isReadOnlyStripeUse(text) {
   return !/(method\s*[:=]\s*['\"]post['\"]|stripeCheckout\s*\(|stripeRequest\s*\(|sessions\s*\.create|curl[^\n]*-x\s+post|post\s+https?:\/\/api\.stripe\.com\/v1\/checkout\/sessions)/i.test(text);
 }
 
-function producerWindows(text) {
+function producerWindows(text, tailLines = 65) {
   const lines = text.split(/\r?\n/);
   const windows = [];
   for (let i = 0; i < lines.length; i++) {
     if (!PRODUCER_MARKERS.some((r) => r.test(lines[i]))) continue;
     const start = Math.max(0, i - 35);
-    const end = Math.min(lines.length, i + 65);
+    const end = Math.min(lines.length, i + tailLines);
     windows.push({ start: start + 1, end, text: lines.slice(start, end).join('\n') });
   }
   return windows;
@@ -69,7 +69,10 @@ for (const file of files) {
   if (rel === 'ops/commerce/reconcile-stripe-airtable.mjs') continue;
   const text = fs.readFileSync(file, 'utf8');
   if (!hasAnyProducer(text) || isReadOnlyStripeUse(text)) continue;
-  for (const win of producerWindows(text)) {
+  // api/stripe-link.ts has its URL constant near line 1 and the metadata body later;
+  // inspect enough of this one producer after newline-normalization without relaxing required fields.
+  const tailLines = rel === 'api/stripe-link.ts' ? 120 : 65;
+  for (const win of producerWindows(text, tailLines)) {
     const directCanonical = REQUIRED.every((k) => win.text.includes('payment_intent_data[metadata][' + k + ']'));
     const missing = directCanonical ? [] : REQUIRED.filter((k) => !metadataPresent(win.text, k));
     producers.push({ file: rel, lines: [win.start, win.end], missing });

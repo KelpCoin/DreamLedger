@@ -1,0 +1,72 @@
+{
+  "schema": "dreamledger/commerce-sku-contract/v1",
+  "action": "live_payment_link_sku_regression",
+  "mode": "READ_ONLY_LIVE_STRIPE",
+  "observed_at_utc": "2026-10-15T11:37:15.988Z",
+  "active_links_scanned": 151,
+  "active_links_missing_canonical_identifier": 136,
+  "phase1_candidates": [
+    {
+      "payment_link_id": "plink_1UKS00EGgEAnUFF9kUjraaL5",
+      "offer": "CMD-DIAG-29",
+      "active": false,
+      "url": "https://buy.stripe.com/eVqeVdc1T01n1DV3gwdwc30",
+      "metadata_before": {
+        "dreamledger_sku": "CMD-DIAG-29",
+        "experiment": "MTG-SALES-002-CHECKOUT-FRICTION",
+        "fulfillment": "marketplace_fulfillment",
+        "marketplace_listing_id": "2d379643-bbb6-40c6-bea4-1bcf915ba9de",
+        "offer_id": "OFFER-COMMANDER-DECK-DIAGNOSTIC-001",
+        "sku_id": "CMD-DIAG-29",
+        "truth_rule": "settled_stripe_only"
+      },
+      "metadata_after": {
+        "dreamledger_sku": "CMD-DIAG-29",
+        "experiment": "MTG-SALES-002-CHECKOUT-FRICTION",
+        "fulfillment": "marketplace_fulfillment",
+        "marketplace_listing_id": "2d379643-bbb6-40c6-bea4-1bcf915ba9de",
+        "offer_id": "OFFER-COMMANDER-DECK-DIAGNOSTIC-001",
+        "sku_id": "CMD-DIAG-29",
+        "truth_rule": "settled_stripe_only"
+      },
+      "mutation_performed": false,
+      "resolved_key": "sku_id",
+      "resolved_value": "COMMANDER-DECK-DIAGNOSTIC-001",
+      "raw_value": "CMD-DIAG-29",
+      "expected_raw_value": "COMMANDER-DECK-DIAGNOSTIC-001",
+      "violations": [
+        "LINK_INACTIVE",
+        "CANONICAL_VALUE_MISMATCH"
+      ],
+      "result": "FAIL"
+    },
+    {
+      "payment_link_id": "plink_1UNpw7EGgEAnUFF9yLItVlyv",
+      "offer": "TOLL-PROBE-50C",
+      "active": true,
+      "url": "https://buy.stripe.com/6oU5kD4zrdSdciz3gwdwc3b",
+      "metadata_before": {
+        "dreamledger_sku": "TOLL-PROBE-50C",
+        "fulfillment": "digital_access_receipt",
+        "toll_kind": "single_api_probe",
+        "truth_rule": "settled_stripe_only"
+      },
+      "metadata_after": {
+        "dreamledger_sku": "TOLL-PROBE-50C",
+        "fulfillment": "digital_access_receipt",
+        "toll_kind": "single_api_probe",
+        "truth_rule": "settled_stripe_only"
+      },
+      "mutation_performed": false,
+      "resolved_key": null,
+      "resolved_value": null,
+      "expected_raw_value": "TOLL-PROBE-50C",
+      "violations": [
+        "NO_ALLOWED_IDENTIFIER_KEY"
+      ],
+      "result": "FAIL"
+    }
+  ],
+  "result": "FAIL",
+  "evidence_boundary": "Read-only inspection through connected Stripe tools. No Payment Links or webhook endpoints were changed. The broad link scan is inventory evidence only; it does not establish payment or revenue."
+}

@@ -1,0 +1,35 @@
+name: Commerce SKU Contract
+on:
+  pull_request:
+    paths:
+      - 'docs/commerce/commerce-sku-contract.v1.json'
+      - 'scripts/verify-commerce-sku-contract.js'
+      - 'supabase/functions/stripe-revenue-41104f355d6878cdd6d1f9dc/**'
+      - 'supabase/functions/marketplace-diagnostic-input/**'
+      - 'api/stripe-link.ts'
+      - 'supabase/functions/_shared/commerce-sku-contract.ts'
+      - 'supabase/functions/_shared/commerce-sku-contract.ts'
+      - 'api/stripe-link.ts'
+      - '.github/workflows/commerce-sku-contract.yml'
+      - 'package.json'
+  push:
+    branches: [main]
+    paths:
+      - 'docs/commerce/commerce-sku-contract.v1.json'
+      - 'scripts/verify-commerce-sku-contract.js'
+      - 'supabase/functions/stripe-revenue-41104f355d6878cdd6d1f9dc/**'
+      - 'supabase/functions/marketplace-diagnostic-input/**'
+      - '.github/workflows/commerce-sku-contract.yml'
+      - 'package.json'
+permissions:
+  contents: read
+jobs:
+  sku-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Verify canonical SKU contract
+        run: npm run verify:commerce-sku-contract
