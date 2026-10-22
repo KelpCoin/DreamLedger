@@ -97,6 +97,41 @@ jobs:
           json.dump(packet,open("operator-proof/777-distribution-packet.json","w"),indent=2)
           PY
 
+      - name: Publish to owner-controlled Discord webhook only after approval
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          EVENT_NAME: ${{ github.event_name }}
+          DRY_RUN: ${{ inputs.dry_run }}
+          APPROVAL: ${{ inputs.approval }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT_NAME" != "workflow_dispatch" ] || [ "$DRY_RUN" != "false" ] || [ "$APPROVAL" != "APPROVED" ]; then echo "DISCORD=DRY_RUN"; exit 0; fi
+          if [ -z "$DISCORD_WEBHOOK" ]; then echo "DISCORD=SKIPPED_CREDENTIALS_NOT_CONFIGURED"; exit 0; fi
+          python3 - <<'PY'
+          import json,os,urllib.parse,urllib.request
+          packet=json.load(open("operator-proof/777-distribution-packet.json"))
+          base=os.environ["DISCORD_WEBHOOK"]
+          u=urllib.parse.urlparse(base)
+          if u.scheme!="https" or u.hostname not in ("discord.com","discordapp.com") or not u.path.startswith("/api/webhooks/"):
+              raise SystemExit("DISCORD_WEBHOOK_HOST_INVALID")
+          request=urllib.request.Request(packet["target_url"],headers={"User-Agent":"DreamLedger-777-release-preflight/1.0"})
+          with urllib.request.urlopen(request,timeout=15) as response:
+              if response.status!=200 or urllib.parse.urlparse(response.url).hostname not in ("dreamledger.org","www.dreamledger.org"):
+                  raise SystemExit("PUBLIC_TARGET_NOT_READY")
+          params=urllib.parse.parse_qsl(u.query,keep_blank_values=True)
+          params.append(("wait","true"))
+          post_url=urllib.parse.urlunparse(u._replace(query=urllib.parse.urlencode(params)))
+          body=json.dumps({"content":packet["message"][:1900],"allowed_mentions":{"parse":[]}}).encode()
+          req=urllib.request.Request(post_url,data=body,headers={"Content-Type":"application/json"},method="POST")
+          with urllib.request.urlopen(req,timeout=20) as result:
+              if result.status!=200: raise SystemExit("DISCORD_POST_NOT_ACKNOWLEDGED")
+              receipt=json.loads(result.read().decode())
+          if not receipt.get("id") or not receipt.get("channel_id"): raise SystemExit("DISCORD_RECEIPT_MISSING")
+          safe={"id":receipt["id"],"channel_id":receipt["channel_id"],"offer_id":packet["offer_id"],"revenue":"UNVERIFIED"}
+          json.dump(safe,open("operator-proof/discord-result.json","w"),indent=2)
+          print("DISCORD=DELIVERED_WITH_RECEIPT")
+          PY
+
       - name: Publish to Tumblr when credentials are configured
         env:
           TUMBLR_CONSUMER_KEY: ${{ secrets.TUMBLR_CONSUMER_KEY }}
@@ -174,7 +209,7 @@ jobs:
           python3 - <<'PY'
           import json, os, subprocess
           packet=json.load(open("operator-proof/777-distribution-packet.json"))
-          out={"schema":"DREAMLEDGER/777-SOCIAL-TELEMETRY/v1","cell_id":packet["cell_id"],"offer_id":packet["offer_id"],"target_url":packet["target_url"],"tumblr_published":os.path.exists("operator-proof/tumblr-result.json"),"x_published":os.path.exists("operator-proof/x-result.json"),"revenue_nzd":0,"buyer_count":0,"settled_payment_count":0,"truth":"UNVERIFIED","git_sha":subprocess.check_output(["git","rev-parse","HEAD"],text=True).strip()}
+          out={"schema":"DREAMLEDGER/777-SOCIAL-TELEMETRY/v1","cell_id":packet["cell_id"],"offer_id":packet["offer_id"],"target_url":packet["target_url"],"discord_published":os.path.exists("operator-proof/discord-result.json"),"tumblr_published":os.path.exists("operator-proof/tumblr-result.json"),"x_published":os.path.exists("operator-proof/x-result.json"),"revenue_nzd":0,"buyer_count":0,"settled_payment_count":0,"truth":"UNVERIFIED","git_sha":subprocess.check_output(["git","rev-parse","HEAD"],text=True).strip()}
           json.dump(out,open("operator-proof/777-social-telemetry.json","w"),indent=2)
           PY
 
