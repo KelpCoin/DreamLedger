@@ -8,6 +8,11 @@ on:
         required: false
         default: false
         type: boolean
+      approval:
+        description: "Type APPROVED for one publication; no standing schedule approval"
+        required: false
+        default: "HOLD"
+        type: string
   schedule:
     - cron: "17 * * * *"
 
@@ -39,7 +44,7 @@ jobs:
           TUMBLR_BATCH_SIZE: "5"
         run: |
           set -euo pipefail
-          if [ "${{ github.event.inputs.publish }}" = "true" ] || [ "${{ vars.TUMBLR_PUBLISH_ENABLED }}" = "true" ]; then
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ github.event.inputs.publish }}" = "true" ] && [ "${{ github.event.inputs.approval }}" = "APPROVED" ]; then
             node scripts/sync-evergreen-to-tumblr.js --publish
           else
             node scripts/sync-evergreen-to-tumblr.js
