@@ -1,0 +1,37 @@
+{
+  "schema": "dreamledger/mtg-statistical-draw-experiment/v1",
+  "deck_id": "EDH_QUINTORIUS_0002",
+  "commander": "Quintorius, Field Historian",
+  "source": "https://manabox.app/decks/AZ4-aMxndkWrpKZVph4TSA",
+  "source_path": "public/data/decklists/quintorius.json",
+  "status": "SIMULATED_NOT_GAMEPLAY_VALIDATED",
+  "engine": "seeded Monte Carlo draw sampling",
+  "seed": 20261022,
+  "trials": 20000,
+  "commander_cards": 1,
+  "deck_cards": 100,
+  "identified_lands": 36,
+  "land_identification": "explicit named lands; no live card oracle validation",
+  "rules": {
+    "format": "multiplayer Commander",
+    "draw_first_turn": true,
+    "mulligan": "free first, simplified London approximation, target 2–4 land opening",
+    "turns": 4
+  },
+  "metrics": {
+    "opening_keepable_pct": 98.13,
+    "three_lands_by_turn_three_pct": 89.27,
+    "four_lands_by_turn_four_pct": 72.2,
+    "mean_mulligans": 0.33
+  },
+  "strengths": [
+    "Named land base contains 36 of 99 main-deck cards",
+    "All 100 deck cards are represented in this import"
+  ],
+  "caveats": [
+    "A statistical land-draw proxy, not a Forge or Cockatrice gameplay result",
+    "No card ability or interaction modeling; cannot predict game win rate",
+    "Card printings, ownership, condition and card-type classifications require seller verification"
+  ],
+  "claim_boundary": "Never claim 4-player win percentage, power level or turn-of-commander from this report."
+}
