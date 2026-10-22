@@ -10,8 +10,13 @@ const TRANSFER_TOPIC = "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a
 
 function cleanHex(x: string) { return String(x || "").toLowerCase(); }
 function addressFromTopic(x: string) { return "0x" + cleanHex(x).slice(-40); }
-function amountFromHex(x: string) {
-  try { return BigInt(x).toLowerCase().startsWith("0x") ? BigInt(x) : BigInt("0x" + x); } catch { return 0n; }
+function amountFromHex(x: string): bigint | null {
+  // Transfer log amounts are hex quantities. BigInt has no .toLowerCase():
+  // the former parser swallowed TypeError and returned zero for every receipt.
+  // Invalid encodings may never match, even when the expected payment is zero.
+  const raw = String(x ?? "");
+  if (!/^0x[0-9a-fA-F]+$/.test(raw)) return null;
+  try { return BigInt(raw); } catch { return null; }
 }
 async function rpc(url: string, method: string, params: unknown[]) {
   const r = await fetch(url, { method:"POST", headers:{"content-type":"application/json"}, body:JSON.stringify({jsonrpc:"2.0",id:1,method,params}) });
@@ -80,9 +85,10 @@ async function reconcile(row:any) {
   if (!event) return {status:"CONFIRMED_NO_EVENT",confirmations,block};
   if (event.verification_status !== "VERIFIED") {
     const { error } = await db.from("economic_events").update({
-      verification_status:"VERIFIED",
-      verification_state:"VERIFIED",
-      state_after:"VERIFIED",
+      // Confirming a USDC transfer is not independent delivery or buyer attribution.
+      verification_status:"UNMATCHED",
+      verification_state:"UNMATCHED",
+      state_after:"UNMATCHED",
       settlement_state:"SETTLED_CONFIRMED",
       payment_settled:true,
       amount_nzd:amountNzd,
@@ -93,12 +99,12 @@ async function reconcile(row:any) {
         toll_call_id:String(row.toll_call_id),
         network:row.network, tx_hash:row.tx_hash, block_number:block,
         confirmations, fx_usd_nzd:fx.rate, fx_source:fx.source, fx_observed_at:fx.observed_at,
-        scoreboard_eligible:true
+        scoreboard_eligible:false, economic_truth:"PAYMENT_CONFIRMED_DELIVERY_UNVERIFIED"
       }
     }).eq("event_id",event.event_id);
     if (error) throw error;
   }
-  return {status:"VERIFIED",confirmations,block,amount_nzd:amountNzd};
+  return {status:"PAYMENT_CONFIRMED_DELIVERY_UNVERIFIED",confirmations,block,amount_nzd:amountNzd};
 }
 
 Deno.serve(async (req) => {
