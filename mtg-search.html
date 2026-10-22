@@ -43,27 +43,53 @@ h1{font-family:var(--serif);font-size:clamp(1.8rem,5vw,2.3rem);font-weight:400;m
   <h1>Search listings</h1>
   <p class="sub">Structured. Filterable. <strong style="color:var(--ink)">Doesn’t vanish under the next post.</strong> 0% success fee on peer sales.</p>
   <span class="pill">No Facebook wall</span>
-  <span class="pill">NZD + city</span>
+  <span class="pill">NZD + card details</span>
   <span class="pill">Sell = free account</span>
   <div class="search">
     <input id="q" type="search" placeholder="Card name…" enterkeyhint="search" autocomplete="off">
-    <select id="city"><option value="">All NZ</option><option>Auckland</option><option>Wellington</option><option>Christchurch</option><option>Hamilton</option><option>Dunedin</option><option>Other / post</option></select>
-    <select id="cond"><option value="">Any condition</option><option>NM</option><option>LP</option><option>MP</option><option>HP</option></select>
+    <input id="set" type="search" placeholder="Set / collector number" autocomplete="off">
+    <select id="cond"><option value="">Any condition</option><option>Near Mint</option><option>Lightly Played</option><option>Moderately Played</option><option>Heavily Played</option><option>Damaged</option></select>
   </div>
   <p class="meta" id="count">Loading…</p>
   <div id="list"></div>
   <div class="vs"><strong>Why this beats NZ MTG Marketplace on Facebook</strong><br>
-  Their posts get buried, moderated away, or stuck behind one-post rules. Here every listing stays <strong>searchable</strong> until you mark it sold. What they still have: the crowd — we seed stock and make listing fast so the crowd has somewhere better to stand.</div>
+  Listings come from seller submissions. Prices, card conditions and availability are seller-provided and should be confirmed before agreeing to a transaction.</div>
 </main>
 <div class="stick"><b>Your listing won’t disappear in a feed</b><a href="/mtg-list">List free</a></div>
 <script>
 (function(){
-var SEED=[{id:'1',name:'Sol Ring',set:'C21',condition:'NM',finish:'Nonfoil',price:4,city:'Wellington',logistics:'CBD pickup or post +$5',notes:'Have 3'},{id:'2',name:'Arcane Signet',set:'C20',condition:'NM',finish:'Nonfoil',price:3,city:'Auckland',logistics:'North Shore meetup',notes:''},{id:'3',name:'Command Tower',set:'C21',condition:'LP',finish:'Foil',price:8,city:'Christchurch',logistics:'Post tracked',notes:''},{id:'4',name:'Cultivate',set:'C21',condition:'NM',finish:'Nonfoil',price:1,city:'Wellington',logistics:'Pickup Te Aro',notes:'Bulk ok'},{id:'5',name:'Beast Within',set:'NCC',condition:'NM',finish:'Nonfoil',price:2,city:'Hamilton',logistics:'Post +$4',notes:''},{id:'6',name:'Counterspell',set:'MH2',condition:'NM',finish:'Nonfoil',price:3,city:'Auckland',logistics:'City meetup',notes:''},{id:'7',name:'Path to Exile',set:'MM2',condition:'LP',finish:'Nonfoil',price:5,city:'Wellington',logistics:'Post or Cubacade area',notes:''},{id:'8',name:'Rhystic Study',set:'PCY',condition:'MP',finish:'Nonfoil',price:35,city:'Other / post',logistics:'Tracked post only',notes:'Played, honest MP'}];
-function drafts(){try{var d=JSON.parse(localStorage.getItem('dreamledger_mtg_draft_listing')||'null');if(!d||!d.card)return[];return[{id:'draft',name:d.card,set:'',condition:d.condition||'NM',finish:d.finish||'',price:Number(d.price_nzd)||0,city:d.city||'',logistics:d.logistics||'',notes:(d.notes||'')+' · your draft'}];}catch(e){return[]}}
-function all(){return drafts().concat(SEED)}
-function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;')}
-function render(){var q=(document.getElementById('q').value||'').toLowerCase().trim();var city=document.getElementById('city').value;var cond=document.getElementById('cond').value;var items=all().filter(function(x){if(q&&(x.name+' '+x.set+' '+(x.notes||'')).toLowerCase().indexOf(q)<0)return false;if(city&&x.city!==city)return false;if(cond&&x.condition!==cond)return false;return true;});document.getElementById('count').textContent=items.length+' listing'+(items.length===1?'':'s')+' · filter anytime';var root=document.getElementById('list');if(!items.length){root.innerHTML='<div class="empty">No matches. <a href="/mtg-list" style="color:var(--gold-b)">List this card →</a></div>';return;}root.innerHTML=items.map(function(x){return '<article class="card"><div class="tag">'+(x.id==='draft'?'YOUR DRAFT':'LISTING')+'</div><h2>'+esc(x.name)+(x.set?' · '+esc(x.set):'')+'</h2><div class="row"><span>'+esc(x.condition)+' · '+esc(x.finish)+'</span><span>'+esc(x.city)+'</span></div><div class="price">NZ$'+esc(x.price)+'</div><div class="row">'+esc(x.logistics)+'</div>'+(x.notes?'<div class="row">'+esc(x.notes)+'</div>':'')+'</article>';}).join('');}
-['q','city','cond'].forEach(function(id){document.getElementById(id).addEventListener('input',render);document.getElementById(id).addEventListener('change',render);});render();
+  'use strict';
+  var source = [];
+  var failed = false;
+  var $ = function(id){ return document.getElementById(id); };
+  function esc(v){ return String(v == null ? '' : v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+  function render(){
+    if(failed) return;
+    var q=$('q').value.toLowerCase().trim();
+    var set=$('set').value.toLowerCase().trim();
+    var cond=$('cond').value;
+    var items=source.filter(function(x){
+      if(x.status !== 'active') return false;
+      if(q && String(x.title||'').toLowerCase().indexOf(q)<0) return false;
+      if(set && (String(x.set_name||'')+' '+String(x.collector_number||'')).toLowerCase().indexOf(set)<0) return false;
+      if(cond && x.condition !== cond) return false;
+      return true;
+    });
+    $('count').textContent=items.length+' seller listing'+(items.length===1?'':'s')+' · live API';
+    $('list').innerHTML=items.length?items.map(function(x){
+      var price=Number(x.price_nzd);
+      var label=x.accepts_buy && Number.isFinite(price) && price>0 ? 'NZ
+</body>
+</html>
++price.toFixed(2) : 'Trade only';
+      return '<article class="card"><div class="tag">SELLER LISTING</div><h2>'+esc(x.title)+'</h2><div class="row"><span>'+esc(x.set_name||'Set unspecified')+' '+esc(x.collector_number?'#'+x.collector_number:'')+'</span><span>'+esc(x.condition||'Condition unspecified')+'</span></div><div class="price">'+esc(label)+'</div><div class="row">Seller: '+esc(x.seller_display_name||'Seller')+'</div><div class="row">'+esc(x.description||'')+'</div><a href="/mtg-marketplace.html?listing='+encodeURIComponent(x.id)+'" style="color:var(--gold-b)">View listing and request '+(x.accepts_trade?'trade / buy':'purchase')+' &#8594;</a></article>';
+    }).join(''):'<div class="empty">No matching seller listings. <a href="/mtg-marketplace.html#list-card" style="color:var(--gold-b)">List a real card</a>.</div>';
+  }
+  ['q','set','cond'].forEach(function(id){$(id).addEventListener('input',render);$(id).addEventListener('change',render);});
+  fetch('/api/mtg/marketplace/listings',{credentials:'same-origin',cache:'no-store'})
+    .then(function(r){if(!r.ok)throw new Error('Marketplace API HTTP '+r.status);return r.json();})
+    .then(function(d){if(!Array.isArray(d.listings))throw new Error('Invalid marketplace response');source=d.listings;render();})
+    .catch(function(){failed=true;$('count').textContent='Marketplace listings are temporarily unavailable';$('list').innerHTML='<div class="empty">Live inventory could not be loaded. No demonstration cards are displayed. Please try again later.</div>';});
 })();
 </script>
 </body>
