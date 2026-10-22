@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Search MTG listings · NZ · 0% fees | DreamLedger</title>
-<meta name="description" content="Searchable Magic listings for New Zealand. Posts don’t disappear into a Facebook wall. 0% success fee.">
+<title>MTG listing drafts & verified inventory | DreamLedger NZ</title>
+<meta name="description" content="View verified Magic listings when available, and inspect private drafts on this device. No fabricated inventory.">
 <meta name="theme-color" content="#0a0b0f">
 <link rel="canonical" href="https://dreamledger.org/mtg-search">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,600;9..40,700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
@@ -37,14 +37,14 @@ h1{font-family:var(--serif);font-size:clamp(1.8rem,5vw,2.3rem);font-weight:400;m
 <body>
 <header class="hdr"><div class="hdr-inner">
   <a class="brand" href="/mtg">Dream<em>Ledger</em> · MTG</a>
-  <a class="cta" href="/mtg-list">List a card</a>
+  <a class="cta" href="/mtg-list">Draft a card</a>
 </div></header>
 <main class="wrap">
-  <h1>Search listings</h1>
-  <p class="sub">Structured. Filterable. <strong style="color:var(--ink)">Doesn’t vanish under the next post.</strong> 0% success fee on peer sales.</p>
-  <span class="pill">No Facebook wall</span>
+  <h1>Magic singles and drafts</h1>
+  <p class="sub">Independent stock verification is required before a card is listed for sale. Browse private drafts stored on your own device while public listing intake is being restored.</p>
+  <span class="pill">No invented inventory</span>
   <span class="pill">NZD + city</span>
-  <span class="pill">Sell = free account</span>
+  <span class="pill">Private drafts only</span>
   <div class="search">
     <input id="q" type="search" placeholder="Card name…" enterkeyhint="search" autocomplete="off">
     <select id="city"><option value="">All NZ</option><option>Auckland</option><option>Wellington</option><option>Christchurch</option><option>Hamilton</option><option>Dunedin</option><option>Other / post</option></select>
@@ -52,18 +52,66 @@ h1{font-family:var(--serif);font-size:clamp(1.8rem,5vw,2.3rem);font-weight:400;m
   </div>
   <p class="meta" id="count">Loading…</p>
   <div id="list"></div>
-  <div class="vs"><strong>Why this beats NZ MTG Marketplace on Facebook</strong><br>
-  Their posts get buried, moderated away, or stuck behind one-post rules. Here every listing stays <strong>searchable</strong> until you mark it sold. What they still have: the crowd — we seed stock and make listing fast so the crowd has somewhere better to stand.</div>
+  <div class="vs"><strong>Evidence first.</strong> A draft is not a public listing. Verified seller inventory, price, condition and delivery terms must exist before a real item can be offered. We do not show sample cards as purchasable stock.</div>
 </main>
-<div class="stick"><b>Your listing won’t disappear in a feed</b><a href="/mtg-list">List free</a></div>
+<div class="stick"><b>Save a private draft while listings are held</b><a href="/mtg-list.html">Draft card</a></div>
 <script>
 (function(){
-var SEED=[{id:'1',name:'Sol Ring',set:'C21',condition:'NM',finish:'Nonfoil',price:4,city:'Wellington',logistics:'CBD pickup or post +$5',notes:'Have 3'},{id:'2',name:'Arcane Signet',set:'C20',condition:'NM',finish:'Nonfoil',price:3,city:'Auckland',logistics:'North Shore meetup',notes:''},{id:'3',name:'Command Tower',set:'C21',condition:'LP',finish:'Foil',price:8,city:'Christchurch',logistics:'Post tracked',notes:''},{id:'4',name:'Cultivate',set:'C21',condition:'NM',finish:'Nonfoil',price:1,city:'Wellington',logistics:'Pickup Te Aro',notes:'Bulk ok'},{id:'5',name:'Beast Within',set:'NCC',condition:'NM',finish:'Nonfoil',price:2,city:'Hamilton',logistics:'Post +$4',notes:''},{id:'6',name:'Counterspell',set:'MH2',condition:'NM',finish:'Nonfoil',price:3,city:'Auckland',logistics:'City meetup',notes:''},{id:'7',name:'Path to Exile',set:'MM2',condition:'LP',finish:'Nonfoil',price:5,city:'Wellington',logistics:'Post or Cubacade area',notes:''},{id:'8',name:'Rhystic Study',set:'PCY',condition:'MP',finish:'Nonfoil',price:35,city:'Other / post',logistics:'Tracked post only',notes:'Played, honest MP'}];
-function drafts(){try{var d=JSON.parse(localStorage.getItem('dreamledger_mtg_draft_listing')||'null');if(!d||!d.card)return[];return[{id:'draft',name:d.card,set:'',condition:d.condition||'NM',finish:d.finish||'',price:Number(d.price_nzd)||0,city:d.city||'',logistics:d.logistics||'',notes:(d.notes||'')+' · your draft'}];}catch(e){return[]}}
-function all(){return drafts().concat(SEED)}
-function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;')}
-function render(){var q=(document.getElementById('q').value||'').toLowerCase().trim();var city=document.getElementById('city').value;var cond=document.getElementById('cond').value;var items=all().filter(function(x){if(q&&(x.name+' '+x.set+' '+(x.notes||'')).toLowerCase().indexOf(q)<0)return false;if(city&&x.city!==city)return false;if(cond&&x.condition!==cond)return false;return true;});document.getElementById('count').textContent=items.length+' listing'+(items.length===1?'':'s')+' · filter anytime';var root=document.getElementById('list');if(!items.length){root.innerHTML='<div class="empty">No matches. <a href="/mtg-list" style="color:var(--gold-b)">List this card →</a></div>';return;}root.innerHTML=items.map(function(x){return '<article class="card"><div class="tag">'+(x.id==='draft'?'YOUR DRAFT':'LISTING')+'</div><h2>'+esc(x.name)+(x.set?' · '+esc(x.set):'')+'</h2><div class="row"><span>'+esc(x.condition)+' · '+esc(x.finish)+'</span><span>'+esc(x.city)+'</span></div><div class="price">NZ$'+esc(x.price)+'</div><div class="row">'+esc(x.logistics)+'</div>'+(x.notes?'<div class="row">'+esc(x.notes)+'</div>':'')+'</article>';}).join('');}
-['q','city','cond'].forEach(function(id){document.getElementById(id).addEventListener('input',render);document.getElementById(id).addEventListener('change',render);});render();
+'use strict';
+function getDraft(key) {
+  try {
+    var item=JSON.parse(localStorage.getItem(key)||'null');
+    if(!item||typeof item!=='object')return null;
+    var name=String(item.title||item.card||'').slice(0,160).trim();
+    if(!name)return null;
+    var amount=Number(item.price_nzd);
+    return {name:name,condition:String(item.condition||'').slice(0,40),
+      finish:String(item.finish||'').slice(0,40),city:String(item.city||'').slice(0,80),
+      price:Number.isFinite(amount)&&amount>=0?amount:null,
+      notes:String(item.notes||'').slice(0,500)};
+  }catch(_){return null;}
+}
+function drafts(){
+  return ['dreamledger_mtg_single_draft','dreamledger_mtg_draft_listing']
+    .map(getDraft).filter(Boolean).map(function(x){x.private_draft=true;return x;});
+}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+});}
+function render(){
+  var q=(document.getElementById('q').value||'').toLowerCase().trim();
+  var city=document.getElementById('city').value;
+  var condition=document.getElementById('cond').value;
+  var matches=drafts().filter(function(item){
+    return (!q||(item.name+' '+item.notes).toLowerCase().includes(q))&&
+      (!city||item.city===city)&&(!condition||item.condition===condition);
+  });
+  document.getElementById('count').textContent=
+    '0 independently verified public listings · '+matches.length+
+    ' private draft'+(matches.length===1?'':'s')+' on this device';
+  var root=document.getElementById('list');
+  if(!matches.length){
+    root.innerHTML='<div class="empty">No public listings are verified yet. '+
+      'You can still <a href="/mtg-list.html" style="color:var(--gold-b)">prepare a private listing draft</a>. '+
+      'No stock, prices or sellers are being represented as available.</div>';
+    return;
+  }
+  root.innerHTML=matches.map(function(x){
+    return '<article class="card"><div class="tag">PRIVATE DRAFT · NOT PUBLISHED</div>'+
+      '<h2>'+esc(x.name)+'</h2><div class="row"><span>'+esc(x.condition)+
+      ' · '+esc(x.finish)+'</span><span>'+esc(x.city)+'</span></div>'+
+      (x.price!==null?'<div class="price">Draft asking price: NZ
+</body>
+</html>
++esc(x.price)+'</div>':'')+
+      '<p>Only saved in this browser. Not available for purchase or public search.</p></article>';
+  }).join('');
+}
+['q','city','cond'].forEach(function(key){
+  document.getElementById(key).addEventListener('input',render);
+  document.getElementById(key).addEventListener('change',render);
+});
+render();
 })();
 </script>
 </body>
