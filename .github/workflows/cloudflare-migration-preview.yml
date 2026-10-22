@@ -2,6 +2,14 @@ name: DreamLedger Cloudflare Migration Preview
 
 on:
   workflow_dispatch:
+    inputs:
+      preview_ref:
+        description: "Only the canonical provider-migration branch may deploy"
+        type: choice
+        required: true
+        default: beck/provider-migration-neon-cloudflare-20261019
+        options:
+          - beck/provider-migration-neon-cloudflare-20261019
 
 permissions:
   contents: read
@@ -12,78 +20,176 @@ concurrency:
 
 jobs:
   deploy-and-probe-preview:
-    if: github.ref == 'refs/heads/beck/provider-migration-neon-cloudflare-20261019'
+    if: >-
+      github.ref == 'refs/heads/beck/provider-migration-neon-cloudflare-20261019' &&
+      inputs.preview_ref == 'beck/provider-migration-neon-cloudflare-20261019'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
+    outputs:
+      deployment_url: ${{ steps.identity.outputs.deployment_url }}
+      commit_sha: ${{ steps.identity.outputs.commit_sha }}
+      deployment_id: ${{ steps.deploy.outputs.pages-deployment-id }}
     env:
-      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-      CLOUDFLARE_PAGES_PROJECT: ${{ secrets.CLOUDFLARE_PAGES_PROJECT }}
       GITHUB_SHA: ${{ github.sha }}
       MIGRATION_PROOF_PATH: proof/migration/cloudflare-preview-route-probe.json
 
     steps:
-      - name: Checkout migration candidate
+      - name: Checkout exact reviewed migration SHA
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.ref }}
+          ref: ${{ github.sha }}
+          persist-credentials: false
           fetch-depth: 1
+
+      - name: Verify checkout and preview credentials
+        shell: bash
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_PAGES_PROJECT: ${{ secrets.CLOUDFLARE_PAGES_PROJECT }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test -n "${CLOUDFLARE_API_TOKEN:-}" || { echo 'Missing CLOUDFLARE_API_TOKEN' >&2; exit 2; }
+          test -n "${CLOUDFLARE_ACCOUNT_ID:-}" || { echo 'Missing CLOUDFLARE_ACCOUNT_ID' >&2; exit 2; }
+          test -n "${CLOUDFLARE_PAGES_PROJECT:-}" || { echo 'Missing CLOUDFLARE_PAGES_PROJECT' >&2; exit 2; }
+          [[ "$CLOUDFLARE_PAGES_PROJECT" =~ ^[a-z0-9]+(-[a-z0-9]+)*-preview$ ]] || {
+            echo 'Pages project must have dedicated -preview suffix' >&2
+            exit 2
+          }
+          echo 'MIGRATION_PREVIEW_PREFLIGHT=PASS'
+
+      - name: Confirm Cloudflare Pages isolation (read-only API)
+        shell: bash
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_PAGES_PROJECT: ${{ secrets.CLOUDFLARE_PAGES_PROJECT }}
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          const { CLOUDFLARE_API_TOKEN: token, CLOUDFLARE_ACCOUNT_ID: account,
+                  CLOUDFLARE_PAGES_PROJECT: project } = process.env;
+          const url = 'https://api.cloudflare.com/client/v4/accounts/' +
+            encodeURIComponent(account) + '/pages/projects/' + encodeURIComponent(project);
+          const response = await fetch(url, { headers: { Authorization: 'Bearer ' + token } });
+          if (!response.ok) throw new Error('PAGES_TARGET_PREFLIGHT_HTTP_' + response.status);
+          const doc = await response.json();
+          if (!doc.success || !doc.result || doc.result.name !== project ||
+              !doc.result.production_branch ||
+              doc.result.production_branch === 'provider-migration-preview' ||
+              (Array.isArray(doc.result.domains) && doc.result.domains.length > 0)) {
+            throw new Error('PAGES_PROJECT_NOT_ISOLATED');
+          }
+          console.log('PAGES_PROJECT_ISOLATION=PASS');
+          NODE
 
       - name: Setup Node 24
         uses: actions/setup-node@v4
         with:
           node-version: '24'
 
-      - name: Validate account configuration without printing secrets
+      - name: Build fail-closed static preview
         shell: bash
         run: |
           set -euo pipefail
-          missing=()
-          [ -n "${CLOUDFLARE_API_TOKEN:-}" ] || missing+=("CLOUDFLARE_API_TOKEN")
-          [ -n "${CLOUDFLARE_ACCOUNT_ID:-}" ] || missing+=("CLOUDFLARE_ACCOUNT_ID")
-          [ -n "${CLOUDFLARE_PAGES_PROJECT:-}" ] || missing+=("CLOUDFLARE_PAGES_PROJECT")
-          if [ "${#missing[@]}" -gt 0 ]; then
-            printf '{"schema":"dreamledger/cloudflare-preview-deploy/v1","status":"BLOCKED_MISSING_GITHUB_SECRETS","missing":[' > proof-placeholder.json
-            printf '"%s",' "${missing[@]}" | sed 's/,$//' >> proof-placeholder.json
-            printf '],"production_mutation":false,"dns_changed":false,"verified_revenue_nzd":0}\n' >> proof-placeholder.json
-            cat proof-placeholder.json
-            exit 2
-          fi
-          echo "CLOUDFLARE_PREVIEW_CONFIGURATION=PASS"
-
-      - name: Build fail-closed static preview bundle
-        run: |
-          set -euo pipefail
-          node ops/migration/cloudflare-preview/build-preview.mjs
+          node --check ops/migration/cloudflare-preview/build-preview.mjs
           node --check ops/migration/cloudflare-preview/_worker.js
           node --check ops/migration/cloudflare-preview/smoke-preview.mjs
+          node ops/migration/cloudflare-preview/build-preview.mjs
           test -s ops/migration/cloudflare-preview/dist/_worker.js
           node -e 'const fs=require("fs");const p="ops/migration/cloudflare-preview/dist";for(const f of ["index.html","404.html","mtg/index.html","truth-oracle.html","silos/mtg/silo.json","data/mtg-catalog.json","_worker.js"])if(!fs.existsSync(p+"/"+f))throw new Error("missing "+f);console.log("CLOUDFLARE_PREVIEW_BUILD=PASS")'
 
-      - name: Deploy preview branch only
-        shell: bash
-        run: |
-          set -euo pipefail
-          npx --yes wrangler@4 pages deploy ops/migration/cloudflare-preview/dist \
-            --project-name "$CLOUDFLARE_PAGES_PROJECT" \
-            --branch provider-migration-preview \
-            --commit-hash "$GITHUB_SHA" \
-            --commit-message "DreamLedger migration preview $GITHUB_SHA" \
+      - name: Deploy to dedicated Cloudflare Pages preview
+        id: deploy
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: '4.136.3'
+          command: >-
+            pages deploy ops/migration/cloudflare-preview/dist
+            --project-name=${{ secrets.CLOUDFLARE_PAGES_PROJECT }}
+            --branch=provider-migration-preview
+            --commit-hash=${{ github.sha }}
             --skip-caching
 
-      - name: Probe public read-only routes and blocked stateful routes
+      - name: Record immutable deployment URL and source SHA
+        id: identity
+        shell: bash
         env:
-          CLOUDFLARE_PREVIEW_URL: https://provider-migration-preview.${{ secrets.CLOUDFLARE_PAGES_PROJECT }}.pages.dev
+          DEPLOYMENT_URL: ${{ steps.deploy.outputs.deployment-url }}
+          ALIAS_URL: ${{ steps.deploy.outputs.pages-deployment-alias-url }}
+          DEPLOYMENT_ID: ${{ steps.deploy.outputs.pages-deployment-id }}
+          DEPLOY_ENV: ${{ steps.deploy.outputs.pages-environment }}
+          CLOUDFLARE_PAGES_PROJECT: ${{ secrets.CLOUDFLARE_PAGES_PROJECT }}
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const u = new URL(process.env.DEPLOYMENT_URL || '');
+          const project = process.env.CLOUDFLARE_PAGES_PROJECT;
+          if (u.protocol !== 'https:' ||
+              u.hostname !== (u.hostname.split('.')[0] + '.' + project + '.pages.dev') ||
+              !/^[a-z0-9-]+$/.test(u.hostname.split('.')[0]) ||
+              u.username || u.password || u.pathname !== '/' || u.search || u.hash ||
+              !/^[a-f0-9]{40}$/i.test(process.env.GITHUB_SHA || '')) {
+            throw new Error('Refusing unverifiable Pages deployment URL or Git SHA');
+          }
+          if (process.env.DEPLOY_ENV !== 'preview') {
+            throw new Error('Cloudflare deployment is not in the preview environment');
+          }
+          fs.appendFileSync(process.env.GITHUB_OUTPUT,
+            'deployment_url=' + u.origin + '\n' +
+            'commit_sha=' + process.env.GITHUB_SHA + '\n');
+          fs.mkdirSync('proof/migration', { recursive: true });
+          fs.writeFileSync('proof/migration/cloudflare-preview-deployment.json', JSON.stringify({
+            schema: 'dreamledger/cloudflare-preview-deployment/v1',
+            deployment_url: u.origin,
+            branch_alias_url: process.env.ALIAS_URL || null,
+            deployment_id: process.env.DEPLOYMENT_ID || null,
+            source_commit_sha: process.env.GITHUB_SHA,
+            run_id: process.env.GITHUB_RUN_ID,
+            production_ready: false,
+            production_mutation: false,
+            dns_changed: false,
+            verified_revenue_nzd: 0
+          }, null, 2) + '\n');
+          NODE
+
+      - name: Probe exact immutable deployment (G08 candidate)
+        env:
+          CLOUDFLARE_PREVIEW_URL: ${{ steps.identity.outputs.deployment_url }}
         run: node ops/migration/cloudflare-preview/smoke-preview.mjs
 
-      - name: Retain migration preview evidence
+      - name: Publish deployment evidence summary
+        if: always()
+        shell: bash
+        env:
+          PREVIEW_URL: ${{ steps.identity.outputs.deployment_url }}
+          DEPLOYMENT_SHA: ${{ steps.identity.outputs.commit_sha }}
+        run: |
+          {
+            echo '## DreamLedger migration preview (G08 candidate)'
+            echo ''
+            echo "GitHub run: $GITHUB_RUN_ID"
+            echo "Source SHA: ${DEPLOYMENT_SHA:-NOT_DEPLOYED}"
+            echo "Immutable pages.dev URL: ${PREVIEW_URL:-NOT_DEPLOYED}"
+            echo 'State: preview-only; NOT production-ready'
+            echo 'G06/G16/G17: NOT PASSED'
+            echo 'Verified external revenue: NZD 0.00'
+            echo ''
+            echo 'See retained artifacts for route-by-route G08 proof.'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Retain SHA-bound preview evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: cloudflare-migration-preview-${{ github.run_id }}
           path: |
+            proof/migration/cloudflare-preview-deployment.json
             proof/migration/cloudflare-preview-route-probe.json
             ops/migration/cloudflare-preview/build-proof.json
-            proof-placeholder.json
           if-no-files-found: warn
           retention-days: 30
