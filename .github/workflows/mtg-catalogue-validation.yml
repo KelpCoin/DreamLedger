@@ -1,56 +1,75 @@
-name: MTG catalogue validation
+name: MTG marketplace truth gate
 
 on:
   pull_request:
     paths:
-      - "public/catalog.json"
       - "mtg/**"
       - "public/mtg/**"
+      - "mtg-*.html"
+      - "data/mtg-catalog.json"
+      - "public/data/mtg-catalog.json"
+      - "BEC-PRIME/routes/mtgMarketplace.js"
       - ".github/workflows/mtg-catalogue-validation.yml"
   push:
     branches: [main]
     paths:
-      - "public/catalog.json"
       - "mtg/**"
       - "public/mtg/**"
+      - "mtg-*.html"
+      - "data/mtg-catalog.json"
+      - "public/data/mtg-catalog.json"
+      - "BEC-PRIME/routes/mtgMarketplace.js"
       - ".github/workflows/mtg-catalogue-validation.yml"
 
 jobs:
-  validate-mtg-listings:
+  verify-mtg-marketplace:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-      - name: Validate catalogue records and buyer routes
+      - uses: actions/checkout@v4
+      - name: Reject demonstration stock and broken listing routes
+        shell: bash
         run: |
           node <<'NODE'
-          const fs = require('fs');
-          const catalog = JSON.parse(fs.readFileSync('public/catalog.json', 'utf8'));
-          const required = [
-            ['EDH_0001', null],
-            ['EDH_QUINTORIUS_0002', 'mtg/quintorius-field-historian.html'],
-            ['EDH_DWYNEN_0003', 'mtg/dwynen-gilt-leaf-daen.html']
-          ];
-          const products = catalog.products || [];
-          for (const [id, page] of required) {
-            const p = products.find(x => x.id === id);
-            if (!p || p.status !== 'published') throw new Error('Missing/unpublished MTG listing: ' + id);
-            if (page && !fs.existsSync(page)) throw new Error('Missing buyer route: ' + page);
-            if (id !== 'EDH_0001' && (p.checkout_available !== false || p.sale_mode !== 'claim_by_message' || !p.claim_url)) {
-              throw new Error('Claim-only deck must not claim direct checkout: ' + id);
-            }
+          const fs = require('node:fs');
+          const assert = require('node:assert/strict');
+          const vm = require('node:vm');
+          const get = file => fs.readFileSync(file, 'utf8');
+          const live = JSON.parse(get('public/data/mtg-catalog.json'));
+          assert.equal(live.silo, 'mtg');
+          const decks = live.products.filter(p => p.status === 'published' && p.category === 'commander-deck');
+          for (const p of decks) {
+            assert.equal(p.silo, 'mtg', 'No cross-silo stock');
+            assert.equal(p.currency, 'NZD');
+            assert.ok(Number.isFinite(p.price) && p.price > 0, p.id + ': invalid price');
+            assert.ok(Number.isInteger(p.inventory) && p.inventory > 0, p.id + ': no stock quantity');
+            assert.equal(p.checkout_available, false, p.id + ': no unverified checkout');
+            assert.equal(p.sale_mode, 'claim_by_message', p.id + ': no unverified payment path');
+            assert.ok(p.claim_url && p.claim_url.startsWith('mailto:'), p.id + ': no claim route');
+            assert.ok(p.detail_url && fs.existsSync('public' + p.detail_url), p.id + ': missing public details');
           }
-          const html = fs.readFileSync('mtg/index.html', 'utf8');
-          if (!html.includes('/public/catalog.json')) throw new Error('Root preview catalogue must use tracked public catalogue data');
-          const liveHtml = fs.readFileSync('public/mtg/index.html', 'utf8');
-          if (!liveHtml.includes("get('/catalog.json')")) throw new Error('Live public MTG page must load the tracked catalogue.json');
-          for (const page of ['public/mtg/quintorius-field-historian.html', 'public/mtg/dwynen-gilt-leaf-daen.html']) {
-            if (!fs.existsSync(page)) throw new Error('Missing deployed public route: ' + page);
+          const files = ['mtg-search.html','mtg-list.html','mtg-marketplace.html','mtg/index.html','public/mtg/index.html'];
+          for (const file of files) {
+            const html = get(file);
+            const scripts = [...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)];
+            for (const [,src] of scripts) if (src.trim()) new vm.Script(src, { filename: file });
           }
-          if (!html.includes('EDH_QUINTORIUS_0002') || !html.includes('EDH_DWYNEN_0003')) throw new Error('Catalogue must prioritize the new decks');
-          for (const page of ['mtg/quintorius-field-historian.html', 'mtg/dwynen-gilt-leaf-daen.html']) {
-            const body = fs.readFileSync(page, 'utf8');
-            if (!body.includes('decklist') && !body.includes('decklist')) throw new Error('Missing decklist reference in ' + page);
+          const search = get('mtg-search.html');
+          assert.ok(search.includes("fetch('/api/mtg/marketplace/listings'"));
+          assert.ok(!search.includes('var SEED=') && !search.includes('dreamledger_mtg_draft_listing'));
+          const list = get('mtg-list.html');
+          assert.ok(list.includes('/mtg-marketplace.html#list-card'));
+          assert.ok(!list.includes('dreamledger_mtg_draft_listing'));
+          const marketplace = get('mtg-marketplace.html');
+          assert.ok(marketplace.includes('id="list-card"'));
+          assert.ok(marketplace.includes("/api/mtg/marketplace/listings"));
+          const route = get('BEC-PRIME/routes/mtgMarketplace.js');
+          assert.ok(route.includes("route === '/api/mtg/marketplace/listings'"));
+          for (const file of ['mtg/index.html','public/mtg/index.html']) {
+            const html = get(file);
+            assert.ok(html.includes('/data/mtg-catalog.json'));
+            assert.ok(!html.includes('FALLBACK'), file + ': stale hardcoded inventory');
+            assert.ok(html.includes('/mtg-search.html'));
           }
-          console.log('MTG catalogue validation passed.');
+          console.log('PASS: verified public catalogue shape, no demonstration stock, and MTG marketplace routes.');
+          console.log('NOTE: this is a source-contract test, not a live purchase, settlement or fulfilment proof.');
           NODE
