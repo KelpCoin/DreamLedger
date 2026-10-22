@@ -2,6 +2,11 @@ name: Economic Cloud Autonomous Engine
 
 on:
   workflow_dispatch:
+    inputs:
+      approval_marker:
+        description: "Legacy provider mutations require explicit operator authorization, not a scheduled run"
+        required: true
+        type: string
   schedule:
     - cron: '7,22,37,52 * * * *'
 
@@ -21,13 +26,29 @@ jobs:
       SUPABASE_URL: https://wbwgroygjeyukkspnqiy.supabase.co
       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
       REVIEW_WIP_LIMIT: 1
+      LEGACY_MUTATIONS_ALLOWED: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.approval_marker == '[approve-legacy-supabase-mutations]' && vars.BECK_ALLOW_LEGACY_SUPABASE_MUTATIONS == 'true' }}
     steps:
+      - name: Checkout exact repository source (read-only)
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Set up Node 24 for BECK
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
       - name: Preflight
         shell: bash
         run: |
           set -euo pipefail
-          test -n "$SUPABASE_SERVICE_ROLE_KEY"
-          echo "CLOUD_ENGINE=READY"
+          test -s BEC-PRIME/scripts/Run-777.js
+          if [[ "$LEGACY_MUTATIONS_ALLOWED" == "true" ]]; then
+            test -n "$SUPABASE_SERVICE_ROLE_KEY" || { echo 'HOLD_NO_LEGACY_PROVIDER_SECRET' >&2; exit 2; }
+          fi
+          echo "CLOUD_ENGINE=SOURCE_READY"
+          echo "LEGACY_PROVIDER_MUTATIONS=$LEGACY_MUTATIONS_ALLOWED"
 
       - name: Execute 777 economic engine
         shell: bash
@@ -76,6 +97,7 @@ jobs:
           PY
 
       - name: Expire stale human gates
+        if: env.LEGACY_MUTATIONS_ALLOWED == 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -84,6 +106,7 @@ jobs:
           echo "STALE_HUMAN_GATES=EXPIRED_WHERE_DUE"
 
       - name: Enforce human-review WIP capacity
+        if: env.LEGACY_MUTATIONS_ALLOWED == 'true'
         id: review_wip
         shell: bash
         run: |
@@ -102,6 +125,7 @@ jobs:
           fi
 
       - name: Write cloud heartbeat
+        if: env.LEGACY_MUTATIONS_ALLOWED == 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -117,12 +141,14 @@ jobs:
           NODE
 
       - name: Reconcile external settlement evidence
+        if: env.LEGACY_MUTATIONS_ALLOWED == 'true'
         shell: bash
         run: |
           set -euo pipefail
           curl -fsS --max-time 90             -X POST "$SUPABASE_URL/functions/v1/x402-reconcile"             -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY"             -H "Content-Type: application/json"             --data '{}' | tee x402-reconcile.json
 
       - name: Compile live economic opportunities
+        if: env.LEGACY_MUTATIONS_ALLOWED == 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -130,13 +156,14 @@ jobs:
           node -e 'const x=require("./economic-compiler.json"); if(x.ok!==true) process.exit(1); console.log(JSON.stringify(x,null,2));'
 
       - name: Refresh autonomous supervisor
-        if: steps.review_wip.outputs.capacity == 'true'
+        if: env.LEGACY_MUTATIONS_ALLOWED == 'true' && steps.review_wip.outputs.capacity == 'true'
         shell: bash
         run: |
           set -euo pipefail
           curl -fsS --max-time 90             -X POST "$SUPABASE_URL/functions/v1/company-autopilot"             -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY"             -H "apikey: $SUPABASE_SERVICE_ROLE_KEY"             -H "Content-Type: application/json"             --data '{"trigger":"github_cloud_engine","mode":"ECONOMIC_LOOP"}' | tee company-autopilot.json
 
       - name: Read economic state without changing truth
+        if: env.LEGACY_MUTATIONS_ALLOWED == 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -169,7 +196,8 @@ jobs:
           echo "GPU_RUNNER_AVAILABLE=$available"
 
       - name: Dispatch bounded GPU enrichment when available
-        if: steps.gpu.outputs.available == 'true' && steps.review_wip.outputs.capacity == 'true'
+        if: env.LEGACY_MUTATIONS_ALLOWED == 'true'
+        if: env.LEGACY_MUTATIONS_ALLOWED == 'true' && steps.gpu.outputs.available == 'true' && steps.review_wip.outputs.capacity == 'true'
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
@@ -185,8 +213,8 @@ jobs:
           node - <<'NODE'
           const fs=require('fs');
           const parse=(p)=>fs.existsSync(p)?JSON.parse(fs.readFileSync(p,'utf8')):null;
-          const outcomes=parse('economic-outcomes.json')||[];
-          const verified=outcomes.filter(x=>x.truth_status==='VERIFIED');
+          const outcomes=parse('economic-outcomes.json');
+          const verified=Array.isArray(outcomes) ? outcomes.filter(x=>x.truth_status==='VERIFIED') : null;
           const compiler=parse('economic-compiler.json')||{};
           const proof={
             schema:'dreamledger/economic-cloud-autonomous-engine/v1',
@@ -200,12 +228,14 @@ jobs:
               candidates_written:compiler.candidates_written||0,
               selected:compiler.selected||0
             },
-            verified_outcomes:verified.length,
+            verified_outcomes:verified ? verified.length : null,
+            external_outcomes_observed:Array.isArray(outcomes),
+            legacy_provider_mutations_allowed:process.env.LEGACY_MUTATIONS_ALLOWED==='true',
             verified_revenue_mutation:false,
             public_outreach:false,
             public_execution:false,
             gpu_runner_dispatched:process.env.GPU_RUNNER_DISPATCHED||'unknown',
-            degradation_policy:'cloud continues when local GPU/PC is offline; GPU enrichment is opportunistic only'
+            degradation_policy:'Scheduled runs compile local internal evidence only; local PC and GPU optional; all legacy provider writes require explicit manual approval'
           };
           fs.writeFileSync('economic-cloud-engine-proof.json',JSON.stringify(proof,null,2)+'\n');
           console.log(JSON.stringify(proof,null,2));
