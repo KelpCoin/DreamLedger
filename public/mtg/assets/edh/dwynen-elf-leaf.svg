@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" role="img" aria-labelledby="title desc">
+<title id="title">Elven leaf bow and arrow</title><desc id="desc">Original minimalist black-and-white symbol for Dwynen's mono-green Elf Commander deck.</desc>
+<g fill="none" stroke="#101010" stroke-width="10" stroke-linecap="round" stroke-linejoin="round">
+<path d="M300 490 C153 405 176 209 330 95 C444 213 433 385 300 490Z"/>
+<path d="M298 462 C309 316 329 227 332 130" stroke-width="8"/>
+<path d="M304 377 L228 318 M317 302 L386 250 M324 217 L290 184" stroke-width="7"/>
+<path d="M183 110 Q138 305 168 493 Q238 498 262 468" stroke-width="8"/>
+<path d="M183 110 L168 493" stroke-width="3"/>
+<path d="M143 502 L441 139" stroke-width="10"/>
+<path d="M423 153 L441 139 L428 173 M438 140 L402 142" stroke-width="9"/>
+<path d="M144 502 L175 485 M144 502 L150 466" stroke-width="7"/>
+</g></svg>
