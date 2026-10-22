@@ -43,7 +43,7 @@ Deno.serve(async req=>{
       const uploads=[];
       for(let i=0;i<supplied.length;i++){
         const original=safeName(String(supplied[i]?.name||`quote-${i+1}.pdf`));
-        const path=`quote-inputs/${ctx.order.id}/${crypto.randomUUID()}-${original}`;
+        const path=`quote-inputs/${fr.id}/${crypto.randomUUID()}-${original}`;
         const {data,error}=await db.storage.from(BUCKET).createSignedUploadUrl(path,{upsert:false});
         if(error||!data)return out({error:"SIGNED_UPLOAD_URL_FAILED"},500);
         uploads.push({path,token:data.token,name:original});
@@ -57,10 +57,10 @@ Deno.serve(async req=>{
       const inputFiles=[];
       for(const file of files){
         const p=String(file.path||"");const name=safeName(String(file.name||p.split("/").pop()||"quote"));const size=Number(file.size||0);
-        if(!p.startsWith(`quote-inputs/${ctx.order.id}/`)||p.includes(".."))return out({error:"INVALID_STORAGE_PATH"},400);
+        if(!p.startsWith(`quote-inputs/${fr.id}/`)||p.includes(".."))return out({error:"INVALID_STORAGE_PATH"},400);
         if(size<=0||size>MAX_BYTES)return out({error:"FILE_SIZE_INVALID",file:name},400);
         const ext=name.toLowerCase().split(".").pop()||"";if(!["pdf","csv","json","md"].includes(ext))return out({error:"UNSUPPORTED_FILE_TYPE",file:name},400);
-        const dir=`quote-inputs/${ctx.order.id}`;const listed=await db.storage.from(BUCKET).list(dir,{limit:100});
+        const dir=`quote-inputs/${fr.id}`;const listed=await db.storage.from(BUCKET).list(dir,{limit:100});
         if(!listed.data?.some(x=>p.endsWith("/"+x.name)))return out({error:"UPLOADED_FILE_NOT_FOUND",file:name},400);
         inputFiles.push({path:p,name,size,sha256:String(file.sha256||"")||null});
       }
