@@ -21,7 +21,7 @@
 <div id="listings" class="grid"></div>
 </section>
 
-<section class="panel">
+<section class="panel" id="list-card">
 <h2>List a card</h2>
 <p class="meta">You need an account. Trader status and contact details are captured for the seller record. No Magic platform fee is charged.</p>
 <form id="listingForm" class="form">
@@ -57,14 +57,14 @@ async function api(url,opts){const r=await fetch(url,opts);const d=await r.json(
 function render(d){
  listings=d.listings||[];
  $('status').textContent=listings.length?'':'No active cards yet. Be the first.';
- $('listings').innerHTML=listings.map(x=>'<article class="card"><span class="pill">'+esc(x.condition)+'</span><span class="pill">'+esc(x.trader_status==='trader'?'TRADER':'PRIVATE')+'</span><h2>'+esc(x.title)+'</h2><div class="meta">'+esc(x.set_name||'Set not supplied')+(x.collector_number?' · #'+esc(x.collector_number):'')+'</div><div class="price">'+(x.price_nzd!=null?'NZ$'+Number(x.price_nzd).toFixed(2):'Trade only')+'</div><div class="meta">'+esc(x.description||'No description.')+'</div><div class="meta">Seller: '+esc(x.seller_display_name||'Seller')+'</div><div class="actions">'+(x.accepts_buy?'<button class="btn primary" data-buy="'+esc(x.id)+'">Buy request</button>':'')+(x.accepts_trade?'<button class="btn" data-trade="'+esc(x.id)+'">Trade request</button>':'')+'</div></article>').join('');
+ $('listings').innerHTML=listings.map(x=>'<article id="listing-'+esc(x.id)+'" class="card"><span class="pill">'+esc(x.condition)+'</span><span class="pill">'+esc(x.trader_status==='trader'?'TRADER':'PRIVATE')+'</span><h2>'+esc(x.title)+'</h2><div class="meta">'+esc(x.set_name||'Set not supplied')+(x.collector_number?' · #'+esc(x.collector_number):'')+'</div><div class="price">'+(x.price_nzd!=null?'NZ$'+Number(x.price_nzd).toFixed(2):'Trade only')+'</div><div class="meta">'+esc(x.description||'No description.')+'</div><div class="meta">Seller: '+esc(x.seller_display_name||'Seller')+'</div><div class="actions">'+(x.accepts_buy?'<button class="btn primary" data-buy="'+esc(x.id)+'">Buy request</button>':'')+(x.accepts_trade?'<button class="btn" data-trade="'+esc(x.id)+'">Trade request</button>':'')+'</div></article>').join('');
  document.querySelectorAll('[data-buy]').forEach(b=>b.onclick=()=>offer(b.dataset.buy,'buy'));
  document.querySelectorAll('[data-trade]').forEach(b=>b.onclick=()=>offer(b.dataset.trade,'trade'));
  $('requests').innerHTML=(d.requests||[]).length?d.requests.map(r=>'<div class="request"><strong>'+esc(r.type.toUpperCase())+'</strong> · '+esc(r.status)+'<div class="small">Listing '+esc(r.listing_id)+(r.offered_amount_nzd?' · NZ$'+Number(r.offered_amount_nzd).toFixed(2):'')+(r.trade_offer?' · '+esc(r.trade_offer):'')+'</div>'+((r.seller_id===window.__accountId)&&r.status==='pending_seller_acceptance'?'<div class="actions"><button class="btn primary" data-accept="'+esc(r.id)+'">Accept</button><button class="btn" data-decline="'+esc(r.id)+'">Decline</button></div>':'')+'</div>').join(''):'No requests yet.';
  document.querySelectorAll('[data-accept]').forEach(b=>b.onclick=()=>decision(b.dataset.accept,'accept'));
  document.querySelectorAll('[data-decline]').forEach(b=>b.onclick=()=>decision(b.dataset.decline,'decline'));
 }
-async function load(){try{const d=await api('/api/mtg/marketplace/listings');const me=await api('/api/account/me');window.__accountId=me.account?.account_id||null;render(d);}catch(e){$('status').className='status error';$('status').textContent=e.message;}}
+async function load(){try{const d=await api('/api/mtg/marketplace/listings');let me=null;try{me=await api('/api/account/me');}catch(e){/* Public listings must remain visible when account status cannot load. */}window.__accountId=me?.account?.account_id||null;render(d);const wanted=new URLSearchParams(location.search).get('listing');if(wanted){const item=document.getElementById('listing-'+wanted);if(item)item.scrollIntoView({block:'center'});}if(!me){$('requests').textContent='Account status unavailable; log in or retry to manage offers.';}}catch(e){$('status').className='status error';$('status').textContent='Live listings unavailable: '+e.message;$('listings').replaceChildren();}}
 async function offer(id,type){
  let amount=null,trade=null;
  if(type==='buy'){const listing=listings.find(x=>x.id===id);const raw=prompt('Buy offer in NZD',listing&&listing.price_nzd!=null?String(listing.price_nzd):'');if(raw===null)return;amount=Number(raw);if(!Number.isFinite(amount)||amount<=0){alert('Enter a valid NZD amount.');return;}}
