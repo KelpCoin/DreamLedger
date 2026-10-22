@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" role="img" aria-labelledby="title desc">
+<title id="title">Graveyard spirit and memorial urn</title><desc id="desc">Original minimalist black-and-white symbol for Quintorius's Boros graveyard recursion deck.</desc>
+<g fill="none" stroke="#101010" stroke-width="10" stroke-linecap="round" stroke-linejoin="round">
+<path d="M233 345 Q170 278 200 204 Q216 172 259 167 Q222 203 245 232 Q262 256 291 237 Q321 218 294 185 Q270 143 303 102 Q330 65 358 101 Q385 133 366 161 Q344 194 376 212 Q412 228 417 267 Q419 313 373 345" />
+<path d="M252 311 Q217 267 237 239 M334 290 Q369 267 347 232" stroke-width="6"/>
+<path d="M244 327 L356 327 L381 360 L366 439 L339 473 L261 473 L234 439 L219 360 Z"/>
+<path d="M247 359 L353 359 M246 438 L354 438"/>
+<path d="M221 373 Q164 360 178 411 Q192 453 240 430 M379 373 Q436 360 422 411 Q408 453 360 430"/>
+<circle cx="300" cy="395" r="24" stroke-width="6"/>
+<path d="M300 373 L300 417 M279 395 L321 395" stroke-width="5"/>
+<path d="M174 190 L174 228 M155 209 L193 209 M427 173 L427 211 M408 192 L446 192" stroke-width="5"/>
+</g></svg>
