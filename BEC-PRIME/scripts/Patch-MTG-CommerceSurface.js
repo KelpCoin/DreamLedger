@@ -8,17 +8,18 @@ const SOURCE = path.join(ROOT, 'website', 'mtg-catalog.html');
 const PROOF = path.join(ROOT, 'PROOF-MTG-COMMERCE-SURFACE.json');
 const MARKER = 'data-dreamledger-mtg-commerce-v2';
 
-function writeProof() {
+function writeProof(heldModernSurface = false) {
   const proof = {
     schema: 'BEC-PRIME/MTG-COMMERCE-SURFACE/v2',
-    status: 'PASS',
+    status: heldModernSurface ? 'HOLD_VERIFIED_SUPPLY_REQUIRED' : 'PASS',
     source: 'BEC-PRIME/website/mtg-catalog.html',
     marker: MARKER,
     route: '/mtg',
     aliases: ['/mtg', '/mtg/', '/MTG', '/MTG/'],
     inventory_endpoint: '/api/products',
     checkout_endpoint: '/api/offer-checkout/create',
-    horizontal_catalogue: true,
+    horizontal_catalogue: !heldModernSurface,
+    verification_required: heldModernSurface ? 'Canonical verified-supply atom and Gauntlet admission; inventory must not be inferred from catalog rows' : null,
     displays: ['image', 'name', 'price_nzd', 'availability', 'buy_button', 'condition_for_verified_singles_only'],
     generated_at: new Date().toISOString()
   };
@@ -28,11 +29,33 @@ function writeProof() {
 
 function patch() {
   let html = fs.readFileSync(SOURCE, 'utf8');
+  const modernSiloTemplate = html.includes("const CATALOG='/data/mtg-catalog.json';") &&
+    html.includes("const MANIFEST='/silos/mtg/silo.json';");
   if (html.includes(MARKER)) {
-    writeProof();
+    writeProof(modernSiloTemplate);
     return;
   }
   const original = html;
+
+  // Current canonical MTG page is manifest-bound. The older horizontal-card
+  // string patch is inapplicable and must not be transplanted onto this layout.
+  // Its unverified catalog contains rows claiming published stock but carries
+  // no independent verified-supply atom. Until the canonical Gauntlet provides
+  // one, only the empty catalogue may render. Never infer stock from inventory.
+  if (modernSiloTemplate) {
+    const oldFeed = 'const decks=(data.products||[]).filter(isPhysical);';
+    const newFeed = "const decks=[]; // HOLD: verified supply admission is not yet implemented; no claimed inventory.";
+    if (!html.includes(oldFeed) || !html.includes('<body class="silo-body">') ||
+        !html.includes("status.textContent='No verified deck supply listed yet.")) {
+      throw new Error('MTG modern template guard anchors changed: fail closed');
+    }
+    html = html.replace(oldFeed, newFeed);
+    html = html.replace('<body class="silo-body">', '<body class="silo-body" ' + MARKER + '>');
+    if (html === original) throw new Error('MTG modern verified-supply guard made no changes');
+    fs.writeFileSync(SOURCE, html, 'utf8');
+    writeProof(true);
+    return;
+  }
 
   html = html.replace(
     '.rail{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;padding:10px 0 18px}',

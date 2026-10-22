@@ -31,6 +31,25 @@ jobs:
       - name: Install
         run: npm install
 
+      - name: Verify cloud 777 economic loop without Stripe or database access
+        run: |
+          set -euo pipefail
+          node scripts/Run-777.js
+          node - <<'NODE'
+          const fs=require('fs');
+          const p='data/777/777-LATEST.json';
+          const x=JSON.parse(fs.readFileSync(p,'utf8'));
+          if(x.truth?.verified_external_revenue_nzd!==0 ||
+             x.truth?.settled_external_payments!==0 ||
+             x.buyer_signal_gate?.external_action_performed!==false) {
+            throw new Error('777_INTERNAL_TRUTH_BOUNDARY_FAILED');
+          }
+          if(!x.integrity_sha256 || !Array.isArray(x.candidates)) {
+            throw new Error('777_INTERNAL_ARTIFACT_NOT_GENERATED');
+          }
+          console.log('BECK_777_INTERNAL_COMPILE=PASS; NO_PAYMENTS_NO_OUTREACH');
+          NODE
+
       - name: BECK ledger and local-runtime regression tests
         run: npm test
 

@@ -117,3 +117,28 @@ test('Elohim candidate with checkout_available true is rejected', () => {
   assert.equal(r.ok, false);
   assert.ok(r.errors.some(e => e.code === 'CHECKOUT_GATE'));
 });
+
+// Regression: a numeric-looking string must fail the actual draft 2020-12 schema.
+// The custom price floor uses Number(...), so it cannot catch this type error.
+test('Elohim catalog enforces JSON Schema 2020-12 types', () => {
+  const r = validateCatalogProduct({
+    id: 'TYPE-REGRESSION-001', name: 'Schema type regression',
+    price: '29', currency: 'nzd', status: 'draft',
+    silo: 'digital_products', checkout_available: false
+  });
+  assert.equal(r.ok, false);
+  assert.ok(r.errors.some(e => e.code === 'SCHEMA'),
+    'JSON Schema must reject strings even when numeric coercion would pass custom checks');
+});
+
+test('Elohim candidate schema rejects numeric strings in price proposals', () => {
+  const r = validateElohimCandidate({
+    id: 'TYPE-REGRESSION-CANDIDATE-001',
+    schema_version: 'BEC-ELOHIM-CREATED-CANDIDATE-1.0',
+    status: 'ELOHIM_CREATED_CANDIDATE', silo: 'digital_products',
+    name: 'Schema candidate', price_proposal_nzd: ['29'],
+    checkout_available: false, approval_required: true, created_by: 'ELOHIM'
+  });
+  assert.equal(r.ok, false);
+  assert.ok(r.errors.some(e => e.code === 'SCHEMA'));
+});

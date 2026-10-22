@@ -34,7 +34,8 @@ function getAjvValidators() {
   }
   let Ajv;
   try {
-    Ajv = require('ajv');
+    // Both Elohim schemas declare draft 2020-12; Ajv's default entry point is draft-07.
+    Ajv = require('ajv/dist/2020');
   } catch (_)
   {
     return null;
