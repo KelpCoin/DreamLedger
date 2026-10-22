@@ -110,16 +110,16 @@ async function observeQuoteSettlement(c: any, next: any) {
   if (existing) return;
   await db.from("economic_events").insert({
     event_id, silo_id: "agent-toll-road", sku_id: product.product_id,
-    buyer_action_verified: true, payment_settled: true, fulfilment_verified: true, evidence_verified: true,
+    buyer_action_verified: false, payment_settled: false, fulfilment_verified: false, evidence_verified: false,
     evidence_ref: proof.proof_id, payment_reference: tx, verification_status: "UNMATCHED",
     observation_mode: "OBSERVED", scope: "EXTERNAL", event_type: "X402_SETTLEMENT_OBSERVED",
     state_before: "UNMATCHED", state_after: "UNMATCHED",
-    settlement_state: "SETTLED_PENDING_CONFIRMATION", fulfillment_state: "FULFILLED",
+    settlement_state: "SETTLED_PENDING_CONFIRMATION", fulfillment_state: "DELIVERY_UNVERIFIED",
     verification_state: "UNMATCHED", source: "agent-toll-road", source_system: "x402",
     source_record_id: String(call.call_id), external_reference: payer,
     input_hash: request_hash, output_hash: call.result_hash,
     metadata: { network: NETWORK, payer, payee: PAY_TO, transaction: tx, testnet: TESTNET, product_id: product.product_id, price_usd: product.price,
-      scoreboard_eligible: !TESTNET, toll_call_id: String(call.call_id), decision_id,
+      scoreboard_eligible: false, evidence_scope: "RESPONSE_HASH_ONLY_NO_BUYER_ACCEPTANCE", toll_call_id: String(call.call_id), decision_id,
       settlement_idempotency_key: settlementKey }
   });
 }
