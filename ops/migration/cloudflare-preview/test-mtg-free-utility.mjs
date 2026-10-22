@@ -57,3 +57,14 @@ test('seller routes do not imply that a private draft is published',()=>{
  assert.match(alias,/Private|private/);
  assert.doesNotMatch(alias,/href="\/buy\/COMMANDER-DECK-DIAGNOSTIC-001"/);
 });
+
+test('legacy paid intake/success and marketplace endpoints cannot claim real orders during migration',()=>{
+  for(const name of ['public/diagnostic-input.html','public/thanks-diagnostic.html',
+    'public/mtg-marketplace.html','public/mtg-marketplace/index.html']){
+    const s=fs.readFileSync(name,'utf8');
+    assert.match(s,/not available|not yet verified|not yet|historical|being restored/i);
+    assert.doesNotMatch(s,/https:\/\/buy\.stripe\.com\//i);
+    assert.doesNotMatch(s,/\/api\/commercial\/input|\/api\/mtg\/marketplace\/listings/);
+    assert.doesNotMatch(s,/<form[\s>]/i);
+  }
+});
