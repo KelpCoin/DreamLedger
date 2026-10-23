@@ -32,16 +32,17 @@ jobs:
           failures = []
           checked = 0
           for item in data.get('links', []):
+              sku = item.get('sku') or item.get('id') or 'UNKNOWN-SKU'
               url = item.get('url')
               status = item.get('status', '')
               if not url:
                   if status == 'OPTIONAL_ITEM_ON_STANDARD_LINK':
-                      print(f"SKIP {item.get('sku')} no standalone payment URL")
+                      print(f"SKIP {sku} no standalone payment URL")
                       continue
-                  failures.append(f"{item.get('sku')} missing URL")
+                  failures.append(f"{sku} missing URL")
                   continue
               if not str(url).startswith('https://'):
-                  failures.append(f"{item.get('sku')} invalid URL")
+                  failures.append(f"{sku} invalid URL")
                   continue
               result = subprocess.run(
                   ['curl', '-L', '-sS', '-o', '/dev/null', '-w', '%{http_code}', '--max-time', '20', url],
@@ -49,9 +50,9 @@ jobs:
               )
               code = result.stdout.strip()
               checked += 1
-              print(f"{item['sku']} {url} HTTP {code}")
+              print(f"{sku} {url} HTTP {code}")
               if code not in {'200', '301', '302', '303', '307', '308'}:
-                  failures.append(f"{item['sku']} HTTP {code}")
+                  failures.append(f"{sku} HTTP {code}")
           if failures:
               raise SystemExit('PAYMENT_LINK_FAILURE: ' + '; '.join(failures))
           print(f'PASS: all {checked} standalone payment links are reachable.')

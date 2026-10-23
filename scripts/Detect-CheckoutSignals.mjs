@@ -1,6 +1,6 @@
 'use strict';
 
-const cp = require('child_process');
+import * as cp from 'node:child_process';
 
 const key = String(process.env.STRIPE_SECRET_KEY || '').trim();
 const enabled = String(process.env.STRIPE_LIVE_ENABLED || '').toLowerCase() === 'true';
