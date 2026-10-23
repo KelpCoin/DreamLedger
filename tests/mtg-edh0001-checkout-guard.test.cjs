@@ -5,7 +5,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 const html = fs.readFileSync(path.join(__dirname, '..', 'public', 'mtg', 'index.html'), 'utf8');
-const match = html.match(/<script>([\\s\\S]*?)<\\/script>/);
+const match = html.match(/<script>([\s\S]*?)<\/script>/);
 assert.ok(match, 'inline storefront script exists');
 const script = match[1];
 const good = {
@@ -29,7 +29,7 @@ async function render(item, mode = 'primary') {
     return Promise.resolve({ ok: true, json: () => Promise.resolve({ products: [item] }) });
   };
   vm.runInNewContext(script, { document: { getElementById: id => elements[id] }, fetch });
-  assert.doesNotMatch(elements.grid.innerHTML, />Buy deck<\\/a>/, 'initial fallback must not sell');
+  assert.doesNotMatch(elements.grid.innerHTML, />Buy deck<\/a>/, 'initial fallback must not sell');
   for (let i = 0; i < 10; i++) await Promise.resolve();
   return elements.grid.innerHTML;
 }
@@ -54,5 +54,5 @@ async function render(item, mode = 'primary') {
     const markup = await render(item, mode);
     assert.equal(markup.includes('>Buy deck</a>'), expected, label);
   }
-  process.stdout.write('PASS ' + cases.length + '/' + cases.length + ' MTG checkout display guards\\n');
+  process.stdout.write('PASS ' + cases.length + '/' + cases.length + ' MTG checkout display guards\n');
 })().catch(error => { console.error(error); process.exitCode = 1; });
