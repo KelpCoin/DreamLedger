@@ -1,0 +1,51 @@
+name: Stripe Revenue Webhook Contract
+
+on:
+  pull_request:
+    paths:
+      - 'supabase/functions/_shared/nonblank-env.mjs'
+      - 'supabase/functions/_shared/nonblank-env.test.mjs'
+      - 'supabase/functions/stripe-revenue-41104f355d6878cdd6d1f9dc/index.ts'
+      - 'supabase/config.toml'
+      - '.github/workflows/stripe-revenue-webhook-contract.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  webhook-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Test nonblank secret and API key selection
+        run: node --test supabase/functions/_shared/nonblank-env.test.mjs
+      - name: Verify webhook source and public callback configuration
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const path = 'supabase/functions/stripe-revenue-41104f355d6878cdd6d1f9dc/index.ts';
+          const source = fs.readFileSync(path, 'utf8');
+          const required = [
+            'firstNonBlank(',
+            'Deno.env.get("STRIPE_WEBHOOK_SIGNING_SECRET")',
+            'Deno.env.get("STRIPE_WEBHOOK_SECRET")',
+            'Deno.env.get("STRIPE_API_KEY")',
+            'Deno.env.get("STRIPE_SECRET_KEY")',
+            'stripe.webhooks.constructEventAsync'
+          ];
+          for (const token of required) {
+            if (!source.includes(token)) throw new Error('Missing required webhook contract token: ' + token);
+          }
+          const rawBodyAt = source.indexOf('await req.text()');
+          const verifyAt = source.indexOf('stripe.webhooks.constructEventAsync');
+          if (rawBodyAt < 0 || verifyAt < 0 || rawBodyAt > verifyAt) {
+            throw new Error('Raw request body must be read before Stripe signature verification');
+          }
+          const config = fs.readFileSync('supabase/config.toml', 'utf8');
+          const expected = /\[functions\.stripe-revenue-41104f355d6878cdd6d1f9dc\][\s\S]*?verify_jwt\s*=\s*false/;
+          if (!expected.test(config)) throw new Error('Canonical Stripe callback must declare verify_jwt = false');
+          console.log('PASS: webhook secret/key fallback, raw-body verification, async crypto path, and JWT config contract');
+          NODE
