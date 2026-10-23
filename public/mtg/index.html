@@ -70,7 +70,7 @@ h1{font-size:clamp(2.2rem,6vw,3.6rem);line-height:1.02;letter-spacing:-.04em;mar
       claim_url: 'mailto:hello@dreamledger.org?subject=Claim%20Jon%20Irenicus%20Commander%20Deck' },
     { id: 'EDH_0001', name: 'Walk the Plank - Edward Kenway Commander Deck', price: 400, status: 'published', category: 'commander-deck', silo: 'mtg',
       description: 'Grixis Pirates / Vehicles. Sleeved and playtested. NZ shipping. NZD 400.',
-      checkout_available: true, checkout_url: 'https://buy.stripe.com/14A3cvea1dSd1DV5oEdwc1J', claim_url: null }
+      checkout_available: false, checkout_url: null, claim_url: null }
   ];
   var statusEl = document.getElementById('status');
   var grid = document.getElementById('grid');
@@ -80,10 +80,17 @@ h1{font-size:clamp(2.2rem,6vw,3.6rem);line-height:1.02;letter-spacing:-.04em;mar
     var id = String(p.id || ''), cat = String(p.category || '').toLowerCase(), silo = String(p.silo || '').toLowerCase();
     return silo === 'mtg' || cat === 'commander-deck' || /^EDH_/i.test(id);
   }
-  function render(decks, note) {
+  function render(decks, note, sourceVerified) {
     statusEl.innerHTML = '<strong>' + decks.length + ' deck' + (decks.length === 1 ? '' : 's') + '</strong> · physical · NZ · claim confirms stock' + (note ? ' · ' + note : '');
     grid.innerHTML = decks.map(function (p) {
-      var approvedCheckout = p.id === 'EDH_0001' && p.checkout_available === true &&
+      // Fail closed: only the primary catalogue with exact approved commercial fields may show Buy.
+      // This is a display gate, not a substitute for Stripe's one-purchase limit or fulfillment verification.
+      var approvedCheckout = sourceVerified === true &&
+        p.id === 'EDH_0001' && p.status === 'published' &&
+        p.checkout_available === true && p.price === 400 &&
+        p.currency === 'nzd' && p.inventory === 1 &&
+        p.payment_link_id === 'plink_1U6V3BEGgEAnUFF93nnPFUmr' &&
+        p.maximum_completed_purchases === 1 && p.shipping_restriction === 'NZ' &&
         p.checkout_url === 'https://buy.stripe.com/14A3cvea1dSd1DV5oEdwc1J';
       var destination = approvedCheckout ? p.checkout_url :
         (p.claim_url || ('mailto:hello@dreamledger.org?subject=' + encodeURIComponent('Request ' + (p.name || 'deck'))));
@@ -99,14 +106,22 @@ h1{font-size:clamp(2.2rem,6vw,3.6rem);line-height:1.02;letter-spacing:-.04em;mar
       return r.json();
     });
   }
-  render(FALLBACK, 'loading feeds…');
+  render(FALLBACK, 'loading feeds…', false);
   tryFetch('/catalog.json')
-    .catch(function () { return tryFetch('/data/mtg-catalog.json'); })
-    .then(function (d) {
-      var decks = ((d && d.products) || []).filter(isMtgDeck);
-      render(decks.length ? decks : FALLBACK, decks.length ? '' : 'fallback');
+    .then(function (data) { return { data: data, trusted: true }; })
+    .catch(function () {
+      return tryFetch('/data/mtg-catalog.json').then(function (data) {
+        return { data: data, trusted: false };
+      });
     })
-    .catch(function () { render(FALLBACK, 'offline catalogue'); });
+    .then(function (result) {
+      var products = Array.isArray(result.data && result.data.products) ? result.data.products : [];
+      var decks = products.filter(isMtgDeck);
+      render(decks.length ? decks : FALLBACK,
+        decks.length ? (result.trusted ? '' : 'legacy catalogue') : 'fallback',
+        result.trusted === true && decks.length > 0);
+    })
+    .catch(function () { render(FALLBACK, 'offline catalogue', false); });
 })();
 </script>
 </body>
