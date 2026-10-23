@@ -62,10 +62,10 @@ async function getFeed(market) {
     const response = await fetch(url, { signal: controller.signal, headers: { 'user-agent': 'DreamLedgerTrendSentinel/1.0' } });
     const body = await response.text();
     if (!response.ok) throw new Error(`HTTP_${response.status}`);
-    const items = [...body.matchAll(/<item(?:\\s[^>]*)?>([\\s\\S]*?)<\\/item>/gi)].map(m => {
+    const items = [...body.matchAll(/<item(?:\s[^>]*)?>([\s\S]*?)<\/item>/gi)].map(m => {
       const item = m[1];
       const title = tag(item, 'title');
-      return { title, link: tag(item, 'link'), published_at: tag(item, 'pubDate'), approx_traffic: tag(item, 'ht:approx_traffic'), related_queries: [...item.matchAll(/<ht:news_item_title>([\\s\\S]*?)<\\/ht:news_item_title>/gi)].map(x => decodeXml(x[1])).slice(0, 5) };
+      return { title, link: tag(item, 'link'), published_at: tag(item, 'pubDate'), approx_traffic: tag(item, 'ht:approx_traffic'), related_queries: [...item.matchAll(/<ht:news_item_title>([\s\S]*?)<\/ht:news_item_title>/gi)].map(x => decodeXml(x[1])).slice(0, 5) };
     }).filter(x => x.title);
     return { market: market.code, market_label: market.label, source_url: url, fetched_at: new Date().toISOString(), status: 'OK', items };
   } catch (e) {
