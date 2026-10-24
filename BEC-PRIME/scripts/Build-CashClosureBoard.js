@@ -55,7 +55,8 @@ function assemble({registry, approved, live, products={}, watch=[], now='1970-01
   for(const s of registry.silos) add(s.id,s.label,s.route,true);
   for(const s of watch) add(s.id,s.label||s.id,null,false);
   for(const o of approved.approved) add(o.silo,o.silo,null,false);
-  for(const o of live.offers) add(o.silo,o.silo,null,false);
+  // Historical checkout snapshots sometimes omit silo attribution. Never invent a silo from them.
+  for(const o of live.offers) if(typeof o.silo==='string' && ID.test(o.silo)) add(o.silo,o.silo,null,false);
   const counts={HOLD_PRODUCT:0,MISSING_PRODUCT:0,LINK_CONFLICT:0,VERIFY_DELIVERY:0};
   const actions=[];
   for(const o of approved.approved) {
