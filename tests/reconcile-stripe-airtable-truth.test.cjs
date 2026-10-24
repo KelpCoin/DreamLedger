@@ -5,7 +5,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
 const source = fs.readFileSync(path.join(__dirname, '..', 'ops', 'commerce', 'reconcile-stripe-airtable.mjs'), 'utf8');
-const executable = source.replace(/^import fs from 'node:fs\\/promises';/, 'const fs = injectedFs;')
+const executable = source.replace(/^import fs from 'node:fs\/promises';/, 'const fs = injectedFs;')
   .replace('console.log(JSON.stringify(proof, null, 2));', '// captured by mock');
 assert.notEqual(executable, source, 'ESM fs import must be replaced');
 async function scenario(paid, airtableEnabled) {
