@@ -38,6 +38,12 @@ def connect() -> sqlite3.Connection:
 def init_db(conn: sqlite3.Connection) -> None:
     conn.executescript(
         """
+        CREATE TABLE IF NOT EXISTS stripe_event_inbox (
+          event_id TEXT PRIMARY KEY,
+          payload_hash TEXT NOT NULL,
+          state TEXT NOT NULL CHECK (state IN ('CLAIMED', 'PAYMENT_RECORDED')),
+          created_at TEXT NOT NULL
+        );
         CREATE TABLE IF NOT EXISTS commercial_orders (
           order_id TEXT PRIMARY KEY,
           offer_id TEXT,
@@ -91,90 +97,87 @@ def payload_hash(obj: dict) -> str:
 
 
 def ingest_verified_payment(conn: sqlite3.Connection, payload: dict, *, signature_verified: bool) -> dict:
-    """Ingest only after webhook signature verification upstream."""
+    """Accept pre-verified signed Stripe events, atomically claim event ID and stage records.
+
+    External delivery must happen after commit using a durable fulfillment outbox.
+    This function never declares external revenue verified.
+    """
     if not signature_verified:
         raise ValueError("refusing unverified payload")
-
-    event_id = payload.get("id") or payload.get("event_id")
+    event_id = str(payload.get("id") or payload.get("event_id") or "")
     if not event_id:
         raise ValueError("event id required")
-
-    existing = conn.execute(
-        "SELECT payment_id FROM commercial_payments WHERE event_id = ?", (event_id,)
-    ).fetchone()
-    if existing:
-        return {"ok": True, "idempotent": True, "payment_id": existing["payment_id"]}
-
-    data = payload.get("data", {}).get("object", payload)
-    amount = int(data.get("amount_total") or data.get("amount") or 0)
-    currency = str(data.get("currency") or "nzd").upper()
-    if currency == "NZD" and amount < 100 and "amount_total" not in data:
-        # allow cents already
-        pass
-    livemode = bool(data.get("livemode") or payload.get("livemode"))
-    session_id = data.get("id") if data.get("object") == "checkout.session" else data.get("checkout_session")
+    data = payload.get("data", {}).get("object", {})
+    if (payload.get("type") != "checkout.session.completed"
+            or data.get("object") != "checkout.session"
+            or data.get("payment_status") != "paid"):
+        raise ValueError("only paid checkout.session.completed events are accepted")
+    amount = int(data.get("amount_total") or 0)
+    currency = str(data.get("currency") or "").upper()
+    if amount <= 0 or not currency or len(currency) != 3:
+        raise ValueError("valid paid amount and currency required")
+    livemode = bool(payload.get("livemode")) and bool(data.get("livemode"))
+    session_id = str(data.get("id") or "")
+    if not session_id:
+        raise ValueError("session id required")
     pi = data.get("payment_intent")
-
     order_id = f"ord_{uuid.uuid4().hex[:12]}"
     payment_id = f"pay_{uuid.uuid4().hex[:12]}"
     evidence_id = f"ev_{uuid.uuid4().hex[:12]}"
     econ_id = f"econ_{uuid.uuid4().hex[:12]}"
     now = utc()
-
-    conn.execute(
-        "INSERT INTO commercial_orders VALUES (?,?,?,?,?,?,?,?,?)",
-        (
-            order_id,
-            data.get("client_reference_id") or data.get("metadata", {}).get("offer_id"),
-            amount,
-            currency,
-            "payment_succeeded",
-            session_id,
-            pi,
-            now,
-        ),
-    )
-    conn.execute(
-        "INSERT INTO commercial_payments VALUES (?,?,?,?,?,?,?,?,?)",
-        (payment_id, order_id, pi, amount, currency, "succeeded", 1 if livemode else 0, event_id, now),
-    )
-    conn.execute(
-        "INSERT INTO commercial_evidence VALUES (?,?,?,?,?,?,?,?)",
-        (
-            evidence_id,
-            "stripe",
-            event_id,
-            payload.get("type") or "payment",
-            payload_hash(payload),
-            now,
-            now,
-            "stripe_signature_verified",
-        ),
-    )
-    # External revenue only if livemode AND caller marks external (default false for safety)
-    external = bool(payload.get("dreamledger_external_buyer")) and livemode
-    conn.execute(
-        "INSERT INTO commercial_economic_events VALUES (?,?,?,?,?,?,?,?,?)",
-        (
-            econ_id,
-            "payment_succeeded",
-            order_id,
-            payment_id,
-            amount,
-            currency,
-            json.dumps([evidence_id]),
-            now,
-            1 if external else 0,
-        ),
-    )
-    conn.commit()
+    # BEGIN IMMEDIATE serializes concurrent writers (SQLite). The first INSERT,
+    # not a SELECT, owns the event claim. Real Postgres uses INSERT ON CONFLICT.
+    conn.execute("BEGIN IMMEDIATE")
+    try:
+        conn.execute(
+            "INSERT INTO stripe_event_inbox (event_id,payload_hash,state,created_at) VALUES (?,?,?,?)",
+            (event_id,payload_hash(payload),"CLAIMED",now),
+        )
+    except sqlite3.IntegrityError:
+        conn.rollback()
+        existing = conn.execute(
+            "SELECT payment_id FROM commercial_payments WHERE event_id = ?", (event_id,)
+        ).fetchone()
+        if existing:
+            return {"ok": True, "idempotent": True, "payment_id": existing["payment_id"]}
+        # Never remove an uncertain claim and re-run side effects.
+        raise ValueError("event is already claimed but payment needs reconciliation")
+    try:
+        conn.execute(
+            "INSERT INTO commercial_orders VALUES (?,?,?,?,?,?,?,?)",
+            (order_id, data.get("client_reference_id") or data.get("metadata", {}).get("offer_id"),
+             amount,currency,"payment_succeeded",session_id,pi,now),
+        )
+        conn.execute(
+            "INSERT INTO commercial_payments VALUES (?,?,?,?,?,?,?,?,?)",
+            (payment_id,order_id,pi,amount,currency,"succeeded",int(livemode),event_id,now),
+        )
+        conn.execute(
+            "INSERT INTO commercial_evidence VALUES (?,?,?,?,?,?,?,?)",
+            (evidence_id,"stripe",event_id,payload.get("type"),payload_hash(payload),
+             now,now,"stripe_signature_verified_upstream"),
+        )
+        conn.execute(
+            "INSERT INTO commercial_economic_events VALUES (?,?,?,?,?,?,?,?,?)",
+            (econ_id,"payment_succeeded",order_id,payment_id,amount,currency,
+             json.dumps([evidence_id]),now,0),
+        )
+        conn.execute(
+            "UPDATE stripe_event_inbox SET state='PAYMENT_RECORDED' WHERE event_id=?", (event_id,)
+        )
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        raise
     return {
         "ok": True,
         "order_id": order_id,
         "payment_id": payment_id,
         "economic_event_id": econ_id,
-        "counts_as_verified_external_revenue": external,
+        "counts_as_verified_external_revenue": False,
         "livemode": livemode,
+        "economic_state": "PAYMENT_ONLY_AWAITING_FULFILLMENT_PROOF" if livemode else "TEST_OR_UNVERIFIED",
     }
 
 
@@ -186,6 +189,9 @@ def main() -> None:
     p_ing.add_argument("path")
     p_ing.add_argument("--external", action="store_true")
     args = ap.parse_args()
+
+    if args.cmd == "ingest-fixture" and args.external:
+        ap.error("--external cannot certify revenue; independently verified delivery evidence is required")
 
     conn = connect()
     if args.cmd == "init-db":
