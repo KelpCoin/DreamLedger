@@ -1,0 +1,145 @@
+{
+  "schema": "dreamledger/marketplace-reuse-research/v1",
+  "date_nz": "2026-10-22",
+  "method": "GitHub repository metadata, selected README/license/integration files; not full security audit",
+  "repositories": [
+    {
+      "repository": "mercurjs/mercur",
+      "url": "https://github.com/mercurjs/mercur",
+      "default_branch": "main",
+      "reviewed_head": "6cf5646c577dbe6c8c6d3fdb602e28079642a732",
+      "license_metadata": "MIT",
+      "archived": false,
+      "checked_date_nz": "2026-10-22",
+      "integration_status": "CANDIDATE_NOT_INSTALLED"
+    },
+    {
+      "repository": "better-auth/better-auth",
+      "url": "https://github.com/better-auth/better-auth",
+      "default_branch": "main",
+      "reviewed_head": "c6a08cf4f2f4fe949987eac8adedffca680bb95e",
+      "license_metadata": "MIT",
+      "archived": false,
+      "checked_date_nz": "2026-10-22",
+      "integration_status": "CANDIDATE_NOT_INSTALLED"
+    },
+    {
+      "repository": "meilisearch/meilisearch",
+      "url": "https://github.com/meilisearch/meilisearch",
+      "default_branch": "main",
+      "reviewed_head": "8b7c2172b9bf8be7d05f09d7174a8c15449a2c1d",
+      "license_metadata": "NOASSERTION",
+      "archived": false,
+      "checked_date_nz": "2026-10-22",
+      "integration_status": "CANDIDATE_NOT_INSTALLED"
+    },
+    {
+      "repository": "transloadit/uppy",
+      "url": "https://github.com/transloadit/uppy",
+      "default_branch": "main",
+      "reviewed_head": "c2f19146afee894fb8b820511510b54d03ba9ef5",
+      "license_metadata": "MIT",
+      "archived": false,
+      "checked_date_nz": "2026-10-22",
+      "integration_status": "CANDIDATE_NOT_INSTALLED"
+    },
+    {
+      "repository": "lovell/sharp",
+      "url": "https://github.com/lovell/sharp",
+      "default_branch": "main",
+      "reviewed_head": "13a734ad7c6219fd661943e7831c25b8b95ce2c9",
+      "license_metadata": "Apache-2.0",
+      "archived": false,
+      "checked_date_nz": "2026-10-22",
+      "integration_status": "CANDIDATE_NOT_INSTALLED"
+    },
+    {
+      "repository": "stripe/stripe-node",
+      "url": "https://github.com/stripe/stripe-node",
+      "default_branch": "master",
+      "reviewed_head": "62458fe75f83b800707f06f077abe107213b0db0",
+      "license_metadata": "MIT",
+      "archived": false,
+      "checked_date_nz": "2026-10-22",
+      "integration_status": "CANDIDATE_NOT_INSTALLED"
+    },
+    {
+      "repository": "modelcontextprotocol/typescript-sdk",
+      "url": "https://github.com/modelcontextprotocol/typescript-sdk",
+      "default_branch": "main",
+      "reviewed_head": "c05225a636c679870b65f8ca4fe83a76ea1cf113",
+      "license_metadata": "NOASSERTION",
+      "archived": false,
+      "checked_date_nz": "2026-10-22",
+      "integration_status": "CANDIDATE_NOT_INSTALLED"
+    },
+    {
+      "repository": "a2aproject/a2a-js",
+      "url": "https://github.com/a2aproject/a2a-js",
+      "default_branch": "main",
+      "reviewed_head": "8f106473cc3845e5860e4bfce89d6c38d7575fa8",
+      "license_metadata": "Apache-2.0",
+      "archived": false,
+      "checked_date_nz": "2026-10-22",
+      "integration_status": "CANDIDATE_NOT_INSTALLED"
+    },
+    {
+      "repository": "cloudflare/cloudflared",
+      "url": "https://github.com/cloudflare/cloudflared",
+      "default_branch": "master",
+      "reviewed_head": "de6376c5af4a67cbc65258682e5a01781827643d",
+      "license_metadata": "Apache-2.0",
+      "archived": false,
+      "checked_date_nz": "2026-10-22",
+      "integration_status": "CANDIDATE_NOT_INSTALLED"
+    },
+    {
+      "repository": "x402-foundation/x402",
+      "url": "https://github.com/x402-foundation/x402",
+      "default_branch": "main",
+      "reviewed_head": "e7a3b4ff47dd67c3a3a7521307ed071d34ce9527",
+      "license_metadata": "Apache-2.0",
+      "archived": false,
+      "checked_date_nz": "2026-10-22",
+      "integration_status": "CANDIDATE_NOT_INSTALLED"
+    },
+    {
+      "repository": "dajiaji/hpke-js",
+      "url": "https://github.com/dajiaji/hpke-js",
+      "default_branch": "main",
+      "reviewed_head": "833f78d7abd37ba21764ed37ec228c3af477cbd6",
+      "license_metadata": "MIT",
+      "archived": false,
+      "checked_date_nz": "2026-10-22",
+      "integration_status": "CANDIDATE_NOT_INSTALLED"
+    },
+    {
+      "repository": "MTGJSON/mtgjson",
+      "url": "https://github.com/mtgjson/mtgjson",
+      "default_branch": "master",
+      "reviewed_head": "ce74c6683d103e9f7eb40b5688aa3297ec89581f",
+      "license_metadata": "MIT",
+      "archived": false,
+      "checked_date_nz": "2026-10-22",
+      "integration_status": "CANDIDATE_NOT_INSTALLED"
+    },
+    {
+      "repository": "zxing-js/browser",
+      "url": "https://github.com/zxing-js/browser",
+      "default_branch": "master",
+      "reviewed_head": "9ad027d88d4533bd6d29f9d8d7e517e23cd361ff",
+      "license_metadata": "MIT",
+      "archived": false,
+      "checked_date_nz": "2026-10-22",
+      "integration_status": "CANDIDATE_NOT_INSTALLED"
+    }
+  ],
+  "notes": [
+    "Reviewed heads are source-reference pins, not approved installation versions.",
+    "Mercur Stripe integration uses separate charges and transfers; incompatible with seller-direct requirement as shipped.",
+    "Meilisearch license is MIT plus BUSL-1.1 enterprise portions.",
+    "Medusa license excludes enterprise materials.",
+    "MCP SDK licensing is transitioning MIT to Apache-2.0; documentation CC-BY-4.0.",
+    "coinbase/x402 README points to x402-foundation/x402 as primary upstream."
+  ]
+}

@@ -15,7 +15,6 @@
       "currency": "NZD",
       "status": "published",
       "inventory": 1,
-      "condition": "Sleeved · playtested",
       "silo": "mtg",
       "category": "commander-deck",
       "sale_mode": "claim_by_message",
@@ -35,7 +34,6 @@
       "currency": "NZD",
       "status": "published",
       "inventory": 1,
-      "condition": "Sleeved · playtested",
       "silo": "mtg",
       "category": "commander-deck",
       "sale_mode": "claim_by_message",
@@ -54,7 +52,6 @@
       "currency": "NZD",
       "status": "published",
       "inventory": 1,
-      "condition": "Sleeved · playtested",
       "silo": "mtg",
       "category": "commander-deck",
       "sale_mode": "claim_by_message",
@@ -63,6 +60,43 @@
       "claim_url": "mailto:hello@dreamledger.org?subject=Claim%20Jon%20Irenicus%20Commander%20Deck&body=I%27d%20like%20to%20claim%20the%20Jon%20Irenicus%2C%20Shattered%20One%20Commander%20deck.%20Please%20confirm%20availability%20and%20shipping.",
       "decklist_url": "https://manabox.app/decks/AZ2BaCy-c-a8MpZUUcgxqw",
       "commander": "Jon Irenicus, Shattered One"
+    },
+    {
+      "id": "COMMANDER-DECK-DIAGNOSTIC-001",
+      "sku": "CMD-DIAG-29",
+      "capability_id": "PRODUCT-COMMANDER-DECK-DIAGNOSTIC-001",
+      "silo": "mtg",
+      "name": "Commander Deck Diagnostic",
+      "description": "Held digital service. Not a physical card or deck and not currently offered for purchase.",
+      "price": 29,
+      "price_unit": "major",
+      "currency": "nzd",
+      "inventory": 0,
+      "inventory_type": "digital",
+      "status": "held",
+      "checkout": {
+        "mode": "disabled",
+        "url": null,
+        "success_path": null,
+        "cancel_path": "/mtg/"
+      },
+      "commercial_truth": {
+        "approval_required": true,
+        "sellable": false,
+        "reason": "Held until settlement, entitlement, and fulfillment are verified. No public sale is authorized.",
+        "payment_surface": null
+      },
+      "fulfillment": {
+        "mode": "disabled",
+        "delivery_sla_hours": null,
+        "operator_required": true
+      },
+      "evidence": {
+        "status": "awaiting_first_payment",
+        "transaction_id": null
+      },
+      "experiment": "MTG-SALES-001",
+      "checkout_available": false
     }
   ]
 }

@@ -60,7 +60,7 @@
     <span>Dream<em>Ledger</em> · Magic</span>
   </a>
   <nav class="silo-nav" aria-label="Magic">
-    <a href="/mtg-list">Sell single</a>
+    <a href="/mtg-list">Sell single</a><a href="/auctions">Auctions</a>
     <a href="#decks">Decks</a>
     <a href="#how">How it works</a>
     <a href="/register">Join free</a>
@@ -95,7 +95,7 @@
     <div class="community">
       <article><h3>List a single</h3><p>Search the card, set condition and NZD price, add city. Buyers see a clean face — not a blurry album dump.</p></article>
       <article><h3>Open the full grid</h3><p>Decks show every card. Check the list before you message or pay. No mystery piles.</p></article>
-      <article><h3>Deal carefully</h3><p>Accounts keep people reachable. Confirm condition and meetup or post before money moves.</p></article>
+      <article><h3>Marketplace trust</h3><p>Accounts keep people reachable. Confirm condition and meetup or post before money moves.</p></article>
     </div>
   </section>
   <section class="silo-section" id="decks">
@@ -117,8 +117,8 @@
       <div class="diag">
         <p class="silo-eyebrow">Platform tool · not cardboard</p>
         <h2 class="silo-h2" style="margin:0 0 8px">Commander diagnostic · NZ$29</h2>
-        <p style="color:var(--silo-muted);margin:0 0 14px;max-width:36em">Digital structure review. Settles on Stripe. Separate from peer singles and decks.</p>
-        <a class="silo-btn silo-btn-gold" href="https://buy.stripe.com/8x228r1nfg0l3M32csdwc2I">Buy diagnostic</a>
+        <p style="color:var(--silo-muted);margin:0 0 14px;max-width:36em">Digital structure review. Ordering is held while fulfillment is verified. Separate from physical singles and decks.</p>
+        <span>Ordering temporarily unavailable</span>
       </div>
     </div>
   </section>
@@ -127,7 +127,7 @@
 <footer class="silo-footer silo-wrap">
   <a href="/">Home</a>
   <a href="/mtg/">Magic</a>
-  <a href="/mtg-list">Sell single</a>
+  <a href="/mtg-list">Sell single</a><a href="/auctions">Auctions</a>
   <a href="/register">Join</a>
   <p style="margin-top:12px">See the cards, then deal.</p>
 </footer>
@@ -157,7 +157,8 @@
         const detail=p.detail_url||'/mtg/';
         const inv=Number(p.inventory)>0;
         const stock=inv?'<span class="stock">In stock</span>':'<span class="stock out">—</span>';
-        const cond=p.condition?('<span>'+esc(p.condition)+'</span>'):'';
+        const conditionEligible=['single','single-card','mtg-single','physical-single'].includes(String(p.product_kind||p.category||'').toLowerCase());
+        const cond=conditionEligible&&p.condition?('<span>'+esc(p.condition)+'</span>'):'';
         const cmd=p.commander?('<span>'+esc(p.commander)+'</span>'):'';
         const buy=inv
           ? '<a class="buy" href="'+esc(detail)+'">See cards &amp; buy · NZ$'+price+'</a>'

@@ -54,13 +54,13 @@ async function main() {
   const published = parsed.products.filter(product => product && product.status === 'published');
   const purchasable = published.filter(product =>
     (product.checkout_available === true && typeof product.checkout_url === 'string' && (/^https:\/\//i.test(product.checkout_url) || /^\/(?!\/)/.test(product.checkout_url))) ||
-    (product.sale_mode === 'claim_by_message' && typeof product.claim_url === 'string' && (/^https:\/\//i.test(product.claim_url) || /^\/(?!\/)/.test(product.claim_url)))
+    (product.sale_mode === 'claim_by_message' && typeof product.claim_url === 'string' && (/^https:\/\//i.test(product.claim_url) || /^\/(?!\/)/.test(product.claim_url) || /^mailto:[^\s?@]+@[^\s?@]+(?:\?|$)/i.test(product.claim_url)))
   );
   const brokenCheckout = published.filter(product =>
     product.checkout_available === true && !(typeof product.checkout_url === 'string' && /^https:\/\//i.test(product.checkout_url))
   );
   const brokenClaim = published.filter(product =>
-    product.sale_mode === 'claim_by_message' && !(typeof product.claim_url === 'string' && (/^https:\/\//i.test(product.claim_url) || /^\/(?!\/)/.test(product.claim_url)))
+    product.sale_mode === 'claim_by_message' && !(typeof product.claim_url === 'string' && (/^https:\/\//i.test(product.claim_url) || /^\/(?!\/)/.test(product.claim_url) || /^mailto:[^\s?@]+@[^\s?@]+(?:\?|$)/i.test(product.claim_url)))
   );
   if (brokenCheckout.length) {
     throw new Error('checkout-enabled products missing valid checkout URL: ' + brokenCheckout.map(product => product.id).join(', '));

@@ -1,0 +1,10 @@
+'use strict';
+const { spawnSync }=require('node:child_process');const fs=require('node:fs');const path=require('node:path');const crypto=require('node:crypto');
+const root=path.resolve(__dirname,'..');
+const files=['BEC-PRIME/marketplace/auction-store.js','BEC-PRIME/marketplace/auction-store.test.js','BEC-PRIME/routes/userAuctions.js','BEC-PRIME/auction-engine.js','BEC-PRIME/start.js','BEC-PRIME/server.js','public/auctions.html','BEC-PRIME/compiled/website/auctions.html'];
+const output=path.resolve(process.env.AUCTION_PROOF_DIR||path.join(root,'evidence/user-auctions'));fs.mkdirSync(output,{recursive:true});
+const result=spawnSync(process.execPath,['--test','BEC-PRIME/marketplace/auction-store.test.js'],{cwd:root,encoding:'utf8',timeout:60000});
+fs.writeFileSync(path.join(output,'test.log'),(result.stdout||'')+(result.stderr||''));
+const checks=files.filter(f=>f.endsWith('.js')).map(f=>({file:f,status:spawnSync(process.execPath,['--check',f],{cwd:root}).status}));
+const proof={schema:'dreamledger/user-auctions-proof/v1',observed_at:new Date().toISOString(),node:process.version,status:result.status===0&&checks.every(c=>c.status===0)?'PASS':'FAIL',test_exit:result.status,syntax_checks:checks,files:files.map(file=>({file,sha256:crypto.createHash('sha256').update(fs.readFileSync(path.join(root,file))).digest('hex')})),production_deployed:false,browser_qa:'NOT_RUN',payments_enabled:false,economic_validation:'NOT_RUN',scope:'Private Node 24 SQLite auction adapter; not cross-channel inventory integration or Cloudflare Workers parity'};
+fs.writeFileSync(path.join(output,'proof.json'),JSON.stringify(proof,null,2)+'\n');console.log(result.stdout||result.error?.message||'');console.log('PROOF='+path.join(output,'proof.json'));process.exitCode=proof.status==='PASS'?0:1;

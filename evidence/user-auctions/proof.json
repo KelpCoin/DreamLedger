@@ -1,0 +1,72 @@
+{
+  "schema": "dreamledger/user-auctions-proof/v1",
+  "observed_at": "2026-10-22T02:10:15.501Z",
+  "node": "v24.19.0",
+  "status": "PASS",
+  "test_exit": 0,
+  "syntax_checks": [
+    {
+      "file": "BEC-PRIME/marketplace/auction-store.js",
+      "status": 0
+    },
+    {
+      "file": "BEC-PRIME/marketplace/auction-store.test.js",
+      "status": 0
+    },
+    {
+      "file": "BEC-PRIME/routes/userAuctions.js",
+      "status": 0
+    },
+    {
+      "file": "BEC-PRIME/auction-engine.js",
+      "status": 0
+    },
+    {
+      "file": "BEC-PRIME/start.js",
+      "status": 0
+    },
+    {
+      "file": "BEC-PRIME/server.js",
+      "status": 0
+    }
+  ],
+  "files": [
+    {
+      "file": "BEC-PRIME/marketplace/auction-store.js",
+      "sha256": "724d6c9dcb769d06e05d2920c755094b37a79b09a6c2d0780e169ec45ec0f68a"
+    },
+    {
+      "file": "BEC-PRIME/marketplace/auction-store.test.js",
+      "sha256": "522577dba760ebdf42ca56eb780e614b4646227ebacd3b7657c0504a7a118c62"
+    },
+    {
+      "file": "BEC-PRIME/routes/userAuctions.js",
+      "sha256": "2f84ccc054d3f7084a03dcb2794622af9496a115441709c120c37f5f643f1764"
+    },
+    {
+      "file": "BEC-PRIME/auction-engine.js",
+      "sha256": "fa55e72639aa8421f64f8418e99343e94536046f1eb645c639f694679f3824e6"
+    },
+    {
+      "file": "BEC-PRIME/start.js",
+      "sha256": "d5739913e71df36cbd8e0d8275279ccd04a73ae54b42d8d90990c13a152befb1"
+    },
+    {
+      "file": "BEC-PRIME/server.js",
+      "sha256": "c00e845bc266001813fd3e12ef4ac0a05f18b92aaf361972c53d2a77d9d3f846"
+    },
+    {
+      "file": "public/auctions.html",
+      "sha256": "e8e48395b2324a8d7d5f477c97d7fe1d0ac3d0936474bab78888e0a0c2244204"
+    },
+    {
+      "file": "BEC-PRIME/compiled/website/auctions.html",
+      "sha256": "e8e48395b2324a8d7d5f477c97d7fe1d0ac3d0936474bab78888e0a0c2244204"
+    }
+  ],
+  "production_deployed": false,
+  "browser_qa": "NOT_RUN",
+  "payments_enabled": false,
+  "economic_validation": "NOT_RUN",
+  "scope": "Private Node 24 SQLite auction adapter; not cross-channel inventory integration or Cloudflare Workers parity"
+}

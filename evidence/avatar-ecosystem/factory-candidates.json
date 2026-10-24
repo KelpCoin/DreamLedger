@@ -1,0 +1,209 @@
+{
+  "schema": "dreamledger/avatar-factory-candidates/v1",
+  "source": "public/assets/avatar-identity.js",
+  "source_sha256": "d5dafaed560ce68998accf9a9f2b596a497cec0a46db71c8b53b30bf216f830e",
+  "status": "DRAFT_REQUIRES_REFINEMENT",
+  "auto_publish": false,
+  "candidates": [
+    {
+      "id": "neon-shades",
+      "name": "Neon Shades",
+      "price_nzd": 2,
+      "slot": "face",
+      "tier": "impulse",
+      "web": {
+        "className": "cos-shades",
+        "color": "#39ff14"
+      },
+      "phinhaven": {
+        "buff": "perception",
+        "magnitude": 1,
+        "label": "+1 Perception in Shallows"
+      },
+      "canonical_existing_id": "neon-shades",
+      "readiness": "PREVIEW_ONLY",
+      "required_gates": [
+        "asset-provenance",
+        "visual-mobile-review",
+        "server-entitlement",
+        "bounded-server-effects",
+        "settlement-fulfillment"
+      ]
+    },
+    {
+      "id": "ember-scarf",
+      "name": "Ember Scarf",
+      "price_nzd": 3,
+      "slot": "neck",
+      "tier": "impulse",
+      "web": {
+        "className": "cos-scarf",
+        "color": "#e85d04"
+      },
+      "phinhaven": {
+        "buff": "warmth",
+        "magnitude": 1,
+        "label": "Resist chill on Floor 1"
+      },
+      "canonical_existing_id": "ember-scarf",
+      "readiness": "PREVIEW_ONLY",
+      "required_gates": [
+        "asset-provenance",
+        "visual-mobile-review",
+        "server-entitlement",
+        "bounded-server-effects",
+        "settlement-fulfillment"
+      ]
+    },
+    {
+      "id": "kelp-hoodie",
+      "name": "Kelp Hoodie",
+      "price_nzd": 4,
+      "slot": "body",
+      "tier": "impulse",
+      "web": {
+        "className": "cos-hoodie",
+        "color": "#1b4332"
+      },
+      "phinhaven": {
+        "buff": "carry",
+        "magnitude": 1,
+        "label": "+1 inventory slot (cosmetic tier)"
+      },
+      "canonical_existing_id": "kelp-hoodie",
+      "readiness": "PREVIEW_ONLY",
+      "required_gates": [
+        "asset-provenance",
+        "visual-mobile-review",
+        "server-entitlement",
+        "bounded-server-effects",
+        "settlement-fulfillment"
+      ]
+    },
+    {
+      "id": "star-bun",
+      "name": "Star Bun",
+      "price_nzd": 3,
+      "slot": "hair",
+      "tier": "impulse",
+      "web": {
+        "className": "hair-bun",
+        "color": "#c9a227"
+      },
+      "phinhaven": {
+        "buff": "luck",
+        "magnitude": 1,
+        "label": "+1 rare drop luck (display)"
+      },
+      "canonical_existing_id": "star-bun",
+      "readiness": "PREVIEW_ONLY",
+      "required_gates": [
+        "asset-provenance",
+        "visual-mobile-review",
+        "server-entitlement",
+        "bounded-server-effects",
+        "settlement-fulfillment"
+      ]
+    },
+    {
+      "id": "violet-fringe",
+      "name": "Violet Fringe",
+      "price_nzd": 3,
+      "slot": "hair",
+      "tier": "impulse",
+      "web": {
+        "className": "hair-fringe",
+        "color": "#7b2cbf"
+      },
+      "phinhaven": {
+        "buff": "focus",
+        "magnitude": 1,
+        "label": "+1 focus on puzzles"
+      },
+      "canonical_existing_id": "violet-fringe",
+      "readiness": "PREVIEW_ONLY",
+      "required_gates": [
+        "asset-provenance",
+        "visual-mobile-review",
+        "server-entitlement",
+        "bounded-server-effects",
+        "settlement-fulfillment"
+      ]
+    },
+    {
+      "id": "chrome-boots",
+      "name": "Chrome Boots",
+      "price_nzd": 5,
+      "slot": "feet",
+      "tier": "impulse",
+      "web": {
+        "className": "cos-boots",
+        "color": "#c0c0c0"
+      },
+      "phinhaven": {
+        "buff": "speed",
+        "magnitude": 1,
+        "label": "+1 move speed (cosmetic)"
+      },
+      "canonical_existing_id": "chrome-boots",
+      "readiness": "PREVIEW_ONLY",
+      "required_gates": [
+        "asset-provenance",
+        "visual-mobile-review",
+        "server-entitlement",
+        "bounded-server-effects",
+        "settlement-fulfillment"
+      ]
+    },
+    {
+      "id": "founder-cloak",
+      "name": "Founder Cloak",
+      "price_nzd": 5,
+      "slot": "back",
+      "tier": "impulse",
+      "web": {
+        "className": "cos-cloak",
+        "color": "#c9a04a"
+      },
+      "phinhaven": {
+        "buff": "presence",
+        "magnitude": 1,
+        "label": "Nameplate glow in Phinhaven"
+      },
+      "canonical_existing_id": "founder-cloak",
+      "readiness": "PREVIEW_ONLY",
+      "required_gates": [
+        "asset-provenance",
+        "visual-mobile-review",
+        "server-entitlement",
+        "bounded-server-effects",
+        "settlement-fulfillment"
+      ]
+    },
+    {
+      "id": "dragon-mark",
+      "name": "Dragon Mark",
+      "price_nzd": 4,
+      "slot": "face",
+      "tier": "impulse",
+      "web": {
+        "className": "cos-mark",
+        "color": "#e63946"
+      },
+      "phinhaven": {
+        "buff": "threat",
+        "magnitude": 1,
+        "label": "Cosmetic threat aura"
+      },
+      "canonical_existing_id": "dragon-mark",
+      "readiness": "PREVIEW_ONLY",
+      "required_gates": [
+        "asset-provenance",
+        "visual-mobile-review",
+        "server-entitlement",
+        "bounded-server-effects",
+        "settlement-fulfillment"
+      ]
+    }
+  ]
+}

@@ -2,6 +2,14 @@ name: Marketplace Integrity
 
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - 'BEC-PRIME/marketplace/**'
+      - 'BEC-PRIME/routes/userAuctions.js'
+      - 'BEC-PRIME/auction-engine.js'
+      - 'public/auctions.html'
+      - 'scripts/verify-user-auctions.cjs'
+      - '.github/workflows/marketplace-integrity.yml'
   push:
     branches: [main]
     paths:
@@ -22,7 +30,17 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+      - name: Verify user auctions
+        run: node scripts/verify-user-auctions.cjs
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: user-auction-proof
+          path: evidence/user-auctions/
       - name: Validate marketplace contract
         run: python -m json.tool BEC-PRIME/marketplace/marketplace-contract.json >/dev/null
       - name: Validate marketplace runtime
@@ -36,7 +54,7 @@ jobs:
       - name: Build marketplace manifest
         run: |
           mkdir -p evidence
-          sha256sum BEC-PRIME/marketplace/* CORTEX/ecosystem_spine.py > evidence/marketplace-manifest.sha256
+          git ls-files -z BEC-PRIME/marketplace CORTEX/ecosystem_spine.py | sort -z | xargs -0 sha256sum > evidence/marketplace-manifest.sha256
       - name: Attest marketplace manifest
         uses: actions/attest@v4
         with:

@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Validate catalogue records and buyer routes
         run: |
           node <<'NODE'
@@ -41,13 +41,16 @@ jobs:
             }
           }
           const html = fs.readFileSync('mtg/index.html', 'utf8');
-          if (!html.includes('/public/catalog.json')) throw new Error('Root preview catalogue must use tracked public catalogue data');
+          if (!html.includes('/data/mtg-catalog.json')) throw new Error('Root catalogue must use tracked MTG data');
           const liveHtml = fs.readFileSync('public/mtg/index.html', 'utf8');
-          if (!liveHtml.includes("get('/catalog.json')")) throw new Error('Live public MTG page must load the tracked catalogue.json');
+          if (!liveHtml.includes('/data/mtg-catalog.json')) throw new Error('Live MTG page must load the tracked MTG catalogue');
+          if (html !== liveHtml) throw new Error('Root and live MTG renderers differ');
+          if (fs.readFileSync('data/mtg-catalog.json','utf8') !== fs.readFileSync('public/data/mtg-catalog.json','utf8')) throw new Error('Root and live MTG data differ');
           for (const page of ['public/mtg/quintorius-field-historian.html', 'public/mtg/dwynen-gilt-leaf-daen.html']) {
             if (!fs.existsSync(page)) throw new Error('Missing deployed public route: ' + page);
           }
-          if (!html.includes('EDH_QUINTORIUS_0002') || !html.includes('EDH_DWYNEN_0003')) throw new Error('Catalogue must prioritize the new decks');
+          const feed = JSON.parse(fs.readFileSync('public/data/mtg-catalog.json','utf8'));
+          for (const id of ['EDH_QUINTORIUS_0002','EDH_DWYNEN_0003']) if (!feed.products.some(x=>x.id===id)) throw new Error('MTG feed missing '+id);
           for (const page of ['mtg/quintorius-field-historian.html', 'mtg/dwynen-gilt-leaf-daen.html']) {
             const body = fs.readFileSync(page, 'utf8');
             if (!body.includes('decklist') && !body.includes('decklist')) throw new Error('Missing decklist reference in ' + page);
