@@ -7,6 +7,7 @@ const ledger = require('./Ledger');
 const fossil = require('./Fossil');
 const governanceState = require('./GovernanceState');
 const multiModelRefinement = require('./MultiModelRefinement');
+const trust = require('./WorkerTrustBoundary');
 
 const ROOT = path.join(__dirname, '..');
 const QUEUE_DIR = path.resolve(process.env.BEC_JOB_QUEUE_DIR || path.join(ROOT, 'data', 'jobs'));
@@ -32,6 +33,7 @@ function proofPath(jobId) { return path.join(PROOF_DIR, `${jobId}.json`); }
 function assertJobIdentity(job) { if (!job || typeof job.job_id !== 'string' || !job.job_id.trim()) throw new Error('Worker job_id is required'); return job.job_id.trim(); }
 function loadJob(jobId) { const file = jobPath(jobId); if (!fs.existsSync(file)) throw new Error(`Unknown job: ${jobId}`); return JSON.parse(fs.readFileSync(file, 'utf8')); }
 function validateJob(input) {
+  trust.validateJob(input);
   if (!input || typeof input !== 'object') throw new Error('Job must be an object');
   if (!ALLOWED_KINDS.has(input.kind)) throw new Error(`Unsupported job kind: ${input.kind}`);
   if (!input.silo || typeof input.silo !== 'string') throw new Error('silo is required');
@@ -53,8 +55,9 @@ function createJob(input) {
 function listJobs() { return fs.readdirSync(JOBS_DIR).filter(x => x.endsWith('.json')).map(x => JSON.parse(fs.readFileSync(path.join(JOBS_DIR, x), 'utf8'))).sort((a, b) => a.created_at.localeCompare(b.created_at)); }
 function endpointHeaders(apiKey) { return apiKey ? { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` } : { 'Content-Type': 'application/json' }; }
 async function runCompatibleModel(job, config) {
-  const payload = { model: config.model, messages: [{ role: 'system', content: job.inputs.system || 'You are an untrusted worker in BrownEye Cortex. Propose work, do not claim evidence, and do not perform irreversible actions.' }, { role: 'user', content: job.task + '\n\nINPUTS:\n' + JSON.stringify(job.inputs) }], temperature: Number(job.inputs.temperature ?? 0.2) };
-  const response = await fetch(config.url, { method: 'POST', headers: endpointHeaders(config.apiKey), body: JSON.stringify(payload) });
+  trust.assertModelDestination(job, config.url);
+  const payload = { model: config.model, messages: trust.buildMessages(job), temperature: Number(job.inputs.temperature ?? 0.2) };
+  const response = await fetch(config.url, { method: 'POST', redirect: 'error', headers: endpointHeaders(config.apiKey), body: JSON.stringify(payload) });
   const text = await response.text();
   if (!response.ok) throw new Error(`${config.name} ${response.status}: ${text.slice(0, 2000)}`);
   const data = JSON.parse(text);
@@ -67,6 +70,7 @@ async function runGpuModel(job) { const url = job.inputs.gpu_url || GPU_LM_URL; 
 async function runCloudModel(job) { const url = job.inputs.cloud_url || CLOUD_LM_URL; const model = job.inputs.cloud_model || CLOUD_LM_MODEL; if (!url || !model) throw new Error('Cloud worker is not configured: set BEC_CLOUD_LM_URL and BEC_CLOUD_LM_MODEL'); return runCompatibleModel(job, { name: 'cloud', url, model, apiKey: process.env.BEC_CLOUD_LM_API_KEY || process.env.BEC_REMOTE_LM_API_KEY || '' }); }
 
 async function execute(job) {
+  trust.validateJob(job); // Recheck queued bytes; create-time validation alone is not a security boundary.
   const jobId = assertJobIdentity(job);
   const started = new Date().toISOString();
   const workerPreference = String(job.worker_preference || 'auto').trim() || 'auto';
