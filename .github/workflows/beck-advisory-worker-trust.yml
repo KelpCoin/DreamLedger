@@ -1,0 +1,36 @@
+name: BECK Advisory Worker Trust
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'BEC-PRIME/runtime/worker-pool.js'
+      - 'BEC-PRIME/runtime/WorkerTrustBoundary.js'
+      - 'BEC-PRIME/runtime/test-WorkerTrustBoundary.js'
+      - 'BEC-PRIME/runtime/ExecutionGate.js'
+      - 'BEC-PRIME/runtime/ExecutionGate.test.js'
+      - 'BEC-PRIME/runtime/AuthorizationFirewall.js'
+      - 'BEC-PRIME/runtime/AuthorizationFirewall.test.js'
+      - '.github/workflows/beck-advisory-worker-trust.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  advisory-trust:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Syntax and source checks
+        run: |
+          node --check BEC-PRIME/runtime/WorkerTrustBoundary.js
+          node --check BEC-PRIME/runtime/worker-pool.js
+          node --check BEC-PRIME/runtime/test-WorkerTrustBoundary.js
+      - name: Worker trust adversarial regression tests
+        working-directory: BEC-PRIME
+        run: node runtime/test-WorkerTrustBoundary.js
+      - name: Existing signed-ticket and authorization unit tests
+        working-directory: BEC-PRIME
+        run: node --test runtime/ExecutionGate.test.js runtime/AuthorizationFirewall.test.js
