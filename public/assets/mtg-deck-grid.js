@@ -1,93 +1,66 @@
-(function () {
-  const ROOT = 'https://api.scryfall.com';
-  const BATCH = 75;
-  function el(tag, cls, text) {
-    const n = document.createElement(tag);
-    if (cls) n.className = cls;
-    if (text != null) n.textContent = text;
-    return n;
+'use strict';
+/* Card art: Scryfall collection endpoint. Do not crop, stretch or watermark artwork.
+   Cards shown are the declared decklist, not inferred collection ownership. */
+(function(){
+  const API='https://api.scryfall.com/cards/collection', BATCH=75;
+  const pending=new Map();
+  const cache=new Map();
+  const make=(tag,cls,txt)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(txt!=null)n.textContent=txt;return n;};
+  const normal=n=>String(n||'').trim().toLowerCase();
+  function sectionData(list){
+    if(Array.isArray(list.sections))return list.sections.map(s=>({title:s.title||'Cards',cards:s.cards||[]}));
+    if(list.boards&&typeof list.boards==='object')return ['commander','main','sideboard'].filter(k=>Array.isArray(list.boards[k])&&list.boards[k].length).map(k=>({title:k==='main'?'Main deck':k==='commander'?'Commander':'Sideboard (not included in Commander deck)',cards:list.boards[k]}));
+    return Array.isArray(list.cards)?[{title:'Deck',cards:list.cards}]:[];
   }
-  async function fetchCards(names) {
-    const unique = [...new Set(names.filter(Boolean))];
-    const out = new Map();
-    for (let i = 0; i < unique.length; i += BATCH) {
-      const chunk = unique.slice(i, i + BATCH);
-      const body = { identifiers: chunk.map((name) => ({ name })) };
-      try {
-        const r = await fetch(ROOT + '/cards/collection', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body),
-        });
-        if (!r.ok) continue;
-        const data = await r.json();
-        (data.data || []).forEach((c) => {
-          const key = (c.name || '').toLowerCase();
-          out.set(key, c);
-        });
-      } catch (e) {}
+  function nameOf(x){return typeof x==='string'?x:String(x.name||'');}
+  function qtyOf(x){return typeof x==='string'?1:Math.max(1,Math.min(99,Number(x.qty||x.quantity||1)||1));}
+  function art(card){return card&&(card.image_uris?.normal||card.image_uris?.small||card.card_faces?.[0]?.image_uris?.normal||card.card_faces?.[0]?.image_uris?.small)||null;}
+  async function lookUp(input){
+    const names=[...new Set(input.map(nameOf).map(normal).filter(Boolean))].filter(n=>!cache.has(n));
+    for(let i=0;i<names.length;i+=BATCH){
+      const chunk=names.slice(i,i+BATCH);
+      try{
+        const response=await fetch(API,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({identifiers:chunk.map(name=>({name}))})});
+        if(!response.ok)throw new Error('Card art provider unavailable');
+        const result=await response.json();
+        for(const c of result.data||[]) cache.set(normal(c.name),c);
+      }catch(_){}
+      for(const n of chunk)if(!cache.has(n))cache.set(n,null);
     }
-    return out;
   }
-  function cardImg(c) {
-    if (!c) return null;
-    if (c.image_uris && c.image_uris.normal) return c.image_uris.normal;
-    if (c.card_faces && c.card_faces[0] && c.card_faces[0].image_uris)
-      return c.card_faces[0].image_uris.normal;
-    return null;
-  }
-  async function render(root) {
-    const src = root.getAttribute('data-mtg-deck');
-    if (!src) return;
-    root.innerHTML = '';
-    root.appendChild(el('p', 'mtg-grid-status', 'Loading card faces…'));
-    let list;
-    try {
-      const r = await fetch(src, { cache: 'no-store' });
-      if (!r.ok) throw new Error('Decklist unavailable');
-      list = await r.json();
-    } catch (e) {
-      root.innerHTML = '';
-      root.appendChild(el('p', 'mtg-grid-status', e.message || 'Failed to load decklist'));
-      return;
+  function renderCards(root,section,compact){
+    const block=make('section','mtg-grid-section');
+    const label=make('h3','mtg-grid-section-title',section.title+' ('+section.cards.reduce((x,c)=>x+qtyOf(c),0)+')');
+    block.appendChild(label);
+    const grid=make('div',compact?'mtg-card-grid mtg-card-grid-preview':'mtg-card-grid');
+    for(const entry of section.cards){
+      const name=nameOf(entry),card=cache.get(normal(name)),src=art(card);
+      const cell=make('figure','mtg-card');cell.title=name;
+      if(src){const img=make('img');img.loading='lazy';img.decoding='async';img.alt=name;img.src=src;cell.appendChild(img);}
+      else cell.appendChild(make('div','mtg-card-ph',name));
+      const caption=make('figcaption',null,name+(qtyOf(entry)>1?' ×'+qtyOf(entry):''));cell.appendChild(caption);
+      grid.appendChild(cell);
     }
-    const sections = list.sections || [{ title: 'Deck', cards: list.cards || [] }];
-    const names = [];
-    sections.forEach((s) => (s.cards || []).forEach((c) => names.push(c.name || c)));
-    const byName = await fetchCards(names);
-    root.innerHTML = '';
-    sections.forEach((section) => {
-      const wrap = el('div', 'mtg-grid-section');
-      wrap.appendChild(el('h3', 'mtg-grid-section-title', section.title || 'Cards'));
-      const grid = el('div', 'mtg-grid');
-      (section.cards || []).forEach((entry) => {
-        const name = entry.name || entry;
-        const qty = entry.qty || entry.quantity || 1;
-        const c = byName.get(String(name).toLowerCase());
-        const img = cardImg(c);
-        const cell = el('article', 'mtg-grid-card');
-        if (img) {
-          const image = el('img', 'mtg-grid-img');
-          image.loading = 'lazy';
-          image.alt = name;
-          image.src = img;
-          cell.appendChild(image);
-        }
-        const meta = el('div', 'mtg-grid-meta');
-        meta.appendChild(el('div', 'mtg-grid-name', name));
-        if (qty > 1) meta.appendChild(el('div', 'mtg-grid-qty', '×' + qty));
-        cell.appendChild(meta);
-        grid.appendChild(cell);
-      });
-      wrap.appendChild(grid);
-      root.appendChild(wrap);
-    });
+    block.appendChild(grid);root.appendChild(block);
   }
-  function boot() {
-    document.querySelectorAll('[data-mtg-deck]').forEach((node) => {
-      render(node);
-    });
+  async function render(node){
+    const src=node.getAttribute('data-mtg-deck');if(!src)return;
+    node.replaceChildren(make('p','mtg-grid-status','Loading the exact listed cards…'));
+    let data;
+    try{const r=await fetch(src,{cache:'no-store'});if(!r.ok)throw Error('Decklist unavailable');data=await r.json();}catch(_){node.replaceChildren(make('p','mtg-grid-status error','Full card list has not been verified for this listing.'));return;}
+    const sections=sectionData(data),core=sections.filter(s=>!/^sideboard/i.test(s.title)),count=core.reduce((n,s)=>n+s.cards.reduce((x,c)=>x+qtyOf(c),0),0);
+    if(!core.length){node.replaceChildren(make('p','mtg-grid-status error','No verified cards in this decklist.'));return;}
+    const preview=node.hasAttribute('data-mtg-preview');
+    const toShow=preview?core.map(s=>({title:s.title,cards:s.cards.slice(0,12)})):sections;
+    const items=toShow.flatMap(s=>s.cards);await lookUp(items);
+    node.replaceChildren();
+    const summary=make('div','mtg-grid-meta',count+' cards recorded in the listed Commander and main deck'+(count===100?' · 100-card count':' · verify 100-card count before purchase'));
+    node.appendChild(summary);
+    toShow.forEach(s=>renderCards(node,s,preview));
+    if(preview){const link=make('a','mtg-grid-source','See full deck and all cards →');link.href=String(node.getAttribute('data-detail-url')||'/mtg/');node.appendChild(link);}
+    node.appendChild(make('p','mtg-grid-note','Card names and counts are from the seller decklist. Artwork via Scryfall. Confirm the exact printings, condition and availability with the seller.'));
   }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
-  else boot();
+  window.DreamLedgerDeckGrid={render,sectionData,lookUp,cardArt:name=>art(cache.get(normal(name)))};
+  function boot(){document.querySelectorAll('[data-mtg-deck]').forEach(n=>render(n));}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();

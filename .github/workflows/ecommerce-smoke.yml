@@ -32,17 +32,17 @@ jobs:
           set -euo pipefail
           test -s home.html
           test -s quote-comparison/index.html
+          test -s mtg/index.html
           test -s server.js
-          grep -qi 'Evidence-first commerce' home.html
-          grep -qi 'Make the next decision' home.html
-          grep -qi 'Truth Oracle' home.html
+          grep -qi 'Find your next Commander deck' home.html
+          grep -q 'href="/mtg/"' home.html
+          grep -q 'href="/mtg-search.html"' home.html
+          grep -q 'mtg-search.html' mtg/index.html
           if grep -Eqi 'Delivery Proof Audit|agent-delivery-proof-audit' home.html quote-comparison/index.html; then
             echo 'RETIRED_AUDIT_RESIDUE=FAIL'
             exit 1
           fi
-          grep -Eq 'href="(https://dreamledger.org)?/quote-comparison/' home.html
-          grep -q 'href="/trust/"' home.html
-          if grep -Ein 'Gauntlet|Economic Court|ELOHIM|BrownEye Cortex|AMPLISSA|COLLECTORSCOAST|SUPABASE_SERVICE_ROLE|STRIPE_SECRET|STRIPE_WEBHOOK|RA_000001' home.html quote-comparison/index.html; then
+          if grep -Ein 'BECK|WebsiteFaceCompiler|Gauntlet|Economic Court|ELOHIM|BrownEye Cortex|AMPLISSA|COLLECTORSCOAST|SUPABASE_SERVICE_ROLE|STRIPE_SECRET|STRIPE_WEBHOOK|RA_000001' home.html quote-comparison/index.html; then
             echo 'PUBLIC_COPY_SCAN=FAIL'
             exit 1
           else
@@ -68,8 +68,8 @@ jobs:
           fi
           curl -fsS http://127.0.0.1:4173/ >/tmp/home.html
           curl -fsS http://127.0.0.1:4173/api/products >/tmp/products.json
-          grep -qi 'Make the next decision' /tmp/home.html
-          grep -Eq 'href="(https://dreamledger.org)?/quote-comparison/' /tmp/home.html
+          grep -qi 'Find your next Commander deck' /tmp/home.html
+          grep -q 'href="/mtg/"' /tmp/home.html
           grep -q '"products"' /tmp/products.json
           echo 'LOCAL_STOREFRONT_RUNTIME=PASS'
 

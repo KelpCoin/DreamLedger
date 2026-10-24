@@ -22,11 +22,10 @@ async function main() {
   const html = home.body;
   const required = [
     ['DreamLedger brand', /DreamLedger/i],
-    ['evidence-first commerce positioning', /Evidence-first commerce/i],
-    ['homepage headline', /Make the next decision\s*<span>easier to prove/i],
-    ['Truth Oracle evidence review link', /href="\/truth-oracle\.html/i],
-    ['free worksheet route', /href="(?:https:\/\/dreamledger\.org)?\/quote-comparison\//i],
-    ['trust route', /href="\/trust\//i]
+    ['physical MTG front door', /Find your next Commander deck/i],
+    ['MTG category route', /href="\/mtg\/"/i],
+    ['seller inventory search route', /href="\/mtg-search\.html"/i],
+    ['separate shop route', /href="\/shop\.html"/i]
   ];
   for (const [label, pattern] of required) {
     if (!pattern.test(html)) throw new Error('missing ' + label + ' on homepage');
@@ -34,7 +33,7 @@ async function main() {
 
   const forbidden = [
     'Gauntlet', 'Economic Court', 'ELOHIM', 'BrownEye Cortex',
-    'AMPLISSA', 'COLLECTORSCOAST', 'SUPABASE_SERVICE_ROLE',
+    'AMPLISSA', 'COLLECTORSCOAST', 'BECK compiler', 'WebsiteFaceCompiler', 'SUPABASE_SERVICE_ROLE',
     'STRIPE_SECRET', 'STRIPE_WEBHOOK', 'RA_000001'
   ];
   for (const token of forbidden) {
@@ -43,6 +42,8 @@ async function main() {
     }
   }
 
+  const mtg = await get('/mtg/');
+  if (mtg.status !== 200 || !/mtg-search\.html/i.test(mtg.body)) throw new Error('MTG storefront route unavailable');
   const products = await get('/api/products');
   if (products.status !== 200) throw new Error('/api/products status ' + products.status);
   let parsed;
@@ -54,13 +55,13 @@ async function main() {
   const published = parsed.products.filter(product => product && product.status === 'published');
   const purchasable = published.filter(product =>
     (product.checkout_available === true && typeof product.checkout_url === 'string' && (/^https:\/\//i.test(product.checkout_url) || /^\/(?!\/)/.test(product.checkout_url))) ||
-    (product.sale_mode === 'claim_by_message' && typeof product.claim_url === 'string' && (/^https:\/\//i.test(product.claim_url) || /^\/(?!\/)/.test(product.claim_url)))
+    (product.sale_mode === 'claim_by_message' && typeof product.claim_url === 'string' && (/^https:\/\//i.test(product.claim_url) || /^\/(?!\/)/.test(product.claim_url) || /^mailto:[^\s@?]+@[^\s@?]+(?:\?.*)?$/i.test(product.claim_url)))
   );
   const brokenCheckout = published.filter(product =>
     product.checkout_available === true && !(typeof product.checkout_url === 'string' && /^https:\/\//i.test(product.checkout_url))
   );
   const brokenClaim = published.filter(product =>
-    product.sale_mode === 'claim_by_message' && !(typeof product.claim_url === 'string' && (/^https:\/\//i.test(product.claim_url) || /^\/(?!\/)/.test(product.claim_url)))
+    product.sale_mode === 'claim_by_message' && !(typeof product.claim_url === 'string' && (/^https:\/\//i.test(product.claim_url) || /^\/(?!\/)/.test(product.claim_url) || /^mailto:[^\s@?]+@[^\s@?]+(?:\?.*)?$/i.test(product.claim_url)))
   );
   if (brokenCheckout.length) {
     throw new Error('checkout-enabled products missing valid checkout URL: ' + brokenCheckout.map(product => product.id).join(', '));

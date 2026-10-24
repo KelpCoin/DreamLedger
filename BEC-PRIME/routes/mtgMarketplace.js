@@ -8,6 +8,7 @@ const ROOT = path.join(__dirname, '..');
 const DATA_ROOT = process.env.DREAMIEZ_DATA_DIR || ((fs.existsSync('/var/data') && fs.statSync('/var/data').isDirectory()) ? '/var/data/dreamiez' : path.join(ROOT, 'data', 'dreamiez'));
 const LISTINGS = path.join(DATA_ROOT, 'mtg-marketplace-listings.json');
 const REQUESTS = path.join(DATA_ROOT, 'mtg-marketplace-requests.json');
+const BIDS = path.join(DATA_ROOT, 'mtg-marketplace-bids.json');
 const USERS = path.join(DATA_ROOT, 'users.json');
 const COOKIE = 'dreamiez_session';
 
@@ -53,7 +54,11 @@ function safeListing(x) {
     id: x.id, title: x.title, set_name: x.set_name, collector_number: x.collector_number,
     condition: x.condition, language: x.language, image_url: x.image_url, description: x.description,
     price_nzd: x.price_nzd, accepts_buy: x.accepts_buy, accepts_trade: x.accepts_trade,
-    trade_wanted: x.trade_wanted, status: x.status, seller_id: x.seller_id,
+    trade_wanted: x.trade_wanted, status: x.status, sale_mode: x.sale_mode || 'fixed', auction: x.auction ? {
+      starts_at: x.auction.starts_at, ends_at: x.auction.ends_at,
+      start_price_nzd: x.auction.start_price_nzd, current_bid_nzd: x.auction.current_bid_nzd,
+      bid_count: x.auction.bid_count, min_increment_nzd: x.auction.min_increment_nzd
+    } : null, seller_id: x.seller_id,
     seller_display_name: x.seller_display_name, trader_status: x.trader_status,
     created_at: x.created_at, updated_at: x.updated_at
   };
@@ -87,14 +92,90 @@ async function handle(req, res, url) {
     return json(res, 200, { fee_policy: 'MTG_ZERO_FEE', listings, mine, requests });
   }
 
+  // Only signed-in buyers may bid. A bid is NOT payment, escrow, or settlement.
+  if (req.method === 'POST' && route === '/api/mtg/marketplace/auction/bid') {
+    const user = currentUser(req);
+    if (!user) return json(res, 401, { error: 'Log in before bidding.' });
+    const input = await body(req);
+    const id = clean(input.listing_id, 80);
+    const amount = Number(input.amount_nzd);
+    if (!Number.isFinite(amount) || amount <= 0 || amount > 1000000 ||
+        Math.round(amount * 100) !== amount * 100) return json(res, 422, { error: 'Enter an NZD bid to two decimal places.' });
+    fs.mkdirSync(DATA_ROOT, { recursive: true });
+    const lockPath = path.join(DATA_ROOT, 'mtg-auction-bids.lock');
+    let fd;
+    try { fd = fs.openSync(lockPath, 'wx'); }
+    catch (_) { return json(res, 409, { error: 'Auction is processing another bid. Refresh before retrying.' }); }
+    try {
+      const listings = read(LISTINGS, []);
+      const x = listings.find(l => l.id === id);
+      if (!x || x.status !== 'active' || x.sale_mode !== 'auction' || !x.auction) return json(res, 404, { error: 'Active auction not found.' });
+      if (x.seller_id === user.id) return json(res, 403, { error: 'Sellers cannot bid on their own auctions.' });
+      const now = Date.now(), end = Date.parse(x.auction.ends_at);
+      if (!Number.isFinite(end) || now >= end) return json(res, 409, { error: 'Auction has ended.' });
+      const minimum = x.auction.bid_count > 0 ? Math.round((x.auction.current_bid_nzd + x.auction.min_increment_nzd) * 100) / 100 : x.auction.start_price_nzd;
+      if (amount < minimum) return json(res, 409, { error: 'Bid too low.', minimum_bid_nzd: minimum });
+      const bid = { id: 'bid_' + crypto.randomBytes(10).toString('hex'), listing_id: id, buyer_id: user.id, amount_nzd: amount, created_at: new Date(now).toISOString(), state: 'VALID_BID_NOT_PAYMENT' };
+      const bids = read(BIDS, []);
+      bids.push(bid);
+      x.auction.bid_count++;
+      x.auction.current_bid_nzd = amount;
+      // Extend the closing time if the successful bid arrives in the final two minutes.
+      if (end - now <= 120000) x.auction.ends_at = new Date(now + 120000).toISOString();
+      x.updated_at = bid.created_at;
+      write(BIDS, bids);
+      write(LISTINGS, listings);
+      return json(res, 201, { ok: true, bid_id: bid.id, listing: safeListing(x), fee_nzd: 0, economic_state: 'BID_NOT_SETTLEMENT' });
+    } finally { fs.closeSync(fd); fs.unlinkSync(lockPath); }
+  }
+
+  if (req.method === 'POST' && route === '/api/mtg/marketplace/auction/close') {
+    const user = currentUser(req);
+    if (!user) return json(res, 401, { error: 'Log in before closing an auction.' });
+    const input = await body(req), id = clean(input.listing_id, 80);
+    const listings = read(LISTINGS, []), x = listings.find(l => l.id === id);
+    if (!x || x.sale_mode !== 'auction' || !x.auction) return json(res, 404, { error: 'Auction not found.' });
+    if (x.seller_id !== user.id) return json(res, 403, { error: 'Only the seller may close this auction.' });
+    if (x.status !== 'active') return json(res, 409, { error: 'Auction no longer active.' });
+    if (Date.now() < Date.parse(x.auction.ends_at)) return json(res, 409, { error: 'Auction has not ended.' });
+    const bids = read(BIDS, []).filter(b => b.listing_id === id);
+    const winner = bids[bids.length - 1] || null;
+    x.status = winner ? 'reserved' : 'ended';
+    x.updated_at = new Date().toISOString();
+    x.auction.winning_bid_id = winner ? winner.id : null;
+    write(LISTINGS, listings);
+    // A win establishes a proposed direct buyer-seller contract only.
+    const contact = winner ? read(USERS, []).find(u => u.id === winner.buyer_id) : null;
+    return json(res, 200, { ok: true, status: x.status, winner_contact_email: contact?.email || null, winning_bid_nzd: winner?.amount_nzd || null, fee_nzd: 0, economic_state: 'NOT_SETTLED' });
+  }
+
+  if (req.method === 'POST' && route === '/api/mtg/marketplace/listing/status') {
+    const user = currentUser(req);
+    if (!user) return json(res, 401, { error: 'Log in before changing a listing.' });
+    const input = await body(req);
+    const target = clean(input.status, 20).toLowerCase();
+    if (!['sold', 'withdrawn'].includes(target)) return json(res, 422, { error: 'Only sold or withdrawn status is supported.' });
+    const listings = read(LISTINGS, []);
+    const listing = listings.find(x => x.id === clean(input.listing_id, 80));
+    if (!listing) return json(res, 404, { error: 'Listing not found.' });
+    if (listing.seller_id !== user.id) return json(res, 403, { error: 'Only the seller may change this listing.' });
+    if (listing.status === target) return json(res, 200, { ok: true, listing: safeListing(listing), unchanged: true });
+    if (!['active','reserved'].includes(listing.status)) return json(res, 409, { error: 'Cannot change this listing from its present status.' });
+    listing.status = target;
+    listing.updated_at = new Date().toISOString();
+    write(LISTINGS, listings);
+    return json(res, 200, { ok: true, listing: safeListing(listing) });
+  }
+
   if (req.method === 'POST' && route === '/api/mtg/marketplace/list') {
     const user = currentUser(req);
     if (!user) return json(res, 401, { error: 'Log in before listing a card.' });
     const input = await body(req);
     const title = clean(input.title, 160);
     const price = Number(input.price_nzd);
-    const acceptsBuy = bool(input.accepts_buy);
-    const acceptsTrade = bool(input.accepts_trade);
+    const saleMode = clean(input.sale_mode, 20).toLowerCase() === 'auction' ? 'auction' : 'fixed';
+    const acceptsBuy = saleMode === 'auction' ? true : bool(input.accepts_buy);
+    const acceptsTrade = saleMode === 'auction' ? false : bool(input.accepts_trade);
     if (!title) return json(res, 422, { error: 'Card name is required.' });
     if (!acceptsBuy && !acceptsTrade) return json(res, 422, { error: 'Choose buy, trade, or both.' });
     if (acceptsBuy && (!Number.isFinite(price) || price <= 0)) return json(res, 422, { error: 'Enter a valid NZD price when accepting buys.' });
@@ -113,6 +194,8 @@ async function handle(req, res, url) {
       image_url: clean(input.image_url, 1000),
       description: clean(input.description, 1500),
       price_nzd: acceptsBuy ? Math.round(price * 100) / 100 : null,
+      sale_mode: saleMode,
+      auction: saleMode === 'auction' ? { starts_at: now, ends_at: new Date(Date.now() + Math.max(1, Math.min(14, Number(input.auction_days)||3))*86400000).toISOString(), start_price_nzd: Math.round(price*100)/100, current_bid_nzd: null, bid_count: 0, min_increment_nzd: Math.max(0.5, Math.round(Number(input.min_increment_nzd||1)*100)/100) } : null,
       accepts_buy: acceptsBuy,
       accepts_trade: acceptsTrade,
       trade_wanted: clean(input.trade_wanted, 800),
@@ -143,6 +226,7 @@ async function handle(req, res, url) {
     const listing = listings.find(x => x.id === clean(input.listing_id, 80) && x.status === 'active');
     if (!listing) return json(res, 404, { error: 'Listing not found.' });
     if (listing.seller_id === user.id) return json(res, 409, { error: 'You cannot buy or trade your own listing.' });
+    if (listing.sale_mode === 'auction') return json(res, 409, { error: 'Auction listings accept bids instead of direct requests.' });
     const type = String(input.type || '').toLowerCase();
     if (!['buy','trade'].includes(type)) return json(res, 422, { error: 'Offer type must be buy or trade.' });
     if (type === 'buy' && !listing.accepts_buy) return json(res, 409, { error: 'This seller is not accepting a buy offer.' });
@@ -184,6 +268,18 @@ async function handle(req, res, url) {
     if (request.seller_id !== user.id) return json(res, 403, { error: 'Only the seller can accept or decline this offer.' });
     const decision = String(input.decision || '').toLowerCase();
     if (!['accept','decline'].includes(decision)) return json(res, 422, { error: 'Decision must be accept or decline.' });
+    if (request.status !== 'pending_seller_acceptance') return json(res, 409, { error: 'This offer has already been decided.' });
+    if (decision === 'accept') {
+      const listings = read(LISTINGS, []);
+      const listing = listings.find(x => x.id === request.listing_id);
+      if (!listing || listing.seller_id !== user.id || listing.status !== 'active') {
+        return json(res, 409, { error: 'Listing is no longer active. Cannot accept another offer.' });
+      }
+      // Hide the one-off physical card before recording acceptance; failure must not reopen stock.
+      listing.status = 'reserved';
+      listing.updated_at = new Date().toISOString();
+      write(LISTINGS, listings);
+    }
     request.status = decision === 'accept' ? 'accepted_direct_contract_pending_settlement' : 'declined';
     request.updated_at = new Date().toISOString();
     write(REQUESTS, requests);

@@ -26,39 +26,11 @@ textarea{min-height:88px;resize:vertical}
 <div class="wrap">
   <span class="badge">0% success fee · NZ</span>
   <h1>List a card</h1>
-  <p class="lead">Structured listing beats a Facebook wall post. Publishing needs a <strong>free seller account</strong>. Buyers never need one.</p>
-  <form id="f" action="/register" method="get">
-    <label for="name">Card name + set</label>
-    <input id="name" name="card" required placeholder="e.g. Ragavan, Nimble Pilferer · MH2">
-    <label for="cond">Condition</label>
-    <select id="cond" name="condition">
-      <option>NM</option><option>LP</option><option>MP</option><option>HP</option><option>DMG</option>
-    </select>
-    <label for="finish">Finish</label>
-    <select id="finish" name="finish">
-      <option>Nonfoil</option><option>Foil</option><option>Etched</option><option>Other</option>
-    </select>
-    <label for="price">Price (NZD)</label>
-    <input id="price" name="price_nzd" type="number" min="1" step="1" required placeholder="45">
-    <label for="city">City / region</label>
-    <input id="city" name="city" required placeholder="Wellington">
-    <label for="ship">Meetup or post</label>
-    <textarea id="ship" name="logistics" placeholder="CBD pickup weekends · tracked post +$8"></textarea>
-    <label for="notes">Notes / trades wanted</label>
-    <textarea id="notes" name="notes" placeholder="ISO: Dockside, optional trade"></textarea>
-    <button class="btn" type="submit">Continue · free account to publish</button>
-  </form>
+  <p class="lead">Structured listing beats a Facebook wall post. Publishing needs a <strong>free seller account</strong>. A buyer needs an account to make a recorded offer.</p>
+  <div class="panel"><p class="lead">List your actual card through the MTG marketplace. The listing is saved to the seller marketplace, not just this browser.</p><a class="btn" href="/mtg-marketplace.html#list-card">Open card listing form</a><p class="note">A free DreamLedger account is required to list. Buy and trade requests are recorded for the seller to accept or decline. No payment is taken automatically.</p></div>
   <p class="note"><strong>Why account?</strong> So NZ sellers are reachable and not a random group alias. Platform success fee on peer card sales: <strong>0%</strong>.</p>
-  <p class="note"><a href="/mtg">← Back to MTG silo</a> · <a href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Commander diagnostic $29</a></p>
+  <p class="note"><a href="/mtg/">Back to MTG</a> · <a href="/mtg-search.html">Browse cards</a></p>
 </div>
-<script>
-document.getElementById('f').addEventListener('submit',function(){
-  try{
-    var data={};
-    new FormData(this).forEach(function(v,k){data[k]=v;});
-    localStorage.setItem('dreamledger_mtg_draft_listing',JSON.stringify(data));
-  }catch(e){}
-});
-</script>
+
 </body>
 </html>
