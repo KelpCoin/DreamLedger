@@ -43,7 +43,26 @@ jobs:
           const html = fs.readFileSync('mtg/index.html', 'utf8');
           if (!html.includes('/public/catalog.json')) throw new Error('Root preview catalogue must use tracked public catalogue data');
           const liveHtml = fs.readFileSync('public/mtg/index.html', 'utf8');
-          if (!liveHtml.includes("get('/catalog.json')")) throw new Error('Live public MTG page must load the tracked catalogue.json');
+          if (html !== liveHtml) throw new Error('Root-hosted and public MTG checkout surfaces have diverged');
+          if (!liveHtml.includes("tryFetch('/public/catalog.json')") ||
+              !liveHtml.includes("tryFetch('/catalog.json')"))
+            throw new Error('Storefront must resolve both root-hosted and public catalogue routes');
+          if (!liveHtml.includes('function eligibleCheckout(p)') ||
+              !liveHtml.includes('Number(p.price) === 400') ||
+              !liveHtml.includes("p.shipping_restriction === 'NZ'") ||
+              !liveHtml.includes('checkout_available: false, checkout_url: null'))
+            throw new Error('Storefront checkout gate or fail-closed fallback is missing');
+          const sale = products.find(p => p.id === 'EDH_0001');
+          if (sale.price !== 400 || sale.currency !== 'nzd' ||
+              sale.inventory !== 1 || sale.maximum_completed_purchases !== 1 ||
+              sale.shipping_restriction !== 'NZ' ||
+              sale.payment_link_id !== 'plink_1U6V3BEGgEAnUFF93nnPFUmr' ||
+              sale.checkout_url !== 'https://buy.stripe.com/14A3cvea1dSd1DV5oEdwc1J' ||
+              sale.checkout_available !== true)
+            throw new Error('Approved NZD 400 single-unit EDH_0001 contract mismatch');
+          const publicMtgCheckouts = products.filter(p => p.category === 'mtg' && p.checkout_available === true);
+          if (publicMtgCheckouts.length !== 1 || publicMtgCheckouts[0].id !== 'EDH_0001')
+            throw new Error('Only EDH_0001 may advertise checkout in MTG silo');
           for (const page of ['public/mtg/quintorius-field-historian.html', 'public/mtg/dwynen-gilt-leaf-daen.html']) {
             if (!fs.existsSync(page)) throw new Error('Missing deployed public route: ' + page);
           }
