@@ -57,7 +57,7 @@ function endpointHeaders(apiKey) { return apiKey ? { 'Content-Type': 'applicatio
 async function runCompatibleModel(job, config) {
   trust.assertModelDestination(job, config.url);
   const payload = { model: config.model, messages: trust.buildMessages(job), temperature: Number(job.inputs.temperature ?? 0.2) };
-  const response = await fetch(config.url, { method: 'POST', headers: endpointHeaders(config.apiKey), body: JSON.stringify(payload) });
+  const response = await fetch(config.url, { method: 'POST', redirect: 'error', headers: endpointHeaders(config.apiKey), body: JSON.stringify(payload) });
   const text = await response.text();
   if (!response.ok) throw new Error(`${config.name} ${response.status}: ${text.slice(0, 2000)}`);
   const data = JSON.parse(text);
