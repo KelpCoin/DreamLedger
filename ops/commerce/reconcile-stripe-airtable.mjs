@@ -170,13 +170,13 @@ for (const s of matches) {
       'Channel': 'Stripe Payment Link',
       'Event Type': 'PAYMENT',
       'Amount NZD': expectedAmountNzd,
-      'Verified': true,
-      'Gauntlet Verdict': 'PASS',
+      'Verified': false,
+      'Gauntlet Verdict': 'HOLD',
       'Evidence Ref': `stripe:checkout_session:${s.id}`,
       'Operator Minutes': 0,
       'Direct Cost NZD': 0,
-      'Contribution NZD': expectedAmountNzd,
-      'Elohim Pattern': 'FIRST-REAL-PAYMENT',
+      'Contribution NZD': 0,
+      'Elohim Pattern': 'PAID-SESSION-PENDING-RECONCILIATION',
       'CUBE Action': 'CANDIDATE'
     }
   };
@@ -214,29 +214,8 @@ for (const s of matches) {
   }
 }
 
-if (airtableEnabled && inserted.length) {
-  await airtable(
-    `/${encodeURIComponent(offersTable)}/${offerRecord}`,
-    {
-      method: 'PATCH',
-      body: JSON.stringify({
-        fields: {
-          Status: 'VALIDATED',
-          'First Payment Event': inserted[0].eventId,
-          Notes: `Live Stripe payment evidence detected. Session: ${inserted[0].stripeSession}`
-        }
-      })
-    }
-  );
-}
-
-const totalVerified =
-  existing
-    .filter(r => r.fields?.Verified === true)
-    .reduce(
-      (sum, r) => sum + Number(r.fields?.['Amount NZD'] || 0),
-      0
-    ) + inserted.reduce((sum, x) => sum + x.amountNZD, 0);
+// Checkout payment_status=paid is not bank settlement, fulfillment or delivery.
+// Never validate an offer or count external revenue in this observation-only job.
 
 const proof = {
   proof_type: airtableEnabled
@@ -254,8 +233,15 @@ const proof = {
   scanned_completed_checkout_sessions: sessions.length,
   matching_paid_sessions: matches.length,
   newly_recognized_events: inserted,
-  verified_revenue_nzd: totalVerified,
-  authority: 'Stripe live payment evidence',
+  verified_revenue_nzd: 0,
+  observed_paid_session_amount_nzd: matches.reduce((sum, s) => sum + s.amount_total / 100, 0),
+  verified_external_revenue_nzd: null,
+  truth_label: 'PAID_SESSION_UNMATCHED',
+  settlement_status: 'NOT_VERIFIED',
+  fulfillment_status: 'NOT_VERIFIED',
+  delivery_status: 'NOT_VERIFIED',
+  gauntlet: 'HOLD',
+  authority: 'Stripe live paid-session observation, not settlement or delivery proof',
   commercial_definition: APPROVED_OFFERS_PATH,
   operational_index: airtableEnabled
     ? 'Airtable Economic Events'
@@ -269,7 +255,8 @@ const proof = {
     'Only paid live Checkout Sessions matching the approved offer currency and price are accepted.',
     'Event IDs are idempotent.',
     'Stripe list endpoints are fully paginated.',
-    'Airtable is an indexing sink, not the authority for whether payment occurred.'
+    'Airtable is an indexing sink, not the authority for whether payment occurred.',
+    'A paid session is not verified external revenue without independent settlement and retrievable delivery evidence.'
   ]
 };
 
