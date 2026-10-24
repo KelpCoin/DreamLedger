@@ -48,7 +48,7 @@ h1{font-size:clamp(2.2rem,6vw,3.6rem);line-height:1.02;letter-spacing:-.04em;mar
 <div id="status" class="status-bar">Loading catalogue…</div>
 <div id="grid" class="grid" aria-live="polite"></div>
 </section>
-<div class="notice">Walk the Plank is available through a stock-limited secure NZD checkout. Other deck listings require stock confirmation before payment. Singles coming soon. Auctions coming soon.</div>
+<div id="sale-note" class="notice">Checkout availability is being verified against the published catalogue. Other deck listings require stock confirmation before payment. Singles coming soon. Auctions coming soon.</div>
 <footer class="foot"><a href="/">Home</a><a href="/mtg/">Magic</a><a href="https://patreon.com/happyhomarid" target="_blank" rel="noopener">Patreon</a></footer>
 </div>
 <script>
@@ -70,7 +70,7 @@ h1{font-size:clamp(2.2rem,6vw,3.6rem);line-height:1.02;letter-spacing:-.04em;mar
       claim_url: 'mailto:hello@dreamledger.org?subject=Claim%20Jon%20Irenicus%20Commander%20Deck' },
     { id: 'EDH_0001', name: 'Walk the Plank - Edward Kenway Commander Deck', price: 400, status: 'published', category: 'commander-deck', silo: 'mtg',
       description: 'Grixis Pirates / Vehicles. Sleeved and playtested. NZ shipping. NZD 400.',
-      checkout_available: true, checkout_url: 'https://buy.stripe.com/14A3cvea1dSd1DV5oEdwc1J', claim_url: null }
+      checkout_available: false, checkout_url: null, claim_url: null }
   ];
   var statusEl = document.getElementById('status');
   var grid = document.getElementById('grid');
@@ -80,11 +80,23 @@ h1{font-size:clamp(2.2rem,6vw,3.6rem);line-height:1.02;letter-spacing:-.04em;mar
     var id = String(p.id || ''), cat = String(p.category || '').toLowerCase(), silo = String(p.silo || '').toLowerCase();
     return silo === 'mtg' || cat === 'commander-deck' || /^EDH_/i.test(id);
   }
+  function eligibleCheckout(p) {
+    return Boolean(p) && p.id === 'EDH_0001' &&
+      p.status === 'published' && p.checkout_available === true &&
+      Number(p.price) === 400 && String(p.currency || '').toLowerCase() === 'nzd' &&
+      Number(p.inventory) === 1 && Number(p.maximum_completed_purchases) === 1 &&
+      p.shipping_restriction === 'NZ' &&
+      p.checkout_url === 'https://buy.stripe.com/14A3cvea1dSd1DV5oEdwc1J' &&
+      p.payment_link_id === 'plink_1U6V3BEGgEAnUFF93nnPFUmr';
+  }
   function render(decks, note) {
+    var approvedCount = decks.filter(eligibleCheckout).length;
+    document.getElementById('sale-note').textContent = approvedCount === 1
+      ? 'Walk the Plank: NZD 400 secure single-deck checkout. Only this listing accepts payment. Other decks require stock confirmation.'
+      : 'No online deck checkout is currently verified. Request a deck and confirm availability before paying.';
     statusEl.innerHTML = '<strong>' + decks.length + ' deck' + (decks.length === 1 ? '' : 's') + '</strong> · physical · NZ · claim confirms stock' + (note ? ' · ' + note : '');
     grid.innerHTML = decks.map(function (p) {
-      var approvedCheckout = p.id === 'EDH_0001' && p.checkout_available === true &&
-        p.checkout_url === 'https://buy.stripe.com/14A3cvea1dSd1DV5oEdwc1J';
+      var approvedCheckout = eligibleCheckout(p);
       var destination = approvedCheckout ? p.checkout_url :
         (p.claim_url || ('mailto:hello@dreamledger.org?subject=' + encodeURIComponent('Request ' + (p.name || 'deck'))));
       var price = Number(p.price);
@@ -100,7 +112,8 @@ h1{font-size:clamp(2.2rem,6vw,3.6rem);line-height:1.02;letter-spacing:-.04em;mar
     });
   }
   render(FALLBACK, 'loading feeds…');
-  tryFetch('/catalog.json')
+  tryFetch('/public/catalog.json')
+    .catch(function () { return tryFetch('/catalog.json'); })
     .catch(function () { return tryFetch('/data/mtg-catalog.json'); })
     .then(function (d) {
       var decks = ((d && d.products) || []).filter(isMtgDeck);
