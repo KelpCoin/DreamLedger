@@ -51,6 +51,40 @@ jobs:
           grep -F -- 'payment_links' "$WORKFLOW"
           grep -F -- 'https://buy.stripe.com/' "$WORKFLOW"
 
+      - name: Verify approved EDH_0001 one-unit checkout contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          catalog = json.loads(Path("public/catalog.json").read_text())
+          deck = json.loads(Path("catalog/products/EDH_0001.json").read_text())
+          products = catalog["products"]
+          matches = [p for p in products if p.get("id") == "EDH_0001"]
+          assert len(matches) == 1, "EDH_PRODUCT_CARDINALITY"
+          item = matches[0]
+          assert deck["id"] == "EDH_0001" and deck["silo"] == "mtg", "EDH_IDENTITY"
+          assert deck["status"] == item["status"] == "published", "EDH_PUBLICATION"
+          assert deck["price"] == 40000 and item["price"] == 400, "EDH_NZD400_PRICE"
+          assert deck["currency"].lower() == item["currency"].lower() == "nzd", "EDH_CURRENCY"
+          assert deck["inventory"] == item["inventory"] == 1, "EDH_ONE_UNIT"
+          assert deck["fulfillment_method"] == "physical_delivery", "EDH_PHYSICAL_FULFILLMENT"
+          assert item["shipping_restriction"] == "NZ", "EDH_NZ_SHIPPING"
+          assert item["maximum_completed_purchases"] == 1, "EDH_ONE_PURCHASE"
+          assert item["checkout_available"] is True, "EDH_CHECKOUT_HELD"
+          truth = deck["commercial_truth"]
+          assert truth["approval_required"] is False and truth["checkout_available"] is True, "EDH_APPROVAL"
+          assert bool(truth["owner_approval"]) and truth["stock_limited"] is True, "EDH_STOCK_APPROVAL"
+          assert truth["completed_purchase_limit"] == 1, "EDH_LIMIT"
+          assert truth["payment_link_id"] == item["payment_link_id"], "EDH_LINK_ID"
+          assert truth["payment_link"].startswith("https://buy.stripe.com/"), "EDH_LINK_FORMAT"
+          assert truth["payment_link"] == item["checkout_url"], "EDH_LINK_URL"
+          mtg_active = [p["id"] for p in products if p.get("category") == "mtg" and p.get("checkout_available") is True]
+          assert mtg_active == ["EDH_0001"], "EDH_SINGLE_MTG_CHECKOUT"
+          print("EDH_0001_SOURCE_CONTRACT_PASS; settlement_and_delivery=UNVERIFIED")
+          PY
+
       - name: Secret hygiene guard
         shell: bash
         run: |
@@ -64,9 +98,8 @@ jobs:
           mkdir -p proof
           cat > proof/first-sale-commerce-contract.txt <<'EOF'
           PASS
-          Product: Discord Webhook Starter Kit
-          Price: NZD 79
-          Checkout: configured, not a revenue claim
+          Products: Discord Webhook Starter Kit NZD 79; EDH_0001 NZD 400 one-unit deck
+          Checkout: source contracts only; live provider state not proven by CI
           Delivery: UNVERIFIED pending end-to-end receipt
           Secret hygiene: PASS
           EOF

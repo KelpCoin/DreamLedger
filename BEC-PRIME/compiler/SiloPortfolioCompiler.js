@@ -14,6 +14,8 @@ const PROOF = path.join(ROOT, 'PROOF-SILO-PORTFOLIO-COMPILATION.json');
 const SILO_REGISTRY = path.join(ROOT, 'catalog', 'silos', 'CUBE-SILO-REGISTRY.json');
 const CAROUSEL_OUT = path.join(ROOT, '..', 'public', 'portfolio', 'carousel-manifest.json');
 const PUBLIC_PORTFOLIO_INDEX = path.join(ROOT, '..', 'public', 'portfolio', 'index.html');
+const PUBLIC_PORTFOLIO_DIR = path.dirname(PUBLIC_PORTFOLIO_INDEX);
+const PUBLIC_CATALOG = path.join(ROOT, '..', 'public', 'catalog.json');
 const DEMAND_RADAR = path.join(ROOT, '..', 'ops', 'demand', 'latest.json');
 
 function must(file) {
@@ -72,22 +74,31 @@ function demandEvidenceForOffer(offer, radar) {
 }
 
 const demandRadar = fs.existsSync(DEMAND_RADAR) ? readJson(DEMAND_RADAR) : null;
-if (!offers.length) throw new Error('No explicitly approved offers found. Refusing to publish an empty commercial portfolio.');
+const publicProducts = readJson(PUBLIC_CATALOG).products || [];
+const publicById = new Map(publicProducts.map(item => [item.id, item]));
 
-const eligible = offers.filter(o =>
-  o &&
-  o.approved_by === 'operator' &&
-  o.payment_link_status === 'ACTIVE_LIVEMODE' &&
-  typeof o.payment_link_url === 'string' &&
-  o.payment_link_url.startsWith('https://buy.stripe.com/') &&
-  typeof o.price === 'number' &&
-  o.price > 0 &&
-  o.currency === 'NZD'
-);
-
-if (!eligible.length) {
-  throw new Error('No approved livemode Stripe offers available. Refusing to publish a non-purchasable portfolio.');
+function eligibleNow(offer) {
+  if (!offer || offer.approved_by !== 'operator' || offer.payment_link_status !== 'ACTIVE_LIVEMODE') return false;
+  if (offer.currency !== 'NZD' || !Number.isFinite(offer.price) || offer.price <= 0) return false;
+  if (typeof offer.payment_link_url !== 'string' || !offer.payment_link_url.startsWith('https://buy.stripe.com/')) return false;
+  if (!/^[A-Za-z0-9_-]+$/.test(String(offer.product_id || ''))) return false;
+  const productFile = path.join(ROOT, 'catalog', 'products', offer.product_id + '.json');
+  if (!fs.existsSync(productFile)) return false;
+  let product;
+  try { product = JSON.parse(fs.readFileSync(productFile, 'utf8')); } catch { return false; }
+  const publicItem = publicById.get(offer.product_id);
+  if (!publicItem || publicItem.checkout_available !== true || publicItem.checkout_url !== offer.payment_link_url) return false;
+  if (product.id !== offer.product_id || !['active', 'published'].includes(String(product.status).toLowerCase())) return false;
+  if (product.commercial_truth?.approval_required !== false || product.commercial_truth?.sellable !== true) return false;
+  if (product.checkout?.mode === 'disabled' || product.fulfillment?.mode === 'disabled') return false;
+  if (product.commercial_truth?.payment_link !== offer.payment_link_url && product.checkout?.url !== offer.payment_link_url) return false;
+  if (String(product.currency).toUpperCase() !== offer.currency || Number(product.price) !== offer.price) return false;
+  if (Number.isFinite(product.inventory) && product.inventory <= 0) return false;
+  return true;
 }
+
+const eligible = offers.filter(eligibleNow);
+const held = offers.filter(o => o && !eligibleNow(o));
 
 fs.mkdirSync(OUT_DIR, { recursive: true });
 fs.mkdirSync(CATALOG_DIR, { recursive: true });
@@ -137,7 +148,9 @@ const catalog = {
   compiled_at: new Date().toISOString(),
   source_hash: digest(fs.readFileSync(APPROVED, 'utf8')),
   activation_policy: {
-    source_of_truth: 'catalog/offers/approved.json',
+    source_of_truth: 'approved offers + canonical products + public catalogue',
+    current_product_state_required: true,
+    public_checkout_agreement_required: true,
     approval_required_for_activation: true,
     only_operator_approved_offers: true,
     only_active_livemode_stripe_links: true,
@@ -211,7 +224,7 @@ const publicCards = rankOffers(compiled).map(offer => `
 <div class="price">${esc(offer.currency)} ${Number(offer.price).toFixed(2)}</div>
 <p><span class="state">${esc(offer.trend.recommended_action)}</span></p>
 <a class="buy" href="${esc(offer.canonical_url)}">View offer</a>
-</article>`).join('\\n');
+</article>`).join('\\n') || '<p>No portfolio checkout offers are currently available.</p>';
 
 const publicIndex = `<!doctype html>
 <html lang="en-NZ"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -225,7 +238,7 @@ body{margin:0;background:#080a0d;color:#f5f3eb;font:16px/1.55 system-ui}.wrap{ma
 a{color:#d8b56b}.buy{display:inline-block;padding:12px 18px;border-radius:10px;background:#d8b66b;color:#111;text-decoration:none;font-weight:900}
 </style></head><body><main class="wrap"><p class="eyebrow">ONE COMMERCE SUBSTRATE · TREND-AWARE INVENTORY</p>
 <h1>DreamLedger Commercial Portfolio</h1>
-<p>Approved, live-checkout offers ranked by the existing trend flywheel. Unknown market evidence remains unknown. Trend state does not imply revenue.</p>
+<p>Only currently eligible checkout offers appear here. Unavailable offers cannot be purchased. Unknown market evidence remains unknown. Trend state does not imply revenue.</p>
 <section class="grid">${publicCards}</section>
 <p style="color:#a8adb8">Settlement, fulfillment and economic verification remain governed by the existing commerce and Truth machinery.</p>
 </main></body></html>`;
@@ -301,8 +314,24 @@ ul{padding-left:22px}
 </html>`;
 }
 
+function heldPage(offer) {
+  return '<!doctype html><html lang="en-NZ"><head><meta charset="utf-8"><meta name="robots" content="noindex,follow"><title>' +
+    esc(offer.name) + ' | Currently unavailable</title></head><body><main><h1>' +
+    esc(offer.name) + '</h1><p>This offer is currently unavailable for purchase.</p>' +
+    '<p><a href="/portfolio/">Back to portfolio</a></p></main></body></html>';
+}
+fs.mkdirSync(PUBLIC_PORTFOLIO_DIR, { recursive: true });
 for (const offer of compiled) {
-  fs.writeFileSync(path.join(OUT_DIR, `${slug(offer.name)}.html`), page(offer), 'utf8');
+  const filename = slug(offer.name) + '.html';
+  const html = page(offer);
+  fs.writeFileSync(path.join(OUT_DIR, filename), html, 'utf8');
+  fs.writeFileSync(path.join(PUBLIC_PORTFOLIO_DIR, filename), html, 'utf8');
+}
+for (const offer of held) {
+  const filename = slug(offer.name) + '.html';
+  const html = heldPage(offer);
+  fs.writeFileSync(path.join(OUT_DIR, filename), html, 'utf8');
+  fs.writeFileSync(path.join(PUBLIC_PORTFOLIO_DIR, filename), html, 'utf8');
 }
 
 const cards = compiled.map(offer => `
@@ -312,7 +341,7 @@ const cards = compiled.map(offer => `
 <p>${esc(offer.problem)}</p>
 <strong>${esc(offer.currency)} ${Number(offer.price).toFixed(2)}</strong>
 <p><a class="buy" href="${esc(offer.canonical_url)}">View offer</a></p>
-</article>`).join('\n');
+</article>`).join('\n') || '<p>No portfolio checkout offers are currently available.</p>';
 
 const index = `<!doctype html>
 <html lang="en">
@@ -337,7 +366,7 @@ h1{font-size:44px;line-height:1.05}
 <main class="wrap">
 <p class="eyebrow">ONE COMMERCE SUBSTRATE · MULTIPLE OFFERS</p>
 <h1>DreamLedger Commercial Portfolio</h1>
-<p>Live commercial offers compiled from the existing approved-offer catalog. Each offer resolves to its canonical page and existing Stripe livemode checkout.</p>
+<p>Currently eligible offers compiled from the approved-offer catalog and live product state. Each offer resolves to its canonical page and existing Stripe livemode checkout.</p>
 <div class="grid">${cards}</div>
 <p class="eyebrow">The portfolio compiler does not create economic claims. Settlement, fulfillment and verification remain governed by the existing commerce and evidence machinery.</p>
 </main>
@@ -349,6 +378,8 @@ fs.writeFileSync(path.join(OUT_DIR, 'index.html'), index, 'utf8');
 const proof = {
   schema: 'BEC-PRIME/SLEEPING-COMMERCE-PORTFOLIO/v1',
   status: 'PASS',
+  commercial_gate: compiled.length ? 'REQUIRES_INDEPENDENT_ACCEPTANCE' : 'HOLD_NO_ELIGIBLE_OFFERS',
+  held_offer_count: held.length,
   compiled_at: catalog.compiled_at,
   source_hash: catalog.source_hash,
   offer_count: compiled.length,
