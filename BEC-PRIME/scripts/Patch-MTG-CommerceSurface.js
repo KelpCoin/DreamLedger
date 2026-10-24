@@ -8,17 +8,19 @@ const SOURCE = path.join(ROOT, 'website', 'mtg-catalog.html');
 const PROOF = path.join(ROOT, 'PROOF-MTG-COMMERCE-SURFACE.json');
 const MARKER = 'data-dreamledger-mtg-commerce-v2';
 
-function writeProof() {
+function writeProof(state = 'PASS', reason = null) {
   const proof = {
     schema: 'BEC-PRIME/MTG-COMMERCE-SURFACE/v2',
-    status: 'PASS',
+    status: state,
+    reason,
+    patch_applied: state === 'PASS',
     source: 'BEC-PRIME/website/mtg-catalog.html',
     marker: MARKER,
     route: '/mtg',
     aliases: ['/mtg', '/mtg/', '/MTG', '/MTG/'],
     inventory_endpoint: '/api/products',
     checkout_endpoint: '/api/offer-checkout/create',
-    horizontal_catalogue: true,
+    horizontal_catalogue: state === 'PASS',
     displays: ['image', 'name', 'price_nzd', 'availability', 'buy_button', 'condition_for_verified_singles_only'],
     generated_at: new Date().toISOString()
   };
@@ -41,7 +43,14 @@ function patch() {
 
   const start = html.indexOf('function render(items){');
   const end = html.indexOf('async function load(){', start);
-  if (start < 0 || end < 0) throw new Error('MTG render function boundary not found');
+  if (start < 0 || end < 0) {
+    // The source was replaced by a newer, separately governed deck-grid template.
+    // Do not pretend the legacy patch was applied and do not modify its checkout routes.
+    const cardConditionGuard = html.includes('const conditionEligible=') && html.includes('const cond=conditionEligible');
+    if (!cardConditionGuard) throw new Error('MTG_RENDERER_UNRECOGNIZED_OR_UNGUARDED');
+    writeProof('HOLD', 'Legacy render(items) patch not applicable to safe current template; no commerce patch applied');
+    return;
+  }
 
   const render = String.raw`function render(items){
 const decks=items.filter(isMtg);
