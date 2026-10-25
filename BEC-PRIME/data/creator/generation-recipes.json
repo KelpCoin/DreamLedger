@@ -9,7 +9,11 @@
       "engine": "comfyui",
       "endpoint_env": "COMFYUI_BASE_URL",
       "workflow_env": "COMFYUI_HERO_WORKFLOW",
-      "output": { "image": "png", "video": "mp4", "video_optional": true },
+      "output": {
+        "image": "png",
+        "video": "mp4",
+        "video_optional": true
+      },
       "approval_required": true
     },
     {
@@ -20,8 +24,237 @@
       "engine": "comfyui",
       "endpoint_env": "COMFYUI_BASE_URL",
       "workflow_env": "COMFYUI_CINEMA_WORKFLOW",
-      "output": { "image": "png", "video": "mp4", "max_seconds": 15, "video_optional": true },
+      "output": {
+        "image": "png",
+        "video": "mp4",
+        "max_seconds": 15,
+        "video_optional": true
+      },
       "approval_required": true
+    },
+    {
+      "id": "agent_bridge-model-draft-v1",
+      "version": 1,
+      "status": "requires_local_model_adapter",
+      "stencil_id": "agent_bridge-model-prompt-v1",
+      "engine": "lm_studio_local",
+      "endpoint_env": "LM_STUDIO_BASE_URL",
+      "model_env": "LM_STUDIO_MODEL",
+      "output": {
+        "text": "json"
+      },
+      "approval_required": true,
+      "note": "Recipe contract only. No inference is claimed until a local model adapter runs and its output is independently checked."
+    },
+    {
+      "id": "app_factory-model-draft-v1",
+      "version": 1,
+      "status": "requires_local_model_adapter",
+      "stencil_id": "app_factory-model-prompt-v1",
+      "engine": "lm_studio_local",
+      "endpoint_env": "LM_STUDIO_BASE_URL",
+      "model_env": "LM_STUDIO_MODEL",
+      "output": {
+        "text": "json"
+      },
+      "approval_required": true,
+      "note": "Recipe contract only. No inference is claimed until a local model adapter runs and its output is independently checked."
+    },
+    {
+      "id": "automation-model-draft-v1",
+      "version": 1,
+      "status": "requires_local_model_adapter",
+      "stencil_id": "automation-model-prompt-v1",
+      "engine": "lm_studio_local",
+      "endpoint_env": "LM_STUDIO_BASE_URL",
+      "model_env": "LM_STUDIO_MODEL",
+      "output": {
+        "text": "json"
+      },
+      "approval_required": true,
+      "note": "Recipe contract only. No inference is claimed until a local model adapter runs and its output is independently checked."
+    },
+    {
+      "id": "commerce-model-draft-v1",
+      "version": 1,
+      "status": "requires_local_model_adapter",
+      "stencil_id": "commerce-model-prompt-v1",
+      "engine": "lm_studio_local",
+      "endpoint_env": "LM_STUDIO_BASE_URL",
+      "model_env": "LM_STUDIO_MODEL",
+      "output": {
+        "text": "json"
+      },
+      "approval_required": true,
+      "note": "Recipe contract only. No inference is claimed until a local model adapter runs and its output is independently checked."
+    },
+    {
+      "id": "community-model-draft-v1",
+      "version": 1,
+      "status": "requires_local_model_adapter",
+      "stencil_id": "community-model-prompt-v1",
+      "engine": "lm_studio_local",
+      "endpoint_env": "LM_STUDIO_BASE_URL",
+      "model_env": "LM_STUDIO_MODEL",
+      "output": {
+        "text": "json"
+      },
+      "approval_required": true,
+      "note": "Recipe contract only. No inference is claimed until a local model adapter runs and its output is independently checked."
+    },
+    {
+      "id": "creator-model-draft-v1",
+      "version": 1,
+      "status": "requires_local_model_adapter",
+      "stencil_id": "creator-model-prompt-v1",
+      "engine": "lm_studio_local",
+      "endpoint_env": "LM_STUDIO_BASE_URL",
+      "model_env": "LM_STUDIO_MODEL",
+      "output": {
+        "text": "json"
+      },
+      "approval_required": true,
+      "note": "Recipe contract only. No inference is claimed until a local model adapter runs and its output is independently checked."
+    },
+    {
+      "id": "data_refinery-model-draft-v1",
+      "version": 1,
+      "status": "requires_local_model_adapter",
+      "stencil_id": "data_refinery-model-prompt-v1",
+      "engine": "lm_studio_local",
+      "endpoint_env": "LM_STUDIO_BASE_URL",
+      "model_env": "LM_STUDIO_MODEL",
+      "output": {
+        "text": "json"
+      },
+      "approval_required": true,
+      "note": "Recipe contract only. No inference is claimed until a local model adapter runs and its output is independently checked."
+    },
+    {
+      "id": "digital_products-model-draft-v1",
+      "version": 1,
+      "status": "requires_local_model_adapter",
+      "stencil_id": "digital_products-model-prompt-v1",
+      "engine": "lm_studio_local",
+      "endpoint_env": "LM_STUDIO_BASE_URL",
+      "model_env": "LM_STUDIO_MODEL",
+      "output": {
+        "text": "json"
+      },
+      "approval_required": true,
+      "note": "Recipe contract only. No inference is claimed until a local model adapter runs and its output is independently checked."
+    },
+    {
+      "id": "dooh-model-draft-v1",
+      "version": 1,
+      "status": "requires_local_model_adapter",
+      "stencil_id": "dooh-model-prompt-v1",
+      "engine": "lm_studio_local",
+      "endpoint_env": "LM_STUDIO_BASE_URL",
+      "model_env": "LM_STUDIO_MODEL",
+      "output": {
+        "text": "json"
+      },
+      "approval_required": true,
+      "note": "Recipe contract only. No inference is claimed until a local model adapter runs and its output is independently checked."
+    },
+    {
+      "id": "dreammeez-model-draft-v1",
+      "version": 1,
+      "status": "requires_local_model_adapter",
+      "stencil_id": "dreammeez-model-prompt-v1",
+      "engine": "lm_studio_local",
+      "endpoint_env": "LM_STUDIO_BASE_URL",
+      "model_env": "LM_STUDIO_MODEL",
+      "output": {
+        "text": "json"
+      },
+      "approval_required": true,
+      "note": "Recipe contract only. No inference is claimed until a local model adapter runs and its output is independently checked."
+    },
+    {
+      "id": "education-model-draft-v1",
+      "version": 1,
+      "status": "requires_local_model_adapter",
+      "stencil_id": "education-model-prompt-v1",
+      "engine": "lm_studio_local",
+      "endpoint_env": "LM_STUDIO_BASE_URL",
+      "model_env": "LM_STUDIO_MODEL",
+      "output": {
+        "text": "json"
+      },
+      "approval_required": true,
+      "note": "Recipe contract only. No inference is claimed until a local model adapter runs and its output is independently checked."
+    },
+    {
+      "id": "evidence-model-draft-v1",
+      "version": 1,
+      "status": "requires_local_model_adapter",
+      "stencil_id": "evidence-model-prompt-v1",
+      "engine": "lm_studio_local",
+      "endpoint_env": "LM_STUDIO_BASE_URL",
+      "model_env": "LM_STUDIO_MODEL",
+      "output": {
+        "text": "json"
+      },
+      "approval_required": true,
+      "note": "Recipe contract only. No inference is claimed until a local model adapter runs and its output is independently checked."
+    },
+    {
+      "id": "fightedge-model-draft-v1",
+      "version": 1,
+      "status": "requires_local_model_adapter",
+      "stencil_id": "fightedge-model-prompt-v1",
+      "engine": "lm_studio_local",
+      "endpoint_env": "LM_STUDIO_BASE_URL",
+      "model_env": "LM_STUDIO_MODEL",
+      "output": {
+        "text": "json"
+      },
+      "approval_required": true,
+      "note": "Recipe contract only. No inference is claimed until a local model adapter runs and its output is independently checked."
+    },
+    {
+      "id": "licensing-model-draft-v1",
+      "version": 1,
+      "status": "requires_local_model_adapter",
+      "stencil_id": "licensing-model-prompt-v1",
+      "engine": "lm_studio_local",
+      "endpoint_env": "LM_STUDIO_BASE_URL",
+      "model_env": "LM_STUDIO_MODEL",
+      "output": {
+        "text": "json"
+      },
+      "approval_required": true,
+      "note": "Recipe contract only. No inference is claimed until a local model adapter runs and its output is independently checked."
+    },
+    {
+      "id": "marketplace-model-draft-v1",
+      "version": 1,
+      "status": "requires_local_model_adapter",
+      "stencil_id": "marketplace-model-prompt-v1",
+      "engine": "lm_studio_local",
+      "endpoint_env": "LM_STUDIO_BASE_URL",
+      "model_env": "LM_STUDIO_MODEL",
+      "output": {
+        "text": "json"
+      },
+      "approval_required": true,
+      "note": "Recipe contract only. No inference is claimed until a local model adapter runs and its output is independently checked."
+    },
+    {
+      "id": "procurement-model-draft-v1",
+      "version": 1,
+      "status": "requires_local_model_adapter",
+      "stencil_id": "procurement-model-prompt-v1",
+      "engine": "lm_studio_local",
+      "endpoint_env": "LM_STUDIO_BASE_URL",
+      "model_env": "LM_STUDIO_MODEL",
+      "output": {
+        "text": "json"
+      },
+      "approval_required": true,
+      "note": "Recipe contract only. No inference is claimed until a local model adapter runs and its output is independently checked."
     }
   ]
 }
