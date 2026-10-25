@@ -9,6 +9,7 @@ const crypto = require('node:crypto');
 
 const CONFIG_PATH = path.join(__dirname, 'channel-syndication-v1.json');
 const FORBIDDEN_CROSS_SILO = ['amplissa', 'adult_silo', 'adult-only', 'adult only'];
+const FORBIDDEN_SILO_IDS = new Set(['amplissa', 'adult', 'adult_silo', 'amplissa_adult']);
 function sha256(value) {
   return crypto.createHash('sha256').update(typeof value === 'string' ? value : JSON.stringify(value)).digest('hex');
 }
@@ -19,6 +20,7 @@ function validateProduct(p) {
     if (typeof p[k] !== 'string' || !p[k].trim()) fail('REQUIRED_FIELD:' + k);
   }
   if (!['physical_goods', 'digital_download', 'digital_diagnostic', 'custom_service'].includes(p.product_type)) fail('INVALID_PRODUCT_TYPE');
+  if (FORBIDDEN_SILO_IDS.has(p.silo_id.trim().toLowerCase())) fail('BLOCKED_SILO_ID');
   if (!/^https?:\/\//i.test(p.source_url)) fail('SOURCE_URL_MUST_BE_HTTP');
   if (p.product_type === 'physical_goods' && (!Number.isInteger(p.inventory_count) || p.inventory_count < 1)) fail('PHYSICAL_STOCK_PROOF_REQUIRED');
   const serialized = JSON.stringify(p).toLowerCase();
@@ -29,7 +31,7 @@ function compile(product, config = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8
   validateProduct(product);
   const productHash = sha256(product);
   const channels = config.channels.map(channel => {
-    const compatible = channel.product_types.includes(product.product_type);
+    const compatible = channel.product_types.includes(product.product_type) && Array.isArray(channel.allowed_silos) && channel.allowed_silos.includes(product.silo_id.trim().toLowerCase());
     const payload = {
       product_id: product.product_id,
       silo_id: product.silo_id,
@@ -58,7 +60,7 @@ function compile(product, config = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8
       channel_label: channel.label,
       compatible,
       status: compatible ? 'STAGED_DRAFT' : 'SKIPPED_INCOMPATIBLE',
-      reason: compatible ? 'DRAFT_PREPARED_PUBLICATION_NOT_AUTHORIZED' : 'PRODUCT_TYPE_NOT_SUPPORTED_BY_CHANNEL',
+      reason: compatible ? 'DRAFT_PREPARED_PUBLICATION_NOT_AUTHORIZED' : (!channel.product_types.includes(product.product_type) ? 'PRODUCT_TYPE_NOT_SUPPORTED_BY_CHANNEL' : 'SILO_NOT_ALLOWED_ON_CHANNEL'),
       content_sha256: payloadHash,
       dedupe_key: sha256([product.product_id, channel.id, payloadHash].join('|')),
       payload: compatible ? payload : null
@@ -81,12 +83,36 @@ function compile(product, config = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8
     channels
   };
 }
+function compileMany(products, config = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8')), observedAt = new Date().toISOString()) {
+  if (!Array.isArray(products) || products.length === 0) fail('NONEMPTY_PRODUCT_ARRAY_REQUIRED');
+  const seen = new Set();
+  const results = products.map(product => {
+    validateProduct(product);
+    if (seen.has(product.product_id)) fail('DUPLICATE_PRODUCT_ID:' + product.product_id);
+    seen.add(product.product_id);
+    return compile(product, config, observedAt);
+  });
+  return {
+    schema_version: 'DL-SYNDICATION-MULTI-BATCH-1.0',
+    generated_at: observedAt,
+    truth_label: 'DRAFT_ONLY_NOT_PUBLISHED_NOT_REVENUE',
+    counts: {
+      products_considered: results.length,
+      channels_considered: results.reduce((n, x) => n + x.counts.channels_considered, 0),
+      compatible_drafts: results.reduce((n, x) => n + x.counts.compatible_drafts, 0),
+      incompatible_skips: results.reduce((n, x) => n + x.counts.incompatible_skips, 0),
+      published: 0
+    },
+    policy: { public_action_allowed: false, money_movement_allowed: false, price_change_allowed: false },
+    products: results
+  };
+}
 if (require.main === module) {
   try {
     const input = process.argv[2];
     if (!input) fail('USAGE: node BEC-PRIME/distribution/CompileChannelSyndication.js <product.json> [output.json]');
     const product = JSON.parse(fs.readFileSync(path.resolve(input), 'utf8'));
-    const result = compile(product);
+    const result = Array.isArray(product) ? compileMany(product) : compile(product);
     const output = process.argv[3];
     if (output) {
       const target = path.resolve(output);
@@ -99,4 +125,4 @@ if (require.main === module) {
     process.exitCode = 1;
   }
 }
-module.exports = { compile, validateProduct, sha256 };
+module.exports = { compile, compileMany, validateProduct, sha256 };
