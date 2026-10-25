@@ -2,6 +2,7 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const {assemble,statusOf,render,auditConsumerCatalog}=require('./Build-CashClosureBoard');
+const { consumerReleaseVerdict }=require('../gauntlet/GauntletV6');
 const registry={silos:[{id:'mtg',label:'MTG',route:'/mtg'}, {id:'digital-products',label:'Digital',route:'/digital-products.html'}]};
 const a={offer_id:'O-1',product_id:'P-1',silo:'mtg',name:'Commander',price:29,approved_by:'operator',payment_link_status:'ACTIVE_LIVEMODE',payment_link_url:'https://buy.stripe.com/example'};
 const live={offers:[{offer_id:'O-1',checkout:a.payment_link_url}]};
@@ -58,4 +59,24 @@ test('marked-purchasable item with no checkout link is quarantined as contradict
 test('duplicated product IDs and malformed data fail closed',()=>{
   assert.throws(()=>consumerAudit([{id:'A'},{id:'A'}]),/DUPLICATE_OR_MISSING_PRODUCT_ID/);
   assert.throws(()=>auditConsumerCatalog({catalog:{products:[]},registry:{},approved:{approved:[]}}),/INVALID_CONSUMER_INPUT/);
+});
+
+test('existing Gauntlet blocks even a valid-looking Stripe checkout with unproven delivery',()=>{
+  const report=consumerAudit([{id:'PET-1',status:'published',checkout_available:true,
+    checkout_url:'https://buy.stripe.com/valid123',delivery_test_status:'VERIFIED'}]);
+  const verdict=consumerReleaseVerdict(report);
+  assert.equal(verdict.status,'FAIL');
+  assert.equal(verdict.blocked_count,1);
+  assert.equal(verdict.blocked[0].product_id,'PET-1');
+  assert.equal(verdict.reason,'UNVERIFIED_CONSUMER_CHECKOUT_MUST_NOT_BE_PUBLISHED');
+});
+test('existing Gauntlet allows an honest empty or held catalog without inventing buyers',()=>{
+  const report=consumerAudit([{id:'A',status:'held',checkout_available:false,checkout_url:null}]);
+  const verdict=consumerReleaseVerdict(report);
+  assert.equal(verdict.status,'PASS');
+  assert.equal(verdict.declared_checkout_count,0);
+  assert.equal(verdict.blocked_count,0);
+});
+test('existing Gauntlet fails closed when consumer audit proof is missing',()=>{
+  assert.equal(consumerReleaseVerdict(null).status,'FAIL');
 });
