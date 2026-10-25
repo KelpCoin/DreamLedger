@@ -1,6 +1,6 @@
 {
   "schema_version": "BEC-FIVE-MILESTONE-EXECUTION-PROOF-1.0",
-  "observed_at_utc": "2026-10-25T23:14:45Z",
+  "observed_at_utc": "2026-10-25T23:30:00Z",
   "status": "PARTIAL_WITH_HARD_BLOCKERS",
   "repository": "KelpCoin/DreamLedger",
   "milestone_results": [
@@ -12,9 +12,11 @@
         "AgentBridge Contract Gate passed at run https://github.com/KelpCoin/DreamLedger/actions/runs/40243850631",
         "CI unit policy tests pass after correcting stale MTG contract expectations",
         "Production contract verification still fails with STRIPE_LINK_DRIFT and PRODUCT_NOT_SELLABLE because canonical Commander Diagnostic is held while approved/featured offer metadata still advertises an active live Stripe link",
-        "Read-only production checks returned HTTP 503 for DreamLedger public endpoints"
+        "Read-only production checks returned HTTP 503 for DreamLedger public endpoints",
+        "Read-only live Stripe inspection: payment link plink_1URUN1EGgEAnUFF9qPz94dqS is active in livemode and already contains sku_id=COMMANDER-DECK-DIAGNOSTIC-001, product_id, product_sku, and offer_id=OFFER-CMD-DIAG-29-NZD. Therefore adding sku_id is not the missing step.",
+        "The same Stripe link uses after_completion.type=hosted_confirmation, not a configured redirect URL. The hosted confirmation promises manual email delivery within 24 hours after receiving an accessible decklist URL; actual fulfilment remains unverified."
       ],
-      "blocker": "DreamLedger1 is suspended by billing controls. The user's standing migration direction is to move away from Render/Supabase, so do not assume authorization to pay or restore Render. The migration PR remains draft/unmerged. Separately, Commander Diagnostic is held while approved/featured metadata advertises an active live Stripe link; do not silently reactivate or mutate checkout."
+      "blocker": "Render DreamLedger1 is suspended by billing. The live Commander Diagnostic payment link is active and already has sku_id metadata, but its post-payment behavior is hosted confirmation rather than a verified live thank-you route. Separately, the canonical product is held while approved/featured metadata conflicts with that held state. Do not silently reactivate or mutate payment links to make CI green."
     },
     {
       "id": 2,
@@ -56,7 +58,8 @@
       "status": "BLOCKED",
       "evidence": [
         "Read-only checks returned HTTP 503 for dreamledger.org/billboard, dreamledger1.onrender.com/healthz, dreamledger1.onrender.com/billboard and dreamledger.org/api/agent-bridge/manifest",
-        "Render service DreamLedger1 (srv-d8ud55lckfvc73f1t4eg) is marked suspended with suspenders=[billing]"
+        "Render service DreamLedger1 (srv-d8ud55lckfvc73f1t4eg) is marked suspended with suspenders=[billing]",
+        "Stripe payment link plink_1URUN1EGgEAnUFF9qPz94dqS is active in livemode; this proves link state only, not a buyer payment or delivered product."
       ],
       "blocker": "Production service is suspended by billing controls and migration away from Render/Supabase is not yet verified. External buyer checkout, settlement and delivery cannot be verified until an approved production target is healthy."
     }
@@ -69,5 +72,6 @@
     "marketplace_listings_created": false
   },
   "next_unblocking_action": "Complete the already-requested hosting/data migration away from Render and Supabase using the migration PR and connected provider inventory; preserve financial history, verify read/write parity and recovery, and do not switch public traffic or delete source resources until independently verified and explicitly approved. Then resolve the held Commander Diagnostic versus active-link metadata conflict.",
-  "repository_head": "20e79a03f1b31817f1010e99483dbb745e706eae"
+  "repository_head": "20e79a03f1b31817f1010e99483dbb745e706eae",
+  "evidence": null
 }
