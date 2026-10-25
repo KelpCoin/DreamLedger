@@ -1,0 +1,33 @@
+name: BECK commercial offer readiness review
+on:
+  pull_request:
+    paths:
+      - 'BEC-PRIME/fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json'
+      - 'public/catalog.json'
+      - 'public/portfolio/supplier-quote-comparison-pilot.html'
+      - 'ops/commerce/release-readiness-contract.test.mjs'
+      - '.github/workflows/commercial-offer-readiness.yml'
+  push:
+    branches:
+      - 'beck/diagnostic-b2b-offer-parity-20261025'
+    paths:
+      - 'BEC-PRIME/fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json'
+      - 'public/catalog.json'
+      - 'public/portfolio/supplier-quote-comparison-pilot.html'
+      - 'ops/commerce/release-readiness-contract.test.mjs'
+      - '.github/workflows/commercial-offer-readiness.yml'
+permissions:
+  contents: read
+jobs:
+  offer-readiness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22'
+      - name: Hold unverified purchases and validate pilot claims
+        run: node --test ops/commerce/release-readiness-contract.test.mjs
