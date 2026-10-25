@@ -39,12 +39,16 @@ test('cross-silo contamination is rejected', () => {
   assert.throws(() => validateProduct({ ...base, description: 'Amplissa adult-only sample' }), /CROSS_SILO_CONTENT_BLOCKED/);
 });
 
-test('dedupe keys are deterministic for identical inputs', () => {
+test('dedupe keys are stable across timestamps but change when content changes', () => {
   const a = compile(base, undefined, '2026-10-26T00:00:00.000Z');
-  const b = compile(base, undefined, '2026-10-26T00:00:00.000Z');
+  const b = compile(base, undefined, '2026-10-27T00:00:00.000Z');
   assert.deepEqual(a.channels.map(c => c.dedupe_key), b.channels.map(c => c.dedupe_key));
+  const changed = compile({ ...base, title: 'Changed title' }, undefined, '2026-10-27T00:00:00.000Z');
+  assert.notDeepEqual(a.channels.map(c => c.dedupe_key), changed.channels.map(c => c.dedupe_key));
 });
 
-test('output path is not part of compiler; caller must opt into a new file', () => {
-  assert.equal(compile(base, undefined, '2026-10-26T00:00:00.000Z').policy.money_movement_allowed, false);
+test('output is explicitly non-publishing and non-financial', () => {
+  const r = compile(base, undefined, '2026-10-26T00:00:00.000Z');
+  assert.equal(r.policy.money_movement_allowed, false);
+  assert.equal(r.policy.public_action_allowed, false);
 });
