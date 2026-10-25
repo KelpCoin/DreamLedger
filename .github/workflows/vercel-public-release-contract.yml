@@ -1,0 +1,25 @@
+name: BECK Public Portfolio Release Contract
+on:
+  pull_request:
+    paths:
+      - 'public/**'
+      - 'vercel.json'
+      - 'scripts/verify-vercel-public-release.cjs'
+      - '.github/workflows/vercel-public-release-contract.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'public/**'
+      - 'vercel.json'
+      - 'scripts/verify-vercel-public-release.cjs'
+      - '.github/workflows/vercel-public-release-contract.yml'
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify actual public portfolio release tree
+        run: node scripts/verify-vercel-public-release.cjs
