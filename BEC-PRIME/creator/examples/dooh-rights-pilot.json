@@ -1,0 +1,19 @@
+{
+  "schema": "BECK/CREATOR-BRIEF/v1",
+  "silo_id": "dooh-operator",
+  "source_id": "screen-inventory-rights",
+  "brand": "BECK DOOH",
+  "audience": "Independent digital screen operators",
+  "title": "Inventory Rights Before Programmatic Advertising Revenue",
+  "thesis": "An advertising SDK cannot give BECK authority to sell screen time that it does not control.",
+  "body": "An initial operator pilot requires explicit inventory rights, real screen location and playback evidence, permitted creatives, a qualified demand connection, payout and margin rules, and a safe cancellation route. Third-party MCP documentation enables a read-only integration assessment, not proven BECK-owned inventory or buyer commitments.",
+  "rights": "owned",
+  "evidence_refs": [
+    "repo:BEC-PRIME/BILLBOARD-DOOH-POSITIONING-2026-08-27.md",
+    "https://trillboards.com/support/developers/mcp/"
+  ],
+  "voice_profile_id": "founder-public-v1",
+  "product": {
+    "rail": "none"
+  }
+}
