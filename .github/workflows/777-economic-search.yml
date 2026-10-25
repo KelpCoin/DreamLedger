@@ -4,6 +4,21 @@ on:
   schedule:
     - cron: "2/5 * * * *"
   workflow_dispatch:
+    inputs:
+      authorize_commerce_handoff:
+        description: "Owner authorization for Supabase commerce handoff (no schedule permission)"
+        type: boolean
+        default: false
+        required: false
+      authorize_economic_activation:
+        description: "Separate owner authorization for runtime activation (no schedule permission)"
+        type: boolean
+        default: false
+        required: false
+  pull_request:
+    paths:
+      - ".github/workflows/777-economic-search.yml"
+      - "ops/cube/test-777-offline.py"
   push:
     branches: ["main"]
     paths:
@@ -24,44 +39,73 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  offline-proof:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Prove fail-closed schedule and independent private compiler
+        run: |
+          python3 ops/cube/test-777-offline.py -v
+          node BEC-PRIME/scripts/Run-777.js
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          report=json.loads(Path('BEC-PRIME/data/777/777-LATEST.json').read_text())
+          assert report.get('truth') is not None
+          assert not report.get('buyer_signal_gate',{}).get('external_action_performed', True)
+          assert report.get('commerce_handoff',{}).get('lifecycle_state') != 'EXTERNAL_ACTION_PERFORMED'
+          print('PRIVATELY_COMPILED_777_WITHOUT_SUPABASE=PASS')
+          print('EXTERNAL_ACTION=NOT_PERFORMED')
+          PY
+
   preflight:
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 2
     outputs:
-      secrets_ready: ${{ steps.check.outputs.ready }}
+      supabase_online: ${{ steps.check.outputs.online }}
     steps:
-      - name: Check required Supabase runtime secrets
+      - name: Check source availability without writing data
         id: check
+        shell: bash
         env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL || 'https://wbwgroygjeyukkspnqiy.supabase.co' }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
         run: |
-          missing=""
-          [ -z "$SUPABASE_URL" ] && missing="$missing SUPABASE_URL"
-          [ -z "$SUPABASE_SERVICE_ROLE_KEY" ] && missing="$missing SUPABASE_SERVICE_ROLE_KEY"
-          if [ -n "$missing" ]; then
-            echo "ready=false" >> "$GITHUB_OUTPUT"
-            echo "::warning::DEGRADED_MISSING_SUPABASE_RUNTIME_SECRETS:$missing"
-            {
-              echo "## 777 preflight"
-              echo ""
-              echo "DEGRADED_MISSING_SUPABASE_RUNTIME_SECRETS"
-              echo "Missing:$missing"
-            } >> "$GITHUB_STEP_SUMMARY"
+          set -euo pipefail
+          # Failure to reach Supabase blocks only Supabase-backed actions.
+          # Read-only public research and factory compilation run independently.
+          if [ -z "${SUPABASE_URL:-}" ] || [ -z "${SUPABASE_SERVICE_ROLE_KEY:-}" ]; then
+            echo "online=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::777_SOURCE_DEGRADED: Supabase credentials unavailable. Private research continues."
+            exit 0
+          fi
+          code="$(curl --max-time 15 --silent --show-error --output /dev/null --write-out '%{http_code}' \
+            --header "apikey: $SUPABASE_SERVICE_ROLE_KEY" \
+            "$SUPABASE_URL/rest/v1/" || true)"
+          if [ "$code" = "200" ]; then
+            echo "online=true" >> "$GITHUB_OUTPUT"
+            echo "777_SOURCE=AVAILABLE"
           else
-            echo "ready=true" >> "$GITHUB_OUTPUT"
-            echo "Supabase runtime secrets are present."
+            echo "online=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::777_SOURCE_DEGRADED: status=${code:-NO_RESPONSE}; private compilation continues, remote writes blocked."
           fi
 
   search:
     needs: preflight
-    if: needs.preflight.outputs.secrets_ready == 'true'
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 12
 
     env:
-      SUPABASE_URL: ${{ secrets.SUPABASE_URL || 'https://wbwgroygjeyukkspnqiy.supabase.co' }}
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+      SUPABASE_ONLINE: ${{ needs.preflight.outputs.supabase_online }}
 
     steps:
       - name: Checkout
@@ -93,10 +137,12 @@ jobs:
 
       - name: Refresh public demand radar
         run: |
-          if [ -n "$SUPABASE_URL" ] && [ -n "$SUPABASE_SERVICE_ROLE_KEY" ]; then
-            npm run cube:radar
+          if [ "$SUPABASE_ONLINE" = "true" ]; then
+            if ! npm run cube:radar; then
+              echo "::warning::CUBE_RADAR=DEGRADED_SUPABASE_QUERY; private 777 compiles continue."
+            fi
           else
-            echo "CUBE_RADAR=DEGRADED: GitHub Supabase credentials are not configured; continuing with existing local/public evidence only."
+            echo "::warning::CUBE_RADAR=BLOCKED_SUPABASE_UNAVAILABLE. Continuing 777 public discovery and local compiler."
           fi
 
       - name: Refresh quote-normalization buyer-signal radar
@@ -121,17 +167,23 @@ jobs:
         run: node --test BEC-PRIME/economic/EconomicEvidenceLadder.test.js
 
       - name: Record existing Supabase economic heartbeat
+        if: needs.preflight.outputs.supabase_online == 'true'
         shell: bash
         run: |
           set -euo pipefail
-          curl --fail --silent --show-error --max-time 60 -X POST "$SUPABASE_URL/functions/v1/economic-radar-heartbeat" -H "apikey: $SUPABASE_SERVICE_ROLE_KEY" -H "Content-Type: application/json" | tee economic-radar-heartbeat.json
-          grep -q '"ok":true' economic-radar-heartbeat.json
-          echo "ECONOMIC_RADAR_HEARTBEAT=PASS"
+          if curl --fail --silent --show-error --max-time 30 -X POST "$SUPABASE_URL/functions/v1/economic-radar-heartbeat" \
+            -H "apikey: $SUPABASE_SERVICE_ROLE_KEY" -H "Content-Type: application/json" \
+            | tee economic-radar-heartbeat.json && grep -q '"ok":true' economic-radar-heartbeat.json; then
+            echo "ECONOMIC_RADAR_HEARTBEAT=PASS"
+          else
+            echo "::warning::ECONOMIC_RADAR_HEARTBEAT=BLOCKED_UPSTREAM; no evidence of Supabase persistence."
+          fi
 
       - name: Run 777 search
         run: node BEC-PRIME/scripts/Run-777.js
 
       - name: Bridge 777 acceptance into commerce substrate
+        if: github.event_name == 'workflow_dispatch' && inputs.authorize_commerce_handoff == true && needs.preflight.outputs.supabase_online == 'true'
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL || 'https://wbwgroygjeyukkspnqiy.supabase.co' }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
@@ -169,6 +221,7 @@ jobs:
           NODE
 
       - name: Run economic activation from 777 handoff
+        if: github.event_name == 'workflow_dispatch' && inputs.authorize_economic_activation == true && needs.preflight.outputs.supabase_online == 'true'
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL || 'https://wbwgroygjeyukkspnqiy.supabase.co' }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
@@ -190,6 +243,18 @@ jobs:
 
       - name: Verify factory cycle
         run: npm run verify:factory-factory-cycle
+
+      - name: Record source degradation and action boundary
+        shell: bash
+        run: |
+          {
+            echo "## 777 cloud autonomy boundary"
+            echo "SUPABASE_SOURCE_ONLINE=$SUPABASE_ONLINE"
+            echo "PRIVATE_DISCOVERY=ALLOWED_WITHOUT_SUPABASE"
+            echo "COMMERCE_WRITES=DISABLED_ON_SCHEDULE"
+            echo "ECONOMIC_ACTIVATION=DISABLED_ON_SCHEDULE"
+            echo "MERCHANT_PAYMENT_AND_FULFILLMENT=NOT_ESTABLISHED_BY_THIS_RUN"
+          } | tee -a "$GITHUB_STEP_SUMMARY"
 
       - name: Emit truth guard
         run: |
