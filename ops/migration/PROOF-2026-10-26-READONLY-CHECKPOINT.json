@@ -1,0 +1,75 @@
+{
+  "schema_version": "BECK-PROVIDER-MIGRATION-READONLY-CHECKPOINT-1.0",
+  "observed_at_utc": "2026-10-25T23:18:00Z",
+  "repository": "KelpCoin/DreamLedger",
+  "branch": "beck/provider-migration-neon-cloudflare-20261019",
+  "source": {
+    "provider": "Supabase",
+    "project_id": "wbwgroygjeyukkspnqiy",
+    "project_name": "DreamLedger",
+    "control_plane_status": "ACTIVE_HEALTHY",
+    "sql_inventory_status": "BLOCKED_CONNECTION_REFUSED",
+    "error": "ECONNREFUSED 2406:da18:1691:a200::3484:5432",
+    "data_dump_verified": false,
+    "source_row_counts_verified": false
+  },
+  "target": {
+    "provider": "Neon",
+    "project_id": "falling-base-50259456",
+    "project_name": "dreamledger-migration-staging",
+    "branch_id": "br-plain-wave-a7iap50j",
+    "branch_name": "main",
+    "branch_status": "ready",
+    "observed_application_tables": 11,
+    "row_counts": {
+      "public.beck_recovery_events": 0,
+      "public.commercial_evidence": 0,
+      "public.commercial_fulfillment_outbox": 0,
+      "public.commercial_offers": 0,
+      "public.commercial_orders": 0,
+      "public.commercial_payments": 0,
+      "public.cortex_heartbeat": 0,
+      "public.stripe_event_inbox": 0,
+      "agent_market.jobs": 0,
+      "agent_market.payment_event_inbox": 0,
+      "agent_market.receipts": 0
+    },
+    "parity_proven": false
+  },
+  "runtime": {
+    "render_service": "DreamLedger1",
+    "render_service_id": "srv-d8ud55lckfvc73f1t4eg",
+    "status": "SUSPENDED",
+    "reason": "BILLING",
+    "read_only_http_probes": [
+      {
+        "url": "https://dreamledger.org/billboard",
+        "status": 503
+      },
+      {
+        "url": "https://dreamledger1.onrender.com/healthz",
+        "status": 503
+      },
+      {
+        "url": "https://dreamledger1.onrender.com/billboard",
+        "status": 503
+      },
+      {
+        "url": "https://dreamledger.org/api/agent-bridge/manifest",
+        "status": 503
+      }
+    ]
+  },
+  "policy": {
+    "source_mutated": false,
+    "target_mutated": false,
+    "dns_changed": false,
+    "render_deleted": false,
+    "supabase_deleted": false,
+    "stripe_changed": false,
+    "production_deployed": false,
+    "verified_external_revenue_nzd": 0
+  },
+  "decision": "BLOCKED_NO_CUTOVER",
+  "next_required": "Use exact Supabase Connect panel session-pooler host and username if direct IPv6 endpoint remains unreachable; create a private forensic backup; import only into isolated Neon after backup hashes and restore validation; verify row-level parity and route contract before any DNS cutover. Never delete source resources before independent acceptance."
+}
