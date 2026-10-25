@@ -50,7 +50,7 @@ jobs:
           node-version: '24'
       - name: Prove fail-closed schedule and independent private compiler
         run: |
-          python3 -m unittest discover -s ops/cube -p 'test-777-offline.py' -v
+          python3 ops/cube/test-777-offline.py -v
           node BEC-PRIME/scripts/Run-777.js
           python3 - <<'PY'
           import json
