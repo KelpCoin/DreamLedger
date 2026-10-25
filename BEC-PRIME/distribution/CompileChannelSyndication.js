@@ -1,8 +1,8 @@
 'use strict';
 
 // Deterministic, no-network marketplace fan-out compiler.
-// It prepares per-channel draft payloads only. It never logs in, publishes,
-// creates checkout links, changes prices, or moves money.
+// Draft generation only. It never logs in, publishes, creates checkout links,
+// changes prices, or moves money.
 const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
@@ -20,7 +20,6 @@ function validateProduct(p) {
   }
   if (!['physical_goods', 'digital_download', 'digital_diagnostic', 'custom_service'].includes(p.product_type)) fail('INVALID_PRODUCT_TYPE');
   if (!/^https?:\/\//i.test(p.source_url)) fail('SOURCE_URL_MUST_BE_HTTP');
-  if (!p.price.trim()) fail('PRICE_REQUIRED');
   if (p.product_type === 'physical_goods' && (!Number.isInteger(p.inventory_count) || p.inventory_count < 1)) fail('PHYSICAL_STOCK_PROOF_REQUIRED');
   const serialized = JSON.stringify(p).toLowerCase();
   if (FORBIDDEN_CROSS_SILO.some(x => serialized.includes(x))) fail('CROSS_SILO_CONTENT_BLOCKED');
@@ -51,8 +50,6 @@ function compile(product, config = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8
       approval_required: true,
       provenance: { source_url: product.source_url, observed_at: observedAt, truth_label: 'SOURCE_BACKED_INPUT_REQUIRED' }
     };
-    // The evidence timestamp changes each run; exclude it from content identity
-    // so re-compiling identical product/channel content remains deduplicable.
     const dedupePayload = JSON.parse(JSON.stringify(payload));
     delete dedupePayload.provenance.observed_at;
     const payloadHash = sha256(dedupePayload);
