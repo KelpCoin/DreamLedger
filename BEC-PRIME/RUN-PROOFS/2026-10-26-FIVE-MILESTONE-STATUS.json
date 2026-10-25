@@ -1,6 +1,6 @@
 {
   "schema_version": "BEC-FIVE-MILESTONE-EXECUTION-PROOF-1.0",
-  "observed_at_utc": "2026-10-25T23:10:00Z",
+  "observed_at_utc": "2026-10-25T23:14:45Z",
   "status": "PARTIAL_WITH_HARD_BLOCKERS",
   "repository": "KelpCoin/DreamLedger",
   "milestone_results": [
@@ -9,19 +9,21 @@
       "name": "Repair canonical release blockers",
       "status": "PARTIAL",
       "evidence": [
-        "Agent Bridge public manifest contract fields restored in PR #836",
-        "AgentBridge Contract Gate passed at commit dc61c5b94249b32d292678fea06712fe81601822",
-        "Broader CI and release gates remain failing"
+        "AgentBridge Contract Gate passed at run https://github.com/KelpCoin/DreamLedger/actions/runs/40243850631",
+        "CI unit policy tests pass after correcting stale MTG contract expectations",
+        "Production contract verification still fails with STRIPE_LINK_DRIFT and PRODUCT_NOT_SELLABLE because canonical Commander Diagnostic is held while approved/featured offer metadata still advertises an active live Stripe link",
+        "Read-only production checks returned HTTP 503 for DreamLedger public endpoints"
       ],
-      "blocker": "DreamLedger1 Render web service is suspended by billing; production health, billboard and Agent Bridge URLs returned HTTP 503."
+      "blocker": "Render DreamLedger1 is suspended by billing controls. Separately, the Commander Diagnostic product is held while approved/featured offer metadata conflicts with that held state. Do not silently reactivate or mutate payment links to make CI green."
     },
     {
       "id": 2,
       "name": "Prove multi-LLM loop",
       "status": "CONTRACT_TESTS_ADDED",
       "evidence": [
-        "Server allowlist and provider-neutral AgentBridgeProfiles exist",
-        "PR #836 adds a server-compatible COURT_REVIEW event and expands profile contract checks"
+        "Provider-neutral AgentBridge profile contract is verified at https://github.com/KelpCoin/DreamLedger/actions/runs/40243850631",
+        "COURT_REVIEW is accepted by the server to match the existing ChatGPT/Luna profiles",
+        "Each declared agent profile is checked against the server allowlist and its declared event/lane contract"
       ],
       "blocker": "No authenticated live calls to external model providers were performed; provider credentials and end-to-end worker execution remain unverified."
     },
@@ -41,7 +43,8 @@
       "name": "Platform-specific authorized adapters",
       "status": "DRAFT_COMPILER_ONLY",
       "evidence": [
-        "Seven channel draft contracts are defined",
+        "Seven channel draft contracts are defined in PR #835",
+        "Canonical catalog adapter and fan-out compiler tests pass in run https://github.com/KelpCoin/DreamLedger/actions/runs/40243387223",
         "Patreon Shop requires native checkout; Trade Me is physical-goods only",
         "Publication and money movement are hard-disabled"
       ],
@@ -55,7 +58,7 @@
         "Read-only checks returned HTTP 503 for dreamledger.org/billboard, dreamledger1.onrender.com/healthz, dreamledger1.onrender.com/billboard and dreamledger.org/api/agent-bridge/manifest",
         "Render service DreamLedger1 (srv-d8ud55lckfvc73f1t4eg) is marked suspended with suspenders=[billing]"
       ],
-      "blocker": "Production service must be restored by the account owner through the billing control plane; an external buyer must then pay, settle and receive the product. No sale or revenue is claimed."
+      "blocker": "Production service is suspended by billing controls; external buyer checkout, settlement and delivery cannot be verified. No sale or revenue is claimed."
     }
   ],
   "truth": {
@@ -65,5 +68,6 @@
     "deployments_performed": false,
     "marketplace_listings_created": false
   },
-  "next_unblocking_action": "Restore Render billing/service availability without deleting data; then rerun production health checks before any public listing or transaction."
+  "next_unblocking_action": "Restore Render billing/service availability without deleting data; then rerun production health checks before any public listing or transaction.",
+  "repository_head": "20e79a03f1b31817f1010e99483dbb745e706eae"
 }
