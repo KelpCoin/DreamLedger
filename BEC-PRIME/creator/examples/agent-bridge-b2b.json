@@ -1,0 +1,19 @@
+{
+  "schema": "BECK/CREATOR-BRIEF/v1",
+  "silo_id": "agent-bridge",
+  "source_id": "metered-routing-pilot",
+  "brand": "BECK Agent Bridge",
+  "audience": "Operators already running multi-agent workflows",
+  "title": "Charge for Verified Agent Work, Not Another Seat",
+  "thesis": "A proposed pay-per-completed-workflow pilot should bill only when the result and its evidence can be independently checked.",
+  "body": "The proposed pilot would define task scope, origin agent, receiving agent and a durable completion receipt. A failed route or unsupported model assertion is not a billable verified success. Pricing, operational capacity, margins and buyer demand remain unverified. This is a pilot concept, not an advertised enterprise SLA.",
+  "rights": "owned",
+  "evidence_refs": [
+    "repo:AGENTS.md",
+    "repo:BEC-PRIME/creator/CreatorCommerceFactory.js"
+  ],
+  "voice_profile_id": "founder-public-v1",
+  "product": {
+    "rail": "none"
+  }
+}
