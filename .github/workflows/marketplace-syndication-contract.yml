@@ -1,0 +1,58 @@
+name: Marketplace Syndication Contract
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'BEC-PRIME/distribution/channel-syndication-v1.json'
+      - 'BEC-PRIME/distribution/CompileChannelSyndication.js'
+      - 'BEC-PRIME/distribution/CompileChannelSyndication.test.js'
+      - 'BEC-PRIME/distribution/PrepareCanonicalCatalog.js'
+      - 'BEC-PRIME/distribution/PrepareCanonicalCatalog.test.js'
+      - '.github/workflows/marketplace-syndication-contract.yml'
+  push:
+    branches:
+      - 'feat/marketplace-syndication-fanout-*'
+    paths:
+      - 'BEC-PRIME/distribution/channel-syndication-v1.json'
+      - 'BEC-PRIME/distribution/CompileChannelSyndication.js'
+      - 'BEC-PRIME/distribution/CompileChannelSyndication.test.js'
+      - '.github/workflows/marketplace-syndication-contract.yml'
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: marketplace-syndication-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    name: Verify draft-only fan-out contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Syntax check
+        run: node --check BEC-PRIME/distribution/CompileChannelSyndication.js
+      - name: Unit tests
+        run: node --test BEC-PRIME/distribution/CompileChannelSyndication.test.js BEC-PRIME/distribution/PrepareCanonicalCatalog.test.js
+      - name: Compile canonical catalog safely
+        run: node BEC-PRIME/distribution/PrepareCanonicalCatalog.js "$RUNNER_TEMP/canonical-catalog-syndication-proof.json"
+      - name: Create proof artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p proof
+          node -e "const fs=require('fs');const c=JSON.parse(fs.readFileSync('BEC-PRIME/distribution/channel-syndication-v1.json','utf8'));if(c.policy.public_action_allowed!==false)process.exit(2);if(c.channels.length!==7)process.exit(3);const ids=c.channels.map(x=>x.id);if(new Set(ids).size!==ids.length)process.exit(4);if(c.channels.some(x=>!Array.isArray(x.allowed_silos)||x.allowed_silos.some(s=>['amplissa','adult','adult_silo','amplissa_adult'].includes(s))))process.exit(7);const p=c.channels.find(x=>x.id==='patreon_shop');if(!p||p.checkout_rule!=='patreon_native_checkout_only_no_external_stripe_redirect')process.exit(5);const t=c.channels.find(x=>x.id==='trademe');if(!t||t.product_types.length!==1||t.product_types[0]!=='physical_goods')process.exit(6);"
+          sha256sum BEC-PRIME/distribution/channel-syndication-v1.json BEC-PRIME/distribution/CompileChannelSyndication.js BEC-PRIME/distribution/CompileChannelSyndication.test.js BEC-PRIME/distribution/PrepareCanonicalCatalog.js BEC-PRIME/distribution/PrepareCanonicalCatalog.test.js "$RUNNER_TEMP/canonical-catalog-syndication-proof.json" > proof/SHA256SUMS.txt
+          cp "$RUNNER_TEMP/canonical-catalog-syndication-proof.json" proof/CANONICAL-CATALOG-SYNDICATION-PROOF.json
+          printf '{"schema":"DL-SYNDICATION-CI-PROOF-1.0","commit":"%s","run_id":"%s","workflow":"Marketplace Syndication Contract","public_actions":false,"money_movement":false,"tests":"PASS if prior step succeeded","published_channels":0}\n' "$GITHUB_SHA" "$GITHUB_RUN_ID" > proof/proof.json
+      - name: Upload proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: marketplace-syndication-proof-${{ github.run_id }}
+          path: proof/
+          if-no-files-found: error
