@@ -51,7 +51,11 @@ function compile(product, config = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8
       approval_required: true,
       provenance: { source_url: product.source_url, observed_at: observedAt, truth_label: 'SOURCE_BACKED_INPUT_REQUIRED' }
     };
-    const payloadHash = sha256(payload);
+    // The evidence timestamp changes each run; exclude it from content identity
+    // so re-compiling identical product/channel content remains deduplicable.
+    const dedupePayload = JSON.parse(JSON.stringify(payload));
+    delete dedupePayload.provenance.observed_at;
+    const payloadHash = sha256(dedupePayload);
     return {
       channel_id: channel.id,
       channel_label: channel.label,
