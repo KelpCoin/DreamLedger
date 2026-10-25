@@ -70,9 +70,11 @@ test('paid-only route never gives bytes without token; can stream outside public
   const payload=Buffer.from('CANARY_CONTENT_FOR_LOCAL_TEST');
   fs.writeFileSync(path.join(dir,'DISCORD-WEBHOOK-STARTER-KIT-001.zip'),payload);
   const streamEvents=[];
+  let resolveFinished;
+  const finished=new Promise(resolve=>{resolveFinished=resolve;});
   const server=http.createServer((req,res)=>gate.handle(req,res,{
     downloadSecret:signingSecret,privateDir:dir,expectedLivemode:false,
-    onStreamFinished:r=>streamEvents.push(r)}));
+    onStreamFinished:r=>{streamEvents.push(r);resolveFinished(r);}}));
   server.listen(0,'127.0.0.1');await once(server,'listening');
   try{
     const url='http://127.0.0.1:'+server.address().port;
@@ -83,7 +85,7 @@ test('paid-only route never gives bytes without token; can stream outside public
     assert.equal(valid.status,200);
     assert.equal(valid.headers.get('cache-control'),'private, no-store');
     assert.deepEqual(Buffer.from(await valid.arrayBuffer()),payload);
-    await new Promise(resolve=>setImmediate(resolve));
+    await Promise.race([finished,new Promise((_,reject)=>setTimeout(()=>reject(Error('STREAM_FINISH_CALLBACK_TIMEOUT')),1000))]);
     assert.equal(streamEvents.length,1);
     assert.equal(streamEvents[0].delivery_state,'STREAM_FINISHED_CUSTOMER_RECEIPT_UNKNOWN');
     const wrong=await fetch(url,{method:'GET'});
