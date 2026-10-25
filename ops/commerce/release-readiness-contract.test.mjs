@@ -12,7 +12,9 @@ test('published checkout is not inferred from old automated readiness claims',()
   const c=byId(id);
   assert.ok(c,'product exists: '+id);
   assert.equal(c.checkout_available,false,'catalog held: '+id);
-  assert.equal(registry.entries[id].ready,false,'fulfillment truth mirrors current hold: '+id);
+  const entryId=id==='DREAMLEDGER-BILLBOARD-FOUNDING-001'?'OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001':id;
+  assert.ok(registry.entries[entryId],'registry entry exists: '+entryId);
+  assert.equal(registry.entries[entryId].ready,false,'fulfillment truth mirrors current hold: '+id);
  }
  assert.equal(registry.entries['BILLBOARD-SMALL'].ready,false);
  assert.equal(byId('COMMANDER-DECK-DIAGNOSTIC-001').status,'held');
