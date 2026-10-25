@@ -1,0 +1,46 @@
+name: BECK Creator Draft Packs (No Publish)
+on:
+  pull_request:
+    paths:
+      - 'BEC-PRIME/creator/**'
+      - '.github/workflows/beck-creator-draft-pack.yml'
+  workflow_dispatch:
+    inputs:
+      silo:
+        type: choice
+        required: true
+        options:
+          - happy-homarid-shop
+          - agent-bridge-b2b
+          - dooh-rights-pilot
+          - dreammeez-media-pilot
+permissions:
+  contents: read
+jobs:
+  validate-and-compile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run isolated source-rights and leakage tests
+        run: node --test BEC-PRIME/creator/CompileEditorialDrafts.test.js
+      - name: Prepare selected draft, no publication
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          SILO: ${{ inputs.silo }}
+        run: |
+          set -euo pipefail
+          case "$SILO" in
+            happy-homarid-shop|agent-bridge-b2b|dooh-rights-pilot|dreammeez-media-pilot) ;;
+            *) exit 1 ;;
+          esac
+          node BEC-PRIME/creator/CompileEditorialDrafts.js "BEC-PRIME/creator/examples/${SILO}.json" operator-proof/creator-drafts
+      - uses: actions/upload-artifact@v4
+        if: github.event_name == 'workflow_dispatch'
+        with:
+          name: creator-drafts-${{ inputs.silo }}
+          path: operator-proof/creator-drafts/
+          retention-days: 14

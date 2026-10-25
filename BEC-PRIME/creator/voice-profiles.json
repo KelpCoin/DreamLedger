@@ -1,0 +1,21 @@
+{
+  "schema": "BECK/EDITORIAL-VOICE-PROFILE/v1",
+  "profiles": [
+    {
+      "id": "founder-public-v1",
+      "name": "Happy Homarid founder observed public editorial style",
+      "source_status": "TWO_PUBLIC_POSTS_NOT_FULL_ARCHIVE",
+      "source_urls": [
+        "https://www.patreon.com/HappyHomarid/posts/meatiest-magic-1-142298055",
+        "https://www.patreon.com/HappyHomarid/posts/meatiest-magic-167876380"
+      ],
+      "traits": [
+        "Specific argument first, with real examples rather than boilerplate",
+        "Conversational NZ English with dry humour and occasional irreverence",
+        "Admit real tradeoffs and avoid fabricated performance claims",
+        "Avoid generic AI intros, unsupported first-person anecdotes and false expertise"
+      ],
+      "restriction": "Voice traits do not authorise impersonation or unverifiable claims in other niches. Preserve separate member/source data."
+    }
+  ]
+}
