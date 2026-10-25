@@ -7,11 +7,3320 @@
       "status": "active",
       "template": "Premium {style} Commander product hero featuring {subject} in a {setting} environment. Dramatic depth, collector presentation, clean commercial composition.",
       "slots": {
-        "style": { "word_bank": "styles", "count": 1 },
-        "subject": { "word_bank": "subjects", "count": 1 },
-        "setting": { "word_bank": "settings", "count": 1 }
+        "style": {
+          "word_bank": "styles",
+          "count": 1
+        },
+        "subject": {
+          "word_bank": "subjects",
+          "count": 1
+        },
+        "setting": {
+          "word_bank": "settings",
+          "count": 1
+        }
       },
-      "policy": { "official_artwork": false, "logos": false, "card_text": false }
+      "policy": {
+        "official_artwork": false,
+        "logos": false,
+        "card_text": false
+      }
+    },
+    {
+      "id": "commerce-shadow-product-v1",
+      "version": 1,
+      "status": "active",
+      "template": "SHADOW SKU ONLY. Audience: {buyer}. Problem hypothesis: {problem}. Candidate mechanism: {mechanism}. Proposed deliverable: {deliverable}. Acceptance evidence required: {proof}. Check customer demand, IP rights, availability, margins and human approval before publishing. Do not invent buyers or revenue.",
+      "slots": {
+        "buyer": {
+          "word_bank": "commerce__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "commerce__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "commerce__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "commerce__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "commerce__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "commerce",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "commerce-fulfilment-v1",
+      "version": 1,
+      "status": "active",
+      "template": "DRAFT FULFILMENT CONTRACT. Scope of customer problem: {problem}. Produce {deliverable} using {mechanism}. Independent success criterion: {proof}. Define a retrievable customer artifact, an idempotent payment-to-entitlement link and a documented refund route. Not operational until independently tested.",
+      "slots": {
+        "problem": {
+          "word_bank": "commerce__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "commerce__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "commerce__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "commerce__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "commerce",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "commerce-distribution-v1",
+      "version": 1,
+      "status": "active",
+      "template": "PRIVATE CHANNEL DRAFT. For {buyer} facing {problem}, show an original example of {deliverable}. Explain {mechanism} with source-backed, non-promissory language. Only cite {proof} after it is actually observed. No messages, publication, ads or live link changes without approval.",
+      "slots": {
+        "buyer": {
+          "word_bank": "commerce__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "commerce__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "commerce__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "commerce__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "commerce__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "commerce",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "commerce-gauntlet-v1",
+      "version": 1,
+      "status": "active",
+      "template": "GAUNTLET REVIEW. Challenge whether {buyer} has {problem}, whether {mechanism} really produces {deliverable}, and whether {proof} is independently observable. Return HOLD if evidence, rights, costs, delivery, or customer acceptance is missing. Do not use LLM judgement as independent proof.",
+      "slots": {
+        "buyer": {
+          "word_bank": "commerce__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "commerce__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "commerce__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "commerce__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "commerce__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "commerce",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "commerce-price-v1",
+      "version": 1,
+      "status": "active",
+      "template": "SHADOW ECONOMIC EXPERIMENT. Hypothesis: {buyer} may value relief from {problem}. Product expression: {deliverable} via {mechanism}. Do not invent price. Record comparable real purchasing options, fulfillment time, payment fees, refund exposure and {proof} before proposing any paid listing.",
+      "slots": {
+        "buyer": {
+          "word_bank": "commerce__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "commerce__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "commerce__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "commerce__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "commerce__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "commerce",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "commerce-model-prompt-v1",
+      "version": 1,
+      "status": "active",
+      "template": "MODEL TASK PROPOSAL, HUMAN-REVIEW-ONLY. Given authorized, sanitized source data, propose one original {deliverable} for {buyer} using {mechanism} to address {problem}. Provide acceptance tests tied to {proof}; return UNKNOWN where evidence is missing. Never claim actual transactions or run external actions.",
+      "slots": {
+        "buyer": {
+          "word_bank": "commerce__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "commerce__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "commerce__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "commerce__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "commerce__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "commerce",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "procurement-shadow-product-v1",
+      "version": 1,
+      "status": "active",
+      "template": "SHADOW SKU ONLY. Audience: {buyer}. Problem hypothesis: {problem}. Candidate mechanism: {mechanism}. Proposed deliverable: {deliverable}. Acceptance evidence required: {proof}. Check customer demand, IP rights, availability, margins and human approval before publishing. Do not invent buyers or revenue.",
+      "slots": {
+        "buyer": {
+          "word_bank": "procurement__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "procurement__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "procurement__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "procurement__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "procurement__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "procurement",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "procurement-fulfilment-v1",
+      "version": 1,
+      "status": "active",
+      "template": "DRAFT FULFILMENT CONTRACT. Scope of customer problem: {problem}. Produce {deliverable} using {mechanism}. Independent success criterion: {proof}. Define a retrievable customer artifact, an idempotent payment-to-entitlement link and a documented refund route. Not operational until independently tested.",
+      "slots": {
+        "problem": {
+          "word_bank": "procurement__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "procurement__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "procurement__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "procurement__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "procurement",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "procurement-distribution-v1",
+      "version": 1,
+      "status": "active",
+      "template": "PRIVATE CHANNEL DRAFT. For {buyer} facing {problem}, show an original example of {deliverable}. Explain {mechanism} with source-backed, non-promissory language. Only cite {proof} after it is actually observed. No messages, publication, ads or live link changes without approval.",
+      "slots": {
+        "buyer": {
+          "word_bank": "procurement__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "procurement__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "procurement__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "procurement__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "procurement__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "procurement",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "procurement-gauntlet-v1",
+      "version": 1,
+      "status": "active",
+      "template": "GAUNTLET REVIEW. Challenge whether {buyer} has {problem}, whether {mechanism} really produces {deliverable}, and whether {proof} is independently observable. Return HOLD if evidence, rights, costs, delivery, or customer acceptance is missing. Do not use LLM judgement as independent proof.",
+      "slots": {
+        "buyer": {
+          "word_bank": "procurement__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "procurement__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "procurement__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "procurement__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "procurement__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "procurement",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "procurement-price-v1",
+      "version": 1,
+      "status": "active",
+      "template": "SHADOW ECONOMIC EXPERIMENT. Hypothesis: {buyer} may value relief from {problem}. Product expression: {deliverable} via {mechanism}. Do not invent price. Record comparable real purchasing options, fulfillment time, payment fees, refund exposure and {proof} before proposing any paid listing.",
+      "slots": {
+        "buyer": {
+          "word_bank": "procurement__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "procurement__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "procurement__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "procurement__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "procurement__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "procurement",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "procurement-model-prompt-v1",
+      "version": 1,
+      "status": "active",
+      "template": "MODEL TASK PROPOSAL, HUMAN-REVIEW-ONLY. Given authorized, sanitized source data, propose one original {deliverable} for {buyer} using {mechanism} to address {problem}. Provide acceptance tests tied to {proof}; return UNKNOWN where evidence is missing. Never claim actual transactions or run external actions.",
+      "slots": {
+        "buyer": {
+          "word_bank": "procurement__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "procurement__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "procurement__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "procurement__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "procurement__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "procurement",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "dooh-shadow-product-v1",
+      "version": 1,
+      "status": "active",
+      "template": "SHADOW SKU ONLY. Audience: {buyer}. Problem hypothesis: {problem}. Candidate mechanism: {mechanism}. Proposed deliverable: {deliverable}. Acceptance evidence required: {proof}. Check customer demand, IP rights, availability, margins and human approval before publishing. Do not invent buyers or revenue.",
+      "slots": {
+        "buyer": {
+          "word_bank": "dooh__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "dooh__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "dooh__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "dooh__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "dooh__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "dooh",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "dooh-fulfilment-v1",
+      "version": 1,
+      "status": "active",
+      "template": "DRAFT FULFILMENT CONTRACT. Scope of customer problem: {problem}. Produce {deliverable} using {mechanism}. Independent success criterion: {proof}. Define a retrievable customer artifact, an idempotent payment-to-entitlement link and a documented refund route. Not operational until independently tested.",
+      "slots": {
+        "problem": {
+          "word_bank": "dooh__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "dooh__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "dooh__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "dooh__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "dooh",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "dooh-distribution-v1",
+      "version": 1,
+      "status": "active",
+      "template": "PRIVATE CHANNEL DRAFT. For {buyer} facing {problem}, show an original example of {deliverable}. Explain {mechanism} with source-backed, non-promissory language. Only cite {proof} after it is actually observed. No messages, publication, ads or live link changes without approval.",
+      "slots": {
+        "buyer": {
+          "word_bank": "dooh__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "dooh__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "dooh__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "dooh__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "dooh__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "dooh",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "dooh-gauntlet-v1",
+      "version": 1,
+      "status": "active",
+      "template": "GAUNTLET REVIEW. Challenge whether {buyer} has {problem}, whether {mechanism} really produces {deliverable}, and whether {proof} is independently observable. Return HOLD if evidence, rights, costs, delivery, or customer acceptance is missing. Do not use LLM judgement as independent proof.",
+      "slots": {
+        "buyer": {
+          "word_bank": "dooh__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "dooh__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "dooh__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "dooh__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "dooh__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "dooh",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "dooh-price-v1",
+      "version": 1,
+      "status": "active",
+      "template": "SHADOW ECONOMIC EXPERIMENT. Hypothesis: {buyer} may value relief from {problem}. Product expression: {deliverable} via {mechanism}. Do not invent price. Record comparable real purchasing options, fulfillment time, payment fees, refund exposure and {proof} before proposing any paid listing.",
+      "slots": {
+        "buyer": {
+          "word_bank": "dooh__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "dooh__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "dooh__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "dooh__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "dooh__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "dooh",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "dooh-model-prompt-v1",
+      "version": 1,
+      "status": "active",
+      "template": "MODEL TASK PROPOSAL, HUMAN-REVIEW-ONLY. Given authorized, sanitized source data, propose one original {deliverable} for {buyer} using {mechanism} to address {problem}. Provide acceptance tests tied to {proof}; return UNKNOWN where evidence is missing. Never claim actual transactions or run external actions.",
+      "slots": {
+        "buyer": {
+          "word_bank": "dooh__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "dooh__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "dooh__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "dooh__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "dooh__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "dooh",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "dreammeez-shadow-product-v1",
+      "version": 1,
+      "status": "active",
+      "template": "SHADOW SKU ONLY. Audience: {buyer}. Problem hypothesis: {problem}. Candidate mechanism: {mechanism}. Proposed deliverable: {deliverable}. Acceptance evidence required: {proof}. Check customer demand, IP rights, availability, margins and human approval before publishing. Do not invent buyers or revenue.",
+      "slots": {
+        "buyer": {
+          "word_bank": "dreammeez__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "dreammeez__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "dreammeez__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "dreammeez__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "dreammeez__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "dreammeez",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "dreammeez-fulfilment-v1",
+      "version": 1,
+      "status": "active",
+      "template": "DRAFT FULFILMENT CONTRACT. Scope of customer problem: {problem}. Produce {deliverable} using {mechanism}. Independent success criterion: {proof}. Define a retrievable customer artifact, an idempotent payment-to-entitlement link and a documented refund route. Not operational until independently tested.",
+      "slots": {
+        "problem": {
+          "word_bank": "dreammeez__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "dreammeez__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "dreammeez__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "dreammeez__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "dreammeez",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "dreammeez-distribution-v1",
+      "version": 1,
+      "status": "active",
+      "template": "PRIVATE CHANNEL DRAFT. For {buyer} facing {problem}, show an original example of {deliverable}. Explain {mechanism} with source-backed, non-promissory language. Only cite {proof} after it is actually observed. No messages, publication, ads or live link changes without approval.",
+      "slots": {
+        "buyer": {
+          "word_bank": "dreammeez__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "dreammeez__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "dreammeez__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "dreammeez__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "dreammeez__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "dreammeez",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "dreammeez-gauntlet-v1",
+      "version": 1,
+      "status": "active",
+      "template": "GAUNTLET REVIEW. Challenge whether {buyer} has {problem}, whether {mechanism} really produces {deliverable}, and whether {proof} is independently observable. Return HOLD if evidence, rights, costs, delivery, or customer acceptance is missing. Do not use LLM judgement as independent proof.",
+      "slots": {
+        "buyer": {
+          "word_bank": "dreammeez__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "dreammeez__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "dreammeez__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "dreammeez__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "dreammeez__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "dreammeez",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "dreammeez-price-v1",
+      "version": 1,
+      "status": "active",
+      "template": "SHADOW ECONOMIC EXPERIMENT. Hypothesis: {buyer} may value relief from {problem}. Product expression: {deliverable} via {mechanism}. Do not invent price. Record comparable real purchasing options, fulfillment time, payment fees, refund exposure and {proof} before proposing any paid listing.",
+      "slots": {
+        "buyer": {
+          "word_bank": "dreammeez__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "dreammeez__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "dreammeez__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "dreammeez__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "dreammeez__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "dreammeez",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "dreammeez-model-prompt-v1",
+      "version": 1,
+      "status": "active",
+      "template": "MODEL TASK PROPOSAL, HUMAN-REVIEW-ONLY. Given authorized, sanitized source data, propose one original {deliverable} for {buyer} using {mechanism} to address {problem}. Provide acceptance tests tied to {proof}; return UNKNOWN where evidence is missing. Never claim actual transactions or run external actions.",
+      "slots": {
+        "buyer": {
+          "word_bank": "dreammeez__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "dreammeez__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "dreammeez__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "dreammeez__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "dreammeez__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "dreammeez",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "creator-shadow-product-v1",
+      "version": 1,
+      "status": "active",
+      "template": "SHADOW SKU ONLY. Audience: {buyer}. Problem hypothesis: {problem}. Candidate mechanism: {mechanism}. Proposed deliverable: {deliverable}. Acceptance evidence required: {proof}. Check customer demand, IP rights, availability, margins and human approval before publishing. Do not invent buyers or revenue.",
+      "slots": {
+        "buyer": {
+          "word_bank": "creator__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "creator__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "creator__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "creator__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "creator__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "creator",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "creator-fulfilment-v1",
+      "version": 1,
+      "status": "active",
+      "template": "DRAFT FULFILMENT CONTRACT. Scope of customer problem: {problem}. Produce {deliverable} using {mechanism}. Independent success criterion: {proof}. Define a retrievable customer artifact, an idempotent payment-to-entitlement link and a documented refund route. Not operational until independently tested.",
+      "slots": {
+        "problem": {
+          "word_bank": "creator__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "creator__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "creator__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "creator__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "creator",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "creator-distribution-v1",
+      "version": 1,
+      "status": "active",
+      "template": "PRIVATE CHANNEL DRAFT. For {buyer} facing {problem}, show an original example of {deliverable}. Explain {mechanism} with source-backed, non-promissory language. Only cite {proof} after it is actually observed. No messages, publication, ads or live link changes without approval.",
+      "slots": {
+        "buyer": {
+          "word_bank": "creator__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "creator__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "creator__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "creator__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "creator__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "creator",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "creator-gauntlet-v1",
+      "version": 1,
+      "status": "active",
+      "template": "GAUNTLET REVIEW. Challenge whether {buyer} has {problem}, whether {mechanism} really produces {deliverable}, and whether {proof} is independently observable. Return HOLD if evidence, rights, costs, delivery, or customer acceptance is missing. Do not use LLM judgement as independent proof.",
+      "slots": {
+        "buyer": {
+          "word_bank": "creator__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "creator__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "creator__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "creator__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "creator__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "creator",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "creator-price-v1",
+      "version": 1,
+      "status": "active",
+      "template": "SHADOW ECONOMIC EXPERIMENT. Hypothesis: {buyer} may value relief from {problem}. Product expression: {deliverable} via {mechanism}. Do not invent price. Record comparable real purchasing options, fulfillment time, payment fees, refund exposure and {proof} before proposing any paid listing.",
+      "slots": {
+        "buyer": {
+          "word_bank": "creator__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "creator__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "creator__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "creator__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "creator__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "creator",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "creator-model-prompt-v1",
+      "version": 1,
+      "status": "active",
+      "template": "MODEL TASK PROPOSAL, HUMAN-REVIEW-ONLY. Given authorized, sanitized source data, propose one original {deliverable} for {buyer} using {mechanism} to address {problem}. Provide acceptance tests tied to {proof}; return UNKNOWN where evidence is missing. Never claim actual transactions or run external actions.",
+      "slots": {
+        "buyer": {
+          "word_bank": "creator__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "creator__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "creator__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "creator__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "creator__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "creator",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "digital_products-shadow-product-v1",
+      "version": 1,
+      "status": "active",
+      "template": "SHADOW SKU ONLY. Audience: {buyer}. Problem hypothesis: {problem}. Candidate mechanism: {mechanism}. Proposed deliverable: {deliverable}. Acceptance evidence required: {proof}. Check customer demand, IP rights, availability, margins and human approval before publishing. Do not invent buyers or revenue.",
+      "slots": {
+        "buyer": {
+          "word_bank": "digital_products__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "digital_products__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "digital_products__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "digital_products__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "digital_products__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "digital_products",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "digital_products-fulfilment-v1",
+      "version": 1,
+      "status": "active",
+      "template": "DRAFT FULFILMENT CONTRACT. Scope of customer problem: {problem}. Produce {deliverable} using {mechanism}. Independent success criterion: {proof}. Define a retrievable customer artifact, an idempotent payment-to-entitlement link and a documented refund route. Not operational until independently tested.",
+      "slots": {
+        "problem": {
+          "word_bank": "digital_products__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "digital_products__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "digital_products__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "digital_products__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "digital_products",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "digital_products-distribution-v1",
+      "version": 1,
+      "status": "active",
+      "template": "PRIVATE CHANNEL DRAFT. For {buyer} facing {problem}, show an original example of {deliverable}. Explain {mechanism} with source-backed, non-promissory language. Only cite {proof} after it is actually observed. No messages, publication, ads or live link changes without approval.",
+      "slots": {
+        "buyer": {
+          "word_bank": "digital_products__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "digital_products__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "digital_products__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "digital_products__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "digital_products__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "digital_products",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "digital_products-gauntlet-v1",
+      "version": 1,
+      "status": "active",
+      "template": "GAUNTLET REVIEW. Challenge whether {buyer} has {problem}, whether {mechanism} really produces {deliverable}, and whether {proof} is independently observable. Return HOLD if evidence, rights, costs, delivery, or customer acceptance is missing. Do not use LLM judgement as independent proof.",
+      "slots": {
+        "buyer": {
+          "word_bank": "digital_products__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "digital_products__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "digital_products__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "digital_products__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "digital_products__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "digital_products",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "digital_products-price-v1",
+      "version": 1,
+      "status": "active",
+      "template": "SHADOW ECONOMIC EXPERIMENT. Hypothesis: {buyer} may value relief from {problem}. Product expression: {deliverable} via {mechanism}. Do not invent price. Record comparable real purchasing options, fulfillment time, payment fees, refund exposure and {proof} before proposing any paid listing.",
+      "slots": {
+        "buyer": {
+          "word_bank": "digital_products__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "digital_products__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "digital_products__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "digital_products__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "digital_products__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "digital_products",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "digital_products-model-prompt-v1",
+      "version": 1,
+      "status": "active",
+      "template": "MODEL TASK PROPOSAL, HUMAN-REVIEW-ONLY. Given authorized, sanitized source data, propose one original {deliverable} for {buyer} using {mechanism} to address {problem}. Provide acceptance tests tied to {proof}; return UNKNOWN where evidence is missing. Never claim actual transactions or run external actions.",
+      "slots": {
+        "buyer": {
+          "word_bank": "digital_products__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "digital_products__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "digital_products__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "digital_products__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "digital_products__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "digital_products",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "automation-shadow-product-v1",
+      "version": 1,
+      "status": "active",
+      "template": "SHADOW SKU ONLY. Audience: {buyer}. Problem hypothesis: {problem}. Candidate mechanism: {mechanism}. Proposed deliverable: {deliverable}. Acceptance evidence required: {proof}. Check customer demand, IP rights, availability, margins and human approval before publishing. Do not invent buyers or revenue.",
+      "slots": {
+        "buyer": {
+          "word_bank": "automation__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "automation__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "automation__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "automation__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "automation__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "automation",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "automation-fulfilment-v1",
+      "version": 1,
+      "status": "active",
+      "template": "DRAFT FULFILMENT CONTRACT. Scope of customer problem: {problem}. Produce {deliverable} using {mechanism}. Independent success criterion: {proof}. Define a retrievable customer artifact, an idempotent payment-to-entitlement link and a documented refund route. Not operational until independently tested.",
+      "slots": {
+        "problem": {
+          "word_bank": "automation__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "automation__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "automation__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "automation__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "automation",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "automation-distribution-v1",
+      "version": 1,
+      "status": "active",
+      "template": "PRIVATE CHANNEL DRAFT. For {buyer} facing {problem}, show an original example of {deliverable}. Explain {mechanism} with source-backed, non-promissory language. Only cite {proof} after it is actually observed. No messages, publication, ads or live link changes without approval.",
+      "slots": {
+        "buyer": {
+          "word_bank": "automation__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "automation__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "automation__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "automation__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "automation__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "automation",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "automation-gauntlet-v1",
+      "version": 1,
+      "status": "active",
+      "template": "GAUNTLET REVIEW. Challenge whether {buyer} has {problem}, whether {mechanism} really produces {deliverable}, and whether {proof} is independently observable. Return HOLD if evidence, rights, costs, delivery, or customer acceptance is missing. Do not use LLM judgement as independent proof.",
+      "slots": {
+        "buyer": {
+          "word_bank": "automation__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "automation__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "automation__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "automation__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "automation__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "automation",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "automation-price-v1",
+      "version": 1,
+      "status": "active",
+      "template": "SHADOW ECONOMIC EXPERIMENT. Hypothesis: {buyer} may value relief from {problem}. Product expression: {deliverable} via {mechanism}. Do not invent price. Record comparable real purchasing options, fulfillment time, payment fees, refund exposure and {proof} before proposing any paid listing.",
+      "slots": {
+        "buyer": {
+          "word_bank": "automation__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "automation__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "automation__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "automation__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "automation__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "automation",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "automation-model-prompt-v1",
+      "version": 1,
+      "status": "active",
+      "template": "MODEL TASK PROPOSAL, HUMAN-REVIEW-ONLY. Given authorized, sanitized source data, propose one original {deliverable} for {buyer} using {mechanism} to address {problem}. Provide acceptance tests tied to {proof}; return UNKNOWN where evidence is missing. Never claim actual transactions or run external actions.",
+      "slots": {
+        "buyer": {
+          "word_bank": "automation__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "automation__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "automation__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "automation__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "automation__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "automation",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "evidence-shadow-product-v1",
+      "version": 1,
+      "status": "active",
+      "template": "SHADOW SKU ONLY. Audience: {buyer}. Problem hypothesis: {problem}. Candidate mechanism: {mechanism}. Proposed deliverable: {deliverable}. Acceptance evidence required: {proof}. Check customer demand, IP rights, availability, margins and human approval before publishing. Do not invent buyers or revenue.",
+      "slots": {
+        "buyer": {
+          "word_bank": "evidence__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "evidence__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "evidence__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "evidence__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "evidence__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "evidence",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "evidence-fulfilment-v1",
+      "version": 1,
+      "status": "active",
+      "template": "DRAFT FULFILMENT CONTRACT. Scope of customer problem: {problem}. Produce {deliverable} using {mechanism}. Independent success criterion: {proof}. Define a retrievable customer artifact, an idempotent payment-to-entitlement link and a documented refund route. Not operational until independently tested.",
+      "slots": {
+        "problem": {
+          "word_bank": "evidence__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "evidence__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "evidence__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "evidence__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "evidence",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "evidence-distribution-v1",
+      "version": 1,
+      "status": "active",
+      "template": "PRIVATE CHANNEL DRAFT. For {buyer} facing {problem}, show an original example of {deliverable}. Explain {mechanism} with source-backed, non-promissory language. Only cite {proof} after it is actually observed. No messages, publication, ads or live link changes without approval.",
+      "slots": {
+        "buyer": {
+          "word_bank": "evidence__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "evidence__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "evidence__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "evidence__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "evidence__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "evidence",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "evidence-gauntlet-v1",
+      "version": 1,
+      "status": "active",
+      "template": "GAUNTLET REVIEW. Challenge whether {buyer} has {problem}, whether {mechanism} really produces {deliverable}, and whether {proof} is independently observable. Return HOLD if evidence, rights, costs, delivery, or customer acceptance is missing. Do not use LLM judgement as independent proof.",
+      "slots": {
+        "buyer": {
+          "word_bank": "evidence__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "evidence__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "evidence__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "evidence__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "evidence__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "evidence",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "evidence-price-v1",
+      "version": 1,
+      "status": "active",
+      "template": "SHADOW ECONOMIC EXPERIMENT. Hypothesis: {buyer} may value relief from {problem}. Product expression: {deliverable} via {mechanism}. Do not invent price. Record comparable real purchasing options, fulfillment time, payment fees, refund exposure and {proof} before proposing any paid listing.",
+      "slots": {
+        "buyer": {
+          "word_bank": "evidence__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "evidence__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "evidence__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "evidence__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "evidence__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "evidence",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "evidence-model-prompt-v1",
+      "version": 1,
+      "status": "active",
+      "template": "MODEL TASK PROPOSAL, HUMAN-REVIEW-ONLY. Given authorized, sanitized source data, propose one original {deliverable} for {buyer} using {mechanism} to address {problem}. Provide acceptance tests tied to {proof}; return UNKNOWN where evidence is missing. Never claim actual transactions or run external actions.",
+      "slots": {
+        "buyer": {
+          "word_bank": "evidence__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "evidence__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "evidence__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "evidence__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "evidence__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "evidence",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "agent_bridge-shadow-product-v1",
+      "version": 1,
+      "status": "active",
+      "template": "SHADOW SKU ONLY. Audience: {buyer}. Problem hypothesis: {problem}. Candidate mechanism: {mechanism}. Proposed deliverable: {deliverable}. Acceptance evidence required: {proof}. Check customer demand, IP rights, availability, margins and human approval before publishing. Do not invent buyers or revenue.",
+      "slots": {
+        "buyer": {
+          "word_bank": "agent_bridge__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "agent_bridge__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "agent_bridge__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "agent_bridge__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "agent_bridge__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "agent_bridge",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "agent_bridge-fulfilment-v1",
+      "version": 1,
+      "status": "active",
+      "template": "DRAFT FULFILMENT CONTRACT. Scope of customer problem: {problem}. Produce {deliverable} using {mechanism}. Independent success criterion: {proof}. Define a retrievable customer artifact, an idempotent payment-to-entitlement link and a documented refund route. Not operational until independently tested.",
+      "slots": {
+        "problem": {
+          "word_bank": "agent_bridge__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "agent_bridge__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "agent_bridge__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "agent_bridge__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "agent_bridge",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "agent_bridge-distribution-v1",
+      "version": 1,
+      "status": "active",
+      "template": "PRIVATE CHANNEL DRAFT. For {buyer} facing {problem}, show an original example of {deliverable}. Explain {mechanism} with source-backed, non-promissory language. Only cite {proof} after it is actually observed. No messages, publication, ads or live link changes without approval.",
+      "slots": {
+        "buyer": {
+          "word_bank": "agent_bridge__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "agent_bridge__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "agent_bridge__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "agent_bridge__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "agent_bridge__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "agent_bridge",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "agent_bridge-gauntlet-v1",
+      "version": 1,
+      "status": "active",
+      "template": "GAUNTLET REVIEW. Challenge whether {buyer} has {problem}, whether {mechanism} really produces {deliverable}, and whether {proof} is independently observable. Return HOLD if evidence, rights, costs, delivery, or customer acceptance is missing. Do not use LLM judgement as independent proof.",
+      "slots": {
+        "buyer": {
+          "word_bank": "agent_bridge__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "agent_bridge__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "agent_bridge__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "agent_bridge__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "agent_bridge__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "agent_bridge",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "agent_bridge-price-v1",
+      "version": 1,
+      "status": "active",
+      "template": "SHADOW ECONOMIC EXPERIMENT. Hypothesis: {buyer} may value relief from {problem}. Product expression: {deliverable} via {mechanism}. Do not invent price. Record comparable real purchasing options, fulfillment time, payment fees, refund exposure and {proof} before proposing any paid listing.",
+      "slots": {
+        "buyer": {
+          "word_bank": "agent_bridge__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "agent_bridge__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "agent_bridge__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "agent_bridge__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "agent_bridge__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "agent_bridge",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "agent_bridge-model-prompt-v1",
+      "version": 1,
+      "status": "active",
+      "template": "MODEL TASK PROPOSAL, HUMAN-REVIEW-ONLY. Given authorized, sanitized source data, propose one original {deliverable} for {buyer} using {mechanism} to address {problem}. Provide acceptance tests tied to {proof}; return UNKNOWN where evidence is missing. Never claim actual transactions or run external actions.",
+      "slots": {
+        "buyer": {
+          "word_bank": "agent_bridge__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "agent_bridge__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "agent_bridge__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "agent_bridge__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "agent_bridge__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "agent_bridge",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "data_refinery-shadow-product-v1",
+      "version": 1,
+      "status": "active",
+      "template": "SHADOW SKU ONLY. Audience: {buyer}. Problem hypothesis: {problem}. Candidate mechanism: {mechanism}. Proposed deliverable: {deliverable}. Acceptance evidence required: {proof}. Check customer demand, IP rights, availability, margins and human approval before publishing. Do not invent buyers or revenue.",
+      "slots": {
+        "buyer": {
+          "word_bank": "data_refinery__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "data_refinery__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "data_refinery__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "data_refinery__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "data_refinery__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "data_refinery",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "data_refinery-fulfilment-v1",
+      "version": 1,
+      "status": "active",
+      "template": "DRAFT FULFILMENT CONTRACT. Scope of customer problem: {problem}. Produce {deliverable} using {mechanism}. Independent success criterion: {proof}. Define a retrievable customer artifact, an idempotent payment-to-entitlement link and a documented refund route. Not operational until independently tested.",
+      "slots": {
+        "problem": {
+          "word_bank": "data_refinery__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "data_refinery__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "data_refinery__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "data_refinery__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "data_refinery",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "data_refinery-distribution-v1",
+      "version": 1,
+      "status": "active",
+      "template": "PRIVATE CHANNEL DRAFT. For {buyer} facing {problem}, show an original example of {deliverable}. Explain {mechanism} with source-backed, non-promissory language. Only cite {proof} after it is actually observed. No messages, publication, ads or live link changes without approval.",
+      "slots": {
+        "buyer": {
+          "word_bank": "data_refinery__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "data_refinery__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "data_refinery__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "data_refinery__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "data_refinery__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "data_refinery",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "data_refinery-gauntlet-v1",
+      "version": 1,
+      "status": "active",
+      "template": "GAUNTLET REVIEW. Challenge whether {buyer} has {problem}, whether {mechanism} really produces {deliverable}, and whether {proof} is independently observable. Return HOLD if evidence, rights, costs, delivery, or customer acceptance is missing. Do not use LLM judgement as independent proof.",
+      "slots": {
+        "buyer": {
+          "word_bank": "data_refinery__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "data_refinery__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "data_refinery__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "data_refinery__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "data_refinery__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "data_refinery",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "data_refinery-price-v1",
+      "version": 1,
+      "status": "active",
+      "template": "SHADOW ECONOMIC EXPERIMENT. Hypothesis: {buyer} may value relief from {problem}. Product expression: {deliverable} via {mechanism}. Do not invent price. Record comparable real purchasing options, fulfillment time, payment fees, refund exposure and {proof} before proposing any paid listing.",
+      "slots": {
+        "buyer": {
+          "word_bank": "data_refinery__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "data_refinery__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "data_refinery__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "data_refinery__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "data_refinery__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "data_refinery",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "data_refinery-model-prompt-v1",
+      "version": 1,
+      "status": "active",
+      "template": "MODEL TASK PROPOSAL, HUMAN-REVIEW-ONLY. Given authorized, sanitized source data, propose one original {deliverable} for {buyer} using {mechanism} to address {problem}. Provide acceptance tests tied to {proof}; return UNKNOWN where evidence is missing. Never claim actual transactions or run external actions.",
+      "slots": {
+        "buyer": {
+          "word_bank": "data_refinery__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "data_refinery__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "data_refinery__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "data_refinery__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "data_refinery__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "data_refinery",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "app_factory-shadow-product-v1",
+      "version": 1,
+      "status": "active",
+      "template": "SHADOW SKU ONLY. Audience: {buyer}. Problem hypothesis: {problem}. Candidate mechanism: {mechanism}. Proposed deliverable: {deliverable}. Acceptance evidence required: {proof}. Check customer demand, IP rights, availability, margins and human approval before publishing. Do not invent buyers or revenue.",
+      "slots": {
+        "buyer": {
+          "word_bank": "app_factory__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "app_factory__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "app_factory__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "app_factory__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "app_factory__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "app_factory",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "app_factory-fulfilment-v1",
+      "version": 1,
+      "status": "active",
+      "template": "DRAFT FULFILMENT CONTRACT. Scope of customer problem: {problem}. Produce {deliverable} using {mechanism}. Independent success criterion: {proof}. Define a retrievable customer artifact, an idempotent payment-to-entitlement link and a documented refund route. Not operational until independently tested.",
+      "slots": {
+        "problem": {
+          "word_bank": "app_factory__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "app_factory__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "app_factory__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "app_factory__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "app_factory",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "app_factory-distribution-v1",
+      "version": 1,
+      "status": "active",
+      "template": "PRIVATE CHANNEL DRAFT. For {buyer} facing {problem}, show an original example of {deliverable}. Explain {mechanism} with source-backed, non-promissory language. Only cite {proof} after it is actually observed. No messages, publication, ads or live link changes without approval.",
+      "slots": {
+        "buyer": {
+          "word_bank": "app_factory__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "app_factory__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "app_factory__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "app_factory__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "app_factory__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "app_factory",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "app_factory-gauntlet-v1",
+      "version": 1,
+      "status": "active",
+      "template": "GAUNTLET REVIEW. Challenge whether {buyer} has {problem}, whether {mechanism} really produces {deliverable}, and whether {proof} is independently observable. Return HOLD if evidence, rights, costs, delivery, or customer acceptance is missing. Do not use LLM judgement as independent proof.",
+      "slots": {
+        "buyer": {
+          "word_bank": "app_factory__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "app_factory__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "app_factory__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "app_factory__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "app_factory__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "app_factory",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "app_factory-price-v1",
+      "version": 1,
+      "status": "active",
+      "template": "SHADOW ECONOMIC EXPERIMENT. Hypothesis: {buyer} may value relief from {problem}. Product expression: {deliverable} via {mechanism}. Do not invent price. Record comparable real purchasing options, fulfillment time, payment fees, refund exposure and {proof} before proposing any paid listing.",
+      "slots": {
+        "buyer": {
+          "word_bank": "app_factory__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "app_factory__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "app_factory__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "app_factory__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "app_factory__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "app_factory",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "app_factory-model-prompt-v1",
+      "version": 1,
+      "status": "active",
+      "template": "MODEL TASK PROPOSAL, HUMAN-REVIEW-ONLY. Given authorized, sanitized source data, propose one original {deliverable} for {buyer} using {mechanism} to address {problem}. Provide acceptance tests tied to {proof}; return UNKNOWN where evidence is missing. Never claim actual transactions or run external actions.",
+      "slots": {
+        "buyer": {
+          "word_bank": "app_factory__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "app_factory__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "app_factory__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "app_factory__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "app_factory__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "app_factory",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "fightedge-shadow-product-v1",
+      "version": 1,
+      "status": "active",
+      "template": "SHADOW SKU ONLY. Audience: {buyer}. Problem hypothesis: {problem}. Candidate mechanism: {mechanism}. Proposed deliverable: {deliverable}. Acceptance evidence required: {proof}. Check customer demand, IP rights, availability, margins and human approval before publishing. Do not invent buyers or revenue.",
+      "slots": {
+        "buyer": {
+          "word_bank": "fightedge__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "fightedge__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "fightedge__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "fightedge__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "fightedge__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "fightedge",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "fightedge-fulfilment-v1",
+      "version": 1,
+      "status": "active",
+      "template": "DRAFT FULFILMENT CONTRACT. Scope of customer problem: {problem}. Produce {deliverable} using {mechanism}. Independent success criterion: {proof}. Define a retrievable customer artifact, an idempotent payment-to-entitlement link and a documented refund route. Not operational until independently tested.",
+      "slots": {
+        "problem": {
+          "word_bank": "fightedge__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "fightedge__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "fightedge__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "fightedge__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "fightedge",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "fightedge-distribution-v1",
+      "version": 1,
+      "status": "active",
+      "template": "PRIVATE CHANNEL DRAFT. For {buyer} facing {problem}, show an original example of {deliverable}. Explain {mechanism} with source-backed, non-promissory language. Only cite {proof} after it is actually observed. No messages, publication, ads or live link changes without approval.",
+      "slots": {
+        "buyer": {
+          "word_bank": "fightedge__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "fightedge__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "fightedge__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "fightedge__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "fightedge__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "fightedge",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "fightedge-gauntlet-v1",
+      "version": 1,
+      "status": "active",
+      "template": "GAUNTLET REVIEW. Challenge whether {buyer} has {problem}, whether {mechanism} really produces {deliverable}, and whether {proof} is independently observable. Return HOLD if evidence, rights, costs, delivery, or customer acceptance is missing. Do not use LLM judgement as independent proof.",
+      "slots": {
+        "buyer": {
+          "word_bank": "fightedge__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "fightedge__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "fightedge__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "fightedge__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "fightedge__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "fightedge",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "fightedge-price-v1",
+      "version": 1,
+      "status": "active",
+      "template": "SHADOW ECONOMIC EXPERIMENT. Hypothesis: {buyer} may value relief from {problem}. Product expression: {deliverable} via {mechanism}. Do not invent price. Record comparable real purchasing options, fulfillment time, payment fees, refund exposure and {proof} before proposing any paid listing.",
+      "slots": {
+        "buyer": {
+          "word_bank": "fightedge__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "fightedge__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "fightedge__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "fightedge__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "fightedge__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "fightedge",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "fightedge-model-prompt-v1",
+      "version": 1,
+      "status": "active",
+      "template": "MODEL TASK PROPOSAL, HUMAN-REVIEW-ONLY. Given authorized, sanitized source data, propose one original {deliverable} for {buyer} using {mechanism} to address {problem}. Provide acceptance tests tied to {proof}; return UNKNOWN where evidence is missing. Never claim actual transactions or run external actions.",
+      "slots": {
+        "buyer": {
+          "word_bank": "fightedge__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "fightedge__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "fightedge__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "fightedge__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "fightedge__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "fightedge",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "community-shadow-product-v1",
+      "version": 1,
+      "status": "active",
+      "template": "SHADOW SKU ONLY. Audience: {buyer}. Problem hypothesis: {problem}. Candidate mechanism: {mechanism}. Proposed deliverable: {deliverable}. Acceptance evidence required: {proof}. Check customer demand, IP rights, availability, margins and human approval before publishing. Do not invent buyers or revenue.",
+      "slots": {
+        "buyer": {
+          "word_bank": "community__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "community__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "community__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "community__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "community__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "community",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "community-fulfilment-v1",
+      "version": 1,
+      "status": "active",
+      "template": "DRAFT FULFILMENT CONTRACT. Scope of customer problem: {problem}. Produce {deliverable} using {mechanism}. Independent success criterion: {proof}. Define a retrievable customer artifact, an idempotent payment-to-entitlement link and a documented refund route. Not operational until independently tested.",
+      "slots": {
+        "problem": {
+          "word_bank": "community__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "community__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "community__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "community__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "community",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "community-distribution-v1",
+      "version": 1,
+      "status": "active",
+      "template": "PRIVATE CHANNEL DRAFT. For {buyer} facing {problem}, show an original example of {deliverable}. Explain {mechanism} with source-backed, non-promissory language. Only cite {proof} after it is actually observed. No messages, publication, ads or live link changes without approval.",
+      "slots": {
+        "buyer": {
+          "word_bank": "community__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "community__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "community__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "community__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "community__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "community",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "community-gauntlet-v1",
+      "version": 1,
+      "status": "active",
+      "template": "GAUNTLET REVIEW. Challenge whether {buyer} has {problem}, whether {mechanism} really produces {deliverable}, and whether {proof} is independently observable. Return HOLD if evidence, rights, costs, delivery, or customer acceptance is missing. Do not use LLM judgement as independent proof.",
+      "slots": {
+        "buyer": {
+          "word_bank": "community__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "community__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "community__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "community__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "community__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "community",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "community-price-v1",
+      "version": 1,
+      "status": "active",
+      "template": "SHADOW ECONOMIC EXPERIMENT. Hypothesis: {buyer} may value relief from {problem}. Product expression: {deliverable} via {mechanism}. Do not invent price. Record comparable real purchasing options, fulfillment time, payment fees, refund exposure and {proof} before proposing any paid listing.",
+      "slots": {
+        "buyer": {
+          "word_bank": "community__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "community__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "community__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "community__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "community__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "community",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "community-model-prompt-v1",
+      "version": 1,
+      "status": "active",
+      "template": "MODEL TASK PROPOSAL, HUMAN-REVIEW-ONLY. Given authorized, sanitized source data, propose one original {deliverable} for {buyer} using {mechanism} to address {problem}. Provide acceptance tests tied to {proof}; return UNKNOWN where evidence is missing. Never claim actual transactions or run external actions.",
+      "slots": {
+        "buyer": {
+          "word_bank": "community__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "community__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "community__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "community__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "community__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "community",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "education-shadow-product-v1",
+      "version": 1,
+      "status": "active",
+      "template": "SHADOW SKU ONLY. Audience: {buyer}. Problem hypothesis: {problem}. Candidate mechanism: {mechanism}. Proposed deliverable: {deliverable}. Acceptance evidence required: {proof}. Check customer demand, IP rights, availability, margins and human approval before publishing. Do not invent buyers or revenue.",
+      "slots": {
+        "buyer": {
+          "word_bank": "education__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "education__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "education__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "education__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "education__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "education",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "education-fulfilment-v1",
+      "version": 1,
+      "status": "active",
+      "template": "DRAFT FULFILMENT CONTRACT. Scope of customer problem: {problem}. Produce {deliverable} using {mechanism}. Independent success criterion: {proof}. Define a retrievable customer artifact, an idempotent payment-to-entitlement link and a documented refund route. Not operational until independently tested.",
+      "slots": {
+        "problem": {
+          "word_bank": "education__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "education__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "education__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "education__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "education",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "education-distribution-v1",
+      "version": 1,
+      "status": "active",
+      "template": "PRIVATE CHANNEL DRAFT. For {buyer} facing {problem}, show an original example of {deliverable}. Explain {mechanism} with source-backed, non-promissory language. Only cite {proof} after it is actually observed. No messages, publication, ads or live link changes without approval.",
+      "slots": {
+        "buyer": {
+          "word_bank": "education__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "education__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "education__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "education__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "education__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "education",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "education-gauntlet-v1",
+      "version": 1,
+      "status": "active",
+      "template": "GAUNTLET REVIEW. Challenge whether {buyer} has {problem}, whether {mechanism} really produces {deliverable}, and whether {proof} is independently observable. Return HOLD if evidence, rights, costs, delivery, or customer acceptance is missing. Do not use LLM judgement as independent proof.",
+      "slots": {
+        "buyer": {
+          "word_bank": "education__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "education__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "education__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "education__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "education__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "education",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "education-price-v1",
+      "version": 1,
+      "status": "active",
+      "template": "SHADOW ECONOMIC EXPERIMENT. Hypothesis: {buyer} may value relief from {problem}. Product expression: {deliverable} via {mechanism}. Do not invent price. Record comparable real purchasing options, fulfillment time, payment fees, refund exposure and {proof} before proposing any paid listing.",
+      "slots": {
+        "buyer": {
+          "word_bank": "education__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "education__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "education__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "education__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "education__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "education",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "education-model-prompt-v1",
+      "version": 1,
+      "status": "active",
+      "template": "MODEL TASK PROPOSAL, HUMAN-REVIEW-ONLY. Given authorized, sanitized source data, propose one original {deliverable} for {buyer} using {mechanism} to address {problem}. Provide acceptance tests tied to {proof}; return UNKNOWN where evidence is missing. Never claim actual transactions or run external actions.",
+      "slots": {
+        "buyer": {
+          "word_bank": "education__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "education__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "education__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "education__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "education__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "education",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "marketplace-shadow-product-v1",
+      "version": 1,
+      "status": "active",
+      "template": "SHADOW SKU ONLY. Audience: {buyer}. Problem hypothesis: {problem}. Candidate mechanism: {mechanism}. Proposed deliverable: {deliverable}. Acceptance evidence required: {proof}. Check customer demand, IP rights, availability, margins and human approval before publishing. Do not invent buyers or revenue.",
+      "slots": {
+        "buyer": {
+          "word_bank": "marketplace__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "marketplace__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "marketplace__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "marketplace__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "marketplace__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "marketplace",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "marketplace-fulfilment-v1",
+      "version": 1,
+      "status": "active",
+      "template": "DRAFT FULFILMENT CONTRACT. Scope of customer problem: {problem}. Produce {deliverable} using {mechanism}. Independent success criterion: {proof}. Define a retrievable customer artifact, an idempotent payment-to-entitlement link and a documented refund route. Not operational until independently tested.",
+      "slots": {
+        "problem": {
+          "word_bank": "marketplace__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "marketplace__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "marketplace__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "marketplace__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "marketplace",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "marketplace-distribution-v1",
+      "version": 1,
+      "status": "active",
+      "template": "PRIVATE CHANNEL DRAFT. For {buyer} facing {problem}, show an original example of {deliverable}. Explain {mechanism} with source-backed, non-promissory language. Only cite {proof} after it is actually observed. No messages, publication, ads or live link changes without approval.",
+      "slots": {
+        "buyer": {
+          "word_bank": "marketplace__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "marketplace__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "marketplace__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "marketplace__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "marketplace__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "marketplace",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "marketplace-gauntlet-v1",
+      "version": 1,
+      "status": "active",
+      "template": "GAUNTLET REVIEW. Challenge whether {buyer} has {problem}, whether {mechanism} really produces {deliverable}, and whether {proof} is independently observable. Return HOLD if evidence, rights, costs, delivery, or customer acceptance is missing. Do not use LLM judgement as independent proof.",
+      "slots": {
+        "buyer": {
+          "word_bank": "marketplace__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "marketplace__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "marketplace__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "marketplace__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "marketplace__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "marketplace",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "marketplace-price-v1",
+      "version": 1,
+      "status": "active",
+      "template": "SHADOW ECONOMIC EXPERIMENT. Hypothesis: {buyer} may value relief from {problem}. Product expression: {deliverable} via {mechanism}. Do not invent price. Record comparable real purchasing options, fulfillment time, payment fees, refund exposure and {proof} before proposing any paid listing.",
+      "slots": {
+        "buyer": {
+          "word_bank": "marketplace__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "marketplace__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "marketplace__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "marketplace__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "marketplace__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "marketplace",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "marketplace-model-prompt-v1",
+      "version": 1,
+      "status": "active",
+      "template": "MODEL TASK PROPOSAL, HUMAN-REVIEW-ONLY. Given authorized, sanitized source data, propose one original {deliverable} for {buyer} using {mechanism} to address {problem}. Provide acceptance tests tied to {proof}; return UNKNOWN where evidence is missing. Never claim actual transactions or run external actions.",
+      "slots": {
+        "buyer": {
+          "word_bank": "marketplace__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "marketplace__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "marketplace__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "marketplace__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "marketplace__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "marketplace",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "licensing-shadow-product-v1",
+      "version": 1,
+      "status": "active",
+      "template": "SHADOW SKU ONLY. Audience: {buyer}. Problem hypothesis: {problem}. Candidate mechanism: {mechanism}. Proposed deliverable: {deliverable}. Acceptance evidence required: {proof}. Check customer demand, IP rights, availability, margins and human approval before publishing. Do not invent buyers or revenue.",
+      "slots": {
+        "buyer": {
+          "word_bank": "licensing__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "licensing__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "licensing__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "licensing__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "licensing__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "licensing",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "licensing-fulfilment-v1",
+      "version": 1,
+      "status": "active",
+      "template": "DRAFT FULFILMENT CONTRACT. Scope of customer problem: {problem}. Produce {deliverable} using {mechanism}. Independent success criterion: {proof}. Define a retrievable customer artifact, an idempotent payment-to-entitlement link and a documented refund route. Not operational until independently tested.",
+      "slots": {
+        "problem": {
+          "word_bank": "licensing__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "licensing__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "licensing__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "licensing__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "licensing",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "licensing-distribution-v1",
+      "version": 1,
+      "status": "active",
+      "template": "PRIVATE CHANNEL DRAFT. For {buyer} facing {problem}, show an original example of {deliverable}. Explain {mechanism} with source-backed, non-promissory language. Only cite {proof} after it is actually observed. No messages, publication, ads or live link changes without approval.",
+      "slots": {
+        "buyer": {
+          "word_bank": "licensing__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "licensing__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "licensing__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "licensing__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "licensing__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "licensing",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "licensing-gauntlet-v1",
+      "version": 1,
+      "status": "active",
+      "template": "GAUNTLET REVIEW. Challenge whether {buyer} has {problem}, whether {mechanism} really produces {deliverable}, and whether {proof} is independently observable. Return HOLD if evidence, rights, costs, delivery, or customer acceptance is missing. Do not use LLM judgement as independent proof.",
+      "slots": {
+        "buyer": {
+          "word_bank": "licensing__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "licensing__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "licensing__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "licensing__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "licensing__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "licensing",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "licensing-price-v1",
+      "version": 1,
+      "status": "active",
+      "template": "SHADOW ECONOMIC EXPERIMENT. Hypothesis: {buyer} may value relief from {problem}. Product expression: {deliverable} via {mechanism}. Do not invent price. Record comparable real purchasing options, fulfillment time, payment fees, refund exposure and {proof} before proposing any paid listing.",
+      "slots": {
+        "buyer": {
+          "word_bank": "licensing__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "licensing__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "licensing__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "licensing__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "licensing__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "licensing",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
+    },
+    {
+      "id": "licensing-model-prompt-v1",
+      "version": 1,
+      "status": "active",
+      "template": "MODEL TASK PROPOSAL, HUMAN-REVIEW-ONLY. Given authorized, sanitized source data, propose one original {deliverable} for {buyer} using {mechanism} to address {problem}. Provide acceptance tests tied to {proof}; return UNKNOWN where evidence is missing. Never claim actual transactions or run external actions.",
+      "slots": {
+        "buyer": {
+          "word_bank": "licensing__buyer",
+          "count": 1
+        },
+        "problem": {
+          "word_bank": "licensing__problem",
+          "count": 1
+        },
+        "mechanism": {
+          "word_bank": "licensing__mechanism",
+          "count": 1
+        },
+        "deliverable": {
+          "word_bank": "licensing__deliverable",
+          "count": 1
+        },
+        "proof": {
+          "word_bank": "licensing__proof",
+          "count": 1
+        }
+      },
+      "policy": {
+        "private_draft_only": true,
+        "owner_approval_required_for_external_action": true,
+        "silo": "licensing",
+        "cross_silo_customer_data": false,
+        "fabricate_buyer_or_revenue": false
+      }
     }
   ]
 }
