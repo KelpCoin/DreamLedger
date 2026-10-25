@@ -8,18 +8,21 @@ const SOURCE = path.join(ROOT, 'website', 'mtg-catalog.html');
 const PROOF = path.join(ROOT, 'PROOF-MTG-COMMERCE-SURFACE.json');
 const MARKER = 'data-dreamledger-mtg-commerce-v2';
 
-function writeProof() {
+function writeProof(mode = 'legacy') {
+  const modern = mode === 'modern_review_only';
   const proof = {
     schema: 'BEC-PRIME/MTG-COMMERCE-SURFACE/v2',
     status: 'PASS',
+    mode,
     source: 'BEC-PRIME/website/mtg-catalog.html',
     marker: MARKER,
     route: '/mtg',
     aliases: ['/mtg', '/mtg/', '/MTG', '/MTG/'],
-    inventory_endpoint: '/api/products',
-    checkout_endpoint: '/api/offer-checkout/create',
-    horizontal_catalogue: true,
-    displays: ['image', 'name', 'price_nzd', 'availability', 'buy_button', 'condition_for_verified_singles_only'],
+    inventory_endpoint: modern ? '/data/mtg-catalog.json' : '/api/products',
+    checkout_endpoint: modern ? null : '/api/offer-checkout/create',
+    horizontal_catalogue: !modern,
+    displays: modern ? ['name', 'price_nzd', 'inventory', 'view_listing'] : ['image', 'name', 'price_nzd', 'availability', 'buy_button', 'condition_for_verified_singles_only'],
+    checkout_enabled_by_patch: !modern,
     generated_at: new Date().toISOString()
   };
   fs.writeFileSync(PROOF, JSON.stringify(proof, null, 2) + '\n', 'utf8');
@@ -29,7 +32,7 @@ function writeProof() {
 function patch() {
   let html = fs.readFileSync(SOURCE, 'utf8');
   if (html.includes(MARKER)) {
-    writeProof();
+    writeProof(html.includes('data-dreamledger-mtg-mode="review-only"') ? 'modern_review_only' : 'legacy');
     return;
   }
   const original = html;
@@ -38,6 +41,31 @@ function patch() {
     '.rail{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;padding:10px 0 18px}',
     '.rail{display:flex;gap:14px;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;padding:10px 2px 22px;scrollbar-width:thin}.rail .card{flex:0 0 min(330px,82vw);scroll-snap-align:start}.art{position:relative}.art img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.92}'
   );
+
+  // Modern silo shell: preserve the card grid, but never treat a detail link as checkout.
+  // Held diagnostics must not be advertised as purchasable by the compiler.
+  if (html.includes("const CATALOG='/data/mtg-catalog.json';") &&
+      html.includes('grid.innerHTML=decks.map(p=>{') &&
+      html.includes('async function load(){')) {
+    const diagnostic = /<a class="silo-btn silo-btn-gold" href="https:\/\/buy\.stripe\.com\/[^"]+">Buy diagnostic<\/a>/g;
+    if (!diagnostic.test(html)) throw new Error('Modern MTG diagnostic CTA boundary not found');
+    html = html.replace(diagnostic, '<span class="silo-btn silo-btn-ghost" aria-disabled="true">Diagnostic held</span>');
+    const buyStart = html.indexOf('        const buy=inv\n');
+    const buyEnd = html.indexOf(";\n        return '<article", buyStart);
+    if (buyStart < 0 || buyEnd < 0) throw new Error('Modern MTG listing CTA boundary not found');
+    html = html.slice(0, buyStart) +
+      '        const buy=\'<a class="buy" href="\'+esc(detail)+\'">View listing</a>\'' +
+      html.slice(buyEnd);
+    html = html.replace(/<body(\s[^>]*)?>/i, tag =>
+      tag.slice(0, -1) + ' ' + MARKER + ' data-dreamledger-mtg-mode="review-only">');
+    if (!html.includes('data-dreamledger-mtg-mode="review-only"') ||
+        html.includes('>Buy diagnostic</a>') || html.includes('See cards &amp; buy')) {
+      throw new Error('Modern MTG patch safety check failed');
+    }
+    fs.writeFileSync(SOURCE, html, 'utf8');
+    writeProof('modern_review_only');
+    return;
+  }
 
   const start = html.indexOf('function render(items){');
   const end = html.indexOf('async function load(){', start);
