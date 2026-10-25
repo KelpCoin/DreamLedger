@@ -13,6 +13,9 @@ on:
       - "BEC-PRIME/catalog/commerce-live.json"
       - "BEC-PRIME/catalog/products/**"
       - "BEC-PRIME/catalog/silos/CUBE-SILO-REGISTRY.json"
+      - "public/catalog.json"
+      - "public/qr/canonical.svg"
+      - "public/go/index.html"
       - ".github/workflows/beck-cash-closure.yml"
 permissions:
   contents: read
@@ -66,5 +69,6 @@ jobs:
           path: |
             BEC-PRIME/data/cash-closure/board.json
             BEC-PRIME/data/cash-closure/board.html
+            BEC-PRIME/data/cash-closure/consumer-readiness.json
           if-no-files-found: error
           retention-days: 14
