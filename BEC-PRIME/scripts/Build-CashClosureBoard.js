@@ -41,6 +41,61 @@ function actionFor(state, name) {
     default: return 'Discover a real existing deliverable and approved inbound offer. Do not publish speculative stock.';
   }
 }
+/**
+ * Consumer integrity audit. The registry is a seed set, not a ceiling on silos.
+ * Canonical acquisition uses ONE QR shared across the whole marketplace.
+ * This reads source files only; never grants a product saleable status.
+ */
+function auditConsumerCatalog({catalog,registry,approved,routeExists=()=>false,qrExists=false,doorwayExists=false}) {
+  if(!Array.isArray(catalog?.products)||!Array.isArray(registry?.silos)||!Array.isArray(approved?.approved))
+    throw Error('INVALID_CONSUMER_INPUT');
+  const approvedIds=new Set(approved.approved.map(o=>String(o.product_id||'')));
+  const seen=new Set();
+  const products=catalog.products.map(p=>{
+    const id=String(p.id||'');
+    if(!id||seen.has(id))throw Error('DUPLICATE_OR_MISSING_PRODUCT_ID');
+    seen.add(id);
+    const declared=p.checkout_available===true;
+    const validLink=typeof p.checkout_url==='string' && /^https:\/\/buy\.stripe\.com\/[A-Za-z0-9]+$/.test(p.checkout_url);
+    const held=p.status==='held'||p.status==='gated'||p.checkout_available===false;
+    const delivery=String(p.delivery_test_status||'UNKNOWN');
+    const approvedRecord=approvedIds.has(id);
+    let state='HELD_NOT_OFFERED';
+    if(!held&&declared&&!validLink)state='CLAIMED_CHECKOUT_WITHOUT_VALID_LINK';
+    else if(!held&&declared)state='UNVERIFIED_END_TO_END_DELIVERY';
+    else if(!held)state='NOT_OFFERED';
+    return {product_id:id,silo:String(p.category||'UNKNOWN'),declared_checkout:declared,
+      has_stripe_link:validLink,operator_approved_record:approvedRecord,
+      fulfillment_test_source_state:delivery,
+      verdict:state,independently_sellable:false,
+      checks_required:['live_url_reachable','real_inventory_or_owned_asset','owner_approval','buyer_input_contract',
+        'paid_webhook_or_payment_verification','real_delivery_and_retrieval','refund_and_dispute_process']};
+  });
+  const routes=registry.silos.map(x=>{
+    const path=String(x.route||'');
+    const safe=/^\/[a-zA-Z0-9_\/.-]+$/.test(path)&&!path.includes('..');
+    return {silo_id:x.id,declared_route:path,
+      matching_static_file:safe?Boolean(routeExists(path)):false,
+      live_http_status:'UNKNOWN'};
+  });
+  return {schema:'BECK/CONSUMER-READINESS-AUDIT/v1',
+    scope:'ALL_DECLARED_PRODUCTS_AND_SEED_SILO_ROUTES',
+    silo_capacity_limit:null,
+    source_registered_seed_count:routes.length,
+    checked_product_count:products.length,
+    declared_checkout_count:products.filter(x=>x.declared_checkout).length,
+    independently_verified_sellable_count:0,
+    independently_verified_sellable_truth:'UNKNOWN_NOT_TESTED',
+    source_route_gaps:routes.filter(x=>!x.matching_static_file).length,
+    canonical_qr:{policy:'ONE_PRINT_ACQUISITION_CODE_NOT_PER_PRODUCT',
+      source_asset_present:Boolean(qrExists),source_doorway_present:Boolean(doorwayExists),
+      target_runtime_reachable:'UNKNOWN'},
+    no_purchase_actions_performed:true,
+    notes:['A source flag is not a delivery receipt.','Static route absence is not proof a dynamic route is unavailable.',
+      'Approval and delivery must be checked against live independent evidence before public saleability claims.'],
+    routes,products};
+}
+
 function assemble({registry, approved, live, products={}, watch=[], now='1970-01-01T00:00:00.000Z', sourceHashes={}}) {
   if (!Array.isArray(registry?.silos)) throw Error('INVALID_SILO_REGISTRY');
   if (!Array.isArray(approved?.approved)) throw Error('INVALID_APPROVED_OFFERS');
@@ -113,11 +168,30 @@ function generate(root=ROOT) {
     catch(e){if(e.code!=='ENOENT')throw e;}
   }
   const report=assemble({registry:registry.value,approved:approved.value,live:live.value,products,watch:watch.value.lanes,now:new Date().toISOString(),sourceHashes:hashes});
+  // Consumer source audit is private and non-mutating. Dynamic routes require live checks separately.
+  const publicRoot=path.resolve(root,'..','public');
+  const sourceCatalog=read(path.resolve(root,'..'),'public/catalog.json');
+  report.consumer_readiness=auditConsumerCatalog({
+    catalog:sourceCatalog.value,registry:registry.value,approved:approved.value,
+    routeExists:(route)=>{
+      const rel=String(route).replace(/^\/+/,'');
+      if(rel.includes('..'))return false;
+      const full=path.resolve(publicRoot,rel);
+      if(!(full===publicRoot||full.startsWith(publicRoot+path.sep)))return false;
+      return fs.existsSync(full)&&fs.statSync(full).isFile() ||
+        fs.existsSync(path.join(full,'index.html')) && fs.statSync(path.join(full,'index.html')).isFile();
+    },
+    qrExists:fs.existsSync(path.join(publicRoot,'qr','canonical.svg')),
+    doorwayExists:fs.existsSync(path.join(publicRoot,'go','index.html'))
+  });
+  report.source_sha256['public/catalog.json']=sourceCatalog.sha256;
+
   const dir=path.join(root,'data','cash-closure');fs.mkdirSync(dir,{recursive:true});
   fs.writeFileSync(path.join(dir,'board.json'),JSON.stringify(report,null,2)+'\n');
   fs.writeFileSync(path.join(dir,'board.html'),render(report));
+  fs.writeFileSync(path.join(dir,'consumer-readiness.json'),JSON.stringify(report.consumer_readiness,null,2)+'\n');
   process.stdout.write(JSON.stringify({status:'PRIVATE_BOARD_CREATED',counts:report.counts,top:report.next_human_action,html:'data/cash-closure/board.html'})+'\n');
   return report;
 }
 if(require.main===module) generate();
-module.exports={assemble,statusOf,render,generate};
+module.exports={assemble,statusOf,render,generate,auditConsumerCatalog};
