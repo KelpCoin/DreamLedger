@@ -8,10 +8,14 @@ const SOURCE = path.join(ROOT, 'website', 'mtg-catalog.html');
 const PROOF = path.join(ROOT, 'PROOF-MTG-COMMERCE-SURFACE.json');
 const MARKER = 'data-dreamledger-mtg-commerce-v2';
 
-function writeProof() {
+function writeProof(status = 'PASS') {
   const proof = {
     schema: 'BEC-PRIME/MTG-COMMERCE-SURFACE/v2',
-    status: 'PASS',
+    status,
+    legacy_render_patch_applied: status === 'PASS',
+    // Modern template has a separate detail-page flow; this patch cannot
+    // certify its checkout or stock truth just because the HTML exists.
+    checkout_verified: false,
     source: 'BEC-PRIME/website/mtg-catalog.html',
     marker: MARKER,
     route: '/mtg',
@@ -41,7 +45,19 @@ function patch() {
 
   const start = html.indexOf('function render(items){');
   const end = html.indexOf('async function load(){', start);
-  if (start < 0 || end < 0) throw new Error('MTG render function boundary not found');
+  if (start < 0 || end < 0) {
+    // The modern deck-grid template replaced the old render(items) DOM and
+    // embeds no such function. DO NOT splice the legacy renderer into it.
+    // Safely skip an obsolete MTG-only presentation patch without blocking
+    // the niche-agnostic commerce compiler for other silos.
+    if (html.includes('id="grid"') && html.includes('const decks=(data.products||[]).filter(isPhysical);') &&
+        html.includes('See cards &amp; buy')) {
+      console.log('MTG_LEGACY_PATCH_SKIPPED_MODERN_TEMPLATE');
+      writeProof('SKIPPED_MODERN_TEMPLATE_CHECKOUT_UNVERIFIED');
+      return;
+    }
+    throw new Error('MTG render function boundary not found; unknown template remains BLOCKED');
+  }
 
   const render = String.raw`function render(items){
 const decks=items.filter(isMtg);
