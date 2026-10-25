@@ -29,6 +29,8 @@ on:
       - "public/quote-comparison/**"
       - "public/portfolio/supplier-quote-comparison.html"
       - "ops/migration/cloudflare-preview/**"
+      - "ops/migration/vercel-preview-contract.test.mjs"
+      - "vercel.json"
       - "ops/migration/supabase-to-neon/**"
       - "ops/migration/README.md"
       - "BEC-PRIME/catalog/featured-offer.json"
@@ -63,6 +65,8 @@ on:
       - "public/quote-comparison/**"
       - "public/portfolio/supplier-quote-comparison.html"
       - "ops/migration/cloudflare-preview/**"
+      - "ops/migration/vercel-preview-contract.test.mjs"
+      - "vercel.json"
       - "ops/migration/supabase-to-neon/**"
       - "ops/migration/README.md"
       - "BEC-PRIME/catalog/featured-offer.json"
@@ -89,6 +93,8 @@ jobs:
           node --check ops/migration/cloudflare-preview/build-preview.mjs
           node --check ops/migration/cloudflare-preview/smoke-preview.mjs
           node --check ops/migration/cloudflare-preview/_worker.js
+      - name: Verify Vercel preview blocks unported Render/Supabase routes
+        run: node --test ops/migration/vercel-preview-contract.test.mjs
       - name: Verify source backup tooling is read-only
         run: |
           set -euo pipefail
