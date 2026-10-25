@@ -1,11 +1,11 @@
 'use strict';
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { compile, validateProduct } = require('./CompileChannelSyndication');
+const { compile, compileMany, validateProduct } = require('./CompileChannelSyndication');
 
 const base = {
   product_id: 'TEST-DIGITAL-001',
-  silo_id: 'SILO_DREAMLEDGER',
+  silo_id: 'digital_goods',
   title: 'Synthetic sample report',
   description: 'Synthetic fixture only; not a real offer.',
   product_type: 'digital_diagnostic',
@@ -45,6 +45,23 @@ test('dedupe keys are stable across timestamps but change when content changes',
   assert.deepEqual(a.channels.map(c => c.dedupe_key), b.channels.map(c => c.dedupe_key));
   const changed = compile({ ...base, title: 'Changed title' }, undefined, '2026-10-27T00:00:00.000Z');
   assert.notDeepEqual(a.channels.map(c => c.dedupe_key), changed.channels.map(c => c.dedupe_key));
+});
+
+test('batch fan-out handles multiple products in one run and rejects duplicate IDs', () => {
+  const second = { ...base, product_id: 'TEST-DIGITAL-002', title: 'Second synthetic sample' };
+  const r = compileMany([base, second], undefined, '2026-10-26T00:00:00.000Z');
+  assert.equal(r.counts.products_considered, 2);
+  assert.equal(r.counts.published, 0);
+  assert.equal(r.products.length, 2);
+  assert.throws(() => compileMany([base, base]), /DUPLICATE_PRODUCT_ID/);
+});
+
+test('adult silo is blocked and channel routing uses per-channel allowlists', () => {
+  assert.throws(() => validateProduct({ ...base, silo_id: 'amplissa' }), /BLOCKED_SILO_ID/);
+  const mtg = { ...base, silo_id: 'mtg', product_type: 'physical_goods', inventory_count: 1 };
+  const r = compile(mtg, undefined, '2026-10-26T00:00:00.000Z');
+  assert.ok(r.channels.some(c => c.channel_id === 'trademe' && c.status === 'STAGED_DRAFT'));
+  assert.ok(r.channels.filter(c => c.channel_id === 'patreon_shop').every(c => c.status === 'SKIPPED_INCOMPATIBLE' || c.status === 'SKIPPED_INCOMPATIBLE'));
 });
 
 test('output is explicitly non-publishing and non-financial', () => {
