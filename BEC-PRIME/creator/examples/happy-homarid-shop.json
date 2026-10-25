@@ -1,0 +1,21 @@
+{
+  "schema": "BECK/CREATOR-BRIEF/v1",
+  "silo_id": "happy-homarid",
+  "source_id": "commander-diagnostic-first-slot",
+  "brand": "Happy Homarid",
+  "audience": "Commander players",
+  "title": "Commander Deck Diagnostic | Personalised Written Review",
+  "thesis": "Your Commander deck looks good on paper, but is it doing what you built it to do?",
+  "body": "A focused written review covering mana base, curve, draw, ramp, interaction, win conditions, weak links and prioritised improvements. After your Patreon Shop purchase, send a public Moxfield or Archidekt decklist through Patreon messages. This is a custom manual report, not a live call or an instant download.",
+  "rights": "owned",
+  "evidence_refs": [
+    "repo:BEC-PRIME/catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json",
+    "https://support.patreon.com/hc/en-us/articles/16303719836813-Selling-one-time-purchases-on-Patreon"
+  ],
+  "voice_profile_id": "founder-public-v1",
+  "product": {
+    "rail": "patreon_shop",
+    "price_nzd": 29,
+    "delivery_terms": "Report delivered through Patreon messages within 24 hours after receipt of a complete accessible decklist. If unable to fulfil, arrange an appropriate remedy or refund."
+  }
+}
