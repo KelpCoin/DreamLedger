@@ -14,7 +14,7 @@
         "Production contract verification still fails with STRIPE_LINK_DRIFT and PRODUCT_NOT_SELLABLE because canonical Commander Diagnostic is held while approved/featured offer metadata still advertises an active live Stripe link",
         "Read-only production checks returned HTTP 503 for DreamLedger public endpoints"
       ],
-      "blocker": "Render DreamLedger1 is suspended by billing controls. Separately, the Commander Diagnostic product is held while approved/featured offer metadata conflicts with that held state. Do not silently reactivate or mutate payment links to make CI green."
+      "blocker": "DreamLedger1 is suspended by billing controls. The user's standing migration direction is to move away from Render/Supabase, so do not assume authorization to pay or restore Render. The migration PR remains draft/unmerged. Separately, Commander Diagnostic is held while approved/featured metadata advertises an active live Stripe link; do not silently reactivate or mutate checkout."
     },
     {
       "id": 2,
@@ -58,7 +58,7 @@
         "Read-only checks returned HTTP 503 for dreamledger.org/billboard, dreamledger1.onrender.com/healthz, dreamledger1.onrender.com/billboard and dreamledger.org/api/agent-bridge/manifest",
         "Render service DreamLedger1 (srv-d8ud55lckfvc73f1t4eg) is marked suspended with suspenders=[billing]"
       ],
-      "blocker": "Production service is suspended by billing controls; external buyer checkout, settlement and delivery cannot be verified. No sale or revenue is claimed."
+      "blocker": "Production service is suspended by billing controls and migration away from Render/Supabase is not yet verified. External buyer checkout, settlement and delivery cannot be verified until an approved production target is healthy."
     }
   ],
   "truth": {
@@ -68,6 +68,6 @@
     "deployments_performed": false,
     "marketplace_listings_created": false
   },
-  "next_unblocking_action": "Restore Render billing/service availability without deleting data; then rerun production health checks before any public listing or transaction.",
+  "next_unblocking_action": "Complete the already-requested hosting/data migration away from Render and Supabase using the migration PR and connected provider inventory; preserve financial history, verify read/write parity and recovery, and do not switch public traffic or delete source resources until independently verified and explicitly approved. Then resolve the held Commander Diagnostic versus active-link metadata conflict.",
   "repository_head": "20e79a03f1b31817f1010e99483dbb745e706eae"
 }
