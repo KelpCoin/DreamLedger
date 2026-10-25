@@ -61,7 +61,7 @@ test('adult silo is blocked and channel routing uses per-channel allowlists', ()
   const mtg = { ...base, silo_id: 'mtg', product_type: 'physical_goods', inventory_count: 1 };
   const r = compile(mtg, undefined, '2026-10-26T00:00:00.000Z');
   assert.ok(r.channels.some(c => c.channel_id === 'trademe' && c.status === 'STAGED_DRAFT'));
-  assert.ok(r.channels.filter(c => c.channel_id === 'patreon_shop').every(c => c.status === 'SKIPPED_INCOMPATIBLE' || c.status === 'SKIPPED_INCOMPATIBLE'));
+  assert.equal(r.channels.find(c => c.channel_id === 'patreon_shop').status, 'SKIPPED_INCOMPATIBLE');
 });
 
 test('output is explicitly non-publishing and non-financial', () => {
