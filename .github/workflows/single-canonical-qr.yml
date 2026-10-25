@@ -1,0 +1,34 @@
+name: BECK single canonical QR integrity
+on:
+  pull_request:
+    paths:
+      - 'public/qr/canonical.svg'
+      - 'public/assets/qr-canonical.svg'
+      - 'BEC-PRIME/compiled/website/canonical-qr.html'
+      - 'BEC-PRIME/distribution/QR-DISTRIBUTION-MATRIX.json'
+      - 'ops/distribution/QR_CANONICAL_DISTRIBUTION.md'
+      - 'BEC-PRIME/scripts/single-canonical-qr.test.js'
+      - '.github/workflows/single-canonical-qr.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'public/qr/canonical.svg'
+      - 'public/assets/qr-canonical.svg'
+      - 'BEC-PRIME/compiled/website/canonical-qr.html'
+      - 'BEC-PRIME/distribution/QR-DISTRIBUTION-MATRIX.json'
+      - 'ops/distribution/QR_CANONICAL_DISTRIBUTION.md'
+      - 'BEC-PRIME/scripts/single-canonical-qr.test.js'
+      - '.github/workflows/single-canonical-qr.yml'
+permissions:
+  contents: read
+jobs:
+  immutable-qr-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Protect one QR across all silos and deployments
+        run: node --test BEC-PRIME/scripts/single-canonical-qr.test.js
