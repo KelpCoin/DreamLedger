@@ -1,13 +1,41 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "git": {"deploymentEnabled": false},
-  "buildCommand": "node -e \"const fs=require('fs');fs.mkdirSync('public',{recursive:true});fs.copyFileSync('index.html','public/index.html')\"",
-  "outputDirectory": "public",
-  "functions": {
-    "api/**/*.ts": {"maxDuration":30,"memory":1024}
+  "git": {
+    "deploymentEnabled": false
   },
-  "regions": ["syd1"],
-  "rewrites": [
-    {"source":"/","destination":"/index.html"}
+  "buildCommand": "node ops/migration/cloudflare-preview/build-preview.mjs",
+  "installCommand": "echo BECK_STATIC_MIGRATION_PREVIEW_NO_INSTALL",
+  "outputDirectory": "ops/migration/cloudflare-preview/dist",
+  "regions": [
+    "syd1"
+  ],
+  "routes": [
+    {
+      "src": "^/api(?:/.*)?$",
+      "status": 503,
+      "headers": {
+        "Cache-Control": "no-store",
+        "X-BECK-Migration": "dynamic-api-not-yet-ported"
+      }
+    },
+    {
+      "src": "^/(?:healthz|stripe-webhook|webhook)(?:/.*)?$",
+      "status": 503,
+      "headers": {
+        "Cache-Control": "no-store",
+        "X-BECK-Migration": "payment-backend-not-yet-ported"
+      }
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "^/$",
+      "dest": "/index.html"
+    },
+    {
+      "src": ".*",
+      "status": 404
+    }
   ]
 }
