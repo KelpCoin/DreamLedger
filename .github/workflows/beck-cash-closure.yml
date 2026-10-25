@@ -35,6 +35,17 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
+      - name: Reject publicly bundled paid digital assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          # A private paywall is ineffective while its underlying files are published.
+          if [ -d public/downloads ] && find public/downloads -type f \( -iname '*.zip' -o -iname '*.pdf' -o -iname '*.epub' \) -print -quit | grep -q .; then
+            echo "::error::PAID_DIGITAL_ASSET_IN_PUBLIC_TREE"
+            exit 2
+          fi
+          echo "PUBLIC_PAID_DOWNLOAD_BUNDLE=ABSENT"
+
       - name: Test evidence gates and silo isolation
         working-directory: BEC-PRIME
         run: node --test scripts/Build-CashClosureBoard.test.js lib/PaidDownloadGate.test.js
