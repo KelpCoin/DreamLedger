@@ -1,10 +1,3245 @@
 {
   "schema_version": "word-bank-v1",
   "words": {
-    "cinematic": { "bank": "styles", "base_weight": 1.2, "current_weight": 1.2, "half_life_days": 30, "upvotes": 0, "downvotes": 0 },
-    "collector": { "bank": "styles", "base_weight": 1.0, "current_weight": 1.0, "half_life_days": 45, "upvotes": 0, "downvotes": 0 },
-    "commander": { "bank": "subjects", "base_weight": 1.0, "current_weight": 1.0, "half_life_days": 90, "upvotes": 0, "downvotes": 0 },
-    "artifact": { "bank": "subjects", "base_weight": 1.0, "current_weight": 1.0, "half_life_days": 45, "upvotes": 0, "downvotes": 0 },
-    "tabletop": { "bank": "settings", "base_weight": 1.0, "current_weight": 1.0, "half_life_days": 60, "upvotes": 0, "downvotes": 0 }
+    "cinematic": {
+      "bank": "styles",
+      "base_weight": 1.2,
+      "current_weight": 1.2,
+      "half_life_days": 30,
+      "upvotes": 0,
+      "downvotes": 0
+    },
+    "collector": {
+      "bank": "styles",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 45,
+      "upvotes": 0,
+      "downvotes": 0
+    },
+    "commander": {
+      "bank": "subjects",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0
+    },
+    "artifact": {
+      "bank": "subjects",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 45,
+      "upvotes": 0,
+      "downvotes": 0
+    },
+    "tabletop": {
+      "bank": "settings",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 60,
+      "upvotes": 0,
+      "downvotes": 0
+    },
+    "independent online retailer": {
+      "bank": "commerce__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "commerce",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "secondhand-goods reseller": {
+      "bank": "commerce__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "commerce",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "small online merchant": {
+      "bank": "commerce__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "commerce",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "local multi-channel seller": {
+      "bank": "commerce__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "commerce",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "stale inventory across sales channels": {
+      "bank": "commerce__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "commerce",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "buyers abandoning unclear product pages": {
+      "bank": "commerce__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "commerce",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "returns driven by missing item details": {
+      "bank": "commerce__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "commerce",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "poor attribution of profitable product families": {
+      "bank": "commerce__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "commerce",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "inventory-synced product feed": {
+      "bank": "commerce__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "commerce",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "proof-linked listing enrichment": {
+      "bank": "commerce__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "commerce",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "catalogue discrepancy detector": {
+      "bank": "commerce__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "commerce",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "channel-aware checkout handoff": {
+      "bank": "commerce__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "commerce",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "verified listing data bundle": {
+      "bank": "commerce__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "commerce",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "inventory reconciliation record": {
+      "bank": "commerce__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "commerce",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "source-backed product description set": {
+      "bank": "commerce__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "commerce",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "channel-specific catalogue draft": {
+      "bank": "commerce__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "commerce",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "item condition and rights check": {
+      "bank": "commerce__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "commerce",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "stock count plus order reconciliation": {
+      "bank": "commerce__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "commerce",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "buyer delivery and refund trace": {
+      "bank": "commerce__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "commerce",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "sku-to-channel attribution receipt": {
+      "bank": "commerce__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "commerce",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "owner comparing supplier quotes": {
+      "bank": "procurement__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "procurement",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "independent import purchasing team": {
+      "bank": "procurement__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "procurement",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "local trades business buyer": {
+      "bank": "procurement__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "procurement",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "small manufacturer sourcing parts": {
+      "bank": "procurement__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "procurement",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "incompatible supplier inclusions": {
+      "bank": "procurement__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "procurement",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "hidden freight and import costs": {
+      "bank": "procurement__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "procurement",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "stale quoted lead times": {
+      "bank": "procurement__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "procurement",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "missing warranty and payment conditions": {
+      "bank": "procurement__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "procurement",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "line-item comparison engine": {
+      "bank": "procurement__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "procurement",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "landed-cost calculator": {
+      "bank": "procurement__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "procurement",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "quote discrepancy tracker": {
+      "bank": "procurement__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "procurement",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "supplier terms evidence matrix": {
+      "bank": "procurement__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "procurement",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "auditable quote comparison sheet": {
+      "bank": "procurement__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "procurement",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "currency-dated cost estimate": {
+      "bank": "procurement__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "procurement",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "follow-up question register": {
+      "bank": "procurement__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "procurement",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "source-linked bid comparison package": {
+      "bank": "procurement__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "procurement",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "original quote provenance": {
+      "bank": "procurement__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "procurement",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "calculation audit and exceptions": {
+      "bank": "procurement__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "procurement",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "explicit uncertainty around duties": {
+      "bank": "procurement__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "procurement",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "human acceptance of comparison scope": {
+      "bank": "procurement__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "procurement",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "local event promoter": {
+      "bank": "dooh__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "dooh",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "independent shop advertiser": {
+      "bank": "dooh__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "dooh",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "licensed screen-network operator": {
+      "bank": "dooh__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "dooh",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "regional advertising reseller": {
+      "bank": "dooh__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "dooh",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "unverified screen playback claims": {
+      "bank": "dooh__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "dooh",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "opaque placement availability": {
+      "bank": "dooh__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "dooh",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "campaign creative rights uncertainty": {
+      "bank": "dooh__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "dooh",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "missing qr attribution between screens and sales": {
+      "bank": "dooh__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "dooh",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "rights-gated placement inventory": {
+      "bank": "dooh__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "dooh",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "proof-of-play receipt chain": {
+      "bank": "dooh__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "dooh",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "single canonical qr campaign attribution": {
+      "bank": "dooh__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "dooh",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "reviewable media booking handshake": {
+      "bank": "dooh__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "dooh",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "unpublished campaign mockup": {
+      "bank": "dooh__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "dooh",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "media-rights validation packet": {
+      "bank": "dooh__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "dooh",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "placement proof reporting template": {
+      "bank": "dooh__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "dooh",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "screen booking acceptance record": {
+      "bank": "dooh__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "dooh",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "licensed screen owner confirmation": {
+      "bank": "dooh__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "dooh",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "human-approved creative and duration": {
+      "bank": "dooh__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "dooh",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "actual playback evidence only": {
+      "bank": "dooh__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "dooh",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "recorded booking and refund policy": {
+      "bank": "dooh__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "dooh",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "original avatar accessory collector": {
+      "bank": "dreammeez__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "dreammeez",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "virtual-world character designer": {
+      "bank": "dreammeez__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "dreammeez",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "streamer seeking original visuals": {
+      "bank": "dreammeez__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "dreammeez",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "digital identity customisation buyer": {
+      "bank": "dreammeez__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "dreammeez",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "unlicensed avatar asset reuse": {
+      "bank": "dreammeez__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "dreammeez",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "unclear wearable compatibility": {
+      "bank": "dreammeez__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "dreammeez",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "unsupported account entitlement": {
+      "bank": "dreammeez__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "dreammeez",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "unverifiable ownership after checkout": {
+      "bank": "dreammeez__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "dreammeez",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "original visual asset compiler": {
+      "bank": "dreammeez__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "dreammeez",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "compatibility-tagged digital inventory": {
+      "bank": "dreammeez__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "dreammeez",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "purchase-to-entitlement mapping": {
+      "bank": "dreammeez__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "dreammeez",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "private downloadable asset gate": {
+      "bank": "dreammeez__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "dreammeez",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "original avatar style concept": {
+      "bank": "dreammeez__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "dreammeez",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "platform-compatible export candidate": {
+      "bank": "dreammeez__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "dreammeez",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "rights-reviewed accessory preview": {
+      "bank": "dreammeez__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "dreammeez",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "entitlement-gated digital asset": {
+      "bank": "dreammeez__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "dreammeez",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "originality and ip license record": {
+      "bank": "dreammeez__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "dreammeez",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "verified target-platform format": {
+      "bank": "dreammeez__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "dreammeez",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "private download access verification": {
+      "bank": "dreammeez__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "dreammeez",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "buyer entitlement and revocation evidence": {
+      "bank": "dreammeez__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "dreammeez",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "independent video creator": {
+      "bank": "creator__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "creator",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "small community publisher": {
+      "bank": "creator__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "creator",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "original digital artist": {
+      "bank": "creator__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "creator",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "niche education creator": {
+      "bank": "creator__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "creator",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "inconsistent multi-platform publishing": {
+      "bank": "creator__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "creator",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "low reuse of owned media": {
+      "bank": "creator__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "creator",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "lost provenance for licensed clips": {
+      "bank": "creator__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "creator",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "manual conversion from long to short form": {
+      "bank": "creator__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "creator",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "source-backed content remix stencil": {
+      "bank": "creator__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "creator",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "rights-aware publication queue": {
+      "bank": "creator__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "creator",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "asset-to-channel repurposing recipe": {
+      "bank": "creator__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "creator",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "human-approved creative variant compiler": {
+      "bank": "creator__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "creator",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "multi-platform draft packet": {
+      "bank": "creator__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "creator",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "original caption and thumbnail concepts": {
+      "bank": "creator__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "creator",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "clip rights and credit manifest": {
+      "bank": "creator__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "creator",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "publishing calendar candidate": {
+      "bank": "creator__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "creator",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "underlying content ownership record": {
+      "bank": "creator__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "creator",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "no public post before human approval": {
+      "bank": "creator__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "creator",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "source and licensing attribution": {
+      "bank": "creator__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "creator",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "tracked publication and sale outcomes": {
+      "bank": "creator__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "creator",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "self-serve small-business operator": {
+      "bank": "digital_products__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "digital_products",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "budget-conscious household planner": {
+      "bank": "digital_products__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "digital_products",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "independent maker": {
+      "bank": "digital_products__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "digital_products",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "home inventory organiser": {
+      "bank": "digital_products__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "digital_products",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "repetitive manual data entry": {
+      "bank": "digital_products__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "digital_products",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "hard-to-reuse personal templates": {
+      "bank": "digital_products__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "digital_products",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "confusing one-off utility workflows": {
+      "bank": "digital_products__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "digital_products",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "missing offline export support": {
+      "bank": "digital_products__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "digital_products",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "deterministic utility stencil": {
+      "bank": "digital_products__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "digital_products",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "editable local-first template": {
+      "bank": "digital_products__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "digital_products",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "reproducible calculator module": {
+      "bank": "digital_products__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "digital_products",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "privacy-preserving export adapter": {
+      "bank": "digital_products__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "digital_products",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "working editable digital template": {
+      "bank": "digital_products__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "digital_products",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "documented local utility package": {
+      "bank": "digital_products__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "digital_products",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "reusable rights-owned digital kit": {
+      "bank": "digital_products__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "digital_products",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "downloadable versioned file bundle": {
+      "bank": "digital_products__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "digital_products",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "file opens and output checks pass": {
+      "bank": "digital_products__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "digital_products",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "license and source rights recorded": {
+      "bank": "digital_products__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "digital_products",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "paid file storage remains private": {
+      "bank": "digital_products__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "digital_products",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "post-purchase retrieval verified": {
+      "bank": "digital_products__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "digital_products",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "small team workflow owner": {
+      "bank": "automation__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "automation",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "local operations manager": {
+      "bank": "automation__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "automation",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "independent online service operator": {
+      "bank": "automation__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "automation",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "creator running multiple channels": {
+      "bank": "automation__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "automation",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "duplicate tasks from webhook retries": {
+      "bank": "automation__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "automation",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "broken cross-app handoffs": {
+      "bank": "automation__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "automation",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "manual copying between systems": {
+      "bank": "automation__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "automation",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "no visible retry or failure receipt": {
+      "bank": "automation__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "automation",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "idempotent workflow stencil": {
+      "bank": "automation__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "automation",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "bounded agent bridge handoff": {
+      "bank": "automation__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "automation",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "typed event normalization layer": {
+      "bank": "automation__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "automation",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "failure-to-review packet routing": {
+      "bank": "automation__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "automation",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "configuration-ready workflow recipe": {
+      "bank": "automation__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "automation",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "replayable event-to-outcome sample": {
+      "bank": "automation__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "automation",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "error-classification automation module": {
+      "bank": "automation__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "automation",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "human-approved deployment candidate": {
+      "bank": "automation__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "automation",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "realistic consented input replay": {
+      "bank": "automation__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "automation",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "no duplicate external side effects": {
+      "bank": "automation__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "automation",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "bounded retries and rollback": {
+      "bank": "automation__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "automation",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "independently observed successful delivery": {
+      "bank": "automation__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "automation",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "small supplier proving delivery": {
+      "bank": "evidence__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "evidence",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "independent project auditor": {
+      "bank": "evidence__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "evidence",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "creator licensing owned work": {
+      "bank": "evidence__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "evidence",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "team reviewing ai agent actions": {
+      "bank": "evidence__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "evidence",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "claims without source receipts": {
+      "bank": "evidence__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "evidence",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "broken chain of artifact custody": {
+      "bank": "evidence__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "evidence",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "missing reviewer authority trail": {
+      "bank": "evidence__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "evidence",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "no reproducible decision context": {
+      "bank": "evidence__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "evidence",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "hash-chained evidencegraph record": {
+      "bank": "evidence__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "evidence",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "gauntlet review evidence stencil": {
+      "bank": "evidence__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "evidence",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "provenance and replay manifest": {
+      "bank": "evidence__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "evidence",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "least-privilege approval receipt": {
+      "bank": "evidence__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "evidence",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "traceable artifact dossier": {
+      "bank": "evidence__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "evidence",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "bounded evidence export bundle": {
+      "bank": "evidence__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "evidence",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "verifiable decision record": {
+      "bank": "evidence__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "evidence",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "reviewable exception and rollback packet": {
+      "bank": "evidence__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "evidence",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "source independently corroborated": {
+      "bank": "evidence__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "evidence",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "signature tied to correct bytes": {
+      "bank": "evidence__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "evidence",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "authority verified before effects": {
+      "bank": "evidence__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "evidence",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "review does not imply economic truth": {
+      "bank": "evidence__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "evidence",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "team coordinating mixed ai tools": {
+      "bank": "agent_bridge__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "agent_bridge",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "developer managing review agents": {
+      "bank": "agent_bridge__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "agent_bridge",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "family-owned multi-device project": {
+      "bank": "agent_bridge__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "agent_bridge",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "collaborator handing off bounded tasks": {
+      "bank": "agent_bridge__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "agent_bridge",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "agent work lost between devices": {
+      "bank": "agent_bridge__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "agent_bridge",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "model output lacking action evidence": {
+      "bank": "agent_bridge__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "agent_bridge",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "unbounded autonomous side effects": {
+      "bank": "agent_bridge__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "agent_bridge",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "permissions drifting across collaborators": {
+      "bank": "agent_bridge__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "agent_bridge",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "provider-neutral task envelope": {
+      "bank": "agent_bridge__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "agent_bridge",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "mutual boss-chain critique": {
+      "bank": "agent_bridge__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "agent_bridge",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "signed scope-bound action proposal": {
+      "bank": "agent_bridge__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "agent_bridge",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "append-only agent bridge receipt": {
+      "bank": "agent_bridge__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "agent_bridge",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "reviewable cross-model work packet": {
+      "bank": "agent_bridge__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "agent_bridge",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "model-independent exchange schema": {
+      "bank": "agent_bridge__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "agent_bridge",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "bounded execution proposal": {
+      "bank": "agent_bridge__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "agent_bridge",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "accepted task completion transcript": {
+      "bank": "agent_bridge__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "agent_bridge",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "distinct reviewer identities observed": {
+      "bank": "agent_bridge__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "agent_bridge",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "action host permissions explicit": {
+      "bank": "agent_bridge__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "agent_bridge",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "idempotent replay and failure trace": {
+      "bank": "agent_bridge__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "agent_bridge",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "owner-approved irreversible effects": {
+      "bank": "agent_bridge__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "agent_bridge",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "local inventory administrator": {
+      "bank": "data_refinery__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "data_refinery",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "supplier catalogue steward": {
+      "bank": "data_refinery__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "data_refinery",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "small-business csv user": {
+      "bank": "data_refinery__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "data_refinery",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "independent data reseller with rights": {
+      "bank": "data_refinery__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "data_refinery",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "duplicate and malformed csv rows": {
+      "bank": "data_refinery__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "data_refinery",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "unmapped merchant product identifiers": {
+      "bank": "data_refinery__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "data_refinery",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "incomplete provenance of data joins": {
+      "bank": "data_refinery__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "data_refinery",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "sensitive source data in public exports": {
+      "bank": "data_refinery__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "data_refinery",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "schema-pinned csv normalization": {
+      "bank": "data_refinery__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "data_refinery",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "deduplicated identifier resolver": {
+      "bank": "data_refinery__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "data_refinery",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "rights-gated data transformation": {
+      "bank": "data_refinery__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "data_refinery",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "row-level change receipt compiler": {
+      "bank": "data_refinery__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "data_refinery",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "validated normalized csv export": {
+      "bank": "data_refinery__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "data_refinery",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "issue and anomaly reconciliation file": {
+      "bank": "data_refinery__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "data_refinery",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "documented transformation manifest": {
+      "bank": "data_refinery__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "data_refinery",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "licensed structured data sample": {
+      "bank": "data_refinery__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "data_refinery",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "input-to-output row accounting": {
+      "bank": "data_refinery__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "data_refinery",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "source license and consent check": {
+      "bank": "data_refinery__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "data_refinery",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "private fields excluded from exports": {
+      "bank": "data_refinery__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "data_refinery",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "stable hash and rerun comparison": {
+      "bank": "data_refinery__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "data_refinery",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "local business needing a simple app": {
+      "bank": "app_factory__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "app_factory",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "niche hobby community organiser": {
+      "bank": "app_factory__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "app_factory",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "solo productivity tool customer": {
+      "bank": "app_factory__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "app_factory",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "existing platform seeking a tiny extension": {
+      "bank": "app_factory__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "app_factory",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "oversized apps for simple customer jobs": {
+      "bank": "app_factory__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "app_factory",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "missing acceptance tests": {
+      "bank": "app_factory__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "app_factory",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "expensive repetitive feature scaffolding": {
+      "bank": "app_factory__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "app_factory",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "fragile release and rollback processes": {
+      "bank": "app_factory__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "app_factory",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "bounded app scaffold from a stencil": {
+      "bank": "app_factory__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "app_factory",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "deterministic acceptance-test builder": {
+      "bank": "app_factory__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "app_factory",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "reusable ui and api component recipe": {
+      "bank": "app_factory__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "app_factory",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "evidence-gated deployment adapter": {
+      "bank": "app_factory__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "app_factory",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "working single-purpose app module": {
+      "bank": "app_factory__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "app_factory",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "installable original extension candidate": {
+      "bank": "app_factory__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "app_factory",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "tested source code package": {
+      "bank": "app_factory__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "app_factory",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "verified deployment preview": {
+      "bank": "app_factory__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "app_factory",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "tests exercise promised user journey": {
+      "bank": "app_factory__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "app_factory",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "license and dependencies accounted for": {
+      "bank": "app_factory__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "app_factory",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "actual target platform compatibility": {
+      "bank": "app_factory__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "app_factory",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "human approval before production release": {
+      "bank": "app_factory__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "app_factory",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "combat-sports statistics follower": {
+      "bank": "fightedge__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "fightedge",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "amateur performance analyst": {
+      "bank": "fightedge__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "fightedge",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "independent sports content publisher": {
+      "bank": "fightedge__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "fightedge",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "fan exploring event history": {
+      "bank": "fightedge__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "fightedge",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "unattributed fight-event statistics": {
+      "bank": "fightedge__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "fightedge",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "conflicting fighter records": {
+      "bank": "fightedge__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "fightedge",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "outdated results and rankings": {
+      "bank": "fightedge__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "fightedge",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "mixing speculative claims with observed facts": {
+      "bank": "fightedge__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "fightedge",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "rights-cleared public-record aggregator": {
+      "bank": "fightedge__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "fightedge",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "dated opponent comparison stencil": {
+      "bank": "fightedge__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "fightedge",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "source-conflict classification engine": {
+      "bank": "fightedge__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "fightedge",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "sports-history provenance ledger": {
+      "bank": "fightedge__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "fightedge",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "non-wagering statistical comparison": {
+      "bank": "fightedge__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "fightedge",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "traceable event-history timeline": {
+      "bank": "fightedge__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "fightedge",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "source-linked athlete overview": {
+      "bank": "fightedge__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "fightedge",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "historical trend visualization packet": {
+      "bank": "fightedge__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "fightedge",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "event date and source preserved": {
+      "bank": "fightedge__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "fightedge",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "rights and use terms verified": {
+      "bank": "fightedge__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "fightedge",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "injury and private data excluded": {
+      "bank": "fightedge__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "fightedge",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "no promised betting or fight outcome": {
+      "bank": "fightedge__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "fightedge",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "niche community organiser": {
+      "bank": "community__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "community",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "paid membership publisher": {
+      "bank": "community__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "community",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "local hobby group administrator": {
+      "bank": "community__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "community",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "creator managing supporter benefits": {
+      "bank": "community__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "community",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "confusing member entitlements": {
+      "bank": "community__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "community",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "manual moderation approval backlog": {
+      "bank": "community__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "community",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "accidental cross-community data leakage": {
+      "bank": "community__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "community",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "unsupported member export and cancellation": {
+      "bank": "community__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "community",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "isolated membership lifecycle stencil": {
+      "bank": "community__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "community",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "moderation queue with bounded controls": {
+      "bank": "community__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "community",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "versioned benefit entitlement rule": {
+      "bank": "community__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "community",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "permission-scoped group collaboration packet": {
+      "bank": "community__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "community",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "membership flow draft": {
+      "bank": "community__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "community",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "community onboarding configuration": {
+      "bank": "community__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "community",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "moderation review playbook template": {
+      "bank": "community__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "community",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "auditable supporter benefit registry": {
+      "bank": "community__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "community",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "separate community customer data": {
+      "bank": "community__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "community",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "age and jurisdiction requirements checked": {
+      "bank": "community__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "community",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "membership cancellation verified": {
+      "bank": "community__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "community",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "platform consent before user outreach": {
+      "bank": "community__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "community",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "self-guided adult learner": {
+      "bank": "education__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "education",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "independent skills tutor": {
+      "bank": "education__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "education",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "home study group": {
+      "bank": "education__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "education",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "creator selling original lessons": {
+      "bank": "education__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "education",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "fragmented course learning outcomes": {
+      "bank": "education__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "education",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "generic resources without practice": {
+      "bank": "education__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "education",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "missing progress measurement": {
+      "bank": "education__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "education",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "poor accessibility of digital learning kits": {
+      "bank": "education__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "education",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "outcome-first lesson stencil": {
+      "bank": "education__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "education",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "accessible micropractice generator": {
+      "bank": "education__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "education",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "adaptive review question bank": {
+      "bank": "education__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "education",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "versioned workbook compiler": {
+      "bank": "education__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "education",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "editable practice workbook draft": {
+      "bank": "education__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "education",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "small verified lesson module": {
+      "bank": "education__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "education",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "accessible self-check activity": {
+      "bank": "education__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "education",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "original illustrated concept outline": {
+      "bank": "education__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "education",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "facts checked against owned source": {
+      "bank": "education__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "education",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "accessible formats reviewed": {
+      "bank": "education__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "education",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "learner can complete promised exercise": {
+      "bank": "education__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "education",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "no unsupported qualification claim": {
+      "bank": "education__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "education",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "secondhand seller with physical stock": {
+      "bank": "marketplace__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "marketplace",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "buyer comparing local listings": {
+      "bank": "marketplace__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "marketplace",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "hobby micro-merchant": {
+      "bank": "marketplace__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "marketplace",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "independent seller onboarding to a marketplace": {
+      "bank": "marketplace__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "marketplace",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "duplicate product inventory claims": {
+      "bank": "marketplace__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "marketplace",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "untracked reserved units": {
+      "bank": "marketplace__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "marketplace",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "unclear shipping and pickup conditions": {
+      "bank": "marketplace__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "marketplace",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "missing seller verification and fulfillment evidence": {
+      "bank": "marketplace__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "marketplace",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "seller-scoped physical-copy id": {
+      "bank": "marketplace__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "marketplace",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "inventory reservation and expiry": {
+      "bank": "marketplace__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "marketplace",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "condition evidence listing template": {
+      "bank": "marketplace__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "marketplace",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "verified dispatch receipt mapping": {
+      "bank": "marketplace__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "marketplace",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "item-backed listing draft": {
+      "bank": "marketplace__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "marketplace",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "checkout-safe stock record": {
+      "bank": "marketplace__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "marketplace",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "condition and shipping disclosure": {
+      "bank": "marketplace__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "marketplace",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "seller acceptance workflow packet": {
+      "bank": "marketplace__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "marketplace",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "genuine available physical unit": {
+      "bank": "marketplace__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "marketplace",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "rights to sell and source evidence": {
+      "bank": "marketplace__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "marketplace",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "no oversell or duplicate listing": {
+      "bank": "marketplace__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "marketplace",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "payment tracking and delivery receipt": {
+      "bank": "marketplace__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "marketplace",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "independent software integrator": {
+      "bank": "licensing__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "licensing",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "original template publisher": {
+      "bank": "licensing__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "licensing",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "licensed dataset purchaser": {
+      "bank": "licensing__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "licensing",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "small developer tools team": {
+      "bank": "licensing__buyer",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "licensing",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "opaque permitted reuse conditions": {
+      "bank": "licensing__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "licensing",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "untracked versioned licenses": {
+      "bank": "licensing__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "licensing",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "poor license entitlement delivery": {
+      "bank": "licensing__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "licensing",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "unsafe public download links": {
+      "bank": "licensing__problem",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "licensing",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "artifact-permission matrix": {
+      "bank": "licensing__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "licensing",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "private signed download entitlement": {
+      "bank": "licensing__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "licensing",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "versioned asset bundle manifest": {
+      "bank": "licensing__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "licensing",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "machine-readable license receipt": {
+      "bank": "licensing__mechanism",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "licensing",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "reusable original licensed module": {
+      "bank": "licensing__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "licensing",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "license terms and usage manifest": {
+      "bank": "licensing__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "licensing",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "deliverable asset archive": {
+      "bank": "licensing__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "licensing",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "customer-specific access record": {
+      "bank": "licensing__deliverable",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "licensing",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "original authorship or lawful license": {
+      "bank": "licensing__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "licensing",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "scope and revocation captured": {
+      "bank": "licensing__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "licensing",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "private file protected server-side": {
+      "bank": "licensing__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "licensing",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    },
+    "actual buyer retrieval acknowledged": {
+      "bank": "licensing__proof",
+      "base_weight": 1.0,
+      "current_weight": 1.0,
+      "half_life_days": 90,
+      "upvotes": 0,
+      "downvotes": 0,
+      "silo": "licensing",
+      "evidence_class": "HYPOTHESIS_WORDING_NOT_BUYER_DEMAND"
+    }
   }
 }
