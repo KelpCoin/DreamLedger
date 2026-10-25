@@ -59,6 +59,7 @@ function adaptProduct(p, registry) {
   if (!sourceUrl) reasons.push('CANONICAL_PUBLIC_SOURCE_URL_MISSING');
   const silo = siloFor(p);
   if (!silo) reasons.push('SILO_ID_MISSING');
+  if (['amplissa', 'adult', 'adult_silo', 'amplissa_adult'].includes(String(silo || '').toLowerCase())) reasons.push('ADULT_SILO_REQUIRES_SEPARATE_ISOLATED_ENGINE');
   if (type === 'physical_goods' && (!Number.isInteger(Number(p.inventory)) || Number(p.inventory) < 1)) reasons.push('PHYSICAL_STOCK_NOT_PROVEN');
   if (reasons.length) return { product_id: id || null, name: p.name || null, status: 'BLOCKED', reasons };
   return {
