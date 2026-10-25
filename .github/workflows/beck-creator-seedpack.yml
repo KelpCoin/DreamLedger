@@ -1,0 +1,32 @@
+name: BECK Creator Factory Multi-Vessel Contract
+on:
+  pull_request:
+    paths:
+      - 'BEC-PRIME/data/creator/**'
+      - 'BEC-PRIME/creator/CreatorSeedPack.test.js'
+      - 'BEC-PRIME/creator/CreatorCommerceFactory.js'
+      - 'BEC-PRIME/creator/local_neural_bridge.py'
+      - 'BEC-PRIME/creator/test_local_neural_bridge.py'
+      - '.github/workflows/beck-creator-seedpack.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'BEC-PRIME/data/creator/**'
+      - 'BEC-PRIME/creator/CreatorSeedPack.test.js'
+      - 'BEC-PRIME/creator/CreatorCommerceFactory.js'
+      - '.github/workflows/beck-creator-seedpack.yml'
+permissions:
+  contents: read
+jobs:
+  offline-creator-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Execute existing creator renderer across 16 isolated vessels
+        run: node --test BEC-PRIME/creator/CreatorSeedPack.test.js
+      - name: Verify loopback-only local neural model bridge
+        run: python3 -m unittest discover -s BEC-PRIME/creator -p test_local_neural_bridge.py -v
