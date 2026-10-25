@@ -98,4 +98,81 @@ if (require.main === module) {
   process.exit(result.status === 'PASS' ? 0 : 1);
 }
 
-module.exports = { run };
+
+/*
+ * Consumer-release extension to the EXISTING Gauntlet.
+ * Cryptographic review receipts are not legal certification, buyer acceptance,
+ * an order, a human authorization, or independently observed delivery.
+ */
+const REQUIRED_CONSUMER_CHECKS = Object.freeze([
+  'rights_confirmed', 'claims_source_verified', 'specific_customer_value',
+  'silo_isolated', 'fulfillment_end_to_end_tested', 'marketplace_policy_checked'
+]);
+const BLOCKING_SEVERITIES = new Set(['HIGH','CRITICAL']);
+function stableJSON(value) {
+  if (Array.isArray(value)) return '[' + value.map(stableJSON).join(',') + ']';
+  if (value && typeof value === 'object') {
+    if (Object.getPrototypeOf(value) !== Object.prototype) throw new Error('NON_PLAIN_RECEIPT');
+    return '{' + Object.keys(value).sort().map(k => JSON.stringify(k)+':'+stableJSON(value[k])).join(',') + '}';
+  }
+  if (typeof value === 'string' || typeof value === 'boolean' || value === null) return JSON.stringify(value);
+  if (typeof value === 'number' && Number.isFinite(value)) return JSON.stringify(value);
+  throw new Error('INVALID_RECEIPT_VALUE');
+}
+function consumerRelease(product, receipt, trustedPublicKeys = {}, now = Date.now()) {
+  const failures = [];
+  const productHash = sha256(JSON.stringify(product));
+  function reject(code) { failures.push(code); }
+  if (!product || typeof product !== 'object' || !/^[A-Za-z0-9_-]{1,120}$/.test(product.id || '')) reject('INVALID_PRODUCT_ID');
+  if (!receipt || typeof receipt !== 'object' || Array.isArray(receipt)) reject('GAUNTLET_RECEIPT_MISSING');
+  else {
+    if (receipt.schema !== 'BECK/CONSUMER-GAUNTLET/v1') reject('INVALID_GAUNTLET_RECEIPT_SCHEMA');
+    if (receipt.verdict !== 'PASS') reject('GAUNTLET_NOT_PASS');
+    if (receipt.product_id !== product.id || receipt.product_sha256 !== productHash) reject('PRODUCT_HASH_MISMATCH');
+    if (!/^[a-f0-9]{64}$/.test(receipt.artifact_sha256 || '')) reject('DELIVERABLE_ARTIFACT_HASH_MISSING');
+    const checked = Date.parse(receipt.checked_at || '');
+    if (!Number.isFinite(checked) || checked > now + 300000 || checked < now - 7*86400000) reject('GAUNTLET_RECEIPT_STALE');
+    const checks = Array.isArray(receipt.checks) ? receipt.checks : [];
+    for (const id of REQUIRED_CONSUMER_CHECKS) {
+      const matches = checks.filter(c => c && c.id === id);
+      if (matches.length !== 1 || matches[0].status !== 'PASS' || !/^[a-f0-9]{64}$/.test(matches[0].evidence_sha256 || '')) reject('QUALITY_CHECK_MISSING_OR_FAIL:' + id);
+    }
+    // A warning about a genuinely blocking risk must NOT be ignored.
+    if (checks.some(c => c && (c.status === 'FAIL' || BLOCKING_SEVERITIES.has(c.severity)))) reject('HIGH_OR_FAILED_GAUNTLET_FINDING');
+    const key = trustedPublicKeys[receipt.issuer_id];
+    if (!key || typeof receipt.signature !== 'string' || !receipt.signature) reject('TRUSTED_REVIEW_SIGNATURE_MISSING');
+    else {
+      try {
+        const {signature, ...signed} = receipt;
+        const ok = crypto.verify(null, Buffer.from(stableJSON(signed),'utf8'), key, Buffer.from(signature,'base64'));
+        if (!ok) reject('BAD_REVIEW_SIGNATURE');
+      } catch(_) { reject('BAD_REVIEW_SIGNATURE'); }
+    }
+  }
+  const verdict = failures.length ? 'BLOCK' : 'PASS';
+  return {
+    status:verdict, failures, product_sha256:productHash,
+    gauntlet_receipt_sha256:receipt ? sha256(stableJSON(receipt)) : null,
+    human_approval:'SEPARATE_PREACTION_SIGNATURE_REQUIRED',
+    economic_proof:'NOT_ESTABLISHED'
+  };
+}
+// The original preaction.js gate is injected rather than cloned or weakened.
+// This binds the EXACT Gauntlet receipt and product bytes in the signed action
+// intent. A passing verdict still never executes a listing or spends money.
+function reviewBoundPublishIntent(product, receipt, trustedPublicKeys, preaction, options={}) {
+  const result = consumerRelease(product,receipt,trustedPublicKeys,options.now || Date.now());
+  if (result.status !== 'PASS') return {decision:'DENY',reason:'GAUNTLET_BLOCK',failures:result.failures,executable:false};
+  if (!preaction || typeof preaction.evaluate !== 'function') return {decision:'DENY',reason:'PREACTION_ADAPTER_NOT_BOUND',executable:false};
+  const request = {
+    silo_id:product.silo,
+    job_id:options.job_id,
+    action:'publish_listing',
+    payload:{product_id:product.id,product_sha256:result.product_sha256,gauntlet_receipt_sha256:result.gauntlet_receipt_sha256,channel:options.channel || 'own_store'}
+  };
+  // request.payload MUST be present in preaction's human-signed request hash.
+  return preaction.evaluate(request,options);
+}
+
+module.exports = { run, consumerRelease, reviewBoundPublishIntent, stableJSON };
+
