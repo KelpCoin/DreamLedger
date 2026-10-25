@@ -1,0 +1,94 @@
+{
+  "schema_version": "DL-CHANNEL-SYNDICATION-1.0",
+  "artifact_id": "DL-SYNDICATION-001",
+  "truth_label": "IMPLEMENTATION_PROPOSAL_NOT_PRODUCTION",
+  "policy": {
+    "default_action": "DRAFT_ONLY",
+    "public_action_allowed": false,
+    "explicit_approval_required_per_channel": true,
+    "never_share_external_checkout_for_patreon_shop": true,
+    "preserve_silo": true,
+    "no_auto_price_changes": true,
+    "no_auto_inventory_creation": true,
+    "no_claims_without_source": true
+  },
+  "channels": [
+    {
+      "id": "dreamledger",
+      "label": "DreamLedger",
+      "product_types": ["physical_goods", "digital_download", "digital_diagnostic", "custom_service"],
+      "region": "global",
+      "adapter_state": "FIRST_PARTY_SURFACE_EXISTING",
+      "requires": ["canonical_offer_id", "approved_public_destination", "fulfillment_contract", "truth_gate"],
+      "checkout_rule": "reuse_existing_authorized_offer_only"
+    },
+    {
+      "id": "patreon_shop",
+      "label": "Patreon Shop",
+      "product_types": ["digital_download", "digital_diagnostic", "custom_service"],
+      "region": "global",
+      "adapter_state": "NATIVE_SHOP_WORKFLOW_NOT_API_VERIFIED",
+      "requires": ["creator_shop_publication_verified", "native_patron_or_shop_checkout", "delivery_spec", "silo_approval"],
+      "checkout_rule": "patreon_native_checkout_only_no_external_stripe_redirect"
+    },
+    {
+      "id": "trademe",
+      "label": "Trade Me",
+      "product_types": ["physical_goods"],
+      "region": "new_zealand",
+      "adapter_state": "ACCOUNT_AND_API_NOT_VERIFIED",
+      "requires": ["seller_account_authorized", "stock_proof", "shipping_terms", "condition_and_photos", "listing_approval"],
+      "checkout_rule": "platform_native_transaction_only"
+    },
+    {
+      "id": "gumroad",
+      "label": "Gumroad",
+      "product_types": ["digital_download", "digital_diagnostic", "custom_service"],
+      "region": "global",
+      "adapter_state": "ACCOUNT_AND_API_NOT_VERIFIED",
+      "requires": ["seller_account_authorized", "delivery_file_or_service_spec", "license_and_refund_terms", "listing_approval"],
+      "checkout_rule": "platform_native_checkout_unless_platform_policy_explicitly_allows_otherwise"
+    },
+    {
+      "id": "etsy",
+      "label": "Etsy",
+      "product_types": ["digital_download", "physical_goods", "custom_service"],
+      "region": "global",
+      "adapter_state": "ELIGIBILITY_AND_API_NOT_VERIFIED",
+      "requires": ["current_category_policy_check", "seller_account_authorized", "originality_or_resale_eligibility", "delivery_and_refund_terms", "listing_approval"],
+      "checkout_rule": "platform_native_transaction_only"
+    },
+    {
+      "id": "ko_fi",
+      "label": "Ko-fi Shop",
+      "product_types": ["digital_download", "digital_diagnostic", "custom_service"],
+      "region": "global",
+      "adapter_state": "ACCOUNT_AND_API_NOT_VERIFIED",
+      "requires": ["seller_account_authorized", "delivery_spec", "fees_and_refund_terms", "listing_approval"],
+      "checkout_rule": "platform_native_checkout_unless_platform_policy_explicitly_allows_otherwise"
+    },
+    {
+      "id": "ebay",
+      "label": "eBay",
+      "product_types": ["physical_goods", "digital_download"],
+      "region": "global",
+      "adapter_state": "ELIGIBILITY_AND_API_NOT_VERIFIED",
+      "requires": ["seller_account_authorized", "category_policy_check", "stock_or_delivery_proof", "shipping_or_download_terms", "listing_approval"],
+      "checkout_rule": "platform_native_transaction_only"
+    }
+  ],
+  "fanout_rules": {
+    "dedupe_key": ["product_id", "channel_id", "content_sha256"],
+    "unsupported_channel": "SKIP_WITH_REASON",
+    "missing_prerequisite": "BLOCK_CHANNEL_NOT_WHOLE_BATCH",
+    "one_channel_failure_does_not_cancel_other_drafts": true,
+    "publishing_requires_separate_explicit_authorization": true,
+    "all_channel_receipts_must_be_read_back": true
+  },
+  "limitations": [
+    "This contract compiles channel-ready draft payloads; it does not publish listings.",
+    "OAuth/API connectivity, seller eligibility, current platform policy, account status, fees and actual delivery must be verified per channel.",
+    "Channel coverage is a candidate list, not a claim that all channels are connected or that all products are eligible.",
+    "A channel listing is not a sale; revenue requires attributable settlement, fulfillment, delivery evidence and ledger reconciliation."
+  ]
+}
