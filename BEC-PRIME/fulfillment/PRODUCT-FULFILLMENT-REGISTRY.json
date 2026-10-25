@@ -1,10 +1,10 @@
 {
   "schema": "BEC-PRIME/PRODUCT-FULFILLMENT-REGISTRY/v2",
   "policy": "A product is checkoutable only when this registry contains ready=true, operator_required=false, and a verified zero-human fulfillment contract. Products without that contract must not be sold.",
-  "updated": "2026-09-04",
+  "updated": "2026-10-25",
   "entries": {
     "BILLBOARD-SMALL": {
-      "ready": true,
+      "ready": false,
       "type": "automatic_service_activation",
       "delivery_target": "dreamledger.org/billboard",
       "activation": "verified_paid_stripe_session -> signed_webhook -> exact_amount_currency_validation -> buyer_field_validation -> public_image_fetch_validation -> automatic_moderation -> atomic_first_available_100x100_grid_allocation -> media_persist -> billboard_state_persist -> publication -> durable_fulfillment_proof",
@@ -23,10 +23,11 @@
         "delivery_url",
         "proof_url"
       ],
-      "failure_behavior": "payment remains recorded but publication is not marked complete until every fulfillment step succeeds; retry is idempotent"
+      "failure_behavior": "payment remains recorded but publication is not marked complete until every fulfillment step succeeds; retry is idempotent",
+      "reason": "HOLD: founding billboard catalog is not checkoutable. Placement inventory, payment event idempotency and public fulfilment proof have not passed post-migration acceptance."
     },
     "OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001": {
-      "ready": true,
+      "ready": false,
       "type": "automatic_service_activation",
       "delivery_target": "dreamledger.org/billboard",
       "activation": "verified_paid_stripe_session -> signed_webhook -> exact_amount_currency_validation -> buyer_field_validation -> public_image_fetch_validation -> automatic_moderation -> atomic_first_available_100x100_grid_allocation -> media_persist -> billboard_state_persist -> publication -> durable_fulfillment_proof",
@@ -46,7 +47,8 @@
         "proof_url"
       ],
       "failure_behavior": "payment remains recorded but publication is not marked complete until every fulfillment step succeeds; retry is idempotent",
-      "canonical_product_id": "DREAMLEDGER-BILLBOARD-FOUNDING-001"
+      "canonical_product_id": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "reason": "HOLD: canonical public catalogue checkout=false and real-time reserved/published inventory, Stripe event acceptance and proof-of-placement are not independently verified on the replacement runtime. No live automatic activation may be claimed."
     },
     "BILLBOARD-MEDIUM": {
       "ready": false,
@@ -69,9 +71,9 @@
       "reason": "not approved for sale"
     },
     "COMMANDER-DECK-DIAGNOSTIC-001": {
-      "ready": true,
-      "operator_required": false,
-      "reason": "Automated MTG digital fulfillment contract validated by the MTG Diagnostic Fulfillment Gate; public sale readiness enabled 2026-08-26."
+      "ready": false,
+      "operator_required": true,
+      "reason": "HOLD: public catalogue checkout=false; live Stripe link accepts one NZD 29 payment and requires public decklist URL, but current confirmation promises human-authored delivery within 24 hours, not the registry's zero-human contract. No paid-to-delivered receipt verified. Requires delivery owner acceptance and reconciled webhook or verified manual fallback before release."
     },
     "BEC-PRIME-ARCHITECTURE-AUDIT-001": {
       "ready": false,
@@ -136,7 +138,7 @@
       "status": "CAPABILITY_BUILT_PROVIDER_CONNECTION_REQUIRED"
     },
     "QUOTE-COMPARE-49": {
-      "ready": true,
+      "ready": false,
       "type": "automatic_service_fulfillment",
       "delivery_target": "private marketplace-fulfillment storage with signed buyer download",
       "activation": "verified_paid_stripe_session -> secure upload intake -> source hashing -> PDF/CSV/JSON/Markdown extraction -> normalization -> comparison -> evidence packet -> signed digital delivery",
@@ -156,7 +158,8 @@
       ],
       "failure_behavior": "payment remains recorded; fulfillment stays non-verified and retries through the existing fenced worker path",
       "implementation": "supabase/functions/quote-intake + workers/economic/economic_fulfillment_worker.py",
-      "status": "AUTOMATED_ZERO_HUMAN"
+      "status": "AUTOMATED_ZERO_HUMAN",
+      "reason": "HOLD: canonical public catalogue checkout=false and current B2B preview says paid automatic reporting is not offered. Do not assert zero-human fulfilment or expose a purchase path before paid input/delivery proof passes."
     }
   }
 }
