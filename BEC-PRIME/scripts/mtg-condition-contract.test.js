@@ -38,7 +38,7 @@ test('MTG renderer has no default Lightly Played condition', () => {
   assert.equal(patch.includes('Condition not specified'), false);
   assert.match(source, /const cond=p\.condition\?/);
   assert.equal(source.includes('condition: \'Lightly Played\''), false);
-  assert.equal(patch.includes('conditionEligible'), false);
+  assert.match(patch, /conditionEligible=\['single','single-card','mtg-single','physical-single'\]/);
 });
 
 test('static root publication contains the manifest-driven MTG master paths', () => {
@@ -53,6 +53,8 @@ test('static root publication contains the manifest-driven MTG master paths', ()
   assert.equal(publicCatalog.silo, 'mtg');
   assert.ok(Array.isArray(rootCatalog.products));
   assert.ok(Array.isArray(publicCatalog.products));
-  assert.equal(rootCatalog.products.some(p => p.id === 'COMMANDER-DECK-DIAGNOSTIC-001'), false);
-  assert.equal(publicCatalog.products.some(p => p.id === 'COMMANDER-DECK-DIAGNOSTIC-001'), false);
+  const rootDiagnostic = rootCatalog.products.find(p => p.id === 'COMMANDER-DECK-DIAGNOSTIC-001');
+  assert.equal(rootDiagnostic?.status, 'held', 'root catalog may retain the held diagnostic record but must not expose it as sellable');
+  assert.equal(rootDiagnostic?.checkout_available, false);
+  assert.equal(publicCatalog.products.some(p => p.id === 'COMMANDER-DECK-DIAGNOSTIC-001'), false, 'public catalog must omit the held diagnostic');
 });
