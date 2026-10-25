@@ -13,6 +13,10 @@ on:
       - "BEC-PRIME/catalog/commerce-live.json"
       - "BEC-PRIME/catalog/products/**"
       - "BEC-PRIME/catalog/silos/CUBE-SILO-REGISTRY.json"
+      - "BEC-PRIME/lib/PaidDownloadGate.js"
+      - "BEC-PRIME/lib/PaidDownloadGate.test.js"
+      - "public/server.js"
+      - "public/downloads/**"
       - "public/catalog.json"
       - "public/qr/canonical.svg"
       - "public/go/index.html"
@@ -33,7 +37,7 @@ jobs:
           node-version: 24
       - name: Test evidence gates and silo isolation
         working-directory: BEC-PRIME
-        run: node --test scripts/Build-CashClosureBoard.test.js
+        run: node --test scripts/Build-CashClosureBoard.test.js lib/PaidDownloadGate.test.js
       - name: Produce mobile-readable commercial closure board
         working-directory: BEC-PRIME
         run: node scripts/Build-CashClosureBoard.js
