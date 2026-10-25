@@ -1,0 +1,69 @@
+{
+  "schema_version": "BEC-FIVE-MILESTONE-EXECUTION-PROOF-1.0",
+  "observed_at_utc": "2026-10-25T23:10:00Z",
+  "status": "PARTIAL_WITH_HARD_BLOCKERS",
+  "repository": "KelpCoin/DreamLedger",
+  "milestone_results": [
+    {
+      "id": 1,
+      "name": "Repair canonical release blockers",
+      "status": "PARTIAL",
+      "evidence": [
+        "Agent Bridge public manifest contract fields restored in PR #836",
+        "AgentBridge Contract Gate passed at commit dc61c5b94249b32d292678fea06712fe81601822",
+        "Broader CI and release gates remain failing"
+      ],
+      "blocker": "DreamLedger1 Render web service is suspended by billing; production health, billboard and Agent Bridge URLs returned HTTP 503."
+    },
+    {
+      "id": 2,
+      "name": "Prove multi-LLM loop",
+      "status": "CONTRACT_TESTS_ADDED",
+      "evidence": [
+        "Server allowlist and provider-neutral AgentBridgeProfiles exist",
+        "PR #836 adds a server-compatible COURT_REVIEW event and expands profile contract checks"
+      ],
+      "blocker": "No authenticated live calls to external model providers were performed; provider credentials and end-to-end worker execution remain unverified."
+    },
+    {
+      "id": 3,
+      "name": "Connect distribution to canonical product lifecycle",
+      "status": "FAIL_CLOSED_ADAPTER_IMPLEMENTED",
+      "evidence": [
+        "PR #835 adds PrepareCanonicalCatalog.js and tests",
+        "Dedicated CI run 40243387223 passed 12 tests",
+        "Proof artifact reports 48 source products, 0 eligible, 48 blocked, 0 channel drafts, 0 published"
+      ],
+      "blocker": "No product currently meets all canonical sellability, approval, source URL, silo and verified zero-human fulfillment registry gates."
+    },
+    {
+      "id": 4,
+      "name": "Platform-specific authorized adapters",
+      "status": "DRAFT_COMPILER_ONLY",
+      "evidence": [
+        "Seven channel draft contracts are defined",
+        "Patreon Shop requires native checkout; Trade Me is physical-goods only",
+        "Publication and money movement are hard-disabled"
+      ],
+      "blocker": "Seller accounts, OAuth/API credentials, eligibility and native delivery receipts are not verified. No listings were created."
+    },
+    {
+      "id": 5,
+      "name": "Complete genuine external buyer-to-delivery transaction",
+      "status": "BLOCKED",
+      "evidence": [
+        "Read-only checks returned HTTP 503 for dreamledger.org/billboard, dreamledger1.onrender.com/healthz, dreamledger1.onrender.com/billboard and dreamledger.org/api/agent-bridge/manifest",
+        "Render service DreamLedger1 (srv-d8ud55lckfvc73f1t4eg) is marked suspended with suspenders=[billing]"
+      ],
+      "blocker": "Production service must be restored by the account owner through the billing control plane; an external buyer must then pay, settle and receive the product. No sale or revenue is claimed."
+    }
+  ],
+  "truth": {
+    "verified_external_revenue_nzd_from_this_work": 0,
+    "public_actions_performed": false,
+    "payment_or_checkout_mutations_performed": false,
+    "deployments_performed": false,
+    "marketplace_listings_created": false
+  },
+  "next_unblocking_action": "Restore Render billing/service availability without deleting data; then rerun production health checks before any public listing or transaction."
+}
