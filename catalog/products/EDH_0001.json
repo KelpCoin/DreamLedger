@@ -2,12 +2,12 @@
   "id": "EDH_0001",
   "sku": "EDH-EDWARD-KENWAY-PACIN-ON-THE-PLANK-001",
   "silo": "mtg",
-  "name": "Edward Kenway – Pacin’ On The Plank",
+  "name": "Walk the Plank - Edward Kenway Commander Deck",
   "description": "Grixis Pirate/Vehicle Commander deck built around treasure generation, stealing cards, Pirates, Assassins and Vehicles. Physical Commander deck. Free shipping in Aotearoa New Zealand.",
-  "price": 23000,
+  "price": 40000,
   "currency": "nzd",
   "inventory": 1,
-  "status": "published",
+  "status": "held",
   "seller": "Biggie",
   "condition": "Real physical Commander deck",
   "fulfillment_method": "physical_delivery",
@@ -25,16 +25,30 @@
       "mtgsale"
     ],
     "shipping": "Free shipping Aotearoa New Zealand",
-    "patron_price_nzd": 200,
     "patron_url": "https://patreon.com/happyhomarid",
-    "payment_note": "Stripe checkout; Afterpay availability is determined by Stripe."
+    "payment_note": "Owner approved NZD 400 canonical price on 2026-10-23. Stock, listing release and fulfillment approval remain separate gates. Do not distribute checkout.",
+    "hero_art": {
+      "asset_provider": "canva",
+      "asset_id": "MAHYvb7pYSY",
+      "folder_url": "https://www.canva.com/folder/FAHYvT2-lqk",
+      "source_filename": "walk_the_plank_commander_deck.png",
+      "approval": "owner_selected",
+      "style": "white background, black serif typography, treasure chest, Jolly Roger, skull",
+      "publication_status": "not_deployed"
+    },
+    "hero_art_note": "Approved Canva source asset. Do not mistake Canva asset ID for publicly addressable website URL; publish only after image is hosted at stable first-party asset path."
   },
   "commercial_truth": {
-    "approval_required": false,
-    "checkout_available": true,
+    "approval_required": true,
+    "checkout_available": false,
     "fulfillment_required": true,
     "evidence_required": true,
-    "payment_link": null
+    "payment_link": null,
+    "approved_payment_link_id": "plink_1U6V3BEGgEAnUFF93nnPFUmr",
+    "price_approved_nzd": 400,
+    "stock_limited": true,
+    "collects_nz_shipping_address": true,
+    "public_activation_approved": false
   },
   "default_offer_id": "EDH_0001"
 }

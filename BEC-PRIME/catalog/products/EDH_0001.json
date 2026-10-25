@@ -1,14 +1,14 @@
 {
   "id": "EDH_0001",
   "silo": "mtg",
-  "name": "EDH_0001 Commander Deck",
-  "description": "Physical Commander deck EDH_0001. One available unit. Ships from Tauranga, New Zealand.",
+  "name": "Edward Kenway - Pacin' On The Plank",
+  "description": "Edward Kenway Pirate/Vehicle Commander deck. Owner-approved NZD 400 price; physical availability and fulfillment checks remain held prior to public release.",
   "price": 40000,
   "price_unit": "minor",
   "currency": "nzd",
   "inventory": 1,
   "inventory_type": "physical",
-  "status": "published",
+  "status": "held",
   "checkout": {
     "mode": "payment",
     "success_path": "/checkout/success",
@@ -16,16 +16,17 @@
   },
   "commercial_truth": {
     "experiment": "EDH-0001-FIRST-SALE",
-    "approval_required": false,
-    "sellable": true,
-    "activation_gate": "EXPLICIT_OPERATOR_APPROVAL",
-    "activation_timestamp": "2026-08-12T00:00:00.000Z",
+    "approval_required": true,
+    "sellable": false,
+    "activation_gate": "SEPARATE_EXPLICIT_PUBLIC_APPROVAL_REQUIRED",
     "payment_surface": "stripe-payment-link",
-    "payment_link": "https://buy.stripe.com/00waEYgbu1Muf0Y2iI9oc0b",
-    "payment_link_id": "plink_1UBRZXJt4ieIQDFzdUP0KL2z"
+    "payment_link": null,
+    "payment_link_id": "plink_1U6V3BEGgEAnUFF93nnPFUmr",
+    "stripe_account": "acct_1SNVPvEGgEAnUFF9",
+    "price_owner_approved_nzd": 400
   },
   "evidence": {
-    "status": "checkout_ready_waiting_for_first_customer_payment",
+    "status": "PRICE_RECONCILED_NOT_PUBLICLY_RELEASED",
     "transaction_id": null
   },
   "deployment_trigger": "EDH_0001_FIRST_SALE"
