@@ -1,0 +1,19 @@
+{
+  "schema": "BECK/CREATOR-BRIEF/v1",
+  "silo_id": "dreammeez",
+  "source_id": "licensed-video-pilot",
+  "brand": "DreamMeez Media",
+  "audience": "E-commerce brands seeking licensed creative assets",
+  "title": "A Bounded Avatar-Video Pilot, Not an Untested Retainer",
+  "thesis": "First prove a licensed, deliverable video creative before promising thirty high-converting ads every month.",
+  "body": "A fixed-output client pilot would define permitted avatar and voice use, script rights, product facts, formats, revision limits, delivery files and commercial usage rights. Brand approval stays with the customer. Paid retainers and guaranteed ad performance cannot be claimed without independently observed demand and repeatable unit economics.",
+  "rights": "owned",
+  "evidence_refs": [
+    "repo:docs/DREAMMEE-WORLD-CANON-V1.md",
+    "repo:AGENTS.md"
+  ],
+  "voice_profile_id": "founder-public-v1",
+  "product": {
+    "rail": "none"
+  }
+}
