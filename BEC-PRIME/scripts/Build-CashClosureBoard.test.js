@@ -1,7 +1,7 @@
 'use strict';
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {assemble,statusOf,render}=require('./Build-CashClosureBoard');
+const {assemble,statusOf,render,auditConsumerCatalog}=require('./Build-CashClosureBoard');
 const registry={silos:[{id:'mtg',label:'MTG',route:'/mtg'}, {id:'digital-products',label:'Digital',route:'/digital-products.html'}]};
 const a={offer_id:'O-1',product_id:'P-1',silo:'mtg',name:'Commander',price:29,approved_by:'operator',payment_link_status:'ACTIVE_LIVEMODE',payment_link_url:'https://buy.stripe.com/example'};
 const live={offers:[{offer_id:'O-1',checkout:a.payment_link_url}]};
@@ -19,3 +19,43 @@ test('invalid watch silo identifiers fail closed',()=>assert.throws(()=>make(hel
 test('invalid registry fails closed',()=>assert.throws(()=>assemble({registry:{},approved:{approved:[]},live:{offers:[]}}),/INVALID_SILO_REGISTRY/));
 test('no outbound side effects are authorized by output',()=>{const r=make(ready);assert.equal(r.restrictions.external_actions,false);assert.equal(r.restrictions.automatic_publication,false);assert.equal(r.restrictions.silo_deletion,false);});
 test('unmatched live record cannot manufacture sellable inventory',()=>{const r=make(held,{live:{offers:[...live.offers,{offer_id:'EXTERNAL-UNKNOWN',silo:'commerce',checkout:'https://buy.stripe.com/other'}]}});assert.equal(r.silos.find(x=>x.silo_id==='commerce').offer_count,0);assert.equal(r.truth.fulfilled_orders_verified,null);});
+
+const consumerAudit=(catalog,extra={})=>auditConsumerCatalog({
+  catalog:{products:catalog},
+  registry:{silos:[{id:'pet',route:'/pet.html'},{id:'digital-products',route:'/digital-products.html'}]},
+  approved:{approved:[]},
+  qrExists:true,doorwayExists:true,...extra
+});
+test('consumer checkout source claims never imply verified deliverability',()=>{
+  const report=consumerAudit([{id:'PET-1',status:'published',checkout_available:true,
+    checkout_url:'https://buy.stripe.com/abcd123',delivery_test_status:'VERIFIED'}]);
+  assert.equal(report.declared_checkout_count,1);
+  assert.equal(report.products[0].independently_sellable,false);
+  assert.equal(report.products[0].verdict,'UNVERIFIED_END_TO_END_DELIVERY');
+  assert.equal(report.independently_verified_sellable_truth,'UNKNOWN_NOT_TESTED');
+  assert.equal(report.no_purchase_actions_performed,true);
+});
+test('one canonical QR for the entire consumer marketplace, not per item',()=>{
+  const products=Array.from({length:1000},(_,i)=>({id:'D-'+i,status:'held',checkout_available:false}));
+  const report=consumerAudit(products);
+  assert.equal(report.checked_product_count,1000);
+  assert.equal(report.canonical_qr.policy,'ONE_PRINT_ACQUISITION_CODE_NOT_PER_PRODUCT');
+  assert.equal(report.canonical_qr.source_asset_present,true);
+  assert.equal(report.silo_capacity_limit,null);
+  assert.equal(JSON.stringify(report).includes('qr_per_product'),false);
+});
+test('declared seed routes without files identified as static-source gaps, not HTTP failures',()=>{
+  const report=consumerAudit([{id:'A',status:'held'}],{routeExists:route=>route==='/pet.html'});
+  assert.equal(report.source_route_gaps,1);
+  assert.equal(report.routes[1].live_http_status,'UNKNOWN');
+  assert.equal(report.routes[0].matching_static_file,true);
+});
+test('marked-purchasable item with no checkout link is quarantined as contradictory',()=>{
+  const report=consumerAudit([{id:'A',status:'published',checkout_available:true,checkout_url:null}]);
+  assert.equal(report.products[0].verdict,'CLAIMED_CHECKOUT_WITHOUT_VALID_LINK');
+  assert.equal(report.products[0].independently_sellable,false);
+});
+test('duplicated product IDs and malformed data fail closed',()=>{
+  assert.throws(()=>consumerAudit([{id:'A'},{id:'A'}]),/DUPLICATE_OR_MISSING_PRODUCT_ID/);
+  assert.throws(()=>auditConsumerCatalog({catalog:{products:[]},registry:{},approved:{approved:[]}}),/INVALID_CONSUMER_INPUT/);
+});
