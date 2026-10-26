@@ -33,5 +33,6 @@ jobs:
       - run: node --check public/server.js
       - run: node --check BEC-PRIME/routes/publicRfqIntake.js
       - run: node --check workers/marketplace/src/index.js
+      - run: node scripts/validate-vercel-b2b-api.cjs
       - run: python -m unittest discover -s tools/quote_compare -p 'test_*.py' -v
       - run: node --test tests/marketplace-intake.test.js
