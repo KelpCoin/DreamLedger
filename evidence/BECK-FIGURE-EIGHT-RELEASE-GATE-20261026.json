@@ -1,0 +1,86 @@
+{
+  "schema_version": "1.0.0",
+  "artifact_id": "BECK-FIGURE-EIGHT-RELEASE-GATE-20261026",
+  "captured_at_utc": "2026-10-26",
+  "repository": "KelpCoin/DreamLedger",
+  "release_gate": "BLOCKED",
+  "production_health": "NOT_VERIFIED",
+  "external_revenue": "NOT_ESTABLISHED",
+  "observations": {
+    "github_pr": {
+      "number": 838,
+      "state": "open",
+      "merged": false,
+      "head_sha": "ef65b13c4d55bc1a566878c35a891c75f1ff682c",
+      "reported_commit_count": 119
+    },
+    "vercel": {
+      "project": "dreamledger",
+      "deployment_checks": "failure",
+      "reported_failure_marker": "build-rate-limit",
+      "latest_deployment_error_code": "module_not_found",
+      "latest_deployment_error_step": "buildStep",
+      "latest_deployment_error_message": "Command node scripts/verify-vercel-public-release.cjs exited with 1",
+      "root_directory_hypothesis": "unconfirmed",
+      "compatibility_wrapper_commit": "ef65b13c4d55bc1a566878c35a891c75f1ff682c",
+      "compatibility_wrapper_status": "committed_to_feature_branch_not_deployment_verified",
+      "live_route_access": "blocked_by_connected_account_403"
+    },
+    "render": {
+      "workspace_id": "tea-d7l1ebq8qa3s73fq2cd0",
+      "service_name": "DreamLedger1",
+      "service_id": "srv-d8ud55lckfvc73f1t4eg",
+      "state": "suspended",
+      "suspend_reason": "billing",
+      "health_path": "/healthz"
+    },
+    "supabase": {
+      "recovery_project": "kzsinsqfqfmatoqzjxja",
+      "recovery_status": "ACTIVE_HEALTHY",
+      "public_schema_table_count": 0,
+      "all_user_schema_table_counts": {
+        "auth": 27,
+        "beck": 9,
+        "realtime": 3,
+        "storage": 8,
+        "supabase_migrations": 1,
+        "vault": 1
+      },
+      "beck_business_table_estimated_rows": 0,
+      "original_project": "wbwgroygjeyukkspnqiy",
+      "original_project_status": "ACTIVE_HEALTHY",
+      "original_project_read": "connection_refused"
+    },
+    "neon": {
+      "staging_project": "falling-base-50259456",
+      "primary_branch": "br-plain-wave-a7iap50j",
+      "primary_branch_state": "ready",
+      "reported_logical_size_bytes": 32325632,
+      "reported_written_data_bytes": 0,
+      "snapshot_count": 0
+    },
+    "diagnostic_offer": {
+      "price_nzd": 29,
+      "release_state": "held",
+      "buy_button_allowed": false,
+      "in_stock_structured_data_allowed": false
+    }
+  },
+  "non_goals": [
+    "No production deployment",
+    "No DNS cutover",
+    "No payment endpoint changes",
+    "No database writes or migration cutover",
+    "No provider resource deletion",
+    "No revenue claim"
+  ],
+  "required_gates": [
+    "Source data recovered and checksummed",
+    "Candidate hosting serves health and expected release",
+    "CI passes on exact release commit",
+    "Tenant isolation and RLS negative tests pass",
+    "Payment-to-delivery loop independently verified",
+    "Rollback path and DNS ownership verified before cutover",
+    "External buyer payment, settlement, fulfilment, and delivery evidence recorded"
+  ]
+}
