@@ -17,7 +17,7 @@ const checks=[
  ['seller_rights_and_consent_required',/confirm I have the rights/.test(page)],
  ['no_sample_inventory_claims',/No inventory is invented/.test(page)],
  ['no_sample_demand_claims',/No sample demand is displayed/.test(page)],
- ['explicit_non_live_checkout_boundary',/checkout, escrow, buyer\/seller messaging, auctions, shipping, reputation and public creator feeds are not represented as live/.test(page)],
+ ['explicit_non_live_checkout_boundary',/checkout, escrow, buyer\/seller messaging, auctions, shipping, reputation and public creator feeds are not represented as live/i.test(page)],
  ['render_route_registered',server.includes("'/explore':'marketplace-ecosystem.html'")],
  ['vercel_route_registered',vercel.rewrites.some(r=>r.source==='/explore'&&r.destination==='/marketplace-ecosystem.html')],
  ['homepage_discovery_link',fs.readFileSync(path.join(root,'public','home.html'),'utf8').includes('href="/explore"')]
