@@ -20,5 +20,5 @@ create table if not exists public.marketplace_public_rfq_intake (
 create index if not exists marketplace_public_rfq_status_recent_idx
   on public.marketplace_public_rfq_intake(status,created_at desc);
 alter table public.marketplace_public_rfq_intake enable row level security;
-revoke all on public.marketplace_public_rfq_intake from anon, authenticated;
+revoke all on public.marketplace_public_rfq_intake from public, anon, authenticated;
 -- Only the server's service-role API can create or inspect these records. No automatic contact or publication.
