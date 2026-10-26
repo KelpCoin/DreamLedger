@@ -117,7 +117,8 @@ for update to authenticated using (
       and m.user_id=(select auth.uid()) and m.status='active'
       and m.role in ('owner','admin','buyer'))
 ) with check (
-  exists (select 1 from public.marketplace_memberships m
+  status='draft' and visibility='private' and requester_user_id=(select auth.uid())
+  and exists (select 1 from public.marketplace_memberships m
     where m.organization_id=marketplace_rfq_requests.organization_id
       and m.user_id=(select auth.uid()) and m.status='active'
       and m.role in ('owner','admin','buyer'))
@@ -152,12 +153,12 @@ for insert to authenticated with check (
 drop policy if exists marketplace_proposals_member_update on public.marketplace_proposals;
 create policy marketplace_proposals_member_update on public.marketplace_proposals
 for update to authenticated using (
-  exists (select 1 from public.marketplace_memberships m
+  status='draft' and exists (select 1 from public.marketplace_memberships m
     where m.organization_id=marketplace_proposals.seller_organization_id
       and m.user_id=(select auth.uid()) and m.status='active'
       and m.role in ('owner','admin','seller'))
 ) with check (
-  exists (select 1 from public.marketplace_memberships m
+  status='draft' and exists (select 1 from public.marketplace_memberships m
     where m.organization_id=marketplace_proposals.seller_organization_id
       and m.user_id=(select auth.uid()) and m.status='active'
       and m.role in ('owner','admin','seller'))
