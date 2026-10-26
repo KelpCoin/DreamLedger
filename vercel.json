@@ -16,6 +16,22 @@
   ],
   "rewrites": [
     {
+      "source": "/b2b",
+      "destination": "/b2b.html"
+    },
+    {
+      "source": "/b2b/",
+      "destination": "/b2b.html"
+    },
+    {
+      "source": "/marketplace",
+      "destination": "/marketplace.html"
+    },
+    {
+      "source": "/marketplace/",
+      "destination": "/marketplace.html"
+    },
+    {
       "source": "/",
       "destination": "/index.html"
     }
