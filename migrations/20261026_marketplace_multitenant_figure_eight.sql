@@ -254,6 +254,6 @@ create policy intake_rate_service_all on marketplace.intake_rate_limits for all 
   current_setting('app.actor_type',true)='service'
 ) with check (current_setting('app.actor_type',true)='service');
 
-comment on schema marketplace is 'Neon-native DreamLedger B2B marketplace; separate from legacy Supabase schemas.';
+comment on schema marketplace is 'Neon-native DreamLedger B2B marketplace, separate from legacy Supabase schemas.';
 comment on table marketplace.public_rfq_intake is 'Private inbound requests. Never exposed as public listings; human review required.';
 comment on table marketplace.council_runs is 'Tenant-scoped Figure Eight review receipts. Model output cannot authorize publication or claim revenue.';
