@@ -67,7 +67,7 @@ function headers(res){
 }
 async function proxyMarketplaceRead(req,res,p,search){
   if(!['/api/marketplace/listings','/api/marketplace/rfqs'].includes(p))return false;
-  const base=String(process.env.MARKETPLACE_WORKER_URL||'').replace(/\\/$/,'');
+  let base=String(process.env.MARKETPLACE_WORKER_URL||'');while(base.endsWith('/'))base=base.slice(0,-1);
   if(!base){send(res,503,JSON.stringify({error:'MARKETPLACE_SERVICE_NOT_CONFIGURED',checkout_enabled:false}),'application/json; charset=utf-8');return true;}
   try{
     const target=base+p+(search||'');
