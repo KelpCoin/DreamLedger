@@ -25,6 +25,22 @@ create index if not exists marketplace_rfq_discovery_idx
   on public.marketplace_rfq_requests(silo_id,status,created_at desc)
   where visibility='marketplace' and status='open';
 
+create table if not exists public.marketplace_organization_silos (
+  organization_id uuid not null references public.marketplace_organizations(organization_id) on delete cascade,
+  silo_id text not null,
+  status text not null default 'active' check (status in ('active','suspended')),
+  created_at timestamptz not null default now(),
+  primary key (organization_id,silo_id)
+);
+alter table public.marketplace_organization_silos enable row level security;
+revoke all on public.marketplace_organization_silos from anon;
+grant select on public.marketplace_organization_silos to authenticated;
+drop policy if exists marketplace_org_silos_member_read on public.marketplace_organization_silos;
+create policy marketplace_org_silos_member_read on public.marketplace_organization_silos
+for select to authenticated using (
+  exists (select 1 from public.marketplace_memberships m where m.organization_id=marketplace_organization_silos.organization_id and m.user_id=(select auth.uid()) and m.status='active')
+);
+
 create table if not exists public.marketplace_proposals (
   id uuid primary key default gen_random_uuid(),
   rfq_id uuid not null references public.marketplace_rfq_requests(id) on delete cascade,
@@ -126,14 +142,11 @@ for insert to authenticated with check (
       and m.user_id=(select auth.uid()) and m.status='active'
       and m.role in ('owner','admin','seller'))
   and exists (select 1 from public.marketplace_rfq_requests r
+    join public.marketplace_organization_silos s
+      on s.organization_id=marketplace_proposals.seller_organization_id
+     and s.silo_id=r.silo_id and s.status='active'
     where r.id=marketplace_proposals.rfq_id and r.status='open'
-      and r.visibility='marketplace' and r.silo_id in
-        (select jsonb_array_elements_text(coalesce(
-          (select m2.authorization_scope->'silos' from public.marketplace_memberships m2
-           where m2.organization_id=marketplace_proposals.seller_organization_id
-             and m2.user_id=(select auth.uid()) and m2.status='active' limit 1),
-          '[]'::jsonb
-        )))
+      and r.visibility='marketplace'
   )
 );
 drop policy if exists marketplace_proposals_member_update on public.marketplace_proposals;
