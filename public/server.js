@@ -37,7 +37,7 @@ const PUBLIC_FILES={
   '/economic':'pulse/index.html','/economic/':'pulse/index.html',
   '/catalog.json':'catalog.json','/surfaces.json':'surfaces.json',
   '/robots.txt':'robots.txt','/sitemap.xml':'sitemap.xml',
-  '/quote-comparison':'quote-comparison/index.html','/quote-comparison/':'quote-comparison/index.html','/quote-comparison.html':'quote-comparison.html',
+  '/quote-comparison':'quote-comparison/index.html','/quote-comparison/':'quote-comparison/index.html','/quote-comparison.html':'quote-comparison.html','/quote-comparison/comparison-template.csv':'quote-comparison/comparison-template.csv',
   '/overpaying':'overpaying.html','/overpaying.html':'overpaying.html',
   '/avatar.html':'avatar.html','/avatar':'avatar.html','/phinhaven.html':'phinhaven.html','/phinhaven/':'phinhaven.html','/phinhaven/hotel':'phinhaven/hotel/index.html','/phinhaven/hotel/':'phinhaven/hotel/index.html','/phinhaven/shallows':'phinhaven/shallows/index.html','/phinhaven/shallows/':'phinhaven/shallows/index.html','/account':'account.html','/account/':'account.html','/register':'register.html','/register/':'register.html','/login':'login.html','/login/':'login.html','/mtg-search':'mtg-search.html','/mtg-search/':'mtg-search.html','/mtg-list':'mtg-list.html','/mtg-list/':'mtg-list.html','/mtg-marketplace':'mtg-marketplace.html','/mtg-marketplace/':'mtg-marketplace.html','/mtg-mod':'mtg-mod.html','/mtg-mod/':'mtg-mod.html','/mtg-welcome':'mtg-welcome.html','/mtg-welcome/':'mtg-welcome.html','/toll-road':'toll-road.html','/toll-road/':'toll-road.html'
 };
