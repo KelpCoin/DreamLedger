@@ -1,0 +1,10 @@
+name = "dreamledger-marketplace-preview"
+main = "src/index.js"
+compatibility_date = "2026-10-26"
+workers_dev = false
+
+[vars]
+PUBLIC_ORIGIN = "https://dreamledger.org"
+
+# Configure secrets out of band: NEON_DATABASE_URL, CF_ACCESS_TEAM_DOMAIN,
+# CF_ACCESS_AUD, BECK_COUNCIL_MODELS and each model API key named in that JSON.
