@@ -1,0 +1,89 @@
+name: BECK Cash Closure Portfolio
+on:
+  workflow_dispatch:
+  schedule:
+    # Around 08:10 NZDT (07:10 NZST); GitHub schedules are UTC.
+    - cron: "10 19 * * *"
+  pull_request:
+    paths:
+      - "BEC-PRIME/scripts/Build-CashClosureBoard.js"
+      - "BEC-PRIME/scripts/Build-CashClosureBoard.test.js"
+      - "BEC-PRIME/economic/CashClosureWatch.json"
+      - "BEC-PRIME/catalog/offers/approved.json"
+      - "BEC-PRIME/catalog/commerce-live.json"
+      - "BEC-PRIME/catalog/products/**"
+      - "BEC-PRIME/catalog/silos/CUBE-SILO-REGISTRY.json"
+      - "BEC-PRIME/lib/PaidDownloadGate.js"
+      - "BEC-PRIME/lib/PaidDownloadGate.test.js"
+      - "public/server.js"
+      - "public/downloads/**"
+      - "public/catalog.json"
+      - "public/qr/canonical.svg"
+      - "public/go/index.html"
+      - ".github/workflows/beck-cash-closure.yml"
+permissions:
+  contents: read
+concurrency:
+  group: beck-cash-closure-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Reject publicly bundled paid digital assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          # A private paywall is ineffective while its underlying files are published.
+          if [ -d public/downloads ] && find public/downloads -type f \( -iname '*.zip' -o -iname '*.pdf' -o -iname '*.epub' \) -print -quit | grep -q .; then
+            echo "::error::PAID_DIGITAL_ASSET_IN_PUBLIC_TREE"
+            exit 2
+          fi
+          echo "PUBLIC_PAID_DOWNLOAD_BUNDLE=ABSENT"
+
+      - name: Test evidence gates and silo isolation
+        working-directory: BEC-PRIME
+        run: node --test scripts/Build-CashClosureBoard.test.js lib/PaidDownloadGate.test.js
+      - name: Produce mobile-readable commercial closure board
+        working-directory: BEC-PRIME
+        run: node scripts/Build-CashClosureBoard.js
+      - name: Show one owner action and all commercial blockers in Actions summary
+        working-directory: BEC-PRIME
+        shell: bash
+        run: |
+          node - <<'NODE' >> "$GITHUB_STEP_SUMMARY"
+          const fs=require('node:fs');
+          const board=JSON.parse(fs.readFileSync('data/cash-closure/board.json','utf8'));
+          const safe=s=>String(s||'').replace(/[|]/g,' ').replaceAll(String.fromCharCode(96),' ').replace(/[\r\n]+/g,' ');
+          console.log('# BECK Cash Closure');
+          console.log('Read-only evidence check. No money movement, contact, publication or deletion.');
+          console.log('');
+          console.log('**'+board.counts.silos_monitored+' monitored silos; '+board.counts.registered_silos+' registered.**');
+          console.log('');
+          console.log('**Verified fulfilled revenue: UNKNOWN (no independent settlement evidence read).**');
+          console.log('');
+          const top=board.next_human_action;
+          console.log('## Single phone action');
+          console.log(top?safe(top.silo_id+' / '+top.offer_id+' : '+top.action):'No verified ready offers in the source catalogue.');
+          console.log('');
+          console.log('| Silo | State | Recorded offers |');
+          console.log('|---|---|---:|');
+          for(const s of board.silos) console.log('| '+safe(s.label)+' | '+safe(s.state)+' | '+s.offer_count+' |');
+          console.log('');
+          console.log('These are source-record states, not a validation of Stripe or actual delivery.');
+          NODE
+      - name: Preserve source-bound evidence and review HTML
+        uses: actions/upload-artifact@v4
+        with:
+          name: beck-cash-closure-${{ github.run_id }}
+          path: |
+            BEC-PRIME/data/cash-closure/board.json
+            BEC-PRIME/data/cash-closure/board.html
+            BEC-PRIME/data/cash-closure/consumer-readiness.json
+          if-no-files-found: error
+          retention-days: 14

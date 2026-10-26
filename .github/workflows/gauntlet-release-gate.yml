@@ -30,6 +30,29 @@ jobs:
         with:
           node-version: '24'
 
+      - name: Fail closed on consumer checkout claims before compilation
+        shell: bash
+        run: |
+          set -euo pipefail
+          node - <<'NODE'
+          const { run } = require('./BEC-PRIME/gauntlet/GauntletV6.js');
+          const report = run({ writeProof: false });
+          const c = report.checks.find(x => x.id === 'consumer.release_truth');
+          if (!c) {
+            console.error('CONSUMER_GAUNTLET_MISSING=BLOCKED');
+            process.exit(3);
+          }
+          console.log(JSON.stringify({
+            release_verdict: c.status,
+            consumer_release: report.consumer_release,
+            note: 'Static evidence cannot certify live order delivery or payment settlement'
+          }, null, 2));
+          if (c.status !== 'PASS') {
+            console.error('CONSUMER_UNVERIFIED_CHECKOUT=BLOCKED_BEFORE_BUILD');
+            process.exit(2);
+          }
+          NODE
+
       - name: Install BEC-PRIME dependencies
         working-directory: BEC-PRIME
         shell: bash

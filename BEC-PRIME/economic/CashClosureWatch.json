@@ -1,0 +1,42 @@
+{
+  "schema": "BECK/CASH-CLOSURE-WATCH/1.0",
+  "rule": "Additive read-only monitoring of existing project concepts. Does not create, launch or approve a silo.",
+  "lanes": [
+    {
+      "id": "dreamledger",
+      "label": "DreamLedger Internet Billboard"
+    },
+    {
+      "id": "procurement",
+      "label": "B2B Supplier Procurement"
+    },
+    {
+      "id": "agent-bridge",
+      "label": "Agent Bridge / A2A"
+    },
+    {
+      "id": "dooh",
+      "label": "Programmatic DOOH"
+    },
+    {
+      "id": "fightedge",
+      "label": "FightEdge"
+    },
+    {
+      "id": "tenders",
+      "label": "Tenders and GETS"
+    },
+    {
+      "id": "digital-assets",
+      "label": "Existing Digital Artifacts"
+    },
+    {
+      "id": "kelplantis",
+      "label": "Kelplantis"
+    },
+    {
+      "id": "marketplace",
+      "label": "Shared Marketplace"
+    }
+  ]
+}

@@ -3,6 +3,7 @@
 const http=require('http'),fs=require('fs'),path=require('path'),{URL}=require('url');
 const commercialCell=require('../BEC-PRIME/routes/commercialCell');
 const tollRoad=require('../BEC-PRIME/routes/tollRoad');
+const paidDownload=require('../BEC-PRIME/lib/PaidDownloadGate');
 const TollRuntime=require('../BEC-PRIME/runtime/TollRoad');
 const PORT=Number(process.env.PORT||10000);
 const COMMIT=process.env.RENDER_GIT_COMMIT||process.env.RENDER_GIT_COMMIT_SHA||process.env.GITHUB_SHA||'unknown';
@@ -100,6 +101,9 @@ http.createServer(async (req,res)=>{
   headers(res);
   const u=new URL(req.url||'/','http://localhost');
   const p=u.pathname;
+  // No paid digital asset bytes may be served by static fallback, even by a guessed URL.
+  if(p==='/downloads' || p.startsWith('/downloads/'))return send(res,404,'Not Found','text/plain; charset=utf-8');
+  if(p==='/api/commerce/paid-download')return paidDownload.handle(req,res);
   if(req.method==='GET'&&p==='/healthz'){
     return send(res,200,JSON.stringify({ok:true,service:'dreamledger-storefront'}),'application/json; charset=utf-8');
   }
