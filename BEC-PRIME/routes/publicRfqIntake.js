@@ -73,7 +73,7 @@ async function handle(req, res, pathname) {
       source: 'dreamledger-b2b',
       status: 'received'
     };
-    const response = await fetch(SUPABASE_URL + '/rest/v1/marketplace_public_rfq_intake', {
+    const response = await fetch(SUPABASE_URL + '/rest/v1/marketplace_public_rfq_intake?on_conflict=idempotency_key', {
       method: 'POST',
       headers: {
         apikey: SUPABASE_KEY,
