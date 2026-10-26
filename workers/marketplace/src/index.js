@@ -57,7 +57,7 @@ async function council(sql,env,who,b){
  return {schema:'dreamledger/figure-eight-marketplace-council/v1',status:'REVIEW_PROPOSAL_ONLY',run_id:run,input_hash:inputHash,output_hash:prev,rounds:receipts.length,receipts,result:current,authorization:{publish:false,contact_buyer:false,spend:false,checkout:false},revenue_claim:'NONE'}
 }
 async function route(req,env){
- const u=new URL(req.url),p=u.pathname.replace(/\\/$/,'')||'/';
+ const u=new URL(req.url),p=u.pathname.replace(/\/$/,'')||'/';
  if(req.method==='OPTIONS')return new Response(null,{status:204,headers:{'access-control-allow-origin':env.PUBLIC_ORIGIN||'https://dreamledger.org','access-control-allow-methods':'GET,POST,OPTIONS','access-control-allow-headers':'content-type,cf-access-jwt-assertion'}});
  const origin=req.headers.get('origin'),allow=env.PUBLIC_ORIGIN||'https://dreamledger.org';if(origin&&origin!==allow)return reply({error:'ORIGIN_NOT_ALLOWED'},403);
  if(p==='/healthz'&&req.method==='GET')return reply({ok:true,service:'dreamledger-marketplace-worker',database:!!env.NEON_DATABASE_URL,access:!!env.CF_ACCESS_AUD});
