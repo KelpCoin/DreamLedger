@@ -29,6 +29,8 @@ jobs:
         run: python BEC-PRIME/marketplace/marketplace-runtime.py
       - name: Compile Python modules
         run: python -m compileall -q CORTEX BEC-PRIME/marketplace
+      - name: Test Figure Eight multi-model council
+        run: python -m unittest discover -s tests -p 'test_figure_eight_council.py'
       - name: Run red-team regression
         run: python -m unittest CORTEX.test_redteam_extension
       - name: Ecosystem spine
