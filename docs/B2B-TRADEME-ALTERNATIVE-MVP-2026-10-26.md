@@ -42,3 +42,15 @@ Then redeploy the branch/commit, verify `/api/marketplace/listings`, `/api/marke
 ## Product boundary
 
 This is a practical first-stage alternative: free buyer demand intake, public verified supply, a private lead inbox and local quote comparison. It is not yet a full replacement for Trade Me's accounts, moderation, search, seller inventory, messaging, payments, disputes, shipping and consumer protections. Those features should be released only after authentication, data isolation, abuse controls and end-to-end transaction tests pass.
+
+
+## Seller-side closure (2026-10-26, latest)
+- Replaced the previous `sell.html` behavior that could fall back to browser `localStorage` and still display a success-like message.
+- Seller submissions now POST to `/api/marketplace/seller-intake`, require explicit contact consent, use an idempotency key, validate price/quantity/email/kind, apply the shared five-per-hour IP-hash rate limit, and persist only to private `marketplace.public_seller_intake`.
+- Seller submissions remain private applications in `received` status. They do not create public listings and do not enable checkout.
+- The private operator inbox API and page now include seller applications alongside buyer RFQs, with export covering both queues.
+- The additive migration was tested on a temporary Neon branch, then applied to the isolated `dreamledger-migration-staging` project's main branch. A fresh query confirmed 12/12 marketplace tables have RLS enabled and `public_seller_intake` exists.
+- The B2B validation, public surface guard, e-commerce smoke, and full build workflows passed for commit `efce37f7de339f3bec6cec98b70e41db084ecb8e`.
+
+## Current hard blocker
+The Vercel integration returns 403 for reading the deployment and 404 for the previously recorded project ID under the currently connected team. Its response explicitly says the deployment's project/team must be authorized in the Vercel connection. Project listing for that team returns zero projects. I cannot safely set server-side environment variables, verify the deployed API, assign the domain, or promote a production deployment until the correct Vercel project/team is authorized. No public listing, buyer request, or seller application has been fabricated to simulate a live marketplace.
