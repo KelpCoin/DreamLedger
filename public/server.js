@@ -3,6 +3,7 @@
 const http=require('http'),fs=require('fs'),path=require('path'),{URL}=require('url');
 const commercialCell=require('../BEC-PRIME/routes/commercialCell');
 const tollRoad=require('../BEC-PRIME/routes/tollRoad');
+const publicRfqIntake=require('../BEC-PRIME/routes/publicRfqIntake');
 const TollRuntime=require('../BEC-PRIME/runtime/TollRoad');
 const PORT=Number(process.env.PORT||10000);
 const COMMIT=process.env.RENDER_GIT_COMMIT||process.env.RENDER_GIT_COMMIT_SHA||process.env.GITHUB_SHA||'unknown';
@@ -119,6 +120,14 @@ http.createServer(async (req,res)=>{
   }
   if(p.startsWith('/api/toll')||p.startsWith('/toll/')) return proxyTollToEngine(req,res,p);
   if(p.startsWith('/swarm/')||p.startsWith('/api/swarm')) return proxySwarm(req,res,p);
+  if(p==='/api/marketplace/intake'){
+    try{
+      const handled=await publicRfqIntake.handle(req,res,p);
+      if(handled)return;
+    }catch(error){
+      return send(res,500,JSON.stringify({error:'rfq_intake_failed'}),'application/json; charset=utf-8');
+    }
+  }
   if(p.startsWith('/api/commercial/') || p==='/api/webhooks/stripe'){
     try{
       const handled=await commercialCell.handle(req,res,p);
