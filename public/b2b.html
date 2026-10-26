@@ -87,7 +87,7 @@ body{padding-bottom:calc(5.2rem + var(--sb))}
     <h1>B2B procurement tools</h1>
     <p class="lead">Explore supplier enquiries, wholesale listings, and quote comparison. The listed platform success fee on peer-to-peer B2B sales is <strong style="color:var(--ok)">0%</strong>; optional tools have separate prices.</p>
     <div class="ctas">
-      <a class="btn ok" href="#rfq">Request supplier interest</a>
+      <a class="btn ok" href="#rfq">Draft an RFQ locally</a>
       <a class="btn gold" href="/sell.html">Wholesale listings paused</a>
       <a class="btn line" href="https://buy.stripe.com/00wdR93vnbK5eqH3gwdwc3r">Quote comparison NZ$49</a>
     </div>
@@ -103,7 +103,7 @@ body{padding-bottom:calc(5.2rem + var(--sb))}
     <h2>Tools for buyers and suppliers</h2>
     <p class="sub">Choose the tool that fits your purchasing task.</p>
     <div class="grid cols3">
-      <a class="card feat" href="#rfq"><h3>Request for quote</h3><p>Describe what you need. We can review your request, but supplier matching is not guaranteed while community listings are paused.</p><span class="go">Request supplier interest →</span></a>
+      <a class="card feat" href="#rfq"><h3>Request for quote</h3><p>Describe what you need. We can review your request, but supplier matching is not guaranteed while community listings are paused.</p><span class="go">Prepare local RFQ draft →</span></a>
       <a class="card" href="/sell.html"><h3>Wholesale listings</h3><p>MOQ, lead time, GST, trading name. 0% success fee on peer sales.</p><span class="go">Marketplace status →</span></a>
       <a class="card" href="https://buy.stripe.com/00wdR93vnbK5eqH3gwdwc3r"><h3>Quote comparison</h3><p>2–5 supplier quotes → clear comparison report. Fixed NZ$49. Delivery target: within 24 hours after we receive your quotes; fulfilment is currently manually reviewed.</p><span class="go">Buy tool →</span></a>
       <a class="card" href="/buy/SELLER-PROFIT-AUDIT-001"><h3>Seller profit audit</h3><p>Channel fees, shipping, margin leaks. NZ$29 fixed scope.</p><span class="go">Buy audit →</span></a>
@@ -128,8 +128,8 @@ body{padding-bottom:calc(5.2rem + var(--sb))}
   </section>
 
   <section class="sec" id="rfq">
-    <h2>Request supplier interest</h2>
-    <p class="sub">Describe your requirement. We can review the request, but supplier matching is not guaranteed while community listings are paused. No platform success fee on resulting peer deals.</p>
+    <h2>Draft a request for quote</h2>
+    <p class="sub">Draft your requirement locally. Online RFQ submission and supplier matching are currently paused. No data is sent or shared. No platform success fee applies to peer deals.</p>
     <form class="form" id="rfqForm">
       <label for="company">Company</label>
       <input id="company" name="company" required maxlength="120" placeholder="Trading name"/>
@@ -168,9 +168,9 @@ body{padding-bottom:calc(5.2rem + var(--sb))}
           <input id="region" name="region" required placeholder="e.g. Auckland"/>
         </div>
       </div>
-      <button class="btn ok" type="submit" style="width:100%;margin-top:1rem">Submit RFQ · free</button>
-      <p class="note">An RFQ is a request, not a guarantee of supplier response. Platform success fee remains 0% on peer B2B sales.</p>
-      <p class="status" id="status">RFQ saved. Reference will appear here.</p>
+      <button class="btn ok" type="submit" style="width:100%;margin-top:1rem">Save local RFQ draft (not submitted)</button>
+      <p class="note">This saves a draft on this device only, not on DreamLedger servers. It does not contact suppliers. To buy a currently available service, use <a href="/quote-compare-49.html">Supplier Quote Comparison NZ$49</a>.</p>
+      <p class="status" id="status">RFQ draft saved locally. No request was submitted.</p>
     </form>
   </section>
 
@@ -214,7 +214,7 @@ body{padding-bottom:calc(5.2rem + var(--sb))}
 (function(){
   var form=document.getElementById('rfqForm');
   var status=document.getElementById('status');
-  form.addEventMarketplace statusener('submit',function(e){
+  form.addEventListener('submit',function(e){
     e.preventDefault();
     var data=Object.fromEntries(new FormData(form).entries());
     data.id='RFQ-'+Date.now();
@@ -227,8 +227,8 @@ body{padding-bottom:calc(5.2rem + var(--sb))}
       all.unshift(data);
       localStorage.setItem(key,JSON.stringify(all.slice(0,50)));
     }catch(_){}
-    status.textContent='RFQ accepted · ref '+data.id+' · stored for matching';
-    status.classMarketplace status.add('show');
+    status.textContent='RFQ draft saved only in this browser · ref '+data.id+'. No request was transmitted to DreamLedger or any supplier.';
+    status.classList.add('show');
     form.reset();
   });
 })();
