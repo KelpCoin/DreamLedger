@@ -175,13 +175,17 @@ create index if not exists marketplace_audit_entity_idx on marketplace.audit_eve
 
 -- RLS context is set per transaction by the Cloudflare Worker. Owner-role access must not be used
 -- by browser clients, while the Worker verifies Cloudflare Access JWTs and tenant membership first.
-do $$
-declare t text;
-begin
-  foreach t in array array['organizations','memberships','organization_silos','listings','rfqs','proposals','orders','council_runs','public_rfq_intake','intake_rate_limits','audit_events'] loop
-    execute format('alter table marketplace.%I enable row level security',t);
-  end loop;
-end $$;
+alter table marketplace.organizations enable row level security;
+alter table marketplace.memberships enable row level security;
+alter table marketplace.organization_silos enable row level security;
+alter table marketplace.listings enable row level security;
+alter table marketplace.rfqs enable row level security;
+alter table marketplace.proposals enable row level security;
+alter table marketplace.orders enable row level security;
+alter table marketplace.council_runs enable row level security;
+alter table marketplace.public_rfq_intake enable row level security;
+alter table marketplace.intake_rate_limits enable row level security;
+alter table marketplace.audit_events enable row level security;
 
 drop policy if exists organizations_member_read on marketplace.organizations;
 create policy organizations_member_read on marketplace.organizations for select using (
