@@ -39,6 +39,15 @@ if (!diagnostic || diagnostic.status !== 'held' || diagnostic.checkout_available
   errors.push('LEGACY_DIAGNOSTIC_MUST_REMAIN_HELD');
 }
 const homePath = path.join(repo, 'public/index.html');
+const canonicalHomePath = path.join(repo, 'public/home.html');
+if (fs.existsSync(canonicalHomePath)) {
+  const canonicalHome = fs.readFileSync(canonicalHomePath, 'utf8');
+  if (/B2B marketplace/i.test(canonicalHome) && /href="\\/b2b\\//i.test(canonicalHome)) {
+    fs.copyFileSync(canonicalHomePath, homePath);
+  } else {
+    errors.push('B2B_HOME_SOURCE_CONTRACT_MISSING');
+  }
+}
 const b2bPath = path.join(repo, 'public/b2b.html');
 const quotePath = path.join(repo, 'public/quote-comparison/index.html');
 const home = fs.existsSync(homePath) ? fs.readFileSync(homePath, 'utf8') : '';
