@@ -98,10 +98,12 @@ async function observeQuoteSettlement(c: any, next: any) {
   const chain_hash = Array.from(new Uint8Array(proofDigest))
     .map(x => x.toString(16).padStart(2, "0")).join("");
   const { data: proof } = await db.from("runtime_proofs").insert({
+    // Historical proof_type is kept for database compatibility; its existence is not
+    // evidence that the HTTP response reached the buyer.
     execution_id: call.call_id, toll_call_id: call.call_id, proof_type: "DELIVERY_RECEIPT",
     request_hash, response_hash: call.result_hash || "", artifact_hash: evidence_hash, chain_hash,
     source_reference: tx, source_system: "agent-toll-road",
-    metadata: { decision_id, product_id: product.product_id, price_usd: product.price, network: NETWORK, testnet: TESTNET, payer, payee: PAY_TO }
+    metadata: { decision_id, product_id: product.product_id, price_usd: product.price, network: NETWORK, testnet: TESTNET, payer, payee: PAY_TO, delivery_verified: false, receipt_scope: "ARTIFACT_PREPARED_NOT_CONFIRMED_RECEIVED" }
   }).select("proof_id").single();
   if (!proof) return;
   const event_id = `X402-${call.call_id}`;
@@ -110,16 +112,18 @@ async function observeQuoteSettlement(c: any, next: any) {
   if (existing) return;
   await db.from("economic_events").insert({
     event_id, silo_id: "agent-toll-road", sku_id: product.product_id,
-    buyer_action_verified: true, payment_settled: true, fulfilment_verified: true, evidence_verified: true,
+    // Facilitator acceptance is neither final chain confirmation nor delivery.
+    buyer_action_verified: false, payment_settled: false, fulfilment_verified: false, evidence_verified: false,
     evidence_ref: proof.proof_id, payment_reference: tx, verification_status: "UNMATCHED",
     observation_mode: "OBSERVED", scope: "EXTERNAL", event_type: "X402_SETTLEMENT_OBSERVED",
     state_before: "UNMATCHED", state_after: "UNMATCHED",
-    settlement_state: "SETTLED_PENDING_CONFIRMATION", fulfillment_state: "FULFILLED",
+    settlement_state: "SETTLED_PENDING_CONFIRMATION", fulfillment_state: "UNMATCHED",
     verification_state: "UNMATCHED", source: "agent-toll-road", source_system: "x402",
     source_record_id: String(call.call_id), external_reference: payer,
     input_hash: request_hash, output_hash: call.result_hash,
     metadata: { network: NETWORK, payer, payee: PAY_TO, transaction: tx, testnet: TESTNET, product_id: product.product_id, price_usd: product.price,
-      scoreboard_eligible: !TESTNET, toll_call_id: String(call.call_id), decision_id,
+      scoreboard_eligible: false, delivery_verified: false, buyer_external_verified: false,
+      toll_call_id: String(call.call_id), decision_id,
       settlement_idempotency_key: settlementKey }
   });
 }
