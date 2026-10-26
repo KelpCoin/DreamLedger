@@ -3,9 +3,9 @@
   "status": "PREPARE_ONLY",
   "canonical": {
     "doorway_id": "QR-CANONICAL-001",
-    "url": "https://dreamledger.org/go"
+    "url": "https://dreamledger.org/?utm_source=qr&utm_medium=offline&utm_campaign=canonical"
   },
-  "rule": "Every placement is a separate measurable doorway. No external placement is considered executed until explicitly approved and independently evidenced.",
+  "rule": "ONE immutable verified QR symbol encodes the canonical homepage with fixed UTM parameters. All listing/silo navigation occurs after scan; per-listing QR codes are forbidden. No external placement is executed without operator approval and independent evidence.",
   "placement_families": [
     {
       "id": "CLUB-001",

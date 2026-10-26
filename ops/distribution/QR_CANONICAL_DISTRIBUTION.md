@@ -1,44 +1,28 @@
-# Canonical QR distribution
+# One canonical QR, all silos
+The **single immutable QR symbol** lives at `public/qr/canonical.svg`.
+It has been independently decoded from its existing pixel matrix (37 × 37)
+as:
 
-## Canonical target
-
+```text
+https://dreamledger.org/?utm_source=qr&utm_medium=offline&utm_campaign=canonical
 ```
-https://dreamledger.org/?src=qr-canonical
-```
 
-Optional product deep links:
+This QR payload is **not changed** by this patch. `public/assets/qr-canonical.svg`
+is an byte-identical alias, replacing a non-scannable placeholder.
+`BEC-PRIME/compiled/website/canonical-qr.html` refers to that same
+asset rather than embedding a second fake image.
 
-- Tile: `https://dreamledger.org/?src=qr-tile#featured`
-- Diagnostic: `https://dreamledger.org/mtg?src=qr-diag`
-- Stripe tile direct: use only on physical print if page load is unreliable
+All niche, offer, shop and agent routing happens **after the scan**.
+Do not generate or publish one QR per listing, change the QR encoding,
+or create QR variants for campaigns. `/go` is an existing internal
+one-doorway navigation page, not the encoded QR payload.
 
-## Asset
+The business doorway must resolve correctly on mobile before any public
+QR promotion. Current external domain/DNS, offer readiness, checkout
+and fulfilment must be independently verified; this asset patch does
+not grant permission to publish or advertise.
 
-- Placeholder: `public/assets/qr-canonical.svg`
-- **Action for local/CI agent:** run `BEC-PRIME` QRCompiler / `qrcode` against the canonical URL → overwrite SVG/PNG in `public/assets/` and `BEC-PRIME/compiled/qr/`.
-- Catalog was empty (`count: 0`) as of 2026-08-28 — this must be regenerated.
-
-## Auto-post corners (allowed channels only)
-
-| Channel | Mode | Frequency | Notes |
-|---------|------|-----------|-------|
-| Own Discord | Pin + footer | Always | Safe |
-| Own X / social | Image post | 1–2 / week | Track `src=` |
-| Physical NZ venues | Print sticker | Manual | Billboard / LGS if permitted |
-| Reddit | **Comment value first**, QR rare | Only if rules allow | Prefer text link |
-| Substack notes | Own publication | When you have a list | Don’t inject into others |
-| GitHub README / About | Static | Once | OK |
-
-**Do not:** mass-post QR to unrelated subs, email lists you don’t own, or paid ads without budget approval.
-
-## Agent queue item
-
-```json
-{
-  "job": "QR_DISTRIBUTE",
-  "url": "https://dreamledger.org/?src=qr-canonical",
-  "asset": "public/assets/qr-canonical.svg",
-  "status": "needs_real_qr_modules",
-  "next": "run QRCompiler → commit PNG/SVG → post own channels"
-}
-```
+## Authority
+- Single QR bytes are locked by `node --test BEC-PRIME/scripts/single-canonical-qr.test.js`
+- Canonical code, historical printed scans, payment links, revenue and approved products remain unchanged
+- All external promotion and paid actions need separate owner approval
