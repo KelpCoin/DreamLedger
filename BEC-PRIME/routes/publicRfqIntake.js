@@ -28,7 +28,8 @@ async function handle(req,res,pathname) {
       for await (const chunk of req) { size+=chunk.length;if(size>24000){send(413,{error:'REQUEST_TOO_LARGE'});return true;}chunks.push(chunk); }
       init.body=Buffer.concat(chunks);
     }
-    const reqUrl=String(req.url||pathname),queryAt=reqUrl.indexOf('?'),suffix=queryAt>=0?reqUrl.slice(queryAt):'';\n    const response=await fetch(WORKER_URL+pathname+suffix,init);
+    const reqUrl=String(req.url||pathname),queryAt=reqUrl.indexOf('?'),suffix=queryAt>=0?reqUrl.slice(queryAt):'';
+    const response=await fetch(WORKER_URL+pathname+suffix,init);
     const text=await response.text();
     res.statusCode=response.status;res.setHeader('Content-Type',response.headers.get('content-type')||'application/json; charset=utf-8');res.setHeader('Cache-Control','no-store');res.end(text);return true;
   } catch (_) { send(503,{error:'MARKETPLACE_WORKER_UNAVAILABLE'});return true; }
