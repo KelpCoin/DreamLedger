@@ -31,7 +31,7 @@ async function handle(req,res,pathname) {
     const reqUrl=String(req.url||pathname),queryAt=reqUrl.indexOf('?'),suffix=queryAt>=0?reqUrl.slice(queryAt):'';
     const response=await fetch(WORKER_URL+pathname+suffix,init);
     const text=await response.text();
-    res.statusCode=response.status;res.setHeader('Content-Type',response.headers.get('content-type')||'application/json; charset=utf-8');res.setHeader('Cache-Control','no-store');res.end(text);return true;
+    res.statusCode=response.status;res.setHeader('Content-Type',(response.headers&&typeof response.headers.get==='function'&&response.headers.get('content-type'))||'application/json; charset=utf-8');res.setHeader('Cache-Control','no-store');res.end(text);return true;
   } catch (_) { send(503,{error:'MARKETPLACE_WORKER_UNAVAILABLE'});return true; }
 }
 module.exports={handle};
