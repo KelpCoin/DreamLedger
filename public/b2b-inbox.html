@@ -56,7 +56,7 @@
   });
   csv.addEventListener('click',function(){
     var cols=['id','company','contact_email','category','title','details','budget_text','region','status','created_at'];
-    var quote=function(v){return '"'+String(v==null?'':v).replace(/"/g,'""')+'"';};
+    var quote=function(v){var s=String(v==null?'':v);if(/^[\\s]*[=+\\-@]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"';};
     var body=[cols.join(','),...requests.map(function(r){return cols.map(function(k){return quote(r[k]);}).join(',');})].join('\r\n');
     var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([body],{type:'text/csv;charset=utf-8'}));a.download='dreamledger-rfq-inbox.csv';a.click();URL.revokeObjectURL(a.href);
   });
