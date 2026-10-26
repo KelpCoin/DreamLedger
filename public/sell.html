@@ -26,26 +26,46 @@
 <select id="kind" name="kind" required><option value="">Select…</option><option value="digital">Digital</option><option value="physical">Physical NZ</option><option value="service">Service</option><option value="b2b">B2B / wholesale</option><option value="mtg">MTG</option></select>
 <label for="title">Title</label><input id="title" name="title" required maxlength="120">
 <label for="description">Description</label><textarea id="description" name="description" required maxlength="2000"></textarea>
-<div class="row"><div><label for="price">Price NZD</label><input id="price" name="price" type="number" min="1" required></div><div><label for="inventory">Units</label><input id="inventory" name="inventory" type="number" min="1" value="1" required></div></div>
+<div class="row"><div><label for="price">Price NZD</label><input id="price" name="price" type="number" min="0.01" step="0.01" required></div><div><label for="inventory">Units</label><input id="inventory" name="inventory" type="number" min="1" value="1" required></div></div>
 <label for="business">Business name (optional)</label><input id="business" name="business">
 <label for="gst">GST</label><select id="gst" name="gst"><option value="unknown">Prefer not to say</option><option value="yes">Yes</option><option value="no">No</option></select>
 <label for="email">Email</label><input id="email" name="email" type="email" required>
-<label for="notes">Notes</label><textarea id="notes" name="notes"></textarea>
+<label for="notes">Notes</label><textarea id="notes" name="notes" maxlength="2000"></textarea>
+<label style="display:flex;gap:10px;align-items:flex-start"><input type="checkbox" name="contact_consent" required style="width:auto;margin-top:4px"> I consent to DreamLedger reviewing this proposed listing and contacting me about it. Submission does not publish a listing. See the <a href="/privacy" style="text-decoration:underline">privacy notice</a>.</label>
+<div aria-hidden="true" style="position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden"><label for="website">Leave this field blank</label><input id="website" name="website" tabindex="-1" autocomplete="off"></div>
 <button class="btn" type="submit" id="submit">Submit for review</button>
 <div class="status" id="status"></div>
 <p class="note"><a href="/policies.html">Policies</a> · <a href="/b2b.html">Seller tools hub</a></p>
 </form>
 </main>
 <script>
-(function(){const form=document.getElementById('sell-form');const status=document.getElementById('status');const btn=document.getElementById('submit');
-form.addEventListener('submit',async function(e){e.preventDefault();status.textContent='Submitting…';btn.disabled=true;
-const data=Object.fromEntries(new FormData(form).entries());data.price_nzd=Number(data.price);data.inventory=Number(data.inventory);data.source='sell.html';data.intent='seller_intake';data.timestamp=new Date().toISOString();
-try{let r=await fetch('/api/marketplace/intake',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(data)});
-if(r.status===404){r=await fetch('/api/offers',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({...data,status:'Awaiting review'})});}
-if(!r.ok)throw new Error('fail');
-status.className='status ok';status.textContent='Received. Awaiting review.';form.reset();
-}catch(err){try{const k='dreamledger_seller_signals';const p=JSON.parse(localStorage.getItem(k)||'[]');p.push(data);localStorage.setItem(k,JSON.stringify(p.slice(-20)));}catch(_){}
-status.className='status ok';status.textContent='Saved locally. Not public until approved.';}finally{btn.disabled=false;}});})();
-</script>
+(function(){
+  'use strict';
+  const form=document.getElementById('sell-form');
+  const status=document.getElementById('status');
+  const btn=document.getElementById('submit');
+  let idempotencyKey='';
+  form.addEventListener('submit',async function(e){
+    e.preventDefault();
+    const data=Object.fromEntries(new FormData(form).entries());
+    data.price_nzd=Number(data.price);
+    data.inventory=Number(data.inventory);
+    data.contact_consent=form.querySelector('[name="contact_consent"]').checked;
+    if(!idempotencyKey)idempotencyKey=(window.crypto&&crypto.randomUUID)?crypto.randomUUID():('seller-'+Date.now()+'-'+Math.random().toString(36).slice(2,14));
+    data.idempotency_key=idempotencyKey;
+    if(btn){btn.disabled=true;btn.textContent='Submitting securely...';}
+    status.className='status';status.textContent='Submitting for private review...';
+    try{
+      const r=await fetch('/api/marketplace/seller-intake',{method:'POST',headers:{'content-type':'application/json','accept':'application/json'},body:JSON.stringify(data),credentials:'same-origin'});
+      const result=await r.json();
+      if(!r.ok)throw new Error(result.error||'SELLER_INTAKE_UNAVAILABLE');
+      status.className='status ok';
+      status.textContent='Received for private review. Reference: '+result.reference+'. This is not a published listing and no payment is enabled.';
+      form.reset();idempotencyKey='';
+    }catch(err){
+      status.className='status';status.textContent='Not confirmed saved: '+String(err.message||'request failed')+'. Your details were not saved in this browser. Please retry later.';
+    }finally{if(btn){btn.disabled=false;btn.textContent='Submit for review';}}
+  });
+})();</script>
 </body>
 </html>
