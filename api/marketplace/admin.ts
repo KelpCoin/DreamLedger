@@ -22,7 +22,9 @@ export default async function handler(req: any, res: any) {
     const sql = neon(process.env.NEON_DATABASE_URL);
     const rows = await sql`select id,company,contact_email,category,title,details,budget_text,region,status,created_at
       from marketplace.public_rfq_intake order by created_at desc limit 100`;
-    return json(res, 200, { schema: "dreamledger/private-rfq-inbox/v1", count: rows.length, requests: rows });
+    const sellers = await sql`select id,listing_kind,title,description,price_minor,quantity,business_name,gst_status,contact_email,notes,status,created_at
+      from marketplace.public_seller_intake order by created_at desc limit 100`;
+    return json(res, 200, { schema: "dreamledger/private-rfq-inbox/v1", count: rows.length, requests: rows, seller_count: sellers.length, seller_applications: sellers });
   } catch {
     return json(res, 503, { error: "RFQ_INBOX_UNAVAILABLE" });
   }
