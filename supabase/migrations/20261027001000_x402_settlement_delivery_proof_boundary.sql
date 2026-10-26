@@ -67,7 +67,7 @@ BEGIN
       ADD CONSTRAINT economic_events_x402_scoreboard_truth_ck
       CHECK (
         source_system IS DISTINCT FROM 'x402'
-        OR coalesce(metadata->>'scoreboard_eligible','false') <> 'true'
+        OR coalesce(lower(trim(metadata->>'scoreboard_eligible')),'false') <> 'true'
         OR (payment_settled IS TRUE
             AND delivery_verified IS TRUE
             AND artifact_sha256 ~ '^[0-9a-f]{64}$'
