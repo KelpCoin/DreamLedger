@@ -45,6 +45,7 @@ jobs:
           const checks=[
             {path:'/',type:'html',marker:'DreamLedger'},
             {path:'/b2b',type:'html',marker:'B2B Procurement Tools'},
+            {path:'/b2b',type:'checkout',marker:'https://buy.stripe.com/00wdR93vnbK5eqH3gwdwc3r'},
             {path:'/marketplace',type:'html',marker:'marketplace'},
             {path:'/catalog.json',type:'catalog'},
             {path:'/api/version',type:'version'}
@@ -75,6 +76,12 @@ jobs:
                 if(body.length>1000000)throw Error('RESPONSE_OVERSIZE');
                 if(check.type==='html'&&!body.toLowerCase().includes(check.marker.toLowerCase()))
                   throw Error('EXPECTED_PUBLIC_CONTENT_NOT_FOUND');
+                if(check.type==='checkout'){
+                  if(!body.includes(check.marker))throw Error('ACTIVE_QUOTE_CHECKOUT_MISSING');
+                  if(body.includes('https://buy.stripe.com/bJe7sL7LD4hDeqH04kdwc3e'))
+                    throw Error('RETIRED_QUOTE_CHECKOUT_PRESENT');
+                  result.active_quote_checkout_present=true;
+                }
                 if(check.type==='catalog'){
                   const j=JSON.parse(body);
                   if(j.schema!=='dreamledger/public-catalogue/v1'||!Array.isArray(j.products))
