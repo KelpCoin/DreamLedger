@@ -19,7 +19,7 @@ assert isinstance(contract.get("completion_condition", ""), str)
 pain = Path("docs/UNIVERSAL-PAIN-OBSERVATORY-P301-P400.md").read_text(encoding="utf-8")
 assert pain.count("### P") == 100, "expected 100 pain-corpus entries"
 market = Path("public/b2b.html").read_text(encoding="utf-8")
-assert "B2B Exchange" in market
+assert "Post RFQ" in market or "Post a request" in market
 server = Path("public/server.js").read_text(encoding="utf-8")
 assert "'/b2b':'b2b.html'" in server
 
