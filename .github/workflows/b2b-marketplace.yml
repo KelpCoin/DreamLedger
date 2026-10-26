@@ -5,6 +5,7 @@ on:
       - 'public/b2b.html'
       - 'public/server.js'
       - 'BEC-PRIME/routes/publicRfqIntake.js'
+      - 'tests/marketplace-intake.test.js'
       - 'scripts/validate_b2b_marketplace.py'
       - '.github/workflows/b2b-marketplace.yml'
   push:
@@ -29,3 +30,4 @@ jobs:
       - run: python scripts/validate_b2b_marketplace.py
       - run: node --check public/server.js
       - run: node --check BEC-PRIME/routes/publicRfqIntake.js
+      - run: node --test tests/marketplace-intake.test.js
