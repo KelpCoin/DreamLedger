@@ -1,0 +1,7 @@
+{
+  "name": "dreamledger-marketplace-worker",
+  "private": true,
+  "type": "module",
+  "scripts": {"check": "node --check src/index.js"},
+  "dependencies": {"@neondatabase/serverless": "^1.0.2"}
+}
