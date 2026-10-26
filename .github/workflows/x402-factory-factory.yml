@@ -9,6 +9,7 @@ on:
       - 'BEC-PRIME/factory/X402FactoryFactory.js'
       - 'BEC-PRIME/scripts/Verify-X402FactoryFactory.js'
       - 'BEC-PRIME/catalog/offers/approved.json'
+      - 'supabase/functions/x402-reconcile/**'
       - '.github/workflows/x402-factory-factory.yml'
 
 permissions:
@@ -27,6 +28,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+      - name: Validate exact USDC and commercial settlement truth
+        run: node --test supabase/functions/x402-reconcile/settlement-guards.test.mjs
       - name: Build factory outputs
         run: node BEC-PRIME/factory/X402FactoryFactory.js
       - name: Verify fail-closed outputs
