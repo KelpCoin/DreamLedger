@@ -120,7 +120,7 @@ http.createServer(async (req,res)=>{
   }
   if(p.startsWith('/api/toll')||p.startsWith('/toll/')) return proxyTollToEngine(req,res,p);
   if(p.startsWith('/swarm/')||p.startsWith('/api/swarm')) return proxySwarm(req,res,p);
-  if(p.startsWith('/api/marketplace/'){
+  if(p.startsWith('/api/marketplace/')){
     try{
       const handled=await publicRfqIntake.handle(req,res,p);
       if(handled)return;
