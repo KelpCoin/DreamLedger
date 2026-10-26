@@ -22,6 +22,38 @@
 <article class="card"><div class="price">NZ$29 · LEDGER-GATED CHECKOUT</div><h2>Commander Deck Diagnostic</h2><p class="muted">Submit a decklist through the first-party intake. Checkout is created only while settlement recording is reachable; a listing or checkout start is not proof of delivery.</p><a class="btn" href="/mtg/diagnostic.html">Start decklist intake</a></article>
 <article class="card"><div class="price">NZ$79 · DELIVERY TEST PENDING</div><h2>Discord Webhook Starter Kit</h2><p class="muted">A downloadable Stripe-to-Discord webhook kit. The ZIP and session-verified endpoint exist, but the post-payment delivery path has not yet passed an end-to-end receipt test.</p><a class="btn" href="https://buy.stripe.com/4gMcN56HzaG1dmDeZedwc1n">Open checkout</a></article>
 </div></div></section>
+<section id="community-listings" class="section"><div class="wrap"><h2>Marketplace listings</h2><p class="muted">Published seller inventory only. Applications are reviewed before publication. Contact the seller through a buyer request; checkout is not enabled for these listings yet.</p><div id="community-listings-grid" class="grid" aria-live="polite"><article class="card"><h2>Loading published inventory...</h2><p class="muted">No listing is assumed available until the inventory endpoint confirms it.</p></article></div><p id="community-listings-status" class="muted" role="status">Checking published marketplace inventory.</p><div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:18px"><a class="btn" href="/sell.html">Apply to sell</a><a class="btn alt" href="/b2b.html">Request a quote</a></div></div></section>
+<script>
+(async function(){
+ const grid=document.getElementById('community-listings-grid');
+ const status=document.getElementById('community-listings-status');
+ const el=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;n.textContent=String(text==null?'':text);return n;};
+ try{
+  const r=await fetch('/api/marketplace/listings',{headers:{accept:'application/json'},cache:'no-store'});
+  const d=await r.json();
+  if(!r.ok)throw new Error(d.error||'Inventory unavailable');
+  const items=Array.isArray(d.listings)?d.listings:[];
+  grid.replaceChildren();
+  if(!items.length){const card=el('article','card','');card.appendChild(el('h2','','No published listings yet'));card.appendChild(el('p','muted','Be the first seller to apply. Applications are reviewed privately and are not automatically published.'));grid.appendChild(card);}
+  items.forEach(function(item){
+   const card=el('article','card','');
+   card.appendChild(el('h2','',item.title));
+   card.appendChild(el('p','muted',(item.seller||'DreamLedger seller')+' · '+(item.category||'General')+' · '+(item.listing_type||'product')));
+   card.appendChild(el('p','',item.description||'Description available on request.'));
+   const price=Number(item.price_minor);
+   card.appendChild(el('p','price',Number.isFinite(price)?new Intl.NumberFormat('en-NZ',{style:'currency',currency:item.currency||'NZD'}).format(price/100):'Price on request'));
+   card.appendChild(el('p','muted','Available units: '+String(item.quantity)));
+   const link=el('a','btn','Request details / quote');link.href='/b2b.html';card.appendChild(link);
+   grid.appendChild(card);
+  });
+  status.textContent='Inventory endpoint confirmed '+items.length+' published listing(s). Checkout remains disabled for this catalogue.';
+ }catch(err){
+  grid.replaceChildren();
+  const card=el('article','card','');card.appendChild(el('h2','','Inventory temporarily unavailable'));card.appendChild(el('p','muted','The listing service did not confirm current inventory. Try again later or submit a seller application.'));grid.appendChild(card);
+  status.textContent='Inventory not verified: '+String(err.message||'request failed');
+ }
+})();
+</script>
 <section id="agent-bridge-catalog" class="section"><div class="wrap"><h2>Agent Bridge live transaction status</h2><p class="muted">This panel reads the canonical gateway manifest, not the cached catalogue snapshot. It reports held routes and missing checkout/execution fields rather than treating a listing as sellable.</p><div id="bridge-offers" class="grid" aria-live="polite"><article class="card"><h2>Checking gateway status…</h2><p class="muted">No availability is inferred while the manifest is loading.</p></article></div><p id="bridge-status" class="muted" role="status">Contacting canonical Agent Bridge manifest.</p><p><a class="btn alt" href="https://dreamledger.org/api/toll/v1/manifest">Open raw machine manifest</a></p></div></section>
 <section class="section"><div class="wrap"><div class="card"><h2>What makes this a marketplace?</h2><p class="muted">Discovery is shared. Offers are structured. Agents can consume the catalog. Buyers retain authorization. Existing Stripe settlement and fulfillment remain the economic authority. B2B browsing is free; A2A usage is priced per capability and must disclose its unit and budget. Digital goods need a licence and versioned delivery receipt. DOOH inventory must be owner-authorized, and GPU work must be opt-in and isolated. The first objective is one independent buyer crossing the wallet, then repeatable fulfilment.</p></div></div></section>
 <section><div class="wrap truth">VERIFIED_EXTERNAL_REVENUE = NZ$0.00<br>Listings, clicks, checkout starts and internal orders do not count as revenue.</div></section>
