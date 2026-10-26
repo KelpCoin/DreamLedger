@@ -1,0 +1,41 @@
+{
+  "schema": "dreamledger.silo.master-template.v1",
+  "version": "1.0.0",
+  "reference_silo_id": "mtg",
+  "reference_silo_name": "Magic: The Gathering",
+  "record_state": "REFERENCE_TEMPLATE_NOT_ECONOMICALLY_VALIDATED",
+  "clone_enabled": false,
+  "clone_gate": "MTG must pass the same payment, inventory, fulfillment, delivery-proof and reconciliation checks as any independent sale before any silo is cloned.",
+  "reuse_existing_kernel": true,
+  "catalogue_and_inventory_are_silo_owned": true,
+  "copy_live_data_or_credentials": false,
+  "owner_approval_required": true,
+  "clone_gate_conditions": [
+    "silo-scoped catalogue and inventory read-back",
+    "cross-silo access-denial tests",
+    "finite-inventory concurrency and reservation test",
+    "provider settlement and duplicate-event idempotency test",
+    "settlement-before-fulfillment enforcement",
+    "buyer-retrievable delivery receipt",
+    "refund and dispute reconciliation",
+    "one independent live buyer with settled payment and delivery proof",
+    "owner approval before any clone is activated"
+  ],
+  "clone_must_replace": [
+    "silo_id",
+    "public_surface",
+    "catalogue_source",
+    "inventory_authority",
+    "fulfillment_contract",
+    "provider_price_ids",
+    "access_policy",
+    "economics_evidence"
+  ],
+  "economic_validation": {
+    "status": "NOT_ECONOMICALLY_VALIDATED",
+    "verified_external_revenue_nzd": 0,
+    "independent_buyers_verified": 0,
+    "paid_fulfilled_orders_verified": 0,
+    "clone_authorized": false
+  }
+}
