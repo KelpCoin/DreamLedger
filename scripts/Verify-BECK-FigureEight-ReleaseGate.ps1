@@ -33,10 +33,17 @@ try {
     Assert-Equal "github_pr_state" $e.observations.github_pr.state "open"
     Assert-Equal "github_pr_merged" $e.observations.github_pr.merged $false
     Assert-Equal "vercel_failure_marker" $e.observations.vercel.reported_failure_marker "build-rate-limit"
+    Assert-Equal "vercel_latest_error" $e.observations.vercel.latest_deployment_error_code "module_not_found"
+    Assert-Equal "vercel_wrapper_status" $e.observations.vercel.compatibility_wrapper_status "committed_to_feature_branch_not_deployment_verified"
     Assert-Equal "render_service_state" $e.observations.render.state "suspended"
     Assert-Equal "render_suspend_reason" $e.observations.render.suspend_reason "billing"
-    Assert-Equal "recovery_public_schema_count" $e.observations.supabase.public_schema_table_count_reported 0
+    Assert-Equal "recovery_public_schema_count" $e.observations.supabase.public_schema_table_count 0
+    Assert-Equal "recovery_beck_table_count" $e.observations.supabase.all_user_schema_table_counts.beck 9
+    Assert-Equal "recovery_beck_estimated_rows" $e.observations.supabase.beck_business_table_estimated_rows 0
+    Assert-Equal "original_project_status" $e.observations.supabase.original_project_status "ACTIVE_HEALTHY"
     Assert-Equal "original_db_read" $e.observations.supabase.original_project_read "connection_refused"
+    Assert-Equal "neon_written_data_bytes" $e.observations.neon.reported_written_data_bytes 0
+    Assert-Equal "neon_snapshot_count" $e.observations.neon.snapshot_count 0
     Assert-Equal "diagnostic_release_state" $e.observations.diagnostic_offer.release_state "held"
     Assert-Equal "diagnostic_buy_button_allowed" $e.observations.diagnostic_offer.buy_button_allowed $false
     Assert-Equal "diagnostic_instock_allowed" $e.observations.diagnostic_offer.in_stock_structured_data_allowed $false
