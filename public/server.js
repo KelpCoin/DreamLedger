@@ -135,7 +135,7 @@ http.createServer(async (req,res)=>{
       return send(res,200,JSON.stringify({schema:'dreamledger/offers/v1',count:listed.length,offers:listed}),'application/json; charset=utf-8');
     }catch(error){ return send(res,500,JSON.stringify({error:'CATALOG_UNAVAILABLE'}),'application/json; charset=utf-8'); }
   }
-  if(p.startsWith('/api/toll')||p.startsWith('/toll/')) return proxyTollToEngine(req,res,p);
+  if(p.startsWith('/api/toll/v1/')||p.startsWith('/api/toll')||p.startsWith('/toll/')) return proxyTollToEngine(req,res,p);
   if(p.startsWith('/swarm/')||p.startsWith('/api/swarm')) return proxySwarm(req,res,p);
   if(req.method==='GET'&&(p==='/api/marketplace/listings'||p==='/api/marketplace/rfqs')){
     const handled=await proxyMarketplaceRead(req,res,p,u.search);
