@@ -65,6 +65,23 @@ function headers(res){
   res.setHeader('Referrer-Policy','strict-origin-when-cross-origin');
   res.setHeader('Content-Security-Policy',"default-src 'self'; img-src 'self' https: data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https:; frame-ancestors 'none'; base-uri 'self'; form-action 'self' https://checkout.stripe.com https://buy.stripe.com");
 }
+async function proxyMarketplaceRead(req,res,p,search){
+  if(!['/api/marketplace/listings','/api/marketplace/rfqs'].includes(p))return false;
+  const base=String(process.env.MARKETPLACE_WORKER_URL||'').replace(/\\/$/,'');
+  if(!base){send(res,503,JSON.stringify({error:'MARKETPLACE_SERVICE_NOT_CONFIGURED',checkout_enabled:false}),'application/json; charset=utf-8');return true;}
+  try{
+    const target=base+p+(search||'');
+    const upstream=await fetch(target,{method:'GET',headers:{accept:'application/json',...(req.headers.origin?{origin:req.headers.origin}:{})},redirect:'manual',signal:AbortSignal.timeout(8000)});
+    const body=await upstream.arrayBuffer();
+    res.statusCode=upstream.status;
+    res.setHeader('Content-Type',upstream.headers.get('content-type')||'application/json; charset=utf-8');
+    res.setHeader('Cache-Control','no-store');
+    return res.end(Buffer.from(body)),true;
+  }catch(error){
+    console.error(JSON.stringify({marketplace_read_proxy_failed:true,path:p,error:String(error&&error.message||error)}));
+    send(res,503,JSON.stringify({error:'MARKETPLACE_SERVICE_UNAVAILABLE',checkout_enabled:false}),'application/json; charset=utf-8');return true;
+  }
+}
 async function proxySwarm(req,res,p){if(!ENGINE_INTERNAL_URL)return send(res,503,'Swarm engine unavailable','text/plain; charset=utf-8');try{const target=ENGINE_INTERNAL_URL+(p.startsWith('/swarm/')?'/api/swarm-100k/'+p.split('/').pop():p);const h={};if(ENGINE_INTERNAL_API_KEY)h['x-api-key']=ENGINE_INTERNAL_API_KEY;const r=await fetch(target,{headers:h});const body=await r.text();res.statusCode=r.status;res.setHeader('Content-Type',r.headers.get('content-type')||'application/json; charset=utf-8');res.setHeader('Cache-Control','public, max-age=60, s-maxage=300');return res.end(body);}catch(e){return send(res,502,'Swarm engine unavailable','text/plain; charset=utf-8');}}
 async function proxyTollToEngine(req,res,p){
   if(!ENGINE_INTERNAL_URL)return send(res,503,JSON.stringify({error:'toll_engine_unavailable'}),'application/json; charset=utf-8');
@@ -120,6 +137,10 @@ http.createServer(async (req,res)=>{
   }
   if(p.startsWith('/api/toll')||p.startsWith('/toll/')) return proxyTollToEngine(req,res,p);
   if(p.startsWith('/swarm/')||p.startsWith('/api/swarm')) return proxySwarm(req,res,p);
+  if(req.method==='GET'&&(p==='/api/marketplace/listings'||p==='/api/marketplace/rfqs')){
+    const handled=await proxyMarketplaceRead(req,res,p,u.search);
+    if(handled)return;
+  }
   if(p.startsWith('/api/marketplace/')){
     try{
       const handled=await publicRfqIntake.handle(req,res,p);
