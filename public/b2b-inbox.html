@@ -28,20 +28,29 @@
 <script>
 (function(){
   'use strict';
-  var token=document.getElementById('token'),form=document.getElementById('auth'),status=document.getElementById('status'),results=document.getElementById('results'),list=document.getElementById('list'),count=document.getElementById('count'),button=document.getElementById('load'),csv=document.getElementById('csv'),requests=[];
+  var token=document.getElementById('token'),form=document.getElementById('auth'),status=document.getElementById('status'),results=document.getElementById('results'),list=document.getElementById('list'),count=document.getElementById('count'),button=document.getElementById('load'),csv=document.getElementById('csv'),requests=[],sellerRequests=[];
   function node(tag,text,cls){var e=document.createElement(tag);e.textContent=String(text==null?'':text);if(cls)e.className=cls;return e;}
-  function show(items){
-    requests=items;list.replaceChildren();count.textContent=items.length+' request'+(items.length===1?'':'s');
-    if(!items.length)list.appendChild(node('p','No requests have been received yet.','muted'));
+  function show(items,sellers){
+    requests=items;sellerRequests=Array.isArray(sellers)?sellers:[];list.replaceChildren();count.textContent=items.length+' RFQ(s) · '+sellerRequests.length+' seller application(s)';
+    if(!items.length&&!sellerRequests.length)list.appendChild(node('p','No requests have been received yet.','muted'));
     items.forEach(function(r){
       var card=node('article','');card.className='request';
-      card.appendChild(node('h2',r.title));
+      card.appendChild(node('h2','BUYER RFQ · '+r.title));
       card.appendChild(node('div',r.company+' · '+r.contact_email,'meta'));
       var tags=node('div','');tags.appendChild(node('span',r.category,'pill'));tags.appendChild(node('span',r.region,'pill'));tags.appendChild(node('span',r.status,'pill'));card.appendChild(tags);
       if(r.budget_text)card.appendChild(node('p','Budget: '+r.budget_text,'meta'));
-      card.appendChild(node('p',r.details,'details'));
-      card.appendChild(node('p','Received: '+r.created_at,'meta'));
-      list.appendChild(card);
+      card.appendChild(node('p',r.details,'details'));card.appendChild(node('p','Received: '+r.created_at,'meta'));list.appendChild(card);
+    });
+    sellerRequests.forEach(function(r){
+      var card=node('article','');card.className='request';
+      card.appendChild(node('h2','SELLER APPLICATION · '+r.title));
+      card.appendChild(node('div',(r.business_name||'Individual seller')+' · '+r.contact_email,'meta'));
+      var tags=node('div','');tags.appendChild(node('span',r.listing_kind,'pill'));tags.appendChild(node('span',r.status,'pill'));tags.appendChild(node('span',r.quantity+' unit(s)','pill'));card.appendChild(tags);
+      var price=Number(r.price_minor);
+      card.appendChild(node('p','Asking price: '+(Number.isFinite(price)?new Intl.NumberFormat('en-NZ',{style:'currency',currency:'NZD'}).format(price/100):'Not specified'),'meta'));
+      card.appendChild(node('p',r.description,'details'));
+      if(r.notes)card.appendChild(node('p','Notes: '+r.notes,'details'));
+      card.appendChild(node('p','GST: '+r.gst_status+' · Received: '+r.created_at,'meta'));list.appendChild(card);
     });
     results.classList.remove('hide');
   }
@@ -50,16 +59,17 @@
     try{
       var r=await fetch('/api/marketplace/admin',{headers:{'authorization':'Bearer '+token.value,'accept':'application/json'},cache:'no-store'});
       var d=await r.json();if(!r.ok)throw new Error(d.error||'Inbox request failed');
-      show(Array.isArray(d.requests)?d.requests:[]);status.textContent='Inbox loaded. '+d.count+' private request(s).';
+      show(Array.isArray(d.requests)?d.requests:[],Array.isArray(d.seller_applications)?d.seller_applications:[]);
+      status.textContent='Inbox loaded. '+d.count+' RFQ(s) and '+(d.seller_count||0)+' seller application(s).';
     }catch(err){status.textContent='Inbox unavailable: '+String(err.message||'request failed');}
     finally{button.disabled=false;button.textContent='Load requests';}
   });
   csv.addEventListener('click',function(){
-    var cols=['id','company','contact_email','category','title','details','budget_text','region','status','created_at'];
+    var cols=['record_type','id','company','business_name','contact_email','category','listing_kind','title','details','description','budget_text','region','price_minor','quantity','gst_status','notes','status','created_at'];
     var quote=function(v){var s=String(v==null?'':v);if(/^[\\s]*[=+\\-@]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"';};
-    var body=[cols.join(','),...requests.map(function(r){return cols.map(function(k){return quote(r[k]);}).join(',');})].join('\r\n');
-    var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([body],{type:'text/csv;charset=utf-8'}));a.download='dreamledger-rfq-inbox.csv';a.click();URL.revokeObjectURL(a.href);
+    var all=requests.map(function(r){return Object.assign({record_type:'RFQ'},r);}).concat(sellerRequests.map(function(r){return Object.assign({record_type:'SELLER_APPLICATION'},r);}));
+    var body=[cols.join(','),...all.map(function(r){return cols.map(function(k){return quote(r[k]);}).join(',');})].join('\\r\\n');
+    var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([body],{type:'text/csv;charset=utf-8'}));a.download='dreamledger-marketplace-inbox.csv';a.click();URL.revokeObjectURL(a.href);
   });
-})();
-</script>
+})();</script>
 </main></body></html>
