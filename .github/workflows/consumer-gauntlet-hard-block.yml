@@ -1,0 +1,30 @@
+name: BECK consumer Gauntlet hard block
+on:
+  pull_request:
+    paths:
+      - 'BEC-PRIME/gauntlet/CandidateGauntlet.js'
+      - 'BEC-PRIME/compiler/ProductCompiler.js'
+      - 'BEC-PRIME/scripts/test-consumer-gauntlet-release.js'
+      - '.github/workflows/consumer-gauntlet-hard-block.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'BEC-PRIME/gauntlet/CandidateGauntlet.js'
+      - 'BEC-PRIME/compiler/ProductCompiler.js'
+      - 'BEC-PRIME/scripts/test-consumer-gauntlet-release.js'
+      - '.github/workflows/consumer-gauntlet-hard-block.yml'
+permissions:
+  contents: read
+jobs:
+  hard-block:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Verify signed Gauntlet proof and non-executing preaction binding
+        run: |
+          node --check BEC-PRIME/compiler/ProductCompiler.js
+          node --test BEC-PRIME/scripts/test-consumer-gauntlet-release.js

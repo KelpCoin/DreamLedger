@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const { validateCatalogProduct } = require('../elohim/validateElohimProduct');
+const { consumerRelease } = require('../gauntlet/CandidateGauntlet');
 
 const ROOT = path.join(__dirname, '..');
 const PRODUCT_DIR = path.join(ROOT, 'catalog', 'products');
@@ -11,6 +12,20 @@ const OUT_DIR = path.join(ROOT, 'catalog', 'offers');
 const OUT_FILE = path.join(OUT_DIR, 'products.json');
 const PROOF_FILE = path.join(ROOT, 'PROOF-PRODUCT-COMPILATION.json');
 const FULFILLMENT_FILE = path.join(ROOT, 'fulfillment', 'PRODUCT-FULFILLMENT-REGISTRY.json');
+const CONSUMER_RELEASE_DIR = path.join(ROOT, 'data', 'gauntlet', 'consumer-release');
+// Trusted public key only; no private signing key belongs in a build process.
+const REVIEW_KEY = process.env.BECK_GAUNTLET_REVIEW_PUBLIC_KEY_PEM || '';
+const REVIEW_ISSUER = process.env.BECK_GAUNTLET_REVIEW_ISSUER || 'beck-gauntlet';
+function verifyConsumerProduct(p) {
+  const safe = /^[A-Za-z0-9_-]{1,120}$/.test(p.id || '');
+  const filename = safe ? path.join(CONSUMER_RELEASE_DIR, p.id + '.json') : null;
+  let report = null;
+  try { if (filename && fs.existsSync(filename)) report = read(filename); }
+  catch (_) { report = null; } // corrupt evidence MUST block
+  const keys = REVIEW_KEY ? { [REVIEW_ISSUER]: REVIEW_KEY } : {};
+  return consumerRelease(p, report, keys);
+}
+
 
 const LEGACY_MINOR_DEFAULT_IDS = new Set([
   'BILLBOARD-LARGE','BILLBOARD-MEDIUM','BILLBOARD-SMALL','BILLBOARD-TAKEOVER','BILLBOARD-WIDE',
@@ -84,15 +99,20 @@ function compile() {
       schemaQuarantineIds.push(p.id);
     }
 
+    // The existing Gauntlet must PASS for these exact product bytes.
+    // No quality receipt, no trusted reviewer key, or a HIGH finding => blocked.
+    const quality = verifyConsumerProduct(p);
     const checkoutAvailable = schema.ok
       && p.status === 'published'
       && p.commercial_truth?.approval_required === false
       && inventoryPositive(p)
-      && f.ready;
+      && f.ready
+      && quality.status === 'PASS';
 
     let status;
     if (!schema.ok) status = 'QUARANTINED_SCHEMA';
     else if (checkoutAvailable) status = 'VERIFIED_AVAILABLE';
+    else if (p.status === 'published' && quality.status !== 'PASS') status = 'QUARANTINED_GAUNTLET';
     else if (p.status === 'published') status = 'QUARANTINED_NO_FULFILLMENT';
     else status = 'unavailable';
 
@@ -125,9 +145,13 @@ function compile() {
       status,
       fulfillment_ready: f.ready,
       fulfillment_block_reason: f.reason,
+      gauntlet_consumer_status: quality.status,
+      gauntlet_consumer_failures: quality.failures,
+      gauntlet_receipt_sha256: quality.gauntlet_receipt_sha256,
+      human_release_authority: 'PREACTION_SIGNED_PUBLICATION_SEPARATE',
       schema_validation: { ok: schema.ok, errors: schema.errors, warnings: schema.warnings },
       proof_of_delivery: 'payment_plus_fulfillment_record_plus_transaction_proof',
-      verification_rules: ['canonical_product', 'schema_validation', 'explicit_operator_approval', 'inventory_positive', 'fulfillment_contract_ready', 'stripe_checkout', 'webhook_proof'],
+      verification_rules: ['canonical_product', 'schema_validation', 'explicit_operator_approval', 'inventory_positive', 'fulfillment_contract_ready', 'stripe_checkout', 'webhook_proof', 'signed_gauntlet_review_product_bound', 'preaction_listing_authorization_separate'],
       provenance: { source: `catalog/products/${p.id}.json`, private_material: 'excluded' }
     };
   });
@@ -142,6 +166,7 @@ function compile() {
     count: offers.length,
     checkoutable_count: offers.filter(x => x.checkout_available).length,
     schema_quarantine_count: schemaQuarantineIds.length,
+    gauntlet_quarantine_count: offers.filter(x => x.status === 'QUARANTINED_GAUNTLET').length,
     source_hash: sha256(JSON.stringify(products)),
     price_contract: 'major_units_by_default; legacy allowlist remains minor until explicit price_unit migration',
     implicit_legacy_price_unit_count: implicitLegacyCount,
@@ -159,7 +184,8 @@ function compile() {
     product_count: products.length,
     checkoutable_product_ids: offers.filter(x => x.checkout_available).map(x => x.offer_id),
     quarantined_published_product_ids: offers.filter(x => x.status === 'QUARANTINED_NO_FULFILLMENT').map(x => x.offer_id),
-    quarantined_schema_product_ids: schemaQuarantineIds
+    quarantined_schema_product_ids: schemaQuarantineIds,
+    gauntlet_quarantined_product_ids: offers.filter(x => x.status === 'QUARANTINED_GAUNTLET').map(x => x.offer_id)
   };
   fs.writeFileSync(PROOF_FILE, JSON.stringify(proof, null, 2) + '\n', 'utf8');
   return manifest;
