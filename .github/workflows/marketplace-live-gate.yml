@@ -1,55 +1,112 @@
-name: B2B Marketplace Live Gate
+name: DreamLedger Public Commerce HTTP Gate
 
 on:
   push:
     branches: [main]
+    paths:
+      - 'api/**'
+      - 'handlers/**'
+      - 'public/**'
+      - 'vercel.json'
+      - '.github/workflows/marketplace-live-gate.yml'
   workflow_dispatch:
   schedule:
-    - cron: '*/15 * * * *'
+    - cron: '17 * * * *'
+
+permissions:
+  contents: read
 
 concurrency:
-  group: marketplace-live-gate
+  group: dreamledger-public-live-gate
   cancel-in-progress: true
-
-env:
-  LIVE_URL: https://dreamledger.org
 
 jobs:
   verify:
+    name: Verify public storefront without manufacturing revenue
     runs-on: ubuntu-latest
+    timeout-minutes: 3
     steps:
-      - name: Checkout
+      - name: Check out exact revision
         uses: actions/checkout@v4
-      - name: Syntax gate
-        working-directory: BEC-PRIME
-        run: |
-          node --check lib/marketplacePreload.js
-          node --check routes/dreamiez.js
-          test -s marketplace/marketplace.html
-          test -s marketplace/catalog/sku-seeds.json
-      - name: Poll live marketplace
+        with:
+          persist-credentials: false
+      - name: Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Inspect real production HTTP routes
+        env:
+          LIVE_URL: https://dreamledger.org
         shell: bash
         run: |
-          set -euo pipefail
-          for attempt in $(seq 1 30); do
-            h=$(curl -sS -o /tmp/health.json -w '%{http_code}' --max-time 15 "$LIVE_URL/healthz" || true)
-            m=$(curl -sS -o /tmp/marketplace.html -w '%{http_code}' --max-time 15 "$LIVE_URL/marketplace" || true)
-            c=$(curl -sS -o /tmp/catalog.json -w '%{http_code}' --max-time 15 "$LIVE_URL/api/marketplace/catalog" || true)
-            if [ "$h" = "200" ] && [ "$m" = "200" ] && [ "$c" = "200" ] && grep -q 'bec-prime.marketplace.v2' /tmp/catalog.json; then
-              echo '{"status":"PASS","health":200,"marketplace":200,"catalog":200,"truth":"Marketplace runtime observed."}' | tee marketplace-live-proof.json
-              exit 0
-            fi
-            echo "not ready attempt $attempt/30 health=$h marketplace=$m catalog=$c"
-            sleep 10
-          done
-          echo '{"status":"FAIL","truth":"Marketplace runtime was not observed after polling."}' | tee marketplace-live-proof.json
-          cat /tmp/health.json || true
-          cat /tmp/catalog.json || true
-          exit 1
-      - name: Upload proof
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const base=process.env.LIVE_URL;
+          const checks=[
+            {path:'/',type:'html',marker:'DreamLedger'},
+            {path:'/b2b',type:'html',marker:'B2B Procurement Tools'},
+            {path:'/marketplace',type:'html',marker:'marketplace'},
+            {path:'/catalog.json',type:'catalog'},
+            {path:'/api/version',type:'version'}
+          ];
+          const report={
+            schema:'DREAMLEDGER/PUBLIC-HTTP-GATE/v2',
+            generated_at_utc:new Date().toISOString(),
+            commit:process.env.GITHUB_SHA,
+            target:base,
+            checks:[],
+            production_verified:false,
+            marketplace_transaction_verified:false,
+            economic_revenue_verified:false,
+            public_mutation:false
+          };
+          for(const check of checks){
+            let result={path:check.path,status:'FAIL',http:null,reason:null};
+            for(let attempt=1;attempt<=2;attempt++){
+              try{
+                const r=await fetch(base+check.path,{
+                  redirect:'follow',cache:'no-store',
+                  signal:AbortSignal.timeout(12000),
+                  headers:{accept:'text/html,application/json;q=0.9'}
+                });
+                result.http=r.status;
+                const body=await r.text();
+                if(r.status!==200)throw Error('HTTP_'+r.status);
+                if(body.length>1000000)throw Error('RESPONSE_OVERSIZE');
+                if(check.type==='html'&&!body.toLowerCase().includes(check.marker.toLowerCase()))
+                  throw Error('EXPECTED_PUBLIC_CONTENT_NOT_FOUND');
+                if(check.type==='catalog'){
+                  const j=JSON.parse(body);
+                  if(j.schema!=='dreamledger/public-catalogue/v1'||!Array.isArray(j.products))
+                    throw Error('PUBLIC_CATALOG_CONTRACT_FAIL');
+                  result.product_count=j.products.length;
+                }
+                if(check.type==='version'){
+                  const j=JSON.parse(body);
+                  if(j.service!=='dreamledger'||j.verified_contract!=='production-version-v2')
+                    throw Error('VERSION_CONTRACT_FAIL');
+                  result.reported_commit=j.commit||null;
+                }
+                result.status='PASS';result.reason=null;break;
+              }catch(e){
+                result.reason=String(e?.message||e).slice(0,170);
+                if(attempt===1)await new Promise(ok=>setTimeout(ok,2000));
+              }
+            }
+            report.checks.push(result);
+          }
+          report.production_verified=report.checks.every(x=>x.status==='PASS');
+          report.verdict=report.production_verified?'PUBLIC_HTTP_PASS':'PUBLIC_HTTP_FAIL';
+          report.note='HTTP availability is not buyer payment, order delivery, marketplace transactional readiness, or revenue.';
+          fs.writeFileSync('marketplace-live-proof.json',JSON.stringify(report,null,2)+'\n');
+          console.log(JSON.stringify(report,null,2));
+          if(!report.production_verified)process.exitCode=1;
+          NODE
+      - name: Upload per-run HTTP observation
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: marketplace-live-proof
+          name: dreamledger-public-live-proof-${{ github.run_id }}
           path: marketplace-live-proof.json
-          if-no-files-found: error
+          if-no-files-found: warn
+          retention-days: 14
