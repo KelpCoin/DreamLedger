@@ -37,6 +37,20 @@ async function publicIntake(req,env,sql){
  const existing=rows[0]?.id||(await sql`select id from marketplace.public_rfq_intake where idempotency_key=${key} limit 1`)[0]?.id;
  return reply({ok:true,status:'received',reference:existing,next:'Human review required. Supplier matching is not guaranteed.'},201)
 }
+async function publicSellerIntake(req,env,sql){
+ const b=await body(req,12000);if(clean(b.website,200))return reply({ok:true,reference:'received'},202);
+ const kind=clean(b.kind,20),title=clean(b.title,120),description=clean(b.description,2000);
+ const price=Number(b.price_nzd),quantity=Number(b.inventory),business=clean(b.business,160),gst=clean(b.gst||'unknown',20),email=clean(b.email,254).toLowerCase(),notes=clean(b.notes,2000),key=clean(b.idempotency_key,80);
+ if(!['digital','physical','service','b2b','mtg'].includes(kind)||title.length<3||description.length<10||!Number.isFinite(price)||price<=0||!Number.isSafeInteger(Math.round(price*100))||!Number.isInteger(quantity)||quantity<1||quantity>1000000||!['yes','no','unknown'].includes(gst)||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||!key||b.contact_consent!==true)return reply({error:'CHECK_REQUIRED_FIELDS_AND_CONTACT_CONSENT'},422);
+ const ip=req.headers.get('cf-connecting-ip')||'unknown',ipHash=await hash(ip+'|'+(env.RATE_LIMIT_SALT||'dl-rfq-v1')),window=new Date(Math.floor(Date.now()/3600000)*3600000).toISOString();
+ const limit=await sql`insert into marketplace.intake_rate_limits(ip_hash,window_start,request_count) values(${ipHash},${window},1) on conflict(ip_hash,window_start) do update set request_count=marketplace.intake_rate_limits.request_count+1 where marketplace.intake_rate_limits.request_count<5 returning request_count`;
+ if(!limit.length)return reply({error:'SELLER_INTAKE_RATE_LIMIT_EXCEEDED'},429);
+ const id=crypto.randomUUID(),minor=Math.round(price*100);
+ const rows=await sql`insert into marketplace.public_seller_intake(id,idempotency_key,listing_kind,title,description,price_minor,quantity,business_name,gst_status,contact_email,notes,contact_consent,privacy_notice_version,status) values(${id},${key},${kind},${title},${description},${minor},${quantity},${business},${gst},${email},${notes},true,'2026-10-26','received') on conflict(idempotency_key) do nothing returning id`;
+ const existing=rows[0]?.id||(await sql`select id from marketplace.public_seller_intake where idempotency_key=${key} limit 1`)[0]?.id;
+ if(!existing)return reply({error:'SELLER_RECEIPT_NOT_CREATED'},500);
+ return reply({ok:true,status:'received',reference:existing,next:'Human review required. This is an application, not a published listing or checkout.'},201)
+}
 async function council(sql,env,who,b){
  const org=clean(b.organization_id,80),s=clean(b.silo_id,100),type=clean(b.entity_type,20),id=clean(b.entity_id,80);
  if(!['listing','rfq','proposal'].includes(type))throw Object.assign(Error('UNSUPPORTED_ENTITY_TYPE'),{status:422});
@@ -63,6 +77,7 @@ async function route(req,env){
  if(p==='/healthz'&&req.method==='GET')return reply({ok:true,service:'dreamledger-marketplace-worker',database:!!env.NEON_DATABASE_URL,access:!!env.CF_ACCESS_AUD});
  const sql=db(env);
  if(p==='/api/marketplace/intake'&&req.method==='POST')return publicIntake(req,env,sql);
+ if(p==='/api/marketplace/seller-intake'&&req.method==='POST')return publicSellerIntake(req,env,sql);
  if(p==='/api/marketplace/listings'&&req.method==='GET'){const siloId=clean(u.searchParams.get('silo'),100),rows=await sql`select l.id,l.organization_id,o.display_name as seller,l.silo_id,l.slug,l.title,l.description,l.category,l.listing_type,l.price_minor,l.currency,l.quantity,l.media,l.published_at from marketplace.listings l join marketplace.organizations o on o.id=l.organization_id where l.status='published' and l.quantity>0 and (${siloId}='' or l.silo_id=${siloId}) order by l.published_at desc limit 50`;return reply({schema:'dreamledger/marketplace-listings/v1',count:rows.length,listings:rows})}
  if(p==='/api/marketplace/rfqs'&&req.method==='GET'){const rows=await sql`select id,silo_id,title,description,budget_minor,currency,created_at from marketplace.rfqs where status='open' and visibility='marketplace' order by created_at desc limit 50`;return reply({schema:'dreamledger/marketplace-rfqs/v1',count:rows.length,rfqs:rows})}
  if(!['GET','POST'].includes(req.method))return reply({error:'METHOD_NOT_ALLOWED'},405);
