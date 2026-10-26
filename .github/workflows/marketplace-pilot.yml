@@ -1,0 +1,19 @@
+name: Marketplace pilot checks
+on:
+  pull_request:
+    paths:
+      - 'marketplace-core/**'
+      - '.github/workflows/marketplace-pilot.yml'
+  push:
+    branches:
+      - feat/marketplace-core-20261026
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: node --check marketplace-core/server.cjs
+      - run: node --test marketplace-core/server.test.cjs
