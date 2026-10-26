@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#090b13">
+<meta name="description" content="DreamLedger Marketplace. Discover independent sellers, auctions, and a new way to belong. New Zealand first.">
+<title>DreamLedger | Marketplace</title>
+<link rel="stylesheet" href="/marketplace.css">
+<script src="/marketplace.js" defer></script>
+</head>
+<body>
+<header class="topbar">
+<a class="brand" href="/" aria-label="DreamLedger home"><span class="brand-mark">D</span> DreamLedger<span class="brand-dot">.</span></a>
+<nav aria-label="Primary"><a href="#discover">Discover</a><a href="#sell">Sell</a><a href="#billboard">Billboards</a><a href="#identity">DreamMeez</a></nav>
+<button id="account-toggle" type="button" class="button secondary">Join / Sign in</button>
+</header>
+<main>
+<section class="hero">
+<div class="hero-copy"><div class="eyebrow"><span class="pulse"></span> A marketplace for everyone · Starting in Aotearoa</div>
+<h1>Trade things.<br><span class="gradient">Build worlds.</span></h1>
+<p>Find people, buy and sell goods, discover auctions, and create a digital presence that travels with you. Built around real sellers and transparent transactions.</p>
+<div class="hero-actions"><a class="button primary" href="#discover">Explore marketplace</a><a class="button secondary" href="#sell">Start selling</a></div>
+<div class="small">Early-access pilot. Only human-approved listings appear. Checkout is not yet active.</div>
+</div>
+<div class="hero-graphic" aria-hidden="true"><div class="orb"><div class="orb-inner">DL</div></div><div class="floating-card c1">AUCTIONS <b>↗</b></div><div class="floating-card c2">DREAMMEEZ <b>◎</b></div><div class="floating-card c3">GLOBAL MARKET <b>✦</b></div></div>
+</section>
+<section class="section" id="discover">
+<div class="section-head"><div><span class="eyebrow">THE MARKETPLACE</span><h2>Discover something extraordinary.</h2></div><p>Every item below is a real moderated listing. No invented products or prices.</p></div>
+<div class="filters"><label class="search-wrap"><span>Search</span><input id="search" type="search" placeholder="What are you looking for?" autocomplete="off"></label><label><span>Type</span><select id="kind"><option value="all">Everything</option><option value="fixed">Buy now</option><option value="auction">Auction</option></select></label><label><span>Category</span><select id="category"><option value="all">All categories</option></select></label></div>
+<div id="listings" class="listing-grid" aria-live="polite"><div class="empty">Checking approved listings...</div></div>
+</section>
+<section class="section split" id="sell"><div><span class="eyebrow">YOUR BUSINESS STARTS HERE</span><h2>Turn your things into opportunity.</h2><p>List a fixed-price product or start an auction. Submissions go through review before becoming public.</p><div class="info-note">No listing fee or payout promise is offered in this pilot. No live checkout is available.</div></div>
+<form id="listing-form" class="panel">
+<h3>Submit a listing</h3>
+<label>Title <input name="title" placeholder="What are you selling?" maxlength="200" required></label>
+<label>Category <input name="category" placeholder="Home, fashion, tech..." maxlength="200" required></label>
+<label>Description <textarea name="description" placeholder="Condition, delivery arrangements, details..." maxlength="5000" rows="4" required></textarea></label>
+<div class="two"><label>Listing type <select name="kind" id="listing-kind"><option value="fixed">Fixed price</option><option value="auction">Auction</option></select></label><label>NZD price <input name="price" type="number" min="0.01" max="1000000" step="0.01" placeholder="25.00" required></label></div>
+<label id="auction-end-wrap" hidden>Auction ends (NZ local time) <input type="datetime-local" name="ends" id="auction-ends"></label>
+<button class="button primary full" type="submit">Submit for review</button><p class="form-message" id="listing-message" role="status"></p>
+</form></section>
+<section class="section split alt" id="identity"><div><span class="eyebrow">DREAMMEEZ</span><h2>Your digital identity. Your rules.</h2><p>Personalise your marketplace name and colour. This is the first layer of an expandable avatar ecosystem.</p></div>
+<form id="avatar-form" class="panel"><h3>Customise your identity</h3><label>Display name <input name="name" maxlength="60" required placeholder="Your creator name"></label><label>Signature colour <input type="color" name="colour" value="#8c6cff"></label><button class="button primary full" type="submit">Save avatar settings</button><p id="avatar-message" class="form-message" role="status"></p></form></section>
+<section class="section split" id="billboard"><div><span class="eyebrow">OWN THE ATTENTION LAYER</span><h2>A marketplace with room to be seen.</h2><p>Submit a billboard placement for review. Capacity is tracked independently by market, and placements do not become public automatically.</p><p id="capacity" class="small">Checking availability...</p></div>
+<form id="billboard-form" class="panel"><h3>Request a placement</h3><label>Market <select name="market"><option value="NZ">New Zealand</option><option value="AU">Australia</option><option value="GLOBAL">Global</option><option value="ZA">South Africa</option><option value="EU">Europe</option><option value="AMERICAS">Americas</option></select></label><label>Units <input name="units" type="number" min="1" max="25" value="1" required></label><label>Placement title <input name="title" maxlength="200" required></label><label>Destination URL <input name="url" type="url" placeholder="https://example.com" required></label><button class="button primary full" type="submit">Request review</button><p id="billboard-message" class="form-message" role="status"></p></form></section>
+<section class="section" id="account" hidden><div class="panel account-panel"><span class="eyebrow">EARLY ACCESS</span><h2>Join the marketplace pilot.</h2><p>Registration issues a one-time private access token. This pilot has no password recovery or production identity service. Do not use a sensitive email address.</p><form id="register-form"><label>Email <input type="email" name="email" placeholder="you@example.com" autocomplete="email" required></label><button class="button primary" type="submit">Create pilot account</button></form><p id="register-message" class="form-message" role="status"></p><button id="signout" type="button" class="button secondary">Sign out on this device</button></div></section>
+<section class="section"><div class="section-head"><div><span class="eyebrow">MORE THAN A MARKETPLACE</span><h2>Built to compound.</h2></div></div><div class="features"><article><div class="feature-icon">◎</div><h3>Real people</h3><p>Identity and reputation grounded in actual activity, not fabricated popularity.</p></article><article><div class="feature-icon">↗</div><h3>Real commerce</h3><p>Auctions and listings whose payment, delivery and settlement are independently verifiable.</p></article><article><div class="feature-icon">✦</div><h3>Global foundations</h3><p>Launch in New Zealand, expand with jurisdiction-aware currencies and seller obligations.</p></article></div></section>
+</main><footer><span>DreamLedger. A better way to trade and belong.</span><span>Early access pilot · No payments collected</span></footer>
+<dialog id="bid-dialog"><form id="bid-form" class="panel"><button id="close-bid" type="button" class="close" aria-label="Close">×</button><h3>Place an auction bid</h3><p id="bid-title"></p><label>Bid amount in NZD <input name="amount" type="number" min="0.01" step="0.01" required></label><button class="button primary full">Submit bid</button><p id="bid-message" role="status"></p></form></dialog>
+</body></html>
