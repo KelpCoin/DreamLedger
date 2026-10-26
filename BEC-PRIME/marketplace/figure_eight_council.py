@@ -56,7 +56,7 @@ def load_providers(raw: str | None = None) -> list[Provider]:
         base_url = str(row.get("base_url", "")).rstrip("/")
         model = str(row.get("model", "")).strip()
         key_env = str(row.get("api_key_env", "")).strip()
-        if name and base_url.startswith("https://") or (name and base_url.startswith("http://127.0.0.1")):
+        if name and (base_url.startswith("https://") or base_url.startswith("http://127.0.0.1")):
             if model and key_env:
                 providers.append(Provider(name, base_url, model, key_env))
     unique = {p.identity: p for p in providers}
