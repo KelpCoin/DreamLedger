@@ -78,6 +78,12 @@ jobs:
                 if(body.length>1000000)throw Error('RESPONSE_OVERSIZE');
                 if(check.type==='html'&&!body.toLowerCase().includes(check.marker.toLowerCase()))
                   throw Error('EXPECTED_PUBLIC_CONTENT_NOT_FOUND');
+                if(check.path==='/b2b'){
+                  if(body.includes('addEventMarketplace')||body.includes('classMarketplace')||body.includes('RFQ accepted'))
+                    throw Error('FALSE_RFQ_SUBMISSION_CLAIM');
+                  if(!body.includes('No request was transmitted'))
+                    throw Error('RFQ_DRAFT_TRUTH_MARKER_MISSING');
+                }
                 if(check.type==='checkout'){
                   if(!body.includes(check.marker))throw Error('ACTIVE_QUOTE_CHECKOUT_MISSING');
                   if(body.includes('https://buy.stripe.com/bJe7sL7LD4hDeqH04kdwc3e'))
