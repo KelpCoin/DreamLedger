@@ -6,6 +6,7 @@ on:
       - 'BEC-PRIME/marketplace/**'
       - 'supabase/migrations/**'
       - 'tests/test_figure_eight_council.py'
+      - 'tests/marketplace-intake.test.js'
       - 'BEC-PRIME/routes/publicRfqIntake.js'
       - 'BEC-PRIME/compiled/website/api/marketplace/council.js'
       - 'public/server.js'
@@ -42,6 +43,8 @@ jobs:
           node --check BEC-PRIME/compiled/website/api/marketplace/council.js
           node --check BEC-PRIME/routes/publicRfqIntake.js
           node --check public/server.js
+      - name: Test private RFQ intake
+        run: node --test tests/marketplace-intake.test.js
       - name: Compile Python modules
         run: python -m compileall -q CORTEX BEC-PRIME/marketplace
       - name: Test Figure Eight multi-model council
