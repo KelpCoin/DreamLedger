@@ -33,6 +33,8 @@ jobs:
         run: python -m json.tool BEC-PRIME/marketplace/marketplace-contract.json >/dev/null
       - name: Validate marketplace runtime
         run: python BEC-PRIME/marketplace/marketplace-runtime.py
+      - name: Syntax-check marketplace council API
+        run: node --check BEC-PRIME/compiled/website/api/marketplace/council.js
       - name: Compile Python modules
         run: python -m compileall -q CORTEX BEC-PRIME/marketplace
       - name: Test Figure Eight multi-model council
