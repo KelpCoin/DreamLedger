@@ -42,7 +42,7 @@ const homePath = path.join(repo, 'public/index.html');
 const canonicalHomePath = path.join(repo, 'public/home.html');
 if (fs.existsSync(canonicalHomePath)) {
   const canonicalHome = fs.readFileSync(canonicalHomePath, 'utf8');
-  if (/B2B marketplace/i.test(canonicalHome) && /href="\\/b2b\\//i.test(canonicalHome)) {
+  if (/B2B marketplace/i.test(canonicalHome) && /href="\/b2b\//i.test(canonicalHome)) {
     fs.copyFileSync(canonicalHomePath, homePath);
   } else {
     errors.push('B2B_HOME_SOURCE_CONTRACT_MISSING');
