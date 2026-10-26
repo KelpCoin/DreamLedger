@@ -48,3 +48,16 @@ test('unsupported networks, missing payments and insufficient confirmations fail
   assert.throws(() => settledPaymentPatch({ ...evidence, amountNzd: 0 }), /X402_PAYMENT_CONTEXT_INVALID/);
   assert.throws(() => settledPaymentPatch({ ...evidence, txHash: 'fake' }), /X402_TX_INVALID/);
 });
+
+test('canonical reconciliation worker actually uses the guards and never certifies revenue alone', async () => {
+  const { readFileSync } = await import('node:fs');
+  const source = readFileSync(new URL('./index.ts', import.meta.url), 'utf8');
+  assert.match(source, /parseAtomicAmount\(row\.amount_atomics\)/);
+  assert.match(source, /assertExactAmount\(amountFromHex\(l\.data\), expectedAmount\)/);
+  assert.match(source, /settledPaymentPatch\(\{/);
+  assert.match(source, /economic_outcome_verified_by_this_worker:false/);
+  assert.doesNotMatch(source, /BigInt\(x\)\.toLowerCase\(\)/);
+  assert.doesNotMatch(source, /verification_status\s*:\s*["']VERIFIED["']/);
+  assert.doesNotMatch(source, /scoreboard_eligible\s*:\s*true/);
+  assert.doesNotMatch(source, /TX_SENDER_MISMATCH/);
+});
