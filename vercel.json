@@ -18,6 +18,14 @@
     {
       "source": "/",
       "destination": "/index.html"
+    },
+    {
+      "source": "/b2b",
+      "destination": "/b2b.html"
+    },
+    {
+      "source": "/b2b/",
+      "destination": "/b2b.html"
     }
   ]
 }
