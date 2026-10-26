@@ -174,7 +174,7 @@ create table if not exists marketplace.audit_events (
 create index if not exists marketplace_audit_entity_idx on marketplace.audit_events(entity_type,entity_id,created_at);
 
 -- RLS context is set per transaction by the Cloudflare Worker. Owner-role access must not be used
--- by browser clients; the Worker verifies Cloudflare Access JWTs and tenant membership first.
+-- by browser clients, while the Worker verifies Cloudflare Access JWTs and tenant membership first.
 do $$
 declare t text;
 begin
