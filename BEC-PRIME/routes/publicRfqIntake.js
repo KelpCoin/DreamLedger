@@ -5,6 +5,7 @@
 const WORKER_URL = String(process.env.MARKETPLACE_WORKER_URL || '').replace(/\/$/, '');
 const ALLOWED = [
   /^\/api\/marketplace\/intake$/,
+  /^\\/api\\/marketplace\\/seller-intake$/,
   /^\/api\/marketplace\/listings$/,
   /^\/api\/marketplace\/rfqs$/,
   /^\/api\/marketplace\/organizations$/,
