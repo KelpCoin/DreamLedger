@@ -1,6 +1,19 @@
 name: Marketplace Integrity
 
 on:
+  pull_request:
+    paths:
+      - 'BEC-PRIME/marketplace/**'
+      - 'migrations/20261026_marketplace_multitenant_figure_eight.sql'
+      - 'workers/marketplace/**'
+      - 'tools/quote_compare/**'
+      - 'tests/test_figure_eight_council.py'
+      - 'tests/marketplace-intake.test.js'
+      - 'BEC-PRIME/routes/publicRfqIntake.js'
+      - 'BEC-PRIME/marketplace/**'
+      - 'public/server.js'
+      - 'public/b2b.html'
+      - '.github/workflows/marketplace-integrity.yml'
   workflow_dispatch:
   push:
     branches: [main]
@@ -27,8 +40,21 @@ jobs:
         run: python -m json.tool BEC-PRIME/marketplace/marketplace-contract.json >/dev/null
       - name: Validate marketplace runtime
         run: python BEC-PRIME/marketplace/marketplace-runtime.py
+      - name: Syntax-check marketplace APIs and storefront
+        run: |
+          node --check workers/marketplace/src/index.js
+          node --check BEC-PRIME/routes/publicRfqIntake.js
+          node --check public/server.js
+      - name: Test private RFQ intake
+        run: node --test tests/marketplace-intake.test.js
+      - name: Test offline quote comparator
+        run: python -m unittest discover -s tools/quote_compare -p 'test_*.py' -v
+      - name: Run synthetic quote fixture
+        run: python tools/quote_compare/quote_compare.py tools/quote_compare/example_quotes.json --output /tmp/quote-comparison.json
       - name: Compile Python modules
-        run: python -m compileall -q CORTEX BEC-PRIME/marketplace
+        run: python -m compileall -q CORTEX BEC-PRIME/marketplace tools/quote_compare
+      - name: Test Figure Eight multi-model council
+        run: python -m unittest discover -s tests -p 'test_figure_eight_council.py'
       - name: Run red-team regression
         run: python -m unittest CORTEX.test_redteam_extension
       - name: Ecosystem spine
@@ -36,7 +62,8 @@ jobs:
       - name: Build marketplace manifest
         run: |
           mkdir -p evidence
-          sha256sum BEC-PRIME/marketplace/* CORTEX/ecosystem_spine.py > evidence/marketplace-manifest.sha256
+          find BEC-PRIME/marketplace -type f ! -path '*/__pycache__/*' -print0 | sort -z | xargs -0 sha256sum > evidence/marketplace-manifest.sha256
+          sha256sum CORTEX/ecosystem_spine.py >> evidence/marketplace-manifest.sha256
       - name: Attest marketplace manifest
         uses: actions/attest@v4
         with:

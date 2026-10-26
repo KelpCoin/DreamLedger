@@ -1,7 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "git": {
-    "deploymentEnabled": false
+    "deploymentEnabled": true
   },
   "buildCommand": "node scripts/verify-vercel-public-release.cjs",
   "outputDirectory": "public",
@@ -15,6 +15,30 @@
     "syd1"
   ],
   "rewrites": [
+    {
+      "source": "/b2b",
+      "destination": "/b2b.html"
+    },
+    {
+      "source": "/b2b/",
+      "destination": "/b2b.html"
+    },
+    {
+      "source": "/marketplace",
+      "destination": "/marketplace.html"
+    },
+    {
+      "source": "/marketplace/",
+      "destination": "/marketplace.html"
+    },
+    {
+      "source": "/explore",
+      "destination": "/marketplace-ecosystem.html"
+    },
+    {
+      "source": "/explore/",
+      "destination": "/marketplace-ecosystem.html"
+    },
     {
       "source": "/",
       "destination": "/index.html"

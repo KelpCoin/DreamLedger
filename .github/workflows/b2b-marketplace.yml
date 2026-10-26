@@ -1,5 +1,17 @@
 name: b2b-marketplace-validation
 on:
+  pull_request:
+    paths:
+      - 'public/b2b.html'
+      - 'public/marketplace-ecosystem.html'
+      - 'scripts/verify-marketplace-ecosystem.cjs'
+      - 'public/server.js'
+      - 'BEC-PRIME/routes/publicRfqIntake.js'
+      - 'tests/marketplace-intake.test.js'
+      - 'scripts/validate_b2b_marketplace.py'
+      - 'tools/quote_compare/**'
+      - 'workers/marketplace/**'
+      - '.github/workflows/b2b-marketplace.yml'
   push:
     branches: [main]
     paths:
@@ -20,3 +32,10 @@ jobs:
         with:
           python-version: '3.12'
       - run: python scripts/validate_b2b_marketplace.py
+      - run: node --check public/server.js
+      - run: node scripts/verify-marketplace-ecosystem.cjs
+      - run: node --check BEC-PRIME/routes/publicRfqIntake.js
+      - run: node --check workers/marketplace/src/index.js
+      - run: node scripts/validate-vercel-b2b-api.cjs
+      - run: python -m unittest discover -s tools/quote_compare -p 'test_*.py' -v
+      - run: node --test tests/marketplace-intake.test.js

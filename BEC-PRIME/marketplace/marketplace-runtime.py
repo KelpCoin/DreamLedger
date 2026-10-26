@@ -1,6 +1,9 @@
 """Pure marketplace state transitions. No payment or external messaging."""
 import json
 from pathlib import Path
+import os
+
+from figure_eight_council import CouncilError, load_providers, SCHEMA as COUNCIL_SCHEMA
 
 ROOT = Path(__file__).resolve().parent
 CONTRACT = json.loads((ROOT / "marketplace-contract.json").read_text(encoding="utf-8"))
@@ -47,5 +50,20 @@ def match_score(buyer, item):
         score += 10
     return score
 
+def council_readiness():
+    if not os.environ.get("BECK_COUNCIL_MODELS", "").strip():
+        return {"schema": COUNCIL_SCHEMA, "status": "BLOCKED_CONFIGURATION", "reason": "BECK_COUNCIL_MODELS is not configured", "minimum_distinct_models": 2}
+    try:
+        providers = load_providers()
+        return {"schema": COUNCIL_SCHEMA, "status": "CONFIGURED", "distinct_models": len(providers)}
+    except CouncilError as exc:
+        return {"schema": COUNCIL_SCHEMA, "status": "BLOCKED_CONFIGURATION", "reason": str(exc), "minimum_distinct_models": 2}
+
+
 if __name__ == "__main__":
-    print(json.dumps({"schema": "dreamledger/marketplace-runtime/v1", "status": "READY", "states": CONTRACT["lifecycle"]}, indent=2))
+    print(json.dumps({
+        "schema": "dreamledger/marketplace-runtime/v1",
+        "status": "READY",
+        "states": CONTRACT["lifecycle"],
+        "figure_eight_council": council_readiness()
+    }, indent=2))

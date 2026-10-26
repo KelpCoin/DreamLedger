@@ -3,6 +3,7 @@
 const http=require('http'),fs=require('fs'),path=require('path'),{URL}=require('url');
 const commercialCell=require('../BEC-PRIME/routes/commercialCell');
 const tollRoad=require('../BEC-PRIME/routes/tollRoad');
+const publicRfqIntake=require('../BEC-PRIME/routes/publicRfqIntake');
 const TollRuntime=require('../BEC-PRIME/runtime/TollRoad');
 const PORT=Number(process.env.PORT||10000);
 const COMMIT=process.env.RENDER_GIT_COMMIT||process.env.RENDER_GIT_COMMIT_SHA||process.env.GITHUB_SHA||'unknown';
@@ -22,7 +23,7 @@ const PUBLIC_FILES={
   '/commander-guide':'commander-guide.html','/commander-guide/':'commander-guide.html',
   '/agent-commerce':'agent-commerce.html','/agent-commerce/':'agent-commerce.html','/agentic-commerce':'agentic-commerce.html','/agentic-commerce/':'agentic-commerce.html','/revenue.html':'agentic-commerce.html','/revenue':'agentic-commerce.html',
   '/b2b':'b2b.html','/b2b/':'b2b.html','/b2b.html':'b2b.html',
-  '/marketplace':'marketplace.html','/marketplace/':'marketplace.html','/marketplace.html':'marketplace.html',
+  '/marketplace':'marketplace.html','/marketplace/':'marketplace.html','/marketplace.html':'marketplace.html','/explore':'marketplace-ecosystem.html','/explore/':'marketplace-ecosystem.html','/marketplace-ecosystem.html':'marketplace-ecosystem.html',
   '/go':'go/index.html','/go/':'go/index.html',
   '/cost-of-living.html':'cost-of-living.html','/cost-of-living':'cost-of-living.html',
   '/truth-oracle.html':'truth-oracle.html',
@@ -36,7 +37,7 @@ const PUBLIC_FILES={
   '/economic':'pulse/index.html','/economic/':'pulse/index.html',
   '/catalog.json':'catalog.json','/surfaces.json':'surfaces.json',
   '/robots.txt':'robots.txt','/sitemap.xml':'sitemap.xml',
-  '/quote-comparison':'quote-comparison/index.html','/quote-comparison/':'quote-comparison/index.html','/quote-comparison.html':'quote-comparison.html',
+  '/quote-comparison':'quote-comparison/index.html','/quote-comparison/':'quote-comparison/index.html','/quote-comparison.html':'quote-comparison.html','/quote-comparison/comparison-template.csv':'quote-comparison/comparison-template.csv',
   '/overpaying':'overpaying.html','/overpaying.html':'overpaying.html',
   '/avatar.html':'avatar.html','/avatar':'avatar.html','/phinhaven.html':'phinhaven.html','/phinhaven/':'phinhaven.html','/phinhaven/hotel':'phinhaven/hotel/index.html','/phinhaven/hotel/':'phinhaven/hotel/index.html','/phinhaven/shallows':'phinhaven/shallows/index.html','/phinhaven/shallows/':'phinhaven/shallows/index.html','/account':'account.html','/account/':'account.html','/register':'register.html','/register/':'register.html','/login':'login.html','/login/':'login.html','/mtg-search':'mtg-search.html','/mtg-search/':'mtg-search.html','/mtg-list':'mtg-list.html','/mtg-list/':'mtg-list.html','/mtg-marketplace':'mtg-marketplace.html','/mtg-marketplace/':'mtg-marketplace.html','/mtg-mod':'mtg-mod.html','/mtg-mod/':'mtg-mod.html','/mtg-welcome':'mtg-welcome.html','/mtg-welcome/':'mtg-welcome.html','/toll-road':'toll-road.html','/toll-road/':'toll-road.html'
 };
@@ -63,6 +64,23 @@ function headers(res){
   res.setHeader('X-Frame-Options','DENY');
   res.setHeader('Referrer-Policy','strict-origin-when-cross-origin');
   res.setHeader('Content-Security-Policy',"default-src 'self'; img-src 'self' https: data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https:; frame-ancestors 'none'; base-uri 'self'; form-action 'self' https://checkout.stripe.com https://buy.stripe.com");
+}
+async function proxyMarketplaceRead(req,res,p,search){
+  if(!['/api/marketplace/listings','/api/marketplace/rfqs'].includes(p))return false;
+  let base=String(process.env.MARKETPLACE_WORKER_URL||'');while(base.endsWith('/'))base=base.slice(0,-1);
+  if(!base){send(res,503,JSON.stringify({error:'MARKETPLACE_SERVICE_NOT_CONFIGURED',checkout_enabled:false}),'application/json; charset=utf-8');return true;}
+  try{
+    const target=base+p+(search||'');
+    const upstream=await fetch(target,{method:'GET',headers:{accept:'application/json',...(req.headers.origin?{origin:req.headers.origin}:{})},redirect:'manual',signal:AbortSignal.timeout(8000)});
+    const body=await upstream.arrayBuffer();
+    res.statusCode=upstream.status;
+    res.setHeader('Content-Type',upstream.headers.get('content-type')||'application/json; charset=utf-8');
+    res.setHeader('Cache-Control','no-store');
+    return res.end(Buffer.from(body)),true;
+  }catch(error){
+    console.error(JSON.stringify({marketplace_read_proxy_failed:true,path:p,error:String(error&&error.message||error)}));
+    send(res,503,JSON.stringify({error:'MARKETPLACE_SERVICE_UNAVAILABLE',checkout_enabled:false}),'application/json; charset=utf-8');return true;
+  }
 }
 async function proxySwarm(req,res,p){if(!ENGINE_INTERNAL_URL)return send(res,503,'Swarm engine unavailable','text/plain; charset=utf-8');try{const target=ENGINE_INTERNAL_URL+(p.startsWith('/swarm/')?'/api/swarm-100k/'+p.split('/').pop():p);const h={};if(ENGINE_INTERNAL_API_KEY)h['x-api-key']=ENGINE_INTERNAL_API_KEY;const r=await fetch(target,{headers:h});const body=await r.text();res.statusCode=r.status;res.setHeader('Content-Type',r.headers.get('content-type')||'application/json; charset=utf-8');res.setHeader('Cache-Control','public, max-age=60, s-maxage=300');return res.end(body);}catch(e){return send(res,502,'Swarm engine unavailable','text/plain; charset=utf-8');}}
 async function proxyTollToEngine(req,res,p){
@@ -117,8 +135,20 @@ http.createServer(async (req,res)=>{
       return send(res,200,JSON.stringify({schema:'dreamledger/offers/v1',count:listed.length,offers:listed}),'application/json; charset=utf-8');
     }catch(error){ return send(res,500,JSON.stringify({error:'CATALOG_UNAVAILABLE'}),'application/json; charset=utf-8'); }
   }
-  if(p.startsWith('/api/toll')||p.startsWith('/toll/')) return proxyTollToEngine(req,res,p);
+  if(p.startsWith('/api/toll/v1/')||p.startsWith('/api/toll')||p.startsWith('/toll/')) return proxyTollToEngine(req,res,p);
   if(p.startsWith('/swarm/')||p.startsWith('/api/swarm')) return proxySwarm(req,res,p);
+  if(req.method==='GET'&&(p==='/api/marketplace/listings'||p==='/api/marketplace/rfqs')){
+    const handled=await proxyMarketplaceRead(req,res,p,u.search);
+    if(handled)return;
+  }
+  if(p.startsWith('/api/marketplace/')){
+    try{
+      const handled=await publicRfqIntake.handle(req,res,p);
+      if(handled)return;
+    }catch(error){
+      return send(res,500,JSON.stringify({error:'rfq_intake_failed'}),'application/json; charset=utf-8');
+    }
+  }
   if(p.startsWith('/api/commercial/') || p==='/api/webhooks/stripe'){
     try{
       const handled=await commercialCell.handle(req,res,p);

@@ -8,7 +8,7 @@ const mustExist = [
   'index.html','catalog.json','avatar.html','billboard.html',
   'agent-bridge.html','truth-oracle.html','tools/free.html','register/index.html',
   'agentic-commerce-remediation-blueprint.html','auctions.html','trust/index.html',
-  'mtg/index.html','go/index.html'
+  'mtg/index.html','go/index.html','marketplace-ecosystem.html'
 ];
 for (const name of mustExist) {
   const file = path.join(root,'public',name);
@@ -24,4 +24,7 @@ if (catalog.schema !== 'dreamledger/public-catalogue/v1' || !Array.isArray(catal
 const diagnostic=catalog.products.find(p=>p.id==='COMMANDER-DECK-DIAGNOSTIC-001');
 if (!diagnostic || diagnostic.checkout_available !== false)
   throw new Error('HELD_DIAGNOSTIC_MUST_NOT_BE_CHECKOUT_ENABLED');
+const ecosystem=fs.readFileSync(path.join(root,'public/marketplace-ecosystem.html'),'utf8');
+if (!ecosystem.includes('/api/marketplace/listings') || !ecosystem.includes('/api/marketplace/intake') || !ecosystem.includes('/api/marketplace/seller-intake')) throw new Error('MARKETPLACE_ECOSYSTEM_API_CONTRACT_MISSING');
+if (!ecosystem.includes('No inventory is invented') || !ecosystem.includes('No sample demand is displayed')) throw new Error('MARKETPLACE_ECOSYSTEM_MUST_NOT_FAKE_LIQUIDITY');
 console.log('BECK_PUBLIC_RELEASE_FILES_PASS: '+mustExist.length+' routes, '+catalog.products.length+' catalog entries; no sale asserted');

@@ -1,0 +1,27 @@
+{
+  "schema": "dreamledger/marketplace-figure-eight-council/v1",
+  "purpose": "Connect tenant-scoped B2B marketplace entities to multi-model iterative refinement and adversarial review.",
+  "tenant_boundary": {
+    "authority": "marketplace_organizations + marketplace_memberships",
+    "require_active_membership": true,
+    "never_share_context_across_tenants": true,
+    "silo_isolation_required": true
+  },
+  "council": {
+    "minimum_distinct_models": 2,
+    "rounds_min": 1,
+    "rounds_max": 4,
+    "roles": ["refine", "adversarial_review"],
+    "provider_interface": "OpenAI-compatible chat completions",
+    "provider_config_env": "BECK_COUNCIL_MODELS",
+    "output_state": "REVIEW_PROPOSAL_ONLY"
+  },
+  "release_gates": {
+    "public_publish": "explicit_human_approval_and_listing_state_transition",
+    "buyer_contact": "explicit_human_approval",
+    "checkout": "existing_payment_authority_and_idempotency",
+    "revenue": "verified_external_payment_plus_delivery_plus_settlement_evidence"
+  },
+  "receipts": ["tenant_id", "silo_id", "input_hash", "output_hash", "model_identity", "iteration"],
+  "prohibited": ["cross_tenant_context", "fabricated_demand", "automatic_publication", "automatic_buyer_contact", "LLM_authorized_payment", "revenue_claim_from_generated_artifact"]
+}

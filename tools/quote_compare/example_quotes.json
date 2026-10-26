@@ -1,0 +1,48 @@
+{
+  "quotes": [
+    {
+      "supplier": "SAMPLE SUPPLIER ALPHA (SYNTHETIC)",
+      "currency": "NZD",
+      "quote_reference": "SAMPLE-001",
+      "valid_until": "2026-12-01",
+      "lead_time_days": 10,
+      "items": [
+        {
+          "description": "Rugged tablet (synthetic test item)",
+          "quantity": 2,
+          "unit_price": "450.00",
+          "evidence_ref": "synthetic-fixture:alpha"
+        }
+      ],
+      "freight": "25.00",
+      "tax": "0.00",
+      "other_fees": "0.00",
+      "assumptions": [
+        "Synthetic test data only"
+      ],
+      "exclusions": []
+    },
+    {
+      "supplier": "SAMPLE SUPPLIER BETA (SYNTHETIC)",
+      "currency": "NZD",
+      "quote_reference": "SAMPLE-002",
+      "valid_until": "2026-12-01",
+      "lead_time_days": 14,
+      "items": [
+        {
+          "description": "Rugged tablet (synthetic test item)",
+          "quantity": 2,
+          "unit_price": "420.00",
+          "evidence_ref": "synthetic-fixture:beta"
+        }
+      ],
+      "freight": "65.00",
+      "tax": "0.00",
+      "other_fees": "15.00",
+      "assumptions": [
+        "Synthetic test data only"
+      ],
+      "exclusions": []
+    }
+  ]
+}

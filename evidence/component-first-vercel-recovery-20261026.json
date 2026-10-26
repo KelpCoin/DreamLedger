@@ -1,0 +1,113 @@
+{
+  "schema": "dreamledger/component-capability-registry/v1",
+  "recorded_on": "2026-10-26",
+  "scope": "private-first existing B2B marketplace",
+  "owner_approval_required_for": [
+    "production deploy",
+    "external messaging",
+    "payments",
+    "publishing listings"
+  ],
+  "components": [
+    {
+      "id": "vercel-project",
+      "source": "Vercel project dreamledger",
+      "purpose": "Public static site and serverless marketplace APIs",
+      "calls": [
+        "/api/marketplace/listings",
+        "/api/marketplace/seller-intake",
+        "/api/marketplace/intake"
+      ],
+      "fit": "direct",
+      "licence": "managed service",
+      "maintenance": "Vercel-managed",
+      "status": "project root reset to repository root, preview unverified",
+      "failure_modes": [
+        "invalid root directory",
+        "missing build output",
+        "missing environment variables",
+        "preview SSO"
+      ],
+      "first_sale_impact": "direct"
+    },
+    {
+      "id": "neon-marketplace",
+      "source": "Neon project dreamledger-migration-staging",
+      "purpose": "Existing marketplace organizations, listings, RFQs, orders, proposals, audit evidence",
+      "calls": [
+        "marketplace.listings",
+        "marketplace.public_seller_intake",
+        "marketplace.public_rfq_intake"
+      ],
+      "fit": "direct",
+      "licence": "managed service",
+      "maintenance": "Neon-managed",
+      "status": "staging schemas exist; no buyer orders independently verified",
+      "failure_modes": [
+        "DATABASE_URL missing",
+        "RLS or grants",
+        "connection capacity"
+      ],
+      "first_sale_impact": "direct"
+    },
+    {
+      "id": "webhook-idempotency",
+      "source": "Existing DreamLedger Stripe event inbox and commerce evidence code",
+      "purpose": "Reject replayed payment webhook events without duplicating fulfilment",
+      "calls": [
+        "stripe_event_inbox",
+        "commercial_payments",
+        "commercial_fulfillment_outbox"
+      ],
+      "fit": "partial until verified",
+      "licence": "internal",
+      "maintenance": "current repository",
+      "status": "do not substitute untested packages for signed webhook contract",
+      "failure_modes": [
+        "missing signature verification",
+        "unattributed money",
+        "inconsistent idempotency"
+      ],
+      "first_sale_impact": "direct"
+    },
+    {
+      "id": "teklifo",
+      "source": "https://github.com/teklifo/teklifo",
+      "purpose": "RFQ and quotation management alternative",
+      "fit": "lower than existing integrated Neon RFQ",
+      "licence": "not independently confirmed",
+      "maintenance": "last observed update Dec 2025",
+      "status": "not installed; existing system preferred",
+      "failure_modes": [
+        "duplicate tenancy and data model",
+        "integration effort"
+      ],
+      "first_sale_impact": "indirect"
+    },
+    {
+      "id": "rovidev-webhooks-engine",
+      "source": "https://www.npmjs.com/package/@rovidev/webhooks-engine",
+      "purpose": "Potential event retry and idempotency adapter",
+      "fit": "unverified for current data contract",
+      "licence": "MIT",
+      "maintenance": "single published version, zero weekly downloads at check",
+      "status": "not installed; existing webhook inbox preferred",
+      "failure_modes": [
+        "lost transaction state when in-memory store used",
+        "API mismatch"
+      ],
+      "first_sale_impact": "indirect"
+    }
+  ],
+  "decision": "Repair existing Vercel root directory then verify preview. Reuse Neon staging for pre-production testing. Never auto-promote or fabricate verified revenue.",
+  "verification": [
+    "node scripts/verify-vercel-public-release.cjs",
+    "npm run verify:b2b-marketplace",
+    "Vercel preview READY, then guarded read-only GET /api/marketplace/listings"
+  ],
+  "economic_truth": {
+    "verified_external_revenue_nzd": 0,
+    "confirmed_external_customers": 0,
+    "do_not_increment_without_evidence": true
+  }
+}
