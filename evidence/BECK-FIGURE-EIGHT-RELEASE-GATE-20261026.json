@@ -11,13 +11,19 @@
       "number": 838,
       "state": "open",
       "merged": false,
-      "head_sha": "7c7a0c2129ecb372cc3cd26cdabf4dbc58418afc",
-      "reported_commit_count": 118
+      "head_sha": "ef65b13c4d55bc1a566878c35a891c75f1ff682c",
+      "reported_commit_count": 119
     },
     "vercel": {
       "project": "dreamledger",
       "deployment_checks": "failure",
       "reported_failure_marker": "build-rate-limit",
+      "latest_deployment_error_code": "module_not_found",
+      "latest_deployment_error_step": "buildStep",
+      "latest_deployment_error_message": "Command node scripts/verify-vercel-public-release.cjs exited with 1",
+      "root_directory_hypothesis": "unconfirmed",
+      "compatibility_wrapper_commit": "ef65b13c4d55bc1a566878c35a891c75f1ff682c",
+      "compatibility_wrapper_status": "committed_to_feature_branch_not_deployment_verified",
       "live_route_access": "blocked_by_connected_account_403"
     },
     "render": {
@@ -31,13 +37,27 @@
     "supabase": {
       "recovery_project": "kzsinsqfqfmatoqzjxja",
       "recovery_status": "ACTIVE_HEALTHY",
-      "public_schema_table_count_reported": 0,
+      "public_schema_table_count": 0,
+      "all_user_schema_table_counts": {
+        "auth": 27,
+        "beck": 9,
+        "realtime": 3,
+        "storage": 8,
+        "supabase_migrations": 1,
+        "vault": 1
+      },
+      "beck_business_table_estimated_rows": 0,
       "original_project": "wbwgroygjeyukkspnqiy",
+      "original_project_status": "ACTIVE_HEALTHY",
       "original_project_read": "connection_refused"
     },
     "neon": {
       "staging_project": "falling-base-50259456",
-      "reported_synthetic_storage_size_bytes": 0
+      "primary_branch": "br-plain-wave-a7iap50j",
+      "primary_branch_state": "ready",
+      "reported_logical_size_bytes": 32325632,
+      "reported_written_data_bytes": 0,
+      "snapshot_count": 0
     },
     "diagnostic_offer": {
       "price_nzd": 29,
