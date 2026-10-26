@@ -70,8 +70,14 @@ BEGIN
         OR coalesce(lower(trim(metadata->>'scoreboard_eligible')),'false') <> 'true'
         OR (payment_settled IS TRUE
             AND delivery_verified IS TRUE
-            AND artifact_sha256 ~ '^[0-9a-f]{64}$'
-            AND verification_status = 'VERIFIED')
+            AND coalesce(artifact_sha256 ~ '^[0-9a-f]{64})
+      ) NOT VALID;
+  END IF;
+END;
+$constraints$;
+COMMIT;
+,false)
+            AND coalesce(verification_status,'') = 'VERIFIED')
       ) NOT VALID;
   END IF;
 END;
