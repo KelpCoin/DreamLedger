@@ -1,11 +1,13 @@
 import importlib.util
 import pathlib
+import sys
 import unittest
 from unittest.mock import patch
 
 MODULE_PATH = pathlib.Path(__file__).resolve().parents[1] / "BEC-PRIME" / "marketplace" / "figure_eight_council.py"
 SPEC = importlib.util.spec_from_file_location("figure_eight_council", MODULE_PATH)
 COUNCIL = importlib.util.module_from_spec(SPEC)
+sys.modules[SPEC.name] = COUNCIL
 SPEC.loader.exec_module(COUNCIL)
 
 
