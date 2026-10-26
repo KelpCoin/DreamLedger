@@ -5,7 +5,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const root = path.resolve(__dirname, '..');
 const mustExist = [
-  'index.html','catalog.json','avatar.html','billboard.html',
+  'index.html','catalog.json','avatar.html','billboard.html','b2b.html',
   'agent-bridge.html','truth-oracle.html','tools/free.html','register/index.html',
   'agentic-commerce-remediation-blueprint.html','auctions.html','trust/index.html',
   'mtg/index.html','go/index.html'
@@ -24,4 +24,9 @@ if (catalog.schema !== 'dreamledger/public-catalogue/v1' || !Array.isArray(catal
 const diagnostic=catalog.products.find(p=>p.id==='COMMANDER-DECK-DIAGNOSTIC-001');
 if (!diagnostic || diagnostic.checkout_available !== false)
   throw new Error('HELD_DIAGNOSTIC_MUST_NOT_BE_CHECKOUT_ENABLED');
-console.log('BECK_PUBLIC_RELEASE_FILES_PASS: '+mustExist.length+' routes, '+catalog.products.length+' catalog entries; no sale asserted');
+const vercel=JSON.parse(fs.readFileSync(path.join(root,'vercel.json'),'utf8'));
+for (const source of ['/b2b','/b2b/']) {
+  if (!vercel.rewrites?.some(rule=>rule.source===source&&rule.destination==='/b2b.html'))
+    throw new Error('PUBLIC_B2B_ROUTE_REWRITE_MISSING: '+source);
+}
+console.log('BECK_PUBLIC_RELEASE_FILES_PASS: '+mustExist.length+' routes, '+catalog.products.length+' catalog entries; B2B aliases verified; no sale asserted');
