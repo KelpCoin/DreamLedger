@@ -1,6 +1,12 @@
 name: Marketplace Integrity
 
 on:
+  pull_request:
+    paths:
+      - 'BEC-PRIME/marketplace/**'
+      - 'supabase/migrations/**'
+      - 'tests/test_figure_eight_council.py'
+      - '.github/workflows/marketplace-integrity.yml'
   workflow_dispatch:
   push:
     branches: [main]
