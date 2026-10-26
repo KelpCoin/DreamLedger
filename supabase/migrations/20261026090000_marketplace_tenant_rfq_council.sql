@@ -81,6 +81,139 @@ create index if not exists marketplace_council_org_recent_idx
 create index if not exists marketplace_council_entity_idx
   on public.marketplace_council_runs(entity_type,entity_id,created_at desc);
 
+alter table public.marketplace_rfq_requests add column if not exists state_version bigint not null default 1;
+alter table public.marketplace_proposals add column if not exists state_version bigint not null default 1;
+
+create table if not exists public.marketplace_rfq_state_events (
+  event_id uuid primary key default gen_random_uuid(),
+  rfq_id uuid not null references public.marketplace_rfq_requests(id) on delete cascade,
+  from_state text not null,
+  to_state text not null,
+  state_version bigint not null,
+  actor_user_id uuid not null,
+  actor_organization_id uuid not null,
+  reason text,
+  created_at timestamptz not null default now(),
+  unique(rfq_id,state_version)
+);
+create table if not exists public.marketplace_proposal_state_events (
+  event_id uuid primary key default gen_random_uuid(),
+  proposal_id uuid not null references public.marketplace_proposals(id) on delete cascade,
+  from_state text not null,
+  to_state text not null,
+  state_version bigint not null,
+  actor_user_id uuid not null,
+  actor_organization_id uuid not null,
+  reason text,
+  created_at timestamptz not null default now(),
+  unique(proposal_id,state_version)
+);
+alter table public.marketplace_rfq_state_events enable row level security;
+alter table public.marketplace_proposal_state_events enable row level security;
+revoke all on public.marketplace_rfq_state_events from anon;
+revoke all on public.marketplace_proposal_state_events from anon;
+grant select on public.marketplace_rfq_state_events to authenticated;
+grant select on public.marketplace_proposal_state_events to authenticated;
+drop policy if exists marketplace_rfq_events_member_read on public.marketplace_rfq_state_events;
+create policy marketplace_rfq_events_member_read on public.marketplace_rfq_state_events
+for select to authenticated using (
+  exists (select 1 from public.marketplace_rfq_requests r
+    join public.marketplace_memberships m on m.organization_id=r.organization_id
+    where r.id=marketplace_rfq_state_events.rfq_id and m.user_id=(select auth.uid()) and m.status='active')
+);
+drop policy if exists marketplace_proposal_events_member_read on public.marketplace_proposal_state_events;
+create policy marketplace_proposal_events_member_read on public.marketplace_proposal_state_events
+for select to authenticated using (
+  exists (select 1 from public.marketplace_proposals p
+    join public.marketplace_memberships m on m.organization_id=p.seller_organization_id
+    where p.id=marketplace_proposal_state_events.proposal_id and m.user_id=(select auth.uid()) and m.status='active')
+  or exists (select 1 from public.marketplace_proposals p
+    join public.marketplace_rfq_requests r on r.id=p.rfq_id
+    join public.marketplace_memberships m on m.organization_id=r.organization_id
+    where p.id=marketplace_proposal_state_events.proposal_id and m.user_id=(select auth.uid()) and m.status='active')
+);
+
+create or replace function public.transition_marketplace_rfq(
+  p_rfq_id uuid, p_expected_version bigint, p_to_status text,
+  p_actor_organization_id uuid, p_reason text default null
+) returns public.marketplace_rfq_requests
+language plpgsql security definer set search_path=public as $
+declare r public.marketplace_rfq_requests; old_status text; actor_role text;
+begin
+  if auth.uid() is null then raise exception 'AUTH_REQUIRED'; end if;
+  select * into r from public.marketplace_rfq_requests where id=p_rfq_id for update;
+  if not found then raise exception 'RFQ_NOT_FOUND'; end if;
+  if r.state_version <> p_expected_version then raise exception 'STALE_RFV_VERSION'; end if;
+  select role into actor_role from public.marketplace_memberships
+    where organization_id=r.organization_id and user_id=auth.uid()
+      and status='active' and role in ('owner','admin','buyer','moderator','operator')
+    order by case role when 'owner' then 1 when 'admin' then 2 else 3 end limit 1;
+  if actor_role is null or p_actor_organization_id <> r.organization_id then raise exception 'RFQ_TENANT_FORBIDDEN'; end if;
+  old_status := r.status;
+  if old_status='draft' and p_to_status in ('review','cancelled') then
+    null;
+  elsif old_status='review' and p_to_status='open' and actor_role in ('owner','admin','moderator','operator') then
+    null;
+  elsif old_status in ('open','matched') and p_to_status='closed' then
+    null;
+  elsif old_status in ('draft','review') and p_to_status='cancelled' then
+    null;
+  else raise exception 'INVALID_RFQ_TRANSITION:% -> %',old_status,p_to_status;
+  end if;
+  update public.marketplace_rfq_requests set status=p_to_status,state_version=state_version+1,updated_at=now()
+    where id=p_rfq_id returning * into r;
+  insert into public.marketplace_rfq_state_events(rfq_id,from_state,to_state,state_version,actor_user_id,actor_organization_id,reason)
+    values(p_rfq_id,old_status,p_to_status,r.state_version,auth.uid(),p_actor_organization_id,p_reason);
+  return r;
+end;
+$;
+
+create or replace function public.transition_marketplace_proposal(
+  p_proposal_id uuid, p_expected_version bigint, p_to_status text,
+  p_actor_organization_id uuid, p_reason text default null
+) returns public.marketplace_proposals
+language plpgsql security definer set search_path=public as $
+declare p public.marketplace_proposals; r public.marketplace_rfq_requests; old_status text; actor_role text;
+begin
+  if auth.uid() is null then raise exception 'AUTH_REQUIRED'; end if;
+  select * into p from public.marketplace_proposals where id=p_proposal_id for update;
+  if not found then raise exception 'PROPOSAL_NOT_FOUND'; end if;
+  if p.state_version <> p_expected_version then raise exception 'STALE_PROPOSAL_VERSION'; end if;
+  select * into r from public.marketplace_rfq_requests where id=p.rfq_id;
+  if not found then raise exception 'RFQ_NOT_FOUND'; end if;
+  old_status := p.status;
+  if p_to_status in ('submitted','withdrawn') then
+    select role into actor_role from public.marketplace_memberships
+      where organization_id=p.seller_organization_id and user_id=auth.uid()
+        and status='active' and role in ('owner','admin','seller')
+      order by case role when 'owner' then 1 when 'admin' then 2 else 3 end limit 1;
+    if actor_role is null or p_actor_organization_id <> p.seller_organization_id then raise exception 'SELLER_TENANT_FORBIDDEN'; end if;
+    if not ((old_status='draft' and p_to_status='submitted') or (old_status in ('submitted','shortlisted') and p_to_status='withdrawn')) then
+      raise exception 'INVALID_SELLER_PROPOSAL_TRANSITION';
+    end if;
+  elsif p_to_status in ('shortlisted','accepted','rejected') then
+    select role into actor_role from public.marketplace_memberships
+      where organization_id=r.organization_id and user_id=auth.uid()
+        and status='active' and role in ('owner','admin','buyer')
+      order by case role when 'owner' then 1 when 'admin' then 2 else 3 end limit 1;
+    if actor_role is null or p_actor_organization_id <> r.organization_id then raise exception 'BUYER_TENANT_FORBIDDEN'; end if;
+    if r.status not in ('open','matched') or not ((old_status='submitted' and p_to_status in ('shortlisted','rejected')) or (old_status='shortlisted' and p_to_status in ('accepted','rejected'))) then
+      raise exception 'INVALID_BUYER_PROPOSAL_TRANSITION';
+    end if;
+  else raise exception 'INVALID_PROPOSAL_TARGET';
+  end if;
+  update public.marketplace_proposals set status=p_to_status,state_version=state_version+1,updated_at=now()
+    where id=p_proposal_id returning * into p;
+  insert into public.marketplace_proposal_state_events(proposal_id,from_state,to_state,state_version,actor_user_id,actor_organization_id,reason)
+    values(p_proposal_id,old_status,p_to_status,p.state_version,auth.uid(),p_actor_organization_id,p_reason);
+  return p;
+end;
+$;
+revoke all on function public.transition_marketplace_rfq(uuid,bigint,text,uuid,text) from public, anon;
+revoke all on function public.transition_marketplace_proposal(uuid,bigint,text,uuid,text) from public, anon;
+grant execute on function public.transition_marketplace_rfq(uuid,bigint,text,uuid,text) to authenticated;
+grant execute on function public.transition_marketplace_proposal(uuid,bigint,text,uuid,text) to authenticated;
+
 alter table public.marketplace_rfq_requests enable row level security;
 alter table public.marketplace_proposals enable row level security;
 alter table public.marketplace_council_runs enable row level security;
