@@ -1,7 +1,7 @@
 {
   "schema": "dreamledger/marketplace-ecosystem-implementation-proof/v1",
   "task_id": "DREAMLEDGER-ECOSYSTEM-FRONTDOOR-20261026-01",
-  "truth_label": "SOURCE_VERIFIED_CI_PENDING_PRODUCTION_UNVERIFIED",
+  "truth_label": "SOURCE_VERIFIED_CI_RETRY_PENDING_PRODUCTION_UNVERIFIED",
   "checked_at": "2026-10-26",
   "repository": "KelpCoin/DreamLedger",
   "branch": "feat/multitenant-marketplace-figure-eight-council-20261026",
@@ -15,9 +15,9 @@
     },
     {
       "path": "scripts/verify-marketplace-ecosystem.cjs",
-      "sha256": "98b2fcc01758b1efade7343bb7ff55dde4b5e15f0f28b8a15e9cfbf3568ab3b2",
-      "github_blob_sha": "a39ae4de6e50e2778e8842fcc4f823862d5fa640",
-      "bytes": 2408
+      "sha256": "8a2ec5fce9bd0957ee1406ee128c083f57b3b863c08a2ad3cfebeeca763f5419",
+      "github_blob_sha": "154c6053da6cacf0da692f19563070010124768f",
+      "bytes": 2409
     },
     {
       "path": "vercel.json",
@@ -40,7 +40,8 @@
     "database_environment": "UNVERIFIED",
     "real_listings": "UNVERIFIED",
     "checkout_fulfillment": "HOLD",
-    "verified_external_revenue_nzd": 0
+    "verified_external_revenue_nzd": 0,
+    "provider_ci": "First run exposed one overly case-sensitive verifier assertion; fixed and a new CI run is pending."
   },
   "constraints": [
     "No DNS change",
