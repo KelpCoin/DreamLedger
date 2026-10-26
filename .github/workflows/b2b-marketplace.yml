@@ -1,5 +1,12 @@
 name: b2b-marketplace-validation
 on:
+  pull_request:
+    paths:
+      - 'public/b2b.html'
+      - 'public/server.js'
+      - 'BEC-PRIME/routes/publicRfqIntake.js'
+      - 'scripts/validate_b2b_marketplace.py'
+      - '.github/workflows/b2b-marketplace.yml'
   push:
     branches: [main]
     paths:
@@ -20,3 +27,5 @@ jobs:
         with:
           python-version: '3.12'
       - run: python scripts/validate_b2b_marketplace.py
+      - run: node --check public/server.js
+      - run: node --check BEC-PRIME/routes/publicRfqIntake.js
