@@ -148,7 +148,7 @@ begin
     where organization_id=r.organization_id and user_id=auth.uid()
       and status='active' and role in ('owner','admin','buyer','moderator','operator')
     order by case role when 'owner' then 1 when 'admin' then 2 else 3 end limit 1;
-  if actor_role is null or p_actor_organization_id <> r.organization_id then raise exception 'RFQ_TENANT_FORBIDDEN'; end if;
+  if actor_role is null or p_actor_organization_id is distinct from r.organization_id then raise exception 'RFQ_TENANT_FORBIDDEN'; end if;
   old_status := r.status;
   if old_status='draft' and p_to_status in ('review','cancelled') then
     null;
@@ -187,7 +187,7 @@ begin
       where organization_id=p.seller_organization_id and user_id=auth.uid()
         and status='active' and role in ('owner','admin','seller')
       order by case role when 'owner' then 1 when 'admin' then 2 else 3 end limit 1;
-    if actor_role is null or p_actor_organization_id <> p.seller_organization_id then raise exception 'SELLER_TENANT_FORBIDDEN'; end if;
+    if actor_role is null or p_actor_organization_id is distinct from p.seller_organization_id then raise exception 'SELLER_TENANT_FORBIDDEN'; end if;
     if not ((old_status='draft' and p_to_status='submitted') or (old_status in ('submitted','shortlisted') and p_to_status='withdrawn')) then
       raise exception 'INVALID_SELLER_PROPOSAL_TRANSITION';
     end if;
@@ -196,7 +196,7 @@ begin
       where organization_id=r.organization_id and user_id=auth.uid()
         and status='active' and role in ('owner','admin','buyer')
       order by case role when 'owner' then 1 when 'admin' then 2 else 3 end limit 1;
-    if actor_role is null or p_actor_organization_id <> r.organization_id then raise exception 'BUYER_TENANT_FORBIDDEN'; end if;
+    if actor_role is null or p_actor_organization_id is distinct from r.organization_id then raise exception 'BUYER_TENANT_FORBIDDEN'; end if;
     if r.status not in ('open','matched') or not ((old_status='submitted' and p_to_status in ('shortlisted','rejected')) or (old_status='shortlisted' and p_to_status in ('accepted','rejected'))) then
       raise exception 'INVALID_BUYER_PROPOSAL_TRANSITION';
     end if;
@@ -245,7 +245,8 @@ for insert to authenticated with check (
 drop policy if exists marketplace_rfq_member_update on public.marketplace_rfq_requests;
 create policy marketplace_rfq_member_update on public.marketplace_rfq_requests
 for update to authenticated using (
-  exists (select 1 from public.marketplace_memberships m
+  status='draft' and requester_user_id=(select auth.uid())
+  and exists (select 1 from public.marketplace_memberships m
     where m.organization_id=marketplace_rfq_requests.organization_id
       and m.user_id=(select auth.uid()) and m.status='active'
       and m.role in ('owner','admin','buyer'))
@@ -286,12 +287,12 @@ for insert to authenticated with check (
 drop policy if exists marketplace_proposals_member_update on public.marketplace_proposals;
 create policy marketplace_proposals_member_update on public.marketplace_proposals
 for update to authenticated using (
-  status='draft' and exists (select 1 from public.marketplace_memberships m
+  status='draft' and submitted_by=(select auth.uid()) and exists (select 1 from public.marketplace_memberships m
     where m.organization_id=marketplace_proposals.seller_organization_id
       and m.user_id=(select auth.uid()) and m.status='active'
       and m.role in ('owner','admin','seller'))
 ) with check (
-  status='draft' and exists (select 1 from public.marketplace_memberships m
+  status='draft' and submitted_by=(select auth.uid()) and exists (select 1 from public.marketplace_memberships m
     where m.organization_id=marketplace_proposals.seller_organization_id
       and m.user_id=(select auth.uid()) and m.status='active'
       and m.role in ('owner','admin','seller'))
