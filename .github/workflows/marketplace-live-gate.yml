@@ -46,6 +46,8 @@ jobs:
             {path:'/',type:'html',marker:'DreamLedger'},
             {path:'/b2b',type:'html',marker:'B2B Procurement Tools'},
             {path:'/b2b',type:'checkout',marker:'https://buy.stripe.com/00wdR93vnbK5eqH3gwdwc3r'},
+            {path:'/quote-compare-49.html',type:'checkout',marker:'https://buy.stripe.com/00wdR93vnbK5eqH3gwdwc3r'},
+            {path:'/quote-comparison/',type:'html',marker:'View NZ$49 Quote Compare service'},
             {path:'/marketplace',type:'html',marker:'marketplace'},
             {path:'/catalog.json',type:'catalog'},
             {path:'/api/version',type:'version'}
