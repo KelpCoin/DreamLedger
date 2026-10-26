@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Private B2B RFQ Inbox | DreamLedger</title>
+<style>
+:root{color-scheme:dark;--bg:#0b1220;--panel:#111d2e;--line:#2a3b51;--ink:#f4f7fb;--muted:#b4c0cf;--mint:#a9f2d0}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,sans-serif}.wrap{width:min(1000px,calc(100% - 28px));margin:28px auto}h1{font-size:clamp(28px,5vw,42px);line-height:1.1}.muted{color:var(--muted)}.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;margin:16px 0}label{display:block;font-size:13px;margin:12px 0 5px;color:var(--muted)}input,button{font:inherit;border-radius:9px;padding:12px;border:1px solid var(--line)}input{width:100%;background:var(--bg);color:var(--ink)}button{background:var(--mint);color:#08130e;font-weight:800;cursor:pointer}button:disabled{opacity:.5;cursor:wait}.bar{display:flex;gap:8px;flex-wrap:wrap}.bar input{flex:1;min-width:220px}.status{white-space:pre-wrap;color:var(--mint);font-size:14px;margin-top:10px}.request{border:1px solid var(--line);border-radius:12px;padding:14px;margin:10px 0;overflow-wrap:anywhere}.request h2{font-size:18px;margin:0 0 6px}.meta{font-size:13px;color:var(--muted)}.details{white-space:pre-wrap;margin:10px 0}.pill{display:inline-block;border:1px solid var(--line);border-radius:99px;padding:2px 8px;font-size:12px;margin-right:5px}a{color:var(--mint)}.hide{display:none}
+</style>
+</head>
+<body><main class="wrap">
+<a href="/b2b/">DreamLedger B2B</a>
+<h1>Private RFQ inbox</h1>
+<p class="muted">Private buyer requests. Enter the operator token to load requests. The token is sent only to this site's API and is not stored by this page.</p>
+<section class="panel">
+<form id="auth">
+<label for="token">Operator token</label>
+<div class="bar"><input id="token" type="password" autocomplete="off" required minlength="32" placeholder="Paste B2B operator token"><button id="load" type="submit">Load requests</button></div>
+</form>
+<div class="status" id="status" role="status" aria-live="polite"></div>
+</section>
+<section class="panel hide" id="results">
+<div class="bar" style="justify-content:space-between;align-items:center"><strong id="count">0 requests</strong><button id="csv" type="button">Export CSV</button></div>
+<div id="list"></div>
+</section>
+<script>
+(function(){
+  'use strict';
+  var token=document.getElementById('token'),form=document.getElementById('auth'),status=document.getElementById('status'),results=document.getElementById('results'),list=document.getElementById('list'),count=document.getElementById('count'),button=document.getElementById('load'),csv=document.getElementById('csv'),requests=[];
+  function node(tag,text,cls){var e=document.createElement(tag);e.textContent=String(text==null?'':text);if(cls)e.className=cls;return e;}
+  function show(items){
+    requests=items;list.replaceChildren();count.textContent=items.length+' request'+(items.length===1?'':'s');
+    if(!items.length)list.appendChild(node('p','No requests have been received yet.','muted'));
+    items.forEach(function(r){
+      var card=node('article','');card.className='request';
+      card.appendChild(node('h2',r.title));
+      card.appendChild(node('div',r.company+' · '+r.contact_email,'meta'));
+      var tags=node('div','');tags.appendChild(node('span',r.category,'pill'));tags.appendChild(node('span',r.region,'pill'));tags.appendChild(node('span',r.status,'pill'));card.appendChild(tags);
+      if(r.budget_text)card.appendChild(node('p','Budget: '+r.budget_text,'meta'));
+      card.appendChild(node('p',r.details,'details'));
+      card.appendChild(node('p','Received: '+r.created_at,'meta'));
+      list.appendChild(card);
+    });
+    results.classList.remove('hide');
+  }
+  form.addEventListener('submit',async function(e){
+    e.preventDefault();button.disabled=true;button.textContent='Loading...';status.textContent='';results.classList.add('hide');
+    try{
+      var r=await fetch('/api/marketplace/admin',{headers:{'authorization':'Bearer '+token.value,'accept':'application/json'},cache:'no-store'});
+      var d=await r.json();if(!r.ok)throw new Error(d.error||'Inbox request failed');
+      show(Array.isArray(d.requests)?d.requests:[]);status.textContent='Inbox loaded. '+d.count+' private request(s).';
+    }catch(err){status.textContent='Inbox unavailable: '+String(err.message||'request failed');}
+    finally{button.disabled=false;button.textContent='Load requests';}
+  });
+  csv.addEventListener('click',function(){
+    var cols=['id','company','contact_email','category','title','details','budget_text','region','status','created_at'];
+    var quote=function(v){return '"'+String(v==null?'':v).replace(/"/g,'""')+'"';};
+    var body=[cols.join(','),...requests.map(function(r){return cols.map(function(k){return quote(r[k]);}).join(',');})].join('\r\n');
+    var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([body],{type:'text/csv;charset=utf-8'}));a.download='dreamledger-rfq-inbox.csv';a.click();URL.revokeObjectURL(a.href);
+  });
+})();
+</script>
+</main></body></html>
