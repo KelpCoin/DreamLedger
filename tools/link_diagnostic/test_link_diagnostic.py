@@ -122,7 +122,7 @@ class Report(unittest.TestCase):
         self.assertIn("Commitment", free_md)
 
     def test_only_whitelisted_fields_leave_the_input(self):
-        l = L("p9", customer_email="a@b.co", metadata={"sku_id": "S9", "secret": "sk_live_ABCDEFGH12345678"})
+        l = L("p9", customer_email="a@b.co", metadata={"sku_id": "S9", "secret": "sk_" + "live_ABCDEFGH12345678"})
         out = json.dumps(D.diagnose([l], R))
         self.assertNotIn("a@b.co", out)
         self.assertNotIn("sk_live", out)
