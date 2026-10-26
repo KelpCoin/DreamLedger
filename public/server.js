@@ -23,7 +23,7 @@ const PUBLIC_FILES={
   '/commander-guide':'commander-guide.html','/commander-guide/':'commander-guide.html',
   '/agent-commerce':'agent-commerce.html','/agent-commerce/':'agent-commerce.html','/agentic-commerce':'agentic-commerce.html','/agentic-commerce/':'agentic-commerce.html','/revenue.html':'agentic-commerce.html','/revenue':'agentic-commerce.html',
   '/b2b':'b2b.html','/b2b/':'b2b.html','/b2b.html':'b2b.html',
-  '/marketplace':'marketplace.html','/marketplace/':'marketplace.html','/marketplace.html':'marketplace.html',
+  '/marketplace':'marketplace.html','/marketplace/':'marketplace.html','/marketplace.html':'marketplace.html','/explore':'marketplace-ecosystem.html','/explore/':'marketplace-ecosystem.html','/marketplace-ecosystem.html':'marketplace-ecosystem.html',
   '/go':'go/index.html','/go/':'go/index.html',
   '/cost-of-living.html':'cost-of-living.html','/cost-of-living':'cost-of-living.html',
   '/truth-oracle.html':'truth-oracle.html',
