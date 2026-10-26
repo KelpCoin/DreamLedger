@@ -127,6 +127,13 @@ body{padding-bottom:calc(5.2rem + var(--sb))}
     </div>
   </section>
 
+  <section class="sec" id="listings">
+    <h2>Live supplier listings</h2>
+    <p class="sub">Only published listings returned by the marketplace service appear here. No sample or placeholder stock is shown.</p>
+    <div id="listingStatus" class="note" role="status" aria-live="polite">Checking live listings…</div>
+    <div id="listingGrid" class="grid cols3" aria-label="Published supplier listings"></div>
+  </section>
+
   <section class="sec" id="rfq">
     <h2>Request supplier interest</h2>
     <p class="sub">Describe your requirement. We can review the request, but supplier matching is not guaranteed while community listings are paused. No platform success fee on resulting peer deals.</p>
@@ -215,6 +222,29 @@ body{padding-bottom:calc(5.2rem + var(--sb))}
 <script>
 (function(){
   'use strict';
+  var listingStatus=document.getElementById('listingStatus');
+  var listingGrid=document.getElementById('listingGrid');
+  function textNode(tag,value,cls){var el=document.createElement(tag);el.textContent=String(value??'');if(cls)el.className=cls;return el;}
+  fetch('/api/marketplace/listings',{credentials:'same-origin',headers:{'accept':'application/json'}})
+    .then(async function(r){var data=await r.json();if(!r.ok)throw new Error(data.error||'listing service unavailable');return data;})
+    .then(function(data){
+      var rows=Array.isArray(data.listings)?data.listings:[];
+      listingGrid.replaceChildren();
+      if(!rows.length){listingStatus.textContent='No published supplier listings are currently available. You can submit an RFQ for human review.';return;}
+      rows.forEach(function(item){
+        var card=document.createElement('article');card.className='card';
+        card.appendChild(textNode('h3',item.title));
+        card.appendChild(textNode('p',(item.category||'General')+' · '+(item.seller||'Verified seller')));
+        card.appendChild(textNode('p',item.description||''));
+        var price=Number(item.price_minor);
+        var label=Number.isFinite(price)?new Intl.NumberFormat('en-NZ',{style:'currency',currency:item.currency||'NZD'}).format(price/100):'Price on request';
+        card.appendChild(textNode('strong',label,'go'));
+        card.appendChild(textNode('p','Listing only. Checkout is not enabled; contact and payment must not be inferred from this card.','note'));
+        listingGrid.appendChild(card);
+      });
+      listingStatus.textContent=rows.length+' published listing(s) returned by the marketplace service.';
+    })
+    .catch(function(){listingGrid.replaceChildren();listingStatus.textContent='Live listings unavailable: marketplace service is not connected or responding. No placeholder listings are shown.';});
   var form=document.getElementById('rfqForm');
   var status=document.getElementById('status');
   var button=form.querySelector('button[type="submit"]');
