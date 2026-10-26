@@ -160,7 +160,7 @@ begin
     null;
   else raise exception 'INVALID_RFQ_TRANSITION:% -> %',old_status,p_to_status;
   end if;
-  update public.marketplace_rfq_requests set status=p_to_status,state_version=state_version+1,updated_at=now()
+  update public.marketplace_rfq_requests set status=p_to_status, visibility=case when p_to_status='open' then 'marketplace' else visibility end, state_version=state_version+1,updated_at=now()
     where id=p_rfq_id returning * into r;
   insert into public.marketplace_rfq_state_events(rfq_id,from_state,to_state,state_version,actor_user_id,actor_organization_id,reason)
     values(p_rfq_id,old_status,p_to_status,r.state_version,auth.uid(),p_actor_organization_id,p_reason);
