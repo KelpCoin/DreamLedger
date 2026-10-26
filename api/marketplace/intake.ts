@@ -43,7 +43,7 @@ export default async function handler(req: any, res: any) {
   }
   try {
     const sql = neon(process.env.NEON_DATABASE_URL);
-    const ip = String(req.headers["x-forwarded-for"] || req.socket?.remoteAddress || "unknown").split(",")[0].trim();
+    const ip = String(req.headers["x-real-ip"] || req.socket?.remoteAddress || "unknown").trim();
     const salt = process.env.RATE_LIMIT_SALT || "dreamledger-rfq-v1";
     const ipHash = createHash("sha256").update(ip + "|" + salt).digest("hex");
     const windowStart = new Date(Math.floor(Date.now() / 3600000) * 3600000).toISOString();
