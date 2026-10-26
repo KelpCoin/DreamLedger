@@ -31,7 +31,8 @@ function safeCandidate(entityType, row) {
     title: row.title || row.name || '',
     description: row.description || '',
     category: row.category || row.category_id || '',
-    price_minor: row.price_minor ?? row.price ?? null,
+    price_minor: row.price_minor ?? null,
+    price: row.price ?? null,
     currency: row.currency || null,
     status: row.status || null,
     silo_id: row.silo_id || null
@@ -150,8 +151,12 @@ module.exports = async function marketplaceCouncil(req, res) {
     const memberships = await rest('GET', 'marketplace_memberships',
       '?select=role,status&organization_id=eq.' + encodeURIComponent(organizationId) +
       '&user_id=eq.' + encodeURIComponent(user.id) + '&status=eq.active&limit=20');
-    if (!Array.isArray(memberships) || !memberships.some(m =>
-      ['owner', 'admin', 'buyer', 'seller', 'moderator', 'operator'].includes(m.role))) {
+    const roleMap = {
+      listing: ['owner', 'admin', 'seller', 'moderator', 'operator'],
+      rfq: ['owner', 'admin', 'buyer', 'moderator', 'operator'],
+      proposal: ['owner', 'admin', 'seller', 'moderator', 'operator']
+    };
+    if (!Array.isArray(memberships) || !memberships.some(m => roleMap[entityType].includes(m.role))) {
       return send(res, 403, { error: 'ACTIVE_TENANT_MEMBERSHIP_REQUIRED' });
     }
     const silos = await rest('GET', 'marketplace_organization_silos',
