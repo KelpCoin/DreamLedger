@@ -1,0 +1,2 @@
+supplier_name,quote_reference,source_url,quote_date,currency,base_price,delivery_cost,other_fees,lead_time_days,minimum_order_quantity,payment_terms,exclusions,notes
+Supplier A,REF-001,https://example.com,2026-01-01,NZD,0,0,0,0,1,Not supplied,Not supplied,Replace example data before use
