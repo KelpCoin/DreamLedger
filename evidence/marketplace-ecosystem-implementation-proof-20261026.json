@@ -1,0 +1,53 @@
+{
+  "schema": "dreamledger/marketplace-ecosystem-implementation-proof/v1",
+  "task_id": "DREAMLEDGER-ECOSYSTEM-FRONTDOOR-20261026-01",
+  "truth_label": "SOURCE_VERIFIED_CI_PENDING_PRODUCTION_UNVERIFIED",
+  "checked_at": "2026-10-26",
+  "repository": "KelpCoin/DreamLedger",
+  "branch": "feat/multitenant-marketplace-figure-eight-council-20261026",
+  "pull_request": "https://github.com/KelpCoin/DreamLedger/pull/838",
+  "artifacts": [
+    {
+      "path": "public/marketplace-ecosystem.html",
+      "sha256": "f851b846421b7c8c53dc24953a365093ae034bd6edbb810ac8e71882e50e130d",
+      "github_blob_sha": "0c0dfefe30257a8b470ced3f0b49b144cd28675d",
+      "bytes": 19658
+    },
+    {
+      "path": "scripts/verify-marketplace-ecosystem.cjs",
+      "sha256": "98b2fcc01758b1efade7343bb7ff55dde4b5e15f0f28b8a15e9cfbf3568ab3b2",
+      "github_blob_sha": "a39ae4de6e50e2778e8842fcc4f823862d5fa640",
+      "bytes": 2408
+    },
+    {
+      "path": "vercel.json",
+      "sha256": "70b82c496dac3e1ec572e7eb69b5d35970bdc1dd7409e60cbb7bbb782ceea3d2",
+      "github_blob_sha": "8aee85e1951c6ca6b0e23b5c857569d9ec1f742a",
+      "bytes": 915
+    }
+  ],
+  "scope": [
+    "multi-silo discovery UI",
+    "existing live-only listings and public RFQ APIs",
+    "consent-gated buyer RFQ intake",
+    "seller intake with rights/consent affirmation",
+    "links to canonical QR, avatar and game surfaces",
+    "Render/Vercel route wiring"
+  ],
+  "verification": {
+    "static_contract": "CI verifier added; provider run not yet independently observed",
+    "production_route": "UNVERIFIED",
+    "database_environment": "UNVERIFIED",
+    "real_listings": "UNVERIFIED",
+    "checkout_fulfillment": "HOLD",
+    "verified_external_revenue_nzd": 0
+  },
+  "constraints": [
+    "No DNS change",
+    "No hosting configuration or secret changes",
+    "No checkout activation",
+    "No public promotion",
+    "No fabricated inventory, demand or revenue"
+  ],
+  "next_dependency": "Passing CI plus authorized production environment/deployment and independent route verification."
+}
