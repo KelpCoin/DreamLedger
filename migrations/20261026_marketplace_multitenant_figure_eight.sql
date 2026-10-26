@@ -152,6 +152,26 @@ create table if not exists marketplace.public_rfq_intake (
 );
 create index if not exists marketplace_public_rfq_status_idx on marketplace.public_rfq_intake(status,created_at desc);
 
+create table if not exists marketplace.public_seller_intake (
+  id uuid primary key,
+  idempotency_key text not null unique,
+  listing_kind text not null check (listing_kind in ('digital','physical','service','b2b','mtg')),
+  title text not null check (length(trim(title)) between 3 and 120),
+  description text not null check (length(trim(description)) between 10 and 2000),
+  price_minor bigint not null check (price_minor > 0),
+  quantity integer not null check (quantity > 0 and quantity <= 1000000),
+  business_name text not null default '' check (length(business_name) <= 160),
+  gst_status text not null default 'unknown' check (gst_status in ('yes','no','unknown')),
+  contact_email text not null check (length(contact_email) <= 254),
+  notes text not null default '' check (length(notes) <= 2000),
+  contact_consent boolean not null check (contact_consent=true),
+  privacy_notice_version text not null,
+  status text not null default 'received' check (status in ('received','reviewing','approved','rejected','spam')),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create index if not exists marketplace_public_seller_status_idx on marketplace.public_seller_intake(status,created_at desc);
+
 create table if not exists marketplace.intake_rate_limits (
   ip_hash text not null,
   window_start timestamptz not null,
@@ -184,6 +204,7 @@ alter table marketplace.proposals enable row level security;
 alter table marketplace.orders enable row level security;
 alter table marketplace.council_runs enable row level security;
 alter table marketplace.public_rfq_intake enable row level security;
+alter table marketplace.public_seller_intake enable row level security;
 alter table marketplace.intake_rate_limits enable row level security;
 alter table marketplace.audit_events enable row level security;
 
@@ -263,6 +284,10 @@ create policy audit_events_tenant_read on marketplace.audit_events for select us
     where m.organization_id=audit_events.organization_id and m.principal_id=current_setting('app.principal_id',true)
       and m.status='active')
 );
+drop policy if exists public_seller_intake_service_all on marketplace.public_seller_intake;
+create policy public_seller_intake_service_all on marketplace.public_seller_intake for all using (
+  current_setting('app.actor_type',true)='service'
+) with check (current_setting('app.actor_type',true)='service');
 drop policy if exists audit_events_service_insert on marketplace.audit_events;
 create policy audit_events_service_insert on marketplace.audit_events for insert with check (
   current_setting('app.actor_type',true)='service'
