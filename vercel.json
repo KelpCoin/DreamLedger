@@ -32,6 +32,14 @@
       "destination": "/marketplace.html"
     },
     {
+      "source": "/explore",
+      "destination": "/marketplace-ecosystem.html"
+    },
+    {
+      "source": "/explore/",
+      "destination": "/marketplace-ecosystem.html"
+    },
+    {
       "source": "/",
       "destination": "/index.html"
     }
