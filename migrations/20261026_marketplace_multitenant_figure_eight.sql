@@ -240,6 +240,34 @@ create policy proposals_tenant_read on marketplace.proposals for select using (
   or exists (select 1 from marketplace.rfqs r join marketplace.memberships m on m.organization_id=r.organization_id
     where r.id=proposals.rfq_id and m.principal_id=current_setting('app.principal_id',true) and m.status='active')
 );
+drop policy if exists orders_tenant_read on marketplace.orders;
+create policy orders_tenant_read on marketplace.orders for select using (
+  exists (select 1 from marketplace.memberships m where m.organization_id=orders.buyer_organization_id
+    and m.principal_id=current_setting('app.principal_id',true) and m.status='active')
+  or exists (select 1 from marketplace.memberships m where m.organization_id=orders.seller_organization_id
+    and m.principal_id=current_setting('app.principal_id',true) and m.status='active')
+);
+drop policy if exists orders_buyer_insert on marketplace.orders;
+create policy orders_buyer_insert on marketplace.orders for insert with check (
+  status='checkout_pending' and exists (select 1 from marketplace.memberships m
+    where m.organization_id=orders.buyer_organization_id and m.principal_id=current_setting('app.principal_id',true)
+      and m.status='active' and m.role in ('owner','admin','buyer'))
+);
+drop policy if exists orders_service_update on marketplace.orders;
+create policy orders_service_update on marketplace.orders for update using (
+  current_setting('app.actor_type',true)='service'
+) with check (current_setting('app.actor_type',true)='service');
+drop policy if exists audit_events_tenant_read on marketplace.audit_events;
+create policy audit_events_tenant_read on marketplace.audit_events for select using (
+  organization_id is not null and exists (select 1 from marketplace.memberships m
+    where m.organization_id=audit_events.organization_id and m.principal_id=current_setting('app.principal_id',true)
+      and m.status='active')
+);
+drop policy if exists audit_events_service_insert on marketplace.audit_events;
+create policy audit_events_service_insert on marketplace.audit_events for insert with check (
+  current_setting('app.actor_type',true)='service'
+);
+
 drop policy if exists council_tenant_read on marketplace.council_runs;
 create policy council_tenant_read on marketplace.council_runs for select using (
   exists (select 1 from marketplace.memberships m where m.organization_id=council_runs.organization_id
