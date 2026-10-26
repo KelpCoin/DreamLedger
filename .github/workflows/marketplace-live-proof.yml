@@ -1,0 +1,32 @@
+name: Marketplace public HTTP proof
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 */12 * * *'
+  pull_request:
+    paths:
+      - 'ops/marketplace/probe-public.cjs'
+      - '.github/workflows/marketplace-live-proof.yml'
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Probe public marketplace (read-only)
+        run: node ops/marketplace/probe-public.cjs
+        env:
+          BECK_PROOF_DIR: ${{ runner.temp }}/beck-public-proof
+      - name: Preserve timestamped proof on success or failure
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: beck-marketplace-public-http-${{ github.run_id }}
+          path: ${{ runner.temp }}/beck-public-proof
+          if-no-files-found: warn
+          retention-days: 14
