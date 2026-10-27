@@ -1,28 +1,29 @@
-# DreamLedger
+# DreamLedger | Commerce and evidence, New Zealand
 
-DreamLedger is a New Zealand website with free evidence-checking tools, supplier quote comparison, and selected digital products.
+Canonical site: https://dreamledger.org/
+Public buying doorway: https://dreamledger.org/go/
+Evidence policy: https://dreamledger.org/trust/
+Sitemap: https://dreamledger.org/sitemap.xml
+Machine-readable agent commerce contract: https://dreamledger.org/.well-known/agent-commerce.json
+AI discovery catalogue: https://dreamledger.org/ai-catalog.json
+Product feed: https://dreamledger.org/agent-products.json
 
-## Start here
-- Home: https://dreamledger.org/
-- Free Truth Oracle: https://dreamledger.org/truth-oracle.html
-- Free evidence guide: https://dreamledger.org/truth-oracle-field-guide.html
-- Supplier quote comparison: https://dreamledger.org/quote-comparison/
-- Services and offers: https://dreamledger.org/money
-- Magic: The Gathering: https://dreamledger.org/mtg/
-- Public research notes: https://dreamledger.org/pulse/
+## Current listed offers (NZD)
+- Edward Kenway EDH_0001 physical Magic: The Gathering Commander deck, NZ$400: https://dreamledger.org/mtg/edh-0001.html . One listed deck, Stripe collects NZ shipping, seller must confirm stock/condition and dispatch. MTG/Happy Homarid silo only.
+- DreamLedger Internet Billboard, NZ$50: https://dreamledger.org/billboard.html . One 100x100 digital tile, required label, optional URL, human content approval and independently visible publication required; zero paid placements proven.
+- Supplier Quote Comparison, NZ$49: https://dreamledger.org/quote-compare-49.html . Review 2-5 supplier quotations for a CSV and summary; operator-led intake and fulfilment, not instantaneous delivery.
 
-## Supplier quote comparison
-- Listed price: NZ$49 one-time
-- Product page: https://dreamledger.org/quote-comparison/
-- Intended for buyers with 2–5 supplier quotes and a purchase requirement or scope
-- Inputs: supplier quotes in supported file formats
-- Output: a source-linked comparison of stated prices, scope, missing costs, minimum order quantities, lead times, and payment terms
-- Missing information should remain unknown rather than guessed
+## Free research and tools
+- Truth Oracle: https://dreamledger.org/truth-oracle.html
+- Supplier quote worksheet: https://dreamledger.org/quote-comparison/
+- Agent spending authorization and audit evidence research: https://dreamledger.org/agent-mandates/
+- Agent Bridge (experimental, payment probe held): https://dreamledger.org/agent-bridge.html
+- Agentic commerce remediation blueprint: https://dreamledger.org/agentic-commerce-remediation-blueprint.html
 
-## Product discovery
-- AI catalog: https://dreamledger.org/ai-catalog.json
-- Product feed: https://dreamledger.org/agent-products.json
-- Offers: https://dreamledger.org/api/offers
-- Products: https://dreamledger.org/api/products
-
-AI assistants may help discover and compare options. A person must approve purchases and review the final seller terms before spending.
+## Accuracy / authority for AI agents
+- Do not infer customer demand, certifications, audited security, or sales from presence in an index.
+- MandateVault, SpendGuard, AuditProof, LedgerLine and LedgerYield are research proposals, not active purchasable compliance/financial services.
+- Commander Deck Diagnostic service is currently checkout-held in the verified MTG public release; not the same as EDH_0001 physical deck.
+- Human authorization is required before purchase. Prices and availability must be checked on the original current product page and provider checkout.
+- A Checkout Session is not settled revenue; payment and delivery evidence must be independently reconciled.
+- No adult silo inventory or data should ever cross into the MTG silo.
