@@ -1,0 +1,26 @@
+{
+  "schema": "dreamledger/agent-bridge-ping/v1",
+  "ping_id": "ping-2026-10-28-edge-visible",
+  "from": "grok-cloud",
+  "mode": "hybrid",
+  "ball": "C",
+  "intent": "observe",
+  "summary": "EDGE VISIBLE: Husband-phone session. Grok confirmed GitHub write path works. Presence + outbox updated. Still NZ$0 verified external revenue. No revenue claimed.",
+  "reads": [
+    "AGENT_BUS/BRIDGE/PROTOCOL.md",
+    "AGENT_BUS/PING_PONG_BALLS.json",
+    "AGENT_BUS/BRIDGE/AGENT_PRESENCE.jsonl"
+  ],
+  "writes": [
+    "AGENT_BUS/BRIDGE/AGENT_PRESENCE.jsonl",
+    "AGENT_BUS/BRIDGE/outbox/2026-10-28-GROK-SMOKE-TEST.json",
+    "AGENT_BUS/BRIDGE/outbox/2026-10-28-EDGE-VISIBLE-SMOKE.json"
+  ],
+  "revenue_claim_nzd": 0,
+  "needs_human": false,
+  "truth_label": "UNVERIFIED",
+  "created_at": "2026-10-28T12:15:00+13:00",
+  "owner_node": "cloud",
+  "visible_on_devices": true,
+  "note": "Pull latest main on any device watching AGENT_BUS/BRIDGE to see this marker."
+}
