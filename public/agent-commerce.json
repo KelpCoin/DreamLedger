@@ -1,6 +1,6 @@
 {
   "schema": "dreamledger/agent-commerce/v6",
-  "updated": "2026-10-11",
+  "updated": "2026-10-27",
   "purpose": "Public product discovery and purchase information for people and AI assistants.",
   "storefront": "https://dreamledger.org/",
   "human_shop_horizontal": "https://dreamledger.org/shop.html",
@@ -45,121 +45,40 @@
   },
   "primary_offers": [
     {
-      "product_id": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
-      "name": "DreamLedger Founding Billboard",
-      "price_nzd": 50,
-      "buy_router": "https://dreamledger.org/billboard.html",
-      "checkout_url": null,
-      "status": "REVIEW_REQUIRED",
-      "fulfillment": "held_until_secure_intake_and_inventory_reservation_verified",
-      "note": "Public checkout is intentionally held until secure intake, live inventory reservation, signed-webhook handling and delivery evidence are verified."
-    },
-    {
-      "product_id": "COMMANDER-DECK-DIAGNOSTIC-001",
-      "name": "Commander Deck Diagnostic",
-      "price_nzd": 29,
-      "buy_router": "https://dreamledger.org/mtg/diagnostic.html",
-      "checkout_url": "https://dreamledger.org/mtg/diagnostic.html",
-      "status": "LISTED",
-      "loop": "LOOP-CMD-DIAG-29",
-      "note": "First-party decklist intake creates a one-time Checkout Session only while the canonical economic ledger is reachable. Do not treat checkout creation as payment or delivery proof."
-    },
-    {
-      "product_id": "DREAMMEEZ-SUPPORTER-SPROUT",
-      "name": "DreamMeez Supporter — Sprout",
-      "price_nzd": 3.99,
-      "buy_router": "https://dreamledger.org/buy/DREAMMEEZ-SUPPORTER-SPROUT",
-      "checkout_url": "https://buy.stripe.com/3cI5kDfe5cO9gyP5oEdwc2M",
-      "status": "LISTED",
-      "loop": "LOOP-SPROUT-3.99"
-    },
-    {
-      "product_id": "DREAMMEEZ-SUPPORTER-GLOW",
-      "name": "DreamMeez Supporter — Glow",
-      "price_nzd": 5.99,
-      "buy_router": "https://dreamledger.org/buy/DREAMMEEZ-SUPPORTER-GLOW",
-      "checkout_url": "https://buy.stripe.com/5kQfZh5Dv9BXciz5oEdwc2N",
-      "status": "LISTED"
-    },
-    {
-      "product_id": "DREAMMEEZ-SUPPORTER-DEPTH",
-      "name": "DreamMeez Supporter — Depth",
-      "price_nzd": 9.99,
-      "buy_router": "https://dreamledger.org/buy/DREAMMEEZ-SUPPORTER-DEPTH",
-      "checkout_url": "https://buy.stripe.com/8x2dR93vnaG1gyPg3idwc2O",
-      "status": "LISTED"
-    },
-    {
-      "product_id": "DREAMMEEZ-COSMIC-HOODIE-001",
-      "name": "DreamMeez Cosmic Hoodie",
-      "price_nzd": 5,
-      "buy_router": "https://dreamledger.org/buy/DREAMMEEZ-COSMIC-HOODIE-001",
-      "checkout_url": "https://buy.stripe.com/aFa14nd5XdSdeqH5oEdwc2J",
-      "status": "LISTED"
-    },
-    {
-      "product_id": "DREAMMEEZ-CAPE-001",
-      "name": "DreamMeez Cape",
-      "price_nzd": 10,
-      "buy_router": "https://dreamledger.org/buy/DREAMMEEZ-CAPE-001",
-      "checkout_url": "https://buy.stripe.com/cNi5kDaXP7tP0zR2csdwc2K",
-      "status": "LISTED"
-    },
-    {
-      "product_id": "DREAMMEEZ-CHROME-BOOTS-001",
-      "name": "DreamMeez Chrome Boots",
-      "price_nzd": 9,
-      "buy_router": "https://dreamledger.org/buy/DREAMMEEZ-CHROME-BOOTS-001",
-      "checkout_url": "https://buy.stripe.com/3cI5kDgi97tP3M37wMdwc2L",
-      "status": "LISTED"
-    },
-    {
-      "product_id": "KELP-FLOOR1-001",
-      "name": "Kelplantis Floor 1 Access Pass",
-      "price_nzd": 19,
-      "buy_router": "https://dreamledger.org/buy/KELP-FLOOR1-001",
-      "checkout_url": "https://buy.stripe.com/aFa3cvea16pLbevbN2dwc2P",
-      "status": "LISTED",
-      "loop": "LOOP-KELP-FLOOR1-19"
-    },
-    {
-      "product_id": "SELLER-PROFIT-AUDIT-001",
-      "name": "Seller Profit Audit",
-      "price_nzd": 29,
-      "buy_router": "https://dreamledger.org/buy/SELLER-PROFIT-AUDIT-001",
-      "checkout_url": "https://buy.stripe.com/8x2bJ17LD3dzeqH8AQdwc2S",
-      "status": "LISTED",
-      "loop": "LOOP-SELLER-AUDIT-29"
-    },
-    {
-      "product_id": "DISCORD-WEBHOOK-STARTER-KIT-001",
-      "name": "Discord Webhook Starter Kit",
-      "price_nzd": 79,
-      "buy_router": "https://dreamledger.org/buy/DISCORD-WEBHOOK-STARTER-KIT-001",
-      "checkout_url": "https://buy.stripe.com/4gMcN56HzaG1dmDeZedwc1n",
-      "status": "LISTED",
-      "loop": "LOOP-DISCORD-KIT-79"
-    },
-    {
-      "product_id": "ACNC-CHARITY-DD-99",
-      "name": "ACNC Charity Due Diligence Report",
-      "price_nzd": 99,
-      "buy_router": "https://dreamledger.org/buy/ACNC-CHARITY-DD-99",
-      "checkout_url": "https://buy.stripe.com/28E5kD9TLeWhgyP04kdwc2Y",
-      "status": "LISTED",
-      "loop": "LOOP-ACNC-DD-99"
-    },
-    {
       "product_id": "EDH_0001",
-      "name": "EDH_0001 Commander Deck",
-      "price_nzd": 230,
-      "buy_router": "https://dreamledger.org/buy/edh-0001/",
-      "checkout_url": null,
-      "status": "REVIEW_REQUIRED",
-      "note": "Checkout is held because the public listing says NZ$230 while the linked live Stripe Payment Link charges NZ$400. Do not purchase until the price and checkout are reconciled."
+      "name": "Edward Kenway Commander Deck",
+      "price_nzd": 400,
+      "currency": "NZD",
+      "silo": "mtg",
+      "buy_router": "https://dreamledger.org/mtg/edh-0001.html",
+      "checkout_url": "https://buy.stripe.com/14A3cvea1dSd1DV5oEdwc1J",
+      "status": "LISTED_CHECKOUT_ACTIVE",
+      "fulfillment": "Physical Commander deck, NZ shipping address collected, seller dispatch proof required"
+    },
+    {
+      "product_id": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "name": "DreamLedger Internet Billboard",
+      "price_nzd": 50,
+      "currency": "NZD",
+      "silo": "media",
+      "buy_router": "https://dreamledger.org/billboard.html",
+      "checkout_url": "https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w",
+      "status": "LISTED_CHECKOUT_ACTIVE_REVIEW_REQUIRED",
+      "fulfillment": "One public digital placement after content approval. Successful payment alone is not publication proof; verified published placements currently zero."
+    },
+    {
+      "product_id": "QUOTE-COMPARE-49",
+      "name": "Supplier Quote Comparison",
+      "price_nzd": 49,
+      "currency": "NZD",
+      "silo": "b2b",
+      "buy_router": "https://dreamledger.org/quote-compare-49.html",
+      "checkout_url": "https://buy.stripe.com/00wdR93vnbK5eqH3gwdwc3r",
+      "status": "LISTED_MANUAL_FULFILLMENT",
+      "fulfillment": "Structured CSV and summary after operator reviews buyer-provided supplier quotes; allow 24h after complete intake."
     }
   ],
-  "catalog_note": "Prices, checkout links, and availability can change. Confirm current terms on the product page before purchase.",
+  "catalog_note": "Dynamic delivery evidence is separate from live checkout availability. Consult product pages; no sales or fulfillment are asserted.",
   "safety": {
     "human_approval_required_before_spending": true,
     "check_current_terms_before_purchase": true,
@@ -201,5 +120,9 @@
     "checkout_url": null,
     "fulfillment": "browser_tools",
     "note": "Canonical free destination for the retired standalone audit offer. No separate audit product or checkout remains."
+  },
+  "research": {
+    "agent_spending_mandates": "https://dreamledger.org/agent-mandates/",
+    "status": "RESEARCH_NOT_FOR_SALE"
   }
 }
