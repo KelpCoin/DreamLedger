@@ -1,0 +1,46 @@
+{
+  "schema": "dreamledger/marketplace-policy-candidate/v1",
+  "status": "DRAFT_NOT_DEPLOYED",
+  "master_silo": "mtg",
+  "human_to_human": {
+    "listing_fee_nzd": 0,
+    "platform_commission_percent": 0
+  },
+  "b2b": {
+    "listing_fee_nzd": 0,
+    "platform_commission_percent": 0
+  },
+  "paid_visibility": {
+    "optional": true,
+    "label": "Sponsored",
+    "not_a_trust_badge": true,
+    "requires_approved_fulfillable_product": true
+  },
+  "a2a": {
+    "metered": true,
+    "price_band": "cheap",
+    "entitlement_before_usage": true,
+    "receipt_after_usage": true,
+    "production_enabled": false
+  },
+  "mtg": {
+    "public_route": "/mtg/",
+    "listing_kinds": [
+      "single",
+      "sealed",
+      "deck"
+    ],
+    "platform_commission_percent": 0,
+    "source_identity": "Scryfall",
+    "arbitrage_mode": "exact-print-price-comparables",
+    "inventory_default": "PRIVATE"
+  },
+  "silos_must_not_mix": [
+    [
+      "mtg",
+      "amplissa"
+    ]
+  ],
+  "revenue_truth": "settled_payment_and_attributable_delivery_proof",
+  "publication": "OWNER_APPROVAL_REQUIRED"
+}

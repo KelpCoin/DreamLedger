@@ -36,7 +36,7 @@ h1{font-size:clamp(2.2rem,6vw,3.6rem);line-height:1.02;letter-spacing:-.04em;mar
 <body>
 <div class="wrap">
 <header class="top"><a class="brand" href="/">Dream<span>Ledger</span> · Magic</a>
-<nav><a href="/mtg/">Decks</a><a href="https://patreon.com/happyhomarid" target="_blank" rel="noopener">Patreon</a><a href="/">Home</a></nav></header>
+<nav><a href="/mtg/">Decks</a><a href="/mtg-list">Sell single</a><a href="/mtg/arbitrage.html">Price signals</a><a href="https://patreon.com/happyhomarid" target="_blank" rel="noopener">Patreon</a><a href="/">Home</a></nav></header>
 <section class="hero">
 <p class="kicker">Commander · New Zealand · Happy Homarid</p>
 <div class="pills"><span class="pill pill-gold">0% marketplace fee</span><span class="pill">Claim by message</span><span class="pill">#MeatiestMagic</span></div>
@@ -58,20 +58,7 @@ h1{font-size:clamp(2.2rem,6vw,3.6rem);line-height:1.02;letter-spacing:-.04em;mar
       return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c];
     });
   }
-  var FALLBACK = [
-    { id: 'EDH_QUINTORIUS_0002', name: 'Quintorius, Field Historian', price: 90, status: 'published', category: 'commander-deck', silo: 'mtg',
-      description: 'Boros graveyard-recursion Commander. NZ$90 free NZ shipping. Patreon NZ$80.',
-      claim_url: 'mailto:hello@dreamledger.org?subject=Buy%20Quintorius%20Commander%20deck%20NZ%2490' },
-    { id: 'EDH_DWYNEN_0003', name: 'Dwynen, Gilt-Leaf Daen', price: 90, status: 'published', category: 'commander-deck', silo: 'mtg',
-      description: 'Mono-green Elf tribal. NZ$90 free NZ shipping. Patreon NZ$80.',
-      claim_url: 'mailto:hello@dreamledger.org?subject=Buy%20Dwynen%20Commander%20deck%20NZ%2490' },
-    { id: 'EDH_JON_IRENICUS_0004', name: 'Jon Irenicus, Shattered One', price: 220, status: 'published', category: 'commander-deck', silo: 'mtg',
-      description: 'Physical Commander deck. Claim to confirm availability and shipping.',
-      claim_url: 'mailto:hello@dreamledger.org?subject=Claim%20Jon%20Irenicus%20Commander%20Deck' },
-    { id: 'EDH_0001', name: 'Commander deck EDH_0001', price: 400, status: 'published', category: 'commander-deck', silo: 'mtg',
-      description: 'Physical Commander deck. Claim to confirm availability.',
-      claim_url: 'mailto:hello@dreamledger.org?subject=Buy%20EDH_0001%20Commander%20deck%20NZ%24400' }
-  ];
+  // No hard-coded fallback stock. Physical supply must come from the approved MTG catalogue.
   var statusEl = document.getElementById('status');
   var grid = document.getElementById('grid');
   function isMtgDeck(p) {
@@ -95,14 +82,14 @@ h1{font-size:clamp(2.2rem,6vw,3.6rem);line-height:1.02;letter-spacing:-.04em;mar
       return r.json();
     });
   }
-  render(FALLBACK, 'loading feeds…');
+  render([], 'loading approved catalogue…');
   tryFetch('/data/mtg-catalog.json')
     .catch(function () { return tryFetch('/catalog.json'); })
     .then(function (d) {
       var decks = ((d && d.products) || []).filter(isMtgDeck);
-      render(decks.length ? decks : FALLBACK, decks.length ? '' : 'fallback');
+      render(decks, decks.length ? '' : 'no approved decks in feed');
     })
-    .catch(function () { render(FALLBACK, 'offline catalogue'); });
+    .catch(function () { render([], 'approved catalogue unavailable'); });
 })();
 </script>
 </body>
