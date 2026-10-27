@@ -1,7 +1,7 @@
 {
   "schema": "dreamledger/distribution-queue/v1",
-  "updated": "2026-09-25",
-  "purpose": "Ordered distribution jobs. Agents prepare; humans send on owned channels.",
+  "updated": "2026-10-27",
+  "purpose": "Verified, approved owned-channel distribution jobs only. No manual DMs. No fabricated outreach or demand.",
   "verified_external_revenue_nzd": 0,
   "jobs": [
     {
@@ -10,30 +10,30 @@
       "offer": "tile-50",
       "status": "pending_human",
       "payload_ref": "ops/money/COPY-PASTE-NOW.txt",
-      "url": "https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "url": "https://dreamledger.org/billboard.html",
       "priority": 1
     },
     {
       "job_id": "dist-002",
       "channel": "owned_mtg_discord",
       "offer": "diag-29",
-      "status": "pending_human",
+      "status": "paused_owner_priority",
       "payload_ref": "ops/money/COPY-PASTE-NOW.txt",
       "url": "https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001",
-      "priority": 2
+      "priority": 99
     },
     {
       "job_id": "dist-003",
       "channel": "warm_dm_batch",
       "offer": "tile-50",
-      "status": "pending_human",
-      "count_target": 5,
+      "status": "paused_no_manual_dms",
       "payload_ref": "ops/money/COPY-PASTE-NOW.txt",
-      "priority": 1
+      "priority": 1,
+      "pause_reason": "OWNER_POLICY_INBOUND_ONLY"
     },
     {
       "job_id": "dist-004",
-      "channel": "email_or_story",
+      "channel": "owned_story_or_opt_in_list",
       "offer": "tile-50",
       "status": "pending_human",
       "payload_ref": "ops/money/DEMAND-KIT.md",
@@ -41,8 +41,10 @@
     }
   ],
   "rules": [
-    "Never mark job complete without human confirmation of send",
-    "Never auto-post to third-party communities without explicit operator policy",
-    "Prefer buy_router URLs over raw plinks in public posts"
+    "Never mark a job complete without provider publication proof or verifiable owner confirmation",
+    "Never send manual DMs or scrape contacts; no unsolicited outreach",
+    "No external publication without explicit approval on the owned channel",
+    "Only publish URLs independently confirmed reachable and checkout confirmed active; do not rely on dead buy-router aliases",
+    "Payment initiation is not a sale; independently verified payment plus delivery required"
   ]
 }
