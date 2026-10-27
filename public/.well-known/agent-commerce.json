@@ -1,6 +1,6 @@
 {
   "schema": "dreamledger/agent-commerce/v2",
-  "updated": "2026-10-03",
+  "updated": "2026-10-27",
   "purpose": "Public machine-readable commerce contract for partners and shopping agents.",
   "storefront": "https://dreamledger.org/",
   "fee_policy": {
@@ -35,71 +35,47 @@
     "agent_interface": "https://dreamledger.org/agent.json",
     "discovery": "https://dreamledger.org/.well-known/dreamledger.json",
     "buy": "https://dreamledger.org/buy/{product_id}",
-    "human_shop": "https://dreamledger.org/"
+    "human_shop": "https://dreamledger.org/go/"
   },
   "primary_offers": [
     {
-      "product_id": "COMMANDER-DECK-DIAGNOSTIC-001",
-      "offer_id": "OFFER-CMD-DIAG-29-NZD",
-      "name": "Commander Deck Diagnostic",
-      "price_nzd": 29,
+      "product_id": "EDH_0001",
+      "offer_id": "EDH_0001",
+      "name": "Edward Kenway Commander Deck",
+      "price_nzd": 400,
       "currency": "NZD",
       "silo": "mtg",
-      "checkout_url": "https://buy.stripe.com/00wfZhaXP01neqHaIYdwc2R",
-      "buy_router": "https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001",
-      "delivery": "Automated diagnostic report after payment",
-      "status": "VERIFIED_AVAILABLE"
+      "product_url": "https://dreamledger.org/mtg/edh-0001.html",
+      "checkout_url": "https://buy.stripe.com/14A3cvea1dSd1DV5oEdwc1J",
+      "delivery": "Physical Commander deck, NZ shipping address collected, seller dispatch proof required",
+      "status": "LISTED_CHECKOUT_ACTIVE"
     },
     {
       "product_id": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
       "offer_id": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
-      "name": "DreamLedger Founding Billboard",
+      "name": "DreamLedger Internet Billboard",
       "price_nzd": 50,
       "currency": "NZD",
       "silo": "media",
+      "product_url": "https://dreamledger.org/billboard.html",
       "checkout_url": "https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w",
-      "buy_router": "https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001",
-      "delivery": "Public canvas placement after payment and content review",
-      "status": "VERIFIED_AVAILABLE"
+      "delivery": "One public digital placement after content approval. Successful payment alone is not publication proof; verified published placements currently zero.",
+      "status": "LISTED_CHECKOUT_ACTIVE_REVIEW_REQUIRED"
     },
     {
-      "product_id": "DISCORD-WEBHOOK-STARTER-KIT-001",
-      "offer_id": "DISCORD-WEBHOOK-STARTER-KIT-001",
-      "name": "Discord Webhook Starter Kit",
-      "price_nzd": 79,
+      "product_id": "QUOTE-COMPARE-49",
+      "offer_id": "QUOTE-COMPARE-49",
+      "name": "Supplier Quote Comparison",
+      "price_nzd": 49,
       "currency": "NZD",
-      "silo": "commerce",
-      "checkout_url": "https://buy.stripe.com/4gMcN56HzaG1dmDeZedwc1n",
-      "buy_router": "https://dreamledger.org/buy/DISCORD-WEBHOOK-STARTER-KIT-001",
-      "delivery": "Digital kit download after payment",
-      "status": "VERIFIED_AVAILABLE"
-    },
-    {
-      "product_id": "SELLER-PROFIT-AUDIT-001",
-      "offer_id": "SELLER-PROFIT-AUDIT-001",
-      "name": "Seller Profit Audit",
-      "price_nzd": 29,
-      "currency": "NZD",
-      "silo": "seller_tools",
-      "checkout_url": "https://buy.stripe.com/8x2bJ17LD3dzeqH8AQdwc2S",
-      "buy_router": "https://dreamledger.org/buy/SELLER-PROFIT-AUDIT-001",
-      "delivery": "Manual PDF audit after payment",
-      "status": "VERIFIED_AVAILABLE"
-    },
-    {
-      "product_id": "EDH_0001",
-      "offer_id": "EDH_0001",
-      "name": "EDH_0001 Commander Deck",
-      "price_nzd": 400,
-      "currency": "NZD",
-      "silo": "mtg",
-      "checkout_url": "https://buy.stripe.com/14A3cvea1dSd1DV5oEdwc1J",
-      "buy_router": "https://dreamledger.org/buy/EDH_0001",
-      "delivery": "Physical Commander deck",
-      "status": "VERIFIED_AVAILABLE"
+      "silo": "b2b",
+      "product_url": "https://dreamledger.org/quote-compare-49.html",
+      "checkout_url": "https://buy.stripe.com/00wdR93vnbK5eqH3gwdwc3r",
+      "delivery": "Structured CSV and summary after operator reviews buyer-provided supplier quotes; allow 24h after complete intake.",
+      "status": "LISTED_MANUAL_FULFILLMENT"
     }
   ],
-  "catalog_note": "Full live set: GET /api/offers. Prefer checkout_url from that response over any cached list.",
+  "catalog_note": "These links reflect the inspected public listing and live checkout state; buyers must review final price, stock and terms. No completed buyer, receipt, or delivery is implied.",
   "safety": {
     "no_autonomous_spend_without_buyer_authorization": true,
     "payment_provider": "Stripe",
@@ -131,5 +107,9 @@
       "reputation"
     ],
     "truth_rule": "Settled external payment plus fulfillment plus independent evidence is required before verified economic truth."
+  },
+  "research": {
+    "agent_spending_mandates": "https://dreamledger.org/agent-mandates/",
+    "availability": "research_only_no_live_mandate_SaaS"
   }
 }
