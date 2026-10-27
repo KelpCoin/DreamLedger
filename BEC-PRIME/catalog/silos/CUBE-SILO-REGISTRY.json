@@ -2,22 +2,263 @@
   "schema": "CUBE/SILO-REGISTRY/v2",
   "canonical": true,
   "silos": [
-    {"id":"mtg","label":"Magic: The Gathering","route":"/mtg","inventory_mode":"physical","status":"active"},
-    {"id":"dreammeez","label":"DreamMeez","route":"/dreammeez","inventory_mode":"digital","status":"active"},
-    {"id":"media-music","label":"Media & Music","route":"/media-music.html","inventory_mode":"mixed","status":"active"},
-    {"id":"digital-products","label":"Digital Products","route":"/digital-products.html","inventory_mode":"digital","status":"active"},
-    {"id":"nz-secondhand","label":"NZ Secondhand","route":"/nz-secondhand.html","inventory_mode":"physical","status":"active"},
-    {"id":"b2b","label":"B2B Marketplace","route":"/marketplace.html","inventory_mode":"mixed","status":"active"},
-    {"id":"electronics-appliances","label":"Electronics & Appliances","route":"/electronics.html","inventory_mode":"physical","status":"active","market":"NZ-AU"},
-    {"id":"home-garden","label":"Home & Garden","route":"/home-garden.html","inventory_mode":"physical","status":"active","market":"NZ-AU"},
-    {"id":"health-beauty","label":"Health & Beauty","route":"/health-beauty.html","inventory_mode":"mixed","status":"active","market":"NZ-AU"},
-    {"id":"pet","label":"Pet","route":"/pet.html","inventory_mode":"physical","status":"active","market":"NZ-AU"},
-    {"id":"books-stationery","label":"Books & Stationery","route":"/books-stationery.html","inventory_mode":"mixed","status":"active","market":"NZ-AU"},
-    {"id":"sports-outdoors","label":"Sports & Outdoors","route":"/sports-outdoors.html","inventory_mode":"physical","status":"active","market":"NZ-AU"},
-    {"id":"baby-kids","label":"Baby & Kids","route":"/baby-kids.html","inventory_mode":"physical","status":"active","market":"NZ-AU"},
-    {"id":"automotive","label":"Automotive","route":"/automotive.html","inventory_mode":"mixed","status":"active","market":"NZ-AU"},
-    {"id":"food-pantry","label":"Food & Pantry","route":"/food-pantry.html","inventory_mode":"physical","status":"active","market":"NZ-AU"},
-    {"id":"education-courses","label":"Education & Courses","route":"/education-courses.html","inventory_mode":"digital","status":"active","market":"NZ-AU"}
+    {
+      "id": "mtg",
+      "label": "Magic: The Gathering",
+      "route": "/mtg",
+      "inventory_mode": "physical",
+      "status": "active"
+    },
+    {
+      "id": "dreammeez",
+      "label": "DreamMeez",
+      "route": "/dreammeez",
+      "inventory_mode": "digital",
+      "status": "active"
+    },
+    {
+      "id": "media-music",
+      "label": "Media & Music",
+      "route": "/media-music.html",
+      "inventory_mode": "mixed",
+      "status": "active"
+    },
+    {
+      "id": "digital-products",
+      "label": "Digital Products",
+      "route": "/digital-products.html",
+      "inventory_mode": "digital",
+      "status": "active"
+    },
+    {
+      "id": "nz-secondhand",
+      "label": "NZ Secondhand",
+      "route": "/nz-secondhand.html",
+      "inventory_mode": "physical",
+      "status": "active"
+    },
+    {
+      "id": "b2b",
+      "label": "B2B Marketplace",
+      "route": "/marketplace.html",
+      "inventory_mode": "mixed",
+      "status": "active"
+    },
+    {
+      "id": "electronics-appliances",
+      "label": "Electronics & Appliances",
+      "route": "/electronics.html",
+      "inventory_mode": "physical",
+      "status": "active",
+      "market": "NZ-AU"
+    },
+    {
+      "id": "home-garden",
+      "label": "Home & Garden",
+      "route": "/home-garden.html",
+      "inventory_mode": "physical",
+      "status": "active",
+      "market": "NZ-AU"
+    },
+    {
+      "id": "health-beauty",
+      "label": "Health & Beauty",
+      "route": "/health-beauty.html",
+      "inventory_mode": "mixed",
+      "status": "active",
+      "market": "NZ-AU"
+    },
+    {
+      "id": "pet",
+      "label": "Pet",
+      "route": "/pet.html",
+      "inventory_mode": "physical",
+      "status": "active",
+      "market": "NZ-AU"
+    },
+    {
+      "id": "books-stationery",
+      "label": "Books & Stationery",
+      "route": "/books-stationery.html",
+      "inventory_mode": "mixed",
+      "status": "active",
+      "market": "NZ-AU"
+    },
+    {
+      "id": "sports-outdoors",
+      "label": "Sports & Outdoors",
+      "route": "/sports-outdoors.html",
+      "inventory_mode": "physical",
+      "status": "active",
+      "market": "NZ-AU"
+    },
+    {
+      "id": "baby-kids",
+      "label": "Baby & Kids",
+      "route": "/baby-kids.html",
+      "inventory_mode": "physical",
+      "status": "active",
+      "market": "NZ-AU"
+    },
+    {
+      "id": "automotive",
+      "label": "Automotive",
+      "route": "/automotive.html",
+      "inventory_mode": "mixed",
+      "status": "active",
+      "market": "NZ-AU"
+    },
+    {
+      "id": "food-pantry",
+      "label": "Food & Pantry",
+      "route": "/food-pantry.html",
+      "inventory_mode": "physical",
+      "status": "active",
+      "market": "NZ-AU"
+    },
+    {
+      "id": "education-courses",
+      "label": "Education & Courses",
+      "route": "/education-courses.html",
+      "inventory_mode": "digital",
+      "status": "active",
+      "market": "NZ-AU"
+    },
+    {
+      "id": "beck",
+      "label": "BECK / CUBE Services",
+      "route": "/beck",
+      "inventory_mode": "digital",
+      "status": "private_staged",
+      "public_enabled": false,
+      "approval_required": true
+    },
+    {
+      "id": "commerce",
+      "label": "Commerce Verification",
+      "route": "/commerce",
+      "inventory_mode": "digital",
+      "status": "private_staged",
+      "public_enabled": false,
+      "approval_required": true
+    },
+    {
+      "id": "truth-oracle",
+      "label": "Truth Oracle",
+      "route": "/truth-oracle",
+      "inventory_mode": "digital",
+      "status": "private_staged",
+      "public_enabled": false,
+      "approval_required": true
+    },
+    {
+      "id": "billboard",
+      "label": "Programmatic Billboard / DOOH",
+      "route": "/billboard",
+      "inventory_mode": "digital",
+      "status": "private_staged",
+      "public_enabled": false,
+      "approval_required": true
+    },
+    {
+      "id": "marketplace",
+      "label": "Multi-Seller Marketplace",
+      "route": "/marketplace",
+      "inventory_mode": "mixed",
+      "status": "private_staged",
+      "public_enabled": false,
+      "approval_required": true
+    },
+    {
+      "id": "demand",
+      "label": "Demand & Intent Intelligence",
+      "route": "/demand",
+      "inventory_mode": "digital",
+      "status": "private_staged",
+      "public_enabled": false,
+      "approval_required": true
+    },
+    {
+      "id": "games",
+      "label": "Games, Real Estate & Virtual Goods",
+      "route": "/games",
+      "inventory_mode": "digital",
+      "status": "private_staged",
+      "public_enabled": false,
+      "approval_required": true
+    },
+    {
+      "id": "memberships",
+      "label": "Memberships, Patreon & Discord",
+      "route": "/memberships",
+      "inventory_mode": "digital",
+      "status": "private_staged",
+      "public_enabled": false,
+      "approval_required": true
+    },
+    {
+      "id": "factory-candidates",
+      "label": "Candidate Factory Portfolio",
+      "route": "/factory-candidates",
+      "inventory_mode": "digital",
+      "status": "private_staged",
+      "public_enabled": false,
+      "approval_required": true
+    },
+    {
+      "id": "digital-tools",
+      "label": "Digital Templates & Utilities",
+      "route": "/digital-tools",
+      "inventory_mode": "digital",
+      "status": "private_staged",
+      "public_enabled": false,
+      "approval_required": true
+    },
+    {
+      "id": "identity",
+      "label": "Personal Profiles, Reputation & Avatars",
+      "route": "/identity",
+      "inventory_mode": "digital",
+      "status": "private_staged",
+      "public_enabled": false,
+      "approval_required": true
+    },
+    {
+      "id": "community",
+      "label": "Communities & Personal Spaces",
+      "route": "/community",
+      "inventory_mode": "digital",
+      "status": "private_staged",
+      "public_enabled": false,
+      "approval_required": true
+    },
+    {
+      "id": "auctions",
+      "label": "Auctions & Collectibles",
+      "route": "/auctions",
+      "inventory_mode": "mixed",
+      "status": "private_staged",
+      "public_enabled": false,
+      "approval_required": true
+    },
+    {
+      "id": "creators",
+      "label": "Creator Storefronts & Memberships",
+      "route": "/creators",
+      "inventory_mode": "mixed",
+      "status": "private_staged",
+      "public_enabled": false,
+      "approval_required": true
+    },
+    {
+      "id": "advertising",
+      "label": "Advertising & Sponsorship",
+      "route": "/advertising",
+      "inventory_mode": "digital",
+      "status": "private_staged",
+      "public_enabled": false,
+      "approval_required": true
+    }
   ],
   "rules": {
     "shared_identity": true,
@@ -25,6 +266,10 @@
     "silo_data_isolation": true,
     "no_fabricated_inventory": true,
     "public_actions_approval_gated": true,
-    "new_silos_start_inventory_empty": true
+    "new_silos_start_inventory_empty": true,
+    "pending_categories_never_auto_publish": true,
+    "proposed_routes_are_not_dns_or_deployment_proof": true,
+    "sensitive_content_isolation_required": true,
+    "only_evidence_approved_commercial_offers_can_publish": true
   }
 }
