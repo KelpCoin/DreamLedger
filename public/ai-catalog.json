@@ -21,17 +21,17 @@
     "purchase_router": "https://dreamledger.org/buy/{product_id}"
   },
   "priority_offer": {
-    "id": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
-    "title": "DreamLedger Founding Billboard",
-    "description": "NZ$50 permanent 100x100 web placement. The approved offer is not purchase-enabled on the public catalogue while secure intake, inventory reservation and fulfillment proof remain unverified.",
-    "url": "https://dreamledger.org/billboard.html",
-    "price": 50,
+    "id": "EDH_0001",
+    "title": "Edward Kenway Commander Deck",
+    "description": "One physical Edward Kenway Commander deck. NZ shipping. Seller must verify stock and dispatch; one-completed-purchase Stripe link.",
+    "url": "https://dreamledger.org/mtg/edh-0001.html",
+    "price": 400,
     "currency": "NZD",
-    "availability": "review_required",
-    "required_input": "Placement title and destination URL; image option requires human review.",
-    "checkout": null,
-    "fulfillment": "held_until_secure_intake_and_inventory_reservation_verified",
-    "availability_note": "Do not send a buyer to checkout until the live reservation and signed-webhook fulfillment path are proven."
+    "availability": "listed",
+    "required_input": "New Zealand delivery address and confirmation of exact deck/card condition",
+    "checkout": "https://buy.stripe.com/14A3cvea1dSd1DV5oEdwc1J",
+    "fulfillment": "physical_dispatch_requires_seller_confirmation",
+    "availability_note": "Checkout active; real buyer or paid fulfilment has not been established."
   },
   "trust": {
     "human_authorization_required": true,
@@ -49,5 +49,28 @@
     "availability": "available",
     "checkout": null,
     "description": "Free evidence and claim-checking tools. The retired standalone audit offer is absorbed here and is not sold separately."
-  }
+  },
+  "current_offers": [
+    {
+      "id": "EDH_0001",
+      "title": "Edward Kenway Commander Deck",
+      "product_url": "https://dreamledger.org/mtg/edh-0001.html",
+      "status": "LISTED_CHECKOUT_ACTIVE",
+      "price_nzd": 400
+    },
+    {
+      "id": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
+      "title": "DreamLedger Internet Billboard",
+      "product_url": "https://dreamledger.org/billboard.html",
+      "status": "LISTED_CHECKOUT_ACTIVE_REVIEW_REQUIRED",
+      "price_nzd": 50
+    },
+    {
+      "id": "QUOTE-COMPARE-49",
+      "title": "Supplier Quote Comparison",
+      "product_url": "https://dreamledger.org/quote-compare-49.html",
+      "status": "LISTED_MANUAL_FULFILLMENT",
+      "price_nzd": 49
+    }
+  ]
 }
