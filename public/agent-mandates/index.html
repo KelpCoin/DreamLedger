@@ -1,0 +1,29 @@
+<!doctype html><html lang="en-NZ"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI Agent Spending Mandates and Audit Evidence | DreamLedger</title>
+<meta name="description" content="Agent spending authorization design: delegated limits, policies, revocation, payment evidence and delivery receipts. A technical proposal, not a certified compliance service.">
+<meta name="robots" content="index,follow"><link rel="canonical" href="https://dreamledger.org/agent-mandates/">
+<meta property="og:type" content="article"><meta property="og:title" content="AI Agent Spending Mandates | DreamLedger"><meta property="og:url" content="https://dreamledger.org/agent-mandates/">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Agent Spending Mandates: Authorization and Evidence Records","mainEntityOfPage":"https://dreamledger.org/agent-mandates/","author":{"@type":"Organization","name":"DreamLedger"},"publisher":{"@type":"Organization","name":"DreamLedger","url":"https://dreamledger.org/"},"datePublished":"2026-10-27","dateModified":"2026-10-27","description":"Technical proposal for scoped AI agent spending mandates and verifiable authorization receipts."}</script><style>body{margin:0;background:#0b1220;color:#edf4f8;font:16px/1.7 system-ui,sans-serif}main{max-width:960px;margin:auto;padding:36px 22px 80px}a{color:#a9f2d0}h1{font-size:clamp(32px,6vw,56px);line-height:1.08}h2{margin-top:36px}.panel{background:#152435;border:1px solid #354559;padding:18px 22px;border-radius:14px;margin:22px 0}pre{overflow:auto;background:#080e18;padding:18px;border-radius:12px;white-space:pre-wrap;overflow-wrap:anywhere}small{color:#bfceda}</style></head>
+<body><main><nav><a href="/">DreamLedger</a> / <a href="/go/">Existing offers</a> / Technical research</nav>
+<p><small>Public technical proposal · 27 October 2026</small></p>
+<h1>Who authorizes an AI agent to spend money?</h1>
+<p>An <strong>agent spending mandate</strong> is a bounded authorization record connecting a principal to an agent, merchant or category limitations, currency and spending ceilings, expiry and revocation. It separates what the agent was permitted to attempt from what the payment and delivery providers actually confirmed.</p>
+<div class="panel"><strong>Status: research and prototype design.</strong> No public MandateVault, SpendGuard, or AuditProof service is certified, enterprise-proven or available for purchase here. This site does not claim accreditation, payment-custody permissions or regulator endorsement.</div>
+<h2>1. Bounded authority</h2><p>Mandates should identify the human or organizational principal and agent, scope, spending ceiling and policy version. Signatures and nonce/idempotency checks should prevent unauthorized replay.</p>
+<pre><code>{
+  "mandate_id": "example-only",
+  "principal_id": "organization-example",
+  "agent_id": "agent-example",
+  "currency": "NZD",
+  "max_amount_minor": 50000,
+  "allowed_merchants": ["example-merchant"],
+  "expires_at": "2026-12-01T00:00:00Z",
+  "revocation": "check-before-execution",
+  "decision": "requires-human-approval"
+}</code></pre>
+<h2>2. Evidence rather than assertions</h2><p>A candidate evidence envelope can capture an action hash, principal, agent, permitted scope, policy decision, approval record, attempted action, provider payment status, fulfillment evidence and reversal. An integrity hash demonstrates consistency of an artifact; it does not prove the truth of its contents or that a transfer settled.</p>
+<h2>3. The human authorization boundary</h2><p>Agents can discover offers and prepare a proposed transaction. Spending requires a separately verified authority and an explicit human approval where applicable. The system should refuse unclear scope, missing authority, revoked permissions and unsupported claims.</p>
+<h2>4. Relationship to the EU AI Act</h2><p><a href="https://ai-act-service-desk.ec.europa.eu/en/ai-act/article-12">Article 12</a> imposes event-logging requirements on relevant high-risk AI systems. It is not a universal requirement for every shopping agent to buy this product. Compliance depends on classification, specific obligations, the applicable deadline and legal review. A prototype evidence pack is not automatically a compliant audit report.</p>
+<h2>5. A bounded prototype evaluation</h2><p>One test can accept a sanitized synthetic transaction, evaluate a revocable spending mandate, output a deterministic decision receipt and independently verify its hash. A genuine paid pilot requires a real customer, specified acceptance criteria and an agreed scope. No pilot or buyer is claimed here.</p>
+<h2>Explore existing evidence and commercial offers</h2><p><a href="/agent-bridge.html">Agent Bridge (experimental)</a> · <a href="/agentic-commerce-remediation-blueprint.html">Agentic commerce remediation blueprint</a> · <a href="/trust/">Evidence standard</a> · <a href="/go/">Current DreamLedger offers</a>.</p>
+<small>Research content; no guarantee of regulatory compliance, business revenue or payment-network partnership.</small></main></body></html>
