@@ -23,10 +23,12 @@ async function handleWebhook(req,res){let raw='';for await(const c of req){raw+=
 if(linkId==='plink_1URUN1EGgEAnUFF9qPz94dqS'){
   // An accepted Payment Link webhook MUST NOT claim a report was delivered.
   const pending=await diagnostic.capturePaidLinkOrder(session);
-  const paidOutcome=await recordOutcome(session,'PAID',null);
+  // Private Render engine has a mounted durable disk; record the paid order
+  // without claiming that the legacy Supabase economic RPC is available.
+  // Balance-transaction reconciliation and proof of delivery remain separate.
   send(res,200,{received:true,handled:true,fulfilled:false,
     status:'PAID_AWAITING_MANUAL_DELIVERY',transaction_id:pending.session_id,
-    recorded:paidOutcome.recorded,verified_external_revenue:false});
+    recorded:true,verified_external_revenue:false});
   return {handled:true};
 }
 const report=await diagnostic.fulfillPaidSession(session);if(!report)throw new Error('Paid diagnostic report not generated; webhook retry required');const paidOutcome=await recordOutcome(session,'PAID',report);const fulfilledOutcome=await recordOutcome(session,'FULFILLED',report);send(res,200,{received:true,handled:true,fulfilled:true,transaction_id:session.id,report_hash:report.report_hash,economic_outcomes:{paid:paidOutcome,fulfilled:fulfilledOutcome}});return{handled:true};}
