@@ -2,6 +2,7 @@
 
 const crypto = require('crypto');
 const stripeProof = require('../lib/stripeWebhookProof');
+const mtgPaidLink = require('../lib/mtgDiagnosticFulfillment');
 
 const SUPABASE_URL = String(process.env.SUPABASE_URL || '').replace(/\/$/, '');
 const SUPABASE_KEY = String(process.env.SUPABASE_SERVICE_ROLE_KEY || '');
@@ -189,10 +190,24 @@ async function webhook(req,res) {
     if (event.type === 'balance.available') return json(res,200,{received:true,ignored:true,event_type:event.type,observation:'account_balance_changed; per-payment availability requires balance-transaction reconciliation'});
     if (event.type === 'payment_intent.succeeded' || event.type === 'charge.succeeded') return json(res,200,{received:true,ignored:true,event_type:event.type,observation:'payment_success_observed; awaiting per-payment funds availability reconciliation'});
     if (!['checkout.session.completed'].includes(event.type)) return json(res,200,{received:true,ignored:true,event_type:event.type});
+    const session=event.data?.object || {};
+    const paymentLinkId=typeof session.payment_link==='string'?session.payment_link:session.payment_link?.id;
+    let intakeRecord=null;
+    if(paymentLinkId==='plink_1URUN1EGgEAnUFF9qPz94dqS'){
+      // This is the live Render webhook destination. Capture the existing
+      // Stripe decklisturl before deduping economic_events, so retries heal
+      // a previously missing private handoff. NEVER claim delivery here.
+      intakeRecord=await mtgPaidLink.capturePaidLinkOrder(session);
+    }
     const existing=await db('GET','economic_events','?select=event_id&event_id=eq.'+encodeURIComponent(event.id)+'&limit=1');
-    if (Array.isArray(existing) && existing.length) return json(res,200,{received:true,idempotent:true,event_id:event.id});
+    if (Array.isArray(existing) && existing.length) return json(res,200,{received:true,idempotent:true,event_id:event.id,
+      mtg_order_state:intakeRecord?'PAID_AWAITING_MANUAL_DELIVERY':undefined,
+      fulfilled:intakeRecord?false:undefined});
     const result=await settleSession(event.data?.object || {},event);
-    return json(res,200,{received:true,...result});
+    return json(res,200,{received:true,...result,
+      mtg_order_state:intakeRecord?'PAID_AWAITING_MANUAL_DELIVERY':undefined,
+      fulfilled:intakeRecord?false:undefined,
+      verified_external_revenue:intakeRecord?false:undefined});
   } catch (error) {
     return json(res,error.statusCode || 400,{received:false,error:String(error.message || error)});
   }
