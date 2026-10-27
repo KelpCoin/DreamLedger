@@ -44,8 +44,15 @@ require("entitlement record required",
         'from("revenue_entitlements")' in intake and '"ENTITLEMENT_PENDING"' in intake)
 require("fulfillment request required before inputs accepted",
         'from("fulfillment_requests")' in intake and '"FULFILLMENT_REQUEST_NOT_FOUND"' in intake)
-require("file paths scoped to the paid order",
-        'quote-inputs/${ctx.order.id}/' in intake)
+require("signed upload paths scoped to fulfillment request",
+        'const path=`quote-inputs/${fr.id}/${crypto.randomUUID()}-${original}`' in intake)
+require("submitted upload paths scoped to same request",
+        'p.startsWith(`quote-inputs/${fr.id}/`)' in intake and
+        'const dir=`quote-inputs/${fr.id}`' in intake)
+require("fulfillment worker uses the same request identity",
+        'path.startsWith("quote-inputs/"+id+"/")' in worker)
+require("reject outdated order-ID upload namespace",
+        'quote-inputs/${ctx.order.id}/' not in intake)
 require("input types and size bounded",
         "MAX_BYTES=10*1024*1024" in intake and '["pdf","csv","json","md"]' in intake)
 
