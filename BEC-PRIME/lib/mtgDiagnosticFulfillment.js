@@ -121,8 +121,11 @@ function validatePublicDecklistUrl(value) {
   const h = u.hostname.toLowerCase();
   const validHost = h === 'moxfield.com' || h === 'www.moxfield.com' ||
     h === 'archidekt.com' || h === 'www.archidekt.com';
-  const validPath = (h.includes('moxfield') && /^\\/decks\\/[A-Za-z0-9_-]+\\/?$/.test(u.pathname)) ||
-    (h.includes('archidekt') && /^\\/decks\\/[A-Za-z0-9_-]+(?:\\/[A-Za-z0-9_-]+)?\\/?$/.test(u.pathname));
+  const segments = u.pathname.split('/').filter(Boolean);
+  const safeSegments = segments.every(x => /^[A-Za-z0-9_-]+$/.test(x));
+  const validPath = safeSegments && segments[0] === 'decks' &&
+    ((h.includes('moxfield') && segments.length === 2) ||
+     (h.includes('archidekt') && (segments.length === 2 || segments.length === 3)));
   if (u.protocol !== 'https:' || !validHost || !validPath ||
       u.port || u.username || u.password || u.search || u.hash) {
     throw new Error('DECKLIST_URL_UNSUPPORTED');
@@ -145,7 +148,10 @@ function parsePaymentLinkIntake(session) {
   if (deckField.length !== 1 || !deckField[0].text?.value)
     throw new Error('DECKLIST_URL_MISSING');
   const email = String(session.customer_details?.email || session.customer_email || '').trim();
-  if (email.length > 254 || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email))
+  const emailParts = email.split('@');
+  if (email.length > 254 || emailParts.length !== 2 ||
+      !emailParts[0] || !emailParts[1].includes('.') ||
+      Array.from(email).some(c => c.charCodeAt(0) <= 32))
     throw new Error('BUYER_EMAIL_MISSING');
   return {
     session_id: session.id,
@@ -181,7 +187,7 @@ async function capturePaidLinkOrder(session) {
   fs.mkdirSync(INTAKES, { recursive: true, mode: 0o700 });
   const dest = path.join(INTAKES, intake.session_id + '.json');
   try {
-    fs.writeFileSync(dest, JSON.stringify(record, null, 2) + '\\n', { flag: 'wx', mode: 0o600 });
+    fs.writeFileSync(dest, JSON.stringify(record, null, 2) + String.fromCharCode(10), { flag: 'wx', mode: 0o600 });
     return { ...record, already_recorded: false };
   } catch (err) {
     if (err.code !== 'EEXIST') throw err;
