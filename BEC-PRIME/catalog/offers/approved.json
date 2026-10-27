@@ -10,7 +10,7 @@
       "silo": "dreamledger",
       "name": "DreamLedger Founding Tile",
       "problem": "Own a permanent 100x100 placement on a finite one-million-pixel Internet Billboard.",
-      "input": "Stripe Checkout collects billboard title and destination URL; an optional NZ$100 image add-on can be selected for manual review.",
+      "input": "Existing live Stripe Payment Link requires billboard label (1-80 characters), accepts an optional destination URL, and collects buyer identity. The Link does not collect an image URL or offer an image add-on.",
       "output": "A real 100x100 placement allocated on the finite canvas and published only after human approval.",
       "delivery_mechanism": "stripe_payment -> signed_webhook -> atomic_grid_allocation -> paid_pending_review -> human_approval -> publication",
       "deliverable": "Permanent 100x100 Internet Billboard placement held until January 1, 3000 unless removed under the published content policy.",
@@ -32,7 +32,7 @@
       "payment_adapter": "stripe",
       "payment_link_url": "https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w",
       "payment_link_status": "ACTIVE_LIVEMODE",
-      "payment_link_id": "plink_LIVE_TILE_BUY_ROUTER_ALIGNED",
+      "payment_link_id": "plink_1U9JGTEGgEAnUFF9WRg3CKk3",
       "image_addon_price_nzd": 100,
       "checkout_route": "stripe_payment_link",
       "fulfillment_route": "supabase_billboard_webhook -> finite_allocation -> manual_review -> publication",
@@ -58,7 +58,7 @@
       },
       "approved_by": "operator",
       "approved_at": "2026-08-27",
-      "payment_link_note": "Aligned 2026-09-25 to live /buy/DREAMLEDGER-BILLBOARD-FOUNDING-001 redirect"
+      "payment_link_note": "Read-only provider reconciliation 2026-10-27: LIVE plink_1U9JGTEGgEAnUFF9WRg3CKk3; nzd 5000; price_1U8xD6EGgEAnUFF9KGrq2t7X; destination_url optional; no image field or add-on. Deployed delivery webhook destination: dreamledger-billboard-webhook. Payment does not prove independent buyer, placement or settlement. Human review policy requires separate fulfilment evidence."
     },
     {
       "offer_id": "OFFER-CMD-DIAG-29-NZD",
