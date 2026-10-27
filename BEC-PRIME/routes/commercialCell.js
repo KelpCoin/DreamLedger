@@ -189,7 +189,7 @@ async function webhook(req,res) {
     const candidateLink=typeof sessionCandidate.payment_link==='string'?
       sessionCandidate.payment_link:sessionCandidate.payment_link?.id;
     if(candidateLink==='plink_1URUN1EGgEAnUFF9qPz94dqS'){
-      const engine=String(process.env.ENGINE_INTERNAL_URL||'').replace(/\\/$/,'');
+      const engine=String(process.env.ENGINE_INTERNAL_URL||'').replace(/\/$/,'');
       const key=String(process.env.ENGINE_INTERNAL_API_KEY||'');
       if(!engine||!key)return json(res,503,{received:false,error:'MTG_ENGINE_UNCONFIGURED',retryable:true});
       let response;
