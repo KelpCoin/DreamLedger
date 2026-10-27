@@ -1,0 +1,60 @@
+name: Billboard payment-to-publication contract
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'public/billboard.html'
+      - 'handlers/billboard-public.ts'
+      - 'api/[...route].ts'
+      - 'vercel.json'
+      - 'supabase/functions/dreamledger-billboard-webhook/index.ts'
+      - 'scripts/test_billboard_live_contract.mjs'
+      - '.github/workflows/billboard-contract.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  signed-synthetic-billboard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Check out exact source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Node 24
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - name: Verify critical production source and mock paid delivery
+        run: node scripts/test_billboard_live_contract.mjs
+      - name: Verify Vercel billboard routes and published-gallery contract
+        run: |
+          node --input-type=module - <<'JS'
+          import assert from 'node:assert/strict';
+          import fs from 'node:fs';
+          const config = JSON.parse(fs.readFileSync('vercel.json','utf8'));
+          for (const route of ['/billboard','/billboard/']) {
+            assert(config.rewrites.some(r=>r.source===route && r.destination==='/billboard.html'), route);
+          }
+          const dispatcher=fs.readFileSync('api/[...route].ts','utf8');
+          assert(dispatcher.includes('"/api/billboard/public"'));
+          const handler=fs.readFileSync('handlers/billboard-public.ts','utf8');
+          assert(handler.includes("String(v.status||'').toUpperCase()==='PUBLISHED'"));
+          assert(!handler.includes('customer_email')&&!handler.includes('payment_intent'));
+          console.log('BILLBOARD_VERIFIED_ROUTE_CONTRACT=PASS');
+          JS
+      - name: Probe signed-only production webhook rejection without payment
+        shell: bash
+        run: |
+          set -euo pipefail
+          code=$(curl -sS -o /tmp/billboard-boundary.json -w '%{http_code}' --max-time 20 \
+            -X POST 'https://wbwgroygjeyukkspnqiy.supabase.co/functions/v1/dreamledger-billboard-webhook' \
+            -H 'content-type: application/json' \
+            -H 'stripe-signature: t=1,v1=invalid-synthetic-only' \
+            -d '{"type":"checkout.session.completed","livemode":false,"data":{"object":{"payment_status":"paid"}}}')
+          test "$code" = 400
+          grep -q 'Invalid Stripe signature' /tmp/billboard-boundary.json
