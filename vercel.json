@@ -34,6 +34,14 @@
     {
       "source": "/marketplace/",
       "destination": "/marketplace.html"
+    },
+    {
+      "source": "/billboard",
+      "destination": "/billboard.html"
+    },
+    {
+      "source": "/billboard/",
+      "destination": "/billboard.html"
     }
   ]
 }
