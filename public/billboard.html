@@ -3,78 +3,82 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="description" content="The Internet Billboard: finite digital real estate. Founding 100x100 tile NZ$50. Permanent until 3000.">
-<title>The Internet Billboard | Permanent Until 3000</title>
+<meta name="theme-color" content="#080b10">
+<meta name="description" content="DreamLedger Internet Billboard: reserve a reviewed 100 x 100 web tile for NZ$50. Clear terms, live preview, secure Stripe checkout.">
+<link rel="canonical" href="https://dreamledger.org/billboard">
+<title>Internet Billboard | DreamLedger</title>
 <style>
-:root{--bg:#070707;--panel:#101010;--line:#2b2b2b;--ink:#f6f1e7;--muted:#918c82;--gold:#f4c95d;--max:1240px}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(circle at 78% -12%,#473716 0,#100f0c 25%,#070707 50%),#070707;color:var(--ink);font:15px/1.5 system-ui,sans-serif}a{color:inherit;text-decoration:none}.wrap{max-width:var(--max);margin:auto;padding:0 18px}.nav{min-height:64px;border-bottom:1px solid #222;display:flex;align-items:center;justify-content:space-between;gap:12px;position:sticky;top:0;z-index:30;background:#070707f2;backdrop-filter:blur(18px)}.brand{font-weight:1000;letter-spacing:-.07em;font-size:1.05rem}.brand span,.gold{color:var(--gold)}.nav-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;border:1px solid #3b3b3b;border-radius:13px;padding:10px 16px;background:#151515;color:#fff;font-weight:900;cursor:pointer}.btn.gold{background:var(--gold);color:#090909;border-color:var(--gold)}main{padding:46px 0 120px}.hero{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:28px;align-items:end}@media(max-width:800px){.hero{grid-template-columns:1fr}}.kicker{text-transform:uppercase;letter-spacing:.2em;color:var(--gold);font-size:.64rem;font-weight:1000}.hero h1{font-size:clamp(2.8rem,8vw,5.5rem);line-height:.85;letter-spacing:-.08em;margin:14px 0 18px}.hero p{max-width:640px;color:#b9b3a8;font-size:1.05rem}.hero-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:22px}.stats{border:1px solid var(--line);background:linear-gradient(145deg,#171717,#0b0b0b);border-radius:24px;padding:20px}.stat{padding:12px 0;border-bottom:1px solid #292929}.stat:last-child{border-bottom:0}.stat b{display:block;font-size:2rem;letter-spacing:-.06em}.stat span{color:#777;font-size:.68rem;text-transform:uppercase;letter-spacing:.08em}.truth{margin-top:12px;color:#777;font-size:.75rem}.section{margin-top:48px}.panel{border:1px solid var(--line);border-radius:20px;padding:22px;background:#101010;margin-bottom:16px}.panel h2{margin:0 0 12px;font-size:1.3rem}.step{display:flex;gap:12px;margin:10px 0;color:#b9b3a8}.step b{color:var(--gold)}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:600px){.form-grid{grid-template-columns:1fr}}.form-grid .full{grid-column:1/-1}label{display:block;font-size:12px;font-weight:700;color:#918c82;margin-bottom:4px}input,select{width:100%;padding:11px;border-radius:10px;border:1px solid #3b3b3b;background:#0a0a0a;color:#fff;font:inherit}.notice{font-size:12px;color:#918c82;margin-top:10px}.status{margin-top:12px;font-size:13px;color:#58d6a0}.fine{font-size:12px;color:#666;margin-top:14px}
-#sticky-buy{position:fixed;left:12px;right:12px;bottom:12px;z-index:50;max-width:440px;margin-left:auto;background:#121212;border:1px solid #3b3b3b;border-radius:16px;padding:12px 14px;display:flex;align-items:center;gap:12px;box-shadow:0 16px 48px #000a}
+:root{color-scheme:dark;--bg:#080b10;--panel:#111722;--line:#2c3747;--ink:#f7f9fb;--muted:#b2bdca;--signal:#c5ff35;--max:1160px}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(ellipse at 75% -25%,#1d2f37 0,transparent 55%),var(--bg);color:var(--ink);font:16px/1.55 Inter,"Segoe UI",system-ui,sans-serif}
+a{color:inherit}.wrap{width:min(var(--max),calc(100% - 36px));margin-inline:auto}
+header{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:72px;border-bottom:1px solid var(--line)}
+.logo{font-size:15px;font-weight:950;letter-spacing:-.065em;text-decoration:none}.logo span{color:var(--signal)}.crumb{font-size:12px;color:var(--muted);text-decoration:none}
+main{padding:72px 0 60px}.eyebrow{margin:0 0 12px;color:var(--signal);font-size:11px;font-weight:850;letter-spacing:.18em;text-transform:uppercase}
+.hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(285px,370px);gap:38px;align-items:center}
+h1,h2,h3{font-family:"Space Grotesk",Inter,"Segoe UI",system-ui,sans-serif;letter-spacing:-.065em}h1{font-size:clamp(50px,8vw,110px);line-height:.91;margin:0 0 22px;max-width:850px}h1 strong{color:var(--signal)}
+.lead{color:var(--muted);font-size:clamp(16px,1.8vw,20px);max-width:660px;margin:0 0 24px}
+.offerline{display:flex;align-items:baseline;gap:12px;margin:16px 0 25px;flex-wrap:wrap}
+.price{font-size:clamp(36px,4vw,56px);line-height:1;font-weight:950;letter-spacing:-.07em}
+.offerline span{font-size:13px;color:var(--muted)}
+.button{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:13px 20px;border-radius:11px;background:var(--signal);color:#080b10;text-decoration:none;font-size:15px;font-weight:900;border:2px solid var(--signal)}
+.button:hover,.button:focus-visible{background:#e1ff94;border-color:#e1ff94}.button:focus-visible,input:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.button.secondary{background:transparent;color:var(--ink);border-color:#59687a}
+.actions{display:flex;gap:12px;flex-wrap:wrap}.small{color:var(--muted);font-size:12px;line-height:1.6}
+.display{padding:18px;border:1px solid var(--line);border-radius:22px;background:linear-gradient(155deg,#17202c,#0d1119);box-shadow:0 22px 60px #0006}
+.screen{min-height:278px;border:1px solid #455063;background:repeating-linear-gradient(0deg,#1c2630 0,#1c2630 1px,transparent 1px,transparent 25px),repeating-linear-gradient(90deg,#1c2630 0,#1c2630 1px,transparent 1px,transparent 25px),#0b1018;border-radius:13px;display:grid;place-items:center;padding:25px}
+.tile{height:160px;width:160px;display:grid;place-items:center;text-align:center;padding:13px;background:var(--signal);color:#080b10;border:3px solid #05080d;font-weight:950;font-size:20px;line-height:1.05;letter-spacing:-.045em;overflow-wrap:anywhere;box-shadow:0 15px 25px #0008}
+.previewtag{font-size:11px;font-weight:900;letter-spacing:.16em;color:var(--signal);margin:16px 0 8px}
+.input-label{display:block;color:#c2cdd7;font-size:12px;margin-bottom:5px}
+input{width:100%;background:#080b10;border:1px solid #526074;border-radius:9px;color:#fff;padding:12px;font:inherit;min-height:46px}
+.display .small{margin:9px 0 0}
+.section{margin-top:70px}h2{font-size:clamp(28px,3.8vw,48px);line-height:1.06;margin:0 0 20px}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.card{padding:23px;border:1px solid var(--line);background:var(--panel);border-radius:16px}.card h3{font-size:21px;margin:7px 0 9px}.card p{margin:0;color:var(--muted);font-size:14px}.step{font:800 12px ui-monospace,"Cascadia Code",monospace;color:var(--signal)}
+.rules{padding:24px;border:1px solid var(--line);border-radius:17px;background:#0e141e;display:grid;grid-template-columns:1fr 1fr;gap:30px}.rules p{margin:0 0 12px;color:var(--muted);font-size:14px}.rules b{color:var(--ink)}
+.fine{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
+@media(max-width:850px){.hero,.rules{grid-template-columns:1fr}.display{max-width:450px}.grid{grid-template-columns:1fr}main{padding-top:42px}.section{margin-top:52px}}
+@media(max-width:510px){.wrap{width:calc(100% - 28px)}.actions .button{width:100%}.display{padding:14px}.screen{min-height:230px}.tile{width:140px;height:140px;font-size:17px}}
+@media(prefers-reduced-motion:no-preference){.button{transition:background .15s,border-color .15s}}
 </style>
 </head>
 <body>
 <div class="wrap">
-<header class="nav">
-  <a class="brand" href="/">DREAM<span>LEDGER</span> · Billboard</a>
-  <div class="nav-actions">
-    <a class="btn" href="/">Home</a>
-    <a class="btn gold" href="https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w?client_reference_id=DREAMLEDGER-BILLBOARD-FOUNDING-001&utm_source=dreamledger&utm_medium=billboard_nav&utm_campaign=founding">Buy · NZ$50</a>
-  </div>
-</header>
+<header><a class="logo" href="/">DREAM<span>LEDGER</span></a><a class="crumb" href="/">Back to marketplace</a></header>
 <main>
-<section class="hero">
-  <div>
-    <div class="kicker">Finite digital real estate</div>
-    <h1>YOUR IDEA.<br><span class="gold">ON THE BOARD.</span></h1>
-    <p>Founding 100×100 tiles are <strong class="gold">NZ$50</strong> — permanent placement until 3000. Early tiles are the land-grab before inventory tightens. Human review before publish.</p>
-    <div class="hero-actions">
-      <a class="btn gold" href="https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w?client_reference_id=DREAMLEDGER-BILLBOARD-FOUNDING-001&utm_source=dreamledger&utm_medium=billboard_hero&utm_campaign=founding">Buy founding tile · NZ$50</a>
-      <a class="btn" href="#claim">Add your title & link</a>
-    </div>
-  </div>
-  <aside class="stats">
-    <div class="stat"><b>1,000,000</b><span>pixels in this canvas</span></div>
-    <div class="stat"><b id="remaining">100</b><span>founding units (target)</span></div>
-    <div class="stat"><b>NZ$50</b><span>founding 100×100 tile</span></div>
-    <div class="truth">Stripe checkout live for Founding tiles. Review before publish. A page is not a sale until settlement.</div>
-  </aside>
-</section>
-
-<section class="section" id="claim">
-  <div class="panel">
-    <h2>How it works</h2>
-    <div class="step"><b>1</b><span>Choose the standard Founding 100×100 footprint (NZ$50).</span></div>
-    <div class="step"><b>2</b><span>Add a title and destination URL (optional before pay).</span></div>
-    <div class="step"><b>3</b><span>Pay securely via Stripe.</span></div>
-    <div class="step"><b>4</b><span>We review and place your tile on the board.</span></div>
-    <p class="fine">This is an online board, not a promise of views or sales. Your link goes where you choose.</p>
-  </div>
-  <div class="panel">
-    <h2>Claim a Founding tile</h2>
-    <p style="color:#b9b3a8;margin:0">Enter your tile label, HTTPS destination URL, and optional image URL in secure Stripe checkout. After payment, your submission enters human review. Publication is not guaranteed.</p>
-    <div class="hero-actions" style="margin-top:16px">
-      <a class="btn gold" href="https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w?client_reference_id=DREAMLEDGER-BILLBOARD-FOUNDING-001&utm_source=dreamledger&utm_medium=billboard_form&utm_campaign=founding">Pay NZ$50 · Founding tile</a>
-    </div>
-  </div>
-</section>
-
-<section class="section">
-  <div class="panel">
-    <h2>Why this is the land-grab</h2>
-    <p style="color:#b9b3a8;margin:0">Founding inventory is finite. Later prices and formats can rise. Early buyers lock permanent placement at the opening rate. Same board powers the DreamLedger attention graph for humans and agents.</p>
-    <div class="hero-actions" style="margin-top:16px">
-      <a class="btn gold" href="https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w?client_reference_id=DREAMLEDGER-BILLBOARD-FOUNDING-001&utm_source=dreamledger&utm_medium=billboard_mid&utm_campaign=founding">Secure your tile · NZ$50</a>
-      <a class="btn" href="/">Back to DreamLedger</a>
-    </div>
-  </div>
-</section>
-</main>
+<section class="hero" aria-labelledby="headline">
+<div>
+<p class="eyebrow">The Internet Billboard / founding placement</p>
+<h1 id="headline">YOUR SPACE.<br><strong>STILL HERE.</strong></h1>
+<p class="lead">A small piece of the internet with your name on it. Reserve a 100 x 100 tile for a project, business, idea or identity on DreamLedger's public web canvas.</p>
+<div class="offerline"><b class="price">NZ$50</b><span>One-time payment · one 100 x 100 placement</span></div>
+<div class="actions">
+<a class="button" id="checkout" href="https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w?utm_source=dreamledger&amp;utm_medium=billboard&amp;utm_campaign=founding">Reserve a tile securely</a>
+<a class="button secondary" href="#details">See what you get</a>
 </div>
-
-<div id="sticky-buy">
-  <div style="flex:1;font-size:13px;font-weight:700">Founding tile · NZ$50 · permanent to 3000</div>
-  <a class="btn gold" style="min-height:44px;white-space:nowrap" href="https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w?client_reference_id=DREAMLEDGER-BILLBOARD-FOUNDING-001&utm_source=dreamledger&utm_medium=billboard_sticky&utm_campaign=founding">Buy now</a>
+<p class="small">Stripe collects your tile label and destination details at checkout. Paid submissions enter content review; purchase does not bypass approval. No traffic or sales are guaranteed.</p>
 </div>
-
-
-</body>
-</html>
+<aside class="display" aria-label="Interactive sample of a billboard tile, not a paid placement">
+<div class="screen"><div class="tile" id="tile-text" aria-live="polite">Biggie Still Here</div></div>
+<p class="previewtag">DEMO ONLY · NOT A PAID PLACEMENT</p>
+<label class="input-label" for="sample">Try a label in the preview (maximum 80 characters)</label>
+<input id="sample" maxlength="80" value="Biggie Still Here" autocomplete="off">
+<p class="small">This example does not reserve space or create an order. Enter your final label at Stripe checkout.</p>
+</aside>
+</section>
+<section class="section" id="details">
+<p class="eyebrow">One product. One checkout.</p><h2>How your placement works</h2>
+<div class="grid">
+<article class="card"><div class="step">01 / SELECT</div><h3>One clear offer</h3><p>A standard 100 x 100 digital tile. One NZ$50 charge. No auction, subscription or speculative impression package.</p></article>
+<article class="card"><div class="step">02 / PAY &amp; SUBMIT</div><h3>Secure Stripe checkout</h3><p>Enter your billboard label and HTTPS destination at checkout. Keep the Stripe receipt. The payment is not itself proof of publication.</p></article>
+<article class="card"><div class="step">03 / REVIEW &amp; DELIVERY</div><h3>Approved tiles go live</h3><p>Content is checked before publication. A completed placement needs a visible live tile and delivery evidence, not just a payment notification.</p></article>
+</div>
+</section>
+<section class="section rules">
+<div><p class="eyebrow">What you're buying</p><h2>Digital space.<br>Not fake reach.</h2><p>The placement is on DreamLedger's website, not a physical roadside billboard or a programmatic outdoor advertising screen. We do not promise impressions, clicks, leads or sales.</p></div>
+<div><p><b>Term:</b> intended to remain until 1 January 3000 while the service operates, subject to published terms and content policy. This is not a property title or a guarantee of perpetual operation.</p><p><b>Review:</b> submissions may be rejected for policy, legal, safety or technical reasons. If we cannot deliver an eligible paid order, resolution is subject to the published checkout/refund policy.</p><p><b>Proof:</b> a Stripe receipt confirms payment. A separately verifiable published placement confirms delivery. Neither is proof of an independent external buyer without attribution.</p><p><b>Founder example:</b> “Biggie Still Here” above is an unpaid demonstration, not a real order.</p></div>
+</section>
+<p class="fine">DreamLedger Internet Billboard · NZ$50 founding offer · DreamLedger silo only · No guaranteed audience. Public promotion outside this website requires separate approval.</p>
+</main></div>
+<script>
+(function(){'use strict';const input=document.getElementById('sample');const tile=document.getElementById('tile-text');input.addEventListener('input',function(){tile.textContent=input.value.trim().slice(0,80)||'YOUR IDEA HERE';});})();
+</script>
+</body></html>
