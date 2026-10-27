@@ -38,11 +38,16 @@ Deno.serve(async req=>{
   try{
     const ctx=await sessionContext(sessionId);const fr=ctx.fulfillment;
     if(action==="initialize"){
-      const supplied=Array.isArray(body.files)?body.files.slice(0,MAX_FILES):[];
+      if(fr.status==="fulfilled"||fr.canonical_state==="FULFILLED")return out({error:"ALREADY_FULFILLED"},409);
+      const supplied=Array.isArray(body.files)?body.files:[];
       if(supplied.length<2||supplied.length>MAX_FILES)return out({error:"QUOTE_COUNT_MUST_BE_2_TO_5"},400);
       const uploads=[];
       for(let i=0;i<supplied.length;i++){
         const original=safeName(String(supplied[i]?.name||`quote-${i+1}.pdf`));
+        const bytes=Number(supplied[i]?.size);
+        if(!Number.isSafeInteger(bytes)||bytes<=0||bytes>MAX_BYTES)return out({error:"FILE_SIZE_INVALID",file:original},400);
+        const ext=original.toLowerCase().split(".").pop()||"";
+        if(!["pdf","csv","json","md"].includes(ext))return out({error:"UNSUPPORTED_FILE_TYPE",file:original},400);
         const path=`quote-inputs/${fr.id}/${crypto.randomUUID()}-${original}`;
         const {data,error}=await db.storage.from(BUCKET).createSignedUploadUrl(path,{upsert:false});
         if(error||!data)return out({error:"SIGNED_UPLOAD_URL_FAILED"},500);
@@ -52,7 +57,7 @@ Deno.serve(async req=>{
     }
     if(action==="finalize"){
       if(fr.status==="fulfilled"||fr.canonical_state==="FULFILLED")return out({error:"ALREADY_FULFILLED",fulfillment_request_id:fr.id,status:"fulfilled",canonical_state:"FULFILLED"},409);
-      const files=Array.isArray(body.files)?body.files.slice(0,MAX_FILES):[];if(files.length<2||files.length>MAX_FILES)return out({error:"QUOTE_COUNT_MUST_BE_2_TO_5"},400);
+      const files=Array.isArray(body.files)?body.files:[];if(files.length<2||files.length>MAX_FILES)return out({error:"QUOTE_COUNT_MUST_BE_2_TO_5"},400);
       const requirements=String(body.requirements||"").trim().slice(0,12000);if(!requirements)return out({error:"REQUIREMENTS_REQUIRED"},400);
       const inputFiles=[];
       for(const file of files){
