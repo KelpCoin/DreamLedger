@@ -38,29 +38,34 @@ Deno.serve(async req=>{
   try{
     const ctx=await sessionContext(sessionId);const fr=ctx.fulfillment;
     if(action==="initialize"){
-      const supplied=Array.isArray(body.files)?body.files.slice(0,MAX_FILES):[];
+      if(fr.status==="fulfilled"||fr.canonical_state==="FULFILLED")return out({error:"ALREADY_FULFILLED"},409);
+      const supplied=Array.isArray(body.files)?body.files:[];
       if(supplied.length<2||supplied.length>MAX_FILES)return out({error:"QUOTE_COUNT_MUST_BE_2_TO_5"},400);
       const uploads=[];
       for(let i=0;i<supplied.length;i++){
         const original=safeName(String(supplied[i]?.name||`quote-${i+1}.pdf`));
-        const path=`quote-inputs/${ctx.order.id}/${crypto.randomUUID()}-${original}`;
+        const bytes=Number(supplied[i]?.size);
+        if(!Number.isSafeInteger(bytes)||bytes<=0||bytes>MAX_BYTES)return out({error:"FILE_SIZE_INVALID",file:original},400);
+        const ext=original.toLowerCase().split(".").pop()||"";
+        if(!["pdf","csv","json","md"].includes(ext))return out({error:"UNSUPPORTED_FILE_TYPE",file:original},400);
+        const path=`quote-inputs/${fr.id}/${crypto.randomUUID()}-${original}`;
         const {data,error}=await db.storage.from(BUCKET).createSignedUploadUrl(path,{upsert:false});
         if(error||!data)return out({error:"SIGNED_UPLOAD_URL_FAILED"},500);
-        uploads.push({path,token:data.token,name:original});
+        uploads.push({path,token:data.token,signed_url:data.signedUrl,name:original});
       }
       return out({ok:true,action,fulfillment_request_id:fr.id,order_id:ctx.order.id,uploads});
     }
     if(action==="finalize"){
       if(fr.status==="fulfilled"||fr.canonical_state==="FULFILLED")return out({error:"ALREADY_FULFILLED",fulfillment_request_id:fr.id,status:"fulfilled",canonical_state:"FULFILLED"},409);
-      const files=Array.isArray(body.files)?body.files.slice(0,MAX_FILES):[];if(files.length<2||files.length>MAX_FILES)return out({error:"QUOTE_COUNT_MUST_BE_2_TO_5"},400);
+      const files=Array.isArray(body.files)?body.files:[];if(files.length<2||files.length>MAX_FILES)return out({error:"QUOTE_COUNT_MUST_BE_2_TO_5"},400);
       const requirements=String(body.requirements||"").trim().slice(0,12000);if(!requirements)return out({error:"REQUIREMENTS_REQUIRED"},400);
       const inputFiles=[];
       for(const file of files){
         const p=String(file.path||"");const name=safeName(String(file.name||p.split("/").pop()||"quote"));const size=Number(file.size||0);
-        if(!p.startsWith(`quote-inputs/${ctx.order.id}/`)||p.includes(".."))return out({error:"INVALID_STORAGE_PATH"},400);
+        if(!p.startsWith(`quote-inputs/${fr.id}/`)||p.includes(".."))return out({error:"INVALID_STORAGE_PATH"},400);
         if(size<=0||size>MAX_BYTES)return out({error:"FILE_SIZE_INVALID",file:name},400);
         const ext=name.toLowerCase().split(".").pop()||"";if(!["pdf","csv","json","md"].includes(ext))return out({error:"UNSUPPORTED_FILE_TYPE",file:name},400);
-        const dir=`quote-inputs/${ctx.order.id}`;const listed=await db.storage.from(BUCKET).list(dir,{limit:100});
+        const dir=`quote-inputs/${fr.id}`;const listed=await db.storage.from(BUCKET).list(dir,{limit:100});
         if(!listed.data?.some(x=>p.endsWith("/"+x.name)))return out({error:"UPLOADED_FILE_NOT_FOUND",file:name},400);
         inputFiles.push({path:p,name,size,sha256:String(file.sha256||"")||null});
       }
@@ -76,8 +81,16 @@ Deno.serve(async req=>{
     }
     if(action==="status"){
       let download_url=null;
-      if(fr.status==="fulfilled"&&fr.fulfillment_reference){const {data}=await db.storage.from(BUCKET).createSignedUrl(fr.fulfillment_reference,3600);download_url=data?.signedUrl||null;}
-      return out({ok:true,status:fr.status,canonical_state:fr.canonical_state,evidence_status:fr.evidence_status,fulfillment_reference:fr.fulfillment_reference,evidence_reference:fr.evidence_reference,download_url});
+      let csv_download_url=null;
+      if(fr.status==="fulfilled"&&fr.fulfillment_reference?.startsWith(`quote-outputs/${fr.id}/`)){
+        const {data}=await db.storage.from(BUCKET).createSignedUrl(fr.fulfillment_reference,3600);
+        download_url=data?.signedUrl||null;
+        if(fr.evidence_reference?.startsWith(`quote-outputs/${fr.id}/`)){
+          const csv=await db.storage.from(BUCKET).createSignedUrl(fr.evidence_reference,3600);
+          csv_download_url=csv.data?.signedUrl||null;
+        }
+      }
+      return out({ok:true,status:fr.status,canonical_state:fr.canonical_state,evidence_status:fr.evidence_status,fulfillment_reference:fr.fulfillment_reference,evidence_reference:fr.evidence_reference,download_url,csv_download_url});
     }
     return out({error:"UNKNOWN_ACTION"},400);
   }catch(e){const code=e instanceof Error?e.message:"UNKNOWN";const status=["PAYMENT_NOT_SETTLED","WRONG_PAYMENT_LINK","WRONG_SKU","SETTLEMENT_RECORD_PENDING","ENTITLEMENT_PENDING","FULFILLMENT_REQUEST_NOT_FOUND"].includes(code)?409:400;return out({error:code},status);}
