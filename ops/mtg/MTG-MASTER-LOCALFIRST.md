@@ -45,7 +45,8 @@ Example is fixture syntax only. Do **not** treat the example URL or price as a m
 - Human listings and B2B merchant listings: NZD 0 listing fee and NZD 0 DreamLedger transaction commission. Processor and shipping fees are separate.
 - Paid visibility: optional, labelled **Sponsored**; never implies verified trust or a higher organic ranking.
 - A2A: metered, scoped, low-cost API keys, only once an entitlement and fulfillment receipt have been proved.
-- MTG/HappyHomarid/CollectorsCoast kept strictly separate from other silo records, especially Amplissa/adult.
+- Active MTG seller identity: HappyHomarid. CollectorsCoast is a retired legacy name and must not be published, promoted, or presented as a live storefront; historical references remain historical records only.
+- DreamLedger `/mtg` is the shared commerce surface. Keep MTG inventory, payments, buyers, branding and analytics strictly separate from Amplissa/adult.
 - No public post, listing, charge, customer contact, or spend without a separately approved and tested release.
 
 ## Road to public /mtg/
