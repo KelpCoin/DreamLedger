@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en-NZ">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BECK Evidence Triage API | Experimental Developer Preview</title>
+<meta name="robots" content="noindex,nofollow">
+<meta name="description" content="Try a limited evidence-source checklist and a reproducible SHA-256 receipt. Experimental only; does not verify claim truth.">
+<style>
+:root{color-scheme:dark;--bg:#080909;--panel:#121515;--ink:#f4f5ed;--muted:#b2b9b3;--line:#343c38;--accent:#f4c95d}
+*{box-sizing:border-box}body{background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,sans-serif;margin:0}
+main{max-width:850px;margin:auto;padding:34px 18px 70px}a{color:var(--accent)}h1{font-size:clamp(2.5rem,8vw,4.5rem);letter-spacing:-.07em;line-height:.97}
+h2{font-size:1.25rem}.eyebrow{color:var(--accent);text-transform:uppercase;letter-spacing:.18em;font-size:.75rem;font-weight:800}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px;margin:24px 0}
+.muted,small{color:var(--muted)}.tag{color:var(--accent);border:1px solid #887443;border-radius:30px;padding:5px 10px;font-size:.75rem}
+label{display:block;margin-top:16px;font-weight:700}textarea,input{background:#0a0d0c;color:var(--ink);border:1px solid var(--line);border-radius:9px;width:100%;padding:11px;font:inherit}
+textarea{min-height:95px}button{background:var(--accent);color:#0a0c0b;border:0;border-radius:9px;padding:12px 18px;font-weight:850;margin:16px 0;cursor:pointer}
+button:disabled{opacity:.65}pre{white-space:pre-wrap;overflow-wrap:anywhere;border:1px solid var(--line);border-radius:9px;padding:16px;background:#070909}
+code{color:var(--accent)}.disclaimer{border-left:3px solid var(--accent);padding-left:13px}
+</style></head>
+<body><main>
+<p class="eyebrow"><a href="/">DreamLedger</a> / Developer tools</p>
+<span class="tag">Experimental, free, no paid subscriptions enabled</span>
+<h1>Make the evidence gaps visible.</h1>
+<p class="muted">BECK Evidence Triage accepts a claim and user-supplied source details, inventories missing provenance, and returns a reproducible SHA-256 input receipt. It does not fetch source pages, determine factual truth, or certify authenticity.</p>
+<section class="panel">
+<h2>Try the bounded API</h2>
+<p class="muted">Input is processed in memory by the API. No application database stores the request; hosting infrastructure may log requests. Don't submit confidential material.</p>
+<form id="demo">
+<label for="claim">Claim to document</label>
+<textarea id="claim" maxlength="1000" required>Supplier A offers delivery within 14 days.</textarea>
+<label for="url">Source URL (optional)</label>
+<input id="url" type="url" placeholder="https://example.org/quote">
+<label for="excerpt">What the source says (optional)</label>
+<textarea id="excerpt" maxlength="600">Lead time: 14 days</textarea>
+<button id="go" type="submit">Generate evidence receipt</button>
+</form>
+<pre id="output" aria-live="polite">Results appear here.</pre>
+</section>
+<section class="panel"><h2>API contract</h2>
+<p><code>POST /api/v1/analyze</code> · JSON · max 8KB request, 1,000-character claim, 10 unique sources.</p>
+<pre>{
+  "claim": "Supplier A offers delivery within 14 days.",
+  "sources": [{
+    "url": "https://example.org/quote",
+    "excerpt": "Lead time: 14 days",
+    "observed_at": "2026-10-27"
+  }]
+}</pre>
+<p>The response includes <code>verdict: "NOT_VERIFIED"</code>, missing-evidence flags and an SHA-256 receipt for the normalized input. A receipt cannot prove a source is real or the claim is correct.</p></section>
+<section class="panel"><h2>Proposed developer subscription</h2>
+<p><strong>NZ$49 / month · up to 1,000 calls</strong> is a price hypothesis, <strong>not an active product or checkout</strong>. A paid version requires real authentication, rate limits, metering, subscription status and automated access revocation before sales can begin.</p>
+<p class="disclaimer">No purchase is available on this page. API marketplace listing, customer traffic, conversions and monthly recurring revenue have not been established.</p>
+<p><a href="/contact.html">Contact DreamLedger about a pilot or integration</a></p></section>
+<script>
+document.getElementById('demo').addEventListener('submit',async event=>{
+ event.preventDefault();const button=document.getElementById('go'),out=document.getElementById('output');
+ button.disabled=true;out.textContent='Checking request...';
+ try{
+  const url=document.getElementById('url').value.trim(),excerpt=document.getElementById('excerpt').value.trim();
+  const sources=url?[{url,excerpt,observed_at:new Date().toISOString().slice(0,10)}]:[];
+  const response=await fetch('/api/v1/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({claim:document.getElementById('claim').value,sources})});
+  const data=await response.json();out.textContent=JSON.stringify({http_status:response.status,...data},null,2);
+ }catch{out.textContent='The endpoint is unavailable. No receipt was created.'}finally{button.disabled=false}
+});
+</script></main></body></html>
