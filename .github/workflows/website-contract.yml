@@ -49,3 +49,16 @@ jobs:
         run: node --check public/server.js
       - name: Prove synthetic billboard payment to placement contract
         run: node scripts/test_billboard_live_contract.mjs
+      - name: Confirm existing live billboard webhook rejects unsigned synthetic requests
+        shell: bash
+        run: |
+          set -euo pipefail
+          code=$(curl --silent --show-error --max-time 20 --output /tmp/billboard-signed-boundary.json --write-out '%{http_code}' \
+            -X POST 'https://wbwgroygjeyukkspnqiy.supabase.co/functions/v1/dreamledger-billboard-webhook' \
+            -H 'content-type: application/json' \
+            -H 'stripe-signature: t=1,v1=synthetic-unsigned-smoke' \
+            -H 'user-agent: BECK-billboard-negative-smoke/1' \
+            --data '{"type":"checkout.session.completed","livemode":false,"data":{"object":{"payment_status":"paid"}}}')
+          test "$code" = 400
+          grep -q 'Invalid Stripe signature' /tmp/billboard-signed-boundary.json
+
