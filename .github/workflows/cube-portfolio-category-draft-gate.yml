@@ -1,0 +1,20 @@
+name: CUBE Portfolio Category Draft Gates
+on:
+  pull_request:
+    paths:
+      - 'BEC-PRIME/catalog/silos/CUBE-SILO-REGISTRY.json'
+      - 'tests/777-portfolio-category-routes.test.mjs'
+      - '.github/workflows/cube-portfolio-category-draft-gate.yml'
+permissions:
+  contents: read
+jobs:
+  private-registry:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate staged silo registry
+        run: node --test tests/777-portfolio-category-routes.test.mjs
