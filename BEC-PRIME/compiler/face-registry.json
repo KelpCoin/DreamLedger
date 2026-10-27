@@ -2,10 +2,22 @@
   "schema": "BEC-PRIME/FACE-REGISTRY/v1",
   "rule": "Faces are emitted by WebsiteFaceCompiler from this registry + live_checkout_routes. Hand-edited public HTML is legacy.",
   "nav": [
-    {"label": "Pay", "href": "/money.html"},
-    {"label": "Shop", "href": "/shop.html"},
-    {"label": "Magic", "href": "/mtg/"},
-    {"label": "Avatar", "href": "/avatar.html"}
+    {
+      "label": "Checkout",
+      "href": "/money.html"
+    },
+    {
+      "label": "Shop",
+      "href": "/shop.html"
+    },
+    {
+      "label": "Magic",
+      "href": "/mtg/"
+    },
+    {
+      "label": "Avatar",
+      "href": "/avatar.html"
+    }
   ],
   "faces": [
     {
@@ -13,9 +25,9 @@
       "route": "/money.html",
       "out": "money.html",
       "title": "Pay · DreamLedger NZ",
-      "eyebrow": "Compiler exhaust · Stripe · NZD",
-      "headline": "Pay. Get a receipt. System validated.",
-      "lead": "Generated from the face registry and live checkout routes. No revenue claimed without settlement.",
+      "eyebrow": "Secure checkout",
+      "headline": "Choose what works for you.",
+      "lead": "Browse available products and services. Each offer explains its price and what happens next.",
       "cta_source": "live_checkout_routes",
       "primary_offer_ids": [
         "LIVE-DREAMMEEZ-SUPPORTER-SPROUT",
@@ -30,16 +42,30 @@
       "route": "/",
       "out": "home.html",
       "title": "DreamLedger",
-      "eyebrow": "BECK compiler · evidence · Stripe",
-      "headline": "Build the factory. Get paid.",
-      "lead": "Free tools stay free. Paid surfaces are compiler-emitted from structured offers. Validated by receipts.",
+      "eyebrow": "DreamLedger · New Zealand",
+      "headline": "Find something worth your time.",
+      "lead": "Explore Magic cards, creative spaces, avatars and useful digital tools. Browse freely, with clear pricing when something is available to buy.",
       "cta_source": "live_checkout_routes",
-      "primary_offer_ids": ["LIVE-DREAMMEEZ-SUPPORTER-SPROUT"],
+      "primary_offer_ids": [
+        "LIVE-DREAMMEEZ-SUPPORTER-SPROUT"
+      ],
       "secondary_links": [
-        {"label": "All cash offers", "href": "/money.html"},
-        {"label": "Shop", "href": "/shop.html"},
-        {"label": "Magic", "href": "/mtg/"},
-        {"label": "Avatar", "href": "/avatar.html"}
+        {
+          "label": "Browse offers",
+          "href": "/money.html"
+        },
+        {
+          "label": "Shop",
+          "href": "/shop.html"
+        },
+        {
+          "label": "Magic",
+          "href": "/mtg/"
+        },
+        {
+          "label": "Avatar",
+          "href": "/avatar.html"
+        }
       ]
     },
     {
@@ -47,9 +73,9 @@
       "route": "/shop.html",
       "out": "shop.html",
       "title": "Shop · DreamLedger NZ",
-      "eyebrow": "Compiler exhaust · checkout-ready",
-      "headline": "Pay for real work.",
-      "lead": "Lowest price first. Every button uses a live Stripe route from the registry.",
+      "eyebrow": "The shop",
+      "headline": "Browse. Choose. Enjoy.",
+      "lead": "Discover useful products and creative extras. Check each item's details and availability before ordering.",
       "cta_source": "live_checkout_routes_sorted",
       "banner_offer_id": "LIVE-DREAMMEEZ-SUPPORTER-SPROUT"
     },
@@ -58,13 +84,25 @@
       "route": "/start.html",
       "out": "start.html",
       "title": "Start · DreamLedger",
-      "eyebrow": "Compiler exhaust · onboarding",
-      "headline": "Three doors. One receipt.",
-      "lead": "Pick a path. Money validates the system. Magic and avatar are surfaces on the same spine.",
+      "eyebrow": "Welcome",
+      "headline": "Your next discovery starts here.",
+      "lead": "Explore cards and community, custom avatars, useful tools and more. Choose the part of DreamLedger that interests you.",
       "doors": [
-        {"label": "Pay from NZ$3.99", "href": "/money.html", "blurb": "Settled Stripe — economic validation"},
-        {"label": "Magic silo", "href": "/mtg/", "blurb": "Singles and decks — see the cards"},
-        {"label": "Avatar studio", "href": "/avatar.html", "blurb": "Cosmetics that follow you to Phinhaven"}
+        {
+          "label": "Magic in New Zealand",
+          "href": "/mtg/",
+          "blurb": "Commander, collecting, trading and community"
+        },
+        {
+          "label": "Avatar studio",
+          "href": "/avatar.html",
+          "blurb": "Make a character that's yours"
+        },
+        {
+          "label": "Browse the shop",
+          "href": "/shop.html",
+          "blurb": "Discover available products and services"
+        }
       ]
     },
     {
@@ -72,18 +110,54 @@
       "route": "/offers.html",
       "out": "offers.html",
       "title": "Offers · DreamLedger",
-      "eyebrow": "Compiler exhaust · structured offers",
-      "headline": "Offers with a path to payment.",
-      "lead": "Emitted from the same live checkout registry as money and shop.",
+      "eyebrow": "What we offer",
+      "headline": "Useful things, clearly explained.",
+      "lead": "Explore available products and services, with the details you need before choosing.",
       "cta_source": "live_checkout_routes_sorted"
     }
   ],
   "live_checkout_routes": [
-    {"id": "LIVE-DREAMMEEZ-SUPPORTER-SPROUT", "name": "Supporter — Sprout", "price_nzd": 3.99, "href": "/buy/DREAMMEEZ-SUPPORTER-SPROUT", "tag": "Lowest friction"},
-    {"id": "LIVE-DOC-EXTRACT-50", "name": "Document Extraction", "price_nzd": 5, "href": "/buy/DOC-EXTRACT-50", "tag": "Micro"},
-    {"id": "LIVE-SUPPLIER-CHECK-50", "name": "Supplier Check", "price_nzd": 5, "href": "/buy/SUPPLIER-CHECK-50", "tag": "Micro"},
-    {"id": "LIVE-COMMANDER-DECK-DIAGNOSTIC-001", "name": "Commander Deck Diagnostic", "price_nzd": 29, "href": "/buy/COMMANDER-DECK-DIAGNOSTIC-001", "tag": "Magic"},
-    {"id": "LIVE-SELLER-PROFIT-AUDIT-001", "name": "Seller Profit Audit", "price_nzd": 29, "href": "/buy/SELLER-PROFIT-AUDIT-001", "tag": "Seller"},
-    {"id": "LIVE-DISCORD-WEBHOOK-STARTER-KIT-001", "name": "Discord Webhook Kit", "price_nzd": 79, "href": "/buy/DISCORD-WEBHOOK-STARTER-KIT-001", "tag": "Tools"}
+    {
+      "id": "LIVE-DREAMMEEZ-SUPPORTER-SPROUT",
+      "name": "Supporter — Sprout",
+      "price_nzd": 3.99,
+      "href": "/buy/DREAMMEEZ-SUPPORTER-SPROUT",
+      "tag": "Lowest friction"
+    },
+    {
+      "id": "LIVE-DOC-EXTRACT-50",
+      "name": "Document Extraction",
+      "price_nzd": 5,
+      "href": "/buy/DOC-EXTRACT-50",
+      "tag": "Micro"
+    },
+    {
+      "id": "LIVE-SUPPLIER-CHECK-50",
+      "name": "Supplier Check",
+      "price_nzd": 5,
+      "href": "/buy/SUPPLIER-CHECK-50",
+      "tag": "Micro"
+    },
+    {
+      "id": "LIVE-COMMANDER-DECK-DIAGNOSTIC-001",
+      "name": "Commander Deck Diagnostic",
+      "price_nzd": 29,
+      "href": "/buy/COMMANDER-DECK-DIAGNOSTIC-001",
+      "tag": "Magic"
+    },
+    {
+      "id": "LIVE-SELLER-PROFIT-AUDIT-001",
+      "name": "Seller Profit Audit",
+      "price_nzd": 29,
+      "href": "/buy/SELLER-PROFIT-AUDIT-001",
+      "tag": "Seller"
+    },
+    {
+      "id": "LIVE-DISCORD-WEBHOOK-STARTER-KIT-001",
+      "name": "Discord Webhook Kit",
+      "price_nzd": 79,
+      "href": "/buy/DISCORD-WEBHOOK-STARTER-KIT-001",
+      "tag": "Tools"
+    }
   ]
 }
