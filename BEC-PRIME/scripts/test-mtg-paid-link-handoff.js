@@ -14,12 +14,15 @@ process.env.SUPABASE_URL = 'https://example.invalid';
 process.env.SUPABASE_SERVICE_ROLE_KEY = 'synthetic_db_key';
 const diagnostic = require('../lib/mtgDiagnosticFulfillment');
 const route = require('../routes/mtgDiagnostic');
+const commercial = require('../routes/commercialCell');
 
 const makeSession = () => ({
   id: 'cs_live_synthetic123', status: 'complete', livemode: true, payment_status: 'paid',
   payment_link: 'plink_1URUN1EGgEAnUFF9qPz94dqS',
   currency: 'nzd', amount_total: 2900, payment_intent: 'pi_synthetic123',
-  metadata: { product_id: 'COMMANDER-DECK-DIAGNOSTIC-001', silo: 'mtg' },
+  metadata: { product_id: 'COMMANDER-DECK-DIAGNOSTIC-001', silo: 'mtg',
+    sku:'COMMANDER-DECK-DIAGNOSTIC-001', offer_id:'OFFER-CMD-DIAG-29-NZD',
+    marketplace_listing_id:'listing_synthetic' },
   customer_details: { email: 'buyer@example.test' },
   custom_fields: [{key:'decklisturl',type:'text',text:{value:'https://www.moxfield.com/decks/abc123'}}]
 });
@@ -36,6 +39,15 @@ global.fetch = async function(url) {
   };
   if (s.includes('/rpc/record_economic_outcome')) return {
     ok:true,json:async()=> 'outcome_synthetic'
+  };
+  if (s.includes('/rest/v1/economic_events')) return {
+    ok:true, text:async()=>'[]'
+  };
+  if (s.includes('/rpc/marketplace_settle_stripe_payment')) return {
+    ok:true, text:async()=>JSON.stringify([{order_id:'order_synthetic',fulfillment_id:'fulfill_synthetic'}])
+  };
+  if (s.includes('/rest/v1/control_evidence')) return {
+    ok:true, text:async()=>'[]'
   };
   throw new Error('UNEXPECTED_EXTERNAL_REQUEST');
 };
@@ -67,7 +79,7 @@ async function check() {
   assert.equal(fs.readdirSync(path.join(root,'intakes')).length,1);
 
   // Signed synthetic webhook must acknowledge PAID, not FULFILLED.
-  const event={id:'evt_synthetic',type:'checkout.session.completed',data:{object:session}};
+  const event={id:'evt_synthetic',livemode:true,type:'checkout.session.completed',data:{object:session}};
   const body=JSON.stringify(event);
   const timestamp=String(Math.floor(Date.now()/1000));
   const sig=crypto.createHmac('sha256',process.env.STRIPE_WEBHOOK_SECRET)
@@ -86,8 +98,26 @@ async function check() {
   assert.equal(response.body.includes('buyer@example.test'),false);
   assert.equal(response.body.includes('www.moxfield'),false);
 
+  // The actual live Render entrypoint routes /api/webhooks/stripe through
+  // commercialCell, NOT the legacy /webhook handler above.
+  const req2=Readable.from([body]);
+  req2.method='POST';
+  req2.headers={'stripe-signature':'t='+timestamp+',v1='+sig};
+  const res2={status:null,body:null,writableEnded:false,
+    writeHead(status){this.status=status;},
+    end(value){this.body=String(value);this.writableEnded=true;}};
+  await commercial.handle(req2,res2,'/api/webhooks/stripe');
+  assert.equal(res2.status,200);
+  const canonical=JSON.parse(res2.body);
+  assert.equal(canonical.handled,true);
+  assert.equal(canonical.fulfilled,false);
+  assert.equal(canonical.verified_external_revenue,false);
+  assert.equal(canonical.mtg_order_state,'PAID_AWAITING_MANUAL_DELIVERY');
+  assert.equal(res2.body.includes('buyer@example.test'),false);
+  assert.equal(fs.readdirSync(path.join(root,'intakes')).length,1);
+
   console.log(JSON.stringify({test:'mtg_paid_link_handoff',status:'PASS',
-    cases:11,payment_mutations:0,actual_sales:0,
+    cases:12,payment_mutations:0,actual_sales:0,
     order_status:'PAID_AWAITING_MANUAL_DELIVERY',
     verified_revenue_claim:false},null,2));
 }
