@@ -33,4 +33,19 @@ for (const source of ['/marketplace','/marketplace/']) {
   if (!vercel.rewrites?.some(rule=>rule.source===source&&rule.destination==='/marketplace.html'))
     throw new Error('PUBLIC_MARKETPLACE_ROUTE_REWRITE_MISSING: '+source);
 }
+// Buyer-journey guard: real EDH inventory must point to the existing guarded link.
+const mtgCatalog=JSON.parse(fs.readFileSync(path.join(root,'public/data/mtg-catalog.json'),'utf8'));
+const edh=(mtgCatalog.products||[]).find(p=>p.id==='EDH_0001');
+const edhLink='https://buy.stripe.com/14A3cvea1dSd1DV5oEdwc1J';
+if(!edh || edh.price!==400 || edh.currency!=='NZD' || edh.inventory!==1 ||
+   edh.checkout_available!==true || edh.checkout_url!==edhLink || edh.silo!=='mtg')
+  throw new Error('EDH_0001_GUARDED_CHECKOUT_INVALID');
+const mtgHtml=fs.readFileSync(path.join(root,'public/mtg/index.html'),'utf8');
+if(!mtgHtml.includes('id="edh-0001-direct-checkout"') || !mtgHtml.includes(edhLink))
+  throw new Error('EDH_0001_DIRECT_CHECKOUT_NOT_EXPOSED');
+if(!home.includes('View deck &amp; secure checkout') || !home.includes('href="/mtg/#decks"'))
+  throw new Error('MTG_HOME_PURCHASE_ENTRY_NOT_EXPOSED');
+const billboardHtml=fs.readFileSync(path.join(root,'public/billboard.html'),'utf8');
+if(!billboardHtml.includes('Your HTTPS destination URL is optional'))
+  throw new Error('BILLBOARD_OPTIONAL_URL_COPY_REGRESSION');
 console.log('BECK_PUBLIC_RELEASE_FILES_PASS: '+mustExist.length+' routes, '+catalog.products.length+' catalog entries; B2B aliases verified; no sale asserted');
