@@ -19,6 +19,16 @@ async function recordOutcome(session,type,report){
   if(!outcomeId)throw new Error('Economic outcome was not persisted; webhook retry required');
   return {recorded:true,outcome_id:outcomeId};
 }
-async function handleWebhook(req,res){let raw='';for await(const c of req){raw+=c;if(raw.length>5000000)throw new Error('Request too large');}verify(raw,req.headers['stripe-signature']);const event=JSON.parse(raw);if(event.type!=='checkout.session.completed')return{handled:false,raw};const session=event.data.object;if(session.payment_status!=='paid')return{handled:false,raw};if(session.metadata?.product_id!=='COMMANDER-DECK-DIAGNOSTIC-001')return{handled:false,raw};const report=await diagnostic.fulfillPaidSession(session);if(!report)throw new Error('Paid diagnostic report not generated; webhook retry required');const paidOutcome=await recordOutcome(session,'PAID',report);const fulfilledOutcome=await recordOutcome(session,'FULFILLED',report);send(res,200,{received:true,handled:true,fulfilled:true,transaction_id:session.id,report_hash:report.report_hash,economic_outcomes:{paid:paidOutcome,fulfilled:fulfilledOutcome}});return{handled:true};}
+async function handleWebhook(req,res){let raw='';for await(const c of req){raw+=c;if(raw.length>5000000)throw new Error('Request too large');}verify(raw,req.headers['stripe-signature']);const event=JSON.parse(raw);if(event.type!=='checkout.session.completed')return{handled:false,raw};const session=event.data.object;if(session.payment_status!=='paid')return{handled:false,raw};if(session.metadata?.product_id!=='COMMANDER-DECK-DIAGNOSTIC-001')return{handled:false,raw};const linkId=typeof session.payment_link==='string'?session.payment_link:session.payment_link?.id;
+if(linkId==='plink_1URUN1EGgEAnUFF9qPz94dqS'){
+  // An accepted Payment Link webhook MUST NOT claim a report was delivered.
+  const pending=await diagnostic.capturePaidLinkOrder(session);
+  const paidOutcome=await recordOutcome(session,'PAID',null);
+  send(res,200,{received:true,handled:true,fulfilled:false,
+    status:'PAID_AWAITING_MANUAL_DELIVERY',transaction_id:pending.session_id,
+    recorded:paidOutcome.recorded,verified_external_revenue:false});
+  return {handled:true};
+}
+const report=await diagnostic.fulfillPaidSession(session);if(!report)throw new Error('Paid diagnostic report not generated; webhook retry required');const paidOutcome=await recordOutcome(session,'PAID',report);const fulfilledOutcome=await recordOutcome(session,'FULFILLED',report);send(res,200,{received:true,handled:true,fulfilled:true,transaction_id:session.id,report_hash:report.report_hash,economic_outcomes:{paid:paidOutcome,fulfilled:fulfilledOutcome}});return{handled:true};}
 async function handle(req,res,url){if(await configurator.handle(req,res,url))return true;if(req.method==='POST'&&url==='/api/mtg/diagnostic/intake'){try{return send(res,200,await diagnostic.createCheckout(await body(req)));}catch(e){return send(res,e.message.includes('Stripe')?503:400,{error:e.message});}}if(req.method==='GET'&&url==='/api/mtg/diagnostic/report'){const u=new URL(req.url,'https://dreamledger.org');const sessionId=u.searchParams.get('session_id');if(!sessionId)return send(res,400,{error:'session_id is required'});const report=diagnostic.getReport(sessionId);if(!report)return send(res,404,{error:'Report not ready'});return send(res,200,report);}return false;}
 module.exports={handle,handleWebhook};
