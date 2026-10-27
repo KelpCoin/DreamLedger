@@ -1,0 +1,75 @@
+/*
+ * DreamLedger customer-facing visual foundation
+ * Canonical reference: public/billboard.html
+ * This file is shared across storefront and silo surfaces.
+ * Brand names, datasets, auth, payments, game art remain silo-owned.
+ */
+:root, html[data-beck-theme="billboard"] {
+  color-scheme: dark;
+  --bg:#080b10;--panel:#111722;--surface:#111722;--card:#111722;
+  --line:#2c3747;--ink:#f7f9fb;--text:#f7f9fb;--muted:#b2bdca;
+  --signal:#c5ff35;--accent:#c5ff35;--gold:#c5ff35;
+  --goldb:#e1ff94;--mint:#c5ff35;--violet:#c5ff35;
+  --max:1160px;
+}
+html[data-beck-theme="billboard"] {
+  scroll-behavior:smooth;
+}
+html[data-beck-theme="billboard"] body {
+  background-color:var(--bg) !important;
+  color:var(--ink);
+  font-family:Inter,"Segoe UI",system-ui,sans-serif;
+  line-height:1.55;
+}
+html[data-beck-theme="billboard"] h1,
+html[data-beck-theme="billboard"] h2,
+html[data-beck-theme="billboard"] h3 {
+  font-family:"Space Grotesk",Inter,"Segoe UI",system-ui,sans-serif;
+  letter-spacing:-.055em;
+}
+html[data-beck-theme="billboard"] a:not(.button):not(.btn):not(.silo-btn) {
+  text-decoration-thickness:1px;
+  text-underline-offset:3px;
+}
+html[data-beck-theme="billboard"] .eyebrow,
+html[data-beck-theme="billboard"] .kicker,
+html[data-beck-theme="billboard"] .tag {
+  color:var(--signal);
+  font-weight:850;
+  letter-spacing:.15em;
+}
+html[data-beck-theme="billboard"] .button,
+html[data-beck-theme="billboard"] .btn:not(.ghost),
+html[data-beck-theme="billboard"] .silo-btn:not(.silo-btn-ghost),
+html[data-beck-theme="billboard"] .primary-cta {
+  background:var(--signal);
+  border:1px solid var(--signal);
+  border-radius:11px;
+  color:#080b10;
+  font-weight:900;
+  text-decoration:none;
+}
+html[data-beck-theme="billboard"] .button:hover,
+html[data-beck-theme="billboard"] .btn:not(.ghost):hover,
+html[data-beck-theme="billboard"] .silo-btn:not(.silo-btn-ghost):hover {
+  background:#e1ff94;
+  border-color:#e1ff94;
+  color:#080b10;
+}
+html[data-beck-theme="billboard"] .button.secondary,
+html[data-beck-theme="billboard"] .btn.ghost,
+html[data-beck-theme="billboard"] .silo-btn-ghost {
+  background:transparent;
+  color:var(--ink);
+  border:1px solid #59687a;
+}
+html[data-beck-theme="billboard"] :is(a,button,input,select,textarea):focus-visible {
+  outline:3px solid #fff;
+  outline-offset:3px;
+}
+html[data-beck-theme="billboard"] :is(input,select,textarea) {
+  accent-color:var(--signal);
+}
+@media (prefers-reduced-motion:reduce) {
+  html[data-beck-theme="billboard"] { scroll-behavior:auto; }
+}
