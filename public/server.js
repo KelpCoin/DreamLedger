@@ -121,7 +121,7 @@ http.createServer(async (req,res)=>{
       if(!Array.isArray(all))throw new Error('BILLBOARD_VIEW_INVALID');
       const https=value=>{try{const u=new URL(String(value||''));return u.protocol==='https:'?u.href:null}catch{return null}};
       const items=all.filter(row=>row&&typeof row==='object'&&
-          !(['PENDING_PAYMENT','PAID_PENDING_REVIEW','REJECTED','PENDING_REVIEW','DRAFT'].includes(String(row.status||'').toUpperCase())))
+          (String(row.status||'').toUpperCase()==='PUBLISHED'||(!('status' in row)&&Boolean(row.published_at))))
         .map(row=>({
           id:String(row.campaign_id||row.id||'').slice(0,80),
           title:String(row.title||row.label||row.billboard_label||'Published tile').slice(0,80),
