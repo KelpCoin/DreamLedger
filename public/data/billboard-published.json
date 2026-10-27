@@ -1,0 +1,6 @@
+{
+  "schema": "dreamledger/billboard-approved-public/v1",
+  "updated_utc": "2026-10-27T10:35:00Z",
+  "governance": "Only independent settled checkout plus human content approval and publication proof may add an entry. No buyer PII. Source manifest is empty until a real order is verified.",
+  "items": []
+}
