@@ -91,7 +91,7 @@ input{width:100%;background:#080b10;border:1px solid #526074;border-radius:9px;c
 (async function(){'use strict';
  const root=document.getElementById('live-items');
  try{
-   const response=await fetch('/api/billboard/public',{cache:'no-store'});
+   const response=await fetch('/api/billboard-public',{cache:'no-store'});
    if(!response.ok)throw Error('unavailable');
    const payload=await response.json();
    if(!Array.isArray(payload.items))throw Error('invalid');
