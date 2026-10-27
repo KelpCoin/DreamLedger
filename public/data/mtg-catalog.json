@@ -21,7 +21,7 @@
       "sale_mode": "claim_by_message",
       "checkout_available": false,
       "detail_url": "/mtg/quintorius-field-historian.html",
-      "claim_url": "mailto:hello@dreamledger.org?subject=Buy%20Quintorius%20Commander%20deck%20NZ%2490&body=I%20want%20to%20buy%20the%20Quintorius%20Commander%20deck%20(NZ%2490%2C%20free%20NZ%20shipping).",
+      "claim_url": "mailto:Dreamledger.org@gmail.com?subject=Buy%20Quintorius%20Commander%20deck%20NZ%2490&body=I%20want%20to%20buy%20the%20Quintorius%20Commander%20deck%20(NZ%2490%2C%20free%20NZ%20shipping).",
       "decklist_url": "https://manabox.app/decks/AZ4-aMxndkWrpKZVph4TSA",
       "commander": "Quintorius, Field Historian"
     },
@@ -41,7 +41,7 @@
       "sale_mode": "claim_by_message",
       "checkout_available": false,
       "detail_url": "/mtg/dwynen-gilt-leaf-daen.html",
-      "claim_url": "mailto:hello@dreamledger.org?subject=Buy%20Dwynen%20Commander%20deck%20NZ%2490&body=I%20want%20to%20buy%20the%20Dwynen%20Gilt-Leaf%20Daen%20Commander%20deck%20(NZ%2490%2C%20free%20NZ%20shipping).",
+      "claim_url": "mailto:Dreamledger.org@gmail.com?subject=Buy%20Dwynen%20Commander%20deck%20NZ%2490&body=I%20want%20to%20buy%20the%20Dwynen%20Gilt-Leaf%20Daen%20Commander%20deck%20(NZ%2490%2C%20free%20NZ%20shipping).",
       "commander": "Dwynen, Gilt-Leaf Daen"
     },
     {
@@ -60,7 +60,7 @@
       "sale_mode": "claim_by_message",
       "checkout_available": false,
       "detail_url": "/mtg/jon-irenicus-shattered-one.html",
-      "claim_url": "mailto:hello@dreamledger.org?subject=Claim%20Jon%20Irenicus%20Commander%20Deck&body=I%27d%20like%20to%20claim%20the%20Jon%20Irenicus%2C%20Shattered%20One%20Commander%20deck.%20Please%20confirm%20availability%20and%20shipping.",
+      "claim_url": "mailto:Dreamledger.org@gmail.com?subject=Claim%20Jon%20Irenicus%20Commander%20Deck&body=I%27d%20like%20to%20claim%20the%20Jon%20Irenicus%2C%20Shattered%20One%20Commander%20deck.%20Please%20confirm%20availability%20and%20shipping.",
       "decklist_url": "https://manabox.app/decks/AZ2BaCy-c-a8MpZUUcgxqw",
       "commander": "Jon Irenicus, Shattered One"
     },
