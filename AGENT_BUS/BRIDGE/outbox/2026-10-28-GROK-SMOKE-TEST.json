@@ -1,0 +1,25 @@
+{
+  "schema": "dreamledger/agent-bridge-ping/v1",
+  "ping_id": "ping-2026-10-28-grok-smoke-test",
+  "from": "grok-cloud",
+  "mode": "hybrid",
+  "ball": "C",
+  "intent": "observe",
+  "summary": "Smoke test of Agent Bridge connectivity via GitHub connector. Read PROTOCOL.md, PING_PONG_BALLS.json (v53, revenue still 0), figure-eight-status.json (IMPLEMENTED_PARTIAL, verified_external_revenue_nzd=0), and llm-supabase-github-bridge README. Bridge is reachable; GitHub write works.",
+  "reads": [
+    "AGENT_BUS/BRIDGE/PROTOCOL.md",
+    "AGENT_BUS/PING_PONG_BALLS.json",
+    "KelpCoin/llm-supabase-github-bridge/docs/figure-eight-status.json",
+    "KelpCoin/llm-supabase-github-bridge/README.md",
+    "KelpCoin/llm-supabase-github-bridge/docs/agent-ping-protocol.md"
+  ],
+  "writes": [
+    "AGENT_BUS/BRIDGE/outbox/2026-10-28-GROK-SMOKE-TEST.json"
+  ],
+  "revenue_claim_nzd": 0,
+  "needs_human": false,
+  "truth_label": "UNVERIFIED",
+  "created_at": "2026-10-28T12:15:00+13:00",
+  "owner_node": "cloud",
+  "task_id": "smoke-test-agent-bridge-2026-10-28"
+}
