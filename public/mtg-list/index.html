@@ -1,64 +1,42 @@
-<!doctype html>
-<html lang="en-NZ">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>List a card · MTG · DreamLedger NZ</title>
-<meta name="description" content="List Magic cards in NZ with 0% success fee. Free account required to publish. Structured fields beat Facebook posts.">
-<meta name="theme-color" content="#0a0b0f">
-<link rel="canonical" href="https://dreamledger.org/mtg-list">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,600;9..40,700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-<style>
-:root{--bg:#0a0b0f;--surface:#161922;--ink:#f4f1ea;--muted:#9aa0b0;--line:#2a3040;--gold:#d4a84b;--gold-b:#e8c06a;--serif:"Instrument Serif",Georgia,serif;--sans:"DM Sans",system-ui,sans-serif}
-*{box-sizing:border-box;margin:0;padding:0}body{font-family:var(--sans);background:var(--bg);color:var(--ink);line-height:1.5;padding:24px 16px 48px}
-.wrap{max-width:520px;margin:0 auto}a{color:var(--gold-b);font-weight:600}
-h1{font-family:var(--serif);font-size:2rem;font-weight:400;margin:12px 0 8px}
-.lead{color:var(--muted);margin-bottom:20px;font-size:15px}
-.badge{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gold-b);border:1px solid rgba(212,168,75,.35);padding:5px 10px;border-radius:999px;margin-bottom:8px}
-label{display:block;font-size:12px;font-weight:700;color:var(--muted);margin:14px 0 6px}
-input,select,textarea{width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit}
-textarea{min-height:88px;resize:vertical}
-.btn{display:flex;align-items:center;justify-content:center;min-height:52px;margin-top:20px;border-radius:14px;background:linear-gradient(180deg,var(--gold-b),var(--gold));color:#14120c;font-weight:800;border:0;width:100%;font-size:15px;cursor:pointer;text-decoration:none}
-.note{font-size:13px;color:var(--muted);margin-top:14px}.note strong{color:var(--ink)}
-</style>
-</head>
-<body>
-<div class="wrap">
-  <span class="badge">0% success fee · NZ</span>
-  <h1>List a card</h1>
-  <p class="lead">Structured listing beats a Facebook wall post. Publishing needs a <strong>free seller account</strong>. Buyers never need one.</p>
-  <form id="f" action="/register" method="get">
-    <label for="name">Card name + set</label>
-    <input id="name" name="card" required placeholder="e.g. Ragavan, Nimble Pilferer · MH2">
-    <label for="cond">Condition</label>
-    <select id="cond" name="condition">
-      <option>NM</option><option>LP</option><option>MP</option><option>HP</option><option>DMG</option>
-    </select>
-    <label for="finish">Finish</label>
-    <select id="finish" name="finish">
-      <option>Nonfoil</option><option>Foil</option><option>Etched</option><option>Other</option>
-    </select>
-    <label for="price">Price (NZD)</label>
-    <input id="price" name="price_nzd" type="number" min="1" step="1" required placeholder="45">
-    <label for="city">City / region</label>
-    <input id="city" name="city" required placeholder="Wellington">
-    <label for="ship">Meetup or post</label>
-    <textarea id="ship" name="logistics" placeholder="CBD pickup weekends · tracked post +$8"></textarea>
-    <label for="notes">Notes / trades wanted</label>
-    <textarea id="notes" name="notes" placeholder="ISO: Dockside, optional trade"></textarea>
-    <button class="btn" type="submit">Continue · free account to publish</button>
-  </form>
-  <p class="note"><strong>Why account?</strong> So NZ sellers are reachable and not a random group alias. Platform success fee on peer card sales: <strong>0%</strong>.</p>
-  <p class="note"><a href="/mtg">← Back to MTG silo</a> · <a href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Commander diagnostic $29</a></p>
+<!doctype html><html lang="en-NZ"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#091016"><meta name="robots" content="index,follow"><title>List Magic Cards Free in NZ | Happy Homarid MTG Marketplace</title><meta name="description" content="Prepare a free Magic: The Gathering singles, Commander deck or trade listing in New Zealand. Clear NZD prices and condition, zero platform success fee on peer sales."><link rel="canonical" href="https://dreamledger.org/mtg-list/"><style>:root{color-scheme:dark;--bg:#091016;--panel:#14232c;--line:#304751;--ink:#f4f0e6;--muted:#b1c1c6;--gold:#e8be72}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 90% 0,#1b4439 0,transparent 34%),var(--bg);color:var(--ink);font:15px/1.6 system-ui,sans-serif}main{max-width:830px;margin:auto;padding:30px 20px 75px}a{color:var(--gold)}nav{display:flex;flex-wrap:wrap;gap:18px;padding-bottom:20px;border-bottom:1px solid var(--line);font-weight:750}h1{font:700 clamp(2.7rem,6vw,4.9rem)/1.05 Georgia,serif;letter-spacing:-.04em;margin:35px 0 14px}h2{font-size:1.35rem}.eyebrow{font-weight:900;color:var(--gold);text-transform:uppercase;font-size:.72rem;letter-spacing:.16em}.lead,.note{color:var(--muted)}.note{font-size:.87rem}.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:25px;margin:27px 0}.form{display:grid;grid-template-columns:1fr 1fr;gap:15px}.field{display:flex;flex-direction:column;gap:5px}.full{grid-column:1/-1}label{font-size:.87rem;font-weight:700}input,textarea,select{width:100%;background:#0a161d;border:1px solid #4b626a;color:var(--ink);padding:12px 13px;border-radius:9px;font:inherit}textarea{min-height:90px}input[type=checkbox]{width:auto;accent-color:var(--gold);margin-right:7px}button,.button{border:0;border-radius:10px;cursor:pointer;display:inline-flex;justify-content:center;align-items:center;min-height:47px;padding:11px 17px;font:800 .95rem system-ui,sans-serif;background:var(--gold);color:#15222a;text-decoration:none}button.secondary{background:transparent;border:1px solid var(--line);color:var(--ink)}.actions{display:flex;gap:10px;flex-wrap:wrap}.notice{border-left:4px solid var(--gold);padding:12px 16px;background:#15252b;color:#d1dfdf}#draft-output{white-space:pre-wrap;overflow-wrap:anywhere;min-height:220px}#state{font-weight:750;color:#bfe8d5;margin:15px 0}footer{font-size:.8rem;color:var(--muted);border-top:1px solid var(--line);padding-top:20px;margin-top:45px}@media(max-width:650px){.form{grid-template-columns:1fr}.full{grid-column:auto}.panel{padding:19px}}:focus-visible{outline:3px solid var(--gold);outline-offset:3px}</style></head>
+<body><main>
+<nav><a href="/mtg/">← Happy Homarid NZ home</a><a href="/mtg/#commander">Commander decks</a><a href="/mtg/forum/">Forum topics</a><a href="https://www.patreon.com/HappyHomarid">Patreon</a></nav>
+<div class="eyebrow" style="margin-top:34px">0% DreamLedger peer-sale fee · Aotearoa</div><h1>List it.<br>Keep the value.</h1><p class="lead">Start a free Magic: The Gathering singles, deck, collection or trade listing request. Clear prices in NZD, honest card condition and local delivery terms make trading easier for everyone.</p>
+<div class="notice"><strong>Current stage: free listing request intake.</strong> This form prepares an email draft for moderator review. There is no automatic public posting, hosted seller account, checkout, payment protection or multi-seller order fulfillment yet. Your email app must send the message for it to be received.</div>
+<section class="panel"><h2>Build your listing request</h2>
+<form id="listing">
+<div class="form">
+<div class="field"><label for="kind">Listing type</label><select id="kind" name="kind"><option>Single</option><option>Commander deck</option><option>Collection</option><option>Trade / wanted</option></select></div>
+<div class="field"><label for="title">Card, deck or collection name *</label><input id="title" name="title" maxlength="90" required placeholder="e.g. Ragavan · MH2"></div>
+<div class="field"><label for="set">Set / printing</label><input id="set" name="set" maxlength="50" placeholder="e.g. MH2 #138"></div>
+<div class="field"><label for="condition">Condition</label><select id="condition" name="condition"><option>NM · Near Mint</option><option>LP · Lightly Played</option><option>MP · Moderately Played</option><option>HP · Heavily Played</option><option>DMG · Damaged</option><option>Mixed / describe below</option></select></div>
+<div class="field"><label for="finish">Finish</label><select id="finish" name="finish"><option>Nonfoil</option><option>Foil</option><option>Etched</option><option>Mixed / other</option></select></div>
+<div class="field"><label for="price">Asking price (NZD) *</label><input id="price" name="price" type="number" step="0.01" min="0" max="100000" required placeholder="45.00"><span class="note">For swaps or wanted cards enter 0.</span></div>
+<div class="field"><label for="region">NZ city / region *</label><input id="region" name="region" maxlength="60" required placeholder="e.g. Wellington"></div>
+<div class="field"><label for="shipping">Shipping / pickup</label><input id="shipping" name="shipping" maxlength="100" placeholder="Tracked post +NZ$8 / pickup"></div>
+<div class="field"><label for="photos">Your actual card photo URL</label><input id="photos" name="photos" type="url" maxlength="190" placeholder="https://..."></div>
+<div class="field full"><label for="details">Condition notes, exact contents, or trade wants</label><textarea id="details" name="details" maxlength="350" placeholder="Include honest condition and what is included. Don't include your street address or payment details."></textarea></div>
+<div class="field full"><label><input type="checkbox" id="consent" required> I confirm I am entitled to offer this item or request and agree my non-private listing details may be reviewed for publication. I will share personal contact details separately if required.</label></div>
 </div>
+<div class="actions"><button type="submit">Prepare free listing email</button><button type="button" class="secondary" id="copy" disabled>Copy draft</button></div></form>
+<p id="state" role="status" aria-live="polite"></p>
+<div id="preview" hidden><h2>Review your request</h2><p class="note">The draft below stays on your device until you choose to send it through your own email app. Copy it first if your device does not support email links.</p><textarea id="draft-output" readonly aria-label="Listing request draft"></textarea><p><a class="button" id="email" href="#">Open email app to send request →</a></p></div>
+</section>
+<section><h2>What happens after you send it?</h2><p class="note">The Happy Homarid team can review the request, confirm the seller's details and communicate the next steps. Submission does not guarantee publication, reserve an item or create a payment. Future automatic free accounts, searchable peer listings and buy/trade requests are under development.</p><p class="note">Avoid private addresses, government IDs, card numbers and confidential documents in this form. For high-value cards, photograph the exact printing and provide a timestamped picture when requested.</p></section>
+<footer>Happy Homarid MTG / DreamLedger is an independent NZ Magic community initiative, not affiliated with Wizards of the Coast. Peer payment and shipping happen outside DreamLedger unless an individually verified product checkout is explicitly shown.</footer>
+</main>
 <script>
-document.getElementById('f').addEventListener('submit',function(){
-  try{
-    var data={};
-    new FormData(this).forEach(function(v,k){data[k]=v;});
-    localStorage.setItem('dreamledger_mtg_draft_listing',JSON.stringify(data));
-  }catch(e){}
+(function(){
+'use strict';var $=function(id){return document.getElementById(id)};var draft='';
+$('listing').addEventListener('submit',function(e){
+e.preventDefault();if(!this.reportValidity())return;
+var d=new FormData(this),lines=['Happy Homarid MTG NZ - free listing request','', 'Type: '+d.get('kind'),'Title: '+d.get('title'),'Set: '+d.get('set'),'Condition: '+d.get('condition'),'Finish: '+d.get('finish'),'Asking price: NZ$'+d.get('price'),'NZ region: '+d.get('region'),'Shipping / pickup: '+d.get('shipping'),'Photos: '+d.get('photos'),'Notes / trade wants: '+d.get('details'),'','Please review this free request before any public publication.','No payment is being requested.'];
+draft=lines.join('\n');
+$('draft-output').value=draft;$('preview').hidden=false;$('copy').disabled=false;
+$('email').href='mailto:Dreamledger.org@gmail.com?subject='+encodeURIComponent('Happy Homarid NZ MTG free listing: '+String(d.get('title')).slice(0,60))+'&body='+encodeURIComponent(draft);
+$('state').textContent='Draft ready. Click Open email app and send to submit. Nothing has been published.';
+$('preview').scrollIntoView({behavior:'smooth',block:'start'});
 });
-</script>
-</body>
-</html>
+$('copy').addEventListener('click',async function(){try{await navigator.clipboard.writeText(draft);$('state').textContent='Copied. Email the draft to Dreamledger.org@gmail.com to submit.';}catch(e){$('draft-output').focus();$('draft-output').select();$('state').textContent='Select and copy the draft manually.';}});
+})();
+</script></body></html>
