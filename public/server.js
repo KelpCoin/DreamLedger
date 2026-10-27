@@ -106,6 +106,36 @@ http.createServer(async (req,res)=>{
   if(req.method==='GET'&&p==='/version'){
     return send(res,200,JSON.stringify({service:'dreamledger-storefront',status:'ok',mtg:'master'}),'application/json; charset=utf-8');
   }
+  if(req.method==='GET' && p==='/api/billboard/public'){
+    const base=String(process.env.SUPABASE_URL||'').replace(/\\/$/,'');
+    const key=String(process.env.SUPABASE_SERVICE_ROLE_KEY||'');
+    res.setHeader('Cache-Control','no-store');
+    if(!base||!key) return send(res,503,JSON.stringify({error:'billboard_inventory_unavailable'}),'application/json; charset=utf-8');
+    try{
+      const upstream=await fetch(base+'/rest/v1/billboard_public?select=*&limit=100',{
+        headers:{apikey:key,authorization:'Bearer '+key,accept:'application/json'},
+        signal:AbortSignal.timeout(8000)
+      });
+      if(!upstream.ok)throw new Error('BILLBOARD_VIEW_'+upstream.status);
+      const all=await upstream.json();
+      if(!Array.isArray(all))throw new Error('BILLBOARD_VIEW_INVALID');
+      const https=value=>{try{const u=new URL(String(value||''));return u.protocol==='https:'?u.href:null}catch{return null}};
+      const items=all.filter(row=>row&&typeof row==='object'&&
+          !(['PENDING_PAYMENT','PAID_PENDING_REVIEW','REJECTED','PENDING_REVIEW','DRAFT'].includes(String(row.status||'').toUpperCase())))
+        .map(row=>({
+          id:String(row.campaign_id||row.id||'').slice(0,80),
+          title:String(row.title||row.label||row.billboard_label||'Published tile').slice(0,80),
+          market:String(row.market||'NZ').slice(0,20),
+          destination_url:https(row.destination_url||row.link),
+          image_url:https(row.image_url),
+          status:'PUBLISHED'
+        }));
+      return send(res,200,JSON.stringify({source:'billboard_public',verified_payment_claim:false,count:items.length,items}),'application/json; charset=utf-8');
+    }catch(err){
+      console.error('BILLBOARD_PUBLIC_READ_FAILURE',String(err.message||err));
+      return send(res,503,JSON.stringify({error:'billboard_inventory_unavailable'}),'application/json; charset=utf-8');
+    }
+  }
   if(req.method==='GET' && (p==='/api/offers' || p==='/api/products')){
     try{
       const catalogue=JSON.parse(fs.readFileSync(path.join(ROOT,'catalog.json'),'utf8'));
