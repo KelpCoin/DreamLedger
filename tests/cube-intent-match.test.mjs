@@ -1,0 +1,17 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { evaluateMatch } from '../BEC-PRIME/sentinels/cube_intent_match.mjs';
+const req = { request_id:'REQ-01', buyer_ref:'opaque_buyer_01', silo_id:'mtg', source_ref:'SOURCE-123', consent:{explicit:true,evidence_ref:'CONSENT-123'}, signal_tier:'S4', max_price_nzd:180, kind:'made_to_order', required_tags:['goblins'] };
+const offer={offer_id:'EDH-GOBLINS',silo_id:'mtg',kind:'made_to_order',status:'PRIVATE_REVIEW',terms_approved:true,seller_confirmed:true,capacity_confirmed:true,price_nzd:120,tags:['goblins','horde'],evidence_ref:'OFFER-PROOF'};
+test('matches buyer-opted request to confirmed capacity only',()=>{const r=evaluateMatch(req,[offer]);assert.equal(r.state,'PRIVATE_CANDIDATES');assert.equal(r.matches.length,1);assert.equal(r.verified_external_revenue_nzd,0);assert.equal(r.matches[0].stage,'PRIVATE_CANDIDATE_NOT_A_SALE');});
+test('unconsented visitor is not buyer',()=>assert.equal(evaluateMatch({...req,consent:null},[offer]).state,'HOLD'));
+test('checkout open S0 is not S4',()=>assert.equal(evaluateMatch({...req,signal_tier:'S0'},[offer]).reason,'WEAK_INTENT'));
+test('cross silo remains isolated',()=>assert.equal(evaluateMatch(req,[{...offer,silo_id:'amplissa'}]).matches.length,0));
+test('unconfirmed capacity is not a buildable offer',()=>assert.equal(evaluateMatch(req,[{...offer,capacity_confirmed:false}]).matches.length,0));
+test('buyer budget cannot be overrun',()=>assert.equal(evaluateMatch(req,[{...offer,price_nzd:220}]).matches.length,0));
+test('requires explicit tags not hallucinated semantic match',()=>assert.equal(evaluateMatch(req,[{...offer,tags:['insects']}]).matches.length,0));
+test('duplicate offers not multiplied',()=>assert.equal(evaluateMatch(req,[offer,offer]).matches.length,1));
+test('physical stock requires counted availability',()=>assert.equal(evaluateMatch({...req,kind:'physical'},[{...offer,kind:'physical',stock_confirmed:false,quantity_available:0}]).matches.length,0));
+test('B2B services reuse same engine',()=>{const x=evaluateMatch({...req,silo_id:'b2b',kind:'service',required_tags:['quote']},[{...offer,silo_id:'b2b',kind:'service',tags:['quote'],price_nzd:49}]);assert.equal(x.matches.length,1);});
+test('game digital services reuse same engine',()=>{const x=evaluateMatch({...req,silo_id:'games',kind:'digital',required_tags:['avatar']},[{...offer,silo_id:'games',kind:'digital',tags:['avatar'],price_nzd:10}]);assert.equal(x.matches.length,1);});
+test('no offer no revenue',()=>assert.equal(evaluateMatch(req,[]).verified_external_revenue_nzd,0));
