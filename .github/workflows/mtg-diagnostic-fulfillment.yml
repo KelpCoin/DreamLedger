@@ -19,18 +19,21 @@ jobs:
           node --check BEC-PRIME/routes/mtgDiagnostic.js
           node --check BEC-PRIME/start.js
       - name: Contract test
-        run: node BEC-PRIME/scripts/test-mtg-diagnostic.js
+        run: |
+          node BEC-PRIME/scripts/test-mtg-diagnostic.js
+          node BEC-PRIME/scripts/test-mtg-paid-link-handoff.js
       - name: Product and fulfillment contract
         shell: pwsh
         run: |
           $p = Get-Content BEC-PRIME/catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json -Raw | ConvertFrom-Json
           $f = Get-Content BEC-PRIME/fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json -Raw | ConvertFrom-Json
           if ($p.price -ne 29) { throw 'Commander diagnostic price contract failed' }
-          if ($p.fulfillment.mode -ne 'automated') { throw 'Automated fulfillment contract failed' }
-          if ($p.fulfillment.operator_required -ne $false) { throw 'Operator-free fulfillment contract failed' }
-          if ($f.entries.'COMMANDER-DECK-DIAGNOSTIC-001'.operator_required -ne $false) { throw 'Registry still requires operator' }
-          if ($f.entries.'COMMANDER-DECK-DIAGNOSTIC-001'.ready -ne $true) { throw 'Registry is not ready' }
-          Write-Host '[PASS] MTG diagnostic commercial and fulfillment contract'
+          if ($p.status -ne 'held') { throw 'MTG product must stay held until verified delivery' }
+          if ($p.fulfillment.operator_required -ne $true) { throw 'Manual fulfillment gate lost' }
+          if ($f.entries.'COMMANDER-DECK-DIAGNOSTIC-001'.operator_required -ne $true) { throw 'Registry operator gate lost' }
+          if ($f.entries.'COMMANDER-DECK-DIAGNOSTIC-001'.ready -ne $false) { throw 'Registry falsely says auto ready' }
+          if ($f.entries.'COMMANDER-DECK-DIAGNOSTIC-001'.payment_link_id -ne 'plink_1URUN1EGgEAnUFF9qPz94dqS') { throw 'Payment Link drift' }
+          Write-Host '[PASS] MTG hold + paid-link handoff commercial truth contract'
       - name: Compile MTG surface
         run: node BEC-PRIME/compiler/MTGCatalogCompiler.js
       - name: Verify CUBE MTG reskin
