@@ -11,7 +11,8 @@ function safeLink(value:unknown) {
 export default async function handler(request:Request) {
   if (request.method !== 'GET') return reply(405,{error:'METHOD_NOT_ALLOWED'});
   const base=String(process.env.SUPABASE_URL||PROJECT_URL).replace(/\/$/,'');
-  const key=process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_PUBLISHABLE_KEY || '';
+  // This key is intentionally publishable, scoped to the public project's RLS permissions.
+  const key=process.env.SUPABASE_PUBLISHABLE_KEY || 'sb_publishable_O5JRD67KaU3SA9dFq-JIuQ_Pzs8pedj';
   if(!key) return reply(503,{error:'BILLBOARD_PUBLIC_DATA_NOT_CONFIGURED'});
   try {
     const upstream=await fetch(base+'/rest/v1/billboard_public?select=*&limit=100',{
