@@ -2,7 +2,6 @@
 
 const crypto = require('crypto');
 const stripeProof = require('../lib/stripeWebhookProof');
-const mtgPaidLink = require('../lib/mtgDiagnosticFulfillment');
 
 const SUPABASE_URL = String(process.env.SUPABASE_URL || '').replace(/\/$/, '');
 const SUPABASE_KEY = String(process.env.SUPABASE_SERVICE_ROLE_KEY || '');
@@ -183,31 +182,50 @@ async function webhook(req,res) {
   let raw='';
   for await (const chunk of req) raw += chunk;
   try {
+    // Parse only to choose the routing target. The private engine verifies the
+    // Stripe signature itself before accepting any paid order.
+    const candidate=JSON.parse(raw);
+    const sessionCandidate=candidate?.data?.object||{};
+    const candidateLink=typeof sessionCandidate.payment_link==='string'?
+      sessionCandidate.payment_link:sessionCandidate.payment_link?.id;
+    if(candidateLink==='plink_1URUN1EGgEAnUFF9qPz94dqS'){
+      const engine=String(process.env.ENGINE_INTERNAL_URL||'').replace(/\\/$/,'');
+      const key=String(process.env.ENGINE_INTERNAL_API_KEY||'');
+      if(!engine||!key)return json(res,503,{received:false,error:'MTG_ENGINE_UNCONFIGURED',retryable:true});
+      let response;
+      try{
+        response=await fetch(engine+'/api/internal/mtg/paid-link',{
+          method:'POST',
+          headers:{
+            'content-type':'application/json',
+            'stripe-signature':String(req.headers['stripe-signature']||''),
+            'x-dreamledger-engine-key':key,
+          },
+          body:raw,
+          signal:AbortSignal.timeout(12000)
+        });
+      }catch{
+        return json(res,503,{received:false,error:'MTG_ENGINE_UNAVAILABLE',retryable:true});
+      }
+      if(!response.ok)return json(res,503,{received:false,error:'MTG_ENGINE_HANDOFF_NOT_CONFIRMED',retryable:true});
+      let receipt;
+      try{receipt=await response.json();}catch{return json(res,503,{received:false,error:'MTG_ENGINE_RECEIPT_INVALID',retryable:true});}
+      if(receipt?.handled!==true||receipt.recorded!==true||receipt.fulfilled!==false)
+        return json(res,503,{received:false,error:'MTG_ENGINE_RECEIPT_NOT_ACKNOWLEDGED',retryable:true});
+      return json(res,200,{received:true,handled:true,recorded:true,fulfilled:false,
+        status:'PAID_AWAITING_MANUAL_DELIVERY',verified_external_revenue:false});
+    }
     verify(raw,req.headers['stripe-signature']);
-    const event=JSON.parse(raw);
+    const event=candidate;
     if (event.livemode !== true) return json(res,200,{received:true,ignored:true,reason:'not_livemode'});
     if (!event.id) return json(res,400,{error:'missing event id'});
     if (event.type === 'balance.available') return json(res,200,{received:true,ignored:true,event_type:event.type,observation:'account_balance_changed; per-payment availability requires balance-transaction reconciliation'});
     if (event.type === 'payment_intent.succeeded' || event.type === 'charge.succeeded') return json(res,200,{received:true,ignored:true,event_type:event.type,observation:'payment_success_observed; awaiting per-payment funds availability reconciliation'});
     if (!['checkout.session.completed'].includes(event.type)) return json(res,200,{received:true,ignored:true,event_type:event.type});
-    const session=event.data?.object || {};
-    const paymentLinkId=typeof session.payment_link==='string'?session.payment_link:session.payment_link?.id;
-    let intakeRecord=null;
-    if(paymentLinkId==='plink_1URUN1EGgEAnUFF9qPz94dqS'){
-      // This is the live Render webhook destination. Capture the existing
-      // Stripe decklisturl before deduping economic_events, so retries heal
-      // a previously missing private handoff. NEVER claim delivery here.
-      intakeRecord=await mtgPaidLink.capturePaidLinkOrder(session);
-    }
     const existing=await db('GET','economic_events','?select=event_id&event_id=eq.'+encodeURIComponent(event.id)+'&limit=1');
-    if (Array.isArray(existing) && existing.length) return json(res,200,{received:true,idempotent:true,event_id:event.id,
-      mtg_order_state:intakeRecord?'PAID_AWAITING_MANUAL_DELIVERY':undefined,
-      fulfilled:intakeRecord?false:undefined});
+    if (Array.isArray(existing) && existing.length) return json(res,200,{received:true,idempotent:true,event_id:event.id});
     const result=await settleSession(event.data?.object || {},event);
-    return json(res,200,{received:true,...result,
-      mtg_order_state:intakeRecord?'PAID_AWAITING_MANUAL_DELIVERY':undefined,
-      fulfilled:intakeRecord?false:undefined,
-      verified_external_revenue:intakeRecord?false:undefined});
+    return json(res,200,{received:true,...result});
   } catch (error) {
     return json(res,error.statusCode || 400,{received:false,error:String(error.message || error)});
   }
