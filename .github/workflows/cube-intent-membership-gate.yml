@@ -1,0 +1,23 @@
+name: CUBE Intent Membership Offline Gate
+on:
+  pull_request:
+    paths:
+      - 'BEC-PRIME/sentinels/cube_intent_match.mjs'
+      - 'BEC-PRIME/sentinels/cube_membership_access.mjs'
+      - 'tests/cube-intent-match.test.mjs'
+      - 'tests/cube-membership-access.test.mjs'
+      - '.github/workflows/cube-intent-membership-gate.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  offline-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify local CUBE match and membership gates
+        run: node --test tests/cube-intent-match.test.mjs tests/cube-membership-access.test.mjs

@@ -1,0 +1,16 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {evaluateMemberAccess} from '../BEC-PRIME/sentinels/cube_membership_access.mjs';
+const config={enabled:true,silo_id:'creator-a',tiers:[{provider_tier_id:'tier-1',discord_role_id:'discord-role-1',max_disclosure_class:'SIGNAL',enabled:true},{provider_tier_id:'tier-2',discord_role_id:'discord-role-2',max_disclosure_class:'INTELLIGENCE',enabled:true}]};
+const member={silo_id:'creator-a',member_ref:'opaque-001',provider:'patreon',provider_authentic:true,current_membership_checked:true,provider_evidence_ref:'patreon-proof-1',provider_tier_id:'tier-1',status:'active'};
+const request={silo_id:'creator-a',resource_silo_id:'creator-a',member_ref:'opaque-001',resource_class:'SIGNAL'};
+test('verified matching membership eligible for private role sync',()=>{const r=evaluateMemberAccess(config,member,request);assert.equal(r.decision,'ELIGIBLE_FOR_VERIFIED_ROLE_SYNC');assert.equal(r.no_network_action,true);assert.equal(r.verified_external_revenue_nzd,0);});
+test('higher tier can access lower class',()=>assert.equal(evaluateMemberAccess(config,{...member,provider_tier_id:'tier-2'},request).decision,'ELIGIBLE_FOR_VERIFIED_ROLE_SYNC'));
+test('lower tier denied higher disclosure',()=>assert.equal(evaluateMemberAccess(config,member,{...request,resource_class:'FACTORY'}).decision,'DENY'));
+test('cross silo denied',()=>assert.equal(evaluateMemberAccess(config,member,{...request,resource_silo_id:'creator-b'}).reason,'SILO_ISOLATION'));
+test('unverified Patreon claim denied',()=>assert.equal(evaluateMemberAccess(config,{...member,provider_authentic:false},request).reason,'UNVERIFIED_PROVIDER'));
+test('revoked membership denied',()=>assert.equal(evaluateMemberAccess(config,{...member,revoked:true},request).reason,'INACTIVE_MEMBERSHIP'));
+test('unknown tier denied',()=>assert.equal(evaluateMemberAccess(config,{...member,provider_tier_id:'tier-x'},request).reason,'NO_CONFIGURED_TIER'));
+test('PII in member ref denied',()=>assert.equal(evaluateMemberAccess(config,{...member,member_ref:'hi@x.test'},{...request,member_ref:'hi@x.test'}).decision,'DENY'));
+test('disabled silo denied',()=>assert.equal(evaluateMemberAccess({...config,enabled:false},member,request).decision,'DENY'));
+test('member mismatch denied',()=>assert.equal(evaluateMemberAccess(config,member,{...request,member_ref:'other'}).decision,'DENY'));
