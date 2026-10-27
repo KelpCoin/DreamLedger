@@ -70,12 +70,12 @@ for (const file of files) {
   // Test fixtures and webhook receivers are not Checkout Session producers.
   // In particular the billboard smoke test creates a synthetic inbound
   // Request, while the edge webhook GETs existing Stripe line items.
-  if (/(^|\\/)(test_[^/]+|[^/]+\\.test)\\.(js|cjs|mjs|ts|tsx|jsx)$/.test(rel)) continue;
+  if (/(^|\/)(test_[^/]+|[^/]+\.test)\.(js|cjs|mjs|ts|tsx|jsx)$/.test(rel)) continue;
   const text = fs.readFileSync(file, 'utf8');
   const stripeLineItemReadOnly = rel.startsWith('supabase/functions/')
-    && /stripe\\(\\s*["']checkout\\/sessions\\//.test(text)
-    && !/stripe\\.checkout\\.sessions\\.create\\s*\\(/.test(text)
-    && !/["']checkout\\/sessions["']/.test(text);
+    && /stripe\(\s*["']checkout\/sessions\//.test(text)
+    && !/stripe\.checkout\.sessions\.create\s*\(/.test(text)
+    && !/["']checkout\/sessions["']/.test(text);
   if (stripeLineItemReadOnly) continue;
   if (!hasAnyProducer(text) || isReadOnlyStripeUse(text)) continue;
   for (const win of producerWindows(text)) {
