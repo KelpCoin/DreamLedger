@@ -42,6 +42,10 @@
     {
       "source": "/billboard/",
       "destination": "/billboard.html"
+    },
+    {
+      "source": "/api/billboard/public",
+      "destination": "/api/billboard-public"
     }
   ]
 }
