@@ -107,7 +107,7 @@ http.createServer(async (req,res)=>{
     return send(res,200,JSON.stringify({service:'dreamledger-storefront',status:'ok',mtg:'master'}),'application/json; charset=utf-8');
   }
   if(req.method==='GET' && p==='/api/billboard/public'){
-    const base=String(process.env.SUPABASE_URL||'').replace(/\\/$/,'');
+    const base=String(process.env.SUPABASE_URL||'').replace(/\/$/,'');
     const key=String(process.env.SUPABASE_SERVICE_ROLE_KEY||'');
     res.setHeader('Cache-Control','no-store');
     if(!base||!key) return send(res,503,JSON.stringify({error:'billboard_inventory_unavailable'}),'application/json; charset=utf-8');
