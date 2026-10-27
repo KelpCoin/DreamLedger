@@ -1,4 +1,5 @@
 import fs from 'node:fs/promises';
+import { classifyEconomicEvidence } from './revenue-evidence-gate.mjs';
 
 const required = [
   'STRIPE_SECRET_KEY',
@@ -124,14 +125,57 @@ if (configuredOffer.payment_link_id && link.id !== configuredOffer.payment_link_
 
 const sessions = await stripeList('/checkout/sessions', { status: 'complete' });
 
-const matches = sessions.filter(s =>
+// Reconcile processor evidence. Matching amounts and checkout status alone
+// cannot be recorded as delivery, independent-buyer revenue or net margin.
+const linkedItems = await stripe('/payment_links/' + encodeURIComponent(link.id) + '/line_items?limit=100');
+const approvedPriceIds = new Set((linkedItems.data || []).map(item => item.price?.id).filter(Boolean));
+if (linkedItems.has_more === true || approvedPriceIds.size === 0) {
+  throw new Error('Payment Link price inventory unavailable or incomplete');
+}
+const candidates = sessions.filter(s =>
   s.payment_link === link.id &&
   s.payment_status === 'paid' &&
   s.currency === String(configuredOffer.currency || 'NZD').toLowerCase() &&
   s.amount_total === expectedAmountCents &&
   s.livemode === true
 );
-
+const matches = [];
+const excluded = [];
+for (const s of candidates) {
+  if (typeof s.payment_intent !== 'string') {
+    excluded.push({ session_id: s.id, reason: 'missing_payment_intent' });
+    continue;
+  }
+  const sessionItems = await stripe('/checkout/sessions/' + encodeURIComponent(s.id) + '/line_items?limit=100');
+  if (sessionItems.has_more === true || !(sessionItems.data || []).some(item => approvedPriceIds.has(item.price?.id))) {
+    excluded.push({ session_id: s.id, reason: 'line_item_price_mismatch' });
+    continue;
+  }
+  const intent = await stripe('/payment_intents/' + encodeURIComponent(s.payment_intent));
+  const chargeId = typeof intent.latest_charge === 'string' ? intent.latest_charge : intent.latest_charge?.id;
+  const charge = chargeId ? await stripe('/charges/' + encodeURIComponent(chargeId)) : null;
+  const evidence = classifyEconomicEvidence({
+    checkoutLivemode: s.livemode === true,
+    checkoutPaid: s.payment_status === 'paid',
+    paymentIntentSucceeded: intent.livemode === true &&
+      intent.status === 'succeeded' &&
+      intent.currency === s.currency &&
+      Number(intent.amount_received) === expectedAmountCents,
+    chargeUnrefunded: charge?.livemode === true &&
+      charge?.paid === true &&
+      charge?.status === 'succeeded' &&
+      charge?.refunded === false &&
+      Number(charge?.amount_refunded || 0) === 0 &&
+      charge?.currency === s.currency,
+    exactOfferMatched: true
+  });
+  if (!evidence.processor_payment_observed) {
+    excluded.push({ session_id: s.id, reason: 'processor_payment_not_confirmed' });
+    continue;
+  }
+  matches.push({ session: s, payment_intent_id: intent.id, charge_id: charge.id, evidence });
+}
+changes.push('processor and price verification');
 let existing = [];
 
 if (airtableEnabled) {
@@ -151,7 +195,7 @@ const known = new Set(
 
 const inserted = [];
 
-for (const s of matches) {
+for (const { session: s } of matches) {
   const eventId = `STRIPE-CHECKOUT-${s.id}`;
   if (known.has(eventId)) continue;
 
@@ -170,13 +214,9 @@ for (const s of matches) {
       'Channel': 'Stripe Payment Link',
       'Event Type': 'PAYMENT',
       'Amount NZD': expectedAmountNzd,
-      'Verified': true,
-      'Gauntlet Verdict': 'PASS',
+      'Verified': false,
       'Evidence Ref': `stripe:checkout_session:${s.id}`,
-      'Operator Minutes': 0,
-      'Direct Cost NZD': 0,
-      'Contribution NZD': expectedAmountNzd,
-      'Elohim Pattern': 'FIRST-REAL-PAYMENT',
+      'Elohim Pattern': 'PAID_AWAITING_BUYER_AND_DELIVERY_PROOF',
       'CUBE Action': 'CANDIDATE'
     }
   };
@@ -214,30 +254,9 @@ for (const s of matches) {
   }
 }
 
-if (airtableEnabled && inserted.length) {
-  await airtable(
-    `/${encodeURIComponent(offersTable)}/${offerRecord}`,
-    {
-      method: 'PATCH',
-      body: JSON.stringify({
-        fields: {
-          Status: 'VALIDATED',
-          'First Payment Event': inserted[0].eventId,
-          Notes: `Live Stripe payment evidence detected. Session: ${inserted[0].stripeSession}`
-        }
-      })
-    }
-  );
-}
-
-const totalVerified =
-  existing
-    .filter(r => r.fields?.Verified === true)
-    .reduce(
-      (sum, r) => sum + Number(r.fields?.['Amount NZD'] || 0),
-      0
-    ) + inserted.reduce((sum, x) => sum + x.amountNZD, 0);
-
+// Offers remain in their existing commercial state.
+// This observer does not mark an offer VALIDATED or infer contribution margin.
+const observedGrossNzd = matches.length * expectedAmountNzd;
 const proof = {
   proof_type: airtableEnabled
     ? 'STRIPE_AIRTABLE_RECONCILIATION'
@@ -253,9 +272,19 @@ const proof = {
   scanned_live_payment_links: paymentLinks.length,
   scanned_completed_checkout_sessions: sessions.length,
   matching_paid_sessions: matches.length,
+  excluded_payment_candidates: excluded,
+  validated_processor_payment_intents: matches.map(x => x.payment_intent_id),
+  validated_non_refunded_charges: matches.map(x => x.charge_id),
+  paid_observed_gross_nzd: observedGrossNzd,
+  buyer_independence: 'NOT_ASSESSED',
+  fulfillment_evidence: 'NOT_ASSESSED',
+  settlement_evidence: 'NOT_ASSESSED',
+  actual_cost_evidence: 'NOT_ASSESSED',
   newly_recognized_events: inserted,
-  verified_revenue_nzd: totalVerified,
-  authority: 'Stripe live payment evidence',
+  verified_revenue_nzd: 0,
+  verified_revenue_scope: 'NOT_ESTABLISHED_BY_PAYMENT_OBSERVER',
+  economic_status: 'PAYMENT_OBSERVATION_ONLY',
+  authority: 'Processor evidence only; neither independent buyer nor delivery nor actual contribution verified',
   commercial_definition: APPROVED_OFFERS_PATH,
   operational_index: airtableEnabled
     ? 'Airtable Economic Events'
@@ -267,6 +296,10 @@ const proof = {
     'The configured Payment Link must match an approved offer.',
     'The live Stripe Payment Link ID must match the approved offer when specified.',
     'Only paid live Checkout Sessions matching the approved offer currency and price are accepted.',
+    'Every observed payment requires an exactly matching payment-link line-item Price.',
+    'Successful PaymentIntent and successful non-refunded Charge must both be independently retrieved.',
+    'A payment observation never sets Airtable Verified=true or marks its offer VALIDATED.',
+    'Contribution remains unknown without measured costs and independently proven delivery.',
     'Event IDs are idempotent.',
     'Stripe list endpoints are fully paginated.',
     'Airtable is an indexing sink, not the authority for whether payment occurred.'
