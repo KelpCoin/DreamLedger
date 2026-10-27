@@ -2,7 +2,7 @@
   "schema": "dreamledger/discovery/v3",
   "service": "DreamLedger",
   "status": "active",
-  "updated": "2026-10-05",
+  "updated": "2026-10-27",
   "thesis": "Find an offer, review the terms, approve any purchase, and keep the receipt and delivery confirmation.",
   "canonical": {
     "market": "/",
@@ -25,7 +25,10 @@
     "ai_catalog_well_known": "/.well-known/ai-catalog.json",
     "b2b": "/b2b.html",
     "discovery": "/surfaces.json",
-    "economic_loops": "/pulse/"
+    "economic_loops": "/pulse/",
+    "go": "/go/",
+    "agent_mandates": "/agent-mandates/",
+    "edh_0001": "/mtg/edh-0001.html"
   },
   "commerce": {
     "flow": [
@@ -43,29 +46,25 @@
     },
     "primary_paid_offers": [
       {
-        "product_id": "QUOTE-COMPARE-49",
-        "price_nzd": 49,
-        "buy": "https://dreamledger.org/buy/QUOTE-COMPARE-49"
-      },
-      {
-        "product_id": "COMMANDER-DECK-DIAGNOSTIC-001",
-        "price_nzd": 29,
-        "buy": "https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001"
-      },
-      {
-        "product_id": "SELLER-PROFIT-AUDIT-001",
-        "price_nzd": 29,
-        "buy": "https://dreamledger.org/buy/SELLER-PROFIT-AUDIT-001"
+        "product_id": "EDH_0001",
+        "price_nzd": 400,
+        "product_url": "https://dreamledger.org/mtg/edh-0001.html",
+        "checkout_url": "https://buy.stripe.com/14A3cvea1dSd1DV5oEdwc1J",
+        "status": "LISTED_CHECKOUT_ACTIVE"
       },
       {
         "product_id": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
         "price_nzd": 50,
-        "buy": "https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001"
+        "product_url": "https://dreamledger.org/billboard.html",
+        "checkout_url": "https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w",
+        "status": "LISTED_CHECKOUT_ACTIVE_REVIEW_REQUIRED"
       },
       {
-        "product_id": "DISCORD-WEBHOOK-STARTER-KIT-001",
-        "price_nzd": 79,
-        "buy": "https://dreamledger.org/buy/DISCORD-WEBHOOK-STARTER-KIT-001"
+        "product_id": "QUOTE-COMPARE-49",
+        "price_nzd": 49,
+        "product_url": "https://dreamledger.org/quote-compare-49.html",
+        "checkout_url": "https://buy.stripe.com/00wdR93vnbK5eqH3gwdwc3r",
+        "status": "LISTED_MANUAL_FULFILLMENT"
       }
     ],
     "scale_rule": "Check the product page for current price, terms, and availability."
@@ -89,5 +88,6 @@
   "business_tools": {
     "page": "https://dreamledger.org/b2b.html",
     "description": "Tools for New Zealand buyers and suppliers."
-  }
+  },
+  "research_note": "Mandate authority and evidence pages describe a proposal, not accredited or available compliance software."
 }
