@@ -2,15 +2,16 @@ TILE (general)
 --------------
 Permanent 100x100 spot on DreamLedger public billboard — NZ$50.
 Title + link at checkout. Stripe. No DreamLedger success fee on this listing.
-https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001
+https://dreamledger.org/billboard.html
 
 DIAGNOSTIC (MTG)
 ----------------
 Commander deck diagnostic — NZ$29 — structure, cuts, upgrades after Stripe pay.
 https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001
 
-WARM DM
--------
-Hey — billboard tiles are live at NZ$50 if you ever wanted a permanent square on the public board:
-https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001
-No pressure.
+OWNED-CHANNEL POST (APPROVAL REQUIRED)
+--------------------------------------
+DreamLedger founding billboard tiles: NZ$50 for a 100x100 placement on the public board, subject to content review. No guaranteed views or sales.
+https://dreamledger.org/billboard.html
+
+Do not send direct messages. Publication only on an owned channel after explicit approval. Record the resulting post URL or provider ID.
