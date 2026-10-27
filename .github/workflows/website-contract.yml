@@ -7,6 +7,9 @@ on:
       - "public/about.html"
       - "public/trust.html"
       - "public/server.js"
+      - "public/billboard.html"
+      - "supabase/functions/dreamledger-billboard-webhook/index.ts"
+      - "scripts/test_billboard_live_contract.mjs"
       - "scripts/test_public_site_contract.py"
       - ".github/workflows/website-contract.yml"
   pull_request:
@@ -15,6 +18,9 @@ on:
       - "public/about.html"
       - "public/trust.html"
       - "public/server.js"
+      - "public/billboard.html"
+      - "supabase/functions/dreamledger-billboard-webhook/index.ts"
+      - "scripts/test_billboard_live_contract.mjs"
       - "scripts/test_public_site_contract.py"
       - ".github/workflows/website-contract.yml"
   workflow_dispatch:
@@ -41,3 +47,5 @@ jobs:
         run: python scripts/test_public_site_contract.py
       - name: Check storefront server syntax
         run: node --check public/server.js
+      - name: Prove synthetic billboard payment to placement contract
+        run: node scripts/test_billboard_live_contract.mjs
