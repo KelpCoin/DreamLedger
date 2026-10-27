@@ -51,7 +51,7 @@ Deno.serve(async req=>{
         const path=`quote-inputs/${fr.id}/${crypto.randomUUID()}-${original}`;
         const {data,error}=await db.storage.from(BUCKET).createSignedUploadUrl(path,{upsert:false});
         if(error||!data)return out({error:"SIGNED_UPLOAD_URL_FAILED"},500);
-        uploads.push({path,token:data.token,name:original});
+        uploads.push({path,token:data.token,signed_url:data.signedUrl,name:original});
       }
       return out({ok:true,action,fulfillment_request_id:fr.id,order_id:ctx.order.id,uploads});
     }
@@ -81,8 +81,16 @@ Deno.serve(async req=>{
     }
     if(action==="status"){
       let download_url=null;
-      if(fr.status==="fulfilled"&&fr.fulfillment_reference){const {data}=await db.storage.from(BUCKET).createSignedUrl(fr.fulfillment_reference,3600);download_url=data?.signedUrl||null;}
-      return out({ok:true,status:fr.status,canonical_state:fr.canonical_state,evidence_status:fr.evidence_status,fulfillment_reference:fr.fulfillment_reference,evidence_reference:fr.evidence_reference,download_url});
+      let csv_download_url=null;
+      if(fr.status==="fulfilled"&&fr.fulfillment_reference?.startsWith(`quote-outputs/${fr.id}/`)){
+        const {data}=await db.storage.from(BUCKET).createSignedUrl(fr.fulfillment_reference,3600);
+        download_url=data?.signedUrl||null;
+        if(fr.evidence_reference?.startsWith(`quote-outputs/${fr.id}/`)){
+          const csv=await db.storage.from(BUCKET).createSignedUrl(fr.evidence_reference,3600);
+          csv_download_url=csv.data?.signedUrl||null;
+        }
+      }
+      return out({ok:true,status:fr.status,canonical_state:fr.canonical_state,evidence_status:fr.evidence_status,fulfillment_reference:fr.fulfillment_reference,evidence_reference:fr.evidence_reference,download_url,csv_download_url});
     }
     return out({error:"UNKNOWN_ACTION"},400);
   }catch(e){const code=e instanceof Error?e.message:"UNKNOWN";const status=["PAYMENT_NOT_SETTLED","WRONG_PAYMENT_LINK","WRONG_SKU","SETTLEMENT_RECORD_PENDING","ENTITLEMENT_PENDING","FULFILLMENT_REQUEST_NOT_FOUND"].includes(code)?409:400;return out({error:code},status);}
