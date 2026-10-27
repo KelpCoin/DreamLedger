@@ -182,8 +182,41 @@ async function webhook(req,res) {
   let raw='';
   for await (const chunk of req) raw += chunk;
   try {
+    // Parse only to choose the routing target. The private engine verifies the
+    // Stripe signature itself before accepting any paid order.
+    const candidate=JSON.parse(raw);
+    const sessionCandidate=candidate?.data?.object||{};
+    const candidateLink=typeof sessionCandidate.payment_link==='string'?
+      sessionCandidate.payment_link:sessionCandidate.payment_link?.id;
+    if(candidateLink==='plink_1URUN1EGgEAnUFF9qPz94dqS'){
+      const engine=String(process.env.ENGINE_INTERNAL_URL||'').replace(/\/$/,'');
+      const key=String(process.env.ENGINE_INTERNAL_API_KEY||'');
+      if(!engine||!key)return json(res,503,{received:false,error:'MTG_ENGINE_UNCONFIGURED',retryable:true});
+      let response;
+      try{
+        response=await fetch(engine+'/api/internal/mtg/paid-link',{
+          method:'POST',
+          headers:{
+            'content-type':'application/json',
+            'stripe-signature':String(req.headers['stripe-signature']||''),
+            'x-dreamledger-engine-key':key,
+          },
+          body:raw,
+          signal:AbortSignal.timeout(12000)
+        });
+      }catch{
+        return json(res,503,{received:false,error:'MTG_ENGINE_UNAVAILABLE',retryable:true});
+      }
+      if(!response.ok)return json(res,503,{received:false,error:'MTG_ENGINE_HANDOFF_NOT_CONFIRMED',retryable:true});
+      let receipt;
+      try{receipt=await response.json();}catch{return json(res,503,{received:false,error:'MTG_ENGINE_RECEIPT_INVALID',retryable:true});}
+      if(receipt?.handled!==true||receipt.recorded!==true||receipt.fulfilled!==false)
+        return json(res,503,{received:false,error:'MTG_ENGINE_RECEIPT_NOT_ACKNOWLEDGED',retryable:true});
+      return json(res,200,{received:true,handled:true,recorded:true,fulfilled:false,
+        status:'PAID_AWAITING_MANUAL_DELIVERY',verified_external_revenue:false});
+    }
     verify(raw,req.headers['stripe-signature']);
-    const event=JSON.parse(raw);
+    const event=candidate;
     if (event.livemode !== true) return json(res,200,{received:true,ignored:true,reason:'not_livemode'});
     if (!event.id) return json(res,400,{error:'missing event id'});
     if (event.type === 'balance.available') return json(res,200,{received:true,ignored:true,event_type:event.type,observation:'account_balance_changed; per-payment availability requires balance-transaction reconciliation'});

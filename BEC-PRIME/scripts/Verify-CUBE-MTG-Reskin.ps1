@@ -10,12 +10,20 @@ if (!(Test-Path $surface)) { throw 'CUBE MTG public surface missing' }
 $m = Get-Content $manifest -Raw | ConvertFrom-Json
 if ($m.silo_name -ne 'mtg') { throw 'Wrong silo' }
 if ($m.isolation -ne $true) { throw 'Isolation flag is false' }
-if ($m.status -ne 'deployed') { throw 'CUBE manifest is not deployed' }
+# Manifest deployment label is historical; product-level state controls sale readiness.
 if ($m.price_nzd -ne 29) { throw 'Price mismatch' }
 $html = Get-Content $surface -Raw
 $forbidden = @('Amplissa','HappyHomarid','CollectorsCoast','DreamMeez','adult')
 foreach ($token in $forbidden) { if ($html -match [regex]::Escape($token)) { throw "Forbidden token leaked into MTG surface: $token" } }
 if ($html -notmatch 'Commander Deck Diagnostic') { throw 'Diagnostic missing from MTG surface' }
-if ($html -notmatch 'NZ\$29') { throw 'Price missing from MTG surface' }
-if ($html -notmatch '/api/mtg/diagnostic/intake') { throw 'Automated checkout route missing' }
-Write-Host '[PASS] CUBE MTG reskin: manifest + isolation + public surface + automated checkout route'
+$product = Get-Content (Join-Path $Root 'catalog\products\COMMANDER-DECK-DIAGNOSTIC-001.json') -Raw | ConvertFrom-Json
+if ($product.status -eq 'held') {
+  if ($html -notmatch 'not available for purchase') { throw 'Held MTG diagnostic page missing honest notice' }
+  if ($html -match 'buy\.stripe\.com|/api/mtg/diagnostic/intake') { throw 'Held MTG page exposes a purchase route' }
+  Write-Host '[PASS] CUBE MTG reskin: held diagnostic, silo isolation, no checkout exposure'
+} else {
+  if ($m.status -ne 'deployed') { throw 'CUBE manifest not deployed' }
+  if ($html -notmatch 'NZ\$29') { throw 'Price missing from MTG surface' }
+  if ($html -notmatch '/api/mtg/diagnostic/intake') { throw 'Automated checkout route missing' }
+  Write-Host '[PASS] CUBE MTG reskin: deployed sale route'
+}

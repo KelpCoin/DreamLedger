@@ -8,7 +8,7 @@ const DATA = path.resolve(process.env.MTG_DIAGNOSTIC_DATA_DIR || path.join(ROOT,
 const REPORTS = path.join(DATA, 'reports');
 const INTAKES = path.join(DATA, 'intakes');
 const PUBLIC_BASE = (process.env.PUBLIC_BASE_URL || 'https://dreamledger.org').replace(/\/$/, '');
-const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || '';
+const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || process.env.STRIPE_LIVE_SECRET_KEY || '';
 const SUPABASE_URL = String(process.env.SUPABASE_URL || '').replace(/\/$/, '');
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 const STRIPE_PRICE_ID = process.env.MTG_DIAGNOSTIC_STRIPE_PRICE_ID || 'price_1UFFY1EGgEAnUFF9Yq03zIa7';
@@ -110,5 +110,95 @@ async function verifySettledPayment(session){
 async function fulfillPaidSession(session){
   const settlement=await verifySettledPayment(session);
   const intakeId=session.metadata?.intake_id || (String(session.client_reference_id||'').startsWith('mtgdiag_') ? session.client_reference_id : null);if(!intakeId)return null;const intake=safeJson(path.join(INTAKES,intakeId+'.json'));if(!intake)throw new Error('Unknown diagnostic intake: '+intakeId);const file=path.join(REPORTS,session.id+'.json');if(fs.existsSync(file))return safeJson(file);intake.transaction_id=session.id;intake.payment_intent_id=settlement.payment_intent_id;intake.settlement_status='PAYMENT_INTENT_SUCCEEDED';intake.status='paid';writeJson(path.join(INTAKES,intakeId+'.json'),intake);const enriched=await scryfall(intake.cards);const report=makeReport(intake,intake.cards,enriched);writeJson(file,report);intake.status='fulfilled';intake.report_path=file;intake.report_hash=report.report_hash;writeJson(path.join(INTAKES,intakeId+'.json'),intake);return report;}
+// This adapter consumes the EXISTING Stripe Payment Link. It never fetches user
+// URLs, sends mail, charges a card, or marks an order delivered.
+const DIRECT_PAYMENT_LINK_ID = 'plink_1URUN1EGgEAnUFF9qPz94dqS';
+const LINK_INTAKE_AMOUNT_MINOR = 2900;
+function validatePublicDecklistUrl(value) {
+  if (typeof value !== 'string' || value.length > 255) throw new Error('DECKLIST_URL_INVALID');
+  let u;
+  try { u = new URL(value); } catch { throw new Error('DECKLIST_URL_INVALID'); }
+  const h = u.hostname.toLowerCase();
+  const validHost = h === 'moxfield.com' || h === 'www.moxfield.com' ||
+    h === 'archidekt.com' || h === 'www.archidekt.com';
+  const segments = u.pathname.split('/').filter(Boolean);
+  const safeSegments = segments.every(x => /^[A-Za-z0-9_-]+$/.test(x));
+  const validPath = safeSegments && segments[0] === 'decks' &&
+    ((h.includes('moxfield') && segments.length === 2) ||
+     (h.includes('archidekt') && (segments.length === 2 || segments.length === 3)));
+  if (u.protocol !== 'https:' || !validHost || !validPath ||
+      u.port || u.username || u.password || u.search || u.hash) {
+    throw new Error('DECKLIST_URL_UNSUPPORTED');
+  }
+  return u.toString();
+}
+function parsePaymentLinkIntake(session) {
+  const linkId = typeof session?.payment_link === 'string' ?
+    session.payment_link : session?.payment_link?.id;
+  if (linkId !== DIRECT_PAYMENT_LINK_ID) throw new Error('UNKNOWN_PAYMENT_LINK');
+  if (session?.livemode !== true || session?.payment_status !== 'paid' ||
+      session?.status !== 'complete') throw new Error('PAID_LIVE_SESSION_REQUIRED');
+  if (session.currency !== 'nzd' || session.amount_total !== LINK_INTAKE_AMOUNT_MINOR)
+    throw new Error('PRICE_CURRENCY_MISMATCH');
+  if (session.metadata?.product_id !== PRODUCT_ID ||
+      session.metadata?.silo !== 'mtg') throw new Error('SILO_PRODUCT_MISMATCH');
+  if (!/^cs_live_[A-Za-z0-9]+$/.test(String(session.id || '')))
+    throw new Error('SESSION_ID_INVALID');
+  const deckField = (session.custom_fields || []).filter(x => x.key === 'decklisturl' && x.type === 'text');
+  if (deckField.length !== 1 || !deckField[0].text?.value)
+    throw new Error('DECKLIST_URL_MISSING');
+  const email = String(session.customer_details?.email || session.customer_email || '').trim();
+  const emailParts = email.split('@');
+  if (email.length > 254 || emailParts.length !== 2 ||
+      !emailParts[0] || !emailParts[1].includes('.') ||
+      Array.from(email).some(c => c.charCodeAt(0) <= 32))
+    throw new Error('BUYER_EMAIL_MISSING');
+  return {
+    session_id: session.id,
+    payment_link_id: linkId,
+    amount_minor: LINK_INTAKE_AMOUNT_MINOR,
+    currency: 'nzd',
+    decklist_url: validatePublicDecklistUrl(deckField[0].text.value),
+    customer_email: email,
+  };
+}
+async function capturePaidLinkOrder(session) {
+  // Explicit operator-managed durable location required: never silently use
+  // ephemeral repository-relative storage for new live Payment Link orders.
+  if (!process.env.MTG_DIAGNOSTIC_DATA_DIR ||
+      !path.isAbsolute(process.env.MTG_DIAGNOSTIC_DATA_DIR))
+    throw new Error('DURABLE_ORDER_STORAGE_UNCONFIGURED');
+  const intake = parsePaymentLinkIntake(session);
+  const settlement = await verifySettledPayment(session);
+  const record = {
+    schema: 'dreamledger/mtg-diagnostic-paid-link-handoff/v1',
+    status: 'PAID_AWAITING_MANUAL_DELIVERY',
+    is_delivered: false,
+    counts_as_verified_external_revenue: false,
+    product_id: PRODUCT_ID,
+    offer_id: OFFER_ID,
+    silo: 'mtg',
+    ...intake,
+    payment_intent_id: settlement.payment_intent_id,
+    payment_status: settlement.status,
+    recorded_at_utc: new Date().toISOString(),
+    delivery_evidence: null,
+  };
+  fs.mkdirSync(INTAKES, { recursive: true, mode: 0o700 });
+  const dest = path.join(INTAKES, intake.session_id + '.json');
+  try {
+    fs.writeFileSync(dest, JSON.stringify(record, null, 2) + String.fromCharCode(10), { flag: 'wx', mode: 0o600 });
+    return { ...record, already_recorded: false };
+  } catch (err) {
+    if (err.code !== 'EEXIST') throw err;
+    const previous = safeJson(dest);
+    if (!previous || previous.payment_intent_id !== record.payment_intent_id ||
+        previous.decklist_url !== record.decklist_url ||
+        previous.customer_email !== record.customer_email ||
+        previous.payment_link_id !== DIRECT_PAYMENT_LINK_ID)
+      throw new Error('PAID_SESSION_IDEMPOTENCY_CONFLICT');
+    return { ...previous, already_recorded: true };
+  }
+}
 function getReport(sessionId){return safeJson(path.join(REPORTS,String(sessionId)+'.json'));}
-module.exports={createCheckout,createPaymentLinkCheckout,fulfillPaidSession,getReport,parseDecklist,classify};
+module.exports={createCheckout,createPaymentLinkCheckout,fulfillPaidSession,getReport,parseDecklist,classify,parsePaymentLinkIntake,capturePaidLinkOrder};

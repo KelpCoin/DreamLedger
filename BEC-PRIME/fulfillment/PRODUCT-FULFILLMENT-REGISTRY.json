@@ -69,9 +69,13 @@
       "reason": "not approved for sale"
     },
     "COMMANDER-DECK-DIAGNOSTIC-001": {
-      "ready": true,
-      "operator_required": false,
-      "reason": "Automated MTG digital fulfillment contract validated by the MTG Diagnostic Fulfillment Gate; public sale readiness enabled 2026-08-26."
+      "ready": false,
+      "operator_required": true,
+      "reason": "Existing Stripe Payment Link captures public decklist URL; pending secure paid-order intake and manual report delivery are not zero-human fulfillment. No automatic revenue or delivery claims permitted.",
+      "payment_link_id": "plink_1URUN1EGgEAnUFF9qPz94dqS",
+      "amount_minor": 2900,
+      "currency": "nzd",
+      "state": "HOLD_PENDING_DURABLE_INTAKE_AND_DELIVERY_PROOF"
     },
     "BEC-PRIME-ARCHITECTURE-AUDIT-001": {
       "ready": false,

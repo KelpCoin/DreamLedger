@@ -89,6 +89,9 @@ services:
         value: /var/data/qr
       - key: LEDGER_DATA_DIR
         value: /var/data/ledger
+      # Reuse the existing private engine disk for verified paid MTG order intake.
+      - key: MTG_DIAGNOSTIC_DATA_DIR
+        value: /var/data/mtg-diagnostics
       - key: PROOF_DATA_DIR
         value: /var/data/proofs
       - key: DREAMIEZ_DATA_DIR
