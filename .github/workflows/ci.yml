@@ -33,6 +33,9 @@ jobs:
           cache: npm
           cache-dependency-path: BEC-PRIME/package-lock.json
 
+      - name: Verify payment-only revenue truth gate
+        run: node --test ../tests/revenue-evidence-gate.test.mjs
+
       - name: Install locked dependencies
         run: npm ci --ignore-scripts
 
