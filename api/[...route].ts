@@ -8,6 +8,7 @@ type Route = { kind: Kind; load: () => Promise<any> };
 const routes: Record<string, Route> = {
   "/api/billboard-checkout": { kind: "web", load: () => import("../handlers/billboard-checkout.ts") },
   "/api/billboard-inventory": { kind: "web", load: () => import("../handlers/billboard-inventory.ts") },
+  "/api/billboard/public": { kind: "web", load: () => import("../handlers/billboard-public.ts") },
   "/api/billboard-webhook": { kind: "web", load: () => import("../handlers/billboard-webhook.ts") },
   "/api/billboard/claim": { kind: "web", load: () => import("../handlers/billboard/claim.ts") },
   "/api/billboard/submit": { kind: "web", load: () => import("../handlers/billboard/submit.ts") },
