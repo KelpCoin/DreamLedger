@@ -10,6 +10,8 @@ const root = fs.mkdtempSync(path.join(os.tmpdir(), 'beck-mtg-paidlink-'));
 process.env.MTG_DIAGNOSTIC_DATA_DIR = root;
 process.env.STRIPE_SECRET_KEY = 'synthetic_test_key';
 process.env.STRIPE_WEBHOOK_SECRET = 'synthetic_webhook_secret';
+process.env.ENGINE_INTERNAL_URL = 'http://engine.internal:10000';
+process.env.ENGINE_INTERNAL_API_KEY = 'synthetic-internal-key';
 process.env.SUPABASE_URL = 'https://example.invalid';
 process.env.SUPABASE_SERVICE_ROLE_KEY = 'synthetic_db_key';
 const diagnostic = require('../lib/mtgDiagnosticFulfillment');
@@ -26,9 +28,18 @@ const makeSession = () => ({
   customer_details: { email: 'buyer@example.test' },
   custom_fields: [{key:'decklisturl',type:'text',text:{value:'https://www.moxfield.com/decks/abc123'}}]
 });
+let internalCalls = [];
 const originalFetch = global.fetch;
-global.fetch = async function(url) {
+global.fetch = async function(url, init={}) {
   const s = String(url);
+  if (s === 'http://engine.internal:10000/api/internal/mtg/paid-link') {
+    assert.equal(url, 'http://engine.internal:10000/api/internal/mtg/paid-link');
+    assert.equal(init.method,'POST');
+    assert.equal(init.headers['x-dreamledger-engine-key'],'synthetic-internal-key');
+    assert.equal(typeof init.headers['stripe-signature'],'string');
+    internalCalls.push({url:s});
+    return {ok:true, json:async()=>({handled:true,recorded:true,fulfilled:false})};
+  }
   if (s.includes('/payment_intents/pi_synthetic123')) return {
     ok: true, text: async () => JSON.stringify({
       id:'pi_synthetic123', livemode:true, status:'succeeded', amount:2900, currency:'nzd'
@@ -112,12 +123,14 @@ async function check() {
   assert.equal(canonical.handled,true);
   assert.equal(canonical.fulfilled,false);
   assert.equal(canonical.verified_external_revenue,false);
-  assert.equal(canonical.mtg_order_state,'PAID_AWAITING_MANUAL_DELIVERY');
+  assert.equal(canonical.status,'PAID_AWAITING_MANUAL_DELIVERY');
+  assert.equal(canonical.recorded,true);
+  assert.equal(internalCalls.length,1);
   assert.equal(res2.body.includes('buyer@example.test'),false);
   assert.equal(fs.readdirSync(path.join(root,'intakes')).length,1);
 
   console.log(JSON.stringify({test:'mtg_paid_link_handoff',status:'PASS',
-    cases:12,payment_mutations:0,actual_sales:0,
+    cases:13,payment_mutations:0,actual_sales:0,
     order_status:'PAID_AWAITING_MANUAL_DELIVERY',
     verified_revenue_claim:false},null,2));
 }
