@@ -70,19 +70,20 @@ try {
     & git -C $CheckoutRoot checkout --detach $Result.data.head_sha | Out-Null
     if ($LASTEXITCODE -ne 0) { throw 'GIT_CHECKOUT_FAILED' }
     $targets = @(
-      @('syntax-lib', 'node', @('--check','BEC-PRIME/lib/mtgDiagnosticFulfillment.js')),
-      @('syntax-route', 'node', @('--check','BEC-PRIME/routes/mtgDiagnostic.js')),
-      @('syntax-commercial', 'node', @('--check','BEC-PRIME/routes/commercialCell.js')),
-      @('legacy-test', 'node', @('BEC-PRIME/scripts/test-mtg-diagnostic.js')),
-      @('paidlink-test', 'node', @('BEC-PRIME/scripts/test-mtg-paid-link-handoff.js'))
+      @{ Name='syntax-lib'; Args=@('--check','BEC-PRIME/lib/mtgDiagnosticFulfillment.js') },
+      @{ Name='syntax-route'; Args=@('--check','BEC-PRIME/routes/mtgDiagnostic.js') },
+      @{ Name='syntax-commercial'; Args=@('--check','BEC-PRIME/routes/commercialCell.js') },
+      @{ Name='legacy-test'; Args=@('BEC-PRIME/scripts/test-mtg-diagnostic.js') },
+      @{ Name='paidlink-test'; Args=@('BEC-PRIME/scripts/test-mtg-paid-link-handoff.js') }
     )
     $tests = @()
     Push-Location $CheckoutRoot
     try {
       foreach ($t in $targets) {
-        $output = & $t[1] @($t[2]) 2>&1 | Out-String
+        $argv = @($t.Args)
+        $output = & node @argv 2>&1 | Out-String
         $code = $LASTEXITCODE
-        $tests += [ordered]@{ name = $t[0]; exit_code = $code; output_sha256 = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($output))).ToLowerInvariant() }
+        $tests += [ordered]@{ name = $t.Name; exit_code = $code; output_sha256 = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($output))).ToLowerInvariant() }
         if ($code -ne 0) { throw "TEST_FAILED_$($t[0])" }
       }
     } finally { Pop-Location }
