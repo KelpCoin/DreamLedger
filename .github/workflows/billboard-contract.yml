@@ -22,6 +22,8 @@ jobs:
           node-version: "24"
       - name: Signed synthetic checkout and no-charge publication contract
         run: node scripts/test_billboard_live_contract.mjs
+      - name: Syntax check Vercel gallery handler
+        run: node --check handlers/billboard-public.js
       - name: Explicit nested billboard gallery route present
         run: test -s api/billboard/public.ts
       - name: Vercel billboard routing
