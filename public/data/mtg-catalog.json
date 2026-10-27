@@ -3,7 +3,7 @@
   "silo": "mtg",
   "currency": "NZD",
   "shipping": "Free shipping within Aotearoa New Zealand unless noted.",
-  "updated": "2026-10-21",
+  "updated": "2026-10-27",
   "products": [
     {
       "id": "EDH_QUINTORIUS_0002",
@@ -63,6 +63,24 @@
       "claim_url": "mailto:hello@dreamledger.org?subject=Claim%20Jon%20Irenicus%20Commander%20Deck&body=I%27d%20like%20to%20claim%20the%20Jon%20Irenicus%2C%20Shattered%20One%20Commander%20deck.%20Please%20confirm%20availability%20and%20shipping.",
       "decklist_url": "https://manabox.app/decks/AZ2BaCy-c-a8MpZUUcgxqw",
       "commander": "Jon Irenicus, Shattered One"
+    },
+    {
+      "id": "EDH_0001",
+      "sku": "EDH_0001",
+      "name": "Edward Kenway - Pacin' On The Plank - Commander deck",
+      "commander": "Edward Kenway",
+      "description": "Single physical EDH_0001 Commander deck. New Zealand delivery address collected at secure checkout. Seller confirms dispatch after payment.",
+      "price": 400,
+      "currency": "NZD",
+      "status": "published",
+      "inventory": 1,
+      "silo": "mtg",
+      "category": "commander-deck",
+      "sale_mode": "stripe_checkout",
+      "checkout_available": true,
+      "checkout_url": "https://buy.stripe.com/14A3cvea1dSd1DV5oEdwc1J",
+      "stripe_payment_link_id": "plink_1U6V3BEGgEAnUFF93nnPFUmr",
+      "stripe_price_id": "price_1U6V3BEGgEAnUFF9kTU0OQqQ"
     }
   ]
 }
