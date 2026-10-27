@@ -1,0 +1,28 @@
+name: 777 CUBE Marketplace Source Contract
+
+on:
+  pull_request:
+    paths:
+      - "public/cube-marketplace.html"
+      - "public/auctions.html"
+      - "public/cube-marketplace-contract.test.cjs"
+      - "api/[...route].ts"
+      - "handlers/cube/marketplace.js"
+      - "handlers/cube/silos.js"
+      - ".github/workflows/777-cube-marketplace-source-contract.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  source-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout reviewed repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Verify existing CUBE routes, safe DOM and auction truth
+        run: node --test public/cube-marketplace-contract.test.cjs
