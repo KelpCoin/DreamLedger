@@ -54,7 +54,7 @@ jobs:
           # DreamLedger1 serves public/home.html at /. Check the actual canonical storefront,
           # not a stale compiled snapshot maintained by a different build path.
           $homeHtml = Get-Content public/home.html -Raw
-          foreach ($token in @('DreamLedger','Supplier Quote Comparison Worksheet','Commander Deck Diagnostic','Truth Oracle')) {
+          foreach ($token in @('DreamLedger','href="/mtg/"','Magic')) {
             if ($homeHtml -notmatch [regex]::Escape($token)) { throw "Canonical storefront token missing: $token" }
           }
           if ($homeHtml -match 'Agentic Commerce Readiness Audit|BrownEye Cortex|Economic Court|ELOHIM|AMPLISSA|COLLECTORSCOAST') { throw 'Internal or historical homepage residue detected' }
