@@ -1,5 +1,5 @@
 // Explicit two-segment Vercel function. Shared read-only handler; never exposes financial data.
-import published from '../../handlers/billboard-public.ts';
+import published from '../../handlers/billboard-public.js';
 export default async function handler(req:any,res:any) {
   try {
     const host=String(req.headers?.host||'dreamledger.org');
