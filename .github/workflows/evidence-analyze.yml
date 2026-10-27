@@ -1,5 +1,12 @@
 name: Evidence Triage API Prototype
 on:
+  push:
+    branches: ['beck-evidence-api-prototype-20261027']
+    paths:
+      - 'handlers/analyze.js'
+      - 'api/[...route].ts'
+      - 'tests/evidence-analyze.test.cjs'
+      - '.github/workflows/evidence-analyze.yml'
   pull_request:
     paths:
       - 'handlers/analyze.js'
