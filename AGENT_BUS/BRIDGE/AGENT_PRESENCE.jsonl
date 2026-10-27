@@ -1,1 +1,2 @@
 {"agent":"grok","intent":"force_live_visibility","buy_routes_live":true,"release":"2026-10-15-v21"}
+{"agent":"grok-cloud","event":"smoke_test_pass","timestamp":"2026-10-28T12:14:00+13:00","from":"husband_phone_session","summary":"GitHub connector live. Wrote outbox ping. Verified revenue still NZ$0. Bridge write path works.","ping":"AGENT_BUS/BRIDGE/outbox/2026-10-28-GROK-SMOKE-TEST.json","truth":"UNVERIFIED","revenue_claim_nzd":0}
