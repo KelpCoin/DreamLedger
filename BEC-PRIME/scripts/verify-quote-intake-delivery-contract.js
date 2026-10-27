@@ -18,4 +18,11 @@ assert.match(intake, /session\.payment_link!==PAYMENT_LINK/);
 assert.match(intake, /if\(!ent\)throw new Error\("ENTITLEMENT_PENDING"\)/);
 assert.match(worker, /\.eq\("sku_id",SKU\)/);
 assert.match(worker, /revenue_claimed:false/);
+// Reject old acceptance of extra files and out-of-range sizes before any signed URLs are issued.
+assert.match(intake, /const supplied=Array\.isArray\(body\.files\)\?body\.files:\[\]/);
+assert.doesNotMatch(intake, /body\.files\.slice\(0,MAX_FILES\)/);
+assert.match(intake, /Number\.isSafeInteger\(bytes\)\|\|bytes<=0\|\|bytes>MAX_BYTES/);
+assert.match(intake, /if\(!\["pdf","csv","json","md"\]\.includes\(ext\)\)return out\(\{error:"UNSUPPORTED_FILE_TYPE"/);
+assert.match(intake, /if\(fr\.status==="fulfilled"\|\|fr\.canonical_state==="FULFILLED"\)return out\(\{error:"ALREADY_FULFILLED"\},409\)/);
+assert.match(intake, /const files=Array\.isArray\(body\.files\)\?body\.files:\[\]/);
 console.log('QUOTE_UPLOAD_FULFILLMENT_IDENTITY=PASS; PAYMENT_AND_DELIVERY_NOT_PROVEN');
