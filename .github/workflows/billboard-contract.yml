@@ -1,0 +1,27 @@
+name: Billboard payment to publication test
+on:
+  push:
+    paths:
+      - "public/billboard.html"
+      - "handlers/billboard-public.ts"
+      - "api/**"
+      - "vercel.json"
+      - "supabase/functions/dreamledger-billboard-webhook/**"
+      - "scripts/test_billboard_live_contract.mjs"
+      - ".github/workflows/billboard-contract.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Signed synthetic checkout and no-charge publication contract
+        run: node scripts/test_billboard_live_contract.mjs
+      - name: Vercel billboard routing
+        run: |
+          node --input-type=module -e "import fs from 'node:fs'; let v=JSON.parse(fs.readFileSync('vercel.json')); if (!v.rewrites.some(r=>r.source==='/billboard'&&r.destination==='/billboard.html')) process.exit(1); if (!fs.readFileSync('api/[...route].ts','utf8').includes('/api/billboard/public')) process.exit(2); console.log('BILLBOARD_ROUTING_PASS');"
