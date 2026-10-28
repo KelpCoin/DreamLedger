@@ -131,8 +131,11 @@ http.createServer(async (req,res)=>{
           // Grid cell is exposed only with explicit source coordinates. Never invent a slot.
           cell_index:Number.isInteger(row.cell_index)&&row.cell_index>=0&&row.cell_index<100
             ? row.cell_index
-            : (Number.isInteger(row.grid_x)&&Number.isInteger(row.grid_y)&&row.grid_x>=0&&row.grid_x<10&&row.grid_y>=0&&row.grid_y<10
-              ? row.grid_y*10+row.grid_x : null),
+            : (Number.isInteger(row.x)&&Number.isInteger(row.y)&&row.x>=0&&row.x<=900&&row.y>=0&&row.y<=900&&row.x%100===0&&row.y%100===0&&
+                Number(row.width||100)===100&&Number(row.height||100)===100
+              ? (row.y/100)*10+(row.x/100)
+              : (Number.isInteger(row.grid_x)&&Number.isInteger(row.grid_y)&&row.grid_x>=0&&row.grid_x<10&&row.grid_y>=0&&row.grid_y<10
+                ? row.grid_y*10+row.grid_x : null)),
           status:'PUBLISHED'
         }));
       return send(res,200,JSON.stringify({source:'billboard_public',verified_payment_claim:false,count:items.length,items}),'application/json; charset=utf-8');
