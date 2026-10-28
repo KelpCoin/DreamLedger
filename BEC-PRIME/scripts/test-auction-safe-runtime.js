@@ -52,4 +52,13 @@ test('trusted-looking file fixtures also cannot expose checkout or claim settlem
  assert.throws(()=>engine.placeBid(f.auction_id,'test-identity',101),
  /AUTHENTICATED_NEON_BID_EXECUTOR_REQUIRED/);
 });
+test('auction HTML is valid JavaScript and does not include browser bidder storage',()=>{
+ const vm=require('node:vm');
+ const page=fs.readFileSync(path.resolve(__dirname,'../../public/auctions.html'),'utf8');
+ const match=page.match(/<script>([\s\S]*?)<\/script>/i);
+ assert(match,'inline auction renderer required');
+ assert.doesNotThrow(()=>new vm.Script(match[1],{filename:'auctions.html'}));
+ assert(!/demoLots|localStorage|sessionStorage/.test(match[1]));
+ assert(page.includes('Bidding unavailable pending verified checkout'));
+});
 test.after(()=>fs.rmSync(tmp,{recursive:true,force:true}));
