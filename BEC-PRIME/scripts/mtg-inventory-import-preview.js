@@ -63,9 +63,10 @@ function prepare(source, options = {}) {
     const collector = str(take(r, ['collectornumber','cardnumber','number']));
     const scryfall = str(take(r, ['scryfallid','scryfalluuid'])).toLowerCase();
     const finishInput = str(take(r, ['finish','foil','isfoil'])).toLowerCase();
+    const finishColumnPresent = ['finish','foil','isfoil'].some(k => Object.hasOwn(r, k));
     const finish = ['true','yes','foil','1'].includes(finishInput) ? 'foil' :
       ['etched','etchedfoil'].includes(finishInput) ? 'etched' :
-      ['false','no','nonfoil','0','normal',''].includes(finishInput) ? 'nonfoil' : '';
+      (['false','no','nonfoil','0','normal'].includes(finishInput) || (finishInput === '' && finishColumnPresent)) ? 'nonfoil' : '';
     const condition = str(take(r, ['condition','cardcondition']));
     const language = str(take(r, ['language','lang'])) || 'en';
     const location = str(take(r, ['location','box','storage','binder']));
@@ -121,7 +122,7 @@ function prepare(source, options = {}) {
     owner_scope: 'MERCHANT_CANDIDATE_UNVERIFIED',
     source_rows: rows.length, accepted: accepted.length,
     duplicate_rows: duplicates, quarantined: quarantine.length, rejected,
-    physical_verified_count: 0, public_listing_count: 0, realized_cash_nzd: 0,
+    physical_verified_count: 0, public_listing_count: 0, realized_cash_nzd: null,
     records: accepted, quarantine, next_actions: actions.slice(0,100),
     warning: 'PREVIEW ONLY. Existing DreamLedger inventory remains authoritative. No stock, prices, publication, payment or seller ownership was verified.'
   };
