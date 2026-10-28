@@ -1,7 +1,7 @@
 {
   "schema": "BEC-PRIME/PRODUCT-FULFILLMENT-REGISTRY/v2",
   "policy": "A product is checkoutable only when this registry contains ready=true, operator_required=false, and a verified zero-human fulfillment contract. Products without that contract must not be sold.",
-  "updated": "2026-09-04",
+  "updated": "2026-10-28",
   "entries": {
     "BILLBOARD-SMALL": {
       "ready": true,
@@ -139,7 +139,7 @@
       "ready": true,
       "type": "automatic_service_fulfillment",
       "delivery_target": "private marketplace-fulfillment storage with signed buyer download",
-      "activation": "verified_paid_stripe_session -> secure upload intake -> source hashing -> PDF/CSV/JSON/Markdown extraction -> normalization -> comparison -> evidence packet -> signed digital delivery",
+      "activation": "verified_paid_stripe_session -> canonical_settlement_webhook -> secure_paid_session_upload_intake -> source_sha256 -> deterministic PDF/CSV/JSON/Markdown extraction -> normalization -> same-currency comparison -> output_sha256 -> evidence_manifest -> signed private delivery",
       "operator_required": false,
       "idempotency_key": "stripe_checkout_session_id",
       "buyer_inputs": [
@@ -149,14 +149,15 @@
       "scarcity": "9999",
       "delivery_proof": [
         "fulfillment_request_id",
-        "economic_job_id",
+        "stripe_checkout_session_id",
         "source_sha256",
         "output_sha256",
+        "evidence_manifest",
         "signed_download_url"
       ],
-      "failure_behavior": "payment remains recorded; fulfillment stays non-verified and retries through the existing fenced worker path",
-      "implementation": "supabase/functions/quote-intake + workers/economic/economic_fulfillment_worker.py",
-      "status": "AUTOMATED_ZERO_HUMAN"
+      "failure_behavior": "payment remains recorded; incomplete or unsafe comparisons are marked REVIEW_NEEDED/PARTIAL and are never falsely marked fulfilled",
+      "implementation": "supabase/functions/quote-intake + supabase/functions/quote-fulfillment",
+      "status": "AUTOMATED_PATH_DEPLOYED_FIRST_LIVE_DELIVERY_NOT_YET_PROVEN"
     }
   }
 }
