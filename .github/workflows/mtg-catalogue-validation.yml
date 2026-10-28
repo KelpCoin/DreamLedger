@@ -6,6 +6,9 @@ on:
       - "public/catalog.json"
       - "mtg/**"
       - "public/mtg/**"
+      - "public/mtg-marketplace.html"
+      - "public/mtg-marketplace/**"
+      - "BEC-PRIME/routes/mtgMarketplace*.js"
       - ".github/workflows/mtg-catalogue-validation.yml"
   push:
     branches: [main]
@@ -13,6 +16,9 @@ on:
       - "public/catalog.json"
       - "mtg/**"
       - "public/mtg/**"
+      - "public/mtg-marketplace.html"
+      - "public/mtg-marketplace/**"
+      - "BEC-PRIME/routes/mtgMarketplace*.js"
       - ".github/workflows/mtg-catalogue-validation.yml"
 
 jobs:
@@ -41,9 +47,9 @@ jobs:
             }
           }
           const html = fs.readFileSync('mtg/index.html', 'utf8');
-          if (!html.includes('/public/catalog.json')) throw new Error('Root preview catalogue must use tracked public catalogue data');
+          if (!html.includes("fetch('/data/mtg-catalog.json'")) throw new Error('Root preview must load the tracked MTG catalogue');
           const liveHtml = fs.readFileSync('public/mtg/index.html', 'utf8');
-          if (!liveHtml.includes("get('/catalog.json')")) throw new Error('Live public MTG page must load the tracked catalogue.json');
+          if (!liveHtml.includes("tryFetch('/data/mtg-catalog.json')")) throw new Error('Live public MTG page must load the tracked MTG catalogue');
           for (const page of ['public/mtg/quintorius-field-historian.html', 'public/mtg/dwynen-gilt-leaf-daen.html']) {
             if (!fs.existsSync(page)) throw new Error('Missing deployed public route: ' + page);
           }
@@ -54,3 +60,20 @@ jobs:
           }
           console.log('MTG catalogue validation passed.');
           NODE
+
+      - name: Validate review-before-publication and reservation behaviour
+        run: |
+          node --check BEC-PRIME/routes/mtgMarketplace.js
+          node --test BEC-PRIME/routes/mtgMarketplace.review.test.js
+      - name: Leave test proof
+        if: success()
+        run: |
+          mkdir -p proof/mtg-master-review
+          node -e "const fs=require('fs');fs.writeFileSync('proof/mtg-master-review/ci-proof.json',JSON.stringify({schema:'dreamledger/mtg-review-ci/v1',checked_at:new Date().toISOString(),commit:process.env.GITHUB_SHA,source:'github_actions',review_gate:'PASS',tests:'node --test BEC-PRIME/routes/mtgMarketplace.review.test.js',production_deployed:false,physical_inventory_verified:false,revenue_verified:false},null,2)+'\\n')"
+      - name: Retain proof artifact
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mtg-master-review-proof
+          path: proof/mtg-master-review/ci-proof.json
+          retention-days: 14
