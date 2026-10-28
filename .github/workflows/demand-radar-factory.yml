@@ -35,7 +35,7 @@ jobs:
           assert 'beck/shadow-skus/v1' in source
           assert '# Scheduled research must never modify customer-visible public/silos files.' in source
           workflow=Path('.github/workflows/demand-radar-factory.yml').read_text()
-          assert 'git push' not in workflow
+          assert ('git'+' push') not in workflow
           assert 'upload-artifact@v4' in workflow
           print('SHADOW_RADAR_SOURCE_PASS=TRUE; PUBLIC_POSTS=NONE')
           PY
