@@ -3,6 +3,7 @@
 // Canonical production account runtime. Supabase is the persistence authority.
 // Local file storage is allowed only for deterministic CI smoke tests.
 const crypto = require('crypto');
+const signedSession = require('./signedSession');
 const localStore = process.env.DREAMLEDGER_AUTH_LOCAL_TEST === '1' ? require('./accountLocalTestStore') : null;
 
 const COOKIE = 'dreamiez_session';
@@ -15,7 +16,8 @@ function getCookie(req, name) {
 }
 
 function setSession(res, id) {
-  res.setHeader('Set-Cookie', COOKIE + '=' + encodeURIComponent(id) + '; Path=/; Max-Age=31536000; HttpOnly; Secure; SameSite=Lax');
+  const token=signedSession.sign(id,process.env.DREAMLEDGER_SESSION_SECRET);
+  res.setHeader('Set-Cookie', COOKIE + '=' + encodeURIComponent(token) + '; Path=/; Max-Age=' + signedSession.MAX_AGE_SECONDS + '; HttpOnly; Secure; SameSite=Lax');
 }
 
 function clearSession(res) {
@@ -54,7 +56,9 @@ function publicAccount(user) {
     email_verified: user.email_verified === true,
     avatar_style: user.avatar_style || null,
     avatar: normalizeAvatar(user.avatar),
-    cosmetics: Array.isArray(user.cosmetics) ? user.cosmetics : [],
+    // Legacy account cosmetics are unverified. Purchased items must be read
+    // exclusively from the authenticated Neon entitlement endpoint.
+    cosmetics: [],
     streak: Number(user.streak || 0),
     rewards: [],
     seller: user.seller || { display_name: user.name || 'Customer', location: '', bio: '' },
@@ -155,7 +159,9 @@ async function handle(req, res, url) {
   const authRoute = ['/api/account/register', '/api/account/login', '/api/account/logout', '/api/account/me', '/api/account/update'].includes(route);
   if (!authRoute) return false;
 
-  const sessionId = getCookie(req, COOKIE);
+  if (!process.env.DREAMLEDGER_SESSION_SECRET || Buffer.byteLength(process.env.DREAMLEDGER_SESSION_SECRET, 'utf8') < 32)
+    return json(res, 503, {error:'SECURE_SESSION_NOT_CONFIGURED'});
+  const sessionId = signedSession.fromCookie(req.headers.cookie,process.env.DREAMLEDGER_SESSION_SECRET);
 
   try {
     if (req.method === 'GET' && route === '/api/account/me') {
