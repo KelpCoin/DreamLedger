@@ -34,6 +34,8 @@ jobs:
         run: node scripts/test_billboard_live_contract.mjs
       - name: Region-scoped, publication-only digital billboard contract
         run: node scripts/test_regional_billboard_contract.mjs
+      - name: Anonymous regional inventory must not leak pending buyer details
+        run: node scripts/test_billboard_inventory_privacy.mjs
       - name: Vercel billboard routing
         run: |
           node --input-type=module -e "import fs from 'node:fs'; let v=JSON.parse(fs.readFileSync('vercel.json')); if (!v.rewrites.some(r=>r.source==='/billboard'&&r.destination==='/billboard.html')) process.exit(1); if (!fs.readFileSync('api/[...route].ts','utf8').includes('/api/billboard/public')) process.exit(2); console.log('BILLBOARD_ROUTING_PASS');"
