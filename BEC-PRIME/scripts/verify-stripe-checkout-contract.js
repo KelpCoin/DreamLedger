@@ -61,7 +61,7 @@ function metadataPresent(windowText, key) {
   const direct = new RegExp('payment_intent_data[^\\n]{0,180}metadata[^\\n]{0,120}(?:[\\[.]' + escaped + '|[\"\\\']' + escaped + '[\"\\\'])', 'i');
   const urlEncoded = new RegExp('payment_intent_data\\[metadata\\]\\[' + escaped + '\\]', 'i');
   const objectForm = new RegExp('payment_intent_data[^\\n]{0,500}metadata[^\\n]{0,500}[\"\\\']?' + escaped + '[\"\\\']?', 'i');
-  return direct.test(windowText) || urlEncoded.test(windowText) || objectForm.test(windowText) || urlEncoded.test(normalized);
+  return direct.test(windowText) || direct.test(normalized) || urlEncoded.test(windowText) || objectForm.test(windowText) || objectForm.test(normalized) || urlEncoded.test(normalized);
 }
 
 function isSyntheticTestPath(rel) {
