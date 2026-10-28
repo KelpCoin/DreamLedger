@@ -1958,7 +1958,7 @@
       "payment_link_id": "plink_1USpJeEGgEAnUFF9vNDiM8SS",
       "checkout_route": "existing_public_stripe_payment_link",
       "fulfillment_route": "Stripe redirect -> /quote-intake.html?session_id={CHECKOUT_SESSION_ID} -> quote-intake -> quote-fulfillment -> private signed download",
-      "proof_of_delivery": "provider settlement + fulfillment request + source SHA-256 + output SHA-256 + signed private download",
+      "proof_of_delivery": "provider_settlement + fulfillment_request + source_sha256 + output_sha256 + signed_private_download",
       "verification_rules": [
         "verified_live_link",
         "paid_session",
