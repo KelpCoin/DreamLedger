@@ -6,6 +6,8 @@ on:
       - 'public/index.html'
       - 'public/go/index.html'
       - 'public/marketplace.html'
+      - 'public/quote-compare-49.html'
+      - 'public/catalog.json'
       - 'public/billboard.html'
       - 'public/assets/bec-neon.css'
       - 'public/assets/discovery.js'
