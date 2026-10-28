@@ -9,6 +9,7 @@ on:
       - "public/mtg-marketplace.html"
       - "public/mtg-marketplace/**"
       - "BEC-PRIME/routes/mtgMarketplace*.js"
+      - "BEC-PRIME/scripts/mtg-inventory-import-preview*.js"
       - ".github/workflows/mtg-catalogue-validation.yml"
   push:
     branches: [main]
@@ -19,6 +20,7 @@ on:
       - "public/mtg-marketplace.html"
       - "public/mtg-marketplace/**"
       - "BEC-PRIME/routes/mtgMarketplace*.js"
+      - "BEC-PRIME/scripts/mtg-inventory-import-preview*.js"
       - ".github/workflows/mtg-catalogue-validation.yml"
 
 jobs:
@@ -65,6 +67,8 @@ jobs:
         run: |
           node --check BEC-PRIME/routes/mtgMarketplace.js
           node --test BEC-PRIME/routes/mtgMarketplace.review.test.js
+          node --check BEC-PRIME/scripts/mtg-inventory-import-preview.js
+          node --test BEC-PRIME/scripts/mtg-inventory-import-preview.test.js
       - name: Leave test proof
         if: success()
         run: |
