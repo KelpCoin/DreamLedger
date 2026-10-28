@@ -1,0 +1,31 @@
+name: BECK Existing Paid Offers Registry Gate
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'BEC-PRIME/catalog/offers/approved.json'
+      - 'BEC-PRIME/scripts/test-existing-commercial-offers-registry.cjs'
+      - '.github/workflows/beck-existing-offer-registry.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'BEC-PRIME/catalog/offers/approved.json'
+      - 'BEC-PRIME/scripts/test-existing-commercial-offers-registry.cjs'
+      - '.github/workflows/beck-existing-offer-registry.yml'
+permissions:
+  contents: read
+jobs:
+  approved-existing-offers:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Check active-link registrations and avoid fake sale claims
+        run: |
+          node --check BEC-PRIME/scripts/test-existing-commercial-offers-registry.cjs
+          node BEC-PRIME/scripts/test-existing-commercial-offers-registry.cjs
