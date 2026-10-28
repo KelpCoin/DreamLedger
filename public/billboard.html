@@ -136,40 +136,92 @@ input{width:100%;background:#080b10;border:1px solid #526074;border-radius:9px;c
  const root=document.getElementById('live-items');
  const canvas=document.getElementById('billboard-canvas');
  const canvasStatus=document.getElementById('canvas-status');
+ const marketSelect=document.getElementById('board-market');
+ const boardTitle=document.getElementById('board-title');
+ const PREVIEW_ONLY=new Set(['NZ-AKL','NZ-WLG','NZ-CHC','NZ-HBC','US','GB']);
+ const ALLOWED=new Set([...marketSelect.options].map(o=>o.value));
+ const params=new URLSearchParams(location.search);
+ const requested=String(params.get('market')||'GLOBAL').toUpperCase();
+ marketSelect.value=ALLOWED.has(requested)?requested:'GLOBAL';
  const slots=[];
- for(let i=0;i<100;i++){const cell=document.createElement('div');cell.className='canvas-cell';cell.setAttribute('role','gridcell');cell.setAttribute('aria-label','Position '+(i+1)+': allocation unverified');cell.textContent=String(i+1).padStart(2,'0');canvas.appendChild(cell);slots.push(cell);}
-
+ for(let i=0;i<100;i++){
+  const cell=document.createElement('div');cell.className='canvas-cell';
+  cell.setAttribute('role','gridcell');
+  cell.setAttribute('aria-label','Position '+(i+1)+': allocation unverified');
+  cell.textContent=String(i+1).padStart(2,'0');canvas.appendChild(cell);slots.push(cell);
+ }
+ let published=null;
+ function safeLink(value){try{const u=new URL(String(value||''));return u.protocol==='https:'?u.href:null;}catch{return null;}}
+ function blocks(g){
+  if(!g||![g.x,g.y,g.width,g.height].every(Number.isInteger)||
+      g.x<0||g.y<0||g.width<100||g.height<100||
+      [g.x,g.y,g.width,g.height].some(n=>n%100!==0)||
+      g.x+g.width>1000||g.y+g.height>1000)return null;
+  const positions=[];
+  for(let y=g.y;y<g.y+g.height;y+=100)
+   for(let x=g.x;x<g.x+g.width;x+=100)positions.push((y/100)*10+x/100);
+  return positions;
+ }
+ function reset(){
+  for(let i=0;i<100;i++){
+   const c=slots[i];c.classList.remove('is-published');c.replaceChildren();
+   c.textContent=String(i+1).padStart(2,'0');
+   c.setAttribute('aria-label','Position '+(i+1)+': allocation unverified');
+  }
+  root.replaceChildren();
+ }
+ function notice(message){
+  const p=document.createElement('p');p.className='notice';p.textContent=message;root.appendChild(p);
+ }
+ function draw(){
+  const market=marketSelect.value;
+  params.set('market',market);
+  history.replaceState(null,'',location.pathname+'?'+params.toString()+'#live-board');
+  boardTitle.textContent=market+' · COMPLETE WEB CANVAS · 1000 × 1000';
+  reset();
+  if(!published){
+   canvasStatus.textContent='Verified public inventory is unavailable. No positions are marked as paid.';
+   notice('No published inventory can be verified for this board at present.');
+   return;
+  }
+  const rows=published.filter(p=>p&&p.status==='PUBLISHED'&&p.market===market);
+  const used=new Set();let mapped=0,unmapped=0;
+  for(const item of rows){
+   const cells=blocks(item.geometry);
+   if(!cells||cells.some(i=>used.has(i))){unmapped++;continue;}
+   cells.forEach(i=>used.add(i));mapped++;
+   const title=String(item.title||'Published placement').slice(0,80);
+   cells.forEach((index,part)=>{
+    const c=slots[index];c.classList.add('is-published');c.replaceChildren();
+    c.setAttribute('aria-label','Published position '+(index+1)+': '+title);
+    const src=safeLink(item.image_url);
+    if(part===0&&src){const img=document.createElement('img');img.src=src;img.alt=title;img.loading='lazy';c.appendChild(img);}
+    else c.textContent=part===0?title:'Part of '+title;
+   });
+  }
+  canvasStatus.textContent=market+' : '+rows.length+' published placement(s); '+
+   mapped+' with verified, non-overlapping coordinates; '+unmapped+
+   ' without valid coordinates or with collisions. '+
+   (PREVIEW_ONLY.has(market)?'Region preview only; no checkout.':'Checkout held pending payment-to-publication verification.');
+  if(!rows.length){notice('No verified published placements in this region. Unmarked cells are not confirmed available stock.');return;}
+  for(const item of rows){
+   const a=document.createElement('a');a.className='live-card';
+   const url=safeLink(item.destination_url);
+   if(url){a.href=url;a.target='_blank';a.rel='noopener noreferrer sponsored nofollow';}
+   const h=document.createElement('strong');h.textContent=String(item.title||'Published placement').slice(0,80);
+   const tag=document.createElement('span');tag.textContent='PUBLISHED · '+market;
+   a.append(h,tag);root.appendChild(a);
+  }
+ }
+ marketSelect.addEventListener('change',draw);
  try{
-   const response=await fetch('/api/billboard/public',{cache:'no-store'});
-   if(!response.ok)throw Error('unavailable');
-   const payload=await response.json();
-   if(!Array.isArray(payload.items))throw Error('invalid');
-   let positioned=0,unpositioned=0;
-   for(const item of payload.items){
-     const index=item.cell_index;
-     if(!Number.isInteger(index)||index<0||index>=100){unpositioned++;continue;}
-     const cell=slots[index];
-     if(cell.classList.contains('is-published')){unpositioned++;continue;}
-     cell.replaceChildren();cell.classList.add('is-published');cell.setAttribute('aria-label','Published position '+(index+1)+': '+String(item.title||'Placement').slice(0,80));
-     const img=String(item.image_url||'');
-     if(/^https:\/\//i.test(img)){const picture=document.createElement('img');picture.src=img;picture.alt=String(item.title||'Published placement').slice(0,80);picture.loading='lazy';cell.appendChild(picture);}
-     else cell.textContent=String(item.title||'Published placement').slice(0,80);
-     positioned++;
-   }
-   canvasStatus.textContent='Public feed responded: '+payload.items.length+' published placement(s), '+positioned+' mapped to verified grid coordinates, '+unpositioned+' without usable public positions.';
-
-   root.replaceChildren();
-   if(!payload.items.length){const p=document.createElement('p');p.className='notice';p.textContent='No verified published tiles are currently available to display.';root.appendChild(p);return;}
-   for(const item of payload.items){
-     const a=document.createElement('a');a.className='live-card';
-     const destination=String(item.destination_url||'');
-     if(/^https:\/\//i.test(destination)){a.href=destination;a.target='_blank';a.rel='noopener noreferrer nofollow sponsored';}
-     else {a.removeAttribute('href');}
-     const title=document.createElement('strong');title.textContent=String(item.title||'Published placement').slice(0,80);a.appendChild(title);
-     const label=document.createElement('span');label.textContent='PUBLISHED · '+String(item.market||'NZ').slice(0,20);a.appendChild(label);
-     root.appendChild(a);
-   }
- }catch{canvasStatus.textContent='Public placement feed unavailable. Grid coordinates and inventory cannot be verified.';root.replaceChildren();const p=document.createElement('p');p.className='notice';p.textContent='The live placement feed cannot be verified right now. No placements are being invented or shown as paid.';root.appendChild(p);}
+  const response=await fetch('/api/billboard/public',{cache:'no-store'});
+  if(!response.ok)throw Error('unavailable');
+  const body=await response.json();
+  if(!Array.isArray(body.items))throw Error('invalid');
+  published=body.items;
+ }catch{published=null;}
+ draw();
 })();
 </script>
 </body></html>
