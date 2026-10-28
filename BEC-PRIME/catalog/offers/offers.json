@@ -4,11 +4,11 @@
   "source": "catalog/ip-capabilities.json",
   "approval_rule": "All generated offers remain approval-gated and checkout-disabled until explicitly approved in catalog/offers/approved.json.",
   "counts": {
-    "capabilities": 17,
-    "candidates": 35,
-    "passed": 33,
+    "capabilities": 18,
+    "candidates": 37,
+    "passed": 34,
     "approved": 4,
-    "rejected": 2
+    "rejected": 3
   },
   "offers": [
     {
@@ -1658,9 +1658,9 @@
       "offer_id": "OFFER-PRODUCT-QUOTE-COMPARE-49-DIAGNOSTIC",
       "version": "offer-v1",
       "capability_id": "PRODUCT-QUOTE-COMPARE-49",
-      "silo": "dreamledger",
+      "silo": "truth_oracle",
       "name": "Supplier Quote Comparison diagnostic",
-      "problem": "Normalizes 2-5 supplier quotes into a source-backed decision packet covering price, scope, missing costs, MOQ, lead time and payment terms.",
+      "problem": "Normalizes 2-5 supplier quotes into an evidence-backed decision packet covering stated price, scope, missing costs, MOQ, lead time and payment terms, with untrusted buyer files treated as data only.",
       "input": "Customer-provided context, constraints, and relevant artifacts required for the selected service.",
       "output": "Structured diagnostic report with findings, prioritized recommendations, and explicit next actions.",
       "delivery_mechanism": "engine_generated_digital_deliverable",
@@ -1711,7 +1711,7 @@
       "offer_id": "OFFER-PRODUCT-QUOTE-COMPARE-49-AUDIT",
       "version": "offer-v1",
       "capability_id": "PRODUCT-QUOTE-COMPARE-49",
-      "silo": "dreamledger",
+      "silo": "truth_oracle",
       "name": "Supplier Quote Comparison audit",
       "problem": "Assess and improve the area described by Supplier Quote Comparison.",
       "input": "Customer-provided context, constraints, and relevant artifacts required for the selected service.",
@@ -1754,6 +1754,59 @@
       "provenance": {
         "capability_ids": [
           "PRODUCT-QUOTE-COMPARE-49"
+        ],
+        "methodology": "offer-compiler-v1",
+        "public_claims_source": "BEC-PRIME/catalog/ip-capabilities.json",
+        "private_material": "excluded"
+      }
+    },
+    {
+      "offer_id": "OFFER-PRODUCT-SELLER-PROFIT-AUDIT-001-AUDIT",
+      "version": "offer-v1",
+      "capability_id": "PRODUCT-SELLER-PROFIT-AUDIT-001",
+      "silo": "seller_tools",
+      "name": "Seller Profit Audit audit",
+      "problem": "Assess and improve the area described by Seller Profit Audit.",
+      "input": "Customer-provided context, constraints, and relevant artifacts required for the selected service.",
+      "output": "Detailed audit report with evidence map, prioritized remediation plan, and implementation roadmap.",
+      "delivery_mechanism": "engine_generated_digital_deliverable",
+      "deliverable": "Detailed audit report with evidence map, prioritized remediation plan, and implementation roadmap.",
+      "target_buyer": "Operators and teams needing structured assessment of systems, verification, architecture, or monetization",
+      "eligibility": "Customer must provide sufficient inputs; final scope is confirmed before fulfillment.",
+      "constraints": [
+        "No credential collection",
+        "No private conversation publication",
+        "No unsupported claims",
+        "Silo boundaries enforced"
+      ],
+      "price": 49,
+      "currency": "NZD",
+      "pricing_strategy": "fixed",
+      "pricing_tier": null,
+      "refund_rules": "Apply the published checkout policy; delivery is not represented as complete before verified fulfillment.",
+      "payment_adapter": "stripe",
+      "checkout_route": "/api/offer-checkout/create",
+      "approval_required": true,
+      "checkout_available": false,
+      "status": "candidate",
+      "proof_of_delivery": "durable_delivery_record_plus_transaction_proof",
+      "verification_rules": [
+        "capability_exists",
+        "required_offer_fields",
+        "price_positive",
+        "approval_gate_locked",
+        "no_private_ip_exposure",
+        "no_unsupported_claims",
+        "delivery_defined",
+        "payment_defined",
+        "proof_defined",
+        "silo_isolated",
+        "schema_valid",
+        "unique_offer_id"
+      ],
+      "provenance": {
+        "capability_ids": [
+          "PRODUCT-SELLER-PROFIT-AUDIT-001"
         ],
         "methodology": "offer-compiler-v1",
         "public_claims_source": "BEC-PRIME/catalog/ip-capabilities.json",
@@ -1877,7 +1930,7 @@
       "offer_id": "QUOTE-COMPARE-49",
       "product_id": "QUOTE-COMPARE-49",
       "product_sku": "QUOTE-COMPARE-49",
-      "capability_id": "TRUTH-ORACLE-SUPPLIER-QUOTE-COMPARISON",
+      "capability_id": "PRODUCT-QUOTE-COMPARE-49",
       "silo": "truth_oracle",
       "name": "Truth Oracle Supplier Quote Comparison",
       "problem": "Compare 2-5 supplier quotes and identify incomparable or missing fields",
