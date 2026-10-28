@@ -127,10 +127,19 @@ jobs:
           code="$(curl -sS -o "$RUNNER_TEMP/intake.json" -w '%{http_code}' --max-time 20 -X POST https://wbwgroygjeyukkspnqiy.supabase.co/functions/v1/quote-intake -H 'content-type: application/json' --data '{"action":"status","session_id":"bad"}' || true)"
           test "$code" = "400"
           jq -e '.error=="INVALID_SESSION_ID"' "$RUNNER_TEMP/intake.json" >/dev/null
+          # The live Stripe Payment Link sends actual paid buyers here.
+          # A healthy checkout with a missing intake page is a broken sale.
+          intake_code="$(curl -sS -L -o "$RUNNER_TEMP/quote-intake-page.html" -w '%{http_code}' --max-time 20 https://dreamledger.org/quote-intake.html || true)"
+          test "$intake_code" = "200"
+          grep -Fq 'Upload your supplier quotes' "$RUNNER_TEMP/quote-intake-page.html"
+          grep -Fq 'noindex,nofollow' "$RUNNER_TEMP/quote-intake-page.html"
+          grep -Fq 'https://wbwgroygjeyukkspnqiy.supabase.co/functions/v1/quote-intake' "$RUNNER_TEMP/quote-intake-page.html"
+          grep -Fq 'PAYMENT_NOT_SETTLED' "$RUNNER_TEMP/quote-intake-page.html"
           curl -fsS https://dreamledger.org/quote-compare-49.html > "$RUNNER_TEMP/quote-page.html"
           grep -Fq "$EXPECTED_URL" "$RUNNER_TEMP/quote-page.html"
           grep -Fq 'DreamLedger is in trade in New Zealand' "$RUNNER_TEMP/quote-page.html"
           echo 'QUOTE_REVENUE_WEDGE_LIVE_CONTRACT=PASS'
+          echo 'QUOTE_BUYER_RETURN_DESTINATION=PASS'
       - name: Emit revenue sentinel proof
         shell: bash
         run: |
