@@ -1,95 +1,90 @@
-const fs = require('fs');
-const path = require('path');
-const crypto = require('crypto');
+'use strict';
+// Existing BECK auction facade. Safe prelaunch: no authenticated, atomic Neon
+// bid executor has been connected. NEVER pretend an unverified bid was accepted.
+const fs=require('node:fs');
+const path=require('node:path');
+const crypto=require('node:crypto');
 
-const AUCTION_DATA = path.resolve(process.env.AUCTION_DATA_PATH || path.join(__dirname, 'data', 'auctions.json'));
-const AUCTION_PROOFS = path.resolve(process.env.AUCTION_PROOF_DIR || path.join(__dirname, 'data', 'proofs', 'auctions'));
-fs.mkdirSync(path.dirname(AUCTION_DATA), { recursive: true });
-fs.mkdirSync(AUCTION_PROOFS, { recursive: true });
-
-function loadState() {
-  if (!fs.existsSync(AUCTION_DATA)) return { auctions: [], bids: [] };
-  const state = JSON.parse(fs.readFileSync(AUCTION_DATA, 'utf8'));
-  return { auctions: Array.isArray(state.auctions) ? state.auctions : [], bids: Array.isArray(state.bids) ? state.bids : [] };
+const AUCTION_DATA=path.resolve(process.env.AUCTION_DATA_PATH||path.join(__dirname,'data','auctions.json'));
+const AUCTION_PROOFS=path.resolve(process.env.AUCTION_PROOF_DIR||path.join(__dirname,'data','proofs','auctions'));
+function loadState(){
+  if(!fs.existsSync(AUCTION_DATA))return {auctions:[],bids:[]};
+  const data=JSON.parse(fs.readFileSync(AUCTION_DATA,'utf8'));
+  return {auctions:Array.isArray(data.auctions)?data.auctions:[],bids:Array.isArray(data.bids)?data.bids:[]};
 }
-function saveState(state) { fs.writeFileSync(AUCTION_DATA, JSON.stringify(state, null, 2) + '\n'); }
-function now() { return Date.now(); }
-function publicAuction(a, bids) {
-  const auctionBids = bids.filter(b => b.auction_id === a.auction_id).sort((x, y) => y.amount - x.amount || x.created_at - y.created_at);
-  const top = auctionBids[0] || null;
-  const ended = now() >= a.ends_at || a.status === 'ended';
-  const reserveMet = Number(a.reserve_price || 0) === 0 || Number(top?.amount || 0) >= Number(a.reserve_price || 0);
-  const status = ended ? 'ended' : a.status;
+function saveState(state){
+  fs.mkdirSync(path.dirname(AUCTION_DATA),{recursive:true});
+  const tmp=AUCTION_DATA+'.tmp-'+process.pid+'-'+crypto.randomUUID();
+  try{fs.writeFileSync(tmp,JSON.stringify(state,null,2)+'\n',{flag:'wx'});fs.renameSync(tmp,AUCTION_DATA);}
+  finally{if(fs.existsSync(tmp))fs.unlinkSync(tmp);}
+}
+function approved(a,time=Date.now()){
+  return Boolean(a && a.approved === true &&
+    a.seller_verified === true && a.gauntlet_verdict === 'ALLOW' &&
+    a.status === 'APPROVED' && Number.isFinite(Number(a.ends_at)) &&
+    Number(a.ends_at)>time && Number(a.starts_at)<=time &&
+    a.approval_required===false);
+}
+function publicAuction(a,bids,time=Date.now()){
+  const trustedBids=bids.filter(b=>b.auction_id===a.auction_id &&
+    b.trusted_neon_record===true && Number.isSafeInteger(b.amount_minor) &&
+    b.amount_minor>0);
+  const top=trustedBids.reduce((x,b)=>!x||b.amount_minor>x.amount_minor?b:x,null);
+  const ended=Number(a.ends_at)<=time;
   return {
-    auction_id: a.auction_id, product_id: a.product_id, silo: a.silo, title: a.title, description: a.description,
-    currency: a.currency, start_price: a.start_price, current_price: top?.amount || a.start_price, reserve_price: a.reserve_price,
-    reserve_met: reserveMet, minimum_increment: a.minimum_increment, buy_now_price: a.buy_now_price || null,
-    starts_at: a.starts_at, ends_at: a.ends_at, status, bid_count: auctionBids.length,
-    bidder_count: new Set(auctionBids.map(b => b.bidder_id)).size,
-    highest_bidder: top?.bidder_id ? `bidder-${crypto.createHash('sha256').update(top.bidder_id).digest('hex').slice(0, 8)}` : null,
-    approval_required: a.approval_required === true,
-    checkout_available: a.checkout_available === true && status !== 'ended' && reserveMet,
-    anti_sniping_seconds: a.anti_sniping_seconds
+    auction_id:a.auction_id,product_id:a.product_id||null,silo:a.silo,
+    title:a.title,description:a.description||'',currency:a.currency,
+    start_price:a.start_price,current_price:top?top.amount_minor/100:a.start_price,
+    reserve_price:a.reserve_price||0,reserve_met:top?top.amount_minor>=Math.round((a.reserve_price||0)*100):false,
+    minimum_increment:a.minimum_increment,buy_now_price:a.buy_now_price||null,
+    starts_at:a.starts_at,ends_at:a.ends_at,
+    status:ended?'ENDED':a.status,approved:a.approved === true,
+    seller_verified:a.seller_verified === true,
+    gauntlet_verdict:a.gauntlet_verdict === 'ALLOW' ? 'ALLOW' : 'HOLD',
+    bid_count:trustedBids.length,
+    bidder_count:new Set(trustedBids.map(b=>b.bidder_id)).size,
+    highest_bidder:null,approval_required:true,
+    checkout_available:false,
+    live_bidding_authorized:false,anti_sniping_seconds:a.anti_sniping_seconds||120,
+    verified_settlement:false
   };
 }
-function createAuction(input) {
-  if (!input || !input.silo || !input.title) throw new Error('silo and title are required');
-  const state = loadState();
-  const auction = {
-    auction_id: input.auction_id || `AUC-${crypto.randomUUID().toUpperCase()}`,
-    product_id: input.product_id || null, silo: String(input.silo), title: String(input.title), description: String(input.description || ''),
-    currency: String(input.currency || 'NZD').toUpperCase(), start_price: Number(input.start_price), reserve_price: Number(input.reserve_price || 0),
-    minimum_increment: Number(input.minimum_increment || 1), buy_now_price: input.buy_now_price == null ? null : Number(input.buy_now_price),
-    starts_at: Number(input.starts_at || now()), ends_at: Number(input.ends_at), anti_sniping_seconds: Number(input.anti_sniping_seconds || 120),
-    status: 'scheduled', approval_required: input.approval_required !== false, checkout_available: input.checkout_available === true
+function createAuction(input){
+  if(!input||typeof input!=='object'||Array.isArray(input))throw new Error('AUCTION_INPUT_REQUIRED');
+  const allowedSilos=new Set(['SILO_MTG','SILO_MARKETPLACE','SILO_AVATAR','SILO_B2B']);
+  if(!allowedSilos.has(input.silo))throw new Error('AUCTION_SILO_NOT_ALLOWED');
+  if(typeof input.title!=='string'||input.title.trim().length<3||input.title.length>120)throw new Error('AUCTION_TITLE_REQUIRED');
+  const amount=Number(input.start_price),end=Number(input.ends_at),start=Number(input.starts_at||Date.now());
+  if(!Number.isFinite(amount)||amount<=0||!Number.isFinite(start)||!Number.isFinite(end)||end<=start)throw new Error('AUCTION_PRICE_OR_WINDOW_INVALID');
+  if((input.currency||'NZD')!=='NZD')throw new Error('AUCTION_FX_POLICY_UNVERIFIED');
+  const state=loadState();
+  const auction={
+    auction_id:'AUC-'+crypto.randomUUID().toUpperCase(),product_id:input.product_id||null,
+    silo:input.silo,title:input.title.trim(),description:String(input.description||'').slice(0,1500),
+    currency:'NZD',start_price:amount,reserve_price:Number(input.reserve_price||0),
+    minimum_increment:Number(input.minimum_increment||1),buy_now_price:null,
+    starts_at:start,ends_at:end,anti_sniping_seconds:120,
+    status:'DRAFT',approval_required:true,approved:false,seller_verified:false,
+    gauntlet_verdict:'HOLD',checkout_available:false
   };
-  if (!Number.isFinite(auction.start_price) || auction.start_price <= 0) throw new Error('start_price must be positive');
-  if (!Number.isFinite(auction.ends_at) || auction.ends_at <= auction.starts_at) throw new Error('ends_at must be after starts_at');
-  if (state.auctions.some(x => x.auction_id === auction.auction_id)) throw new Error('auction_id already exists');
-  state.auctions.push(auction); saveState(state); return publicAuction(auction, state.bids);
-}
-function placeBid(auctionId, bidderId, amount) {
-  if (!bidderId) throw new Error('bidder_id is required');
-  const state = loadState(); const auction = state.auctions.find(a => a.auction_id === auctionId);
-  if (!auction) throw new Error('Auction not found');
-  const view = publicAuction(auction, state.bids); const t = now();
-  if (auction.status === 'scheduled' && t >= auction.starts_at) auction.status = 'live';
-  if (t < auction.starts_at || auction.status === 'ended' || t >= auction.ends_at) throw new Error('Auction is not accepting bids');
-  if (auction.approval_required || !auction.checkout_available) throw new Error('Auction is not approved for bidding');
-  const min = Number(view.current_price) + Number(auction.minimum_increment);
-  if (!Number.isFinite(Number(amount)) || Number(amount) < min) throw new Error(`Bid must be at least ${min} ${auction.currency}`);
-  const bid = { bid_id: `BID-${crypto.randomUUID().toUpperCase()}`, auction_id: auctionId, bidder_id: String(bidderId), amount: Number(amount), created_at: t };
-  state.bids.push(bid);
-  if (auction.ends_at - t <= auction.anti_sniping_seconds * 1000) auction.ends_at = t + auction.anti_sniping_seconds * 1000;
+  if(!Number.isFinite(auction.reserve_price)||auction.reserve_price<0 ||
+    !Number.isFinite(auction.minimum_increment)||auction.minimum_increment<=0)
+    throw new Error('AUCTION_PRICING_INVALID');
+  state.auctions.push(auction);
   saveState(state);
-  const result = publicAuction(auction, state.bids);
-  fs.writeFileSync(path.join(AUCTION_PROOFS, `${bid.bid_id}.json`), JSON.stringify({ proof_type: 'AUCTION_BID', status: 'PASS', bid, auction: result }, null, 2) + '\n');
-  return { bid_id: bid.bid_id, auction: result };
+  return publicAuction(auction,state.bids);
 }
-function refreshExpired(state) {
-  const t = now(); let changed = false;
-  const rotations = [2, 6, 12];
-  state.auctions.forEach((a, index) => {
-    if (Number(a.ends_at) <= t) {
-      const hours = rotations[index % rotations.length];
-      a.starts_at = t;
-      a.ends_at = t + hours * 60 * 60 * 1000;
-      a.status = 'live';
-      changed = true;
-    }
-  });
-  if (changed) saveState(state);
+function placeBid(){
+  // No browser-generated bidder IDs, unlocked JSON files, or self bids.
+  // Enable only through a separate, authenticated Neon SERIALIZABLE transaction,
+  // bound to seller identity, Gauntlet ALLOW, reserve, anti-sniping and escrow.
+  throw new Error('AUTHENTICATED_NEON_BID_EXECUTOR_REQUIRED');
 }
-function listAuctions(silo) {
-  const state = loadState();
-  refreshExpired(state);
-  const fresh = loadState();
-  return fresh.auctions.filter(a => !silo || a.silo === silo).map(a => publicAuction(a, fresh.bids));
+function listAuctions(silo){
+  const state=loadState(),t=Date.now();
+  // IMPORTANT: read only. Expired lots NEVER refresh themselves.
+  return state.auctions.filter(a=>(!silo||a.silo===silo)&&approved(a,t))
+    .map(a=>publicAuction(a,state.bids,t));
 }
-function getAuction(id) {
-  const state = loadState();
-  refreshExpired(state);
-  const fresh = loadState(); const auction = fresh.auctions.find(a => a.auction_id === id);
-  return auction ? publicAuction(auction, fresh.bids) : null;
-}
-module.exports = { createAuction, placeBid, listAuctions, getAuction, AUCTION_DATA, AUCTION_PROOFS };
+function getAuction(id){return listAuctions().find(a=>a.auction_id===id)||null;}
+module.exports={createAuction,placeBid,listAuctions,getAuction,AUCTION_DATA,AUCTION_PROOFS};

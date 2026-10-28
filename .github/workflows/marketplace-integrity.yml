@@ -5,6 +5,11 @@ on:
     branches: [main]
     paths:
       - 'ops/marketplace/marketplace-self-build.cjs'
+      - 'ops/marketplace/universal-marketplace.test.cjs'
+      - 'BEC-PRIME/auction-engine.js'
+      - 'BEC-PRIME/lib/marketplacePolicy.js'
+      - 'public/auctions.html'
+      - 'data/schema/trade-marketplace-v1.json'
       - 'ops/marketplace/marketplace-autofix.test.cjs'
       - 'CORTEX/ecosystem_spine.py'
       - 'CORTEX/ecosystem_registry.json'
@@ -32,7 +37,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Deterministic Gauntlet and Elohim candidate source tests
-        run: node --test ops/marketplace/marketplace-autofix.test.cjs
+        run: node --test ops/marketplace/marketplace-autofix.test.cjs ops/marketplace/universal-marketplace.test.cjs
       - name: Verify canonical source registry is real
         run: python CORTEX/ecosystem_spine.py
   validate:
@@ -43,6 +48,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Gauntlet audit real marketplace invariants
         run: node ops/marketplace/marketplace-self-build.cjs
+      - name: Prove zero-fee B2B, peer auction integrity and capped A2A quote
+        run: node --test ops/marketplace/universal-marketplace.test.cjs
       - name: Preserve self-repair drift report
         if: always()
         uses: actions/upload-artifact@v4

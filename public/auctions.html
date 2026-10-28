@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="description" content="DreamLedger auctions — timed lots, min increment, anti-sniping, bid proofs. NZD.">
+<meta name="description" content="DreamLedger verified auction previews. Live bidding is held until seller identity, Neon transaction and payment controls are proven.">
 <meta name="theme-color" content="#0c0d0b">
 <title>Auctions · DreamLedger</title>
 <link rel="canonical" href="https://dreamledger.org/auctions.html">
@@ -45,38 +45,66 @@
   <section class="dl-section" style="padding-bottom:12px">
     <p class="dl-eyebrow">Timed lots · NZD</p>
     <h1 class="dl-h1">Auction lanes</h1>
-    <p class="dl-lead">Min increment, anti-snipe, reserve, hashed bidder IDs. <strong>A bid is not settlement.</strong></p>
+    <p class="dl-lead">Seller-verified lots only. <strong>Bidding is held until independent identity and transaction proofs pass.</strong></p>
     <span class="chip">Min increment</span><span class="chip">Anti-snipe</span><span class="chip">Reserve</span><span class="chip">Bid proof</span>
   </section>
-  <section class="lot-grid" id="lots"><div class="empty">Loading…</div></section>
+  <section class="lot-grid" id="lots"><div class="empty">Verifying auction lots. <button disabled>Bidding unavailable pending verified checkout</button></div></section>
 </main>
 <footer class="dl-footer dl-wrap"><a href="/trust.html">Trust</a><a href="/sell.html">Sell</a><a href="/">Home</a></footer>
 <script>
+'use strict';
 (function(){
-const esc=v=>String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-function timeLeft(ms){if(ms<=0)return 'Ended';const s=Math.floor(ms/1000),d=Math.floor(s/86400),h=Math.floor((s%86400)/3600),m=Math.floor((s%3600)/60),sec=s%60;if(d>0)return d+'d '+h+'h left';return h+'h '+m+'m '+sec+'s left';}
-function bidderId(){let id=localStorage.getItem('dreamledger_bidder_id');if(!id){id='web_'+Math.random().toString(36).slice(2,12);localStorage.setItem('dreamledger_bidder_id',id);}return id;}
-async function loadNews(){const track=document.getElementById('ticker-track');try{const r=await fetch('/news.json',{cache:'no-store'});const d=await r.json();const items=Array.isArray(d.news)?d.news:[];if(!items.length)throw 0;const html=items.map(n=>'<span><strong>'+esc(n.kind)+'</strong> · '+esc(n.headline)+'</span>').join('');track.innerHTML=html+html;}catch(e){track.innerHTML=('<span><strong>auction</strong> · Bid ≠ settlement</span>').repeat(4);}}
-function renderLot(a){const canBid=a.checkout_available!==false&&a.status!=='ended';const min=Number(a.current_price||a.start_price||0)+Number(a.minimum_increment||1);const endsMs=Number(a.ends_at)-Date.now();
-return '<article class="lot" data-id="'+esc(a.auction_id)+'"><div class="silo">'+esc(String(a.silo||'LOT'))+' · '+esc(a.status||'live')+'</div><h2>'+esc(a.title)+'</h2><p class="desc">'+esc(a.description||'')+'</p><div class="meta"><div class="price">NZ$'+esc(a.current_price||a.start_price)+'<small>'+esc(a.bid_count||0)+' bids · +'+esc(a.minimum_increment||1)+'</small></div><div class="ends'+(endsMs>3600000?' ok':'')+'" data-end="'+esc(a.ends_at)+'">'+timeLeft(endsMs)+'</div></div>'+(canBid?'<div class="bid-row"><input type="number" min="'+min+'" value="'+min+'"><button class="dl-btn dl-btn-gold" type="button" data-min="'+min+'">Place bid</button></div>':'<button class="dl-btn dl-btn-ghost" disabled>Ended</button>')+'<div class="status"></div></article>';}
-async function loadAuctions(){const root=document.getElementById('lots');let list=[];try{const r=await fetch('/api/auctions',{cache:'no-store'});if(r.ok){const d=await r.json();list=Array.isArray(d.auctions)?d.auctions:(Array.isArray(d)?d:[]);}}catch(e){}
-if(!list.length){list=[
-{auction_id:'AUC-MTG-FETCHLAND-001',silo:'MTG',title:'MTG Fetchland starter lot',description:'Rotating card lot. Condition before settlement.',start_price:15,current_price:15,minimum_increment:2,ends_at:Date.now()+6*3600000,status:'live',bid_count:0,checkout_available:true},
-{auction_id:'AUC-MTG-COMMANDER-002',silo:'MTG',title:'Commander upgrade bundle',description:'Timed Commander upgrades.',start_price:25,current_price:25,minimum_increment:3,ends_at:Date.now()+18*3600000,status:'live',bid_count:0,checkout_available:true},
-{auction_id:'AUC-VINYL-001',silo:'VINYL',title:'NZ vinyl mystery crate',description:'Media silo sandbox lot.',start_price:20,current_price:20,minimum_increment:2,ends_at:Date.now()+30*3600000,status:'live',bid_count:0,checkout_available:true}
-];}
-root.innerHTML=list.map(renderLot).join('');
-root.querySelectorAll('.lot').forEach(lot=>{const btn=lot.querySelector('button[data-min]');if(!btn)return;
-btn.addEventListener('click',async()=>{const input=lot.querySelector('input');const status=lot.querySelector('.status');const amount=Number(input.value);const min=Number(btn.getAttribute('data-min'));
-if(!(amount>=min)){status.className='status bad';status.textContent='Min NZ$'+min;return;}
-btn.disabled=true;status.textContent='Submitting…';
-const body={auction_id:lot.getAttribute('data-id'),amount_nzd:amount,bidder_public_id:bidderId()};
-try{let r=await fetch('/api/auctions/bid',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});
-if(r.status===404){const k='dreamledger_bid_proofs';const p=JSON.parse(localStorage.getItem(k)||'[]');p.push({...body,ts:new Date().toISOString(),mode:'local_sandbox'});localStorage.setItem(k,JSON.stringify(p.slice(-50)));status.className='status ok';status.textContent='Sandbox bid saved locally. Not settlement.';}
-else{if(!r.ok)throw new Error('Bid failed');status.className='status ok';status.textContent='Bid accepted.';loadAuctions();}
-}catch(err){status.className='status bad';status.textContent=err.message||'Failed';}finally{btn.disabled=false;}});});}
-setInterval(()=>{document.querySelectorAll('.ends[data-end]').forEach(el=>{el.textContent=timeLeft(Number(el.getAttribute('data-end'))-Date.now());});},1000);
-loadNews();loadAuctions();
+ const root=document.getElementById('lots'),track=document.getElementById('ticker-track');
+ const waiting=document.createElement('div');
+ waiting.className='empty';waiting.textContent='Loading verified auction lots...';
+ root.replaceChildren(waiting);
+ track.textContent='Unverified lots are never presented as live auctions.';
+ function timeLeft(ms){
+   if(ms<=0)return 'Ended';
+   const s=Math.floor(ms/1000),d=Math.floor(s/86400),h=Math.floor(s%86400/3600),m=Math.floor(s%3600/60);
+   return d?d+'d '+h+'h remaining':h+'h '+m+'m remaining';
+ }
+ function add(tag,parent,value,className){
+   const el=document.createElement(tag);el.textContent=String(value);
+   if(className)el.className=className;
+   parent.appendChild(el);return el;
+ }
+ function render(a){
+   const card=document.createElement('article');card.className='lot';
+   add('div',card,a.silo+' | '+a.status,'silo');
+   add('h2',card,a.title);
+   add('p',card,a.description||'Seller description pending verification','desc');
+   const meta=add('div',card,'','meta');
+   add('div',meta,a.currency+' '+Number(a.current_price||a.start_price).toFixed(2),'price');
+   const clock=add('div',meta,timeLeft(Number(a.ends_at)-Date.now()),'ends');
+   clock.dataset.end=String(a.ends_at);
+   const stop=document.createElement('button');stop.disabled=true;
+   stop.className='dl-btn dl-btn-ghost';stop.textContent='Bidding unavailable pending verified checkout';
+   card.appendChild(stop);
+   add('p',card,'No payment, reservation, or confirmed buyer is inferred from a listing.','status');
+   return card;
+ }
+ async function load(){
+   try{
+     const response=await fetch('/api/auctions',{cache:'no-store'});
+     if(!response.ok)throw new Error('AUCTION_SOURCE_UNAVAILABLE');
+     const data=await response.json();
+     const rows=(Array.isArray(data)?data:Array.isArray(data.auctions)?data.auctions:[])
+       .filter(a=>a && a.approved===true && a.seller_verified===true &&
+         a.gauntlet_verdict==='ALLOW' && a.status==='APPROVED' &&
+         a.checkout_available===false && Number(a.ends_at)>Date.now());
+     root.replaceChildren();
+     if(rows.length)rows.forEach(a=>root.appendChild(render(a)));
+     else add('div',root,'No verified auction lots are available. Bidding is held.','empty');
+   }catch{
+     root.replaceChildren();
+     add('div',root,'Auction verification unavailable. Bidding is held.','empty');
+   }
+ }
+ setInterval(()=>root.querySelectorAll('.ends[data-end]').forEach(el=>{
+   el.textContent=timeLeft(Number(el.dataset.end)-Date.now());
+ }),30000);
+ load();
 })();
 </script>
 </body>
