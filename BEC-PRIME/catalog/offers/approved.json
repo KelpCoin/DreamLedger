@@ -117,18 +117,19 @@
       "silo": "truth_oracle",
       "name": "Truth Oracle Supplier Quote Comparison",
       "problem": "Compare 2-5 supplier quotes and identify incomparable or missing fields",
-      "input": "2-5 supplier quotations plus purchase quantities, delivery location and constraints, privately sent after payment",
-      "output": "Human-reviewed side-by-side CSV plus readable summary of totals, MOQ, lead times, payment terms and explicitly missing fields",
-      "delivery_mechanism": "active_live_Stripe_payment_link -> Stripe_receipt -> private_email_intake -> manual_review -> delivery_with_timestamp_and_hash",
-      "deliverable": "CSV and written comparison for one purchasing decision",
+      "input": "2-5 PDF/CSV/JSON/Markdown supplier quotations plus purchase quantities, delivery location and constraints, uploaded privately after payment",
+      "output": "Automated side-by-side CSV plus readable summary of totals, MOQ, lead times, payment terms and explicitly missing or incomparable fields",
+      "delivery_mechanism": "active_live_Stripe_payment_link -> signed_webhook -> order_and_entitlement -> private_paid_session_intake -> deterministic_extraction_and_comparison -> hash_evidence_manifest -> signed_download",
+      "deliverable": "CSV and readable evidence-backed comparison for one purchasing decision",
       "target_buyer": "NZ buyer comparing supplier quotations",
       "eligibility": "2-5 readable quotes and purchasing requirements, no restricted personal information",
       "constraints": [
         "SILO_TRUTH_ORACLE owns ALL quote comparison families",
-        "Manual only until end-to-end settlement and fulfillment chain independently verified",
+        "Paid live Stripe session is verified server-side before files are accepted",
+        "Buyer files are treated as untrusted data, never as executable instructions",
         "No public supplier files",
-        "No instant automatic delivery promise",
-        "No personal outreach or media upload"
+        "No invented missing values or cross-currency totals",
+        "If comparison is incomplete, hold as review-needed rather than falsely fulfil"
       ],
       "price": 49,
       "currency": "NZD",
@@ -139,23 +140,26 @@
       "payment_link_status": "ACTIVE_LIVEMODE",
       "payment_link_id": "plink_1USpJeEGgEAnUFF9vNDiM8SS",
       "checkout_route": "existing_public_stripe_payment_link",
-      "fulfillment_route": "manual_private_email_intake",
-      "proof_of_delivery": "provider_settlement + actual customer input + delivered artifact and timestamp",
+      "fulfillment_route": "Stripe redirect -> /quote-intake.html?session_id={CHECKOUT_SESSION_ID} -> quote-intake -> quote-fulfillment -> private signed download",
+      "proof_of_delivery": "provider settlement + fulfillment request + source SHA-256 + output SHA-256 + signed private download",
       "verification_rules": [
         "verified_live_link",
         "paid_session",
         "currency_nzd",
         "amount_4900",
         "truth_oracle_owner",
-        "independent_buyer",
-        "manual_delivery_receipt"
+        "private_paid_session_intake",
+        "source_hashes",
+        "output_hashes",
+        "no_prompt_execution",
+        "delivery_artifact"
       ],
       "provenance": {
         "product_source": "docs/truth-oracle-commercial-contract.md",
         "private_material": "excluded"
       },
-      "approval_basis": "existing_public_offer_and_user_direction_2026-10-28",
-      "payment_link_note": "Stripe link verified active on 2026-10-28. Live metadata silo corrected to truth_oracle. Automated intake/worker not live-tested and not part of this offer's delivery claim."
+      "approval_basis": "existing_public_offer_plus_owner_instruction_to_finish_revenue_mvp_2026-10-28",
+      "payment_link_note": "Stripe link re-bound 2026-10-28 to automated private intake. Live metadata is truth_oracle / QUOTE-COMPARE-49. End-to-end commercial proof still requires a real paid buyer and delivered artifact."
     },
     {
       "offer_id": "OFFER-SELLER-PROFIT-AUDIT-29-NZD",
