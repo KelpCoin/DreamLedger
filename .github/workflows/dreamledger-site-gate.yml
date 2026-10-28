@@ -38,7 +38,8 @@ jobs:
           grep -q 'Agent Bridge · Preview (held)' public/index.html
           grep -q "p==='/api/offers' || p==='/api/products'" public/server.js
           grep -q "'/sitemap.xml':'sitemap.xml'" public/server.js
-          grep -q "p.startsWith('/buy/')" public/server.js
+          grep -q "p==='/api/discovery/catalog'" public/server.js
+          grep -q "p==='/api/discovery/silos'" public/server.js
           node - <<'NODE'
           const fs=require('fs');
           const c=JSON.parse(fs.readFileSync('public/catalog.json','utf8'));
