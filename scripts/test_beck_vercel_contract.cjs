@@ -8,6 +8,8 @@ for(const page of [index,go,market]){assert(page.includes("/assets/bec-neon.css"
 assert(index.includes("#")===false||index.includes("DREAMLEDGER"));
 assert(index.includes("DreamLedger Originals")&&index.includes("c5ff35")===false||index.includes("bec-neon.css"));
 assert(api.includes("/api/discovery/catalog")&&api.includes("/api/discovery/silos"));
+assert(read("api/discovery/catalog.ts").includes("handlers/discovery.js"));
+assert(read("api/discovery/silos.ts").includes("handlers/discovery.js"));
 assert(handler.includes("public/catalog.json")&&handler.includes("CUBE-SILO-REGISTRY.json"));
 assert(market.includes("data-bec-catalog")&&market.includes("/assets/discovery.js"));
 assert(board.includes('id="billboard-canvas"')&&board.includes('DEMO ONLY')&&board.includes("/api/billboard/public"));
