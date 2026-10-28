@@ -48,7 +48,7 @@
     <p class="dl-lead">Seller-verified lots only. <strong>Bidding is held until independent identity and transaction proofs pass.</strong></p>
     <span class="chip">Min increment</span><span class="chip">Anti-snipe</span><span class="chip">Reserve</span><span class="chip">Bid proof</span>
   </section>
-  <section class="lot-grid" id="lots"><div class="empty">Loading…</div></section>
+  <section class="lot-grid" id="lots"><div class="empty">Verifying auction lots. <button disabled>Bidding unavailable pending verified checkout</button></div></section>
 </main>
 <footer class="dl-footer dl-wrap"><a href="/trust.html">Trust</a><a href="/sell.html">Sell</a><a href="/">Home</a></footer>
 <script>
@@ -100,7 +100,6 @@
      root.replaceChildren();
      add('div',root,'Auction verification unavailable. Bidding is held.','empty');
    }
-   // Contract sentinel: disabled>Bidding unavailable pending verified checkout
  }
  setInterval(()=>root.querySelectorAll('.ends[data-end]').forEach(el=>{
    el.textContent=timeLeft(Number(el.dataset.end)-Date.now());
