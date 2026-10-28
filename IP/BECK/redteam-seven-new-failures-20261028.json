@@ -1,0 +1,137 @@
+{
+  "schema": "beck/redteam-threat-register/v2",
+  "updated_utc": "2026-10-28",
+  "owner_gate": "NO_PUBLIC_SECURITY_CERTIFICATION",
+  "scope": "Seven added findings plus linked first-wave threats. Advisories affect named third-party packages only; no BECK exposure assumed.",
+  "claim_policy": [
+    "Distinct distinctions: source advisory verified, BECK code inspected, CI test passed, production deploy proven, real commerce proved.",
+    "Avoid absolute claims: provably safe, injection immune, exactly once settlement, guaranteed human author or unhackable.",
+    "A successful local test is not a database transaction guarantee across serverless instances.",
+    "Do not ingest external web instructions as privileged agent memory.",
+    "Vulnerability test evidence is not equivalent to live deployment proof."
+  ],
+  "first_transaction_blockers": [
+    "Vercel production deployment authorization 403",
+    "Cross-host Stripe webhook/entitlement transaction not independently proven",
+    "Quote Compare buyer intake and real fulfilled order not independently verified"
+  ],
+  "entries": [
+    {
+      "id": "BECK-RT-01",
+      "state": "REDTEAM_RESEARCH_ONLY",
+      "approval_required": true,
+      "public_claim_allowed": false,
+      "key": "X402_SIWX_RESOURCE_MISMATCH",
+      "source_url": "https://github.com/advisories/GHSA-vxw2-vmfp-vrg3",
+      "source_status": "CONFIRMED_ADVISORY",
+      "affected_product": "@x402/extensions SIWX 2.3.1 to 2.28.0 and specific Python/Go versions",
+      "becks_use": "UNVERIFIED",
+      "blocking_test": "Payer's authenticated route, resource URL, method and settled entitlement must match; enforce atomic consume-once per resource and payment.",
+      "marketing_claim": "No x402 exactly-once or replay-proof claim without tested production implementation."
+    },
+    {
+      "id": "BECK-RT-02",
+      "state": "REDTEAM_RESEARCH_ONLY",
+      "approval_required": true,
+      "public_claim_allowed": false,
+      "key": "X402_OVERGRANT",
+      "source_url": null,
+      "source_status": "SUPPLIED_RESEARCH_NOT_INDEPENDENTLY_CONFIRMED_IN_THIS_PASS",
+      "affected_product": "x402 payment proof reuse",
+      "becks_use": "UNVERIFIED",
+      "blocking_test": "Concurrent replay and crash recovery across instances with unique key paymentID + exact resourceID and settled status.",
+      "marketing_claim": "A local single-use test is not cross-host settlement correctness."
+    },
+    {
+      "id": "BECK-RT-03",
+      "state": "REDTEAM_RESEARCH_ONLY",
+      "approval_required": true,
+      "public_claim_allowed": false,
+      "key": "AP2_CONTEXT_AND_MANDATE",
+      "source_url": null,
+      "source_status": "SUPPLIED_RESEARCH_NOT_INDEPENDENTLY_CONFIRMED_IN_THIS_PASS",
+      "affected_product": "AP2 v0.2 threat taxonomy, user intent and mandate replay",
+      "becks_use": "UNVERIFIED",
+      "blocking_test": "Verify mandate origin, resource, price, amount, beneficiary, consent hash and consume-once state at a trusted verifier.",
+      "marketing_claim": "Do not claim all 48 threat cases passed unless the test catalog and live evidence exist."
+    },
+    {
+      "id": "BECK-RT-04",
+      "state": "REDTEAM_RESEARCH_ONLY",
+      "approval_required": true,
+      "public_claim_allowed": false,
+      "key": "INDIRECT_PROMPT_INJECTION",
+      "source_url": null,
+      "source_status": "SECURITY_CATEGORY_KNOWN; SUPPLIED_PERCENTAGES_NOT_VALIDATED",
+      "affected_product": "External research entering BECK Arbitrator or purchase decisions",
+      "becks_use": "EXTERNAL_MARKET_RESEARCH_PRESENT",
+      "blocking_test": "Schema-only untrusted extracts; never parse external prose as tools/authority; test attacker-controlled product descriptions and price/ranking manipulation.",
+      "marketing_claim": "Injection-resistant for documented tested scenarios, never injection-immune."
+    },
+    {
+      "id": "BECK-RT-05",
+      "state": "REDTEAM_RESEARCH_ONLY",
+      "approval_required": true,
+      "public_claim_allowed": false,
+      "key": "GGUF_TEMPLATE_SUPPLY_CHAIN",
+      "source_url": null,
+      "source_status": "REQUIRES_UPSTREAM_REVIEW",
+      "affected_product": "GGUF chat template and model loader",
+      "becks_use": "LOCAL_MODELS_PLANNED; FILES_NOT_INSPECTED",
+      "blocking_test": "Local inventory/hash against known approved model revisions, non-executing GGUF template parsing, reject unsafe constructs, isolate model process from payment secrets.",
+      "marketing_claim": "No scanned-model guarantee until every loaded model is checked; air-gap does not establish model integrity."
+    },
+    {
+      "id": "BECK-RT-06",
+      "state": "REDTEAM_RESEARCH_ONLY",
+      "approval_required": true,
+      "public_claim_allowed": false,
+      "key": "STRIPE_DUPLICATE_FULFILLMENT",
+      "source_url": "https://nvd.nist.gov/vuln/detail/CVE-2026-105850",
+      "source_status": "CONFIRMED_ADVISORY_FOR_PAYLOADCMS_ONLY",
+      "affected_product": "PayloadCMS/plugin-ecommerce Stripe adapter before patched versions",
+      "becks_use": "NO_EVIDENCE_BECK_USES_AFFECTED_PLUGIN",
+      "blocking_test": "Single shared database claim keyed by session and event, atomic receipt/outbox, retryable failures, no double inventory changes; independent paid status.",
+      "marketing_claim": "Local file proof gate passed, distributed one-time delivery NOT VERIFIED."
+    },
+    {
+      "id": "BECK-RT-07",
+      "state": "REDTEAM_RESEARCH_ONLY",
+      "approval_required": true,
+      "public_claim_allowed": false,
+      "key": "POWERSHELL_TASK_PERSISTENCE",
+      "source_url": null,
+      "source_status": "GENERAL_DEFENSIVE_CONTROL",
+      "affected_product": "Windows Task Scheduler, PowerShell runtime",
+      "becks_use": "LOCAL_POWERSHELL_AUTOMATIONS_PRESENT",
+      "blocking_test": "Task names, full action arguments and binary/script SHA-256 inventory against signed approved baseline; alert on changed task or unsigned activation; turn on script block logging where permitted.",
+      "marketing_claim": "Task integrity not verified on user's PC."
+    },
+    {
+      "id": "BECK-RT-08",
+      "state": "REDTEAM_RESEARCH_ONLY",
+      "approval_required": true,
+      "public_claim_allowed": false,
+      "key": "PERSISTENT_MEMORY_POISONING",
+      "source_url": "https://arxiv.org/abs/2609.13889",
+      "source_status": "RESEARCH_PAPER_CONFIRMED",
+      "affected_product": "Tool-fed agent persistent memory",
+      "becks_use": "PROOF_AND_LEDGER_USED; MEMORY_WRITE_POLICY_NOT_AUDITED",
+      "blocking_test": "External model suggestions quarantined; signed/evidence corroboration before promotion; memory versioning and rollback; test cross-session poisoning.",
+      "marketing_claim": "No claim poisoned memory is impossible, even if ledger hash chain is intact."
+    },
+    {
+      "id": "BECK-RT-09",
+      "state": "REDTEAM_RESEARCH_ONLY",
+      "approval_required": true,
+      "public_claim_allowed": false,
+      "key": "LEGAL_MESSAGING",
+      "source_url": "https://www.legislation.govt.nz/",
+      "source_status": "LEGISLATION_AND_PENDING_BILL_REQUIRE_CLAIM_SPECIFIC_REVIEW",
+      "affected_product": "NZ fair trading representations",
+      "becks_use": "QUOTE_COMPARISON_BOTH_FREE_AND_PAID_SURFACES_PRESENT",
+      "blocking_test": "Cross-page truth contract: exact price, paid deliverables, intake, fulfilment timing, refunds, subscription terms; human legal review.",
+      "marketing_claim": "No unsupported statements of NZ$5m current automatic liability."
+    }
+  ]
+}
