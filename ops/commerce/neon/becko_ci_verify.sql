@@ -56,14 +56,16 @@ BEGIN
     THEN RAISE EXCEPTION 'REFUSAL_MUTATED_ORDERS'; END IF;
 
   -- One active owner at a time; expired owner cannot finalize.
-  SELECT * INTO v_claim FROM public.becko_claim_v1('worker-one',1,3,30);
+  SELECT * INTO v_second FROM public.becko_claim_v1('worker-adult','adult',1,3,30);
+  IF FOUND THEN RAISE EXCEPTION 'CROSS_SILO_CLAIM_ACCEPTED'; END IF;
+  SELECT * INTO v_claim FROM public.becko_claim_v1('worker-one','mtg',1,3,30);
   IF v_claim.delivery_key IS DISTINCT FROM v_key OR v_claim.attempts <> 1
     THEN RAISE EXCEPTION 'BAD_FIRST_CLAIM'; END IF;
-  SELECT * INTO v_second FROM public.becko_claim_v1('worker-two',1,3,30);
+  SELECT * INTO v_second FROM public.becko_claim_v1('worker-two','mtg',1,3,30);
   IF FOUND THEN RAISE EXCEPTION 'DOUBLE_CLAIM'; END IF;
   UPDATE public.commercial_fulfillment_outbox
     SET leased_until=now()-interval '1 second' WHERE delivery_key=v_key;
-  SELECT * INTO v_second FROM public.becko_claim_v1('worker-two',1,3,30);
+  SELECT * INTO v_second FROM public.becko_claim_v1('worker-two','mtg',1,3,30);
   IF v_second.lease_token IS NULL OR v_second.lease_token=v_claim.lease_token
      OR v_second.attempts <> 2
   THEN RAISE EXCEPTION 'LEASE_RECOVERY_FAILED'; END IF;
@@ -81,18 +83,18 @@ BEGIN
   PERFORM public.becko_accept_checkout_v1(
     'evt_becko_003','checkout.session.completed',repeat('a',64),
     'cs_live_becko_003','pi_becko_003','offer-mtg-test',2500,'NZD','mtg','file:003',true);
-  SELECT * INTO v_claim FROM public.becko_claim_v1('worker-three',1,2,30);
+  SELECT * INTO v_claim FROM public.becko_claim_v1('worker-three','mtg',1,2,30);
   IF v_claim.delivery_key <> 'stripe_delivery:cs_live_becko_003'
     THEN RAISE EXCEPTION 'CLAIMED_WRONG_JOB'; END IF;
   IF public.becko_retry_v1(v_claim.delivery_key,'worker-three',v_claim.lease_token,'CI_TRANSIENT',2)<>'PENDING'
     THEN RAISE EXCEPTION 'RETRY_FAILED'; END IF;
   UPDATE public.commercial_fulfillment_outbox
     SET next_attempt_at=now()-interval '1 second' WHERE delivery_key=v_claim.delivery_key;
-  SELECT * INTO v_second FROM public.becko_claim_v1('worker-four',1,2,30);
+  SELECT * INTO v_second FROM public.becko_claim_v1('worker-four','mtg',1,2,30);
   IF v_second.attempts<>2 THEN RAISE EXCEPTION 'ATTEMPT_NOT_INCREMENTED'; END IF;
   IF public.becko_retry_v1(v_second.delivery_key,'worker-four',v_second.lease_token,'CI_FINAL',2)<>'FAILED_REVIEW'
     THEN RAISE EXCEPTION 'DEAD_LETTER_NOT_REACHED'; END IF;
-  SELECT * INTO v_second FROM public.becko_claim_v1('worker-five',1,2,30);
+  SELECT * INTO v_second FROM public.becko_claim_v1('worker-five','mtg',1,2,30);
   IF FOUND THEN RAISE EXCEPTION 'DEAD_LETTER_RECLAIMED'; END IF;
 END
 $test$;
