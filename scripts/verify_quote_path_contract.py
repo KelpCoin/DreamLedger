@@ -16,6 +16,7 @@ INTAKE_PAGE = ROOT / "public/quote-intake.html"
 OFFERS = ROOT / "BEC-PRIME/catalog/offers/approved.json"
 REGISTRY = ROOT / "BEC-PRIME/fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json"
 HANDLER = ROOT / "handlers/stripe-link.ts"
+SENTINEL = ROOT / ".github/workflows/revenue-sentinel.yml"
 LIVE_LINK_ID = "plink_1USpJeEGgEAnUFF9vNDiM8SS"
 LIVE_LINK_URL = "https://buy.stripe.com/00wdR93vnbK5eqH3gwdwc3r"
 
@@ -26,7 +27,7 @@ def require(label: str, condition: bool) -> None:
     if not condition:
         failures.append(label)
 
-for path in (INTAKE, WORKER, OFFER_PAGE, INTAKE_PAGE, OFFERS, REGISTRY, HANDLER):
+for path in (INTAKE, WORKER, OFFER_PAGE, INTAKE_PAGE, OFFERS, REGISTRY, HANDLER, SENTINEL):
     require(f"required file exists: {path.relative_to(ROOT)}", path.is_file())
 
 if failures:
@@ -37,6 +38,7 @@ worker = WORKER.read_text(encoding="utf-8")
 offer_page = OFFER_PAGE.read_text(encoding="utf-8")
 intake_page = INTAKE_PAGE.read_text(encoding="utf-8")
 handler = HANDLER.read_text(encoding="utf-8")
+sentinel = SENTINEL.read_text(encoding="utf-8")
 offers = json.loads(OFFERS.read_text(encoding="utf-8"))
 registry = json.loads(REGISTRY.read_text(encoding="utf-8"))
 
@@ -78,6 +80,11 @@ require("approved offer is truth_oracle silo", bool(quote) and quote.get("silo")
 require("registry points to actual edge functions", reg.get("implementation") == "supabase/functions/quote-intake + supabase/functions/quote-fulfillment")
 require("registry does not claim first live delivery proof", reg.get("status") == "AUTOMATED_PATH_DEPLOYED_FIRST_LIVE_DELIVERY_NOT_YET_PROVEN")
 
+
+require("live sentinel probes paid-buyer return page HTTP 200", 'intake_code="$(curl' in sentinel and 'test "$intake_code" = "200"' in sentinel)
+require("live sentinel checks private quote intake signature", "Upload your supplier quotes" in sentinel and "noindex,nofollow" in sentinel)
+require("live sentinel verifies intake payment rejection marker", "PAYMENT_NOT_SETTLED" in sentinel)
+require("live sentinel does not count intake as paid delivery", "'verified_paid_fulfilled_quote_order': False" in sentinel)
 require("checkout handler has no literal escaped-newline statements", ";\\n" not in handler)
 
 print(f"\nQUOTE_REVENUE_WEDGE_CONTRACT={'FAIL' if failures else 'PASS'}")
