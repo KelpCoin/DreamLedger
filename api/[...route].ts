@@ -15,6 +15,9 @@ const routes: Record<string, Route> = {
   "/api/cube/marketplace": { kind: "node", load: () => import("../handlers/cube/marketplace.js") },
   "/api/cube/silos": { kind: "node", load: () => import("../handlers/cube/silos.js") },
   "/api/dreammeez/checkin": { kind: "node", load: () => import("../handlers/dreammeez/checkin.js") },
+  "/api/agent-bridge/cosmetics/submit": { kind: "web", load: () => import("../handlers/agentbridge/cosmetic-intake.js") },
+  "/api/agent-bridge/cosmetics/mine": { kind: "web", load: () => import("../handlers/agentbridge/cosmetic-intake.js") },
+  "/api/agent-bridge/cosmetics/image": { kind: "web", load: () => import("../handlers/agentbridge/cosmetic-intake.js") },
   "/api/stripe-link": { kind: "web", load: () => import("../handlers/stripe-link.ts") },
   "/api/offer-checkout/create": { kind: "web", load: () => import("../handlers/stripe-link.ts") },
   "/api/molt-beach-checkout": { kind: "web", load: () => import("../handlers/billboard-checkout.ts") },
@@ -24,11 +27,11 @@ const routes: Record<string, Route> = {
 };
 const ACCOUNT: Route = { kind: "node", load: () => import("../handlers/account/[...route].js") };
 
-async function rawBody(req: any): Promise<Buffer> {
+async function rawBody(req: any, maxBytes = 1_048_576): Promise<Buffer> {
   const parts: Buffer[] = []; let bytes = 0;
   for await (const piece of req) {
     const b = Buffer.isBuffer(piece) ? piece : Buffer.from(piece); bytes += b.length;
-    if (bytes > 1_048_576) { const e: any = new Error("PAYLOAD_TOO_LARGE"); e.status = 413; throw e; }
+    if (bytes > maxBytes) { const e: any = new Error("PAYLOAD_TOO_LARGE"); e.status = 413; throw e; }
     parts.push(b);
   }
   return Buffer.concat(parts);
@@ -46,7 +49,7 @@ export default async function handler(req: any, res: any) {
     if (!target) return fail(res, 404, "API_ROUTE_NOT_FOUND");
     if (!req.query || typeof req.query !== "object") req.query = {};
     for (const [k,v] of root.searchParams) if (!(k in req.query)) req.query[k] = v;
-    const body = req.method === "GET" || req.method === "HEAD" ? Buffer.alloc(0) : await rawBody(req);
+    const body = req.method === "GET" || req.method === "HEAD" ? Buffer.alloc(0) : await rawBody(req, pathname === "/api/agent-bridge/cosmetics/submit" ? 1_850_000 : 1_048_576);
     const mod: any = await target.load();
     const fn = mod.default || mod;
     if (typeof fn !== "function") return fail(res, 503, "HANDLER_NOT_AVAILABLE");
