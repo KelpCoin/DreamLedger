@@ -6,6 +6,8 @@ export const config = { api: { bodyParser: false } };
 type Kind = "node" | "web";
 type Route = { kind: Kind; load: () => Promise<any> };
 const routes: Record<string, Route> = {
+  "/api/discovery/catalog": { kind: "node", load: () => import("../handlers/discovery.js") },
+  "/api/discovery/silos": { kind: "node", load: () => import("../handlers/discovery.js") },
   "/api/billboard-checkout": { kind: "web", load: () => import("../handlers/billboard-checkout.ts") },
   "/api/billboard-inventory": { kind: "web", load: () => import("../handlers/billboard-inventory.ts") },
   "/api/billboard/public": { kind: "web", load: () => import("../handlers/billboard-public.ts") },
