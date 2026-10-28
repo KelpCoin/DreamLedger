@@ -44,7 +44,10 @@ for(const page of [index,market,shop,studio,gateway]){
   assert(page.includes('href="/marketplace.html"'),"Customer catalogue path missing");
 }
 assert(shop.includes("/api/discovery/catalog") && shop.includes("avatar-accessories"));
-assert(shop.includes("View secure Stripe checkout") && !shop.includes("/buy/DREAMMEEZ"));
+assert(shop.includes("Review item and pay securely") && !shop.includes("/buy/DREAMMEEZ")); 
+assert(shop.includes("ONE-TIME COSMETIC") && shop.includes("MONTHLY SUPPORTER"));
+assert(shop.includes('fetch("/catalog.json"'),"Shop requires safe static catalogue fallback");
+assert(studio.includes('id="savePreview"')&&studio.includes('id="restorePreview"'),"Free avatar looks must be saveable");
 assert(!studio.includes("Unlock demo") && !studio.includes("/buy/DREAMMEEZ-SUPPORTER-SPROUT"));
 assert(studio.includes("CONCEPT ONLY / FREE TRY-ON"));
 assert(identity.includes("entitlement_verified: false") && identity.includes("local_previews"));
