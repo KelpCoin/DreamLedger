@@ -85,6 +85,36 @@ jobs:
             exit 1
           fi
 
+      - name: Verify Quote Compare live commercial contract
+        env:
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$STRIPE_SECRET_KEY"
+          LINK_ID="plink_1USpJeEGgEAnUFF9vNDiM8SS"
+          EXPECTED_URL="https://buy.stripe.com/00wdR93vnbK5eqH3gwdwc3r"
+          EXPECTED_RETURN='https://dreamledger.org/quote-intake.html?session_id={CHECKOUT_SESSION_ID}'
+          curl -fsS "https://api.stripe.com/v1/payment_links/$LINK_ID" -u "$STRIPE_SECRET_KEY:" > "$RUNNER_TEMP/quote-link.json"
+          jq -e --arg u "$EXPECTED_URL" --arg r "$EXPECTED_RETURN" '
+            .active == true and .livemode == true and .url == $u and
+            .metadata.sku == "QUOTE-COMPARE-49" and
+            .metadata.silo == "truth_oracle" and
+            .after_completion.type == "redirect" and
+            .after_completion.redirect.url == $r
+          ' "$RUNNER_TEMP/quote-link.json" >/dev/null
+          curl -fsS https://api.stripe.com/v1/webhook_endpoints -u "$STRIPE_SECRET_KEY:" -G --data-urlencode limit=100 > "$RUNNER_TEMP/webhooks.json"
+          jq -e '[.data[] | select(.url=="https://wbwgroygjeyukkspnqiy.supabase.co/functions/v1/stripe-revenue-41104f355d6878cdd6d1f9dc" and .status=="enabled")] | length == 1' "$RUNNER_TEMP/webhooks.json" >/dev/null
+          jq -e '[.data[] | select(.url=="https://wbwgroygjeyukkspnqiy.supabase.co/functions/v1/dreamledger-stripe-webhook-v2" and .status=="disabled")] | length == 1' "$RUNNER_TEMP/webhooks.json" >/dev/null
+          curl -fsS https://wbwgroygjeyukkspnqiy.supabase.co/functions/v1/stripe-revenue-41104f355d6878cdd6d1f9dc > "$RUNNER_TEMP/settlement-health.json"
+          jq -e '.status=="healthy" and .configured==true' "$RUNNER_TEMP/settlement-health.json" >/dev/null
+          code="$(curl -sS -o "$RUNNER_TEMP/intake.json" -w '%{http_code}' --max-time 20 -X POST https://wbwgroygjeyukkspnqiy.supabase.co/functions/v1/quote-intake -H 'content-type: application/json' --data '{"action":"status","session_id":"bad"}' || true)"
+          test "$code" = "400"
+          jq -e '.error=="INVALID_SESSION_ID"' "$RUNNER_TEMP/intake.json" >/dev/null
+          curl -fsS https://dreamledger.org/quote-compare-49.html > "$RUNNER_TEMP/quote-page.html"
+          grep -Fq "$EXPECTED_URL" "$RUNNER_TEMP/quote-page.html"
+          grep -Fq 'DreamLedger is in trade in New Zealand' "$RUNNER_TEMP/quote-page.html"
+          echo 'QUOTE_REVENUE_WEDGE_LIVE_CONTRACT=PASS'
       - name: Emit revenue sentinel proof
         shell: bash
         run: |
