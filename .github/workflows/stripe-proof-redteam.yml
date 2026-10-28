@@ -1,0 +1,49 @@
+name: BECK Stripe Payment Proof Red-Team Gate
+on:
+  pull_request:
+    branches: [main, billboard-verified-release-20261027]
+    paths:
+      - 'BEC-PRIME/lib/stripeWebhookProof.js'
+      - 'BEC-PRIME/lib/taxLedger.js'
+      - 'BEC-PRIME/scripts/test-stripe-webhook-redteam.js'
+      - 'BEC-PRIME/scripts/test-stripe-webhook-proof.js'
+      - '.github/workflows/stripe-proof-redteam.yml'
+  push:
+    branches: [main, billboard-verified-release-20261027]
+    paths:
+      - 'BEC-PRIME/lib/stripeWebhookProof.js'
+      - 'BEC-PRIME/lib/taxLedger.js'
+      - 'BEC-PRIME/scripts/test-stripe-webhook-redteam.js'
+      - 'BEC-PRIME/scripts/test-stripe-webhook-proof.js'
+      - '.github/workflows/stripe-proof-redteam.yml'
+permissions:
+  contents: read
+jobs:
+  local-proof-replay-and-crash:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Parse payment verification and red-team tests
+        run: |
+          node --check BEC-PRIME/lib/stripeWebhookProof.js
+          node --check BEC-PRIME/scripts/test-stripe-webhook-redteam.js
+          node --check BEC-PRIME/scripts/test-stripe-webhook-proof.js
+      - name: Offline Stripe proof, replay and crash regressions
+        run: |
+          node --test BEC-PRIME/scripts/test-stripe-webhook-redteam.js
+          node BEC-PRIME/scripts/test-stripe-webhook-proof.js
+      - name: Forbid false paid-fulfillment claim
+        run: |
+          node - <<'NODE'
+          const fs=require('node:fs');
+          const text=fs.readFileSync('BEC-PRIME/lib/stripeWebhookProof.js','utf8');
+          if(text.includes('handled: true, fulfilled: true')||!text.includes("delivery_status: 'PENDING', fulfilled: false"))throw Error('Payment proof was conflated with delivery');
+          if(!text.includes("STRIPE_TRANSACTION_IDENTITY_COLLISION")||!text.includes("STRIPE_PROOF_CLAIM_BUSY"))throw Error('Missing fail-closed payment identity/claim checks');
+          console.log('BECK_PAYMENT_EVIDENCE_GATE=PASS; EXTERNAL_REVENUE=NOT_TESTED');
+          NODE
