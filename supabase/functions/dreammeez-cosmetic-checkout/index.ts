@@ -48,6 +48,16 @@ Deno.serve(async (req) => {
     .maybeSingle();
   if (owned) return json({ error: "cosmetic already owned" }, 409);
 
+  // Stable SKU identity across the checkout event and payment-intent event.
+  // This metadata is not proof of a settled payment or successful entitlement.
+  const commercialIdentity = {
+    product_sku: cosmeticId,
+    product_id: cosmeticId,
+    offer_id: cosmeticId,
+    silo: "dreammeez",
+    source: "dreammeez-cosmetic-checkout",
+  };
+
   const session = await stripe.checkout.sessions.create({
     mode: "payment",
     success_url: publicBase + "/avatar.html?purchase=success&cosmetic_id=" + encodeURIComponent(cosmeticId),
@@ -61,11 +71,17 @@ Deno.serve(async (req) => {
       },
     }],
     metadata: {
+      ...commercialIdentity,
       dreammeez_cosmetic_id: cosmeticId,
       account_id: authData.user.id,
     },
     payment_intent_data: {
       metadata: {
+        product_sku: commercialIdentity.product_sku,
+        product_id: commercialIdentity.product_id,
+        offer_id: commercialIdentity.offer_id,
+        silo: commercialIdentity.silo,
+        source: commercialIdentity.source,
         dreammeez_cosmetic_id: cosmeticId,
         account_id: authData.user.id,
       },

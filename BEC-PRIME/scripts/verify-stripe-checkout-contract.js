@@ -4,7 +4,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const ROOT = path.resolve(__dirname, '..', '..');
+const ROOT = process.env.CHECKOUT_CONTRACT_SCAN_ROOT ? path.resolve(process.env.CHECKOUT_CONTRACT_SCAN_ROOT) : path.resolve(__dirname, '..', '..');
 const SKIP = new Set(['.git', 'node_modules', '.next', 'dist', 'build', 'coverage']);
 const EXT = new Set(['.js', '.cjs', '.mjs', '.ts', '.tsx', '.jsx', '.py', '.ps1', '.yml', '.yaml', '.sh']);
 const REQUIRED = ['product_sku', 'product_id', 'offer_id', 'silo', 'source'];
@@ -35,6 +35,8 @@ function hasAnyProducer(text) {
 }
 
 function isReadOnlyStripeUse(text) {
+  // SDK creation and internal checkout adapters can omit the literal URL.
+  if (/stripe\.checkout\.sessions\.create|stripeCheckout\s*\(|stripeRequest\s*\(/i.test(text)) return false;
   const lower = text.toLowerCase();
   if (!lower.includes('checkout/sessions')) return true;
   return !/(method\s*[:=]\s*['\"]post['\"]|stripeCheckout\s*\(|stripeRequest\s*\(|sessions\s*\.create|curl[^\n]*-x\s+post|post\s+https?:\/\/api\.stripe\.com\/v1\/checkout\/sessions)/i.test(text);
@@ -59,15 +61,43 @@ function metadataPresent(windowText, key) {
   const direct = new RegExp('payment_intent_data[^\\n]{0,180}metadata[^\\n]{0,120}(?:[\\[.]' + escaped + '|[\"\\\']' + escaped + '[\"\\\'])', 'i');
   const urlEncoded = new RegExp('payment_intent_data\\[metadata\\]\\[' + escaped + '\\]', 'i');
   const objectForm = new RegExp('payment_intent_data[^\\n]{0,500}metadata[^\\n]{0,500}[\"\\\']?' + escaped + '[\"\\\']?', 'i');
-  return direct.test(windowText) || urlEncoded.test(windowText) || objectForm.test(windowText) || urlEncoded.test(normalized);
+  return direct.test(windowText) || direct.test(normalized) || urlEncoded.test(windowText) || objectForm.test(windowText) || objectForm.test(normalized) || urlEncoded.test(normalized);
+}
+
+function isSyntheticTestPath(rel) {
+  // Production producer inventory excludes hermetic tests and fixtures.
+  // The test suite exercises these separately and never accepts them as receipts.
+  return /^(?:scripts|BEC-PRIME\/scripts)\/test[-_][^/]+\.(?:js|cjs|mjs|ts)$/.test(rel) ||
+    /(?:^|\/)__tests__\//.test(rel) ||
+    /\.(?:test|spec)\.(?:js|cjs|mjs|ts)$/.test(rel);
+}
+
+function isReadOnlyCheckoutConsumer(rel, text) {
+  if (rel !== 'supabase/functions/dreamledger-billboard-webhook/index.ts') return false;
+  // The existing billboard webhook GETs checkout session line items, but also
+  // POSTs refunds elsewhere. File-wide POST matching previously misclassified
+  // this consumer as a session creator. Fail closed on any additional access.
+  const mentions = text.split(/\r?\n/).filter(line => /checkout\/sessions/i.test(line));
+  return mentions.length === 1 &&
+    /stripe\(\s*["'`]+checkout\/sessions\/["'`]+\s*\+/.test(mentions[0]) &&
+    !/stripe\.checkout\.sessions\.create|stripeCheckout\s*\(|stripeRequest\s*\(/i.test(text);
 }
 
 const files = walk(ROOT);
 const producers = [];
+const exclusions = [];
 for (const file of files) {
   const rel = path.relative(ROOT, file).replace(/\\/g, '/');
   if (rel === 'ops/commerce/reconcile-stripe-airtable.mjs') continue;
   const text = fs.readFileSync(file, 'utf8');
+  if (isSyntheticTestPath(rel)) {
+    exclusions.push({file:rel, reason:'NONPRODUCTION_TEST'});
+    continue;
+  }
+  if (isReadOnlyCheckoutConsumer(rel, text)) {
+    exclusions.push({file:rel, reason:'LINE_ITEMS_READ_ONLY_CONSUMER'});
+    continue;
+  }
   if (!hasAnyProducer(text) || isReadOnlyStripeUse(text)) continue;
   for (const win of producerWindows(text)) {
     const directCanonical = REQUIRED.every((k) => win.text.includes('payment_intent_data[metadata][' + k + ']'));
@@ -102,6 +132,8 @@ const proof = {
   required_payment_intent_metadata: REQUIRED,
   producer_windows: rows,
   producer_window_count: rows.length,
+  nonproducer_exclusions: exclusions,
+  evidence_classification: 'STATIC_SOURCE_CHECK_NOT_LIVE_PAYMENT_PROOF',
   failing_window_count: failures.length,
   central_preload: preloadActive,
   status: failures.length ? 'FAIL' : 'PASS'

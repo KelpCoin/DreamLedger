@@ -27,8 +27,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+      - name: Test Stripe checkout static classifier (mock only)
+        run: node BEC-PRIME/scripts/test-stripe-checkout-scanner.js
       - name: Verify Stripe Checkout producers
         run: node BEC-PRIME/scripts/verify-stripe-checkout-contract.js
+      - name: Syntax check scanner tests
+        run: node --check BEC-PRIME/scripts/test-stripe-checkout-scanner.js
       - name: Syntax check verifier
         run: node --check BEC-PRIME/scripts/verify-stripe-checkout-contract.js
       - name: Syntax check public hypothesis surface
