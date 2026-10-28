@@ -4,6 +4,9 @@ on:
     paths:
       - 'public/**'
       - 'vercel.json'
+      - 'package.json'
+      - 'handlers/cube/marketplace.js'
+      - 'handlers/cube/marketplace.test.js'
       - 'scripts/verify-vercel-public-release.cjs'
       - '.github/workflows/vercel-public-release-contract.yml'
   push:
@@ -11,6 +14,9 @@ on:
     paths:
       - 'public/**'
       - 'vercel.json'
+      - 'package.json'
+      - 'handlers/cube/marketplace.js'
+      - 'handlers/cube/marketplace.test.js'
       - 'scripts/verify-vercel-public-release.cjs'
       - '.github/workflows/vercel-public-release-contract.yml'
 permissions:
@@ -23,3 +29,10 @@ jobs:
       - uses: actions/checkout@v4
       - name: Verify actual public portfolio release tree
         run: node scripts/verify-vercel-public-release.cjs
+      - name: Adversarial Neon marketplace read-only contract
+        run: |
+          node --check handlers/cube/marketplace.js
+          node --test handlers/cube/marketplace.test.js
+          if grep -iE 'SUPABASE|dreamiez_session|readFileSync|writeFileSync' handlers/cube/marketplace.js; then
+            echo 'UNSAFE_MARKETPLACE_BACKEND'; exit 1
+          fi
