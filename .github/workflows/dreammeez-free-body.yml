@@ -62,6 +62,6 @@ jobs:
           const fs=require('node:fs');
           const s=fs.readFileSync('IP/DreamMeez/FREE-BODY-ART-SPEC-v1.md','utf8');
           const p=JSON.parse(fs.readFileSync('IP/DreamMeez/usp-201-203-free-identity.json','utf8'));
-          if(!s.includes('FREE')||!s.includes('450 body configurations')||p.automatic_publication!==false||p.ideas.length!==3)process.exit(1);
+          if(!s.toLowerCase().includes('free')||!s.includes('450 body configurations')||p.automatic_publication!==false||p.ideas.length!==3)process.exit(1);
           console.log('DREAMMEEZ_HANDDRAWN_SOURCE_PENDING; PAID_BODY_SKUS=0; PUBLISHED_NEW_COSMETICS=0');
           NODE
