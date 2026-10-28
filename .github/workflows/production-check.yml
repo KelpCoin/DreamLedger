@@ -19,6 +19,8 @@ jobs:
           node --check handlers/agentbridge/cosmetic-policy.js
           node --check handlers/agentbridge/cosmetic-intake.js
           node --test handlers/agentbridge/cosmetic-policy.test.js handlers/agentbridge/cosmetic-intake.test.js
+      - name: Verify local hand-drawn / enhanced wearable fit lab
+        run: node scripts/test_creator_preview_contract.cjs
       - name: PostgreSQL private-asset intake transaction test
         shell: bash
         run: |
