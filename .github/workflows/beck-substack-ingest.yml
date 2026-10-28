@@ -1,0 +1,38 @@
+name: BECK Substack Public RSS Research Ingest
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'ops/research/substack-ingest/**'
+      - '.github/workflows/beck-substack-ingest.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  unit-and-live-public-feed:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    defaults:
+      run:
+        working-directory: ops/research/substack-ingest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install safe XML parser
+        run: python -m pip install -r requirements.txt
+      - name: Run all local mock and tampering tests
+        run: python -m unittest discover -s tests -p 'test_*.py' -q
+      - name: Fetch ONE live public Substack RSS feed (metadata-only proof)
+        run: |
+          python -m substack_ingest probe --url https://www.oneusefulthing.org/feed --out live-probe.json
+      - name: Upload metadata-only proof (never upload feed articles)
+        uses: actions/upload-artifact@v4
+        with:
+          name: beck-substack-live-public-feed-proof-${{ github.run_id }}
+          path: ops/research/substack-ingest/live-probe.json
+          if-no-files-found: error
+          retention-days: 14

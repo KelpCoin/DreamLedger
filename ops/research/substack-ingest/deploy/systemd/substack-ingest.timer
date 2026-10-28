@@ -1,0 +1,8 @@
+[Unit]
+Description=Run Substack ingest every 3 hours
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=3h
+Persistent=true
+[Install]
+WantedBy=timers.target
