@@ -49,14 +49,17 @@ module.exports=async function creatorAgentBridge(request) {
         item.hash,item.metaHash,item.base64,item.originKind,item.parentDraftId]);
       const outcome=rows[0]?.result;
       if(!outcome?.draft_id)return json({error:'CREATOR_DB_RECEIPT_MISSING',trace_id:trace},503);
-      return json({...outcome,trace_id:trace,silo_id:'SILO_AVATAR',
+      const {gauntlet:privateVerdict,...publicReceipt}=outcome;
+      return json({...publicReceipt,review_status:privateVerdict,
+        trace_id:trace,silo_id:'SILO_AVATAR',
         render_targets:['dreamiez','kelp-atlantis'],checkout_available:false,publicly_visible:false,
         message:'Private source artwork retained for an approval-gated enhancement and wearable-fit workflow; no AI processing or publication is implied.'},
         outcome.idempotent?200:201);
     }
     if(route==='/api/agent-bridge/cosmetics/mine'&&request.method==='GET') {
       const rows=await db.query('SELECT draft_id,title,wearable_slot,media_type,source_sha256,origin_kind,parent_draft_id,created_at,lifecycle,gauntlet_verdict,approval_required,checkout_available FROM public.beck_creator_cosmetic_drafts WHERE creator_id=$1 ORDER BY created_at DESC LIMIT 50',[creator]);
-      return json({creator_id:creator,private:true,count:rows.length,items:rows,trace_id:trace});
+      const privateItems=rows.map(({gauntlet_verdict,...record})=>({...record,review_status:gauntlet_verdict}));
+      return json({creator_id:creator,private:true,count:privateItems.length,items:privateItems,trace_id:trace});
     }
     if(route==='/api/agent-bridge/cosmetics/image'&&request.method==='GET') {
       const id=requireDraftId(url.searchParams.get('id'));
