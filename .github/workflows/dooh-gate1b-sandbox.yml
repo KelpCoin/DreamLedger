@@ -22,6 +22,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Verify real screen data and signed playback evidence remain required
+        run: node --test DOOH/verified-inventory.test.cjs
       - name: Verify CLI failures cannot report sandbox success
         shell: pwsh
         run: ./DOOH/Test-SandboxCli.ps1
