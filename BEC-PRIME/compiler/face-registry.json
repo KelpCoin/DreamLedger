@@ -43,7 +43,7 @@
       "out": "home.html",
       "title": "DreamLedger | Supplier Quote Comparison and Evidence Tools",
       "eyebrow": "Evidence-first commerce",
-      "headline": "Make the next decision with fewer blind spots.",
+      "headline": "Make the next decision <span>easier to prove.</span>",
       "lead": "Compare 2-5 supplier quotes for a fixed NZ$49, or use the free worksheet. Stripe-hosted payment, private post-payment upload, and missing information kept visible.",
       "cta_source": "live_checkout_routes",
       "primary_offer_ids": [
