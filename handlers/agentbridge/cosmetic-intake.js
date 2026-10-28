@@ -23,14 +23,14 @@ function config() {
 }
 function requireDraftId(value) {
   const id=String(value||'');
-  if(!/^ASSET-PEGGY-[A-F0-9]{20}$/.test(id))throw Object.assign(new Error('INVALID_DRAFT_ID'),{status:400});
+  if(!/^ASSET-(PEGGY|BIGGIE)-[A-F0-9]{20}$/.test(id))throw Object.assign(new Error('INVALID_DRAFT_ID'),{status:400});
   return id;
 }
 module.exports=async function creatorAgentBridge(request) {
   const trace=crypto.randomUUID();
   try {
     verifyOrigin(request.headers,process.env);
-    // Peggy's credential is separate from machine-to-machine AgentBridge.
+    // Each owner's credential is distinct from the other and from machine AgentBridge.
     const creator=authorize(request.headers,process.env);
     const dsn=config();
     if(!dsn)return json({error:'NEON_CREATOR_PRIMARY_NOT_CONFIGURED',trace_id:trace},503);
@@ -43,7 +43,7 @@ module.exports=async function creatorAgentBridge(request) {
       if(text.length>1800000)return json({error:'UPLOAD_TOO_LARGE',trace_id:trace},413);
       let input;
       try{input=JSON.parse(text);}catch{return json({error:'INVALID_JSON',trace_id:trace},400);}
-      const item=draftFromBody(input);
+      const item=draftFromBody(input,creator);
       const rows=await db.query('SELECT public.beck_creator_submit_draft_v1($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) AS result',[
         item.draftId,creator,item.title,item.slot,item.artist,item.file,item.notes,item.mime,
         item.hash,item.metaHash,item.base64]);
