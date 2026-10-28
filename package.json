@@ -68,7 +68,8 @@
     "test:toll-roads": "node --test BEC-PRIME/runtime/TollRoadFactory.test.js BEC-PRIME/runtime/AgentBridgeEventLedger.test.js",
     "test:agent-bridge-ledger": "node --test BEC-PRIME/runtime/AgentBridgeEventLedger.test.js",
     "validate:economics": "node --check ops/decision/validate-decision-prompt-registry.mjs && node --check ops/decision/run-cloud-decision.mjs && node ops/decision/validate-decision-prompt-registry.mjs && node --check ops/commerce/beck-monetization-scout.mjs && node --check ops/commerce/reconcile-truth-oracle-access.mjs && node --check ops/commerce/gauntlet-economic-verdict.mjs && node --check ops/commerce/reconcile-approved-offers.mjs && node --check ops/commerce/reconcile-stripe-webhook-routing.mjs && node --check ops/cockpit/figure-eight-cockpit.mjs && node --check ops/cockpit/discord-cockpit-notify.mjs && node --check BEC-PRIME/start.js && node --check BEC-PRIME/server.js && node --check BEC-PRIME/scripts/verify-render-stripe-webhook-route.js && node BEC-PRIME/scripts/verify-render-stripe-webhook-route.js",
-    "validate:economics:windows": "npm run validate:economics && powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/beck-economic-bootstrap.ps1"
+    "validate:economics:windows": "npm run validate:economics && powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/beck-economic-bootstrap.ps1",
+    "test:neon-marketplace": "node --test handlers/cube/marketplace.test.js"
   },
   "engines": {
     "node": ">=20"
@@ -76,6 +77,7 @@
   "dependencies": {
     "ajv": "^8.17.1",
     "qrcode": "^1.5.4",
-    "@sd-jwt/core": "0.20.1"
+    "@sd-jwt/core": "0.20.1",
+    "@neondatabase/serverless": "1.2.0"
   }
 }
