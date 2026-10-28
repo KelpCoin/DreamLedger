@@ -1,0 +1,34 @@
+name: BECK Local MultiLLM Bootstrap Contract
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'ops/refinement/BECK-Local-MultiLLM.ps1'
+      - '.github/workflows/beck-local-multillm.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'ops/refinement/BECK-Local-MultiLLM.ps1'
+      - '.github/workflows/beck-local-multillm.yml'
+permissions:
+  contents: read
+jobs:
+  powershell-source-contract:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Parse only (do not run scheduler or contact local models)
+        shell: powershell
+        run: |
+          $tokens = $null
+          $errors = $null
+          [void][System.Management.Automation.Language.Parser]::ParseFile('ops/refinement/BECK-Local-MultiLLM.ps1',[ref]$tokens,[ref]$errors)
+          if ($errors.Count -ne 0) {
+              $errors | ForEach-Object { Write-Error $_ }
+              throw 'POWERSHELL_PARSE_ERROR'
+          }
+          $script = Get-Content 'ops/refinement/BECK-Local-MultiLLM.ps1' -Raw
+          if (-not $script.Contains('127.0.0.1:11434') -or -not $script.Contains('model_count_distinct')) { throw 'MISSING_LOCAL_MODEL_OR_PROOF_GUARD' }
+          if (-not $script.Contains('schtasks.exe /Create')) { throw 'MISSING_TASK_SCHEDULER' }
+          if ($script.Contains('stripe.com/v1') -or $script.Contains('Start-Process https://')) { throw 'UNAUTHORISED_EXTERNAL_ACTION' }
+          Write-Host 'BECK_LOCAL_LLM_BOOTSTRAP_PARSE_PASS; MODEL_CALLS=0; TASKS_CREATED=0'
