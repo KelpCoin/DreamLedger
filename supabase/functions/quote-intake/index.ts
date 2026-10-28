@@ -8,7 +8,7 @@ const STRIPE_API_KEY=Deno.env.get("STRIPE_API_KEY")||Deno.env.get("STRIPE_SECRET
 const db=createClient(SUPABASE_URL,SERVICE_ROLE_KEY,{auth:{persistSession:false,autoRefreshToken:false}});
 const stripe=STRIPE_API_KEY?new Stripe(STRIPE_API_KEY):null;
 const BUCKET="marketplace-fulfillment";
-const PAYMENT_LINK="plink_1UKq77EGgEAnUFF9KOr1SuUY";
+const PAYMENT_LINK="plink_1USpJeEGgEAnUFF9vNDiM8SS"; // Verified active live Stripe link 2026-10-28; manual public flow remains default.
 const SKU="QUOTE-COMPARE-49";
 const MAX_FILES=5;
 const MAX_BYTES=10*1024*1024;
@@ -21,7 +21,8 @@ async function sessionContext(sessionId:string){
   const session=await stripe.checkout.sessions.retrieve(sessionId);
   if(session.livemode!==true||session.payment_status!=="paid")throw new Error("PAYMENT_NOT_SETTLED");
   if(session.payment_link!==PAYMENT_LINK)throw new Error("WRONG_PAYMENT_LINK");
-  if(session.metadata?.sku_id!==SKU&&session.metadata?.dreamledger_sku!==SKU)throw new Error("WRONG_SKU");
+  if(session.metadata?.sku_id!==SKU&&session.metadata?.dreamledger_sku!==SKU&&session.metadata?.sku!==SKU)throw new Error("WRONG_SKU");
+  if(session.currency!=="nzd"||session.amount_total!==4900)throw new Error("SKU_PRICE_OR_CURRENCY_MISMATCH");
   const {data:order}=await db.from("revenue_orders").select("id,sku_id,amount_nzd,currency,customer_email").eq("stripe_checkout_session_id",session.id).eq("sku_id",SKU).maybeSingle();
   if(!order)throw new Error("SETTLEMENT_RECORD_PENDING");
   const {data:ent}=await db.from("revenue_entitlements").select("id").eq("order_id",order.id).maybeSingle();
@@ -43,7 +44,7 @@ Deno.serve(async req=>{
       const uploads=[];
       for(let i=0;i<supplied.length;i++){
         const original=safeName(String(supplied[i]?.name||`quote-${i+1}.pdf`));
-        const path=`quote-inputs/${ctx.order.id}/${crypto.randomUUID()}-${original}`;
+        const path=`quote-inputs/${fr.id}/${crypto.randomUUID()}-${original}`;
         const {data,error}=await db.storage.from(BUCKET).createSignedUploadUrl(path,{upsert:false});
         if(error||!data)return out({error:"SIGNED_UPLOAD_URL_FAILED"},500);
         uploads.push({path,token:data.token,name:original});
@@ -57,10 +58,10 @@ Deno.serve(async req=>{
       const inputFiles=[];
       for(const file of files){
         const p=String(file.path||"");const name=safeName(String(file.name||p.split("/").pop()||"quote"));const size=Number(file.size||0);
-        if(!p.startsWith(`quote-inputs/${ctx.order.id}/`)||p.includes(".."))return out({error:"INVALID_STORAGE_PATH"},400);
+        if(!p.startsWith(`quote-inputs/${fr.id}/`)||p.includes(".."))return out({error:"INVALID_STORAGE_PATH"},400);
         if(size<=0||size>MAX_BYTES)return out({error:"FILE_SIZE_INVALID",file:name},400);
         const ext=name.toLowerCase().split(".").pop()||"";if(!["pdf","csv","json","md"].includes(ext))return out({error:"UNSUPPORTED_FILE_TYPE",file:name},400);
-        const dir=`quote-inputs/${ctx.order.id}`;const listed=await db.storage.from(BUCKET).list(dir,{limit:100});
+        const dir=`quote-inputs/${fr.id}`;const listed=await db.storage.from(BUCKET).list(dir,{limit:100});
         if(!listed.data?.some(x=>p.endsWith("/"+x.name)))return out({error:"UPLOADED_FILE_NOT_FOUND",file:name},400);
         inputFiles.push({path:p,name,size,sha256:String(file.sha256||"")||null});
       }
@@ -80,5 +81,5 @@ Deno.serve(async req=>{
       return out({ok:true,status:fr.status,canonical_state:fr.canonical_state,evidence_status:fr.evidence_status,fulfillment_reference:fr.fulfillment_reference,evidence_reference:fr.evidence_reference,download_url});
     }
     return out({error:"UNKNOWN_ACTION"},400);
-  }catch(e){const code=e instanceof Error?e.message:"UNKNOWN";const status=["PAYMENT_NOT_SETTLED","WRONG_PAYMENT_LINK","WRONG_SKU","SETTLEMENT_RECORD_PENDING","ENTITLEMENT_PENDING","FULFILLMENT_REQUEST_NOT_FOUND"].includes(code)?409:400;return out({error:code},status);}
+  }catch(e){const code=e instanceof Error?e.message:"UNKNOWN";const status=["PAYMENT_NOT_SETTLED","WRONG_PAYMENT_LINK","WRONG_SKU","SKU_PRICE_OR_CURRENCY_MISMATCH","SETTLEMENT_RECORD_PENDING","ENTITLEMENT_PENDING","FULFILLMENT_REQUEST_NOT_FOUND"].includes(code)?409:400;return out({error:code},status);}
 });
