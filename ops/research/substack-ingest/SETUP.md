@@ -3,6 +3,13 @@
 ## What it does
 Every 3 hours on a small cloud box: fetches the RSS feed of each publication you list (publicly exposed content only; paywalled posts arrive as previews), dedupes, strips HTML, flags suspicious text, and when there is something new writes a **bundle** (`articles.jsonl`, `digest.md`, `SHA256SUMS.txt`) to `outbox/`. The digest lists new articles, feed problems, your watchlist counts and rising terms (recent 7 days vs prior 28; withheld until there is enough history).
 
+## PRIVATE / no website publishing
+- All chosen feeds, cached posts, article records, digests, watchlists, research derivatives and knowledge-base files are **personal research**. Never put them under DreamLedger's `public/` folder, in public GitHub source history, a web-served output directory, a public workflow artifact, or a customer-facing SKU.
+- The CLI now refuses research state, feed config, bundle imports and BECK evidence exports to the public repository or a known public webroot. Set `BECK_PUBLIC_WEBROOT` if your private server has an additional web-served folder.
+- With no explicit `--db` and `--outbox`, local polling defaults to `~/.local/share/beck/substack-ingest/`. Supply an explicit, private `--config` path. The systemd unit already uses `/etc/substack-ingest/config.json` and `/var/lib/substack-ingest/` on its server.
+- **Truth Oracle exception:** an original article/report may only be drafted for separate, source-verified human editorial review, with author-rights assessment and explicit Biggie + Peggy approval of that particular publication or sale. There is no automatic handoff from ingestion into publishing, checkout or product generation.
+- This standalone code module currently resides in a public GitHub repository, but research content is neither tracked there nor included in the public website deploy.
+
 ## What it deliberately does NOT do
 * No LLM in the cloud: summarising happens on your side from the bundle (use bec_engine's structured gate with a local model), so no API keys or article text go to third parties.
 * No scraping behind paywalls and no login. Check each publication's terms; keep the articles for personal reading and analysis, do not republish them.

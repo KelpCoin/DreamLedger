@@ -1,6 +1,6 @@
 import argparse, json, os, sys, time, tempfile, xml.etree.ElementTree as StdET
 from pathlib import Path
-from . import core, bundle, importer, beck_adapter
+from . import core, bundle, importer, beck_adapter, privacy
 
 
 def cfg_load(p):
@@ -11,15 +11,20 @@ def cfg_load(p):
 
 def main(argv=None):
     ap = argparse.ArgumentParser(prog="substack_ingest"); sp = ap.add_subparsers(dest="cmd", required=True)
-    r = sp.add_parser("run"); r.add_argument("--config", default="config.json"); r.add_argument("--db", default="ingest.sqlite"); r.add_argument("--outbox", default="outbox")
+    r = sp.add_parser("run"); r.add_argument("--config", default="config.json"); r.add_argument("--db", default=str(privacy.DEFAULT_DB)); r.add_argument("--outbox", default=str(privacy.DEFAULT_OUTBOX))
     v = sp.add_parser("verify"); v.add_argument("bundle")
     i = sp.add_parser("import"); i.add_argument("bundle"); i.add_argument("--kb", required=True)
     p = sp.add_parser("probe", help="one real PUBLIC feed verification; no persistent article export"); p.add_argument("--url", required=True); p.add_argument("--out", help="optional metadata-only JSON proof output")
     b = sp.add_parser("beck-export", help="export metadata-only, untrusted public research evidence to BECK"); b.add_argument("--kb", required=True); b.add_argument("--out", required=True)
     a = ap.parse_args(argv)
     if a.cmd == "run":
-        cfg = cfg_load(a.config); db = core.open_db(a.db); now = time.time()
-        res = core.ingest(db, cfg["feeds"], delay=cfg.get("delay_s", 1.0)); d = bundle.write_bundle(db, res, cfg, a.outbox, now)
+        db_file = privacy.require_private_path(a.db, "SQLite research state")
+        outbox_dir = privacy.require_private_path(a.outbox, "Research bundle outbox")
+        config_file = privacy.require_private_path(a.config, "Personal feed watchlist config")
+        Path(db_file).parent.mkdir(parents=True, exist_ok=True)
+        Path(outbox_dir).mkdir(parents=True, exist_ok=True)
+        cfg = cfg_load(config_file); db = core.open_db(db_file); now = time.time()
+        res = core.ingest(db, cfg["feeds"], delay=cfg.get("delay_s", 1.0)); d = bundle.write_bundle(db, res, cfg, outbox_dir, now)
         print(json.dumps(dict(new=len(res["new"]), health=res["health"], bundle=d), indent=2)); return 1 if any(h["status"] == "FAILED" for h in res["health"]) else 0
     if a.cmd == "probe":
         # Ephemeral, credential-free, single-feed compatibility test. Never upload article text.

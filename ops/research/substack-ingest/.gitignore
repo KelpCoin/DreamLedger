@@ -1,0 +1,16 @@
+# Private, owner-only Substack research. Never commit personal feeds or bundles.
+config.json
+*.sqlite
+*.sqlite3
+*.sqlite-wal
+*.sqlite-shm
+outbox/
+articles.jsonl
+digest.md
+SHA256SUMS.txt
+kb/
+knowledge-base/
+beck-research-evidence.json
+*.substack-bundle
+.env
+.env.*
