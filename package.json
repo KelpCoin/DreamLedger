@@ -77,6 +77,6 @@
     "ajv": "^8.17.1",
     "qrcode": "^1.5.4",
     "@sd-jwt/core": "0.20.1",
-    "@neondatabase/serverless": "^1.0.0"
+    "@neondatabase/serverless": "1.2.0"
   }
 }
