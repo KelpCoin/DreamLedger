@@ -47,6 +47,16 @@ input{width:100%;background:#080b10;border:1px solid #526074;border-radius:9px;c
 .canvas-cell:nth-child(11n+2){background:#162220}.canvas-cell.is-published{border-color:#c5ff35;background:#c5ff35;color:#0b1110;font-weight:950}
 .canvas-cell.is-published img{width:100%;height:100%;object-fit:cover}
 .canvas-cell.is-published:hover{outline:2px solid #fff;z-index:1}
+.canvas-cell:not(.is-published){cursor:pointer}
+.canvas-cell:focus-visible{outline:3px solid #ffffff;outline-offset:-3px;z-index:2}
+.canvas-cell.is-demo{border:2px dashed #eaffb9;background:linear-gradient(145deg,#c5ff35,#90d33c);color:#06120a;font-size:clamp(9px,1.4vw,16px);font-weight:950;box-shadow:inset 0 0 0 2px #143619;z-index:1;overflow-wrap:anywhere}
+.canvas-cell.is-demo span{position:absolute;top:1px;left:1px;font:900 9px/1.1 ui-monospace,monospace;background:#09221b;color:#e9ffbd;padding:2px 3px}
+.canvas-cell.is-demo strong{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word}
+.demo-controls{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin:12px 0}
+.demo-controls button{border:1px solid #88bf5f;background:#162b17;color:#eaffdc;border-radius:10px;padding:10px 15px;font:800 13px system-ui,sans-serif;cursor:pointer}
+.demo-controls button:disabled{opacity:.45;cursor:not-allowed}
+.demo-controls button:focus-visible{outline:3px solid #ffffff;outline-offset:3px}
+.demo-warning{color:#e9ffc9;border-left:3px solid #c5ff35;padding:7px 12px;background:#0c1911;font-size:13px}
 .canvas-topline{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:15px}
 .canvas-topline strong{font:950 14px ui-monospace,monospace;color:#c5ff35}
 .canvas-status{font-size:13px;color:#bcc7d0;margin-top:14px}
@@ -76,7 +86,8 @@ input{width:100%;background:#080b10;border:1px solid #526074;border-radius:9px;c
 <p class="previewtag">DEMO ONLY · NOT A PAID PLACEMENT</p>
 <label class="input-label" for="sample">Try a label in the preview (maximum 80 characters)</label>
 <input id="sample" maxlength="80" value="Biggie Still Here" autocomplete="off">
-<p class="small">This example does not reserve space or create an order. Demo only; billboard checkout is held.</p>
+<div class="demo-controls"><button id="preview-on-board" type="button">Preview this tile on the full canvas</button></div>
+<p class="small">Your text stays in this browser. You can try any unverified grid position below. No space is reserved or sold.</p>
 </aside>
 </section>
 <section class="section" id="details">
@@ -91,10 +102,13 @@ input{width:100%;background:#080b10;border:1px solid #526074;border-radius:9px;c
 <p class="eyebrow">Public canvas</p><h2 id="live-heading">Verified published placements</h2>
 <p class="notice">Only placements returned by the existing public billboard data view appear here. The sample above is not included.</p>
 <div class="canvas-topline"><strong>THE COMPLETE CANVAS · 1000 × 1000 PIXELS</strong><span class="small">100 grid positions · 100 × 100 pixels each</span></div>
+<p class="notice">Select any numbered cell to preview your own label in that position. Use arrow keys to move between cells and Enter to preview. This does not reserve, purchase or publish anything.</p>
 <div class="canvas-shell" role="region" aria-label="Full million pixel internet billboard" tabindex="0">
 <div id="billboard-canvas" class="billboard-canvas" role="grid" aria-label="100-position billboard grid"></div>
 </div>
+<div class="demo-controls"><button id="clear-board-preview" type="button" disabled>Clear demo placement</button><span id="demo-position" class="small" role="status" aria-live="polite">No preview positioned. All 100 cells are visible.</span></div>
 <p id="canvas-status" class="canvas-status" role="status">Checking verified public inventory…</p>
+<p class="demo-warning">Only solid green, evidence-backed PUBLISHED placements represent actual customer tiles. A dashed green DEMO is yours to move and is never listed as a purchased placement.</p>
 <p class="canvas-legend">This is the full canvas. Unmarked cells mean their current allocation is not verified from the public data view. Unmarked does <strong>not</strong> mean available to purchase. Only confirmed PUBLISHED rows with explicit positions are painted as paid placements.</p>
 <h3 style="margin:32px 0 14px">Published placement directory</h3>
 <div id="live-items" class="live-grid" aria-live="polite"><p class="notice">Checking published inventory...</p></div>
@@ -105,48 +119,136 @@ input{width:100%;background:#080b10;border:1px solid #526074;border-radius:9px;c
 </section>
 <p class="fine">DreamLedger Internet Billboard · NZ$50 founding price shown for information only · CHECKOUT HELD · DreamLedger silo only · No guaranteed audience. Public promotion outside this website requires separate approval.</p>
 </main></div>
+<script src="/assets/billboard-canvas-preview.js"></script>
 <script>
-(function(){'use strict';const input=document.getElementById('sample');const tile=document.getElementById('tile-text');input.addEventListener('input',function(){tile.textContent=input.value.trim().slice(0,80)||'YOUR IDEA HERE';});})();
-</script>
-<script>
-(async function(){'use strict';
+(function(){'use strict';
+ const preview=window.DreamLedgerBillboardPreview;
+ const input=document.getElementById('sample');
+ const tile=document.getElementById('tile-text');
  const root=document.getElementById('live-items');
  const canvas=document.getElementById('billboard-canvas');
  const canvasStatus=document.getElementById('canvas-status');
+ const demoStatus=document.getElementById('demo-position');
+ const placeButton=document.getElementById('preview-on-board');
+ const clearButton=document.getElementById('clear-board-preview');
+ if(!preview){canvasStatus.textContent='The canvas preview component failed to load.';return;}
+ let occupied=new Set(),items=[],selected=null,focused=0,feedVerified=false;
  const slots=[];
- for(let i=0;i<100;i++){const cell=document.createElement('div');cell.className='canvas-cell';cell.setAttribute('role','gridcell');cell.setAttribute('aria-label','Position '+(i+1)+': allocation unverified');cell.textContent=String(i+1).padStart(2,'0');canvas.appendChild(cell);slots.push(cell);}
-
- try{
-   const response=await fetch('/api/billboard/public',{cache:'no-store'});
-   if(!response.ok)throw Error('unavailable');
-   const payload=await response.json();
-   if(!Array.isArray(payload.items))throw Error('invalid');
-   let positioned=0,unpositioned=0;
-   for(const item of payload.items){
-     const index=item.cell_index;
-     if(!Number.isInteger(index)||index<0||index>=100){unpositioned++;continue;}
-     const cell=slots[index];
-     if(cell.classList.contains('is-published')){unpositioned++;continue;}
-     cell.replaceChildren();cell.classList.add('is-published');cell.setAttribute('aria-label','Published position '+(index+1)+': '+String(item.title||'Placement').slice(0,80));
-     const img=String(item.image_url||'');
-     if(/^https:\/\//i.test(img)){const picture=document.createElement('img');picture.src=img;picture.alt=String(item.title||'Published placement').slice(0,80);picture.loading='lazy';cell.appendChild(picture);}
-     else cell.textContent=String(item.title||'Published placement').slice(0,80);
-     positioned++;
+ for(let i=0;i<preview.CELLS;i++){
+   const cell=document.createElement('div');
+   cell.className='canvas-cell';
+   cell.setAttribute('role','gridcell');
+   cell.tabIndex=i===0?0:-1;
+   cell.dataset.index=String(i);
+   cell.setAttribute('aria-label','Position '+(i+1)+': allocation unverified');
+   cell.textContent=String(i+1).padStart(2,'0');
+   cell.addEventListener('click',function(){setDemo(i);});
+   cell.addEventListener('focus',function(){focusCell(i,false);});
+   cell.addEventListener('keydown',function(event){
+     const delta={ArrowRight:1,ArrowLeft:-1,ArrowDown:10,ArrowUp:-10};
+     let next=null;
+     if(event.key in delta){
+       const row=Math.floor(i/10),col=i%10;
+       if(event.key==='ArrowRight'&&col<9 || event.key==='ArrowLeft'&&col>0 ||
+          event.key==='ArrowDown'&&row<9 || event.key==='ArrowUp'&&row>0)next=i+delta[event.key];
+     }else if(event.key==='Home')next=Math.floor(i/10)*10;
+     else if(event.key==='End')next=Math.floor(i/10)*10+9;
+     else if(event.key==='Enter'||event.key===' '){event.preventDefault();setDemo(i);return;}
+     if(next!==null){event.preventDefault();focusCell(next,true);}
+   });
+   slots.push(cell);canvas.appendChild(cell);
+ }
+ function focusCell(index,performFocus){
+   focused=index;
+   slots.forEach((cell,i)=>cell.tabIndex=i===focused?0:-1);
+   if(performFocus)slots[index].focus();
+ }
+ function repaint(){
+   const publishedByIndex=new Map();
+   items.forEach(item=>{if(preview.validIndex(item.cell_index))publishedByIndex.set(item.cell_index,item);});
+   slots.forEach((cell,i)=>{
+     cell.replaceChildren();
+     cell.className='canvas-cell';
+     cell.textContent=String(i+1).padStart(2,'0');
+     cell.setAttribute('aria-label','Position '+(i+1)+': allocation unverified');
+     const pub=publishedByIndex.get(i);
+     if(pub){
+       cell.replaceChildren();cell.classList.add('is-published');
+       cell.setAttribute('aria-label','Published position '+(i+1)+': '+preview.label(pub.title));
+       const pic=String(pub.image_url||'');
+       if(/^https:\/\/[^/\s]+/i.test(pic)){
+         const image=document.createElement('img');
+         image.src=pic;image.alt=preview.label(pub.title);image.loading='lazy';cell.appendChild(image);
+       }else cell.textContent=preview.label(pub.title);
+     }else if(selected===i){
+       cell.replaceChildren();cell.classList.add('is-demo');
+       const badge=document.createElement('span');badge.textContent='DEMO';
+       const label=document.createElement('strong');label.textContent=preview.label(input.value);
+       cell.append(badge,label);
+       cell.setAttribute('aria-label','Position '+(i+1)+': DEMO preview, not reserved: '+preview.label(input.value));
+     }
+   });
+   clearButton.disabled=selected===null;
+   demoStatus.textContent=selected===null?
+     'No preview positioned. All 100 cells are visible.':
+     'DEMO ONLY: '+preview.label(input.value)+' shown in position '+(selected+1)+
+     ' (row '+(Math.floor(selected/10)+1)+', column '+(selected%10+1)+'). Not available for purchase or reserved.';
+ }
+ function setDemo(index){
+   if(preview.choosePreview(index,occupied)===null){
+     demoStatus.textContent='That position contains a published placement. Choose another cell.';
+     return;
    }
-   canvasStatus.textContent='Public feed responded: '+payload.items.length+' published placement(s), '+positioned+' mapped to verified grid coordinates, '+unpositioned+' without usable public positions.';
-
-   root.replaceChildren();
-   if(!payload.items.length){const p=document.createElement('p');p.className='notice';p.textContent='No verified published tiles are currently available to display.';root.appendChild(p);return;}
-   for(const item of payload.items){
-     const a=document.createElement('a');a.className='live-card';
-     const destination=String(item.destination_url||'');
-     if(/^https:\/\//i.test(destination)){a.href=destination;a.target='_blank';a.rel='noopener noreferrer nofollow sponsored';}
-     else {a.removeAttribute('href');}
-     const title=document.createElement('strong');title.textContent=String(item.title||'Published placement').slice(0,80);a.appendChild(title);
-     const label=document.createElement('span');label.textContent='PUBLISHED · '+String(item.market||'NZ').slice(0,20);a.appendChild(label);
-     root.appendChild(a);
+   selected=index;repaint();
+ }
+ placeButton.addEventListener('click',function(){
+   const index=selected===null?preview.firstUnpublished(occupied):selected;
+   if(index===null){demoStatus.textContent='No preview position is unclaimed in the published feed.';return;}
+   setDemo(index);
+   document.getElementById('live-board').scrollIntoView({block:'start'});
+   focusCell(index,true);
+ });
+ clearButton.addEventListener('click',function(){selected=null;repaint();});
+ input.addEventListener('input',function(){tile.textContent=preview.label(input.value);if(selected!==null)repaint();});
+ repaint();
+ (async function(){
+   try{
+     const response=await fetch('/api/billboard/public',{cache:'no-store'});
+     if(!response.ok)throw Error('feed unavailable');
+     const payload=await response.json();
+     if(!Array.isArray(payload.items))throw Error('invalid feed');
+     occupied=preview.publishedPositions(payload.items);
+     items=payload.items;feedVerified=true;
+     // If a new paid placement uses the current demo position, stop painting the demo.
+     if(selected!==null&&occupied.has(selected))selected=null;
+     repaint();
+     const unpositioned=items.filter(v=>v.cell_index===null||v.cell_index===undefined).length;
+     canvasStatus.textContent='Verified public feed: '+items.length+' published placement(s); '+occupied.size+
+       ' mapped to the 100-cell canvas; '+unpositioned+' without coordinates. Empty cells are not guaranteed available.';
+     root.replaceChildren();
+     if(!items.length){
+       const p=document.createElement('p');p.className='notice';
+       p.textContent='No evidence-backed published placements are currently listed. Your dashed demo does not represent a buyer.';
+       root.appendChild(p);
+       return;
+     }
+     for(const item of items){
+       const a=document.createElement('a');a.className='live-card';
+       const dest=String(item.destination_url||'');
+       if(/^https:\/\/[^/\s]+/i.test(dest)){a.href=dest;a.target='_blank';a.rel='noopener noreferrer nofollow sponsored';}
+       const title=document.createElement('strong');title.textContent=preview.label(item.title);a.appendChild(title);
+       const label=document.createElement('span');label.textContent='PUBLISHED · '+String(item.market||'NZ').slice(0,20);a.appendChild(label);
+       root.appendChild(a);
+     }
+   }catch(err){
+     feedVerified=false;items=[];occupied=new Set();
+     repaint();
+     canvasStatus.textContent='Published placement feed unavailable. No inventory or checkout availability can be verified; canvas interaction is conceptual only.';
+     root.replaceChildren();
+     const p=document.createElement('p');p.className='notice';p.textContent='No paid placements are being invented or inferred from the demo.';
+     root.appendChild(p);
    }
- }catch{canvasStatus.textContent='Public placement feed unavailable. Grid coordinates and inventory cannot be verified.';root.replaceChildren();const p=document.createElement('p');p.className='notice';p.textContent='The live placement feed cannot be verified right now. No placements are being invented or shown as paid.';root.appendChild(p);}
+ })();
 })();
 </script>
 </body></html>
