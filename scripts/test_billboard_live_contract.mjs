@@ -90,6 +90,37 @@ assert(calls.some(x=>x.url.includes('/line_items')));
 assert(calls.some(x=>x.url.endsWith('/rest/v1/billboard_campaigns')&&x.method==='POST'));
 assert(!calls.some(x=>x.url.endsWith('/v1/refunds')));
 
+// Reconcile real, currently active public Stripe link with the deployed
+// alternate link. Both are distinct products and field layouts at NZ$50.
+// There is no real Stripe call: all network activity is mocked.
+calls=[];activePrice='price_1U8xD6EGgEAnUFF9KGrq2t7X';
+const publicSession={...session,
+ id:'cs_live_synthetic_public_link',
+ payment_link:'plink_1U9JGTEGgEAnUFF9WRg3CKk3',
+ metadata:{sku:'DL-BILLBOARD-100X100-3000-001'},
+ custom_fields:[{key:'billboard_label',text:{value:'NZ hand-drawn art'}}]};
+out=await deliver({...base,data:{object:publicSession}});
+assert.equal(out.status,200,'public live Stripe product should be recognised');
+assert.equal(out.body.billboard,true);
+assert.equal(out.body.accepted_payment_link,publicSession.payment_link);
+const publicPost=calls.find(c=>c.url.endsWith('/rest/v1/billboard_campaigns')&&c.method==='POST');
+assert(publicPost,'public 100x100 paid intake should reserve pending review');
+const publicCampaign=JSON.parse(publicPost.body);
+assert.equal(publicCampaign.title,'NZ hand-drawn art');
+assert.equal(publicCampaign.destination_url,null,'optional destination must stay absent');
+assert.equal(publicCampaign.status,'PAID_PENDING_REVIEW');
+assert.equal(publicCampaign.owner_email,'synthetic@example.invalid');
+assert(!calls.some(c=>c.url.includes('/v1/refunds')));
+calls=[];activePrice='wrong-price';
+out=await deliver({...base,data:{object:publicSession}});
+assert.equal(out.status,400);
+assert(!calls.some(c=>c.url.endsWith('/rest/v1/billboard_campaigns')&&c.method==='POST'));
+calls=[];activePrice='price_1U8xD6EGgEAnUFF9KGrq2t7X';
+out=await deliver({...base,data:{object:{...publicSession,metadata:{sku:'FORGED'}}}});
+assert.equal(out.status,200);
+assert.equal(out.body.ignored,'non_billboard_sku');
+assert.equal(calls.length,0);
+calls=[];activePrice='price_1UCrecEGgEAnUFF9lximUXtk';
 calls=[];out=await deliver(base,'t=1,v1=broken');assert.equal(out.status,400);assert.equal(calls.length,0);
 calls=[];out=await deliver({...base,livemode:false});assert.equal(out.status,200);assert.equal(calls.length,0);
 calls=[];activePrice='wrong';out=await deliver(base);assert.equal(out.status,400);assert(!calls.some(x=>x.url.endsWith('/rest/v1/billboard_campaigns')&&x.method==='POST'));activePrice='price_1UCrecEGgEAnUFF9lximUXtk';
@@ -97,4 +128,4 @@ calls=[];insertOk=false;out=await deliver(base);assert.equal(out.status,200);ass
 healthRows=Array.from({length:100},(_,i)=>({campaign_id:'x'+i,status:'PUBLISHED',x:(i%10)*100,y:Math.floor(i/10)*100,width:100,height:100}));
 calls=[];r=await handler(new Request('https://example.supabase.co/functions/v1/dreamledger-billboard-webhook',{method:'GET'}));h=await r.json();assert.equal(r.status,503);assert.equal(h.remaining_units,0);
 
-console.log(JSON.stringify({status:'PASS',mode:'HERMETIC_NO_CHARGE',tests:6,canonical_price_nzd:50,payment_link_id:'plink_1UCrekEGgEAnUFF9XVRM04aG',reservation_state:'PAID_PENDING_REVIEW',refund_on_persistence_failure:true,real_charge:false,production_write:false}));
+console.log(JSON.stringify({status:'PASS',mode:'HERMETIC_NO_CHARGE',tests:9,canonical_price_nzd:50,payment_link_id:'plink_1UCrekEGgEAnUFF9XVRM04aG',reservation_state:'PAID_PENDING_REVIEW',refund_on_persistence_failure:true,real_charge:false,production_write:false}));
