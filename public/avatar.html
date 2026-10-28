@@ -8,6 +8,7 @@
 <meta name="description" content="Create a free DreamMeez avatar, preview creative looks and browse actual cosmetic and supporter offers in the separate DreamMeez shop.">
 <link rel="canonical" href="https://dreamledger.org/avatar.html">
 <script src="/assets/avatar-identity.js"></script>
+<script src="/assets/dreammeez-free-bodies.js"></script>
 <style>
 :root{
   --bg:#0a0a0d;--panel:#14141a;--line:#2c2c36;--text:#f7f4ed;--muted:#9a99a6;
@@ -40,6 +41,10 @@ h1 span{color:var(--violet)}
   position:relative;overflow:hidden;display:flex;align-items:flex-end;justify-content:center;
   padding:24px 16px 36px;
 }
+#avatar[data-expression="blank"] .eye,#avatar[data-expression="blank"] .brow,#avatar[data-expression="blank"] .nose,#avatar[data-expression="blank"] .mouth,#avatar[data-expression="blank"] .blush{display:none}
+.free-promise{margin:13px 0 0;padding:14px 16px;background:#102116;border:1px solid #477b43;border-radius:14px;color:#ebffdb}
+.free-promise b{color:#c5ff35}
+.art-status{font-size:11px;color:#b3bfcb;padding:0 0 12px}
 .preview::before{
   content:"";position:absolute;inset:auto 10% 18% 10%;height:28px;border-radius:50%;
   background:#0006;filter:blur(8px);
@@ -191,7 +196,9 @@ buff{display:block;font-size:10px;color:var(--mint)}
   <section class="hero">
     <p class="eyebrow">Cross-surface avatar · Web + Phinhaven</p>
     <h1>CREATE YOURSELF.<br><span>TRY EVERY LOOK.</span></h1>
-    <p class="lead">Build a free avatar with genuinely flexible proportions. Preview concepts here, then browse separately listed DreamMeez products with their actual prices and fulfilment terms. Local previews are not paid ownership or in-game buffs.</p>
+    <p class="lead">Build a free avatar with flexible proportions. Every height, body silhouette, build, skin tone and basic expression stays free. Optional fashion and accessories belong in the separate shop.</p>
+    <p class="free-promise"><b>YOUR BODY IS NOT A PRODUCT.</b> All body shapes are free. Choose a silhouette, then try a look. Paid items must fit every supported body before they can be published.</p>
+    <p class="art-status">Current studio uses CSS concept art, not a finished human-drawn avatar. Original sketch assets and clothing-fit approvals are still in development.</p>
     <span class="pill">FREE STUDIO / CHECK VERIFIED OFFERS BEFORE PURCHASING</span>
     <p><a class="btn" href="/shop.html#dreammeez-offers">Explore real DreamMeez offers</a> <a class="btn ghost" href="/phinhaven/floor1.html">Explore Phinhaven</a></p>
   </section>
@@ -232,10 +239,14 @@ buff{display:block;font-size:10px;color:var(--mint)}
     </section>
 
     <section class="panel">
-      <h2>Body · free</h2>
-      <p class="sub">Push extremes. Basics free. Name saves with your portable identity.</p>
+      <h2>Body · always free</h2>
+      <p class="sub">Choose the body that represents you. Silhouette, height, build, skin tone and face are not payment-gated. Every option below is free and saved on this device.</p>
       <input class="field" id="displayName" maxlength="24" placeholder="Display name (shows in Phinhaven)">
 
+      <div class="group">
+        <div class="label"><span>Silhouette</span><span class="free-tag" id="shapeOut">Straight</span></div>
+        <div class="choices" id="shapeChoices"></div>
+      </div>
       <div class="group">
         <div class="label"><span>Height</span><span class="free-tag" id="heightOut">Average</span></div>
         <div class="choices" id="heightChoices"></div>
@@ -245,11 +256,11 @@ buff{display:block;font-size:10px;color:var(--mint)}
         <div class="choices" id="buildChoices"></div>
       </div>
       <div class="group">
-        <div class="label"><span>Hair style</span><span class="free-tag">Free + paid</span></div>
+        <div class="label"><span>Hair style</span><span class="free-tag">All basic styles free</span></div>
         <div class="choices" id="styleChoices"></div>
       </div>
       <div class="group">
-        <div class="label"><span>Hair colour</span><span class="free-tag">Free + paid</span></div>
+        <div class="label"><span>Hair colour</span><span class="free-tag">All basic colours free</span></div>
         <div class="choices" id="hairChoices"></div>
       </div>
       <div class="group">
@@ -257,6 +268,10 @@ buff{display:block;font-size:10px;color:var(--mint)}
         <div class="choices" id="skinChoices"></div>
       </div>
 
+      <div class="group">
+        <div class="label"><span>Face expression</span><span class="free-tag">Free / modular face</span></div>
+        <div class="choices" id="expressionChoices"></div>
+      </div>
       <h2 style="margin-top:16px">Concept preview lab · free</h2>
       <p class="sub">Tap <strong>Try</strong> to preview a concept. These prototypes are not purchasable SKUs, verified ownership or guaranteed in-game benefits. <a href="/shop.html#dreammeez-offers" style="color:var(--gold)">Browse real catalogue offers</a>.</p>
       <div class="shop" id="shopGrid"></div>
@@ -268,8 +283,8 @@ buff{display:block;font-size:10px;color:var(--mint)}
 
 <script>
 (function(){
-  if (!window.DreamLedgerAvatar) {
-    document.getElementById('status').textContent = 'Avatar identity failed to load.';
+  if (!window.DreamLedgerAvatar || !window.DreamMeezFreeBodies) {
+    document.getElementById('status').textContent = 'Free body system or avatar identity failed to load.';
     return;
   }
 
@@ -294,6 +309,7 @@ buff{display:block;font-size:10px;color:var(--mint)}
     {c:'#6b1c1c',n:'Auburn'},{c:'#c45c20',n:'Ginger'},{c:'#c8c4c0',n:'Silver'},
     {c:'#2a4a8a',n:'Blue'},{c:'#5a2a7a',n:'Violet'},{c:'#1a5c3a',n:'Green'}
   ];
+  var EXPRESSIONS = [{id:'blank',label:'Blank canvas'},{id:'smile',label:'Smile'}];
   var SKINS = ['#f1c27d','#e0ac69','#c68642','#8d5524','#5c3317','#f5d0c5','#d4a574'];
 
   var state = DreamLedgerAvatar.load();
@@ -316,6 +332,7 @@ buff{display:block;font-size:10px;color:var(--mint)}
       var btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'choice' + (state[key] === id ? ' active' : '');
+      btn.setAttribute('aria-pressed',String(state[key] === id));
       btn.textContent = getLabel(x);
       btn.onclick = function() {
         state[key] = id;
@@ -352,6 +369,8 @@ buff{display:block;font-size:10px;color:var(--mint)}
   function render() {
     var h = HEIGHTS.find(function(x){ return x.id === state.height; }) || HEIGHTS[4];
     var b = BUILDS.find(function(x){ return x.id === state.build; }) || BUILDS[3];
+    var shape = DreamMeezFreeBodies.getShape(state.shape);
+    var fit = DreamMeezFreeBodies.fitPreview(shape.id,b.sx);
     var hairColor = (HAIRS[state.hair] || HAIRS[0]).c;
     var skin = SKINS[state.skin] || SKINS[3];
 
@@ -360,11 +379,14 @@ buff{display:block;font-size:10px;color:var(--mint)}
 
     var av = $('avatar');
     av.style.transform = 'scale(' + (h.scale * 0.92) + ')';
+    av.setAttribute('data-expression',state.expression === 'blank' ? 'blank' : 'smile');
+    $('body').style.borderRadius = fit.torsoRadius;
+    $('layerBack').style.transform = 'scaleX(' + fit.rearLayerScaleX + ')';
 
     ['body','armL','armR','head'].forEach(function(id) {
       var el = $(id);
       if (!el) return;
-      if (id === 'body') el.style.transform = 'scaleX(' + b.sx + ')';
+      if (id === 'body') el.style.transform = 'scaleX(' + fit.torsoScaleX + ')';
       else if (id.indexOf('arm') === 0) el.style.transform = (id === 'armL' ? 'rotate(10deg)' : 'rotate(-10deg)') + ' scaleX(' + Math.min(1.2, b.sx) + ')';
     });
 
@@ -387,11 +409,14 @@ buff{display:block;font-size:10px;color:var(--mint)}
     $('shoeL').className = 'shoe l' + (layers.feet ? ' cos-boots' : '');
     $('shoeR').className = 'shoe r' + (layers.feet ? ' cos-boots' : '');
 
+    $('shapeOut').textContent = shape.label;
     $('heightOut').textContent = h.label;
     $('buildOut').textContent = b.label;
     $('nameplate').textContent = state.display_name || 'Traveler';
     $('displayName').value = state.display_name || '';
 
+    fillChoices($('shapeChoices'), DreamMeezFreeBodies.shapes, 'shape', function(x){return x.id;}, function(x){return x.label;});
+    fillChoices($('expressionChoices'), EXPRESSIONS, 'expression', function(x){return x.id;}, function(x){return x.label;});
     fillChoices($('heightChoices'), HEIGHTS, 'height', function(x){return x.id;}, function(x){return x.label;});
     fillChoices($('buildChoices'), BUILDS, 'build', function(x){return x.id;}, function(x){return x.label;});
     fillChoices($('styleChoices'), STYLES, 'style', function(x){return x.id;}, function(x){return x.label;});
@@ -463,7 +488,7 @@ buff{display:block;font-size:10px;color:var(--mint)}
   var LOOK_KEY = 'dreammeez_free_look_v1';
   $('savePreview').addEventListener('click',function(){
     try {
-      var keys=['display_name','height','build','shape','skin','style','hair'],look={};
+      var keys=['display_name','height','build','shape','skin','style','hair','expression'],look={};
       keys.forEach(function(k){look[k]=state[k];});
       look.preview_cosmetic=tryingId || null;
       look.preview_only=true;
@@ -475,7 +500,7 @@ buff{display:block;font-size:10px;color:var(--mint)}
     try{
       var data=JSON.parse(localStorage.getItem(LOOK_KEY)||'null');
       if(!data||data.preview_only!==true){$('lookStatus').textContent='No saved free look found on this device.';return;}
-      ['display_name','height','build','shape','skin','style','hair'].forEach(function(k){
+      ['display_name','height','build','shape','skin','style','hair','expression'].forEach(function(k){
         if(data[k]!==undefined && typeof data[k]===typeof state[k])state[k]=data[k];
       });
       var candidate=String(data.preview_cosmetic||'');
