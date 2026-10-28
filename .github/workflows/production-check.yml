@@ -13,6 +13,8 @@ jobs:
   production-check:
     runs-on: ubuntu-latest
     steps:
+      - name: Verify physical DOOH inventory and signed playback proofs (offline)
+        run: node --test DOOH/verified-inventory.test.cjs
       - uses: actions/checkout@v4
       - name: Validate catalogue JSON
         run: python -m json.tool public/catalog.json >/dev/null
