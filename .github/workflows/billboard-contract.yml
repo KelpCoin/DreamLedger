@@ -24,7 +24,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
-      - name: Interactive million-pixel preview, verified paid placement separation and held checkout
+      - name: Interactive million-pixel preview, verified paid placement separation and capped checkout
         run: |
           node --check public/assets/billboard-canvas-preview.js
           node --test scripts/test_billboard_canvas_preview.cjs

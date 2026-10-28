@@ -55,22 +55,31 @@ test('existing full grid renders, responds to click and keyboard, and distinguis
  assert(page.includes("cell.classList.add('is-published')"));
  assert(page.includes("cell.classList.add('is-demo')"));
  assert(page.includes('never listed as a purchased placement'));
- assert(page.includes('Checkout temporarily held') && page.toLowerCase().includes('checkout held'));
+ assert(page.includes('Buy a founding tile · NZ$50'));
+ assert(page.includes('maximum 100 completed purchases'));
+ assert(page.includes('/buy/dreamledger-billboard-founding-001/'));
  // Syntax-check all inline scripts without executing a DOM, fetch or payment gateway.
  for(const script of page.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)){
   if(script[1].trim())new vm.Script(script[1],{filename:'public/billboard.html'});
  }
 });
-test('historic buy route and founding product must not offer a bypass when checkout held',()=>{
+test('founding buy route exposes only the verified capped Stripe offer while publication remains review-gated',()=>{
  const page=read('public/billboard.html');
  const buy=read('public/buy/dreamledger-billboard-founding-001/index.html');
  const product=read('public/products/dreamledger-billboard-founding-001/index.html');
- assert(page.includes('Checkout temporarily held'));
- assert(!page.includes('https://buy.stripe.com/'));
- assert(!buy.includes('buy.stripe.com')&&!buy.includes('location.replace('));
- assert(buy.includes('Checkout')&&buy.includes('/billboard'));
- assert(!product.includes('href="/buy/dreamledger-billboard-founding-001/"'));
- assert(product.includes('https://schema.org/OutOfStock'));
- assert(product.includes('Checkout is temporarily held.'));
+ const catalog=JSON.parse(read('public/catalog.json'));
+ const offer=catalog.products.find(p=>p.id==='DREAMLEDGER-BILLBOARD-FOUNDING-001');
+ assert(page.includes('Buy a founding tile · NZ$50'));
+ assert(page.includes('/buy/dreamledger-billboard-founding-001/'));
+ assert(!page.includes('Checkout temporarily held'));
+ assert(buy.includes('https://buy.stripe.com/9B66oH2rj3dz82jcR6dwc2x'));
+ assert(buy.includes('Content is reviewed before publication'));
+ assert(product.includes('href="/buy/dreamledger-billboard-founding-001/"'));
+ assert(product.includes('https://schema.org/InStock'));
+ assert.equal(offer.checkout_available,true);
+ assert.equal(offer.price,50);
+ assert.equal(offer.inventory,100);
+ assert.equal(offer.payment_link_id,'plink_1UCrekEGgEAnUFF9XVRM04aG');
+ assert.equal(offer.stripe_price_id,'price_1UCrecEGgEAnUFF9lximUXtk');
 });
-console.log('BILLBOARD_100_CELL_DEMO=PASS; REAL_PURCHASES=0; NO_LIVE_INVENTORY_TESTED');
+console.log('BILLBOARD_100_CELL_DEMO=PASS; CHECKOUT_CONTRACT=LIVE_CAPPED_100; REAL_PURCHASES_NOT_ASSERTED');

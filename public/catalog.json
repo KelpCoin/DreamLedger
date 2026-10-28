@@ -90,14 +90,18 @@
       "id": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
       "sku": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
       "name": "DreamLedger Founding Billboard",
-      "description": "Billboard preview only. Paid placement checkout is temporarily held while secure intake and live inventory reservation are repaired. No purchase is accepted from the current billboard page.",
+      "description": "One NZ$50 founding 100×100 digital placement on the DreamLedger Internet Billboard. Stripe collects required placement intake; publication follows human content review. Maximum 100 completed founding purchases.",
       "price": 50,
       "currency": "nzd",
       "status": "published",
-      "checkout_available": false,
-      "checkout_url": null,
+      "checkout_available": true,
+      "checkout_url": "https://buy.stripe.com/9B66oH2rj3dz82jcR6dwc2x",
       "category": "public-placements",
-      "availability": "review_required"
+      "availability": "in_stock_review_required",
+      "payment_link_id": "plink_1UCrekEGgEAnUFF9XVRM04aG",
+      "stripe_price_id": "price_1UCrecEGgEAnUFF9lximUXtk",
+      "inventory": 100,
+      "fulfillment_method": "stripe_intake_then_human_review_then_publication"
     },
     {
       "id": "COMMANDER-DECK-DIAGNOSTIC-001",
