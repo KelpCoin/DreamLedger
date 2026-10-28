@@ -1,7 +1,8 @@
 // Public web-canvas placement reader. No DOOH screen inventory, buyer PII or
 // unapproved submissions are exposed here. Exact geometry is never invented.
 const PROJECT_URL = 'https://wbwgroygjeyukkspnqiy.supabase.co';
-const MARKETS = new Set(['GLOBAL','NZ','AU','ZA','AMERICAS','EUROPE']);
+const MARKETS = new Set(['GLOBAL','NZ','AU','ZA','AMERICAS','EUROPE',
+ 'NZ-AKL','NZ-WLG','NZ-CHC','NZ-HBC','US','GB']);
 function reply(status:number,value:any) {
  return new Response(JSON.stringify(value),{status,headers:{
   'content-type':'application/json; charset=utf-8','cache-control':'no-store',
