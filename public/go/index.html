@@ -1,70 +1,38 @@
 <!doctype html>
-<html lang="en-NZ">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#101b2b">
-<title>DreamLedger | One Doorway</title>
-<meta name="description" content="One canonical doorway to DreamLedger's marketplace, free tools, evidence surfaces and machine-readable capabilities.">
-<style>
-:root{color-scheme:dark;--bg:#0b1220;--panel:#142237;--line:#2a3b51;--ink:#f4f7fb;--muted:#b4c0cf;--accent:#e8c66a}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,Segoe UI,sans-serif}
-main{max-width:980px;margin:0 auto;padding:clamp(24px,5vw,64px) 22px}
-.kicker{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:800}
-h1{font-size:clamp(2.7rem,8vw,5.6rem);line-height:.94;letter-spacing:-.045em;margin:16px 0}
-.lead{font-size:clamp(1.05rem,2vw,1.35rem);color:var(--muted);max-width:720px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin:30px 0}
-.card{display:block;border:1px solid var(--line);border-radius:14px;padding:20px;background:var(--panel);color:var(--ink);text-decoration:none;min-height:150px}
-.card:hover,.card:focus{border-color:var(--accent);outline:none}
-.card strong{display:block;font-size:1.15rem;margin-bottom:8px}
-.card span{color:var(--muted);font-size:.94rem}
-small{color:var(--muted)}footer{border-top:1px solid var(--line);padding-top:18px;color:var(--muted);font-size:.9rem}
-.status{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:5px 10px;font-size:.8rem;color:var(--muted)}
-</style>
-</head>
-<body>
+<html lang="en-NZ"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#080b10"><title>Explore | DreamLedger Canonical Doorway</title>
+<meta name="description" content="Your one doorway into the DreamLedger multi-silo marketplace. Choose your interests, browse products or explore free experiences.">
+<link rel="canonical" href="https://dreamledger.org/go"><link rel="stylesheet" href="/assets/bec-neon.css">
+</head><body class="bec-neon"><div class="bec-wrap">
+<header class="bec-header"><a href="/" class="bec-logo">DREAM<span>LEDGER</span></a><nav class="bec-nav"><a href="/">Home</a><a href="/marketplace.html">Marketplace</a><a href="/billboard.html">Billboard</a><a href="/sell.html">Sell</a></nav></header>
 <main>
-<p class="kicker">DreamLedger · One Doorway, Many Roads</p>
-<h1>Find the right<br>next action.</h1>
-<p class="lead">One canonical entry point to discover useful tools, inspect evidence, browse existing services, or connect through machine-readable capability contracts.</p>
-<p><span class="status" id="attribution-status">Attribution is optional</span></p>
-<div class="grid">
-<a class="card" href="/marketplace.html" data-attribution><strong>Browse the marketplace</strong><span>Explore existing listings and service surfaces.</span></a>
-<a class="card" href="/cost-of-living.html" data-attribution><strong>Free tools</strong><span>Start with public utility and decision support.</span></a>
-<a class="card" href="/truth-oracle.html" data-attribution><strong>Inspect evidence</strong><span>Review observations, provenance, contradictions and unknowns.</span></a>
-<a class="card" href="/quote-comparison/" data-attribution><strong>Supplier quote comparison</strong><span>Review the current comparison workflow and its availability before relying on it.</span></a>
-<a class="card" href="/.well-known/agent-commerce.json" data-attribution><strong>Agent commerce manifest</strong><span>Machine-readable discovery and current offer status.</span></a>
-<a class="card" href="/toll-road" data-attribution><strong>Try the NZ$0.50 API probe</strong><span>Experimental paid interoperability test. The first settlement and fulfilled probe are still being verified.</span></a>
-<a class="card" href="/api/toll/v1/manifest" data-attribution><strong>API / toll-road manifest</strong><span>Inspect the existing machine-facing route. Checkout and fulfillment must be verified separately.</span></a>
+<section class="bec-hero"><p class="bec-kicker">ONE CANONICAL QR / MANY WORLDS</p><h1>YOU'RE HERE.<br><span class="bec-signal">WHAT NEXT?</span></h1>
+<p>Find something useful, discover original creations, trade with other people or explore a new world. You choose where to go.</p>
+<div class="bec-actions"><a class="bec-btn" href="/marketplace.html" data-attribution>Browse Everything</a><a class="bec-btn secondary" href="/billboard.html" data-attribution>Internet Billboard</a></div></section>
+<section class="bec-section"><h2>Tell us what interests you.</h2>
+<form action="/marketplace.html" method="get" class="bec-search" id="doorway-search"><label class="bec-kicker" for="doorway-query">Find</label><input id="doorway-query" type="search" name="q" maxlength="100" placeholder="Products, avatars, garden, tools, services…">
+<label for="doorway-region" class="bec-kicker">Shopping region</label><select id="doorway-region" name="region"><option value="NZ">New Zealand</option><option value="AU">Australia</option><option value="GLOBAL">Anywhere</option></select><button class="bec-btn" type="submit">Explore</button></form>
+<p class="bec-muted" style="font-size:13px">Your chosen region helps frame discovery; it does not prove shipping eligibility. No GPS permission is requested.</p>
+<div class="bec-grid" style="margin-top:25px">
+<a class="bec-card bec-category" href="/marketplace.html?q=avatar" data-attribution><span class="bec-chip">01 / CREATE</span><h3>DreamMeez &amp; games</h3><p>Identity, avatar designs and creative worlds.</p></a>
+<a class="bec-card bec-category" href="/marketplace.html?q=seller" data-attribution><span class="bec-chip">02 / TRADE</span><h3>Shop &amp; sell</h3><p>Explore published marketplace offers and independent sellers.</p></a>
+<a class="bec-card bec-category" href="/marketplace.html?q=business" data-attribution><span class="bec-chip">03 / WORK</span><h3>Tools &amp; services</h3><p>Free utilities, commerce tools and clearly scoped results.</p></a>
+<a class="bec-card bec-category" href="/marketplace.html" data-attribution><span class="bec-chip">04 / ALL</span><h3>Browse Everything</h3><p>Search all currently listed DreamLedger offers.</p></a>
+</div></section>
+<section class="bec-section"><p class="bec-kicker">Beyond the products</p><div class="bec-grid">
+<a class="bec-card" href="/quote-comparison/" data-attribution><h3>Free commercial tools</h3><p>Start with a useful worksheet before you buy anything.</p></a>
+<a class="bec-card" href="/mtg/" data-attribution><h3>HappyHomarid / MTG</h3><p>Explore the independent Magic silo.</p></a>
+<a class="bec-card" href="/billboard.html" data-attribution><h3>Claim a space online</h3><p>View the actual public board and founding placement terms.</p></a>
+</div></section>
+<p class="bec-note" id="attribution-status" role="status">This is a universal doorway. Scanning it does not create a payment or a verified customer. QR placement attribution is recorded only when supported by actual evidence.</p>
+</main><footer class="bec-footer">BECK / DREAMLEDGER · <a href="/marketplace.html">Marketplace</a> · <a href="/privacy.html">Privacy</a></footer>
 </div>
-<footer>
-<p>Campaign identifiers are optional. This page validates ref/c values locally and carries accepted values to internal links. It does not record a server-side impression, authorize a payment, or claim that an offer is available.</p>
-<p>DreamLedger counts revenue only after an independent settled payment, successful fulfillment, delivery evidence and attribution reconcile.</p>
-</footer>
-</main>
 <script>
-(function () {
-  "use strict";
-  var pattern = /^[A-Za-z0-9_-]{1,64}$/;
-  var params = new URLSearchParams(window.location.search);
-  var ref = params.get("ref") || "";
-  var campaign = params.get("c") || "";
-  var safeRef = pattern.test(ref) ? ref : "";
-  var safeCampaign = pattern.test(campaign) ? campaign : "";
-  try {
-    if (safeRef) sessionStorage.setItem("dl_ref", safeRef);
-    if (safeCampaign) sessionStorage.setItem("dl_campaign", safeCampaign);
-  } catch (_) {}
-  document.querySelectorAll("a[data-attribution]").forEach(function (link) {
-    var target = new URL(link.href, window.location.origin);
-    if (target.origin !== window.location.origin) return;
-    if (safeRef) target.searchParams.set("ref", safeRef);
-    if (safeCampaign) target.searchParams.set("c", safeCampaign);
-    link.href = target.pathname + target.search + target.hash;
-  });
-  var label = (safeRef || safeCampaign) ? "Campaign attribution accepted" : "Direct / organic entry";
-  document.getElementById("attribution-status").textContent = label;
+(function(){"use strict";var p=new URLSearchParams(location.search),pat=/^[A-Za-z0-9_-]{1,64}$/,ref=p.get("ref")||"",campaign=p.get("c")||"";if(!pat.test(ref))ref="";if(!pat.test(campaign))campaign="";
+var region=p.get("region")||"";try{region=region||sessionStorage.getItem("bec_region")||"";}catch(_){}
+var sel=document.getElementById("doorway-region");if(["NZ","AU","GLOBAL"].includes(region))sel.value=region;
+sel.addEventListener("change",function(){try{sessionStorage.setItem("bec_region",sel.value)}catch(_){}});
+document.querySelectorAll("a[data-attribution]").forEach(function(a){var u=new URL(a.href,location.origin);if(u.origin!==location.origin)return;if(ref)u.searchParams.set("ref",ref);if(campaign)u.searchParams.set("c",campaign);a.href=u.pathname+u.search+u.hash});
+var status=document.getElementById("attribution-status");if(ref||campaign)status.textContent="Accepted optional campaign context. A scan is not a buyer, payment or completed delivery. Your QR's physical placement cannot be inferred from an identical printed URL.";
 })();
-</script>
-</body>
-</html>
+</script></body></html>
