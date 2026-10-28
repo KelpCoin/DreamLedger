@@ -44,18 +44,18 @@ module.exports=async function creatorAgentBridge(request) {
       let input;
       try{input=JSON.parse(text);}catch{return json({error:'INVALID_JSON',trace_id:trace},400);}
       const item=draftFromBody(input,creator);
-      const rows=await db.query('SELECT public.beck_creator_submit_draft_v1($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) AS result',[
+      const rows=await db.query('SELECT public.beck_creator_submit_draft_v1($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) AS result',[
         item.draftId,creator,item.title,item.slot,item.artist,item.file,item.notes,item.mime,
-        item.hash,item.metaHash,item.base64]);
+        item.hash,item.metaHash,item.base64,item.originKind,item.parentDraftId]);
       const outcome=rows[0]?.result;
       if(!outcome?.draft_id)return json({error:'CREATOR_DB_RECEIPT_MISSING',trace_id:trace},503);
       return json({...outcome,trace_id:trace,silo_id:'SILO_AVATAR',
         render_targets:['dreamiez','kelp-atlantis'],checkout_available:false,publicly_visible:false,
-        message:'Private artwork queued for Elohim refinement and Gauntlet review.'},
+        message:'Private source artwork retained for an approval-gated enhancement and wearable-fit workflow; no AI processing or publication is implied.'},
         outcome.idempotent?200:201);
     }
     if(route==='/api/agent-bridge/cosmetics/mine'&&request.method==='GET') {
-      const rows=await db.query('SELECT draft_id,title,wearable_slot,media_type,source_sha256,created_at,lifecycle,gauntlet_verdict,approval_required,checkout_available FROM public.beck_creator_cosmetic_drafts WHERE creator_id=$1 ORDER BY created_at DESC LIMIT 50',[creator]);
+      const rows=await db.query('SELECT draft_id,title,wearable_slot,media_type,source_sha256,origin_kind,parent_draft_id,created_at,lifecycle,gauntlet_verdict,approval_required,checkout_available FROM public.beck_creator_cosmetic_drafts WHERE creator_id=$1 ORDER BY created_at DESC LIMIT 50',[creator]);
       return json({creator_id:creator,private:true,count:rows.length,items:rows,trace_id:trace});
     }
     if(route==='/api/agent-bridge/cosmetics/image'&&request.method==='GET') {
