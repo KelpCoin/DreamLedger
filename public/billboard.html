@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#080b10">
-<meta name="description" content="DreamLedger Internet Billboard: reserve a reviewed 100 x 100 web tile for NZ$50. Clear terms, live preview, secure Stripe checkout.">
+<meta name="description" content="DreamLedger regional million-pixel web canvases. View complete verified placements by market; new purchases are held until delivery is proven.">
 <link rel="canonical" href="https://dreamledger.org/billboard">
 <title>Internet Billboard | DreamLedger</title>
 <style>
@@ -51,6 +51,11 @@ input{width:100%;background:#080b10;border:1px solid #526074;border-radius:9px;c
 .canvas-topline strong{font:950 14px ui-monospace,monospace;color:#c5ff35}
 .canvas-status{font-size:13px;color:#bcc7d0;margin-top:14px}
 .canvas-legend{font-size:12px;color:#93a8b5;margin:12px 0 0}
+.market-picker{display:grid;grid-template-columns:minmax(190px,320px) 1fr;align-items:end;gap:12px;margin:12px 0 20px}
+.market-picker label{font-weight:900;font-size:13px;display:block;margin:0 0 6px}
+.market-picker select{background:#101a1b;color:#f6fffa;border:1px solid #758679;border-radius:10px;padding:13px;width:100%;font:700 14px system-ui,sans-serif}
+.market-picker .market-note{font-size:13px;color:#b7c7c1}
+@media(max-width:620px){.market-picker{grid-template-columns:1fr}}
 @media(max-width:560px){.canvas-shell{padding:7px}.billboard-canvas{min-width:400px}}
 
 </style>
@@ -63,34 +68,52 @@ input{width:100%;background:#080b10;border:1px solid #526074;border-radius:9px;c
 <div>
 <p class="eyebrow">The Internet Billboard / founding placement</p>
 <h1 id="headline">YOUR SPACE.<br><strong>STILL HERE.</strong></h1>
-<p class="lead">A small piece of the internet with your name on it. Reserve a 100 x 100 tile for a project, business, idea or identity on DreamLedger's public web canvas.</p>
-<div class="offerline"><b class="price">NZ$50</b><span>One-time payment · one 100 x 100 placement</span></div>
+<p class="lead">Explore a full million-pixel web canvas for each region. Only verified published placements appear as occupied; preview is free and purchases are held.</p>
+<div class="offerline"><b class="price">NZ$50</b><span>Founding reference price · 100 x 100 tile · checkout held</span></div>
 <div class="actions">
-<a class="button" id="checkout" href="https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w?utm_source=dreamledger&amp;utm_medium=billboard&amp;utm_campaign=founding">Reserve a tile securely</a>
+<span class="button" id="checkout" role="status" aria-disabled="true" style="background:#394437;border-color:#60705f;color:#e9f4e8;cursor:not-allowed">Checkout temporarily held</span>
 <a class="button secondary" href="#details">See what you get</a>
 </div>
-<p class="small">Stripe collects your tile label and destination details at checkout. Paid submissions enter content review; purchase does not bypass approval. No traffic or sales are guaranteed.</p>
+<p class="small">Paid placement checkout is held until inventory reservation, payment settlement, approval and publication receipts are verified. No traffic, impressions or sales are guaranteed.</p>
 </div>
 <aside class="display" aria-label="Interactive sample of a billboard tile, not a paid placement">
 <div class="screen"><div class="tile" id="tile-text" aria-live="polite">Biggie Still Here</div></div>
 <p class="previewtag">DEMO ONLY · NOT A PAID PLACEMENT</p>
 <label class="input-label" for="sample">Try a label in the preview (maximum 80 characters)</label>
 <input id="sample" maxlength="80" value="Biggie Still Here" autocomplete="off">
-<p class="small">This example does not reserve space or create an order. Enter your final label at Stripe checkout.</p>
+<p class="small">This example does not reserve space or create an order. Checkout remains held.</p>
 </aside>
 </section>
 <section class="section" id="details">
 <p class="eyebrow">One product. One checkout.</p><h2>How your placement works</h2>
 <div class="grid">
 <article class="card"><div class="step">01 / SELECT</div><h3>One clear offer</h3><p>A standard 100 x 100 digital tile. One NZ$50 charge. No auction, subscription or speculative impression package.</p></article>
-<article class="card"><div class="step">02 / PAY &amp; SUBMIT</div><h3>Secure Stripe checkout</h3><p>Enter your billboard label and HTTPS destination at checkout. Keep the Stripe receipt. The payment is not itself proof of publication.</p></article>
+<article class="card"><div class="step">02 / VERIFY &amp; SUBMIT</div><h3>Checkout is currently held</h3><p>Secure payment and reservation must pass production tests before a real customer can buy. Payment alone does not approve publication.</p></article>
 <article class="card"><div class="step">03 / REVIEW &amp; DELIVERY</div><h3>Approved tiles go live</h3><p>Content is checked before publication. A completed placement needs a visible live tile and delivery evidence, not just a payment notification.</p></article>
 </div>
 </section>
 <section class="section" id="live-board" aria-labelledby="live-heading">
 <p class="eyebrow">Public canvas</p><h2 id="live-heading">Verified published placements</h2>
 <p class="notice">Only placements returned by the existing public billboard data view appear here. The sample above is not included.</p>
-<div class="canvas-topline"><strong>THE COMPLETE CANVAS · 1000 × 1000 PIXELS</strong><span class="small">100 grid positions · 100 × 100 pixels each</span></div>
+<div class="market-picker">
+<div><label for="board-market">Choose a regional billboard</label>
+<select id="board-market" aria-label="Choose the billboard region">
+<option value="GLOBAL">Global · worldwide web</option>
+<option value="NZ">New Zealand · national</option>
+<option value="NZ-AKL">Auckland · regional preview</option>
+<option value="NZ-WLG">Wellington · regional preview</option>
+<option value="NZ-CHC">Christchurch · regional preview</option>
+<option value="NZ-HBC">Hibiscus Coast · regional preview</option>
+<option value="AU">Australia · national</option>
+<option value="ZA">South Africa · national</option>
+<option value="AMERICAS">Americas · regional</option>
+<option value="EUROPE">Europe · regional</option>
+<option value="US">United States · regional preview</option>
+<option value="GB">United Kingdom · regional preview</option>
+</select></div>
+<div id="market-note" class="market-note">Each market has a separate 100-cell web canvas. New regional views have no saleable stock until allocated by a verified ledger. This is not a physical DOOH screen network.</div>
+</div>
+<div class="canvas-topline"><strong id="board-title">GLOBAL · COMPLETE CANVAS · 1000 × 1000</strong><span class="small">100 positions · 100 × 100 pixels each</span></div>
 <div class="canvas-shell" role="region" aria-label="Full million pixel internet billboard" tabindex="0">
 <div id="billboard-canvas" class="billboard-canvas" role="grid" aria-label="100-position billboard grid"></div>
 </div>
@@ -103,7 +126,7 @@ input{width:100%;background:#080b10;border:1px solid #526074;border-radius:9px;c
 <div><p class="eyebrow">What you're buying</p><h2>Digital space.<br>Not fake reach.</h2><p>The placement is on DreamLedger's website, not a physical roadside billboard or a programmatic outdoor advertising screen. We do not promise impressions, clicks, leads or sales.</p></div>
 <div><p><b>Term:</b> intended to remain until 1 January 3000 while the service operates, subject to published terms and content policy. This is not a property title or a guarantee of perpetual operation.</p><p><b>Review:</b> submissions may be rejected for policy, legal, safety or technical reasons. If we cannot deliver an eligible paid order, resolution is subject to the published checkout/refund policy.</p><p><b>Proof:</b> a Stripe receipt confirms payment. A separately verifiable published placement confirms delivery. Neither is proof of an independent external buyer without attribution.</p><p><b>Founder example:</b> “Biggie Still Here” above is an unpaid demonstration, not a real order.</p></div>
 </section>
-<p class="fine">DreamLedger Internet Billboard · NZ$50 founding offer · DreamLedger silo only · No guaranteed audience. Public promotion outside this website requires separate approval.</p>
+<p class="fine">DreamLedger Internet Billboard · NZ$50 reference price · CHECKOUT HELD · DreamLedger silo only · No guaranteed audience. These regional web canvases are not physical DOOH screens.</p>
 </main></div>
 <script>
 (function(){'use strict';const input=document.getElementById('sample');const tile=document.getElementById('tile-text');input.addEventListener('input',function(){tile.textContent=input.value.trim().slice(0,80)||'YOUR IDEA HERE';});})();
