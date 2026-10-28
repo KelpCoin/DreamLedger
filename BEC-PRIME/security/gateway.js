@@ -7,6 +7,7 @@ const readline = require('readline');
 const gauntlet = require('../gauntlet/GauntletV6');
 const truthOracle = require('../runtime/TruthOracle');
 const ledger = require('../runtime/Ledger');
+const manifestGate = require('./mcpManifestGate');
 
 const ROOT = path.join(__dirname, '..');
 const MANIFEST_PATH = path.join(__dirname, 'mcp-gateway-manifest.json');
@@ -37,6 +38,7 @@ function loadManifest() {
   if (m.transport !== 'stdio' || m.protocol_version !== PROTOCOL_VERSION) throw new Error('MCP manifest transport/version violation');
   if (hash(canonicalManifest(m)) !== m.manifest_hash) throw new Error('MCP manifest hash mismatch');
   if (m.manifest_hash !== APPROVED_MANIFEST_SHA256) throw new Error('MCP_UNAPPROVED_TOOL_MANIFEST_DRIFT');
+  manifestGate.validateManifest(m);
   if (m.tools.length !== Object.keys(TOOL_PERMISSIONS).length) throw new Error('MCP tool count violation');
   for (const tool of m.tools) {
     if (TOOL_PERMISSIONS[tool.name] !== tool.permission) throw new Error('MCP tool permission violation: ' + tool.name);
