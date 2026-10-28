@@ -7,6 +7,7 @@ const crypto = require('node:crypto');
 const LIMIT = 1200000;
 const SLOTS = new Set(['head','hair','face','neck','body','hands','back','feet','accessory']);
 const ALLOWED_KEYS = new Set(['title','slot','filename','mime','base64','artist_credit','rights_confirmed','notes']);
+const CREATORS = ['biggie','peggy'];
 function refused(reason, status=400) {
   const error = new Error(reason);
   error.status=status;
@@ -14,16 +15,21 @@ function refused(reason, status=400) {
 }
 function sha256(bytes) { return crypto.createHash('sha256').update(bytes).digest('hex'); }
 function authorize(headers, env) {
-  const expected=String(env.BECK_CREATOR_PEGGY_TOKEN_SHA256||'').trim().toLowerCase();
   const header=String(headers.get('authorization')||'');
-  const match=/^Bearer ([\w.~+/-]{32,256})$/.exec(header);
-  if (!/^[0-9a-f]{64}$/.test(expected) || !match) refused('CREATOR_AUTH_REQUIRED',401);
-  const actual=sha256(Buffer.from(match[1],'utf8'));
-  if (!crypto.timingSafeEqual(Buffer.from(expected,'hex'),Buffer.from(actual,'hex'))) {
-    refused('CREATOR_AUTH_REFUSED',401);
+  const match=/^Bearer ([\\w.~+/-]{32,256})$/.exec(header);
+  if (!match) refused('CREATOR_AUTH_REQUIRED',401);
+  const actual=Buffer.from(sha256(Buffer.from(match[1],'utf8')),'hex');
+  const matches=[];
+  for(const creator of CREATORS) {
+    const envKey='BECK_CREATOR_'+creator.toUpperCase()+'_TOKEN_SHA256';
+    const expected=String(env[envKey]||'').trim().toLowerCase();
+    if (!/^[0-9a-f]{64}$/.test(expected)) continue;
+    if (crypto.timingSafeEqual(Buffer.from(expected,'hex'),actual)) matches.push(creator);
   }
-  return 'peggy';
+  if (matches.length!==1) refused('CREATOR_AUTH_REFUSED',401);
+  return matches[0];
 }
+
 function verifyOrigin(headers, env) {
   const origin=headers.get('origin');
   if (!origin) return;
@@ -47,7 +53,8 @@ function sanitizeString(raw,min,max,field) {
   if (t.length<min||t.length>max||/[\u0000-\u001f\u007f]/.test(t)) refused('INVALID_'+field);
   return t;
 }
-function draftFromBody(body) {
+function draftFromBody(body, creatorId) {
+  if (!CREATORS.includes(creatorId)) refused('CREATOR_AUTH_REQUIRED',401);
   if (!body||typeof body!=='object'||Array.isArray(body)) refused('INVALID_JSON');
   for(const key of Object.keys(body)) if(!ALLOWED_KEYS.has(key)) refused('FORBIDDEN_CREATOR_FIELD_'+key,403);
   if (body.rights_confirmed!==true) refused('ARTWORK_RIGHTS_REQUIRED',403);
@@ -64,10 +71,10 @@ function draftFromBody(body) {
   if(buffer.length===0||buffer.length>LIMIT || buffer.toString('base64')!==body.base64) refused('IMAGE_SIZE_OR_ENCODING_REFUSED',413);
   const mime=mediaType(buffer,body.mime);
   const hash=sha256(buffer);
-  const draftId='ASSET-PEGGY-'+hash.slice(0,20).toUpperCase();
+  const draftId='ASSET-'+creatorId.toUpperCase()+'-'+hash.slice(0,20).toUpperCase();
   const metadata={title,slot,artist,file,notes,mime,sha256:hash,
-      creator:'peggy',silo:'SILO_AVATAR',render_targets:['dreamiez','kelp-atlantis']};
-  return {draftId,creatorId:'peggy',siloId:'SILO_AVATAR',title,slot,artist,file,notes,mime,
+      creator:creatorId,silo:'SILO_AVATAR',render_targets:['dreamiez','kelp-atlantis']};
+  return {draftId,creatorId,siloId:'SILO_AVATAR',title,slot,artist,file,notes,mime,
       hash,base64:body.base64,metaHash:sha256(Buffer.from(JSON.stringify(metadata),'utf8')),
       bytes:buffer.length,status:'DRAFT',checkout_available:false,approval_required:true};
 }
