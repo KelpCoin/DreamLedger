@@ -159,7 +159,9 @@
         "private_material": "excluded"
       },
       "approval_basis": "existing_public_offer_plus_owner_instruction_to_finish_revenue_mvp_2026-10-28",
-      "payment_link_note": "Stripe link re-bound 2026-10-28 to automated private intake. Live metadata is truth_oracle / QUOTE-COMPARE-49. End-to-end commercial proof still requires a real paid buyer and delivered artifact."
+      "payment_link_note": "Stripe link re-bound 2026-10-28 to automated private intake. Live metadata is truth_oracle / QUOTE-COMPARE-49. End-to-end commercial proof still requires a real paid buyer and delivered artifact.",
+      "approved_by": "operator",
+      "approved_at": "2026-10-28"
     },
     {
       "offer_id": "OFFER-SELLER-PROFIT-AUDIT-29-NZD",
@@ -207,7 +209,9 @@
         "private_material": "excluded"
       },
       "approval_basis": "existing_published_Seller_Profit_Audit",
-      "payment_link_note": "Stripe hosted completion and precheckout instructions updated 2026-10-28; link active and amount unchanged. No paid order proven."
+      "payment_link_note": "Stripe hosted completion and precheckout instructions updated 2026-10-28; link active and amount unchanged. No paid order proven.",
+      "approved_by": "operator",
+      "approved_at": "2026-10-28"
     }
   ]
 }
