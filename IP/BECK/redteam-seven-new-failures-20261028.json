@@ -1,8 +1,8 @@
 {
-  "schema": "beck/redteam-threat-register/v2",
+  "schema": "beck/redteam-threat-register/v3",
   "updated_utc": "2026-10-28",
   "owner_gate": "NO_PUBLIC_SECURITY_CERTIFICATION",
-  "scope": "Seven added findings plus linked first-wave threats. Advisories affect named third-party packages only; no BECK exposure assumed.",
+  "scope": "Three research waves, verified advisory-specific scope plus third-wave MCP, payment, model-supply and goal-hijack threats. No blanket safety guarantee.",
   "claim_policy": [
     "Distinct distinctions: source advisory verified, BECK code inspected, CI test passed, production deploy proven, real commerce proved.",
     "Avoid absolute claims: provably safe, injection immune, exactly once settlement, guaranteed human author or unhackable.",
@@ -132,6 +132,119 @@
       "becks_use": "QUOTE_COMPARISON_BOTH_FREE_AND_PAID_SURFACES_PRESENT",
       "blocking_test": "Cross-page truth contract: exact price, paid deliverables, intake, fulfilment timing, refunds, subscription terms; human legal review.",
       "marketing_claim": "No unsupported statements of NZ$5m current automatic liability."
+    },
+    {
+      "id": "BECK-RT-10",
+      "state": "REDTEAM_RESEARCH_ONLY",
+      "approval_required": true,
+      "public_claim_allowed": false,
+      "key": "MCP_PARASITIC_TOOLCHAIN",
+      "source_url": "https://arxiv.org/abs/2509.06572",
+      "source_status": "PUBLISHED_2026_SECURITY_RESEARCH",
+      "affected_product": "MCP tools composing external ingestion, private reads and disclosure",
+      "becks_use": "BECK_LOCAL_GATEWAY_EXISTS; MULTI_TOOL_RBAC_NOT_FULLY_TESTED",
+      "blocking_test": "Enforce per-invocation least-privilege capabilities and explicit cross-tool dataflow consent; prevent arbitrary model-selected file or network disclosure.",
+      "marketing_claim": "Local MCP is proposal-only under inspected source; no blanket immunity to multi-tool exfiltration."
+    },
+    {
+      "id": "BECK-RT-11",
+      "state": "REDTEAM_RESEARCH_ONLY",
+      "approval_required": true,
+      "public_claim_allowed": false,
+      "key": "MCP_SILENT_REGISTRY_DRIFT",
+      "source_url": "https://arxiv.org/abs/2609.14119",
+      "source_status": "RESEARCH_PAPER_CONFIRMED",
+      "affected_product": "MCP tool descriptions, endpoint and server version changes",
+      "becks_use": "MCP_MANIFEST_SELF_HASH_SEEN; PINNED_APPROVED_HASH_ADDED_TO_LOCAL_GATEWAY",
+      "blocking_test": "Pin owner-approved manifest checksum outside manifest and recompute before every tools/call; reject renamed/repointed tools until human release.",
+      "marketing_claim": "Drift is detectable in this local pinned-manifest path, not proof every plugin/runtime is protected."
+    },
+    {
+      "id": "BECK-RT-12",
+      "state": "REDTEAM_RESEARCH_ONLY",
+      "approval_required": true,
+      "public_claim_allowed": false,
+      "key": "SEAL_PERSISTENT_TOOL_POISONING",
+      "source_url": "https://arxiv.org/abs/2610.25372",
+      "source_status": "RESEARCH_PAPER_CONFIRMED",
+      "affected_product": "LLM exposed to changing tool descriptions across sessions",
+      "becks_use": "MCP_MANIFEST_PER_CALL_CHECK_IN_PR",
+      "blocking_test": "Repeat multi-round call under modified tool description and mismatching hash; assert refusal at EACH call.",
+      "marketing_claim": "Do not claim poisoned descriptions can never persist; other MCP runtimes are out of scope."
+    },
+    {
+      "id": "BECK-RT-13",
+      "state": "REDTEAM_RESEARCH_ONLY",
+      "approval_required": true,
+      "public_claim_allowed": false,
+      "key": "AP2_INTENT_BOUND_CART",
+      "source_url": null,
+      "source_status": "DETAILED_PERCENTAGES_NEED_PRIMARY_INDEPENDENT_CONFIRMATION",
+      "affected_product": "AP2 cart contents versus buyer-visible listing and session",
+      "becks_use": "MCP_CHECKOUT_PROPOSAL_ONLY; NOT_AP2_PRODUCTION",
+      "blocking_test": "Bind signed, immutable buyer-visible listing digest and session, price, currency, recipient, SKU to mandate/cart; deny unbound cart changes.",
+      "marketing_claim": "No claim every paid decision is bound until deployed end-to-end session state is tested."
+    },
+    {
+      "id": "BECK-RT-14",
+      "state": "REDTEAM_RESEARCH_ONLY",
+      "approval_required": true,
+      "public_claim_allowed": false,
+      "key": "X402_FREE_SHOPPING_FACILITATOR",
+      "source_url": "https://www.usenix.org/conference/usenixsecurity26/presentation/wang-qinying",
+      "source_status": "USENIX_2026_RESEARCH_CONFIRMED",
+      "affected_product": "x402 verify/settle nonce and client-supplied ERC-6492 data",
+      "becks_use": "X402_EXPOSURE_NOT_VERIFIED",
+      "blocking_test": "Atomic paymentID + resourceID consume-once with settlement proof, reject untrusted facilitator metadata, test concurrent replay across workers.",
+      "marketing_claim": "Do not say exactly-once settlement or all facilitators are exploitable."
+    },
+    {
+      "id": "BECK-RT-15",
+      "state": "REDTEAM_RESEARCH_ONLY",
+      "approval_required": true,
+      "public_claim_allowed": false,
+      "key": "REGISTRY_CREDENTIALS_AND_MODEL_SWAP",
+      "source_url": "https://projectdiscovery.io/research/pwning-ai-labs-via-employees",
+      "source_status": "RESEARCH_VENDOR_2026_CONFIRMED",
+      "affected_product": "Model registry identity, compromised write tokens and model revisions",
+      "becks_use": "MODEL_FILES_AND_HF_PUBLISHER_IDENTITIES_NOT_INSPECTED",
+      "blocking_test": "User-approved publisher/revision, pinned file digest, isolated load process and credential-free model environment.",
+      "marketing_claim": "Publisher reputation and hash alone do not prove weight integrity or absence of backdoor."
+    },
+    {
+      "id": "BECK-RT-16",
+      "state": "REDTEAM_RESEARCH_ONLY",
+      "approval_required": true,
+      "public_claim_allowed": false,
+      "key": "PYTORCH_CHECKPOINT_UNSAFE_LOAD",
+      "source_url": "https://github.com/pytorch/pytorch/security/advisories/GHSA-63cw-57p8-fm3p",
+      "source_status": "AFFECTED_PYTORCH_VERSIONS_DOCUMENTED",
+      "affected_product": "PyTorch <=2.9.1 unsafe checkpoint loading; fix >=2.10.0",
+      "becks_use": "BECK_PYTORCH_MODEL_LOAD_PATH_NOT_VERIFIED",
+      "blocking_test": "Reject untrusted checkpoints; enforce reviewed loader/version; isolated environment. No assumption that weights_only=True is sufficient.",
+      "marketing_claim": "Not a BECK exploitable finding until actual loader dependency/version is established."
+    },
+    {
+      "id": "BECK-RT-17",
+      "state": "REDTEAM_RESEARCH_ONLY",
+      "approval_required": true,
+      "public_claim_allowed": false,
+      "key": "CROSS_LAYER_GOAL_HIJACK",
+      "source_url": null,
+      "source_status": "KNOWN_THREAT_CLASS; DEPLOYMENT_EXPOSURE_UNVERIFIED",
+      "affected_product": "Untrusted market data crossing tool, payment, memory or fulfillment boundaries",
+      "becks_use": "SOURCE_ONLY_GATE_AND_RECEIPT_POLICY_UNDER_REVIEW",
+      "blocking_test": "Per-stage verified transition binding: external signal -> customer listing -> approved quote -> checkout -> settled receipt -> delivery. Reject any missing stage.",
+      "marketing_claim": "Boundary defense is conditional, not proof no compromise can propagate."
     }
-  ]
+  ],
+  "model_independence": {
+    "objective": "BECK is platform-neutral and owns its evidence, decisions, manifests and local operator runtime; ChatGPT is optional and NOT the permanent execution plane",
+    "status": "IN_PROGRESS_SOURCE_ONLY",
+    "local_inference": "Ollama and LM Studio via vendor-neutral local chat-completions API",
+    "external_llms": "optional explicitly approved models only",
+    "persistent_state": "owned local ledger and verified exported files, not conversation memory",
+    "operator_controls": "human founder approval for revenue, billing, public posting, and model change",
+    "no_chatgpt_dependency_claim": "Design target, not audited across all repositories and services"
+  }
 }
