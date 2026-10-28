@@ -1,15 +1,20 @@
 import json
 import os
+import hashlib
 import urllib.parse
 import urllib.request
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "ops" / "demand"
 SILOS = ROOT / "public" / "silos"
 MAX_ACTIVE = int(os.getenv("MAX_ACTIVE_SILOS", "12"))
-UA = "DreamLedger-DemandRadar/1.0"
+UA = "DreamLedger-DemandRadar/1.1"
+DAYS = 30
+SINCE = (datetime.now(timezone.utc)-timedelta(days=DAYS)).strftime("%Y-%m-%d")
+SINCE_UNIX = int((datetime.now(timezone.utc)-timedelta(days=DAYS)).timestamp())
+SHADOW_OUT = ROOT / "artifacts" / "shadow-skus"
 
 HYPOTHESES = [
     {"slug":"stripe-reconciliation","name":"Stripe Production Reconciliation","tag":"B2B / Trust","price":"NZ$1,500+","queries":["stripe reconciliation production", "stripe webhook duplicate payment"],"pitch":"Find mismatches between Stripe payments, orders, entitlements and fulfillment before they become expensive."},
@@ -38,7 +43,7 @@ def github_count(query):
     headers = {"Accept":"application/vnd.github+json"}
     if token:
         headers["Authorization"] = "Bearer " + token
-    url = "https://api.github.com/search/issues?" + urllib.parse.urlencode({"q":query,"per_page":1})
+    url = "https://api.github.com/search/issues?" + urllib.parse.urlencode({"q":query+" created:>="+SINCE,"per_page":1})
     try:
         data = get(url, headers=headers)
         return int(data.get("total_count", 0)), "github"
@@ -47,7 +52,7 @@ def github_count(query):
 
 
 def hn_count(query):
-    url = "https://hn.algolia.com/api/v1/search?" + urllib.parse.urlencode({"query":query,"tags":"story","hitsPerPage":1})
+    url = "https://hn.algolia.com/api/v1/search?" + urllib.parse.urlencode({"query":query,"tags":"story","hitsPerPage":1,"numericFilters":"created_at_i>"+str(SINCE_UNIX)})
     try:
         data = get(url)
         return int(data.get("nbHits", 0)), "hackernews"
@@ -56,7 +61,7 @@ def hn_count(query):
 
 
 def stack_signal(query):
-    url = "https://api.stackexchange.com/2.3/search/advanced?" + urllib.parse.urlencode({"order":"desc","sort":"relevance","q":query,"site":"stackoverflow","pagesize":1})
+    url = "https://api.stackexchange.com/2.3/search/advanced?" + urllib.parse.urlencode({"order":"desc","sort":"relevance","q":query,"site":"stackoverflow","pagesize":1,"fromdate":SINCE_UNIX})
     try:
         data = get(url)
         return (1 if data.get("items") else 0), "stackoverflow"
@@ -68,6 +73,53 @@ def score(h):
     source_total = sum(x["count"] for x in h["signals"])
     source_hits = sum(1 for x in h["signals"] if x["count"] > 0)
     return source_total + source_hits * 100
+
+
+def shadow_ledger(results):
+    """Stage only original commercial research. No purchases or public publication."""
+    entries=[]
+    for h in results:
+        signals=h["signals"]
+        sources={s["source"].split("_error:")[0] for s in signals if s["count"]>0}
+        failures=sum(1 for s in signals if "_error:" in s["source"])
+        candidate={
+            "sku":"SHADOW-"+h["slug"].upper().replace("-","_"),
+            "source":"existing_beck_hypothesis",
+            "silo":"mtg" if h["slug"]=="commander-deck-diagnostic" else "dreamledger",
+            "name":h["name"],
+            "source_queries":h["queries"],
+            "signal_window_days":DAYS,
+            "independent_signal_sources":len(sources),
+            "source_failures":failures,
+            "signal_count":sum(s["count"] for s in signals),
+            "research_score_not_revenue":h["score"],
+            "proposed_price_not_checkout":h["price"],
+            "original_offer_concept":h["pitch"],
+            "ip_policy":"Independent implementation only; no unlicensed competitor copy, branding, code, media or text",
+            "state":"SHADOW_RESEARCH",
+            "buyer_intent_verified":False,
+            "original_asset_built":False,
+            "fulfilment_verified":False,
+            "owner_approval_required":True,
+            "checkout_enabled":False,
+            "public_listing_created":False,
+        }
+        candidate["evidence_sha256"]=hashlib.sha256(json.dumps(candidate,sort_keys=True).encode()).hexdigest()
+        entries.append(candidate)
+    payload={
+        "schema":"beck/shadow-skus/v1",
+        "generated_at":datetime.now(timezone.utc).isoformat(),
+        "source_window_days":DAYS,
+        "state":"PRIVATE_RESEARCH_ONLY",
+        "automatic_publication":False,
+        "revenue_proof":False,
+        "candidates":entries,
+    }
+    SHADOW_OUT.mkdir(parents=True,exist_ok=True)
+    p=SHADOW_OUT/"latest.json"
+    p.write_text(json.dumps(payload,indent=2)+"\n",encoding="utf-8")
+    (SHADOW_OUT/"SHA256SUMS.txt").write_text(hashlib.sha256(p.read_bytes()).hexdigest()+"  latest.json\n",encoding="ascii")
+    return payload
 
 
 def render_page(h):
@@ -96,16 +148,12 @@ def main():
         results.append(h)
     results.sort(key=lambda x:x["score"], reverse=True)
     active=results[:MAX_ACTIVE]
-    for h in active:
-        path=SILOS/h["slug"]
-        path.mkdir(parents=True, exist_ok=True)
-        (path/"index.html").write_text(render_page(h), encoding="utf-8")
-    SILOS.mkdir(parents=True, exist_ok=True)
-    (SILOS/"index.html").write_text(render_index(active), encoding="utf-8")
+    # Scheduled research must never modify customer-visible public/silos files.
+    shadow=shadow_ledger(results)
     OUT.mkdir(parents=True, exist_ok=True)
     payload={"generated_at":datetime.now(timezone.utc).isoformat(),"max_active":MAX_ACTIVE,"active":active,"all":results}
     (OUT/"latest.json").write_text(json.dumps(payload, indent=2)+"\n", encoding="utf-8")
-    print(json.dumps({"generated_at":payload["generated_at"],"active":[{"slug":x["slug"],"score":x["score"]} for x in active]}, indent=2))
+    print(json.dumps({"generated_at":payload["generated_at"],"shadow_candidates":len(shadow["candidates"]),"public_posts":0,"active":[{"slug":x["slug"],"score":x["score"]} for x in active]}, indent=2))
 
 if __name__ == "__main__":
     main()
