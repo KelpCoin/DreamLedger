@@ -18,6 +18,10 @@ CREATE TABLE IF NOT EXISTS public.beck_creator_cosmetic_drafts(
   source_sha256 text NOT NULL CHECK(source_sha256 ~ '^[0-9a-f]{64}$'),
   metadata_sha256 text NOT NULL CHECK(metadata_sha256 ~ '^[0-9a-f]{64}$'),
   source_bytes bytea NOT NULL CHECK(octet_length(source_bytes) BETWEEN 1 AND 1200000),
+  origin_kind text NOT NULL DEFAULT 'hand_drawn' CHECK(origin_kind IN ('hand_drawn','ai_enhanced')),
+  parent_draft_id text REFERENCES public.beck_creator_cosmetic_drafts(draft_id),
+  CONSTRAINT creator_lineage CHECK ((origin_kind='hand_drawn' AND parent_draft_id IS NULL)
+    OR (origin_kind='ai_enhanced' AND parent_draft_id IS NOT NULL)),
   rights_confirmed boolean NOT NULL DEFAULT true CHECK(rights_confirmed),
   lifecycle text NOT NULL DEFAULT 'DRAFT' CHECK(lifecycle='DRAFT'),
   gauntlet_verdict text NOT NULL DEFAULT 'PENDING' CHECK(gauntlet_verdict='PENDING'),
@@ -39,7 +43,8 @@ REVOKE ALL ON TABLE public.beck_creator_cosmetic_drafts FROM PUBLIC;
 CREATE OR REPLACE FUNCTION public.beck_creator_submit_draft_v1(
   p_draft_id text,p_creator_id text,p_title text,p_slot text,
   p_artist text,p_filename text,p_notes text,p_mime text,p_sha text,
-  p_meta_sha text,p_base64 text
+  p_meta_sha text,p_base64 text,
+  p_origin_kind text DEFAULT 'hand_drawn',p_parent_draft_id text DEFAULT NULL
 ) RETURNS jsonb LANGUAGE plpgsql SECURITY INVOKER
 SET search_path=pg_catalog,public AS $func$
 DECLARE
@@ -47,6 +52,7 @@ DECLARE
   v_bytes bytea;
   v_count integer;
   v_total bigint;
+  v_parent public.beck_creator_cosmetic_drafts%ROWTYPE;
 BEGIN
   IF p_creator_id NOT IN ('peggy','biggie')
     OR p_draft_id IS NULL OR p_draft_id !~ '^ASSET-(PEGGY|BIGGIE)-[A-F0-9]{20}$'
@@ -61,16 +67,26 @@ BEGIN
     OR p_mime NOT IN ('image/png','image/jpeg','image/webp')
     OR p_base64 IS NULL OR length(p_base64)>1600100
     OR length(coalesce(p_notes,''))>500
+    OR p_origin_kind NOT IN ('hand_drawn','ai_enhanced')
+    OR (p_origin_kind='hand_drawn' AND p_parent_draft_id IS NOT NULL)
+    OR (p_origin_kind='ai_enhanced' AND p_parent_draft_id IS NULL)
   THEN RAISE EXCEPTION 'CREATOR_UPLOAD_POLICY_REFUSED'; END IF;
   v_bytes:=decode(p_base64,'base64');
   IF octet_length(v_bytes) NOT BETWEEN 1 AND 1200000
   THEN RAISE EXCEPTION 'CREATOR_UPLOAD_SIZE_REFUSED'; END IF;
   PERFORM pg_advisory_xact_lock(hashtextextended('BECK_CREATOR_UPLOAD:'||p_creator_id,0));
+  IF p_origin_kind='ai_enhanced' THEN
+    SELECT * INTO v_parent FROM public.beck_creator_cosmetic_drafts
+    WHERE draft_id=p_parent_draft_id AND creator_id=p_creator_id AND origin_kind='hand_drawn';
+    IF NOT FOUND THEN RAISE EXCEPTION 'CREATOR_ORIGINAL_NOT_FOUND'; END IF;
+  END IF;
   SELECT * INTO v FROM public.beck_creator_cosmetic_drafts
      WHERE draft_id=p_draft_id FOR UPDATE;
   IF FOUND THEN
     IF v.source_sha256 IS DISTINCT FROM p_sha
       OR v.metadata_sha256 IS DISTINCT FROM p_meta_sha
+      OR v.origin_kind IS DISTINCT FROM p_origin_kind
+      OR v.parent_draft_id IS DISTINCT FROM p_parent_draft_id
     THEN RAISE EXCEPTION 'CREATOR_DUPLICATE_COLLISION'; END IF;
     RETURN jsonb_build_object('draft_id',v.draft_id,'status',v.lifecycle,
       'gauntlet',v.gauntlet_verdict,'approval_required',v.approval_required,
@@ -83,9 +99,10 @@ BEGIN
     THEN RAISE EXCEPTION 'CREATOR_PRIVATE_STORAGE_QUOTA_HOLD'; END IF;
   INSERT INTO public.beck_creator_cosmetic_drafts(
     draft_id,creator_id,title,wearable_slot,artist_credit,source_filename,
-    notes,media_type,source_sha256,metadata_sha256,source_bytes,rights_confirmed)
+    notes,media_type,source_sha256,metadata_sha256,source_bytes,rights_confirmed,
+    origin_kind,parent_draft_id)
   VALUES(p_draft_id,p_creator_id,p_title,p_slot,p_artist,p_filename,
-    coalesce(p_notes,''),p_mime,p_sha,p_meta_sha,v_bytes,true)
+    coalesce(p_notes,''),p_mime,p_sha,p_meta_sha,v_bytes,true,p_origin_kind,p_parent_draft_id)
   RETURNING * INTO v;
   RETURN jsonb_build_object('draft_id',v.draft_id,'status',v.lifecycle,
     'gauntlet',v.gauntlet_verdict,'approval_required',v.approval_required,
@@ -93,7 +110,7 @@ BEGIN
 END;
 $func$;
 REVOKE ALL ON FUNCTION public.beck_creator_submit_draft_v1(
-  text,text,text,text,text,text,text,text,text,text,text) FROM PUBLIC;
+  text,text,text,text,text,text,text,text,text,text,text,text,text) FROM PUBLIC;
 -- REQUIRED at promotion:
 -- create a dedicated non-owner role for creator intake, grant only SELECT and
 -- INSERT on this single table, plus EXECUTE on this specific function.
