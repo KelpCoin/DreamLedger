@@ -5,6 +5,8 @@ on:
     - cron: "*/5 * * * *"
   workflow_dispatch:
   push:
+    branches:
+      - main
     paths:
       - "workers/economic/**"
       - ".github/workflows/economic-fulfillment-worker.yml"
@@ -20,16 +22,7 @@ jobs:
   fulfill:
     runs-on: ubuntu-latest
     timeout-minutes: 25
-    env:
-      # Public project URL is configuration, not a secret.
-      SUPABASE_URL: https://wbwgroygjeyukkspnqiy.supabase.co
-      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
-      BEC_WORKER_ID: github-economic-fulfillment
-      BEC_JOB_LEASE_SECONDS: "1200"
-      BEC_ONCE: "1"
-      HUNTER_API_KEY: ${{ secrets.HUNTER_API_KEY }}
-      APOLLO_API_KEY: ${{ secrets.APOLLO_API_KEY }}
-      ACNC_APOLLO_REVEAL_PHONE: ${{ secrets.ACNC_APOLLO_REVEAL_PHONE }}
+    # Scope credentials to one verified backend step, never entire job.
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -41,7 +34,61 @@ jobs:
         run: python -m py_compile workers/economic/economic_fulfillment_worker.py
       - name: Run ACNC fulfillment unit tests
         run: python -m unittest discover -s workers/economic -p "test_*.py"
-      - name: Run one economic fulfillment lease
+      - name: Test Neon-first dispatch contract
+        run: python -m unittest discover -s workers/economic -p "test_backend_route.py" -v
+      - name: Select exactly one provider (fail closed)
+        id: routing
+        env:
+          BECK_COMMERCE_PRIMARY: ${{ vars.BECK_COMMERCE_PRIMARY }}
+          BECK_NEON_COMMERCE_ENABLED: ${{ vars.BECK_NEON_COMMERCE_ENABLED }}
+          BECK_NEON_SOURCE_RECONCILED: ${{ vars.BECK_NEON_SOURCE_RECONCILED }}
+          BECK_NEON_DELIVERY_ATTESTED: ${{ vars.BECK_NEON_DELIVERY_ATTESTED }}
+          BECK_NEON_CUTOVER_APPROVED: ${{ vars.BECK_NEON_CUTOVER_APPROVED }}
+          BECK_SUPABASE_FALLBACK_APPROVED: ${{ vars.BECK_SUPABASE_FALLBACK_APPROVED }}
+          BECK_SUPABASE_RECOVERY_VERIFIED: ${{ vars.BECK_SUPABASE_RECOVERY_VERIFIED }}
+          BECK_SUPABASE_SOURCE_RECONCILED: ${{ vars.BECK_SUPABASE_SOURCE_RECONCILED }}
+          BECK_SUPABASE_SINGLE_WRITER_FENCE_VERIFIED: ${{ vars.BECK_SUPABASE_SINGLE_WRITER_FENCE_VERIFIED }}
+        run: python workers/economic/backend_route.py --out proof/commerce/backend-route.json --github-output "$GITHUB_OUTPUT"
+      - name: Refuse unproven primary and unverified fallback
+        if: steps.routing.outputs.backend == 'HOLD'
+        run: |
+          echo "::error::BECK commerce HOLD: no proven single-writer backend."
+          exit 1
+      - name: Run legacy Supabase worker only after explicit fallback approval
+        if: steps.routing.outputs.backend == 'SUPABASE'
+        env:
+          SUPABASE_URL: https://wbwgroygjeyukkspnqiy.supabase.co
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          BEC_WORKER_ID: github-economic-fulfillment
+          BEC_JOB_LEASE_SECONDS: "1200"
+          BEC_ONCE: "1"
+          HUNTER_API_KEY: ${{ secrets.HUNTER_API_KEY }}
+          APOLLO_API_KEY: ${{ secrets.APOLLO_API_KEY }}
+          ACNC_APOLLO_REVEAL_PHONE: ${{ secrets.ACNC_APOLLO_REVEAL_PHONE }}
         run: python workers/economic/economic_fulfillment_worker.py
+      - name: Test optional Neon worker safety contract (no credentials)
+        run: python -m unittest discover -s workers/economic -p "test_neon_outbox_worker.py" -v
+      - name: Install Neon driver if verified primary
+        if: steps.routing.outputs.backend == 'NEON'
+        run: python -m pip install --disable-pip-version-check --no-input 'psycopg[binary]==3.2.10'
+      - name: Run silo-fenced Neon primary worker
+        if: steps.routing.outputs.backend == 'NEON'
+        env:
+          BECK_NEON_COMMERCE_ENABLED: '1'
+          NEON_DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
+          BECK_DELIVERY_ALLOWED_HOST: ${{ vars.BECK_DELIVERY_ALLOWED_HOST }}
+          BECK_DELIVERY_ALLOWED_SILO: ${{ vars.BECK_DELIVERY_ALLOWED_SILO }}
+          BECK_DELIVERY_ADAPTER_URL: ${{ vars.BECK_DELIVERY_ADAPTER_URL }}
+          BECK_DELIVERY_ADAPTER_TOKEN: ${{ secrets.BECK_DELIVERY_ADAPTER_TOKEN }}
+          BECK_DELIVERY_IDEMPOTENCY_CONTRACT: ${{ vars.BECK_DELIVERY_IDEMPOTENCY_CONTRACT }}
+        run: python workers/economic/neon_outbox_worker.py
+      - name: Retain backend routing proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: beck-commerce-backend-routing
+          path: proof/commerce/backend-route.json
+          if-no-files-found: warn
+          retention-days: 14
       - name: Record worker heartbeat
         run: echo "Economic fulfillment cycle complete. Discovery is not fulfillment and fulfillment is not revenue."

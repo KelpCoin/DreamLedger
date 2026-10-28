@@ -1,0 +1,78 @@
+name: BECKO Atomic Commerce PostgreSQL Proof (nonproduction)
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'ops/commerce/neon/becko_*'
+      - 'workers/economic/neon_outbox_worker.py'
+      - 'workers/economic/test_neon_outbox_worker.py'
+      - '.github/workflows/economic-fulfillment-worker.yml'
+      - '.github/workflows/becko-postgres-integration.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: becko-postgres-integration-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  disposable-postgres:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: becko_ci
+          POSTGRES_PASSWORD: becko_ci_only
+          POSTGRES_DB: becko_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U becko_ci -d becko_ci"
+          --health-interval 3s
+          --health-timeout 3s
+          --health-retries 12
+    env:
+      PGHOST: 127.0.0.1
+      PGPORT: 5432
+      PGUSER: becko_ci
+      PGPASSWORD: becko_ci_only
+      PGDATABASE: becko_ci
+      PGCONNECT_TIMEOUT: '10'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ensure PostgreSQL client
+        run: |
+          if ! command -v psql >/dev/null 2>&1; then
+            sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client
+          fi
+      - name: Prove optional Neon worker default-off and silo safety (no network)
+        run: python -m unittest discover -s workers/economic -p "test_neon_outbox_worker.py" -v
+      - name: Test real SQL against disposable PostgreSQL 16
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p proof/commerce/becko-postgres
+          {
+            psql -X -v ON_ERROR_STOP=1 -f ops/commerce/neon/becko_ci_schema.sql
+            psql -X -v ON_ERROR_STOP=1 -f ops/commerce/neon/becko_atomic_payment_outbox.sql
+            psql -X -v ON_ERROR_STOP=1 -f ops/commerce/neon/becko_ci_verify.sql
+          } 2>&1 | tee proof/commerce/becko-postgres/integration.txt
+          grep -q 'BECKO_POSTGRES_INTEGRATION=PASS_SYNTHETIC_NO_REAL_PAYMENT' \
+            proof/commerce/becko-postgres/integration.txt
+          sha256sum proof/commerce/becko-postgres/integration.txt \
+            > proof/commerce/becko-postgres/integration.sha256
+          printf 'LIVE_DB_MUTATIONS=0\nLIVE_STRIPE_EVENTS=0\nPRODUCTS_PUBLISHED=0\n' \
+            > proof/commerce/becko-postgres/boundary.txt
+      - name: Upload isolated integration proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: becko-postgres-integration-${{ github.run_id }}
+          path: proof/commerce/becko-postgres/
+          if-no-files-found: warn
+          retention-days: 30
