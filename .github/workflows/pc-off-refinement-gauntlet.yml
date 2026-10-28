@@ -29,6 +29,55 @@ permissions:
   contents: read
 
 jobs:
+  model-refinement:
+    # Every four hours when explicitly approved in a repo variable. Not a blank cheque for paid API calls.
+    if: >-
+      (github.event_name == 'schedule' && vars.BECK_AUTO_LLM_APPROVED == 'true') ||
+      (github.event_name == 'workflow_dispatch' && inputs.use_cloud_llm == 'true')
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    permissions:
+      contents: read
+    env:
+      LLM_API_URL: ${{ secrets.LLM_API_URL }}
+      LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+      LLM_MODEL: ${{ secrets.LLM_MODEL }}
+      LLM_MODELS: ${{ secrets.LLM_MODELS }}
+      REFINEMENT_OUT: artifacts/iterative-refinement-proof.md
+      REFINEMENT_JSON_OUT: artifacts/iterative-refinement-proof.json
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Assert authorised endpoint and at least two configured models
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$LLM_API_URL"
+          test -n "$LLM_API_KEY"
+          test -n "$LLM_MODELS"
+          node --check BEC-PRIME/scripts/iterative-refinement.js
+          echo 'LLM_APPROVAL_AND_PREFLIGHT=PASS'
+      - name: Three-role model pass (propose / critique / synthesize)
+        run: node BEC-PRIME/scripts/iterative-refinement.js
+      - name: Check model proof status
+        run: |
+          node - <<'NODE'
+          const r=require('./artifacts/iterative-refinement-proof.json');
+          if(r.status!=='COMPLETED_RESEARCH_ONLY'||r.model_count_distinct<2||
+             r.source_patch_written||r.public_listing_created||r.production_deployed||r.payment_received)process.exit(1);
+          console.log('BECK_MULTI_LLM_ITERATION=PASS; DISTINCT_MODELS='+r.model_count_distinct);
+          NODE
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: beck-multillm-refinement-${{ github.run_id }}
+          path: artifacts/iterative-refinement-proof.*
+          retention-days: 30
+          if-no-files-found: warn
   validate:
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -96,33 +145,10 @@ jobs:
           grep -q '24.14.1' render.yaml
           echo 'RENDER_CONTRACT=PASS'
 
-      - name: Cloud refinement preflight
-        if: ${{ env.USE_CLOUD_LLM == 'true' }}
-        shell: bash
+      - name: Deterministic validation mode
         run: |
-          set -euo pipefail
-          test -n "$LLM_API_URL"
-          test -n "$LLM_API_KEY"
-          test -n "${LLM_MODELS:-$LLM_MODEL}"
-          echo 'CLOUD_LLM_PREFLIGHT=PASS'
-
-      - name: Iterative cloud refinement
-        if: ${{ env.USE_CLOUD_LLM == 'true' }}
-        env:
-          REFINEMENT_OUT: artifacts/iterative-refinement-proof.md
-          LLM_MODELS: ${{ secrets.LLM_MODELS || secrets.LLM_MODEL }}
-        working-directory: BEC-PRIME
-        run: node scripts/iterative-refinement.js
-
-      - name: Local-first marker
-        if: ${{ env.USE_CLOUD_LLM != 'true' }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          echo 'LM_STUDIO=LOCAL_WHEN_PC_ON'
-          echo 'CLOUD_REFINEMENT=NOT_REQUESTED'
-          echo 'EXECUTION_PLANE=GITHUB_DETERMINISTIC'
-
+          echo 'VALIDATOR=DETERMINISTIC'
+          echo 'MULTI_LLM=SEPARATE_APPROVAL_GATED_JOB'
       - name: Run Gauntlet
         working-directory: BEC-PRIME
         run: npm run gauntlet
@@ -140,7 +166,7 @@ jobs:
             echo "EXECUTION_PLANE=$([ \"$USE_CLOUD_LLM\" = \"true\" ] && echo CLOUD_FALLBACK || echo GITHUB_DETERMINISTIC)"
             echo 'LM_STUDIO=LOCAL_WHEN_PC_ON'
             echo "REFINEMENT=$([ \"$USE_CLOUD_LLM\" = \"true\" ] && echo MODEL_PASS_REQUESTED || echo NOT_EXECUTED)"
-            echo 'GAUNTLET=EXECUTED'
+            echo 'GAUNTLET=REQUESTED'
             echo 'REVENUE_CLAIM=NOT_VERIFIED_BY_AUTOMATION'
           } | tee artifacts/pc-off-refinement-proof.txt
 
