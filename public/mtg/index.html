@@ -99,16 +99,24 @@ var FALLBACK=[
 ];
 function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
 function mail(p){return 'mailto:Dreamledger.org@gmail.com?subject='+encodeURIComponent('Happy Homarid NZ MTG deck inquiry: '+String(p.name||p.id||''));}
-function valid(p){return p&&p.status==='published'&&p.silo==='mtg'&&p.category==='commander-deck'&&!String(p.id||'').includes('DIAGNOSTIC');}
+function valid(p){return p&&p.status==='published'&&p.silo==='mtg'&&p.category==='commander-deck'&&!String(p.id||'').includes('DIAGNOSTIC')&&Number(p.inventory||0)>0;}
 function render(items,source){
 var decks=items.filter(valid);status.textContent=decks.length+' listed Commander deck'+(decks.length===1?'':'s')+' · '+(source==='catalog'?'catalogue loaded':'fallback catalogue')+' · checkout restricted to verified offers';
 catalog.innerHTML=decks.map(function(p){
 var live=p.id==='EDH_0001'&&p.inventory===1&&p.checkout_available===true&&p.sale_mode==='stripe_checkout'&&Number(p.price)===400&&p.checkout_url==='https://buy.stripe.com/14A3cvea1dSd1DV5oEdwc1J';
 var target=live?p.checkout_url:mail(p);
-var title=esc(p.name||p.id);var desc=esc(p.description||'Physical Commander deck. Request details.');var price=Number(p.price);
+var title=esc(p.name||p.id);var commander=esc(p.commander||'Commander details on request');var desc=esc(p.description||'Physical Commander deck. Full list can be supplied or completed on request.');var price=Number(p.price);
 var href=(live?'https://buy.stripe.com/14A3cvea1dSd1DV5oEdwc1J':target);
 var more=(typeof p.detail_url==='string'&&p.detail_url.startsWith('/mtg/'))?'<p><a href="'+esc(p.detail_url)+'">View deck details →</a></p>':'';
-return '<article class="card deck"><span class="tag">'+(live?'Live secure checkout':'Request first')+'</span><h3>'+title+'</h3><p>'+desc+'</p><div class="price">'+(Number.isFinite(price)?'NZ$'+price.toFixed(2):'Price on request')+'</div><a class="btn small" href="'+esc(href)+'"'+(live?' target="_blank" rel="noopener noreferrer"':'')+'>'+(live?'Review checkout':'Ask about this deck')+'</a>'+more+'</article>';
+return '<article class="card deck"><span class="tag">'+(live?'Live secure checkout':'Available · ask to finish listing')+'</span><h3>'+title+'</h3><small>Commander: '+commander+'</small><p>'+desc+'</p><div class="price">'+(Number.isFinite(price)?'Approx. NZ
+}).join('');
+}
+render(FALLBACK,'fallback');
+fetch('/catalog.json',{cache:'no-store'}).then(function(r){if(!r.ok)throw Error('Catalogue unavailable');return r.json()}).then(function(d){var q=Array.isArray(d.products)?d.products.filter(valid):[];if(q.length)render(q,'catalog');}).catch(function(){});
+})();
+</script>
+</body>
+</html>+price.toFixed(0):'Price on request')+'</div><a class="btn small" href="'+esc(href)+'"'+(live?' target="_blank" rel="noopener noreferrer"':'')+'>'+(live?'Review checkout':'Ask for decklist / buy details')+'</a>'+more+'</article>';
 }).join('');
 }
 render(FALLBACK,'fallback');
