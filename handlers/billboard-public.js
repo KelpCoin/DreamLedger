@@ -34,6 +34,10 @@ async function handler(request) {
       id:v.id,title:String(v.title).slice(0,80),
       market:String(v.market||'NZ').slice(0,20),
       destination_url:httpsOnly(v.destination_url),image_url:httpsOnly(v.image_url),
+      cell_index:Number.isInteger(v.cell_index)&&v.cell_index>=0&&v.cell_index<100?v.cell_index:
+        (Number.isInteger(v.x)&&Number.isInteger(v.y)&&v.x>=0&&v.y>=0&&v.x<=900&&v.y<=900&&v.x%100===0&&v.y%100===0
+          &&Number(v.width||100)===100&&Number(v.height||100)===100
+          ?(v.y/100)*10+v.x/100:null),
       status:'PUBLISHED'
     });
   }
