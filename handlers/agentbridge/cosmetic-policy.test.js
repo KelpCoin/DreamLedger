@@ -86,3 +86,20 @@ test('either owner authenticates using independent digest, shared token cannot i
  const collision={...env,BECK_CREATOR_BIGGIE_TOKEN_SHA256:env.BECK_CREATOR_PEGGY_TOKEN_SHA256};
  assert.throws(()=>authorize(new Headers({authorization:'Bearer '+pegToken}),collision),/CREATOR_AUTH_REFUSED/);
 });
+
+test('AI-enhanced cosmetic requires same-owner original reference and never becomes a purchase',()=>{
+  const original=draftFromBody(make(),'peggy');
+  const enhanced=draftFromBody(make({title:'AI-enhanced Wings',
+    origin_kind:'ai_enhanced',parent_draft_id:original.draftId}),'peggy');
+  assert.equal(original.originKind,'hand_drawn');
+  assert.equal(original.parentDraftId,null);
+  assert.equal(enhanced.originKind,'ai_enhanced');
+  assert.equal(enhanced.parentDraftId,original.draftId);
+  assert.equal(enhanced.approval_required,true);
+  assert.equal(enhanced.checkout_available,false);
+  assert.notEqual(enhanced.metaHash,original.metaHash);
+  assert.throws(()=>draftFromBody(make({origin_kind:'ai_enhanced'}),'peggy'),/PARENT_ORIGINAL_REQUIRED/);
+  assert.throws(()=>draftFromBody(make({origin_kind:'ai_enhanced',parent_draft_id:original.draftId}),'biggie'),/PARENT_ORIGINAL_REQUIRED/);
+  assert.throws(()=>draftFromBody(make({origin_kind:'hand_drawn',parent_draft_id:original.draftId}),'peggy'),/ORIGINAL_CANNOT_HAVE_PARENT/);
+  assert.throws(()=>draftFromBody(make({origin_kind:'verified_ai_model',parent_draft_id:original.draftId}),'peggy'),/INVALID_ORIGIN_KIND/);
+});
