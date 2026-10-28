@@ -29,6 +29,8 @@ assert(index.includes('href="/quote-compare-49.html"'));
 const quoteLanding=read("public/quote-compare-49.html");
 assert(quoteLanding.includes("/assets/bec-neon.css") && quoteLanding.includes(quote.checkout_url));
 assert(quoteLanding.includes("Dreamledger.org@gmail.com") && quoteLanding.includes("Manual review"));
+assert(read("handlers/discovery.js").includes("offer_page:offerPage"));
+assert(read("public/assets/discovery.js").includes("View offer and purchase details"));
 assert(market.includes('href="/quote-compare-49.html"') && !market.includes("PAID CHECKOUT HELD"));
 assert(board.includes(billboardOffer.checkout_url));
 console.log("BECK_VERCEL_FIGURE_EIGHT_CONTRACT=PASS",catalog.products.length,"existing catalogue rows");
