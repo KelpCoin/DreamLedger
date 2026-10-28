@@ -19,15 +19,20 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Verify Render public/private topology
+      - name: Verify Vercel public/static and private API topology
         shell: bash
         run: |
           set -euo pipefail
-          grep -q 'type: web' render.yaml
-          grep -q 'rootDir: public' render.yaml
-          grep -q 'type: pserv' render.yaml
-          grep -q 'rootDir: BEC-PRIME' render.yaml
-          echo 'PASS: public web service and private factory service are both declared.'
+          test -f vercel.json
+          test -f 'api/[...route].ts'
+          node - <<'NODE'
+          const v=require('./vercel.json');
+          if(v.outputDirectory!=='public') process.exit(1);
+          if(v.git?.deploymentEnabled!==false) process.exit(1);
+          if(v.regions?.[0]!=='syd1') process.exit(1);
+          if(v.rewrites?.some(x=>/^https?:/.test(x.destination||''))) process.exit(1);
+          NODE
+          echo 'PASS: Vercel serves public output and exact routed serverless API.'
 
       - name: Scan customer-facing public assets
         shell: bash
@@ -55,16 +60,20 @@ jobs:
           rm -f "$tmp"
           echo 'PASS: customer-facing HTML/CSS/text assets contain no prohibited internal/confidential language or credential material.'
 
-      - name: Verify public server exposes only approved API routes
+      - name: Verify Vercel API dispatcher blocks unapproved paths
         shell: bash
         run: |
           set -euo pipefail
-          grep -q "p.startsWith('/api/toll/v1/')" public/server.js
-          grep -q "async function proxyTollToEngine(req,res,p)" public/server.js
-          grep -q "ENGINE_INTERNAL_URL" public/server.js
-          grep -q "/api/swarm-100k/" public/server.js
-          grep -q "return send(res,404,'Not Found'" public/server.js
-          echo 'PASS: public API boundary is explicit for toll, bounded swarm proxy, and 404 fallback.'
+          route='api/[...route].ts'
+          grep -q 'API_ROUTE_NOT_FOUND' "$route"
+          grep -q 'const routes: Record<string, Route>' "$route"
+          grep -q 'bodyParser: false' "$route"
+          grep -q '/api/cube/marketplace' "$route"
+          grep -q 'rawBody(req' "$route"
+          grep -q 'new Request(url.toString(), input)' "$route"
+          grep -q 'return fail(res, 404' "$route"
+          node --check handlers/cube/marketplace.js
+          echo 'PASS: Vercel API is explicit allowlist; unknown routes fail closed.'
 
       - name: Check for obvious credential literals
         shell: bash
