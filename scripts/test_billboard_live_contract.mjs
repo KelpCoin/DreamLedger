@@ -39,8 +39,8 @@ const fetchMock=async (url,init={})=>{
 const Deno={env:{get:(key)=>({
   SUPABASE_URL:'https://example.supabase.co',
   SUPABASE_SERVICE_ROLE_KEY:'local-service-role',
-  STRIPE_SECRET_KEY:'sk_live_synthetic_only',
-  STRIPE_WEBHOOK_SECRET:'whsec_local_synthetic_only'
+  STRIPE_SECRET_KEY:'fixture-stripe-server-key',
+  STRIPE_WEBHOOK_SECRET:'fixture-webhook-signature-key'
 })[key]||''},serve:(fn)=>{handler=fn}};
 vm.runInNewContext(stripTypeScriptTypes(source,{mode:'strip'}),{
   Deno,crypto:cryptoNode.webcrypto,fetch:fetchMock,TextEncoder,TextDecoder,Uint8Array,Date,Number,String,JSON,Array,Object,
@@ -68,7 +68,7 @@ const session={
  customer_details:{email:'synthetic@example.invalid'}
 };
 const base={id:'evt_synthetic_only',livemode:true,type:'checkout.session.completed',data:{object:session}};
-function sign(raw){const ts=Math.floor(Date.now()/1000);return 't='+ts+',v1='+cryptoNode.createHmac('sha256','whsec_local_synthetic_only').update(ts+'.'+raw).digest('hex');}
+function sign(raw){const ts=Math.floor(Date.now()/1000);return 't='+ts+',v1='+cryptoNode.createHmac('sha256','fixture-webhook-signature-key').update(ts+'.'+raw).digest('hex');}
 async function deliver(event,signature){
  const raw=JSON.stringify(event);
  const req=new Request('https://example.supabase.co/functions/v1/dreamledger-billboard-webhook',{method:'POST',headers:{'stripe-signature':signature??sign(raw),'content-type':'application/json'},body:raw});
