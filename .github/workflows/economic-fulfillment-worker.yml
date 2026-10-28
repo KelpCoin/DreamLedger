@@ -5,6 +5,8 @@ on:
     - cron: "*/5 * * * *"
   workflow_dispatch:
   push:
+    branches:
+      - main
     paths:
       - "workers/economic/**"
       - ".github/workflows/economic-fulfillment-worker.yml"
@@ -43,5 +45,21 @@ jobs:
         run: python -m unittest discover -s workers/economic -p "test_*.py"
       - name: Run one economic fulfillment lease
         run: python workers/economic/economic_fulfillment_worker.py
+      - name: Test optional Neon worker safety contract (no credentials)
+        run: python -m unittest discover -s workers/economic -p "test_neon_outbox_worker.py" -v
+      - name: Install optional Neon driver only after operator enablement
+        if: vars.BECK_NEON_COMMERCE_ENABLED == '1'
+        run: python -m pip install --disable-pip-version-check --no-input 'psycopg[binary]==3.2.10'
+      - name: Run optional silo-fenced Neon worker
+        if: vars.BECK_NEON_COMMERCE_ENABLED == '1'
+        env:
+          BECK_NEON_COMMERCE_ENABLED: '1'
+          NEON_DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
+          BECK_DELIVERY_ALLOWED_HOST: ${{ vars.BECK_DELIVERY_ALLOWED_HOST }}
+          BECK_DELIVERY_ALLOWED_SILO: ${{ vars.BECK_DELIVERY_ALLOWED_SILO }}
+          BECK_DELIVERY_ADAPTER_URL: ${{ vars.BECK_DELIVERY_ADAPTER_URL }}
+          BECK_DELIVERY_ADAPTER_TOKEN: ${{ secrets.BECK_DELIVERY_ADAPTER_TOKEN }}
+          BECK_DELIVERY_IDEMPOTENCY_CONTRACT: ${{ vars.BECK_DELIVERY_IDEMPOTENCY_CONTRACT }}
+        run: python workers/economic/neon_outbox_worker.py
       - name: Record worker heartbeat
         run: echo "Economic fulfillment cycle complete. Discovery is not fulfillment and fulfillment is not revenue."
