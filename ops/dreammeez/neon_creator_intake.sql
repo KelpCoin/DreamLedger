@@ -4,8 +4,8 @@
 -- migration is proven. Never enters public assets or commerce tables.
 BEGIN;
 CREATE TABLE IF NOT EXISTS public.beck_creator_cosmetic_drafts(
-  draft_id text PRIMARY KEY CHECK(draft_id ~ '^ASSET-PEGGY-[A-F0-9]{20}$'),
-  creator_id text NOT NULL CHECK(creator_id='peggy'),
+  draft_id text PRIMARY KEY CHECK(draft_id ~ '^ASSET-(PEGGY|BIGGIE)-[A-F0-9]{20}$'),
+  creator_id text NOT NULL CHECK(creator_id IN ('peggy','biggie')),
   silo_id text NOT NULL DEFAULT 'SILO_AVATAR' CHECK(silo_id='SILO_AVATAR'),
   asset_type text NOT NULL DEFAULT 'cosmetic' CHECK(asset_type='cosmetic'),
   title text NOT NULL CHECK(length(title) BETWEEN 2 AND 90),
@@ -48,11 +48,11 @@ DECLARE
   v_count integer;
   v_total bigint;
 BEGIN
-  IF p_creator_id IS DISTINCT FROM 'peggy'
-    OR p_draft_id IS NULL OR p_draft_id !~ '^ASSET-PEGGY-[A-F0-9]{20}$'
+  IF p_creator_id NOT IN ('peggy','biggie')
+    OR p_draft_id IS NULL OR p_draft_id !~ '^ASSET-(PEGGY|BIGGIE)-[A-F0-9]{20}$'
     OR p_sha IS NULL OR p_sha !~ '^[0-9a-f]{64}$'
     OR p_meta_sha IS NULL OR p_meta_sha !~ '^[0-9a-f]{64}$'
-    OR p_draft_id <> ('ASSET-PEGGY-' || upper(substr(p_sha,1,20)))
+    OR p_draft_id <> ('ASSET-' || upper(p_creator_id) || '-' || upper(substr(p_sha,1,20)))
     OR p_title IS NULL OR length(p_title) NOT BETWEEN 2 AND 90
     OR p_artist IS NULL OR length(p_artist) NOT BETWEEN 2 AND 90
     OR p_filename IS NULL OR length(p_filename) NOT BETWEEN 1 AND 110
