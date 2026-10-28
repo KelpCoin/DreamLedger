@@ -1,0 +1,27 @@
+'use strict';
+const fs=require('node:fs'),assert=require('node:assert/strict');
+const offers=JSON.parse(fs.readFileSync('BEC-PRIME/catalog/offers/approved.json','utf8')).approved;
+const registered=offers.filter(x=>['QUOTE-COMPARE-49','SELLER-PROFIT-AUDIT-001'].includes(x.product_sku));
+assert.equal(registered.length,2,'Existing live offers should each be registered exactly once');
+const quote=registered.find(x=>x.product_sku==='QUOTE-COMPARE-49');
+const seller=registered.find(x=>x.product_sku==='SELLER-PROFIT-AUDIT-001');
+assert(quote&&seller);
+assert.equal(quote.silo,'truth_oracle');
+assert.equal(seller.silo,'seller_tools');
+for(const x of registered){
+ assert.equal(x.payment_link_status,'ACTIVE_LIVEMODE');
+ assert(x.fulfillment_route.includes('manual')||x.fulfillment_route.includes('manual_PDF'));
+ assert(!/auto[ _-]?deliver|autonomous fulfillment|settled_first_sale/i.test(x.payment_link_note||''));
+ assert(x.payment_link_url.startsWith('https://buy.stripe.com/'));
+ assert(x.proof_of_delivery.includes('provider_settlement'));
+ assert(!x.payment_link_note.includes('verified_revenue_nzd=49'));
+}
+assert.equal(quote.payment_link_id,'plink_1USpJeEGgEAnUFF9vNDiM8SS');
+assert.equal(quote.price,49);
+assert.equal(seller.payment_link_id,'plink_1UJNTzEGgEAnUFF9bzVlFlng');
+assert.equal(seller.price,29);
+const reconciler=fs.readFileSync('ops/commerce/reconcile-approved-offers.mjs','utf8');
+assert(reconciler.includes("s.payment_status === 'paid'"));
+assert(reconciler.includes("s.livemode === true"));
+assert(reconciler.includes("fulfillment: 'NOT_ESTABLISHED_BY_THIS_RECONCILER'"));
+console.log('BECK_EXISTING_OFFER_REGISTRY=PASS; QUOTE_OWNER=TRUTH_ORACLE; LIVE_LINKS=2; SETTLEMENT_AND_FULFILLMENT=NOT_INFERRED');
