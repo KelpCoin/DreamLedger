@@ -1,0 +1,22 @@
+{
+  "schema": "dreamledger/agent-bridge-ping/v1",
+  "ping_id": "ping-2026-10-28-mummykaween-collab",
+  "from": "grok-cloud",
+  "mode": "hybrid",
+  "ball": "C",
+  "intent": "handoff",
+  "summary": "Request: Add GitHub user mummykaween as collaborator (write access) on KelpCoin/DreamLedger and KelpCoin/llm-supabase-github-bridge so she can connect ChatGPT under her own identity and leave pings/handoffs on the Agent Bridge.",
+  "reads": [
+    "AGENT_BUS/BRIDGE/PROTOCOL.md"
+  ],
+  "writes": [
+    "AGENT_BUS/BRIDGE/outbox/2026-10-28-MUMMYKAWEEN-COLLAB-REQUEST.json"
+  ],
+  "revenue_claim_nzd": 0,
+  "needs_human": true,
+  "truth_label": "UNVERIFIED",
+  "created_at": "2026-10-28T13:37:00+13:00",
+  "owner_node": "cloud",
+  "requested_action": "Add collaborator mummykaween with Write access to DreamLedger + llm-supabase-github-bridge",
+  "note": "User is on husband phone session. She wants her own GitHub identity for ChatGPT while keeping KelpCoin on Grok. Exact username reported as mummykaween — please verify spelling when inviting."
+}
