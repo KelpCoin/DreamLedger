@@ -89,7 +89,7 @@ function json(res, status, data) {
 }
 
 function validEmail(email) {
-  return /^\\S+@\\S+\\.\\S+$/.test(email);
+  return /^\S+@\S+\.\S+$/.test(email);
 }
 
 function validAvatar(avatar) {
@@ -98,7 +98,7 @@ function validAvatar(avatar) {
 }
 
 function dbConfig() {
-  const base = String(process.env.SUPABASE_URL || '').replace(/\\/$/, '');
+  const base = String(process.env.SUPABASE_URL || '').replace(/\/$/, '');
   const key = String(process.env.SUPABASE_SERVICE_ROLE_KEY || '');
   if (!base || !key) throw new Error('Supabase auth storage is not configured. Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.');
   return { base, key };
