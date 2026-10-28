@@ -5,7 +5,7 @@
   "generated_at": null,
   "git_commit": null,
   "input_capabilities_sha256": "f62fbb7eb84c52a7ead5966c7fc4c0c899d7c248c652c8538d9aeecacbe81292",
-  "approved_offers_sha256": "3c3dfe8a3da019822bfd7ee9ac7e4f2245faf3bcb5a3487e95f2c68241db4cda",
+  "approved_offers_sha256": "91d18403140658633dbe165c0c6c79d67607ea46a675982293d27171f3d0b24a",
   "source": "catalog/ip-capabilities.json",
   "approval_source": "catalog/offers/approved.json",
   "schema": "compiler/schemas/offer.schema.json",
