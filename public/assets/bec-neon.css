@@ -1,0 +1,45 @@
+/* BECK / DreamLedger shared billboard visual tokens. Scoped to opt-in .bec-neon pages. */
+:root{color-scheme:dark}
+body.bec-neon{--signal:#c5ff35;--glow:rgba(197,255,53,.17);--bg:#080b10;--surface:#111722;--line:#2d3948;--ink:#f7f9fb;--muted:#b3bfcb;margin:0;min-height:100vh;color:var(--ink);background:radial-gradient(ellipse at 82% -13%,#1b3137 0,transparent 43%),radial-gradient(ellipse at 0% 65%,#101b22 0,transparent 50%),#080b10;font:16px/1.58 Inter,"Segoe UI",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.bec-neon *{box-sizing:border-box}
+.bec-neon a{color:inherit;text-decoration:none}
+.bec-neon h1,.bec-neon h2,.bec-neon h3{font-family:"Space Grotesk",Inter,"Segoe UI",system-ui,sans-serif;letter-spacing:-.055em;line-height:1.08}
+.bec-neon .bec-wrap{width:min(1200px,calc(100% - 38px));margin-inline:auto}
+.bec-neon .bec-header{display:flex;align-items:center;justify-content:space-between;gap:15px;min-height:74px;border-bottom:1px solid #293544;flex-wrap:wrap}
+.bec-neon .bec-logo{font-size:19px;font-weight:950;letter-spacing:-.08em;color:#fff}
+.bec-neon .bec-logo span,.bec-neon .bec-signal{color:var(--signal)}
+.bec-neon .bec-nav{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.bec-neon .bec-nav a{color:#c0cbd4;font-size:13px;font-weight:750;padding:10px 0}
+.bec-neon .bec-nav a:hover,.bec-neon .bec-nav a:focus-visible{color:var(--signal)}
+.bec-neon .bec-kicker{font:850 11px/1.4 ui-monospace,monospace;letter-spacing:.17em;text-transform:uppercase;color:var(--signal)}
+.bec-neon .bec-hero{padding:clamp(50px,7vw,102px) 0 48px}
+.bec-neon .bec-hero h1{font-size:clamp(49px,8.5vw,112px);margin:15px 0 22px;max-width:1000px;line-height:.94}
+.bec-neon .bec-hero p{font-size:clamp(16px,2vw,21px);max-width:760px;color:var(--muted);margin:0}
+.bec-neon .bec-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
+.bec-neon .bec-btn{display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--signal);background:var(--signal);color:#081009;font-size:14px;font-weight:900;border-radius:11px;min-height:50px;padding:12px 20px;cursor:pointer}
+.bec-neon .bec-btn:hover{background:#e0ff91;border-color:#e0ff91}
+.bec-neon .bec-btn.secondary{border-color:#526374;color:#f2f7fb;background:#141e28}
+.bec-neon .bec-btn.secondary:hover{border-color:var(--signal)}
+.bec-neon .bec-btn:focus-visible,.bec-neon a:focus-visible,.bec-neon select:focus-visible,.bec-neon input:focus-visible{outline:3px solid #f7fbff;outline-offset:3px}
+.bec-neon .bec-section{padding:32px 0 60px}
+.bec-neon .bec-section h2{font-size:clamp(29px,4vw,48px);margin:7px 0 20px}
+.bec-neon .bec-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+.bec-neon .bec-card{border:1px solid var(--line);background:linear-gradient(150deg,#15202b,#0e131d);border-radius:17px;padding:23px;min-height:166px;display:flex;flex-direction:column;gap:11px;box-shadow:0 12px 30px rgba(0,0,0,.08)}
+.bec-neon a.bec-card:hover{border-color:var(--signal);box-shadow:0 0 0 1px var(--glow)}
+.bec-neon .bec-card h3{font-size:23px;margin:0;overflow-wrap:anywhere}
+.bec-neon .bec-card p{color:var(--muted);font-size:14px;margin:0;flex:1}
+.bec-neon .bec-chip{color:var(--signal);font:800 11px/1.4 ui-monospace,monospace;text-transform:uppercase;letter-spacing:.09em}
+.bec-neon .bec-price{font-size:21px;font-weight:900;color:#fff}
+.bec-neon .bec-search{display:flex;align-items:center;gap:10px;background:#0c121b;border:1px solid #4c5d6d;border-radius:14px;padding:10px;flex-wrap:wrap}
+.bec-neon .bec-search input,.bec-neon .bec-search select{background:#0b121a;color:#fff;border:1px solid #425160;border-radius:9px;min-height:44px;padding:10px 12px;font:inherit;flex:1;min-width:150px}
+.bec-neon .bec-search input{min-width:min(300px,100%)}
+.bec-neon .bec-muted{color:var(--muted)}
+.bec-neon .bec-note{border-left:3px solid #51646b;padding:12px 17px;color:#aebfc8;background:#0d141d;font-size:13px}
+.bec-neon .bec-footer{border-top:1px solid var(--line);padding:26px 0 50px;color:#91a0ac;font-size:12px}
+.bec-neon .bec-footer a{color:#c5ff35}
+.bec-neon .bec-card .bec-btn{align-self:flex-start}
+.bec-neon .bec-offer{min-height:245px}
+.bec-neon .bec-category{min-height:150px}
+.bec-neon .bec-count{border:1px solid #3d4d5a;padding:5px 9px;color:#acbcca;border-radius:999px;font-size:12px}
+@media(max-width:720px){.bec-neon .bec-nav{gap:10px}.bec-neon .bec-nav a{font-size:12px}.bec-neon .bec-hero{padding-top:55px}.bec-neon .bec-hero h1{font-size:clamp(48px,12vw,72px)}.bec-neon .bec-actions>.bec-btn{flex:1 1 220px}.bec-neon .bec-search .bec-btn{width:100%}}
+@media(prefers-reduced-motion:no-preference){.bec-neon .bec-btn,.bec-neon .bec-card{transition:border-color .15s,background .15s,box-shadow .15s}}

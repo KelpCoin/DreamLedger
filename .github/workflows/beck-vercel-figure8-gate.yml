@@ -1,0 +1,42 @@
+name: BECK Vercel Multi-Silo Release Gate
+on:
+  pull_request:
+    branches: [main, billboard-verified-release-20261027]
+    paths:
+      - 'public/index.html'
+      - 'public/go/index.html'
+      - 'public/marketplace.html'
+      - 'public/billboard.html'
+      - 'public/assets/bec-neon.css'
+      - 'public/assets/discovery.js'
+      - 'handlers/discovery.js'
+      - 'handlers/billboard-public.js'
+      - 'api/[...route].ts'
+      - 'scripts/test_beck_vercel_contract.cjs'
+      - '.github/workflows/beck-vercel-figure8-gate.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Assert real Vercel storefront / gateway / marketplace / full billboard
+        run: |
+          set -euo pipefail
+          node scripts/verify-vercel-public-release.cjs
+          node scripts/test_beck_vercel_contract.cjs
+          node --check public/assets/discovery.js
+          node --check handlers/discovery.js
+      - name: Preserve payment & proof boundaries
+        run: |
+          set -euo pipefail
+          grep -q 'payment_verified' handlers/billboard-public.js
+          grep -q 'moderation_status' handlers/billboard-public.js
+          test -s public/data/billboard-published.json
+          echo 'BECK_FIGURE_EIGHT_RELEASE=SOURCE_CONTRACT_PASS; no transaction or deployment asserted'
