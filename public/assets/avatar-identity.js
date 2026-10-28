@@ -181,9 +181,11 @@
         slot: item.slot,
         name: item.name,
         web: item.web,
-        phinhaven: item.phinhaven
+        phinhaven: null,
+        preview_only: true,
+        entitlement_verified: false
       });
-      if (surface === 'phinhaven' && item.phinhaven) buffs.push(item.phinhaven);
+      // No trusted server-side ownership receipt exists in localStorage. Never promote cosmetic previews into gameplay buffs.
     });
     return {
       schema: 'dreamledger-avatar-surface-v1',
@@ -199,7 +201,9 @@
       },
       equipped: equipped,
       buffs: buffs,
-      owned: s.owned.slice(),
+      owned: [],
+      local_previews: s.owned.slice(),
+      entitlements_verified: false,
       updated_at: s.updated_at
     };
   }
@@ -217,10 +221,14 @@
           sku: e.id,
           slot: e.slot,
           visual: e.web,
-          buff: e.phinhaven || null
+          buff: null,
+          entitlement_verified: false,
+          preview_only: true
         };
       }),
-      active_buffs: payload.buffs,
+      active_buffs: [],
+      entitlement_verified: false,
+      preview_only: true,
       body: payload.body
     };
   }
