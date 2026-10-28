@@ -68,6 +68,7 @@ async function health(){
 Deno.serve(async req=>{
  if(req.method==="GET"){
    const h=await health();
+   console.log("BILLBOARD_HEALTH",JSON.stringify(h));
    return json(h.ok?200:503,h);
  }
  if(req.method!=="POST")return json(405,{error:"Method not allowed"});
