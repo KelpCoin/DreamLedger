@@ -8,6 +8,8 @@ on:
       - 'public/assets/avatar-identity.test.js'
       - 'handlers/dreammeez/entitlements.js'
       - 'handlers/dreammeez/entitlements.test.js'
+      - 'handlers/dreammeez/entitlementService.js'
+      - 'handlers/dreammeez/entitlementService.test.js'
       - 'BEC-PRIME/compiled/website/lib/accountAuth.js'
       - 'BEC-PRIME/compiled/website/lib/signedSession.js'
       - 'BEC-PRIME/compiled/website/lib/signedSession.test.js'
@@ -44,7 +46,7 @@ jobs:
           node --check handlers/dreammeez/entitlements.js
           node --check BEC-PRIME/compiled/website/lib/accountAuth.js
           node --check BEC-PRIME/compiled/website/lib/signedSession.js
-          node --test public/assets/avatar-identity.test.js handlers/dreammeez/entitlements.test.js BEC-PRIME/compiled/website/lib/signedSession.test.js
+          node --test public/assets/avatar-identity.test.js handlers/dreammeez/entitlements.test.js BEC-PRIME/compiled/website/lib/signedSession.test.js handlers/dreammeez/entitlementService.test.js
       - name: Verify server entitlement grant is not exposed to HTTP
         run: |
           grep -q 'server' handlers/dreammeez/entitlements.js
