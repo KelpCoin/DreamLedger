@@ -12,6 +12,9 @@ on:
       - 'BEC-PRIME/lib/refinementInputBoundary.js'
       - 'BEC-PRIME/scripts/iterative-refinement.js'
       - 'IP/BECK/redteam-seven-new-failures-20261028.json'
+      - 'BEC-PRIME/security/gateway.js'
+      - 'BEC-PRIME/security/mcpManifestGate.js'
+      - 'BEC-PRIME/scripts/test-mcp-manifest-drift.js'
       - '.github/workflows/stripe-proof-redteam.yml'
   push:
     branches: [main, billboard-verified-release-20261027]
@@ -25,6 +28,9 @@ on:
       - 'BEC-PRIME/lib/refinementInputBoundary.js'
       - 'BEC-PRIME/scripts/iterative-refinement.js'
       - 'IP/BECK/redteam-seven-new-failures-20261028.json'
+      - 'BEC-PRIME/security/gateway.js'
+      - 'BEC-PRIME/security/mcpManifestGate.js'
+      - 'BEC-PRIME/scripts/test-mcp-manifest-drift.js'
       - '.github/workflows/stripe-proof-redteam.yml'
 permissions:
   contents: read
@@ -47,12 +53,16 @@ jobs:
           node --check BEC-PRIME/scripts/test-beck-threat-register.js
           node --check BEC-PRIME/scripts/iterative-refinement.js
           node --check BEC-PRIME/scripts/test-refinement-input-boundary.js
+          node --check BEC-PRIME/security/mcpManifestGate.js
+          node --check BEC-PRIME/security/gateway.js
+          node --check BEC-PRIME/scripts/test-mcp-manifest-drift.js
       - name: Offline Stripe proof, replay and crash regressions
         run: |
           node --test BEC-PRIME/scripts/test-stripe-webhook-redteam.js
           node BEC-PRIME/scripts/test-stripe-webhook-proof.js
           node BEC-PRIME/scripts/test-beck-threat-register.js
           node --test BEC-PRIME/scripts/test-refinement-input-boundary.js
+          node --test BEC-PRIME/scripts/test-mcp-manifest-drift.js
       - name: Forbid false paid-fulfillment claim
         run: |
           node - <<'NODE'
