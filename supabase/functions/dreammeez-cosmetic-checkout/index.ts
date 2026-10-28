@@ -77,7 +77,11 @@ Deno.serve(async (req) => {
     },
     payment_intent_data: {
       metadata: {
-        ...commercialIdentity,
+        product_sku: commercialIdentity.product_sku,
+        product_id: commercialIdentity.product_id,
+        offer_id: commercialIdentity.offer_id,
+        silo: commercialIdentity.silo,
+        source: commercialIdentity.source,
         dreammeez_cosmetic_id: cosmeticId,
         account_id: authData.user.id,
       },
