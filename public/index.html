@@ -1,181 +1,69 @@
 <!doctype html>
 <html lang="en-NZ">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#0b1220">
-<title>DreamLedger | Identity, evidence, and commerce that compounds</title>
-<meta name="description" content="Free tools that pull people in. Paid identity, placements, and structured reviews that scale. DreamLedger is building the economic layer for humans and agents.">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#080b10">
+<title>DreamLedger | One doorway. Many worlds. Real commerce.</title>
+<meta name="description" content="Explore DreamLedger Originals, independent marketplaces, avatar worlds, business tools, digital products, and the Internet Billboard. Powered by BECK.">
 <link rel="canonical" href="https://dreamledger.org/">
+<link rel="stylesheet" href="/assets/bec-neon.css">
 <style>
-:root{color-scheme:dark;--bg:#0b1220;--panel:#111d2e;--line:#2a3b51;--ink:#f4f7fb;--muted:#b4c0cf;--soft:#8496aa;--mint:#a9f2d0;--gold:#e1b85b;--violet:#9f8cff}
-*{box-sizing:border-box}
-body{margin:0;background:radial-gradient(ellipse at 80% 0%,#1b3450 0,transparent 40%),var(--bg);color:var(--ink);font:16px/1.6 system-ui,sans-serif}
-a{color:var(--mint);text-decoration:none}
-.wrap{width:min(1120px,calc(100% - 32px));margin:auto}
-.top{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:18px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
-.brand{font-weight:900;font-size:20px;color:var(--ink)}
-nav{display:flex;gap:12px;flex-wrap:wrap}
-nav a{font-size:13px;color:var(--muted);font-weight:600}
-nav a:hover{color:var(--ink)}
-.hero{padding:56px 0 36px}
-.eyebrow{font-size:11px;font-weight:850;letter-spacing:.14em;text-transform:uppercase;color:var(--mint)}
-h1{font-size:clamp(40px,7vw,72px);line-height:.98;letter-spacing:-.06em;max-width:16ch;margin:14px 0 16px}
-h1 em{font-style:italic;color:var(--gold);font-weight:400}
-.lede{max-width:640px;color:var(--muted);font-size:18px;margin:0 0 8px}
-.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
-.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:12px 18px;border-radius:12px;border:1px solid var(--line);font-weight:800;font-size:14px}
-.btn.primary{background:var(--mint);color:#08130e;border-color:var(--mint)}
-.btn.gold{background:linear-gradient(180deg,#f0d078,var(--gold));color:#14120c;border-color:var(--gold)}
-.btn.ghost{background:transparent;color:var(--ink)}
-.money{margin:28px 0;padding:20px;border:1px solid rgba(225,184,91,.35);border-radius:18px;background:linear-gradient(145deg,rgba(225,184,91,.08),#111d2e)}
-.money h2{margin:0 0 8px;font-size:1.35rem;letter-spacing:-.03em}
-.money p{margin:0 0 14px;color:var(--muted);font-size:14px}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-@media(max-width:800px){.grid{grid-template-columns:1fr}}
-.card{padding:18px;border:1px solid var(--line);border-radius:16px;background:linear-gradient(145deg,#15212d,#101720);display:flex;flex-direction:column}
-.card .tag{font-size:10px;font-weight:850;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
-.card .tag.free{color:var(--mint)}
-.card h3{margin:0 0 8px;font-size:1.05rem}
-.card p{margin:0 0 12px;color:var(--muted);font-size:14px;flex:1}
-.card .price{font-weight:900;color:var(--gold);font-size:15px;margin-bottom:10px}
-section{padding:28px 0}
-h2{font-size:clamp(26px,4vw,36px);letter-spacing:-.04em;margin:0 0 12px}
-.section-lead{color:var(--muted);max-width:560px;margin:0 0 18px}
-.circuit{display:grid;gap:10px}
-@media(min-width:700px){.circuit{grid-template-columns:repeat(4,1fr)}}
-.step{padding:16px;border:1px solid var(--line);border-radius:14px;background:#0e151d}
-.step b{display:block;color:var(--mint);font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
-.step p{margin:0;color:var(--muted);font-size:13px}
-footer{border-top:1px solid var(--line);padding:24px 0 40px;margin-top:20px;color:var(--soft);font-size:12px}
-.small{font-size:12px;color:var(--soft)}
+.bec-hero{position:relative}.signal-orbit{border:1px solid #314431;border-radius:999px;padding:7px 13px;font:800 11px ui-monospace,monospace;color:#c5ff35;display:inline-block;margin-bottom:8px}
+.orbit{height:1px;background:linear-gradient(90deg,#c5ff35,transparent);margin:26px 0 0}
+.bec-feature{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(250px,.8fr);gap:16px}
+.bec-feature .bec-card:first-child{border-color:#627936;background:radial-gradient(circle at 100% 0%,#1a2c1d,transparent 60%),#101722}
+.mosaic{display:grid;grid-template-columns:repeat(8,1fr);grid-auto-rows:24px;gap:4px;margin-top:8px}
+.mosaic span{background:#17252a;border:1px solid #40504b;border-radius:3px}
+.mosaic span:nth-child(7n+2){background:#263c25}.mosaic span:nth-child(11n+4){background:#c5ff35}
+.bec-metric{color:#c5ff35;font:850 12px ui-monospace,monospace}
+@media(max-width:790px){.bec-feature{grid-template-columns:1fr}.mosaic{grid-auto-rows:16px}}
 </style>
 </head>
-<body>
-<div class="wrap">
-<header class="top">
-  <a class="brand" href="/">DreamLedger</a>
-  <nav>
-    <a href="/avatar.html">DreamMeez</a>
-    <a href="/billboard.html">Billboard</a>
-    <a href="/truth-oracle.html">Truth Oracle</a>
-    <a href="/quote-compare-49.html">Quote Compare NZ$49</a>
-    <a href="/mtg">Magic</a>
-    <a href="/tools/free.html">Free tools</a>
-    <a href="/register">Join free</a>
-  </nav>
-</header>
+<body class="bec-neon">
+<div class="bec-wrap">
+<header class="bec-header">
+<a class="bec-logo" href="/" aria-label="DreamLedger home">DREAM<span>LEDGER</span></a>
+<nav class="bec-nav" aria-label="Main navigation">
+<a href="/go">Explore</a><a href="/marketplace.html">Marketplace</a><a href="/avatar.html">DreamMeez</a><a href="/billboard.html">Billboard</a><a href="/mtg/">MTG</a><a href="/sell.html">Sell</a>
+</nav></header>
 <main>
-<section class="hero">
-  <div class="eyebrow">Identity · Evidence · Commerce</div>
-  <h1>Own the layer people <em>return to</em> every day.</h1>
-  <p class="lede">Free tools and extreme avatars pull humans and agents in. Streaks, scarce placements, and structured reviews turn attention into revenue. Built to compound — not to nibble at beer money.</p>
-  <div class="actions">
-    <a class="btn gold" href="/billboard.html">Claim a founding billboard tile · NZ$50</a>
-    <a class="btn primary" href="/avatar.html">Build your DreamMeez free</a>
-    <a class="btn ghost" href="/truth-oracle.html#tiers">Truth Oracle tiers</a>
-    <a class="btn ghost" href="/quote-compare-49.html">Compare supplier quotes · NZ$49</a>
-  </div>
+<section class="bec-hero">
+<div class="signal-orbit">POWERED BY BECK / CREATOR-LED COMMERCE</div>
+<h1>ONE DOORWAY.<br><span class="bec-signal">EVERYTHING ELSE.</span></h1>
+<p>Shop, create, trade, play and build. DreamLedger is one public home for a larger BECK ecosystem: original digital worlds, useful tools, honest marketplaces and room for independent sellers.</p>
+<div class="bec-actions"><a class="bec-btn" href="/marketplace.html">Explore the marketplace</a><a class="bec-btn secondary" href="/go">Scan / Explore the canonical gateway</a><a class="bec-btn secondary" href="/billboard.html">See the Internet Billboard</a></div>
+<div class="orbit"></div>
 </section>
-<section class="money" id="buy">
-  <h2>Revenue paths live now</h2>
-  <p>These are the commercial surfaces. Free magnets feed them. Payment never buys a better truth verdict — only placement, identity, convenience, or a bounded review.</p>
-  <div class="grid">
-    <article class="card">
-      <div class="tag">Scarcity · Attention</div>
-      <h3>Founding Billboard</h3>
-      <p>Permanent digital placement on a finite board. Early tiles are the cheap land-grab before inventory tightens.</p>
-      <div class="price">NZ$50 · one-time</div>
-      <a class="btn gold" href="/billboard.html">Get a tile →</a>
-    </article>
-    <article class="card">
-      <div class="tag">Identity · Live service</div>
-      <h3>DreamMeez cosmetics</h3>
-      <p>Extreme body free. Premium hair and cosmetics via streak or pay. Daily check-in is the habit; paid is the shortcut.</p>
-      <div class="price">From NZ$2–9 · streaks free</div>
-      <a class="btn primary" href="/avatar.html">Open studio →</a>
-    </article>
-    <article class="card">
-      <div class="tag">Evidence · Premium tier</div>
-      <h3>Truth Oracle · Review</h3>
-      <p>Structured review of one artifact against your criteria. Sits under Oracle tiers — not a random audit SKU.</p>
-      <div class="price">From NZ$49 · when intake open</div>
-      <a class="btn ghost" href="/truth-oracle.html#tiers">See tiers →</a>
-    </article>
-    <article class="card">
-      <div class="tag">Silo · Magic</div>
-      <h3>Commander Deck Diagnostic</h3>
-      <p>Paid vertical product inside the MTG silo. Proof that silos can sell without a new company each time.</p>
-      <div class="price">Checkout held pending verified delivery</div>
-      <a class="btn ghost" href="/mtg/">Explore MTG silo →</a>
-    </article>
-    <article class="card">
-      <div class="tag">Agents · Infrastructure</div>
-      <h3>Agent Bridge / toll packs</h3>
-      <p>Machine-payable receipts and scoped keys. Small tickets, high volume when agents are live customers.</p>
-      <div class="price">From NZ$0.50 probe</div>
-      <a class="btn ghost" href="/agent-bridge.html">Agent Bridge →</a>
-    </article>
-    <article class="card">
-      <div class="tag">Blueprint · High ticket</div>
-      <h3>Agentic Commerce Blueprint</h3>
-      <p>Higher-ticket packaging for operators who need a full remediation map — not a free blog post.</p>
-      <div class="price">NZ$149</div>
-      <a class="btn ghost" href="/agentic-commerce-remediation-blueprint.html">View blueprint →</a>
-    </article>
-  </div>
-</section>
-<section>
-  <div class="eyebrow">Daily circuit · Why they come back</div>
-  <h2>Traffic is designed, not hoped for.</h2>
-  <p class="section-lead">Every return path feeds identity, unlocks, or a paid shortcut. Humans and agents both count.</p>
-  <div class="circuit">
-    <div class="step"><b>01 · Free magnet</b><p>Quote worksheet, NZBN, claim-check, ticker — no account wall.</p></div>
-    <div class="step"><b>02 · Identity</b><p>Extreme DreamMeez body free; save needs account.</p></div>
-    <div class="step"><b>03 · Streak</b><p>Daily check-in unlocks premium hair. Miss a day, reset.</p></div>
-    <div class="step"><b>04 · Pay or wait</b><p>Cosmetics, billboard, reviews, silo diagnostics — when they want it now.</p></div>
-  </div>
-  <div class="actions" style="margin-top:18px">
-    <a class="btn primary" href="/tools/free.html">All free tools</a>
-    <a class="btn ghost" href="/avatar.html">Streak + avatar</a>
-    <a class="btn ghost" href="/auctions.html">Auctions</a>
-  </div>
-</section>
-<section>
-  <div class="eyebrow">Platform ambition</div>
-  <h2>One identity spine. Many silos. Compounding assets.</h2>
-  <div class="grid">
-    <article class="card">
-      <div class="tag free">Free</div>
-      <h3>Truth Oracle · Public</h3>
-      <p>Claim records, field guide, quote compare. The economic Wikipedia layer — never paywalled for basic truth structure.</p>
-      <a href="/truth-oracle.html">Enter Oracle →</a>
-    </article>
-    <article class="card">
-      <div class="tag">Scale</div>
-      <h3>Silo clone engine</h3>
-      <p>MTG is the vertical proof. Next verticals reuse identity, streaks, shop, ticker — not a new stack per niche.</p>
-      <a href="/mtg">Magic silo →</a>
-    </article>
-    <article class="card">
-      <div class="tag">Network</div>
-      <h3>Billboard + agents</h3>
-      <p>Finite attention inventory + machine commerce rails. Early capital and early agents set the graph.</p>
-      <a href="/billboard.html">Billboard →</a>
-    </article>
-  </div>
-</section>
-<section>
-  <div class="card">
-    <h3>Evidence rule (non-negotiable)</h3>
-    <p class="section-lead" style="margin:0">A page is not revenue. A checkout start is not a sale. We optimise for verified settlement and fulfillment — the only numbers that matter when the goal is millions, not theatre.</p>
-  </div>
-</section>
+<section class="bec-section" aria-labelledby="discover">
+<p class="bec-kicker">Find what matters to you</p><h2 id="discover">Browse without the noise.</h2>
+<form class="bec-search" role="search" action="/marketplace.html" method="get">
+<label for="home-search" class="bec-kicker">Search</label><input id="home-search" type="search" name="q" maxlength="100" placeholder="Search products, tools, worlds, services…" aria-label="Search DreamLedger">
+<label for="home-region" class="bec-kicker">Region</label><select name="region" id="home-region" aria-label="Preferred shopping region"><option value="NZ">New Zealand</option><option value="AU">Australia</option><option value="GLOBAL">Anywhere</option></select>
+<button class="bec-btn" type="submit">Find matches</button></form>
+<p class="bec-muted" style="font-size:13px;margin-top:10px">Region is your preference, not a claim of stock or an automatic location permission request. Shipping and eligibility must be confirmed for each offer.</p>
+<div class="bec-grid" style="margin-top:26px">
+<a class="bec-card bec-category" href="/marketplace.html?q=dreammeez"><span class="bec-chip">CREATIVE / DIGITAL</span><h3>Make it yours</h3><p>DreamMeez, avatar identity, digital accessories and creative worlds.</p></a>
+<a class="bec-card bec-category" href="/marketplace.html?q=marketplace"><span class="bec-chip">MARKETPLACE</span><h3>Buy &amp; sell</h3><p>Discover current inventory, independent seller pathways and secondhand goods.</p></a>
+<a class="bec-card bec-category" href="/marketplace.html?q=business"><span class="bec-chip">BUSINESS / TOOLS</span><h3>Make work easier</h3><p>Supplier comparisons, downloadable assets and bounded business outcomes.</p></a>
+<a class="bec-card bec-category" href="/marketplace.html"><span class="bec-chip">FULL CATALOGUE</span><h3>Browse Everything</h3><p>All currently published catalogue entries, filtered by your interest.</p></a>
+</div></section>
+<section class="bec-section" aria-labelledby="originals">
+<p class="bec-kicker">DreamLedger Originals / Featured paths</p><h2 id="originals">Made here. Built to grow.</h2>
+<div class="bec-feature">
+<article class="bec-card"><span class="bec-chip">FOUNDING DIGITAL SPACE</span><h3>Your space on the Internet Billboard.</h3><p>Explore the full million-pixel canvas. Founding 100 × 100 placements use the existing NZ$50 offer and content review process. No invented placements or traffic claims.</p>
+<div class="mosaic" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div><a class="bec-btn" href="/billboard.html">Explore the full canvas</a></article>
+<div class="bec-grid" style="grid-template-columns:1fr">
+<article class="bec-card"><span class="bec-chip">AVATAR / GAME IDENTITY</span><h3>DreamMeez &amp; Phinhaven</h3><p>Explore digital identity and cosmetic experiences. Demo unlocks are not paid entitlements.</p><a class="bec-btn secondary" href="/avatar.html">Open avatar studio</a></article>
+<article class="bec-card"><span class="bec-chip">FREE ENTRY / HUMAN UTILITY</span><h3>Useful before you buy</h3><p>Supplier Quote Comparison Worksheet, NZ seller-profit calculator and other free tools. No supplier data was uploaded by visiting this page.</p><a class="bec-btn secondary" href="/quote-comparison/">Start free quote worksheet</a></article>
+</div></div></section>
+<section class="bec-section"><p class="bec-kicker">Independent sellers / Creator-first</p><h2>Everyone can have a place.<br><span class="bec-signal">Nothing fake gets a sale.</span></h2>
+<div class="bec-grid">
+<article class="bec-card"><h3>List or discover</h3><p>Explore the existing marketplace intake and available published products. A submitted listing stays pending until accepted by policy.</p><a class="bec-btn secondary" href="/sell.html">Seller entry</a></article>
+<article class="bec-card"><h3>Magic: The Gathering</h3><p>HappyHomarid and CollectorsCoast remain their own MTG silo and reference implementation, not the whole DreamLedger storefront.</p><a class="bec-btn secondary" href="/mtg/">Explore MTG</a></article>
+<article class="bec-card"><h3>Trust &amp; agent commerce</h3><p>Truth Oracle evidence review and Agent Bridge · Preview (held) are separately governed pathways. A checkout is never proof of paid fulfilment.</p><a class="bec-btn secondary" href="/trust/">View the evidence standard</a></article>
+</div></section>
+<section class="bec-section" id="quote-tool"><p class="bec-kicker">Free commercial entry point</p><h2>Try before you spend.</h2><p class="bec-muted">Compare quote options using the existing browser-side tool or download the comparison-template.csv. No supplier data was uploaded by this page.</p><div class="bec-actions"><a class="bec-btn secondary" href="/quote-comparison/">Open free comparison tool</a><a class="bec-btn secondary" href="/marketplace.html">Browse Everything</a></div></section>
+<div class="bec-note">BECK powers the economic and engineering loops. DreamLedger is one storefront, not the whole engine. Published offers are not proof of live stock, fulfilled orders or revenue. Payments and delivery are separately verified.</div>
 </main>
-<footer>
-  DreamLedger · <a href="/truth-oracle.html">Truth Oracle</a> · <a href="/avatar.html">DreamMeez</a> · <a href="/billboard.html">Billboard</a> · <a href="/trust/">Evidence standard</a>
-  <p class="small" style="margin-top:10px">Build free gravity. Sell scarcity, identity, and bounded work. Scale silos on one spine.</p>
-</footer>
-</div>
-</body>
-</html>
+<footer class="bec-footer">DREAMLEDGER / POWERED BY BECK · <a href="/go">Canonical doorway</a> · <a href="/terms.html">Terms</a> · <a href="/privacy.html">Privacy</a> · <a href="/trust/">Evidence</a></footer>
+</div></body></html>
