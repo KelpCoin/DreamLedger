@@ -16,6 +16,7 @@ INTAKE_PAGE = ROOT / "public/quote-intake.html"
 OFFERS = ROOT / "BEC-PRIME/catalog/offers/approved.json"
 REGISTRY = ROOT / "BEC-PRIME/fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json"
 HANDLER = ROOT / "handlers/stripe-link.ts"
+CANONICAL_WEBHOOK = ROOT / "supabase/functions/stripe-revenue-41104f355d6878cdd6d1f9dc/index.ts"
 SENTINEL = ROOT / ".github/workflows/revenue-sentinel.yml"
 LIVE_LINK_ID = "plink_1USpJeEGgEAnUFF9vNDiM8SS"
 LIVE_LINK_URL = "https://buy.stripe.com/00wdR93vnbK5eqH3gwdwc3r"
@@ -27,7 +28,7 @@ def require(label: str, condition: bool) -> None:
     if not condition:
         failures.append(label)
 
-for path in (INTAKE, WORKER, OFFER_PAGE, INTAKE_PAGE, OFFERS, REGISTRY, HANDLER, SENTINEL):
+for path in (INTAKE, WORKER, OFFER_PAGE, INTAKE_PAGE, OFFERS, REGISTRY, HANDLER, SENTINEL, CANONICAL_WEBHOOK):
     require(f"required file exists: {path.relative_to(ROOT)}", path.is_file())
 
 if failures:
@@ -38,6 +39,7 @@ worker = WORKER.read_text(encoding="utf-8")
 offer_page = OFFER_PAGE.read_text(encoding="utf-8")
 intake_page = INTAKE_PAGE.read_text(encoding="utf-8")
 handler = HANDLER.read_text(encoding="utf-8")
+webhook = CANONICAL_WEBHOOK.read_text(encoding="utf-8")
 sentinel = SENTINEL.read_text(encoding="utf-8")
 offers = json.loads(OFFERS.read_text(encoding="utf-8"))
 registry = json.loads(REGISTRY.read_text(encoding="utf-8"))
@@ -81,6 +83,10 @@ require("registry points to actual edge functions", reg.get("implementation") ==
 require("registry does not claim first live delivery proof", reg.get("status") == "AUTOMATED_PATH_DEPLOYED_FIRST_LIVE_DELIVERY_NOT_YET_PROVEN")
 
 
+require("canonical webhook pins Quote Compare to live payment link", 'if(sku==="QUOTE-COMPARE-49")' in webhook and 'session.payment_link||"")!=="plink_1USpJeEGgEAnUFF9vNDiM8SS"' in webhook)
+require("canonical webhook validates quote price and silo", 'amountMinor!==4900||currency!=="NZD"' in webhook and 'String(metadata.silo||"")!=="truth_oracle"' in webhook)
+require("canonical webhook remains signature-verified", "stripe.webhooks.constructEventAsync" in webhook)
+require("canonical webhook retains delivery queue receipt", 'from("fulfillment_requests")' in webhook and "processed:true" in webhook)
 require("live sentinel probes paid-buyer return page HTTP 200", 'intake_code="$(curl' in sentinel and 'test "$intake_code" = "200"' in sentinel)
 require("live sentinel checks private quote intake signature", "Upload your supplier quotes" in sentinel and "noindex,nofollow" in sentinel)
 require("live sentinel verifies intake payment rejection marker", "PAYMENT_NOT_SETTLED" in sentinel)
