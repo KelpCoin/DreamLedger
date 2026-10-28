@@ -13,7 +13,7 @@
     "capabilities": 17,
     "candidates": 35,
     "passed": 33,
-    "approved": 2,
+    "approved": 4,
     "rejected": 2
   },
   "passed_offer_ids": [
@@ -51,7 +51,9 @@
     "OFFER-PRODUCT-QUOTE-COMPARE-49-DIAGNOSTIC",
     "OFFER-PRODUCT-QUOTE-COMPARE-49-AUDIT",
     "OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001",
-    "OFFER-CMD-DIAG-29-NZD"
+    "OFFER-CMD-DIAG-29-NZD",
+    "QUOTE-COMPARE-49",
+    "OFFER-SELLER-PROFIT-AUDIT-29-NZD"
   ],
   "rejected_offer_ids": [
     "OFFER-BEC-PRIME-DIGITAL-PROXY-ASSIST-DIAGNOSTIC",
