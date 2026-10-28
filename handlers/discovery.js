@@ -3,11 +3,14 @@
 // This is read-only discovery, not Stripe settlement, stock validation or an order writer.
 const fs=require("node:fs"),path=require("node:path");
 const ROOT=path.resolve(__dirname,"..");
+// Static requires ensure Vercel function tracing bundles these existing evidence sources.
+const CATALOG_SOURCE=require("../public/catalog.json");
+const SILO_SOURCE=require("../BEC-PRIME/catalog/silos/CUBE-SILO-REGISTRY.json");
 function json(res,status,payload){res.statusCode=status;res.setHeader("content-type","application/json; charset=utf-8");res.setHeader("cache-control","public, max-age=60");res.end(JSON.stringify(payload));}
 function read(file){return JSON.parse(fs.readFileSync(path.join(ROOT,file),"utf8"));}
 function hostedStripe(value){try{const u=new URL(String(value||""));return u.protocol==="https:"&&["buy.stripe.com","checkout.stripe.com"].includes(u.hostname)?u.href:null;}catch{return null;}}
 function getCatalog(){
- const catalog=read("public/catalog.json");
+ const catalog=CATALOG_SOURCE;
  const source=Array.isArray(catalog.products)?catalog.products:[];
  const products=source.filter(p=>p&&p.id&&p.name&&p.status==="published").map(p=>{
  const link=hostedStripe(p.checkout_url);
@@ -17,7 +20,7 @@ function getCatalog(){
  return {schema:"beck/discovery-catalog/v1",source:"existing_public_catalog",count:products.length,products,verified_external_revenue_claim:false};
 }
 function getSilos(){
- const registry=read("BEC-PRIME/catalog/silos/CUBE-SILO-REGISTRY.json");
+ const registry=SILO_SOURCE;
  const silos=(Array.isArray(registry.silos)?registry.silos:[]).filter(s=>s&&s.id&&s.label).map(s=>{
  const route=String(s.route||"");
  const rel=route.replace(/^\//,"");
