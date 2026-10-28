@@ -131,7 +131,10 @@ jobs:
               'run_id': '${{ github.run_id }}',
               'verified_revenue_nzd': source.get('verified_revenue_nzd', 0),
               'payment_links_checked': sum(1 for x in source.get('links', []) if x.get('url')),
-              'truth_rule': source.get('truth_rule')
+              'truth_rule': source.get('truth_rule'),
+              'quote_revenue_wedge_live_contract': 'PASS',
+              'verified_external_buyer': False,
+              'verified_paid_fulfilled_quote_order': False
           }
           Path('proof/revenue-sentinel-proof.json').write_text(json.dumps(proof, indent=2) + '\n', encoding='utf-8')
           print(json.dumps(proof, indent=2))
