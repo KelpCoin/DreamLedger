@@ -5,6 +5,9 @@ on:
     branches: [main]
     paths:
       - 'ops/commerce/neon/becko_*'
+      - 'workers/economic/neon_outbox_worker.py'
+      - 'workers/economic/test_neon_outbox_worker.py'
+      - '.github/workflows/economic-fulfillment-worker.yml'
       - '.github/workflows/becko-postgres-integration.yml'
   workflow_dispatch:
 
@@ -47,6 +50,8 @@ jobs:
           if ! command -v psql >/dev/null 2>&1; then
             sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client
           fi
+      - name: Prove optional Neon worker default-off and silo safety (no network)
+        run: python -m unittest discover -s workers/economic -p "test_neon_outbox_worker.py" -v
       - name: Test real SQL against disposable PostgreSQL 16
         shell: bash
         run: |
