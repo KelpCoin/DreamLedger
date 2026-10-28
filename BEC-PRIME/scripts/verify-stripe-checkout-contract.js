@@ -10,11 +10,11 @@ const EXT = new Set(['.js', '.cjs', '.mjs', '.ts', '.tsx', '.jsx', '.py', '.ps1'
 const REQUIRED = ['product_sku', 'product_id', 'offer_id', 'silo', 'source'];
 const CENTRAL_PRELOAD = path.join(ROOT, 'BEC-PRIME', 'lib', 'commercePaymentContractPreload.js');
 const PRODUCER_MARKERS = [
-  /checkout\/sessions/i,
   /stripe\.checkout\.sessions\.create/i,
   /stripeCheckout\s*\(/i,
   /stripeRequest\s*\(/i,
   /fetch\s*\(\s*[`'\"]https:\/\/api\.stripe\.com\/v1\/checkout\/sessions/i,
+  /fetch\s*\(\s*STRIPE_API\b/i,
   /curl[^\n]*api\.stripe\.com\/v1\/checkout\/sessions/i,
   /urllib[^\n]*api\.stripe\.com\/v1\/checkout\/sessions/i
 ];
@@ -36,8 +36,17 @@ function hasAnyProducer(text) {
 
 function isReadOnlyStripeUse(text) {
   const lower = text.toLowerCase();
-  if (!lower.includes('checkout/sessions')) return true;
-  return !/(method\s*[:=]\s*['\"]post['\"]|stripeCheckout\s*\(|stripeRequest\s*\(|sessions\s*\.create|curl[^\n]*-x\s+post|post\s+https?:\/\/api\.stripe\.com\/v1\/checkout\/sessions)/i.test(text);
+  if (!lower.includes('checkout/sessions') && !/fetch\s*\(\s*STRIPE_API\b/i.test(text)) return true;
+  const createsSession =
+    /stripe\.checkout\.sessions\.create/i.test(text) ||
+    /stripeCheckout\s*\(/i.test(text) ||
+    /stripeRequest\s*\(/i.test(text) ||
+    /curl[^\n]*-x\s+post[^\n]*checkout\/sessions/i.test(text) ||
+    /post\s+https?:\/\/api\.stripe\.com\/v1\/checkout\/sessions/i.test(text) ||
+    /fetch\s*\(\s*[`'\"]https:\/\/api\.stripe\.com\/v1\/checkout\/sessions[\s\S]{0,600}?method\s*:\s*['\"]POST['\"]/i.test(text) ||
+    (/const\s+STRIPE_API\s*=\s*['\"]https:\/\/api\.stripe\.com\/v1\/checkout\/sessions['\"]/i.test(text) &&
+     /fetch\s*\(\s*STRIPE_API[\s\S]{0,600}?method\s*:\s*['\"]POST['\"]/i.test(text));
+  return !createsSession;
 }
 
 function producerWindows(text) {
