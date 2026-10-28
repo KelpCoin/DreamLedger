@@ -31,8 +31,10 @@
    var buyer=node("p",p.delivery_status==="unknown"?"Delivery region / entitlement: confirm before checkout":"Delivery eligibility: see offer terms","bec-muted");
    card.append(buyer);
    var href=absoluteStripe(p.checkout_url);
+   var details=typeof p.offer_page==="string"&&/^\/(?!\/)[a-z0-9/_-]+(?:\.html)?$/i.test(p.offer_page)?p.offer_page:null;
+   if(details){var detailLink=node("a","View offer and purchase details","bec-btn");detailLink.href=details;card.append(detailLink);}
    if(p.checkout_available&&href){
-    var link=node("a","Open secure checkout","bec-btn");link.href=href;link.rel="nofollow";card.append(link);
+    var link=node("a","Secure Stripe checkout",details?"bec-btn secondary":"bec-btn");link.href=href;link.rel="nofollow";card.append(link);
    }else{
     var note=node("span","Browse only · checkout not verified","bec-chip");card.append(note);
    }

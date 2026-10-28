@@ -335,16 +335,17 @@
       "id": "QUOTE-COMPARE-49",
       "sku": "QUOTE-COMPARE-49",
       "name": "Supplier Quote Comparison",
-      "description": "Free browser-side supplier quote comparison worksheet. Paid comparison service temporarily unavailable while intake, persistence, and fulfillment are verified.",
+      "description": "One-time NZ$49 service comparing 2-5 supplier quotes into a structured CSV and readable summary. Live Stripe checkout; buyer emails private quotations and requirements after payment. Manual review and delivery target within 24 hours after complete intake; automation and fulfilled orders are not yet independently verified.",
       "price": 49,
       "currency": "nzd",
       "status": "published",
-      "checkout_available": false,
-      "checkout_url": null,
-      "payment_link_id": "plink_1UKq77EGgEAnUFF9KOr1SuUY",
-      "stripe_price_id": "price_1UKq73EGgEAnUFF92KC3fkh5",
+      "checkout_available": true,
+      "checkout_url": "https://buy.stripe.com/00wdR93vnbK5eqH3gwdwc3r",
+      "payment_link_id": "plink_1USpJeEGgEAnUFF9vNDiM8SS",
+      "stripe_price_id": "price_1USpJeEGgEAnUFF9VcSL5ggB",
       "category": "procurement-tools",
-      "availability": "review_required"
+      "availability": "manual_intake_required",
+      "offer_page": "/quote-compare-49.html"
     },
     {
       "id": "DOC-EXTRACT-50",

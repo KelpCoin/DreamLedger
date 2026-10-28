@@ -17,4 +17,20 @@ assert(published.includes("payment_verified")&&published.includes("moderation_st
 assert(read("public/assets/bec-neon.css").includes("#c5ff35"));
 assert(!index.includes("/buy/COMMANDER-DECK-DIAGNOSTIC-001"));
 const catalog=JSON.parse(read("public/catalog.json"));assert(catalog.schema==="dreamledger/public-catalogue/v1");
+// Evidence-backed quote payment link; billboard stays held pending publication proof.
+const quote=catalog.products.find(p=>p.id==="QUOTE-COMPARE-49");
+const billboardOffer=catalog.products.find(p=>p.id==="DREAMLEDGER-BILLBOARD-FOUNDING-001");
+assert(quote && quote.price===49 && quote.currency==="nzd" && quote.checkout_available===true);
+assert.equal(quote.checkout_url,"https://buy.stripe.com/00wdR93vnbK5eqH3gwdwc3r");
+assert.equal(quote.payment_link_id,"plink_1USpJeEGgEAnUFF9vNDiM8SS");
+assert(billboardOffer && billboardOffer.price===50 && billboardOffer.checkout_available===false);
+assert.equal(billboardOffer.checkout_url,null);
+assert(index.includes('href="/quote-compare-49.html"'));
+const quoteLanding=read("public/quote-compare-49.html");
+assert(quoteLanding.includes("/assets/bec-neon.css") && quoteLanding.includes(quote.checkout_url));
+assert(quoteLanding.includes("Dreamledger.org@gmail.com") && quoteLanding.includes("Manual review"));
+assert(read("handlers/discovery.js").includes("offer_page:offerPage"));
+assert(read("public/assets/discovery.js").includes("View offer and purchase details"));
+assert(market.includes('href="/quote-compare-49.html"') && !market.includes("PAID CHECKOUT HELD"));
+assert(board.includes("id=\"billboard-canvas\""));
 console.log("BECK_VERCEL_FIGURE_EIGHT_CONTRACT=PASS",catalog.products.length,"existing catalogue rows");
