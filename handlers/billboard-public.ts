@@ -26,7 +26,7 @@ function marketOf(raw:unknown) {
 }
 export default async function handler(request:Request) {
  if(request.method!=='GET')return reply(405,{error:'METHOD_NOT_ALLOWED'});
- const base=String(process.env.SUPABASE_URL||PROJECT_URL).replace(/\\/$/,'');
+ const base=String(process.env.SUPABASE_URL||PROJECT_URL).replace(/[/]$/,'');
  // Publishable key only: access to billboard_public must remain RLS-limited.
  const key=process.env.SUPABASE_PUBLISHABLE_KEY||
    'sb_publishable_O5JRD67KaU3SA9dFq-JIuQ_Pzs8pedj';
