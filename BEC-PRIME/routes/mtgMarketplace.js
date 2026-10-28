@@ -58,6 +58,22 @@ function safeListing(x) {
     created_at: x.created_at, updated_at: x.updated_at
   };
 }
+// Fail closed: existing legacy active rows have no approval proof and stay private.
+function isPublicListing(x) {
+  return x && x.status === 'active' &&
+    x.review && x.review.decision === 'approved' &&
+    x.review.physical_verified === true &&
+    x.publication_permission === true &&
+    Number.isSafeInteger(x.quantity) && x.quantity > 0 &&
+    !!x.set_name && !!x.collector_number &&
+    !!x.condition && x.condition !== 'Unspecified' && !!x.language;
+}
+function validReviewToken(req) {
+  const expected = String(process.env.MTG_MARKETPLACE_REVIEW_TOKEN || '');
+  const actual = String(req.headers['x-mtg-review-token'] || '');
+  if (Buffer.byteLength(expected) < 32 || Buffer.byteLength(expected) !== Buffer.byteLength(actual)) return false;
+  return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(actual));
+}
 function sellerRecord(user, req, input) {
   const seller = user.seller || {};
   const trader = String(input.trader_status || '').toLowerCase();
@@ -77,7 +93,7 @@ async function handle(req, res, url) {
   if (!route.startsWith('/api/mtg/marketplace')) return false;
 
   if (req.method === 'GET' && route === '/api/mtg/marketplace/listings') {
-    const listings = read(LISTINGS, []).filter(x => x.status === 'active').map(safeListing);
+    const listings = read(LISTINGS, []).filter(isPublicListing).map(safeListing);
     const user = currentUser(req);
     const mine = user ? read(LISTINGS, []).filter(x => x.seller_id === user.id).map(safeListing) : [];
     const requests = user ? read(REQUESTS, []).filter(x => x.buyer_id === user.id || x.seller_id === user.id).map(x => ({
@@ -95,6 +111,10 @@ async function handle(req, res, url) {
     const price = Number(input.price_nzd);
     const acceptsBuy = bool(input.accepts_buy);
     const acceptsTrade = bool(input.accepts_trade);
+    const quantity = Number(input.quantity == null ? 1 : input.quantity);
+    if (!Number.isSafeInteger(quantity) || quantity < 1 || quantity > 100000) {
+      return json(res, 422, { error: 'Enter a positive whole-number quantity.' });
+    }
     if (!title) return json(res, 422, { error: 'Card name is required.' });
     if (!acceptsBuy && !acceptsTrade) return json(res, 422, { error: 'Choose buy, trade, or both.' });
     if (acceptsBuy && (!Number.isFinite(price) || price <= 0)) return json(res, 422, { error: 'Enter a valid NZD price when accepting buys.' });
@@ -117,7 +137,10 @@ async function handle(req, res, url) {
       accepts_trade: acceptsTrade,
       trade_wanted: clean(input.trade_wanted, 800),
       trader_status: compliance.trader_status,
-      status: 'active',
+      quantity,
+      publication_permission: bool(input.publication_permission),
+      review: null,
+      status: 'pending_review',
       created_at: now,
       updated_at: now,
       seller_compliance: {
@@ -132,7 +155,41 @@ async function handle(req, res, url) {
     const listings = read(LISTINGS, []);
     listings.push(listing);
     write(LISTINGS, listings);
-    return json(res, 201, { ok: true, listing: safeListing(listing), fee_nzd: 0, fee_policy: 'MTG_ZERO_FEE' });
+    return json(res, 201, {
+      ok: true, listing: safeListing(listing), fee_nzd: 0,
+      fee_policy: 'MTG_ZERO_FEE', economic_state: 'UNPUBLISHED_PENDING_REVIEW'
+    });
+  }
+
+  // Privileged, explicitly invoked review. No configured secret means no approvals.
+  // Never expose this token in a browser, repository, logs or query string.
+  if (req.method === 'POST' && route === '/api/mtg/marketplace/review') {
+    if (!validReviewToken(req)) return json(res, 403, { error: 'Review authority unavailable.' });
+    const input = await body(req);
+    const listings = read(LISTINGS, []);
+    const listing = listings.find(x => x.id === clean(input.listing_id, 80));
+    if (!listing) return json(res, 404, { error: 'Listing not found.' });
+    if (listing.status !== 'pending_review') return json(res, 409, { error: 'Listing is not awaiting review.' });
+    const decision = clean(input.decision, 12).toLowerCase();
+    if (!['approve', 'reject'].includes(decision)) return json(res, 422, { error: 'Decision must be approve or reject.' });
+    if (decision === 'approve') {
+      if (!listing.publication_permission) return json(res, 422, { error: 'Seller publication permission missing.' });
+      if (input.physical_verified !== true) return json(res, 422, { error: 'Physical verification attestation required.' });
+      if (!Number.isSafeInteger(listing.quantity) || listing.quantity < 1 ||
+        !listing.set_name || !listing.collector_number ||
+        !listing.condition || listing.condition === 'Unspecified' || !listing.language) {
+        return json(res, 422, { error: 'Exact printing, condition, language and positive stock required.' });
+      }
+    }
+    const now = new Date().toISOString();
+    listing.review = { decision: decision === 'approve' ? 'approved' : 'rejected',
+      physical_verified: decision === 'approve', reviewed_at: now,
+      reviewer: 'MTG_PRIVILEGED_REVIEW' };
+    listing.status = decision === 'approve' ? 'active' : 'rejected';
+    listing.updated_at = now;
+    write(LISTINGS, listings);
+    return json(res, 200, { ok: true, listing_id: listing.id, status: listing.status,
+      economic_state: decision === 'approve' ? 'APPROVED_LISTING_NOT_A_SALE' : 'REJECTED_UNPUBLISHED' });
   }
 
   if (req.method === 'POST' && route === '/api/mtg/marketplace/request') {
@@ -140,7 +197,7 @@ async function handle(req, res, url) {
     if (!user) return json(res, 401, { error: 'Log in before making an offer.' });
     const input = await body(req);
     const listings = read(LISTINGS, []);
-    const listing = listings.find(x => x.id === clean(input.listing_id, 80) && x.status === 'active');
+    const listing = listings.find(x => x.id === clean(input.listing_id, 80) && isPublicListing(x));
     if (!listing) return json(res, 404, { error: 'Listing not found.' });
     if (listing.seller_id === user.id) return json(res, 409, { error: 'You cannot buy or trade your own listing.' });
     const type = String(input.type || '').toLowerCase();
@@ -184,6 +241,16 @@ async function handle(req, res, url) {
     if (request.seller_id !== user.id) return json(res, 403, { error: 'Only the seller can accept or decline this offer.' });
     const decision = String(input.decision || '').toLowerCase();
     if (!['accept','decline'].includes(decision)) return json(res, 422, { error: 'Decision must be accept or decline.' });
+    if (decision === 'accept') {
+      // Reserve the entire listing before acknowledging an accepted direct contract.
+      // This is process-local safety, not a cross-instance transactional DB guarantee.
+      const listings = read(LISTINGS, []);
+      const listing = listings.find(x => x.id === request.listing_id);
+      if (!isPublicListing(listing)) return json(res, 409, { error: 'Listing is no longer available.' });
+      listing.status = 'reserved';
+      listing.updated_at = new Date().toISOString();
+      write(LISTINGS, listings);
+    }
     request.status = decision === 'accept' ? 'accepted_direct_contract_pending_settlement' : 'declined';
     request.updated_at = new Date().toISOString();
     write(REQUESTS, requests);
