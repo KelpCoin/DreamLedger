@@ -14,6 +14,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Validate Peggy Agent Bridge private-upload policy
+        run: |
+          node --check handlers/agentbridge/cosmetic-policy.js
+          node --check handlers/agentbridge/cosmetic-intake.js
+          node --test handlers/agentbridge/cosmetic-policy.test.js handlers/agentbridge/cosmetic-intake.test.js
+      - name: PostgreSQL private-asset intake transaction test
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker run -d --rm --name beck-creator-pg             -e POSTGRES_USER=becko_ci -e POSTGRES_PASSWORD=ci-only             -e POSTGRES_DB=becko_ci postgres:16
+          trap 'docker rm -f beck-creator-pg >/dev/null 2>&1 || true' EXIT
+          for i in $(seq 1 30); do
+            docker exec beck-creator-pg pg_isready -U becko_ci -d becko_ci >/dev/null 2>&1 && break
+            sleep 1
+          done
+          docker cp ops/dreammeez/neon_creator_intake.sql beck-creator-pg:/tmp/creator-schema.sql
+          docker cp ops/dreammeez/neon_creator_ci_verify.sql beck-creator-pg:/tmp/creator-verify.sql
+          docker exec beck-creator-pg psql -X -U becko_ci -d becko_ci -v ON_ERROR_STOP=1 -f /tmp/creator-schema.sql
+          docker exec beck-creator-pg psql -X -U becko_ci -d becko_ci -v ON_ERROR_STOP=1 -f /tmp/creator-verify.sql
       - name: Validate catalogue JSON
         run: python -m json.tool public/catalog.json >/dev/null
       - name: Validate public HTML entrypoints
