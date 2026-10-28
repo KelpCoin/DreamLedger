@@ -28,7 +28,7 @@ function publicAuction(a, bids) {
     bidder_count: new Set(auctionBids.map(b => b.bidder_id)).size,
     highest_bidder: top?.bidder_id ? `bidder-${crypto.createHash('sha256').update(top.bidder_id).digest('hex').slice(0, 8)}` : null,
     approval_required: a.approval_required === true,
-    checkout_available: a.checkout_available === true && status !== 'ended' && reserveMet,
+    checkout_available: false, seller_verified: a.seller_verified === true, approved: a.approved === true, gauntlet_verdict: a.gauntlet_verdict === 'ALLOW' ? 'ALLOW' : 'HOLD',
     anti_sniping_seconds: a.anti_sniping_seconds
   };
 }
@@ -48,48 +48,16 @@ function createAuction(input) {
   if (state.auctions.some(x => x.auction_id === auction.auction_id)) throw new Error('auction_id already exists');
   state.auctions.push(auction); saveState(state); return publicAuction(auction, state.bids);
 }
-function placeBid(auctionId, bidderId, amount) {
-  if (!bidderId) throw new Error('bidder_id is required');
-  const state = loadState(); const auction = state.auctions.find(a => a.auction_id === auctionId);
-  if (!auction) throw new Error('Auction not found');
-  const view = publicAuction(auction, state.bids); const t = now();
-  if (auction.status === 'scheduled' && t >= auction.starts_at) auction.status = 'live';
-  if (t < auction.starts_at || auction.status === 'ended' || t >= auction.ends_at) throw new Error('Auction is not accepting bids');
-  if (auction.approval_required || !auction.checkout_available) throw new Error('Auction is not approved for bidding');
-  const min = Number(view.current_price) + Number(auction.minimum_increment);
-  if (!Number.isFinite(Number(amount)) || Number(amount) < min) throw new Error(`Bid must be at least ${min} ${auction.currency}`);
-  const bid = { bid_id: `BID-${crypto.randomUUID().toUpperCase()}`, auction_id: auctionId, bidder_id: String(bidderId), amount: Number(amount), created_at: t };
-  state.bids.push(bid);
-  if (auction.ends_at - t <= auction.anti_sniping_seconds * 1000) auction.ends_at = t + auction.anti_sniping_seconds * 1000;
-  saveState(state);
-  const result = publicAuction(auction, state.bids);
-  fs.writeFileSync(path.join(AUCTION_PROOFS, `${bid.bid_id}.json`), JSON.stringify({ proof_type: 'AUCTION_BID', status: 'PASS', bid, auction: result }, null, 2) + '\n');
-  return { bid_id: bid.bid_id, auction: result };
-}
-function refreshExpired(state) {
-  const t = now(); let changed = false;
-  const rotations = [2, 6, 12];
-  state.auctions.forEach((a, index) => {
-    if (Number(a.ends_at) <= t) {
-      const hours = rotations[index % rotations.length];
-      a.starts_at = t;
-      a.ends_at = t + hours * 60 * 60 * 1000;
-      a.status = 'live';
-      changed = true;
-    }
-  });
-  if (changed) saveState(state);
+function placeBid() {
+  throw new Error('AUTHENTICATED_NEON_BID_EXECUTOR_REQUIRED');
 }
 function listAuctions(silo) {
   const state = loadState();
-  refreshExpired(state);
-  const fresh = loadState();
-  return fresh.auctions.filter(a => !silo || a.silo === silo).map(a => publicAuction(a, fresh.bids));
+  return state.auctions.filter(a =>
+    (!silo || a.silo===silo) && a.approved === true &&
+    a.seller_verified === true && a.gauntlet_verdict === 'ALLOW' &&
+    a.status === 'APPROVED' && Number(a.ends_at)>now()
+  ).map(a => publicAuction(a,state.bids));
 }
-function getAuction(id) {
-  const state = loadState();
-  refreshExpired(state);
-  const fresh = loadState(); const auction = fresh.auctions.find(a => a.auction_id === id);
-  return auction ? publicAuction(auction, fresh.bids) : null;
-}
+function getAuction(id) {return listAuctions().find(a=>a.auction_id===id)||null;}
 module.exports = { createAuction, placeBid, listAuctions, getAuction, AUCTION_DATA, AUCTION_PROOFS };
