@@ -8,6 +8,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot 'Invoke-CheckedSandboxCli.ps1')
 New-Item -ItemType Directory -Path $OutputDir -Force | Out-Null
 
 function Invoke-Mcp {
@@ -81,11 +82,10 @@ $plan | ConvertTo-Json -Depth 30 | Set-Content -Path (Join-Path $OutputDir 'gate
 
 $npx=Get-Command npx -ErrorAction SilentlyContinue
 if ($npx -and @($screens).Count -eq 0) {
-    $sandboxJson=& npx --yes @trillboards/cli sandbox create --format json 2>&1 | Out-String
-    $sandboxJson | Set-Content -Path (Join-Path $OutputDir 'sandbox-create-response.txt') -Encoding UTF8
-    $sandboxStatus=& npx --yes @trillboards/cli sandbox status --format json 2>&1 | Out-String
-    $sandboxStatus | Set-Content -Path (Join-Path $OutputDir 'sandbox-status-response.txt') -Encoding UTF8
-    $results.Add([pscustomobject]@{gate='GATE_1B';check='SANDBOX_CREATE';pass=$true;detail='CLI fallback used because registration response did not expose sandbox screens.'})
+    $createEvidence=Invoke-CheckedSandboxCli -Command $npx.Source -Action create
+    $statusEvidence=Invoke-CheckedSandboxCli -Command $npx.Source -Action status
+    @($createEvidence,$statusEvidence) | ConvertTo-Json -Depth 5 | Set-Content -Path (Join-Path $OutputDir 'sandbox-cli-evidence.json') -Encoding UTF8
+    $results.Add([pscustomobject]@{gate='GATE_1B';check='SANDBOX_CLI_COMMANDS';pass=$true;detail='Both commands returned zero and valid JSON without an explicit error. Provisioning and screen readiness remain unverified.'})
 } elseif (@($screens).Count -gt 0) {
     $results.Add([pscustomobject]@{gate='GATE_1B';check='SANDBOX_CREATE';pass=$true;detail='Registration response supplied sandbox screens; CLI provisioning was skipped.'})
 } else {
@@ -95,3 +95,5 @@ if ($npx -and @($screens).Count -eq 0) {
 $proof=[ordered]@{schema_version='DOOH-GATE1B-PROOF/1.1';generated_at=(Get-Date).ToUniversalTime().ToString('o');experiment='DOOH_CUBE_001';registration=[ordered]@{completed=$true;api_key_persisted=$false;sandbox_screens=@($screens).Count};authenticated_discovery=[ordered]@{completed=($authTools.Count -gt 0);observed_tool_count=$authTools.Count};sandbox=[ordered]@{create_attempted=($null -ne $npx -and @($screens).Count -eq 0);live_purchase=$false;live_booking=$false};media_buy=[ordered]@{executed=$false;reason='Human approval boundary and exact runtime tool arguments must be validated before mutation.'};cryptographic_proof=[ordered]@{real_proof_verified=$false;tamper_rejection_verified=$false};revenue=[ordered]@{verified_nzd=0;status='UNMATCHED'};next_gate='GATE_1B_MEDIA_BUY_PATH';results=@($results)}
 $proof | ConvertTo-Json -Depth 40 | Set-Content -Path (Join-Path $OutputDir 'DOOH-Gate1B-proof.json') -Encoding UTF8
 $proof | ConvertTo-Json -Depth 40
+
+if (@($results | Where-Object { $_.pass -eq $false -and $_.check -ne 'SANDBOX_SCREENS_RETURNED' }).Count -gt 0) { throw 'GATE_1B_REQUIRED_CHECK_FAILED' }

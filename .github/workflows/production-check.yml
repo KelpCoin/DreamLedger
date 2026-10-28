@@ -14,6 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Verify physical DOOH inventory and signed playback proofs (offline)
+        run: node --test DOOH/verified-inventory.test.cjs
       - name: Validate catalogue JSON
         run: python -m json.tool public/catalog.json >/dev/null
       - name: Validate public HTML entrypoints

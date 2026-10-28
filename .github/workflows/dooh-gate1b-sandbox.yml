@@ -2,6 +2,10 @@ name: DOOH Gate 1B Sandbox
 
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - 'DOOH/**'
+      - '.github/workflows/dooh-gate1b-sandbox.yml'
   push:
     paths:
       - '.github/workflows/dooh-gate1b-sandbox.yml'
@@ -14,7 +18,24 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  cli-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify real screen data and signed playback evidence remain required
+        run: node --test DOOH/verified-inventory.test.cjs
+      - name: Verify CLI failures cannot report sandbox success
+        shell: pwsh
+        run: ./DOOH/Test-SandboxCli.ps1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dooh-cli-contract-proof
+          path: DOOH/GATE1B/cli-contract-proof.json
+          if-no-files-found: error
   sandbox:
+    if: github.event_name == 'workflow_dispatch'
+    needs: cli-contract
     name: Register agent and provision sandbox
     runs-on: ubuntu-latest
     steps:
@@ -39,6 +60,7 @@ jobs:
         run: ./DOOH/Gate1B-Sandbox.ps1 -OutputDir DOOH/GATE1B
 
       - name: Upload Gate 1B evidence
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: dooh-gate1b-sandbox-evidence
