@@ -138,6 +138,17 @@ jobs:
           curl -fsS https://dreamledger.org/quote-compare-49.html > "$RUNNER_TEMP/quote-page.html"
           grep -Fq "$EXPECTED_URL" "$RUNNER_TEMP/quote-page.html"
           grep -Fq 'DreamLedger is in trade in New Zealand' "$RUNNER_TEMP/quote-page.html"
+          # Stripe now redirects the buyer to private automatic intake. Detect the
+          # high-risk production drift where the sales page still tells buyers to
+          # email documents manually or promises a different delivery process.
+          grep -Fq 'Upload privately' "$RUNNER_TEMP/quote-page.html"
+          grep -Fq 'Stripe returns you to DreamLedger' "$RUNNER_TEMP/quote-page.html"
+          grep -Fq 'The first-pass extraction and comparison are automated' "$RUNNER_TEMP/quote-page.html"
+          if grep -Eiq 'email 2-5 quotes|manual review begins|this purchase uses the existing manual delivery process' "$RUNNER_TEMP/quote-page.html"; then
+            echo 'QUOTE_BUYER_JOURNEY_DRIFT=FAIL'
+            exit 1
+          fi
+          echo 'QUOTE_BUYER_JOURNEY_DRIFT=PASS'
           echo 'QUOTE_REVENUE_WEDGE_LIVE_CONTRACT=PASS'
           echo 'QUOTE_BUYER_RETURN_DESTINATION=PASS'
       - name: Emit revenue sentinel proof
