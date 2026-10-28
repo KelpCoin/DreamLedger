@@ -1,4 +1,4 @@
-name: BECK Peggy Creator Neon Intake (private proof)
+name: BECK Dual-Owner Creator Neon Intake (private proof)
 
 on:
   pull_request:
@@ -71,14 +71,14 @@ jobs:
             psql -X -v ON_ERROR_STOP=1 -f ops/dreammeez/neon_creator_intake.sql
             psql -X -v ON_ERROR_STOP=1 -f ops/dreammeez/neon_creator_ci_verify.sql
           } 2>&1 | tee proof/creator-neon/sql-integration.txt
-          grep -q 'BECK_PEGGY_CREATOR_NEON=PASS_PRIVATE_DRAFT_ONLY' proof/creator-neon/sql-integration.txt
+          grep -q 'BECK_DUAL_OWNER_CREATOR_NEON=PASS_PRIVATE_DRAFT_ONLY' proof/creator-neon/sql-integration.txt
           sha256sum proof/creator-neon/sql-integration.txt > proof/creator-neon/sql-integration.sha256
           printf 'REAL_CREATOR_ARTWORK=0\nPRODUCTION_NEON_DDL=0\nPUBLIC_ASSETS=0\nPAYMENT_CHANGES=0\n' > proof/creator-neon/boundary.txt
       - name: Retain private test evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: beck-peggy-creator-neon-private-proof-${{ github.run_id }}
+          name: beck-dual-owner-creator-neon-private-proof-${{ github.run_id }}
           path: proof/creator-neon/
           if-no-files-found: warn
           retention-days: 30
