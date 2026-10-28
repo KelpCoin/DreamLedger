@@ -7,14 +7,14 @@ const id='u_0123456789abcdef01234567';
 test('signed session authenticates account and is usable by cookie reader',()=>{
  const t=sign(id,secret,1700000000);
  assert.equal(verify(t,secret,1700000001),id);
- assert.equal(fromCookie('other=a; dreamiez_session='+encodeURIComponent(t),secret),id);
+ assert.equal(fromCookie('other=a; dreamiez_session='+encodeURIComponent(sign(id,secret)),secret),id);
 });
 test('legacy unsigned account-id cookie fails closed',()=>{
  assert.equal(fromCookie('dreamiez_session='+id,secret),null);
 });
 test('invalid or tampered session cannot impersonate account',()=>{
  const t=sign(id,secret,1700000000);
- assert.equal(verify(t.replace('0123','zzzz'),secret,1700000001),null);
+ assert.equal(verify(t.slice(0,-1)+(t.endsWith('0')?'1':'0'),secret,1700000001),null);
  assert.equal(verify(t,'synthetic-different-secret-longer-than-32-characters',1700000001),null);
 });
 test('expired session and future iat are rejected',()=>{
