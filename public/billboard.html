@@ -39,6 +39,20 @@ input{width:100%;background:#080b10;border:1px solid #526074;border-radius:9px;c
 @media(max-width:850px){.hero,.rules{grid-template-columns:1fr}.display{max-width:450px}.grid{grid-template-columns:1fr}main{padding-top:42px}.section{margin-top:52px}}
 @media(max-width:510px){.wrap{width:calc(100% - 28px)}.actions .button{width:100%}.display{padding:14px}.screen{min-height:230px}.tile{width:140px;height:140px;font-size:17px}}
 @media(prefers-reduced-motion:no-preference){.button{transition:background .15s,border-color .15s}}
+
+/* Full public canvas: 1,000,000 pixels in 100 positions of 100 x 100. */
+.canvas-shell{overflow-x:auto;padding:13px;border:1px solid #40513f;border-radius:17px;background:radial-gradient(circle at 40% 20%,#1b2927,#0a1017);box-shadow:inset 0 0 40px #0007}
+.billboard-canvas{width:100%;min-width:500px;max-width:980px;aspect-ratio:1;display:grid;grid-template-columns:repeat(10,minmax(0,1fr));grid-template-rows:repeat(10,minmax(0,1fr));gap:2px;margin-inline:auto}
+.canvas-cell{position:relative;border:1px solid #34464b;background:linear-gradient(145deg,#121d22,#0d161d);min-width:0;min-height:0;border-radius:3px;display:flex;align-items:center;justify-content:center;text-align:center;padding:3px;color:#728893;font:700 clamp(8px,1vw,12px)/1.2 "Space Grotesk",system-ui,sans-serif;overflow:hidden;overflow-wrap:anywhere}
+.canvas-cell:nth-child(11n+2){background:#162220}.canvas-cell.is-published{border-color:#c5ff35;background:#c5ff35;color:#0b1110;font-weight:950}
+.canvas-cell.is-published img{width:100%;height:100%;object-fit:cover}
+.canvas-cell.is-published:hover{outline:2px solid #fff;z-index:1}
+.canvas-topline{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:15px}
+.canvas-topline strong{font:950 14px ui-monospace,monospace;color:#c5ff35}
+.canvas-status{font-size:13px;color:#bcc7d0;margin-top:14px}
+.canvas-legend{font-size:12px;color:#93a8b5;margin:12px 0 0}
+@media(max-width:560px){.canvas-shell{padding:7px}.billboard-canvas{min-width:400px}}
+
 </style>
 </head>
 <body>
@@ -76,6 +90,13 @@ input{width:100%;background:#080b10;border:1px solid #526074;border-radius:9px;c
 <section class="section" id="live-board" aria-labelledby="live-heading">
 <p class="eyebrow">Public canvas</p><h2 id="live-heading">Verified published placements</h2>
 <p class="notice">Only placements returned by the existing public billboard data view appear here. The sample above is not included.</p>
+<div class="canvas-topline"><strong>THE COMPLETE CANVAS · 1000 × 1000 PIXELS</strong><span class="small">100 grid positions · 100 × 100 pixels each</span></div>
+<div class="canvas-shell" role="region" aria-label="Full million pixel internet billboard" tabindex="0">
+<div id="billboard-canvas" class="billboard-canvas" role="grid" aria-label="100-position billboard grid"></div>
+</div>
+<p id="canvas-status" class="canvas-status" role="status">Checking verified public inventory…</p>
+<p class="canvas-legend">This is the full canvas. Unmarked cells mean their current allocation is not verified from the public data view. Unmarked does <strong>not</strong> mean available to purchase. Only confirmed PUBLISHED rows with explicit positions are painted as paid placements.</p>
+<h3 style="margin:32px 0 14px">Published placement directory</h3>
 <div id="live-items" class="live-grid" aria-live="polite"><p class="notice">Checking published inventory...</p></div>
 </section>
 <section class="section rules">
@@ -90,11 +111,30 @@ input{width:100%;background:#080b10;border:1px solid #526074;border-radius:9px;c
 <script>
 (async function(){'use strict';
  const root=document.getElementById('live-items');
+ const canvas=document.getElementById('billboard-canvas');
+ const canvasStatus=document.getElementById('canvas-status');
+ const slots=[];
+ for(let i=0;i<100;i++){const cell=document.createElement('div');cell.className='canvas-cell';cell.setAttribute('role','gridcell');cell.setAttribute('aria-label','Position '+(i+1)+': allocation unverified');cell.textContent=String(i+1).padStart(2,'0');canvas.appendChild(cell);slots.push(cell);}
+
  try{
    const response=await fetch('/api/billboard/public',{cache:'no-store'});
    if(!response.ok)throw Error('unavailable');
    const payload=await response.json();
    if(!Array.isArray(payload.items))throw Error('invalid');
+   let positioned=0,unpositioned=0;
+   for(const item of payload.items){
+     const index=item.cell_index;
+     if(!Number.isInteger(index)||index<0||index>=100){unpositioned++;continue;}
+     const cell=slots[index];
+     if(cell.classList.contains('is-published')){unpositioned++;continue;}
+     cell.replaceChildren();cell.classList.add('is-published');cell.setAttribute('aria-label','Published position '+(index+1)+': '+String(item.title||'Placement').slice(0,80));
+     const img=String(item.image_url||'');
+     if(/^https:\/\//i.test(img)){const picture=document.createElement('img');picture.src=img;picture.alt=String(item.title||'Published placement').slice(0,80);picture.loading='lazy';cell.appendChild(picture);}
+     else cell.textContent=String(item.title||'Published placement').slice(0,80);
+     positioned++;
+   }
+   canvasStatus.textContent='Public feed responded: '+payload.items.length+' published placement(s), '+positioned+' mapped to verified grid coordinates, '+unpositioned+' without usable public positions.';
+
    root.replaceChildren();
    if(!payload.items.length){const p=document.createElement('p');p.className='notice';p.textContent='No verified published tiles are currently available to display.';root.appendChild(p);return;}
    for(const item of payload.items){
@@ -106,7 +146,7 @@ input{width:100%;background:#080b10;border:1px solid #526074;border-radius:9px;c
      const label=document.createElement('span');label.textContent='PUBLISHED · '+String(item.market||'NZ').slice(0,20);a.appendChild(label);
      root.appendChild(a);
    }
- }catch{root.replaceChildren();const p=document.createElement('p');p.className='notice';p.textContent='The live placement feed cannot be verified right now. No placements are being invented or shown as paid.';root.appendChild(p);}
+ }catch{canvasStatus.textContent='Public placement feed unavailable. Grid coordinates and inventory cannot be verified.';root.replaceChildren();const p=document.createElement('p');p.className='notice';p.textContent='The live placement feed cannot be verified right now. No placements are being invented or shown as paid.';root.appendChild(p);}
 })();
 </script>
 </body></html>
