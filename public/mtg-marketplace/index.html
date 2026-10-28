@@ -12,7 +12,7 @@
 <body>
 <div class="wrap">
 <header class="nav"><div class="brand"><b>MAGIC</b> / MARKETPLACE</div><nav><a href="/mtg">MTG</a><a href="/account">Account</a><a href="/login">Login</a></nav></header>
-<section class="hero"><div class="kicker">MTG silo / peer marketplace</div><h1>Buy it.<br>Trade it.</h1><p>List a real card, set a price, or say what you want in trade. Buyers can make a buy or trade request. The seller accepts or declines. This MVP takes <strong>NZ$0 platform fee</strong> on Magic listings.</p></section>
+<section class="hero"><div class="kicker">MTG silo / peer marketplace</div><h1>Buy it.<br>Trade it.</h1><p>Submit a real card for private review, set a price, or describe a trade. Only physically verified, approved listings become public. Buyers can then make requests; sellers can accept or decline. This MVP takes <strong>NZ$0 platform fee</strong> on Magic listings.</p></section>
 <div class="notice"><strong>Direct-contract MVP.</strong> DreamLedger records the listing and request, but does not collect auction or sale proceeds here. A seller acceptance is an agreement to proceed, not proof of settled payment.</div>
 
 <section class="panel">
@@ -31,14 +31,14 @@
 <div class="field"><label>Condition</label><select name="condition"><option>Near Mint</option><option>Lightly Played</option><option>Moderately Played</option><option>Heavily Played</option><option>Damaged</option><option>Unspecified</option></select></div>
 <div class="field"><label>Language</label><input name="language" value="English" maxlength="40"></div>
 <div class="field"><label>Image URL</label><input name="image_url" type="url" maxlength="1000" placeholder="https://..."></div>
-<div class="field"><label>Buy price NZD</label><input name="price_nzd" type="number" min="0.01" step="0.01" placeholder="50.00"></div>
+<div class="field"><label>Quantity *</label><input name="quantity" type="number" min="1" max="100000" step="1" value="1" required></div>\n<div class="field"><label>Buy price NZD</label><input name="price_nzd" type="number" min="0.01" step="0.01" placeholder="50.00"></div>
 <div class="field"><label>Trader status *</label><select name="trader_status" required><option value="">Choose...</option><option value="private">Private seller</option><option value="trader">Selling in trade</option></select></div>
 <div class="field"><label>Contact address *</label><input name="contact_address" maxlength="300" placeholder="Required for physical listing"></div>
 <div class="field"><label>Online trading identity</label><input name="online_trading_identity" maxlength="120" placeholder="Your marketplace name"></div>
 <div class="field full"><label>Card description</label><textarea name="description" maxlength="1500" placeholder="Condition notes, language, notable defects, photos, etc."></textarea></div>
 <div class="field full"><label>Trade wanted</label><textarea name="trade_wanted" maxlength="800" placeholder="What would you trade for?"></textarea></div>
 <div class="field full checks"><label><input type="checkbox" name="accepts_buy" checked> Accept buy requests</label><label><input type="checkbox" name="accepts_trade"> Accept trade requests</label></div>
-<div class="field full"><button class="btn primary" type="submit">List card</button></div>
+<div class="field full checks"><label><input type="checkbox" name="publication_permission" required> I authorise public display of this listing only after manual verification and approval.</label></div>\n<div class="field full"><button class="btn primary" type="submit">Submit for review</button><p>Set, collector number, condition and positive physical stock are required before approval.</p></div>
 </form>
 <div id="listingStatus" class="status"></div>
 </section>
@@ -72,7 +72,7 @@ async function offer(id,type){
  try{await api('/api/mtg/marketplace/request',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({listing_id:id,type,offered_amount_nzd:amount,trade_offer:trade})});await load();alert(type==='buy'?'Buy request sent.':'Trade request sent.');}catch(e){alert(e.message);}
 }
 async function decision(id,decision){try{await api('/api/mtg/marketplace/request/decision',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({request_id:id,decision})});await load();}catch(e){alert(e.message);}}
-$('listingForm').addEventListener('submit',async e=>{e.preventDefault();const fd=new FormData(e.currentTarget);const body=Object.fromEntries(fd.entries());body.accepts_buy=fd.get('accepts_buy')==='on';body.accepts_trade=fd.get('accepts_trade')==='on';try{await api('/api/mtg/marketplace/list',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});$('listingStatus').className='status success';$('listingStatus').textContent='Card listed. NZ$0 Magic marketplace fee.';e.currentTarget.reset();fd.get('accepts_buy');await load();}catch(err){$('listingStatus').className='status error';$('listingStatus').textContent=err.message;}});
+$('listingForm').addEventListener('submit',async e=>{e.preventDefault();const fd=new FormData(e.currentTarget);const body=Object.fromEntries(fd.entries());body.accepts_buy=fd.get('accepts_buy')==='on';body.accepts_trade=fd.get('accepts_trade')==='on';body.publication_permission=fd.get('publication_permission')==='on';try{await api('/api/mtg/marketplace/list',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});$('listingStatus').className='status success';$('listingStatus').textContent='Draft received for private review. Not public until approved. NZ$0 Magic marketplace fee.';e.currentTarget.reset();fd.get('accepts_buy');await load();}catch(err){$('listingStatus').className='status error';$('listingStatus').textContent=err.message;}});
 load();
 })();
 </script>
