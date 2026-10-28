@@ -14,6 +14,9 @@ const PROOF_DIR = path.join(ROOT, 'data', 'proofs');
 const PROTOCOL_VERSION = '2025-11-25';
 const MAX_MESSAGE_BYTES = 262144;
 const MAX_CALLS = 100;
+// Pin approved manifest separately from the manifest's self-declared checksum.
+// This restricts unnoticed tool/description mutations, not malicious code updates.
+const APPROVED_MANIFEST_SHA256 = '4b36973af568f7038cf6a137c6a23ff5ae308e398c11b97ca5a4bfad63d49efe';
 let initialized = false;
 let clientIdentity = null;
 let callCount = 0;
@@ -33,6 +36,7 @@ function loadManifest() {
   const m = JSON.parse(fs.readFileSync(MANIFEST_PATH, 'utf8'));
   if (m.transport !== 'stdio' || m.protocol_version !== PROTOCOL_VERSION) throw new Error('MCP manifest transport/version violation');
   if (hash(canonicalManifest(m)) !== m.manifest_hash) throw new Error('MCP manifest hash mismatch');
+  if (m.manifest_hash !== APPROVED_MANIFEST_SHA256) throw new Error('MCP_UNAPPROVED_TOOL_MANIFEST_DRIFT');
   if (m.tools.length !== Object.keys(TOOL_PERMISSIONS).length) throw new Error('MCP tool count violation');
   for (const tool of m.tools) {
     if (TOOL_PERMISSIONS[tool.name] !== tool.permission) throw new Error('MCP tool permission violation: ' + tool.name);
@@ -128,7 +132,7 @@ function handle(req) {
   if(method === 'initialized') return respond(req,{});
   if(++callCount > MAX_CALLS) return respond(req,null,{code:-32000,message:'Session quota exceeded'});
   if(method === 'tools/list') return respond(req,{tools:loadManifest().tools.map(t=>({name:t.name,description:t.description,inputSchema:{type:'object'}}))});
-  if(method === 'tools/call') { try { return respond(req,{content:[{type:'text',text:JSON.stringify(callTool(String(params.name || ''),{...(params.arguments || {})}) )}]}); } catch(e) { return respond(req,null,{code:-32000,message:e.message}); } }
+  if(method === 'tools/call') { try { loadManifest(); return respond(req,{content:[{type:'text',text:JSON.stringify(callTool(String(params.name || ''),{...(params.arguments || {})}) )}]}); } catch(e) { return respond(req,null,{code:-32000,message:e.message}); } }
   return respond(req,null,{code:-32601,message:'Method not found'});
 }
 
