@@ -3,6 +3,10 @@ on:
   push:
     paths:
       - "public/billboard.html"
+      - "public/assets/billboard-canvas-preview.js"
+      - "public/products/dreamledger-billboard-founding-001/**"
+      - "public/buy/dreamledger-billboard-founding-001/**"
+      - "scripts/test_billboard_canvas_preview.cjs"
       - "handlers/billboard-public.ts"
       - "api/**"
       - "vercel.json"
@@ -20,6 +24,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
+      - name: Interactive million-pixel preview, verified paid placement separation and held checkout
+        run: |
+          node --check public/assets/billboard-canvas-preview.js
+          node --test scripts/test_billboard_canvas_preview.cjs
       - name: Signed synthetic checkout and no-charge publication contract
         run: node scripts/test_billboard_live_contract.mjs
       - name: Syntax check Vercel gallery handler
