@@ -81,4 +81,19 @@ fixture({'api/good.js':[
 "await fetch('https://api.stripe.com/v1/checkout/sessions',{method:'POST',body:params});"
 ].join('\n')},'PASS');
 
+// Multiline object fields are a common TypeScript production pattern.
+fixture({'api/good-multiline.js':[
+"await stripe.checkout.sessions.create({",
+"  payment_intent_data: {",
+"    metadata: {",
+"      product_sku: 'sku1',",
+"      product_id: 'product1',",
+"      offer_id: 'offer1',",
+"      silo: 'dreammeez',",
+"      source: 'app',",
+"    },",
+"  },",
+"});"
+].join('\n')},'PASS');
+
 console.log(JSON.stringify({status:'PASS',checks,live_stripe_calls:0,external_payment_events:0,production_mutations:0}));
