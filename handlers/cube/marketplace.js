@@ -9,8 +9,7 @@ const QUERY = [
   'FROM marketplace.listings',
   "WHERE status = 'published' AND quantity > 0",
   " AND (silo_id <> 'mtg' OR (evidence ? 'physical_verification_receipt_sha256'",
-  " AND evidence->>'physical_verification_receipt_sha256' ~ '^[0-9a-f]{64}
-  '  AND ($1::text IS NULL OR silo_id = $1)',
+  " AND evidence->>'physical_verification_receipt_sha256' ~ '^[0-9a-f]{64}$'))",
   'ORDER BY published_at DESC NULLS LAST, id DESC',
   'LIMIT $2::integer OFFSET $3::integer'
 ].join(' ');
