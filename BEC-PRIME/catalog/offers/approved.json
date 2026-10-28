@@ -113,7 +113,7 @@
       "offer_id": "QUOTE-COMPARE-49",
       "product_id": "QUOTE-COMPARE-49",
       "product_sku": "QUOTE-COMPARE-49",
-      "capability_id": "TRUTH-ORACLE-SUPPLIER-QUOTE-COMPARISON",
+      "capability_id": "PRODUCT-QUOTE-COMPARE-49",
       "silo": "truth_oracle",
       "name": "Truth Oracle Supplier Quote Comparison",
       "problem": "Compare 2-5 supplier quotes and identify incomparable or missing fields",
