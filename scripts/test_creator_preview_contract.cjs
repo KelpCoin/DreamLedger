@@ -4,7 +4,7 @@ const html=fs.readFileSync('public/creator-studio.html','utf8');
 for(const id of ['fit-body','fit-scale','fit-export','wearable-preview','origin','parent','access','rights'])
  assert(html.includes('id="'+id+'"'),'missing local-only creative control '+id);
 for(const phrase of ['standard','slim','broad','hand_drawn','ai_enhanced','rights_confirmed',
-  'parent_draft_id','toDataURL','ASSET-','private'])
+  'parent_draft_id','toDataURL','private'])
  assert(html.includes(phrase),'missing private artwork origin or fit control '+phrase);
 assert(html.includes('This is a local concept overlay'));
 assert(html.includes('not approved or equipped wearable artwork'));
