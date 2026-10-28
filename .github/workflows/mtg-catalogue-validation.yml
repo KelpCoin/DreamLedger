@@ -6,6 +6,9 @@ on:
       - "public/catalog.json"
       - "mtg/**"
       - "public/mtg/**"
+      - "scripts/import-mtg-rapid-decks.cjs"
+      - "scripts/test-mtg-rapid-decks.cjs"
+      - "AGENT_BUS/BRIDGE/MTG_INTAKE/rapid-decks-template.csv"
       - ".github/workflows/mtg-catalogue-validation.yml"
   push:
     branches: [main]
@@ -54,3 +57,5 @@ jobs:
           }
           console.log('MTG catalogue validation passed.');
           NODE
+      - name: Validate rapid owner-inventory shelf
+        run: node --test scripts/test-mtg-rapid-decks.cjs
