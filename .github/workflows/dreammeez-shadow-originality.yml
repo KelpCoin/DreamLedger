@@ -1,0 +1,44 @@
+name: BECK DreamMeez Original Cosmetic Shadow Gate
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'IP/DreamMeez/**'
+      - 'BEC-PRIME/scripts/dreammeez-shadow-gate.cjs'
+      - 'BEC-PRIME/scripts/iterative-refinement.js'
+      - '.github/workflows/dreammeez-shadow-originality.yml'
+      - '.github/workflows/pc-off-refinement-gauntlet.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'IP/DreamMeez/**'
+      - 'BEC-PRIME/scripts/dreammeez-shadow-gate.cjs'
+      - 'BEC-PRIME/scripts/iterative-refinement.js'
+      - '.github/workflows/dreammeez-shadow-originality.yml'
+permissions:
+  contents: read
+jobs:
+  originality-and-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Validate original artwork and LLM proof contracts
+        run: |
+          set -euo pipefail
+          node --check BEC-PRIME/scripts/dreammeez-shadow-gate.cjs
+          node --check BEC-PRIME/scripts/iterative-refinement.js
+          node BEC-PRIME/scripts/dreammeez-shadow-gate.cjs
+          node - <<'NODE'
+          const fs=require('node:fs');
+          const w=fs.readFileSync('.github/workflows/pc-off-refinement-gauntlet.yml','utf8');
+          if(!w.includes('BECK_AUTO_LLM_APPROVED')||!w.includes('model-refinement:'))throw Error('Explicit scheduled LLM approval missing');
+          if(!w.includes('REFINEMENT_JSON_OUT'))throw Error('Multimodel proof collection missing');
+          if(!fs.readFileSync('IP/DreamMeez/HANDDRAWN-AI-PIPELINE.md','utf8').includes('source SHA-256'))throw Error('Original artist provenance missing');
+          console.log('DREAMMEEZ_UNBUILT_ART_GATES=PASS; AUTOMATIC_LISTING=DISABLED');
+          NODE
