@@ -1,0 +1,44 @@
+{
+  "schema": "beck/dreammeez-free-body-usp-addendum/v1",
+  "date": "2026-10-28",
+  "silo": "dreammeez",
+  "proposed_by": "user",
+  "source_status": "USER_PROPOSED_DIRECTION",
+  "state": "DESIGN_POLICY_UNDER_IMPLEMENTATION",
+  "automatic_publication": false,
+  "buyer_demand_verified": false,
+  "pricing_uplift_verified": false,
+  "ideas": [
+    {
+      "id": 201,
+      "name": "Body Neutrality as Standard",
+      "promise": "All supported base body silhouettes, builds, heights, skin tones, basic face and essential representation options free",
+      "enforcement": "No checkout SKU, subscription or gated entitlement may be required for a base body configuration",
+      "current_evidence": "Five shape profiles, nine height profiles and ten build profiles are previewed in a local CSS studio",
+      "not_proven": "All real hand-drawn base silhouettes are not yet produced or fitted"
+    },
+    {
+      "id": 202,
+      "name": "Artist-Authored Inclusive Canvas",
+      "promise": "Original sketch master and an artist-approved chain of enhancements for future production art",
+      "enforcement": "Original private sketch plus source SHA, author licence, reviewed AI-enhanced layer and human sign-off before publication",
+      "current_evidence": "Source cleanup CLI and metadata spec have been drafted",
+      "not_proven": "Human origin of a specific future scanned sketch or absence of AI artefacts"
+    },
+    {
+      "id": 203,
+      "name": "Inclusive Fashion, No Body-Size Surcharge",
+      "promise": "Optional outfits/accessories at the same product price regardless of avatar body size",
+      "enforcement": "Review every paid garment against all supported body-fit profiles, reject clipped or excluded silhouettes or paid corrective fit layers",
+      "current_evidence": "Normalized anchor profiles and 450-parametric-combination checks are proposed",
+      "not_proven": "Visual garment fit or actual unit economics; no evidence buyers will pay NZ$5"
+    }
+  ],
+  "security": {
+    "do_not_collect_user_body_health_data": true,
+    "shoppers_never_buy_a_shape": true,
+    "zero_claim_of_competitor_body_paywalls": true,
+    "checkout_enabled": false,
+    "requires_founder_approval": true
+  }
+}
