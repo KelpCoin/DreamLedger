@@ -8,6 +8,9 @@ on:
       - 'BEC-PRIME/scripts/test-stripe-webhook-redteam.js'
       - 'BEC-PRIME/scripts/test-stripe-webhook-proof.js'
       - 'BEC-PRIME/scripts/test-beck-threat-register.js'
+      - 'BEC-PRIME/scripts/test-refinement-input-boundary.js'
+      - 'BEC-PRIME/lib/refinementInputBoundary.js'
+      - 'BEC-PRIME/scripts/iterative-refinement.js'
       - 'IP/BECK/redteam-seven-new-failures-20261028.json'
       - '.github/workflows/stripe-proof-redteam.yml'
   push:
@@ -18,6 +21,9 @@ on:
       - 'BEC-PRIME/scripts/test-stripe-webhook-redteam.js'
       - 'BEC-PRIME/scripts/test-stripe-webhook-proof.js'
       - 'BEC-PRIME/scripts/test-beck-threat-register.js'
+      - 'BEC-PRIME/scripts/test-refinement-input-boundary.js'
+      - 'BEC-PRIME/lib/refinementInputBoundary.js'
+      - 'BEC-PRIME/scripts/iterative-refinement.js'
       - 'IP/BECK/redteam-seven-new-failures-20261028.json'
       - '.github/workflows/stripe-proof-redteam.yml'
 permissions:
@@ -39,11 +45,14 @@ jobs:
           node --check BEC-PRIME/scripts/test-stripe-webhook-redteam.js
           node --check BEC-PRIME/scripts/test-stripe-webhook-proof.js
           node --check BEC-PRIME/scripts/test-beck-threat-register.js
+          node --check BEC-PRIME/scripts/iterative-refinement.js
+          node --check BEC-PRIME/scripts/test-refinement-input-boundary.js
       - name: Offline Stripe proof, replay and crash regressions
         run: |
           node --test BEC-PRIME/scripts/test-stripe-webhook-redteam.js
           node BEC-PRIME/scripts/test-stripe-webhook-proof.js
           node BEC-PRIME/scripts/test-beck-threat-register.js
+          node --test BEC-PRIME/scripts/test-refinement-input-boundary.js
       - name: Forbid false paid-fulfillment claim
         run: |
           node - <<'NODE'
