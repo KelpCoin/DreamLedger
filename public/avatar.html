@@ -185,7 +185,7 @@ buff{display:block;font-size:10px;color:var(--mint)}
 <div class="shell">
   <header class="nav">
     <a class="brand" href="/">DREAM<b>LEDGER</b></a>
-    <nav aria-label="Customer navigation"><a href="/shop.html">Shop</a><a href="/avatar.html" aria-current="page">Create avatar</a><a href="/marketplace.html">All offers</a><a href="/quote-compare-49.html">Services</a><a href="/billboard.html">Billboard</a><a href="/sell.html">Sell</a></nav>
+    <nav aria-label="Customer navigation"><a href="/shop.html">Shop</a><a href="/avatar.html" aria-current="page">Create avatar</a><a href="/marketplace.html">All offers</a><a href="/quote-compare-49.html">Compare quotes · NZ$49</a><a href="/billboard.html">Billboard</a><a href="/sell.html">Sell</a></nav>
   </header>
 
   <section class="hero">
@@ -196,6 +196,16 @@ buff{display:block;font-size:10px;color:var(--mint)}
     <p><a class="btn" href="/shop.html#dreammeez-offers">Explore real DreamMeez offers</a> <a class="btn ghost" href="/phinhaven/floor1.html">Explore Phinhaven</a></p>
   </section>
 
+  <div class="panel" style="margin:12px 0 20px">
+    <h2>Your look stays yours</h2>
+    <p class="sub">Save a free outfit preview in this browser, reopen it later, then browse genuine offers. Nothing here creates a payment, account, or paid entitlement.</p>
+    <div class="row">
+      <button class="btn" type="button" id="savePreview">Save this look locally</button>
+      <button class="btn ghost" type="button" id="restorePreview">Restore saved look</button>
+      <a class="btn ghost" href="/shop.html#dreammeez-offers">Find real cosmetic offers</a>
+    </div>
+    <p class="status" id="lookStatus" role="status" aria-live="polite"></p>
+  </div>
   <div class="studio">
     <section class="preview" aria-label="Avatar preview">
       <span class="tag">Live try-on</span>
@@ -447,6 +457,32 @@ buff{display:block;font-size:10px;color:var(--mint)}
         updated_at: new Date().toISOString()
       }));
     } catch (e) {}
+  });
+
+  // Saved looks are local PREVIEWS, never payment or entitlement evidence.
+  var LOOK_KEY = 'dreammeez_free_look_v1';
+  $('savePreview').addEventListener('click',function(){
+    try {
+      var keys=['display_name','height','build','shape','skin','style','hair'],look={};
+      keys.forEach(function(k){look[k]=state[k];});
+      look.preview_cosmetic=tryingId || null;
+      look.preview_only=true;
+      localStorage.setItem(LOOK_KEY,JSON.stringify(look));
+      $('lookStatus').textContent='Saved on this device. No purchased items or gameplay benefits were granted.';
+    }catch(e){$('lookStatus').textContent='This browser did not allow local saving.';}
+  });
+  $('restorePreview').addEventListener('click',function(){
+    try{
+      var data=JSON.parse(localStorage.getItem(LOOK_KEY)||'null');
+      if(!data||data.preview_only!==true){$('lookStatus').textContent='No saved free look found on this device.';return;}
+      ['display_name','height','build','shape','skin','style','hair'].forEach(function(k){
+        if(data[k]!==undefined && typeof data[k]===typeof state[k])state[k]=data[k];
+      });
+      var candidate=String(data.preview_cosmetic||'');
+      tryingId=DreamLedgerAvatar.getCosmetic(candidate)?candidate:null;
+      persistBody();render();
+      $('lookStatus').textContent='Free look restored. Preview only, not proof of purchase.';
+    }catch(e){$('lookStatus').textContent='The saved look could not be restored.';}
   });
 
   render();

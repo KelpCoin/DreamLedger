@@ -1,7 +1,10 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "git": {
-    "deploymentEnabled": false
+    "deploymentEnabled": {
+      "*": false,
+      "billboard-verified-release-20261027": true
+    }
   },
   "buildCommand": "node scripts/verify-vercel-public-release.cjs",
   "outputDirectory": "public",
