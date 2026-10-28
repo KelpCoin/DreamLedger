@@ -36,4 +36,23 @@ assert(board.includes("id=\"billboard-canvas\""));
 assert(board.includes("Paid placement checkout is temporarily held"));
 assert(!board.includes("https://buy.stripe.com/"),"Held billboard page must not offer off-site payment");
 assert(!board.includes('id="checkout" href='),"Held billboard page must not have an active checkout CTA");
+// Buyer journey and avatar ownership honesty across current storefronts.
+const shop=read("public/shop.html"),studio=read("public/avatar.html"),identity=read("public/assets/avatar-identity.js"),chip=read("public/assets/avatar-chip.js"),gateway=read("public/go/index.html");
+for(const page of [index,market,shop,studio,gateway]){
+  assert(page.includes('href="/shop.html"'),"Customer shop path missing");
+  assert(page.includes('href="/avatar.html"'),"Customer avatar path missing");
+  assert(page.includes('href="/marketplace.html"'),"Customer catalogue path missing");
+}
+assert(shop.includes("/api/discovery/catalog") && shop.includes("avatar-accessories"));
+assert(shop.includes("View secure Stripe checkout") && !shop.includes("/buy/DREAMMEEZ"));
+assert(!studio.includes("Unlock demo") && !studio.includes("/buy/DREAMMEEZ-SUPPORTER-SPROUT"));
+assert(studio.includes("CONCEPT ONLY / FREE TRY-ON"));
+assert(identity.includes("entitlement_verified: false") && identity.includes("local_previews"));
+assert(identity.includes("active_buffs: []"),"Locally-owned concepts must not grant gameplay buffs");
+assert(chip.includes("local previews") && !chip.includes("' cosmetics'"));
+const radar=read("ops/demand/demand_radar.py"),workflow=read(".github/workflows/demand-radar-factory.yml");
+assert(radar.includes("beck/shadow-skus/v1") && radar.includes("SHADOW_OUT"));
+assert(radar.includes("automatic_publication") && radar.includes("created:>="));
+assert(!workflow.includes("git push"),"Unattended discovery must not publish public silos");
+assert(workflow.includes("upload-artifact@v4"),"Trend shadow proof must be retained as artifact");
 console.log("BECK_VERCEL_FIGURE_EIGHT_CONTRACT=PASS",catalog.products.length,"existing catalogue rows");
