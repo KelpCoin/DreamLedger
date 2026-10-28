@@ -17,7 +17,7 @@ on:
       - 'scripts/verify-vercel-public-release.cjs'
       - '.github/workflows/vercel-public-release-contract.yml'
   push:
-    branches: [main]
+    branches: [main, beck/vercel-neon-commerce-contract-20261029]
     paths:
       - 'public/**'
       - 'vercel.json'
