@@ -1,0 +1,13 @@
+[Unit]
+Description=Substack ingest run
+After=network-online.target
+[Service]
+Type=oneshot
+User=ingest
+WorkingDirectory=/var/lib/substack-ingest
+ExecStart=/opt/substack-ingest/.venv/bin/python -m substack_ingest run --config /etc/substack-ingest/config.json --db /var/lib/substack-ingest/ingest.sqlite --outbox /var/lib/substack-ingest/outbox
+Environment=PYTHONPATH=/opt/substack-ingest
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/substack-ingest
+PrivateTmp=true

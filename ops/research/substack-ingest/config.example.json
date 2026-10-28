@@ -1,0 +1,9 @@
+{
+  "feeds": [
+    {"name": "REPLACE-ME publication 1", "url": "https://REPLACE-ME.substack.com/feed"},
+    {"name": "REPLACE-ME publication 2", "url": "https://REPLACE-ME-TOO.substack.com/feed"}
+  ],
+  "watchlist": ["agent", "mcp", "rag", "ollama", "open-weight", "fine-tun", "inference", "regulation", "nz"],
+  "delay_s": 1.0,
+  "digest_when_empty": false
+}
