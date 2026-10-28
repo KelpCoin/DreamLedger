@@ -6,6 +6,12 @@ on:
       - 'public/index.html'
       - 'public/go/index.html'
       - 'public/marketplace.html'
+      - 'public/shop.html'
+      - 'public/avatar.html'
+      - 'public/assets/avatar-identity.js'
+      - 'public/assets/avatar-chip.js'
+      - 'ops/demand/demand_radar.py'
+      - '.github/workflows/demand-radar-factory.yml'
       - 'public/quote-compare-49.html'
       - 'public/catalog.json'
       - 'public/billboard.html'
@@ -35,6 +41,9 @@ jobs:
           node scripts/test_beck_vercel_contract.cjs
           node --check public/assets/discovery.js
           node --check handlers/discovery.js
+          node --check public/assets/avatar-identity.js
+          node --check public/assets/avatar-chip.js
+          python3 -m py_compile ops/demand/demand_radar.py
       - name: Preserve payment & proof boundaries
         run: |
           set -euo pipefail

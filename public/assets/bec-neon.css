@@ -43,3 +43,7 @@ body.bec-neon{--signal:#c5ff35;--glow:rgba(197,255,53,.17);--bg:#080b10;--surfac
 .bec-neon .bec-count{border:1px solid #3d4d5a;padding:5px 9px;color:#acbcca;border-radius:999px;font-size:12px}
 @media(max-width:720px){.bec-neon .bec-nav{gap:10px}.bec-neon .bec-nav a{font-size:12px}.bec-neon .bec-hero{padding-top:55px}.bec-neon .bec-hero h1{font-size:clamp(48px,12vw,72px)}.bec-neon .bec-actions>.bec-btn{flex:1 1 220px}.bec-neon .bec-search .bec-btn{width:100%}}
 @media(prefers-reduced-motion:no-preference){.bec-neon .bec-btn,.bec-neon .bec-card{transition:border-color .15s,background .15s,box-shadow .15s}}
+
+/* Buyer-first navigation shared across storefront, gateway and service pages. */
+.bec-neon .bec-nav a[aria-current="page"]{color:#c5ff35;text-decoration:underline;text-underline-offset:5px}
+@media(max-width:720px){.bec-neon .bec-header{align-items:stretch}.bec-neon .bec-nav{width:100%;overflow-x:auto;flex-wrap:nowrap;scrollbar-width:thin;gap:17px}.bec-neon .bec-nav a{white-space:nowrap;flex-shrink:0;min-height:44px;display:inline-flex;align-items:center}}

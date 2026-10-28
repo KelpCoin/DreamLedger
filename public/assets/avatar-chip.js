@@ -11,7 +11,7 @@
     var chip = document.createElement('a');
     chip.id = 'dl-avatar-chip';
     chip.href = '/avatar.html';
-    chip.title = 'Your DreamMeez — customize & buy cosmetics';
+    chip.title = 'Your DreamMeez - customize and view real offers';
     chip.setAttribute('aria-label', 'Open avatar studio');
     chip.style.cssText = [
       'position:fixed', 'right:14px', 'bottom:14px', 'z-index:9999',
@@ -34,7 +34,7 @@
     var sub = document.createElement('span');
     sub.style.cssText = 'font-size:10px;color:#9897a2';
     var n = (s.owned && s.owned.length) || 0;
-    sub.textContent = n ? n + ' cosmetics' : 'Customize · from NZ$2';
+    sub.textContent = n ? n + ' local previews' : 'Customize for free';
     label.appendChild(name);
     label.appendChild(sub);
 
@@ -47,7 +47,7 @@
       name.textContent = st.display_name || 'Your avatar';
       face.style.background = SKINS[st.skin] || SKINS[3];
       var c = (st.owned && st.owned.length) || 0;
-      sub.textContent = c ? c + ' cosmetics' : 'Customize · from NZ$2';
+      sub.textContent = c ? c + ' local previews' : 'Customize for free';
     });
   }
 
