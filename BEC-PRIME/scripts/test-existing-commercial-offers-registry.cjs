@@ -10,18 +10,21 @@ assert.equal(quote.silo,'truth_oracle');
 assert.equal(seller.silo,'seller_tools');
 for(const x of registered){
  assert.equal(x.payment_link_status,'ACTIVE_LIVEMODE');
- assert(x.fulfillment_route.includes('manual')||x.fulfillment_route.includes('manual_PDF'));
- assert(!/auto[ _-]?deliver|autonomous fulfillment|settled_first_sale/i.test(x.payment_link_note||''));
+ assert(!/settled_first_sale/i.test(x.payment_link_note||''));
  assert(x.payment_link_url.startsWith('https://buy.stripe.com/'));
  assert(x.proof_of_delivery.includes('provider_settlement'));
  assert(!x.payment_link_note.includes('verified_revenue_nzd=49'));
 }
 assert.equal(quote.payment_link_id,'plink_1USpJeEGgEAnUFF9vNDiM8SS');
 assert.equal(quote.price,49);
+assert(quote.fulfillment_route.includes('quote-intake'));
+assert(quote.fulfillment_route.includes('quote-fulfillment'));
+assert(quote.verification_rules.includes('no_prompt_execution'));
+assert(seller.fulfillment_route.includes('manual'));
 assert.equal(seller.payment_link_id,'plink_1UJNTzEGgEAnUFF9bzVlFlng');
 assert.equal(seller.price,29);
 const reconciler=fs.readFileSync('ops/commerce/reconcile-approved-offers.mjs','utf8');
 assert(reconciler.includes("s.payment_status === 'paid'"));
 assert(reconciler.includes("s.livemode === true"));
 assert(reconciler.includes("fulfillment: 'NOT_ESTABLISHED_BY_THIS_RECONCILER'"));
-console.log('BECK_EXISTING_OFFER_REGISTRY=PASS; QUOTE_OWNER=TRUTH_ORACLE; LIVE_LINKS=2; SETTLEMENT_AND_FULFILLMENT=NOT_INFERRED');
+console.log('BECK_EXISTING_OFFER_REGISTRY=PASS; QUOTE_OWNER=TRUTH_ORACLE; LIVE_LINKS=2; QUOTE_AUTOMATION=SOURCE_CONTRACT_ONLY; REAL_PAYMENT_AND_DELIVERY=NOT_INFERRED');
