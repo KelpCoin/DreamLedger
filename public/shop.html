@@ -18,6 +18,12 @@
 .dl-alert{border-left:3px solid #c5ff35;padding:12px 15px;color:#b3bfcb;background:#0d141d}
 .dl-split{display:grid;grid-template-columns:1.1fr .9fr;gap:16px}
 @media(max-width:760px){.dl-split{grid-template-columns:1fr}}
+.dl-filters{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 19px}
+.dl-filters button{font:700 13px/1.3 system-ui;min-height:44px;border:1px solid #536270;border-radius:10px;background:#121b24;color:#fff;padding:9px 15px;cursor:pointer}
+.dl-filters button[aria-pressed="true"]{color:#0a1107;border-color:#c5ff35;background:#c5ff35}
+.dl-offer .meta{font:650 12px/1.4 system-ui;color:#b3bfcb}
+.dl-track{display:flex;gap:10px;align-items:center;flex-wrap:wrap;color:#afc0cc;font-size:13px;margin-top:12px}
+.dl-track a{color:#c5ff35;text-decoration:underline}
 </style>
 </head>
 <body class="bec-neon">
@@ -43,7 +49,8 @@
 </section>
 <section id="dreammeez-offers" class="bec-section">
 <p class="bec-kicker">Live catalogue / DreamMeez</p><h2>Cosmetics and supporter memberships</h2>
-<p class="dl-alert">The eight NZ$2–5 try-on prototypes in Avatar Studio are not automatically the same SKUs as the paid catalogue products shown here. Do not assume any in-game benefit or item unlock until the offer's fulfilment has been confirmed.</p>
+<p class="dl-alert">Avatar Studio prototypes are free previews, not the paid products below. Paid entitlement delivery is not independently verified. For help with an order, use <a href="/contact.html" style="color:#c5ff35;text-decoration:underline">contact and support</a>. Never pay based on an implied in-game benefit.</p>
+<div class="dl-filters" role="group" aria-label="Filter DreamMeez offers"><button type="button" data-dl-filter="all" aria-pressed="true">Everything</button><button type="button" data-dl-filter="cosmetics" aria-pressed="false">One-time cosmetics</button><button type="button" data-dl-filter="supporters" aria-pressed="false">Monthly supporters</button></div>
 <div id="dreammeez-status" class="bec-muted" role="status" aria-live="polite">Checking the existing published catalogue...</div>
 <div class="dl-tiles" id="dreammeez-products" aria-live="polite"></div>
 </section>
@@ -56,25 +63,45 @@
 var grid=document.getElementById("dreammeez-products"),status=document.getElementById("dreammeez-status");
 function el(tag,cls,text){var x=document.createElement(tag);if(cls)x.className=cls;if(text)x.textContent=text;return x;}
 function stripe(v){try{var u=new URL(String(v||""));return u.protocol==="https:"&&(u.hostname==="buy.stripe.com"||u.hostname==="checkout.stripe.com")?u.href:null;}catch(e){return null;}}
-fetch("/api/discovery/catalog",{cache:"no-store"}).then(function(r){if(!r.ok)throw Error("Catalogue HTTP "+r.status);return r.json();}).then(function(data){
-var all=Array.isArray(data.products)?data.products:[],items=all.filter(function(p){return p.category==="avatar-accessories" && p.status==="LISTED";});
-grid.replaceChildren();
-items.forEach(function(p){
-var card=el("article","bec-card dl-offer");
-card.appendChild(el("span","bec-chip",String(p.name||"DreamMeez").toLowerCase().includes("supporter")?"SUPPORTER MEMBERSHIP":"DIGITAL COSMETIC"));
-card.appendChild(el("h3","",String(p.name||"Offer")));
-card.appendChild(el("p","",String(p.description||"Check product terms.")));
-var amount=Number(p.price),currency=String(p.currency||"NZD").toUpperCase();
-card.appendChild(el("div","bec-price",Number.isFinite(amount)?currency+" "+amount.toFixed(2):"Price unavailable"));
-card.appendChild(el("p","bec-muted","Checkout availability does not verify in-game entitlement or automated fulfilment."));
-var link=stripe(p.checkout_url);
-if(p.checkout_available&&link){var a=el("a","bec-btn","View secure Stripe checkout");a.href=link;a.rel="nofollow noopener";card.appendChild(a);}
-else card.appendChild(el("span","bec-chip","Purchase not verified"));
-grid.appendChild(card);
-});
-status.textContent=items.length+" published DreamMeez catalogue offer"+(items.length===1?"":"s")+" displayed. No purchase or delivery is inferred from this catalogue.";
-if(!items.length)grid.appendChild(el("p","bec-muted","No published DreamMeez offers are currently available."));
-}).catch(function(){status.textContent="Catalogue temporarily unavailable. No payment links shown without verification.";grid.replaceChildren();});
+var products=[],current="all";
+function isSupport(p){return /supporter/i.test(String(p.id||"")+" "+String(p.name||""));}
+function show(){
+  grid.replaceChildren();
+  var visible=products.filter(function(p){return current==="all"||(current==="supporters"?isSupport(p):!isSupport(p));});
+  visible.forEach(function(p){
+    var monthly=isSupport(p),card=el("article","bec-card dl-offer");
+    card.appendChild(el("span","bec-chip",monthly?"MONTHLY SUPPORTER":"ONE-TIME COSMETIC"));
+    card.appendChild(el("h3","",String(p.name||"DreamMeez offer")));
+    card.appendChild(el("p","",String(p.description||"Read all terms before purchasing.")));
+    var amount=Number(p.price),currency=String(p.currency||"NZD").toUpperCase();
+    card.appendChild(el("div","bec-price",Number.isFinite(amount)?currency+" "+amount.toFixed(2)+(monthly?" / month":" once"):"Price unavailable"));
+    card.appendChild(el("p","meta",monthly?"A recurring payment. Confirm cancellation and monthly benefits at checkout.":"A one-time offer. Previewing a different prototype does not grant this item."));
+    card.appendChild(el("p","bec-muted","Paid avatar entitlement and fulfilment are not yet independently verified."));
+    var link=stripe(p.checkout_url);
+    if(p.checkout_available&&link){var order=el("a","bec-btn","Review item and pay securely");order.href=link;order.rel="nofollow noopener";card.appendChild(order);}
+    else card.appendChild(el("span","bec-chip","Checkout not verified"));
+    var actions=el("div","dl-track");
+    var studio=el("a","","Create a free avatar");studio.href="/avatar.html";actions.appendChild(studio);
+    var help=el("a","","Order help");help.href="/contact.html";actions.appendChild(help);
+    card.appendChild(actions);grid.appendChild(card);
+  });
+  if(!visible.length)grid.appendChild(el("p","bec-muted","No matching catalogue offers. Try another category."));
+  status.textContent=visible.length+" of "+products.length+" published DreamMeez catalogue offers. Payments and deliveries are separate proof states.";
+}
+document.querySelectorAll("[data-dl-filter]").forEach(function(b){b.addEventListener("click",function(){
+  current=b.getAttribute("data-dl-filter");
+  document.querySelectorAll("[data-dl-filter]").forEach(function(x){x.setAttribute("aria-pressed",String(x===b));});
+  show();
+});});
+function normalize(data){var arr=Array.isArray(data.products)?data.products:[];return arr.filter(function(p){return p.category==="avatar-accessories"&&(p.status==="LISTED"||p.status==="published");}).map(function(p){return{
+  id:String(p.id||""),name:String(p.name||""),description:String(p.description||""),category:p.category,price:Number(p.price),currency:String(p.currency||"nzd"),
+  checkout_available:p.checkout_available===true,checkout_url:p.checkout_url
+};});}
+fetch("/api/discovery/catalog",{cache:"no-store"}).then(function(r){if(!r.ok)throw Error("Catalogue HTTP "+r.status);return r.json();})
+.catch(function(){return fetch("/catalog.json",{cache:"no-store"}).then(function(r){if(!r.ok)throw Error("Static catalogue unavailable");return r.json();});})
+.then(function(data){products=normalize(data).sort(function(a,b){return (isSupport(a)?1:0)-(isSupport(b)?1:0)||a.price-b.price;});show();})
+.catch(function(){status.textContent="Catalogue temporarily unavailable. Purchase links have not been shown without verification.";grid.replaceChildren();});
+
 })();
 </script>
 </body>
