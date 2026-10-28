@@ -33,4 +33,7 @@ assert(read("handlers/discovery.js").includes("offer_page:offerPage"));
 assert(read("public/assets/discovery.js").includes("View offer and purchase details"));
 assert(market.includes('href="/quote-compare-49.html"') && !market.includes("PAID CHECKOUT HELD"));
 assert(board.includes("id=\"billboard-canvas\""));
+assert(board.includes("Paid placement checkout is temporarily held"));
+assert(!board.includes("https://buy.stripe.com/"),"Held billboard page must not offer off-site payment");
+assert(!board.includes('id="checkout" href='),"Held billboard page must not have an active checkout CTA");
 console.log("BECK_VERCEL_FIGURE_EIGHT_CONTRACT=PASS",catalog.products.length,"existing catalogue rows");
