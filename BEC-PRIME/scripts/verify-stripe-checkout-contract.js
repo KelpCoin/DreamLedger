@@ -35,6 +35,8 @@ function hasAnyProducer(text) {
 }
 
 function isReadOnlyStripeUse(text) {
+  // SDK creation and internal checkout adapters can omit the literal URL.
+  if (/stripe\.checkout\.sessions\.create|stripeCheckout\s*\(|stripeRequest\s*\(/i.test(text)) return false;
   const lower = text.toLowerCase();
   if (!lower.includes('checkout/sessions')) return true;
   return !/(method\s*[:=]\s*['\"]post['\"]|stripeCheckout\s*\(|stripeRequest\s*\(|sessions\s*\.create|curl[^\n]*-x\s+post|post\s+https?:\/\/api\.stripe\.com\/v1\/checkout\/sessions)/i.test(text);
