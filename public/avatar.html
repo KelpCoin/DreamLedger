@@ -191,7 +191,7 @@ buff{display:block;font-size:10px;color:var(--mint)}
   <section class="hero">
     <p class="eyebrow">Cross-surface avatar · Web + Phinhaven</p>
     <h1>Look like someone<br><span>worth a few dollars.</span></h1>
-    <p class="lead">Free extreme body types. Try cosmetics on your avatar before you pay. Same loadout follows you into Phinhaven — visuals on the web, light buffs in-game.</p>
+    <p class="lead">Free extreme body types. Try cosmetics on your avatar before you pay. Same loadout follows you into Phinhaven — visuals on both surfaces, no paid gameplay advantage.</p>
     <span class="pill">Impulse cosmetics NZ$2–5 · try-on first</span>
   </section>
 
@@ -247,7 +247,7 @@ buff{display:block;font-size:10px;color:var(--mint)}
       </div>
 
       <h2 style="margin-top:16px">Impulse shop · NZ$2–5</h2>
-      <p class="sub">Tap <strong>Try</strong> to see it on your avatar. Owned items equip for web + Phinhaven buffs.</p>
+      <p class="sub">Tap <strong>Try</strong> to see it on your avatar. Verified purchases equip as visuals on compatible surfaces.</p>
       <div class="shop" id="shopGrid"></div>
       <p class="status" id="status"></p>
       <p class="export" id="phinExport"></p>
@@ -390,8 +390,8 @@ buff{display:block;font-size:10px;color:var(--mint)}
     renderShop();
 
     var loadout = DreamLedgerAvatar.toPhinhavenLoadout();
-    $('phinExport').textContent = 'Phinhaven loadout: ' + loadout.cosmetics.length + ' equipped · buffs: ' +
-      (loadout.active_buffs.map(function(b){return b.label;}).join('; ') || 'none');
+    $('phinExport').textContent = 'Game visual preview: ' + loadout.cosmetics.length +
+      ' equipped · gameplay effects: none · game validates ownership separately';
   }
 
   function renderShop() {
@@ -404,9 +404,9 @@ buff{display:block;font-size:10px;color:var(--mint)}
       card.className = 'item' + (tryingId === item.id ? ' trying' : '');
       card.innerHTML =
         '<h4>' + item.name + '</h4>' +
-        '<p>Web look · game: ' + (item.phinhaven && item.phinhaven.label ? item.phinhaven.label : 'cosmetic') + '</p>' +
+        '<p>Cosmetic only. No paid gameplay advantage.</p>' +
         '<div class="price">NZ$' + item.price_nzd + '</div>' +
-        '<span class="buff">' + (item.phinhaven ? item.phinhaven.label : '') + '</span>' +
+        '<span class="buff">Visual preview</span>' +
         '<div class="row"></div>';
       var row = card.querySelector('.row');
 
@@ -429,33 +429,17 @@ buff{display:block;font-size:10px;color:var(--mint)}
         eq.onclick = function() {
           state = DreamLedgerAvatar.equip(item.id);
           tryingId = null;
-          status('Equipped for web + Phinhaven.');
+          status('Equipped in visual preview; the game independently verifies ownership.');
           render();
         };
         row.appendChild(eq);
       } else {
-        var buy = document.createElement('button');
-        buy.type = 'button';
-        buy.className = 'btn';
-        buy.textContent = 'Unlock demo';
-        buy.title = 'Local unlock for demo until Stripe cosmetic checkout is wired for this SKU';
-        buy.onclick = function() {
-          // Demo unlock so try→own→equip loop works before every Stripe SKU is live
-          state = DreamLedgerAvatar.own(item.id);
-          state = DreamLedgerAvatar.equip(item.id);
-          tryingId = null;
-          status('Unlocked locally (demo). Wire Stripe for real NZ$' + item.price_nzd + ' settlement.');
-          render();
-        };
-        row.appendChild(buy);
-
-        // Direct low-friction cash path for real money validation
-        var real = document.createElement('a');
-        real.className = 'btn ghost';
-        real.href = '/buy/DREAMMEEZ-SUPPORTER-SPROUT';
-        real.textContent = 'Pay NZ$3.99';
-        real.title = 'Settled Stripe path while per-cosmetic checkout is finalized';
-        row.appendChild(real);
+        // No local-grant demo button or unrelated supporter charge.
+        var disabled=document.createElement('button');
+        disabled.type='button'; disabled.className='btn ghost';
+        disabled.disabled=true; disabled.textContent='Purchase not available yet';
+        disabled.title='Paid unlock requires server ownership and verified payment';
+        row.appendChild(disabled);
       }
 
       grid.appendChild(card);
@@ -474,14 +458,23 @@ buff{display:block;font-size:10px;color:var(--mint)}
       var payload = DreamLedgerAvatar.toPhinhavenLoadout();
       localStorage.setItem('phinhaven_avatar_link_v1', JSON.stringify({
         name: payload.avatar_link.name,
-        loadout: payload,
+        preview_only: true,
+        gameplay_authoritative: false,
         updated_at: new Date().toISOString()
       }));
     } catch (e) {}
   });
 
+  window.addEventListener('dreamledger:avatar-updated', function() {
+    state=DreamLedgerAvatar.load();
+    render();
+  });
   render();
-  status('Try a cosmetic. Avatar follows you site-wide and into Phinhaven.');
+  status('Free try-on. Paid unlocks require verified ownership.');
+  DreamLedgerAvatar.refreshEntitlements().then(function() {
+    state=DreamLedgerAvatar.load();
+    render();
+  });
 })();
 </script>
 <script src="/assets/avatar-chip.js"></script>
