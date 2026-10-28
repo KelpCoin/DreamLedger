@@ -34,7 +34,8 @@ async function stripe(path:string,init:RequestInit={}){
 }
 async function refund(paymentIntent:string,reason:string){
  if(!STRIPE_SECRET_KEY||!paymentIntent)return false;
- const r=await stripe("refunds",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:new URLSearchParams({payment_intent:paymentIntent,reason:"requested_by_customer","metadata[reason]":reason})});
+ const key="beck-billboard-refund-"+paymentIntent.replace(/[^A-Za-z0-9_-]/g,"").slice(0,100)+"-"+reason.replace(/[^a-z0-9_]/g,"").slice(0,45);
+ const r=await stripe("refunds",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded","Idempotency-Key":key},body:new URLSearchParams({payment_intent:paymentIntent,reason:"requested_by_customer","metadata[reason]":reason})});
  return r.ok;
 }
 function field(session:any,key:string){
