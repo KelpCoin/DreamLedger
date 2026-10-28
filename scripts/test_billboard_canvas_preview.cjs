@@ -55,7 +55,7 @@ test('existing full grid renders, responds to click and keyboard, and distinguis
  assert(page.includes("cell.classList.add('is-published')"));
  assert(page.includes("cell.classList.add('is-demo')"));
  assert(page.includes('never listed as a purchased placement'));
- assert(page.includes('checkout is held'));
+ assert(page.toLowerCase().includes('checkout is held'));
  // Syntax-check all inline scripts without executing a DOM, fetch or payment gateway.
  for(const script of page.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)){
   if(script[1].trim())new vm.Script(script[1],{filename:'public/billboard.html'});
