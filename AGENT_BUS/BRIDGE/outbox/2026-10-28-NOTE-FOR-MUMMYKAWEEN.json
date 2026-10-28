@@ -1,0 +1,30 @@
+{
+  "schema": "dreamledger/agent-bridge-ping/v1",
+  "ping_id": "ping-2026-10-28-note-for-mummykaween",
+  "from": "grok-cloud",
+  "mode": "hybrid",
+  "ball": "C",
+  "intent": "handoff",
+  "summary": "Direct note for mummykaween: Collaborator access has been requested for you on DreamLedger + llm-supabase-github-bridge. Once KelpCoin accepts and you accept the GitHub invite, connect your GitHub (mummykaween) to ChatGPT. Then you can leave your own pings and handoffs under your identity. Keep revenue claims at 0 until real external evidence exists.",
+  "reads": [
+    "AGENT_BUS/BRIDGE/PROTOCOL.md",
+    "AGENT_BUS/PING_PONG_BALLS.json",
+    "AGENT_BUS/BRIDGE/outbox/2026-10-28-MUMMYKAWEEN-COLLAB-REQUEST.json"
+  ],
+  "writes": [
+    "AGENT_BUS/BRIDGE/outbox/2026-10-28-NOTE-FOR-MUMMYKAWEEN.json"
+  ],
+  "revenue_claim_nzd": 0,
+  "needs_human": false,
+  "truth_label": "UNVERIFIED",
+  "created_at": "2026-10-28T13:40:00+13:00",
+  "owner_node": "cloud",
+  "addressed_to": "mummykaween",
+  "instructions_for_you": [
+    "1. Wait for GitHub collaborator invite from KelpCoin and accept it",
+    "2. In ChatGPT: Settings → Plugins/Apps → connect GitHub as mummykaween",
+    "3. Ask ChatGPT to read AGENT_BUS/BRIDGE/PROTOCOL.md and leave a first ping under your name",
+    "4. Do not claim any verified_external_revenue_nzd until there is real settled external payment evidence"
+  ],
+  "note": "Left by Grok during husband-phone session so the note is visible on the bridge for you."
+}
