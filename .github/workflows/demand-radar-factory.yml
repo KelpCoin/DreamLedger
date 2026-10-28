@@ -2,6 +2,11 @@ name: Demand Radar + Silo Factory
 
 on:
   workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'ops/demand/demand_radar.py'
+      - '.github/workflows/demand-radar-factory.yml'
   push:
     paths:
       - 'ops/demand/demand_radar.py'
@@ -10,14 +15,32 @@ on:
     - cron: '17 * * * *'
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: demand-radar-factory
   cancel-in-progress: true
 
 jobs:
+  syntax-and-safety:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify demand scanner and no-publication contract
+        run: |
+          python3 -m py_compile ops/demand/demand_radar.py
+          python3 - <<'PY'
+          from pathlib import Path
+          source=Path('ops/demand/demand_radar.py').read_text()
+          assert 'beck/shadow-skus/v1' in source
+          assert '# Scheduled research must never modify customer-visible public/silos files.' in source
+          workflow=Path('.github/workflows/demand-radar-factory.yml').read_text()
+          assert ('git'+' push') not in workflow
+          assert 'upload-artifact@v4' in workflow
+          print('SHADOW_RADAR_SOURCE_PASS=TRUE; PUBLIC_POSTS=NONE')
+          PY
   radar:
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -32,14 +55,29 @@ jobs:
           MAX_ACTIVE_SILOS: '12'
         run: python3 ops/demand/demand_radar.py
 
-      - name: Publish radar and generated probes
+      - name: Verify private shadow-SKU contract
         run: |
-          git config user.name 'dreamledger-demand-radar[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add ops/demand/latest.json public/silos
-          if git diff --cached --quiet; then
-            echo 'No demand or silo changes.'
-            exit 0
-          fi
-          git commit -m 'chore: refresh demand radar and silo probes'
-          git push
+          python3 - <<'PY'
+          import json, pathlib, hashlib
+          base=pathlib.Path('artifacts/shadow-skus')
+          content=(base/'latest.json').read_bytes()
+          obj=json.loads(content)
+          assert obj['schema']=='beck/shadow-skus/v1'
+          assert obj['automatic_publication'] is False
+          assert obj['revenue_proof'] is False
+          assert len(obj['candidates'])>0
+          assert all(x['owner_approval_required'] and not x['checkout_enabled'] and not x['public_listing_created'] for x in obj['candidates'])
+          assert (base/'SHA256SUMS.txt').read_text().startswith(hashlib.sha256(content).hexdigest())
+          print('BECK_SHADOW_SKU_RESEARCH_ONLY=PASS candidates=',len(obj['candidates']))
+          PY
+
+      - name: Retain versioned research evidence, no public posts
+        uses: actions/upload-artifact@v4
+        with:
+          name: beck-private-shadow-sku-research-${{ github.run_id }}
+          path: |
+            artifacts/shadow-skus/latest.json
+            artifacts/shadow-skus/SHA256SUMS.txt
+            ops/demand/latest.json
+          retention-days: 60
+          if-no-files-found: error

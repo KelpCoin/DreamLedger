@@ -139,7 +139,7 @@ jobs:
             echo "UTC=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
             echo "EXECUTION_PLANE=$([ \"$USE_CLOUD_LLM\" = \"true\" ] && echo CLOUD_FALLBACK || echo GITHUB_DETERMINISTIC)"
             echo 'LM_STUDIO=LOCAL_WHEN_PC_ON'
-            echo 'REFINEMENT=PROPOSER_CRITIC_SYNTHESIZER'
+            echo "REFINEMENT=$([ \"$USE_CLOUD_LLM\" = \"true\" ] && echo MODEL_PASS_REQUESTED || echo NOT_EXECUTED)"
             echo 'GAUNTLET=EXECUTED'
             echo 'REVENUE_CLAIM=NOT_VERIFIED_BY_AUTOMATION'
           } | tee artifacts/pc-off-refinement-proof.txt
