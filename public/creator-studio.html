@@ -17,6 +17,10 @@ button.secondary{color:#a6ffba;background:#1c3e29;border:1px solid #3e7d52}
 button:disabled{opacity:.5;cursor:wait}.check{display:flex;gap:10px;align-items:flex-start;padding:10px 0}
 .check input{margin-top:5px;accent-color:#39ff77}
 #preview{max-width:100%;max-height:310px;object-fit:contain;border-radius:8px;display:none;background:repeating-conic-gradient(#253428 0 25%,#172219 0 50%) 0 / 24px 24px}
+#wearable-preview{width:100%;max-width:440px;display:block;margin:8px auto;border-radius:16px;background:#080d11;border:1px solid #31523c}
+.fit-tools{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fit-tools select{width:100%}
+.fit-status{font-size:13px;color:#d3c4a7}
 #status{white-space:pre-wrap;border-left:3px solid #39ff77;padding:10px;background:#0a1510}
 #drafts{list-style:none;padding:0}#drafts li{border-bottom:1px solid #2d4b35;padding:12px 0;overflow-wrap:anywhere}
 .visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
@@ -32,7 +36,19 @@ button:disabled{opacity:.5;cursor:wait}.check{display:flex;gap:10px;align-items:
 <label for="file">Original drawing or processed image</label>
 <input id="file" type="file" accept="image/png,image/webp,image/jpeg" required>
 <small>PNG, WebP or JPEG, maximum 1.2 MB. Transparent PNG is ideal for wearable layers.</small>
-<p><img id="preview" alt="Preview of selected artwork"></p>
+<p><img id="preview" alt="Source artwork before compositing"></p>
+<div class="card" aria-label="Private wearable placement preview">
+<h2>Fit lab · free local preview</h2>
+<p>View your hand-drawn or enhanced image on three neutral avatar body profiles. This is a local concept overlay, not verified clothing fit or purchased ownership.</p>
+<div class="fit-tools">
+<div><label for="fit-body">Body profile</label><select id="fit-body">
+<option value="standard">Standard</option><option value="slim">Slim</option><option value="broad">Broad</option></select></div>
+<div><label for="fit-scale">Wearable size</label><input id="fit-scale" type="range" min="50" max="150" value="100" step="5"></div>
+</div>
+<canvas id="wearable-preview" width="440" height="560" role="img" aria-label="Local preview of the selected artwork on a simplified avatar silhouette"></canvas>
+<p class="fit-status" id="fit-status">Choose a drawing to preview it privately. No server upload happens during preview.</p>
+<button type="button" id="fit-export" class="secondary">Export concept PNG</button>
+</div>
 <label for="title">Item name</label><input id="title" required maxlength="90" placeholder="Example: Ink Wings">
 <label for="slot">Wearable slot</label><select id="slot">
 <option value="back">Back / backpack</option><option value="head">Head</option>
@@ -69,6 +85,58 @@ $('origin').addEventListener('change',()=>{
  if(enhanced)loadDrafts(true).catch(e=>state('Original list held: '+e.message));
 });
 let objectUrl=null;
+const fitCanvas=$('wearable-preview'),fitContext=fitCanvas.getContext('2d');
+let fitImage=null;
+function renderWearable(){
+ const c=fitContext;if(!c)return;
+ const w=440,h=560;c.clearRect(0,0,w,h);
+ c.fillStyle='#09120d';c.fillRect(0,0,w,h);
+ c.fillStyle='#0d1e19';
+ for(let x=0;x<w;x+=22){c.fillRect(x,0,1,h);}
+ for(let y=0;y<h;y+=22){c.fillRect(0,y,w,1);}
+ const body=$('fit-body').value;
+ const factor=body==='slim'?.80:body==='broad'?1.21:1;
+ const cx=220;
+ c.lineWidth=3;c.strokeStyle='#b0dac0';c.fillStyle='#254335';
+ function oval(x,y,rx,ry){
+  c.beginPath();c.ellipse(x,y,rx,ry,0,0,2*Math.PI);c.fill();c.stroke();
+ }
+ oval(cx,96,51,68);
+ c.fillRect(cx-54*factor,173,108*factor,190);
+ c.strokeRect(cx-54*factor,173,108*factor,190);
+ c.fillRect(cx-80*factor,180,20*factor,190);
+ c.strokeRect(cx-80*factor,180,20*factor,190);
+ c.fillRect(cx+60*factor,180,20*factor,190);
+ c.strokeRect(cx+60*factor,180,20*factor,190);
+ c.fillRect(cx-49*factor,360,39*factor,160);
+ c.strokeRect(cx-49*factor,360,39*factor,160);
+ c.fillRect(cx+10*factor,360,39*factor,160);
+ c.strokeRect(cx+10*factor,360,39*factor,160);
+ if(!fitImage)return;
+ const slot=$('slot').value;
+ const placements={
+  head:[cx,47,125,125],hair:[cx,38,130,120],face:[cx,100,105,80],
+  neck:[cx,166,85,55],body:[cx,265,160*factor,180],
+  hands:[cx+83*factor,320,70,80],back:[cx,245,185*factor,170],
+  feet:[cx+20*factor,502,165*factor,70],accessory:[cx+104*factor,235,98,110]
+ };
+ const p=placements[slot]||placements.accessory;
+ const scale=Number($('fit-scale').value)/100;
+ const maxW=p[2]*scale,maxH=p[3]*scale;
+ const ratio=Math.min(maxW/fitImage.naturalWidth,maxH/fitImage.naturalHeight);
+ const dw=fitImage.naturalWidth*ratio,dh=fitImage.naturalHeight*ratio;
+ c.drawImage(fitImage,p[0]-dw/2,p[1]-dh/2,dw,dh);
+}
+$('fit-body').addEventListener('change',renderWearable);
+$('fit-scale').addEventListener('input',renderWearable);
+$('slot').addEventListener('change',renderWearable);
+$('fit-export').addEventListener('click',()=>{
+ if(!fitImage){state('Select an original or enhanced drawing before exporting a concept.');return;}
+ const a=document.createElement('a');a.download='beck-private-avatar-fit-CONCEPT.png';
+ a.href=fitCanvas.toDataURL('image/png');a.click();
+ state('Local concept PNG exported. This is not approved or equipped wearable artwork.');
+});
+renderWearable();
 function state(message){$('status').textContent=message;}
 function auth(){const token=$('access').value.trim();if(token.length<32)throw Error('Enter your creator access key first.');return {Authorization:'Bearer '+token};}
 $('file').addEventListener('change',()=>{
@@ -76,6 +144,10 @@ $('file').addEventListener('change',()=>{
  const file=$('file').files[0];if(!file){$('preview').style.display='none';return;}
  if(file.size>1200000){state('Image too large. Please export under 1.2 MB.');return;}
  objectUrl=URL.createObjectURL(file);$('preview').src=objectUrl;$('preview').style.display='block';
+ const image=new Image();
+ image.onload=()=>{if(objectUrl&&image.src===objectUrl){fitImage=image;renderWearable();$('fit-status').textContent='Concept preview only. Check all body profiles and obtain review before publication.';}};
+ image.onerror=()=>state('This image cannot be previewed.');
+ image.src=objectUrl;
 });
 async function call(path,method,body){
  const r=await fetch(api+path,{method,headers:{...auth(),...(body?{'Content-Type':'application/json'}:{})},
