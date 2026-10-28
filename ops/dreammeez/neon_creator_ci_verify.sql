@@ -20,6 +20,22 @@ BEGIN
   THEN RAISE EXCEPTION 'UPLOAD_NOT_IDEMPOTENT'; END IF;
   IF (SELECT count(*) FROM public.beck_creator_cosmetic_drafts)<>1
   THEN RAISE EXCEPTION 'DUPLICATE_CREATOR_ART'; END IF;
+  -- A second owner can submit independently, without taking Peggy's asset ID.
+  SELECT public.beck_creator_submit_draft_v1(
+    'ASSET-BIGGIE-'||repeat('C',20),'biggie','Biggie Ink Crown',
+    'head','Biggie','crown.png','owner original',
+    'image/png',repeat('c',64),repeat('e',64),p) INTO b;
+  IF b->>'status'<>'DRAFT'
+    OR (SELECT count(*) FROM public.beck_creator_cosmetic_drafts WHERE creator_id='biggie')<>1
+    OR (SELECT count(*) FROM public.beck_creator_cosmetic_drafts WHERE creator_id='peggy')<>1
+  THEN RAISE EXCEPTION 'SECOND_OWNER_NOT_ISOLATED'; END IF;
+  refused:=false;
+  BEGIN
+    PERFORM public.beck_creator_submit_draft_v1(
+      'ASSET-PEGGY-'||repeat('A',20),'biggie','Impersonated',
+      'back','Biggie','x.png','','image/png',repeat('a',64),repeat('b',64),p);
+  EXCEPTION WHEN raise_exception THEN refused:=true; END;
+  IF NOT refused THEN RAISE EXCEPTION 'CROSS_OWNER_ASSET_ACCEPTED'; END IF;
   refused:=false;
   BEGIN
     PERFORM public.beck_creator_submit_draft_v1(id,'peggy','Altered',
@@ -57,4 +73,4 @@ DO $test$ BEGIN
       'public.beck_creator_submit_draft_v1(text,text,text,text,text,text,text,text,text,text,text)','EXECUTE')
  THEN RAISE EXCEPTION 'CREATOR_FUNCTIONS_NOT_PRIVATE'; END IF;
 END $test$;
-SELECT 'BECK_PEGGY_CREATOR_NEON=PASS_PRIVATE_DRAFT_ONLY' AS proof;
+SELECT 'BECK_DUAL_OWNER_CREATOR_NEON=PASS_PRIVATE_DRAFT_ONLY' AS proof;
