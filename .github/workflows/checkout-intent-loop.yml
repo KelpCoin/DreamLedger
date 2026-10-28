@@ -1,6 +1,14 @@
 name: Checkout Intent Loop
 
 on:
+  pull_request:
+    paths:
+      - 'scripts/verify-billboard-money-gate.mjs'
+      - 'scripts/test-billboard-money-gate.mjs'
+      - 'public/billboard.html'
+      - 'public/buy/dreamledger-billboard-founding-001/index.html'
+      - 'scripts/test_billboard_live_contract.mjs'
+      - '.github/workflows/checkout-intent-loop.yml'
   schedule:
     - cron: '*/15 * * * *'
   workflow_dispatch:
@@ -10,7 +18,20 @@ permissions:
   issues: write
 
 jobs:
+  contract:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: No-live-writes money-gate fixtures
+        run: node --test scripts/test-billboard-money-gate.mjs
+      - name: Source checkout hold regression
+        run: node scripts/test_billboard_live_contract.mjs
   detect:
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
@@ -22,6 +43,19 @@ jobs:
         with:
           node-version: '24.14.1'
 
+      - name: Audit public billboard and active Stripe links read-only
+        env:
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          BECK_GATE_OUTPUT: proof/commerce/billboard-money-gate.json
+        run: node scripts/verify-billboard-money-gate.mjs
+      - name: Preserve cloud money-gate receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: beck-billboard-money-gate-${{ github.run_id }}
+          path: proof/commerce/billboard-money-gate.json*
+          if-no-files-found: warn
+          retention-days: 30
       - name: Detect checkout intent
         env:
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
