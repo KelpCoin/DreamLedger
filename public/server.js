@@ -10,7 +10,7 @@ const ROOT=__dirname;
 const ENGINE_INTERNAL_URL=String(process.env.ENGINE_INTERNAL_URL||'').replace(/\/$/,'');
 const ENGINE_INTERNAL_API_KEY=String(process.env.ENGINE_INTERNAL_API_KEY||'');
 const PUBLIC_FILES={
-  '/':'home.html','/index.html':'home.html','/status':'status.html','/status/':'status.html','/status.html':'status.html',
+  '/':'index.html','/index.html':'index.html','/status':'status.html','/status/':'status.html','/status.html':'status.html',
   '/about':'about.html','/about/':'about.html','/privacy':'privacy.html','/privacy/':'privacy.html','/privacy.html':'privacy.html','/terms':'terms.html','/terms/':'terms.html','/terms.html':'terms.html','/security':'security.html','/security/':'security.html','/security.html':'security.html','/contact':'contact.html','/contact/':'contact.html','/trust':'trust.html','/trust/':'trust.html',
   '/catalogue':'catalogue.html','/catalogue/':'catalogue.html','/catalogue.html':'catalogue.html',
   '/app.js':'app.js',
@@ -23,10 +23,10 @@ const PUBLIC_FILES={
   '/agent-commerce':'agent-commerce.html','/agent-commerce/':'agent-commerce.html','/agentic-commerce':'agentic-commerce.html','/agentic-commerce/':'agentic-commerce.html','/revenue.html':'agentic-commerce.html','/revenue':'agentic-commerce.html',
   '/b2b':'b2b.html','/b2b/':'b2b.html','/b2b.html':'b2b.html',
   '/marketplace':'marketplace.html','/marketplace/':'marketplace.html','/marketplace.html':'marketplace.html',
-  '/go':'go/index.html','/go/':'go/index.html',
+  '/go':'go/index.html','/go/':'go/index.html','/start.html':'go/index.html',
   '/cost-of-living.html':'cost-of-living.html','/cost-of-living':'cost-of-living.html',
   '/truth-oracle.html':'truth-oracle.html',
-  '/truth-oracle-field-guide.html':'truth-oracle-field-guide.html','/shop.html':'shop.html','/truth-oracle':'truth-oracle.html',
+  '/truth-oracle-field-guide.html':'truth-oracle-field-guide.html','/shop.html':'marketplace.html','/truth-oracle':'truth-oracle.html',
   '/agent-bridge-job-contract-v1.json':'agent-bridge-job-contract-v1.json','/agent.json':'agent.json','/agent-commerce.json':'agent-commerce.json',
   '/cube.json':'public-resources.json','/economic-loops.json':'public-resources.json','/ecosystem.json':'public-resources.json',
   '/data/economic-pulse.json':'public-research-feed.json',
@@ -40,7 +40,7 @@ const PUBLIC_FILES={
   '/overpaying':'overpaying.html','/overpaying.html':'overpaying.html',
   '/avatar.html':'avatar.html','/avatar':'avatar.html','/phinhaven.html':'phinhaven.html','/phinhaven/':'phinhaven.html','/phinhaven/hotel':'phinhaven/hotel/index.html','/phinhaven/hotel/':'phinhaven/hotel/index.html','/phinhaven/shallows':'phinhaven/shallows/index.html','/phinhaven/shallows/':'phinhaven/shallows/index.html','/account':'account.html','/account/':'account.html','/register':'register.html','/register/':'register.html','/login':'login.html','/login/':'login.html','/mtg-search':'mtg-search.html','/mtg-search/':'mtg-search.html','/mtg-list':'mtg-list.html','/mtg-list/':'mtg-list.html','/mtg-marketplace':'mtg-marketplace.html','/mtg-marketplace/':'mtg-marketplace.html','/mtg-mod':'mtg-mod.html','/mtg-mod/':'mtg-mod.html','/mtg-welcome':'mtg-welcome.html','/mtg-welcome/':'mtg-welcome.html','/toll-road':'toll-road.html','/toll-road/':'toll-road.html'
 };
-Object.assign(PUBLIC_FILES,{"/777-distribution.html":"777-distribution.html","/a2a-marketplace.html":"marketplace.html","/agent-bridge.html":"agent-bridge.html","/agent-bridge":"agent-bridge.html","/agent-bridge/":"agent-bridge.html","/cube-marketplace.html":"marketplace.html","/evidence-ledger.html":"trust.html","/evidence.html":"trust.html","/ledger.html":"trust.html","/production-verification.html":"trust.html","/money-500000.html":"shop.html","/silo-template.html":"public-resources.json","/silos/":"shop.html","/silos/index.html":"shop.html","/toll-road.html":"shop.html","/toll-booths.html":"shop.html","/marketplace-forward.html":"marketplace.html","/marketplace-pro.html":"marketplace.html","/free.html":"home.html","/offers.html":"shop.html","/hosted-decision-analysis.html":"c2.html","/growth.html":"demand-services.html","/cortex.html":"home.html","/index-black-gold-v1.html":"home.html","/marketplace/order/":"marketplace.html","/marketplace/order/index.html":"marketplace.html","/marketplace/sell/":"marketplace.html","/marketplace/sell/index.html":"marketplace.html","/economicMechanismLibrary.json":"public-resources.json","/evergreen-silo-factory.json":"public-resources.json","/silo-clone-manifest.json":"public-resources.json","/bridge-tolls.json":"public-resources.json","/commerce-roads.json":"public-resources.json","/compute.json":"public-resources.json","/ledger.json":"public-resources.json","/proof.schema.json":"public-resources.json","/money-playbook.json":"public-resources.json","/dream-ledger-manifest.json":"public-resources.json","/dreamledger-sitemap.xml":"sitemap.xml","/data/economic-events-manifest.json":"public-resources.json","/data/procurement-opportunities.json":"public-research-feed.json","/news.json":"public-research-feed.json","/platform.json":"public-resources.json","/api/agent-commerce/toll-probe.json":"public-resources.json","/b2b/catalog.openapi.json":"public-resources.json","/catalog.openapi.json":"public-resources.json","/marketplace/agent-card.json":"public-resources.json","/marketplace/agent.json":"public-resources.json","/toll-road.json":"public-resources.json"});
+Object.assign(PUBLIC_FILES,{"/777-distribution.html":"777-distribution.html","/a2a-marketplace.html":"marketplace.html","/agent-bridge.html":"agent-bridge.html","/agent-bridge":"agent-bridge.html","/agent-bridge/":"agent-bridge.html","/cube-marketplace.html":"marketplace.html","/evidence-ledger.html":"trust.html","/evidence.html":"trust.html","/ledger.html":"trust.html","/production-verification.html":"trust.html","/money-500000.html":"shop.html","/silo-template.html":"public-resources.json","/silos/":"marketplace.html","/silos/index.html":"marketplace.html","/toll-road.html":"shop.html","/toll-booths.html":"shop.html","/marketplace-forward.html":"marketplace.html","/marketplace-pro.html":"marketplace.html","/free.html":"home.html","/offers.html":"shop.html","/hosted-decision-analysis.html":"c2.html","/growth.html":"demand-services.html","/cortex.html":"home.html","/index-black-gold-v1.html":"home.html","/marketplace/order/":"marketplace.html","/marketplace/order/index.html":"marketplace.html","/marketplace/sell/":"marketplace.html","/marketplace/sell/index.html":"marketplace.html","/economicMechanismLibrary.json":"public-resources.json","/evergreen-silo-factory.json":"public-resources.json","/silo-clone-manifest.json":"public-resources.json","/bridge-tolls.json":"public-resources.json","/commerce-roads.json":"public-resources.json","/compute.json":"public-resources.json","/ledger.json":"public-resources.json","/proof.schema.json":"public-resources.json","/money-playbook.json":"public-resources.json","/dream-ledger-manifest.json":"public-resources.json","/dreamledger-sitemap.xml":"sitemap.xml","/data/economic-events-manifest.json":"public-resources.json","/data/procurement-opportunities.json":"public-research-feed.json","/news.json":"public-research-feed.json","/platform.json":"public-resources.json","/api/agent-commerce/toll-probe.json":"public-resources.json","/b2b/catalog.openapi.json":"public-resources.json","/catalog.openapi.json":"public-resources.json","/marketplace/agent-card.json":"public-resources.json","/marketplace/agent.json":"public-resources.json","/toll-road.json":"public-resources.json"});
 Object.assign(PUBLIC_FILES,{"/b2b-marketplace.html":"b2b.html","/auctions.html":"marketplace.html","/auto_parts.html":"marketplace.html","/boardgames.html":"marketplace.html","/cameras.html":"marketplace.html","/collectibles.html":"marketplace.html","/computers.html":"marketplace.html","/furniture.html":"marketplace.html","/home_appliances.html":"marketplace.html","/musical_instruments.html":"marketplace.html","/outdoor.html":"marketplace.html","/phones.html":"marketplace.html","/vinyl.html":"marketplace.html","/nz-secondhand/":"marketplace.html","/nz-secondhand/index.html":"marketplace.html","/digital-products/":"shop.html","/digital-products/index.html":"shop.html","/activity.html":"trust.html","/tools.html":"home.html","/start.html":"shop.html","/free.html":"home.html","/offers.html":"shop.html","/hosted-decision-analysis.html":"c2.html","/growth.html":"demand-services.html","/marketplace/order":"marketplace.html","/marketplace/sell":"marketplace.html","/silos/evergreen.html":"shop.html","/silos/construction-subcontractor-quotes.html":"quote-comparison/construction/index.html","/silos/event-vendor-quotes.html":"quote-comparison/hospitality/index.html","/silos/fleet-repair-quotes.html":"quote-comparison/operations/index.html","/silos/freight-quotes.html":"quote-comparison/import/index.html","/silos/it-hardware-quotes.html":"quote-comparison/operations/index.html","/silos/manufacturing-supplier-quotes.html":"quote-comparison/manufacturing/index.html","/silos/marketing-agency-quotes.html":"quote-comparison/operations/index.html","/silos/professional-services-quotes.html":"quote-comparison/operations/index.html","/silos/saas-vendor-quotes.html":"quote-comparison/operations/index.html","/silos/supplier-price-list-comparison.html":"quote-comparison/wholesale/index.html"});
 Object.assign(PUBLIC_FILES,{"/rivet/":"b2b.html","/rivet/index.html":"b2b.html","/dreamledger-billboard.html":"billboard.html","/quote-comparison/ecommerce.html":"quote-comparison/ecommerce/index.html","/tools/":"tools/index.html","/tools/index.html":"tools/index.html","/sandbox-tools.html":"tools/index.html"});
 Object.assign(PUBLIC_FILES,{"/discord-starter-kit.html":"products/discord-webhook-starter-kit-001/index.html","/tools/nz-seller-profit/":"tools/seller-profit/index.html","/tools/nz-seller-profit/index.html":"tools/seller-profit/index.html"});
@@ -128,6 +128,14 @@ http.createServer(async (req,res)=>{
           market:String(row.market||'NZ').slice(0,20),
           destination_url:https(row.destination_url||row.link),
           image_url:https(row.image_url),
+          // Grid cell is exposed only with explicit source coordinates. Never invent a slot.
+          cell_index:Number.isInteger(row.cell_index)&&row.cell_index>=0&&row.cell_index<100
+            ? row.cell_index
+            : (Number.isInteger(row.x)&&Number.isInteger(row.y)&&row.x>=0&&row.x<=900&&row.y>=0&&row.y<=900&&row.x%100===0&&row.y%100===0&&
+                Number(row.width||100)===100&&Number(row.height||100)===100
+              ? (row.y/100)*10+(row.x/100)
+              : (Number.isInteger(row.grid_x)&&Number.isInteger(row.grid_y)&&row.grid_x>=0&&row.grid_x<10&&row.grid_y>=0&&row.grid_y<10
+                ? row.grid_y*10+row.grid_x : null)),
           status:'PUBLISHED'
         }));
       return send(res,200,JSON.stringify({source:'billboard_public',verified_payment_claim:false,count:items.length,items}),'application/json; charset=utf-8');
@@ -135,6 +143,35 @@ http.createServer(async (req,res)=>{
       console.error('BILLBOARD_PUBLIC_READ_FAILURE',String(err.message||err));
       return send(res,503,JSON.stringify({error:'billboard_inventory_unavailable'}),'application/json; charset=utf-8');
     }
+  }
+  // Canonical read-only discovery adapters over existing BECK catalogue and silo registry.
+  // A published catalogue row is NOT a validated independent sale or guaranteed inventory.
+  if(req.method==='GET' && p==='/api/discovery/silos'){
+    try{
+      const registry=JSON.parse(fs.readFileSync(path.join(ROOT,'..','BEC-PRIME','catalog','silos','CUBE-SILO-REGISTRY.json'),'utf8'));
+      const silos=(Array.isArray(registry.silos)?registry.silos:[]).filter(x=>x&&x.id&&x.label).map(x=>{
+        const candidate=String(x.route||'');
+        const resolved=PUBLIC_FILES[candidate]||candidate.replace(/^\//,'');
+        const available=Boolean(candidate.startsWith('/')&&resolved&&fs.existsSync(path.join(ROOT,resolved)));
+        return {id:String(x.id).slice(0,80),label:String(x.label).slice(0,100),route:available?candidate:'/marketplace.html?q='+encodeURIComponent(String(x.id)),status:'REGISTERED',market:x.market||null,inventory_verified:false};
+      });
+      res.setHeader('Cache-Control','public, max-age=60');
+      return send(res,200,JSON.stringify({schema:'beck/discovery-silos/v1',count:silos.length,silos}),'application/json; charset=utf-8');
+    }catch(e){return send(res,503,JSON.stringify({error:'silo_registry_unavailable'}),'application/json; charset=utf-8');}
+  }
+  if(req.method==='GET' && p==='/api/discovery/catalog'){
+    try{
+      const catalogue=JSON.parse(fs.readFileSync(path.join(ROOT,'catalog.json'),'utf8'));
+      const raw=Array.isArray(catalogue.products)?catalogue.products:[];
+      const secureLink=value=>{try{const url=new URL(String(value||''));return url.protocol==='https:'&&['buy.stripe.com','checkout.stripe.com'].includes(url.hostname)?url.href:null;}catch(_){return null}};
+      const products=raw.filter(x=>x&&x.id&&x.name&&x.status==='published').map(x=>{
+        const href=secureLink(x.checkout_url);
+        const checkout=Boolean(x.checkout_available===true&&href&&Number.isFinite(Number(x.price))&&Number(x.price)>0);
+        return {id:String(x.id).slice(0,100),name:String(x.name).slice(0,160),description:String(x.description||'').slice(0,600),category:String(x.category||'uncategorised').slice(0,100),price:Number(x.price),currency:String(x.currency||'nzd').toUpperCase(),checkout_available:checkout,checkout_url:checkout?href:null,delivery_status:'unknown',status:'LISTED',source:'public_catalog'};
+      });
+      res.setHeader('Cache-Control','public, max-age=60');
+      return send(res,200,JSON.stringify({schema:'beck/discovery-catalog/v1',source:'existing_public_catalog',count:products.length,products,verified_external_revenue_claim:false}),'application/json; charset=utf-8');
+    }catch(e){return send(res,503,JSON.stringify({error:'discovery_catalog_unavailable'}),'application/json; charset=utf-8');}
   }
   if(req.method==='GET' && (p==='/api/offers' || p==='/api/products')){
     try{

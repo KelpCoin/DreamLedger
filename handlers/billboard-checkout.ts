@@ -21,6 +21,15 @@ function overlaps(x:number,y:number,w:number,h:number,c:any){return x<c.x+c.widt
 function tileUnits(w:number,h:number){return Math.max(1,Math.ceil(w/100)*Math.ceil(h/100))}
 function findSlot(items:any[],w:number,h:number){for(let y=0;y<=1000-h;y+=100)for(let x=0;x<=1000-w;x+=100)if(!items.some((c:any)=>overlaps(x,y,w,h,c)))return{x,y};return null}
 export default async function handler(request:Request){
+ // This direct checkout API previously generated live payment sessions from
+ // an unreserved inventory snapshot. It must remain held until a transaction-
+ // backed reservation and reviewed webhook-to-publication path is proven.
+ // A disabled button alone cannot protect customers from direct POST calls.
+ if(request.method==='POST')return json({
+   error:'BILLBOARD_CHECKOUT_HELD',
+   reason:'Atomic multi-market reservation and verified delivery are not yet operational',
+   charge_created:false,inventory_reserved:false
+ },503);
  if(request.method!=='POST')return new Response('Method not allowed',{status:405});
  const secret=process.env.STRIPE_SECRET_KEY;if(!secret)return json({error:'STRIPE_SECRET_KEY is not configured'},503);
  let body:any;try{body=await request.json()}catch{return json({error:'Invalid JSON'},400)}

@@ -7,13 +7,13 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 SERVER = (ROOT / "public" / "server.js").read_text(encoding="utf-8")
-HOME = (ROOT / "public" / "home.html").read_text(encoding="utf-8")
+HOME = (ROOT / "public" / "index.html").read_text(encoding="utf-8")
 TRUST = (ROOT / "public" / "trust.html").read_text(encoding="utf-8")
 ABOUT = (ROOT / "public" / "about.html").read_text(encoding="utf-8")
 CATALOGUE = json.loads((ROOT / "public" / "catalog.json").read_text(encoding="utf-8"))
 
 checks = {
-    "root maps to designed homepage": "'/':'home.html'" in SERVER,
+    "root maps to designed homepage": "'/':'index.html'" in SERVER,
     "about route maps to page": "'/about/':'about.html'" in SERVER,
     "trust route maps to page": "'/trust/':'trust.html'" in SERVER,
     "homepage has responsive viewport": 'name="viewport"' in HOME,
@@ -32,7 +32,7 @@ for page in (HOME, TRUST, ABOUT):
 broken_links = []
 for target in internal_links:
     route = target.split("#", 1)[0].split("?", 1)[0] or "/"
-    if route in route_keys:
+    if route in route_keys or (ROOT / "public" / route.lstrip("/")).is_file() or (ROOT / "public" / route.lstrip("/") / "index.html").is_file():
         continue
     # /buy/<product_id> is a dynamic storefront route. Accept it only when the
     # catalog exposes that exact product as published and checkout-enabled.

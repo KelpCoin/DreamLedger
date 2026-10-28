@@ -3,7 +3,12 @@ name: Public Website Contract
 on:
   push:
     paths:
-      - "public/home.html"
+      - "public/index.html"
+      - "public/go/index.html"
+      - "public/marketplace.html"
+      - "public/assets/bec-neon.css"
+      - "public/assets/discovery.js"
+      - "scripts/test_neon_discovery_contract.cjs"
       - "public/about.html"
       - "public/trust.html"
       - "public/server.js"
@@ -14,7 +19,12 @@ on:
       - ".github/workflows/website-contract.yml"
   pull_request:
     paths:
-      - "public/home.html"
+      - "public/index.html"
+      - "public/go/index.html"
+      - "public/marketplace.html"
+      - "public/assets/bec-neon.css"
+      - "public/assets/discovery.js"
+      - "scripts/test_neon_discovery_contract.cjs"
       - "public/about.html"
       - "public/trust.html"
       - "public/server.js"
@@ -45,6 +55,8 @@ jobs:
           node-version: "24"
       - name: Check public route and content contract
         run: python scripts/test_public_site_contract.py
+      - name: Verify BECK discovery and billboard-neon design contract
+        run: node scripts/test_neon_discovery_contract.cjs
       - name: Check storefront server syntax
         run: node --check public/server.js
       - name: Prove synthetic billboard payment to placement contract

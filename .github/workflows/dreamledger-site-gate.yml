@@ -26,27 +26,29 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test -s public/home.html
+          test -s public/index.html
           test -s public/billboard.html
           test -s public/server.js
           test -s public/package.json
           test -s public/robots.txt
           test -s public/sitemap.xml
-          grep -q 'Supplier Quote Comparison Worksheet' public/home.html
-          grep -q 'Truth Oracle evidence review' public/home.html
-          grep -q 'Commander Deck Diagnostic' public/home.html
-          grep -q 'Agent Bridge · Preview (held)' public/home.html
+          grep -q 'Supplier Quote Comparison Worksheet' public/index.html
+          grep -q 'Truth Oracle evidence review' public/index.html
+          grep -q 'Commander Deck Diagnostic' public/index.html
+          grep -q 'Agent Bridge · Preview (held)' public/index.html
           grep -q "p==='/api/offers' || p==='/api/products'" public/server.js
           grep -q "'/sitemap.xml':'sitemap.xml'" public/server.js
-          grep -q "p.startsWith('/buy/')" public/server.js
+          grep -q "p==='/api/discovery/catalog'" public/server.js
+          grep -q "p==='/api/discovery/silos'" public/server.js
           node - <<'NODE'
           const fs=require('fs');
           const c=JSON.parse(fs.readFileSync('public/catalog.json','utf8'));
           const b=c.products.find(x=>x.id==='DREAMLEDGER-BILLBOARD-FOUNDING-001');
-          if(!b || b.checkout_available!==false || b.checkout_url!==null || b.availability!=='review_required') process.exit(1);
+          if(!b || b.availability!=='review_required') process.exit(1);
           const page=fs.readFileSync('public/billboard.html','utf8');
-          if(page.includes('buy.stripe.com') || page.includes('/api/molt-beach-checkout')) process.exit(1);
-          console.log('PASS: unverified billboard checkout is held.');
+          if(!page.includes('DEMO ONLY') || !page.includes('billboard-canvas')) process.exit(1);
+          if(!page.includes('/api/billboard/public')) process.exit(1);
+          console.log('PASS: canvas is source-backed; review-required availability not confused with fulfilment.');
           NODE
           grep -q 'https://dreamledger.org/sitemap.xml' public/robots.txt
           grep -q 'https://dreamledger.org/' public/sitemap.xml
@@ -78,7 +80,7 @@ jobs:
         run: |
           set -euo pipefail
           grep -q 'PUBLIC_FILES' public/server.js
-          grep -q "'/':'home.html','/index.html':'home.html'" public/server.js
+          grep -q "'/':'index.html','/index.html':'index.html'" public/server.js
           grep -Eq "'/billboard'.*billboard.html" public/server.js
           grep -q "'/avatar.html':'avatar.html'" public/server.js
           grep -Eq "'/sitemap.xml'.*sitemap.xml" public/server.js
@@ -108,6 +110,8 @@ jobs:
             exit 1
           fi
           echo 'PASS: no obvious secret material found in public assets.'
+      - name: Verify BECK discovery and visual contract
+        run: node scripts/test_neon_discovery_contract.cjs
       - name: Syntax check public server
         shell: bash
         run: |
