@@ -50,8 +50,9 @@ def main() -> int:
     out = args.out.resolve()
     if src.is_dir() or out == src or src in out.parents:
         parser.error("Input must be a file and output must not be inside the input path")
-    if out.is_relative_to(Path.cwd().resolve() / "public"):
-        parser.error("Private sketch output cannot be under the public website")
+    repo_root = Path(__file__).resolve().parents[2]
+    if out.is_relative_to(repo_root):
+        parser.error("Keep private source artwork and manifests OUTSIDE the public source repository")
     # Private model input must be an actual image; never silently convert arbitrary uploads.
     with Image.open(src) as source:
         if source.format not in ("PNG", "TIFF", "JPEG"):
@@ -67,6 +68,9 @@ def main() -> int:
         rgba.putalpha(alpha)
     out.mkdir(parents=True, exist_ok=True)
     digest = hash_file(src)
+    proof = out / ("source-manifest-" + digest[:12] + ".json")
+    if proof.exists():
+        parser.error("Provenance manifest already exists; refuse overwrite")
     target = out / ("ink-layer-" + digest[:12] + ".png")
     # Refuse to overwrite an existing approved or revised output.
     if target.exists():
@@ -96,9 +100,6 @@ def main() -> int:
         "checkout_available": False,
         "claim": "Operator-attested original source, deterministically cleaned. Final art pending human review."
     }
-    proof = out / ("source-manifest-" + digest[:12] + ".json")
-    if proof.exists():
-        parser.error("Provenance manifest already exists; refuse overwrite")
     proof.write_text(json.dumps(result, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     print(json.dumps({"status": "DRAFT_PRIVATE_ONLY", "ink_file": str(target), "proof_file": str(proof),
                       "source_sha256": digest, "cleaned_sha256": result["cleaned_ink_sha256"]}))
