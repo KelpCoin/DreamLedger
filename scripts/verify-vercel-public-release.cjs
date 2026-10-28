@@ -48,6 +48,8 @@ if(!home.includes('View deck &amp; secure checkout') || !home.includes('href="/m
 const billboardHtml=fs.readFileSync(path.join(root,'public/billboard.html'),'utf8');
 if(!billboardHtml.includes('Your HTTPS destination URL is optional'))
   throw new Error('BILLBOARD_OPTIONAL_URL_COPY_REGRESSION');
+if(!billboardHtml.includes('Paid placement checkout is temporarily held') || billboardHtml.includes('https://buy.stripe.com/'))
+  throw new Error('HELD_BILLBOARD_DIRECT_PAYMENT_EXPOSURE');
 console.log('BECK_PUBLIC_RELEASE_FILES_PASS: '+mustExist.length+' routes, '+catalog.products.length+' catalog entries; B2B aliases verified; no sale asserted');
 
 
