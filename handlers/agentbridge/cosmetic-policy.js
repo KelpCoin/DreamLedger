@@ -6,7 +6,7 @@ const crypto = require('node:crypto');
 
 const LIMIT = 1200000;
 const SLOTS = new Set(['head','hair','face','neck','body','hands','back','feet','accessory']);
-const ALLOWED_KEYS = new Set(['title','slot','filename','mime','base64','artist_credit','rights_confirmed','notes']);
+const ALLOWED_KEYS = new Set(['title','slot','filename','mime','base64','artist_credit','rights_confirmed','notes','origin_kind','parent_draft_id']);
 const CREATORS = ['biggie','peggy'];
 function refused(reason, status=400) {
   const error = new Error(reason);
@@ -65,6 +65,29 @@ function draftFromBody(body, creatorId) {
   const file=sanitizeString(body.filename,1,110,'FILENAME');
   if (file.includes('/')||file.includes('\\')||file.startsWith('.')) refused('INVALID_FILENAME');
   const notes=body.notes ? sanitizeString(body.notes,1,500,'NOTES') : '';
+  const originKind=body.origin_kind||'hand_drawn';
+  if(!['hand_drawn','ai_enhanced'].includes(originKind)) refused('INVALID_ORIGIN_KIND');
+  const parentDraftId=body.parent_draft_id||null;
+  if (originKind==='ai_enhanced') {
+    if(typeof parentDraftId!=='string'||!new RegExp('^ASSET-'+creatorId.toUpperCase()+'-[A-F0-9]{20}
+  if (typeof body.base64!=='string'||body.base64.length>Math.ceil(LIMIT/3)*4+8
+       ||!/^[A-Za-z0-9+/]+={0,2}$/.test(body.base64)) refused('INVALID_IMAGE_BASE64',413);
+  const buffer=Buffer.from(body.base64,'base64');
+  if(buffer.length===0||buffer.length>LIMIT || buffer.toString('base64')!==body.base64) refused('IMAGE_SIZE_OR_ENCODING_REFUSED',413);
+  const mime=mediaType(buffer,body.mime);
+  const hash=sha256(buffer);
+  const draftId='ASSET-'+creatorId.toUpperCase()+'-'+hash.slice(0,20).toUpperCase();
+  const metadata={title,slot,artist,file,notes,mime,sha256:hash,
+      creator:creatorId,silo:'SILO_AVATAR',origin_kind:originKind,parent_draft_id:parentDraftId,
+      render_targets:['dreamiez','kelp-atlantis']};
+  return {draftId,creatorId,siloId:'SILO_AVATAR',title,slot,artist,file,notes,mime,
+      hash,base64:body.base64,originKind,parentDraftId,metaHash:sha256(Buffer.from(JSON.stringify(metadata),'utf8')),
+      bytes:buffer.length,status:'DRAFT',checkout_available:false,approval_required:true};
+}
+module.exports={LIMIT,authorize,verifyOrigin,draftFromBody,sha256,mediaType};
+).test(parentDraftId))
+      refused('PARENT_ORIGINAL_REQUIRED',400);
+  } else if (parentDraftId!==null) refused('ORIGINAL_CANNOT_HAVE_PARENT',400);
   if (typeof body.base64!=='string'||body.base64.length>Math.ceil(LIMIT/3)*4+8
        ||!/^[A-Za-z0-9+/]+={0,2}$/.test(body.base64)) refused('INVALID_IMAGE_BASE64',413);
   const buffer=Buffer.from(body.base64,'base64');
