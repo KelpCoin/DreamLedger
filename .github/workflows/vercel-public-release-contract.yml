@@ -7,6 +7,9 @@ on:
       - 'package.json'
       - 'handlers/cube/marketplace.js'
       - 'handlers/cube/marketplace.test.js'
+      - 'handlers/dreammeez/**'
+      - 'BEC-PRIME/compiled/website/lib/accountAuth.js'
+      - 'BEC-PRIME/compiled/website/lib/signedSession*'
       - 'handlers/cube/stripeWebhookSignature.js'
       - 'handlers/cube/stripeWebhookSignature.test.js'
       - 'handlers/cube/stripe-webhook.ts'
@@ -21,6 +24,9 @@ on:
       - 'package.json'
       - 'handlers/cube/marketplace.js'
       - 'handlers/cube/marketplace.test.js'
+      - 'handlers/dreammeez/**'
+      - 'BEC-PRIME/compiled/website/lib/accountAuth.js'
+      - 'BEC-PRIME/compiled/website/lib/signedSession*'
       - 'handlers/cube/stripeWebhookSignature.js'
       - 'handlers/cube/stripeWebhookSignature.test.js'
       - 'handlers/cube/stripe-webhook.ts'
@@ -41,6 +47,11 @@ jobs:
         run: |
           node --check handlers/cube/marketplace.js
           node --test handlers/cube/marketplace.test.js handlers/cube/stripeWebhookSignature.test.js
+          node --test BEC-PRIME/compiled/website/lib/signedSession.test.js handlers/dreammeez/entitlements.test.js public/assets/avatar-identity.test.js
+          node --check public/assets/avatar-identity.js
+          node --check handlers/dreammeez/entitlements.js
+          node --check BEC-PRIME/compiled/website/lib/accountAuth.js
+          node --check BEC-PRIME/compiled/website/lib/signedSession.js
           if grep -iE 'SUPABASE|dreamiez_session|readFileSync|writeFileSync' handlers/cube/marketplace.js; then
             echo 'UNSAFE_MARKETPLACE_BACKEND'; exit 1
           fi
