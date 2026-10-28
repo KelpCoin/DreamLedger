@@ -15,7 +15,8 @@ function getCatalog(){
  const products=source.filter(p=>p&&p.id&&p.name&&p.status==="published").map(p=>{
  const link=hostedStripe(p.checkout_url);
  const checkout=Boolean(p.checkout_available===true&&link&&Number.isFinite(Number(p.price))&&Number(p.price)>0);
- return {id:String(p.id).slice(0,100),name:String(p.name).slice(0,160),description:String(p.description||"").slice(0,600),category:String(p.category||"uncategorised").slice(0,100),price:Number(p.price),currency:String(p.currency||"nzd").toUpperCase(),status:"LISTED",checkout_available:checkout,checkout_url:checkout?link:null,delivery_status:"unknown",source:"public_catalog"};
+ const offerPage=typeof p.offer_page==="string" && /^\/(?!\/)[a-z0-9/_-]+(?:\.html)?$/i.test(p.offer_page) ? p.offer_page : null;
+ return {id:String(p.id).slice(0,100),name:String(p.name).slice(0,160),description:String(p.description||"").slice(0,600),category:String(p.category||"uncategorised").slice(0,100),price:Number(p.price),currency:String(p.currency||"nzd").toUpperCase(),status:"LISTED",checkout_available:checkout,checkout_url:checkout?link:null,offer_page:offerPage,delivery_status:String(p.availability||"unknown").slice(0,100),source:"public_catalog"};
  });
  return {schema:"beck/discovery-catalog/v1",source:"existing_public_catalog",count:products.length,products,verified_external_revenue_claim:false};
 }
