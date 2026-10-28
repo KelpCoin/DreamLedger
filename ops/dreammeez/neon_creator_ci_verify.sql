@@ -36,6 +36,23 @@ BEGIN
       'back','Biggie','x.png','','image/png',repeat('a',64),repeat('b',64),p);
   EXCEPTION WHEN raise_exception THEN refused:=true; END;
   IF NOT refused THEN RAISE EXCEPTION 'CROSS_OWNER_ASSET_ACCEPTED'; END IF;
+
+  SELECT public.beck_creator_submit_draft_v1(
+    'ASSET-PEGGY-'||repeat('F',20),'peggy','AI-enhanced Ink Wings',
+    'back','Peggy','enhanced.png','enhancement of my original',
+    'image/png',repeat('f',64),repeat('c',64),p,
+    'ai_enhanced',id) INTO b;
+  IF b->>'status'<>'DRAFT'
+    OR (SELECT parent_draft_id FROM public.beck_creator_cosmetic_drafts WHERE draft_id='ASSET-PEGGY-'||repeat('F',20))<>id
+  THEN RAISE EXCEPTION 'DERIVATIVE_LINEAGE_MISSING'; END IF;
+  refused:=false;
+  BEGIN
+    PERFORM public.beck_creator_submit_draft_v1(
+      'ASSET-BIGGIE-'||repeat('E',20),'biggie','Cross-owner derivative',
+      'body','Biggie','x.png','','image/png',repeat('e',64),repeat('c',64),p,
+      'ai_enhanced',id);
+  EXCEPTION WHEN raise_exception THEN refused:=true; END;
+  IF NOT refused THEN RAISE EXCEPTION 'CROSS_OWNER_DERIVATIVE_ACCEPTED'; END IF;
   refused:=false;
   BEGIN
     PERFORM public.beck_creator_submit_draft_v1(id,'peggy','Altered',
@@ -70,7 +87,7 @@ DO $test$ BEGIN
  IF has_table_privilege('creator_untrusted','public.beck_creator_cosmetic_drafts','SELECT')
    OR has_table_privilege('creator_untrusted','public.beck_creator_cosmetic_drafts','INSERT')
    OR has_function_privilege('creator_untrusted',
-      'public.beck_creator_submit_draft_v1(text,text,text,text,text,text,text,text,text,text,text)','EXECUTE')
+      'public.beck_creator_submit_draft_v1(text,text,text,text,text,text,text,text,text,text,text,text,text)','EXECUTE')
  THEN RAISE EXCEPTION 'CREATOR_FUNCTIONS_NOT_PRIVATE'; END IF;
 END $test$;
 SELECT 'BECK_DUAL_OWNER_CREATOR_NEON=PASS_PRIVATE_DRAFT_ONLY' AS proof;
