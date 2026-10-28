@@ -29,9 +29,10 @@ function calculateMarketplaceFee(seller, silo, amountNzd) {
 // Existing legacy fee bindings remain unchanged until signed seller agreements
 // and live payment / payout reconciliation are approved and deployed.
 // A2A here is AGENT-TO-AGENT; P2P is person-to-person.
+// Existing universal peer zero-fee contract remains authoritative.
 const UNIVERSAL_LANES = Object.freeze({
   B2B:{rateBasisPoints:0, capMinor:0},
-  P2P:{rateBasisPoints:100, capMinor:500},
+  P2P:{rateBasisPoints:0, capMinor:0},
   A2A:{rateBasisPoints:100, capMinor:500}
 });
 function quoteUniversalMarketplaceFee(input){
