@@ -1,0 +1,19 @@
+name: BECK Marketplace Multilane Contract
+on:
+  pull_request:
+    paths:
+      - 'ops/marketplace/multilane-policy.cjs'
+      - 'ops/marketplace/multilane-policy.test.cjs'
+      - '.github/workflows/marketplace-multilane-contract.yml'
+permissions:
+  contents: read
+jobs:
+  multilane:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Verify shared B2B P2P A2A runtime policy
+        run: node --test ops/marketplace/multilane-policy.test.cjs
