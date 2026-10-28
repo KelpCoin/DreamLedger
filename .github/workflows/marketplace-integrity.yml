@@ -1,6 +1,14 @@
 name: Marketplace Integrity
 
 on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'ops/marketplace/marketplace-self-build.cjs'
+      - 'ops/marketplace/marketplace-autofix.test.cjs'
+      - 'CORTEX/ecosystem_spine.py'
+      - 'CORTEX/ecosystem_registry.json'
+      - '.github/workflows/marketplace-integrity.yml'
   workflow_dispatch:
   push:
     branches: [main]
@@ -18,11 +26,31 @@ permissions:
   attestations: write
 
 jobs:
+  contract-tests:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deterministic Gauntlet and Elohim candidate source tests
+        run: node --test ops/marketplace/marketplace-autofix.test.cjs
+      - name: Verify canonical source registry is real
+        run: python CORTEX/ecosystem_spine.py
   validate:
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+      - name: Gauntlet audit real marketplace invariants
+        run: node ops/marketplace/marketplace-self-build.cjs
+      - name: Preserve self-repair drift report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: beck-marketplace-drift-${{ github.run_id }}
+          path: proof/marketplace/self-build.json
+          if-no-files-found: warn
+          retention-days: 30
       - name: Validate marketplace contract
         run: python -m json.tool BEC-PRIME/marketplace/marketplace-contract.json >/dev/null
       - name: Validate marketplace runtime
@@ -36,8 +64,40 @@ jobs:
       - name: Build marketplace manifest
         run: |
           mkdir -p evidence
-          sha256sum BEC-PRIME/marketplace/* CORTEX/ecosystem_spine.py > evidence/marketplace-manifest.sha256
+          find BEC-PRIME/marketplace -type f ! -path '*/__pycache__/*' -print0 | sort -z | xargs -0 sha256sum > evidence/marketplace-manifest.sha256
+          sha256sum CORTEX/ecosystem_spine.py >> evidence/marketplace-manifest.sha256
       - name: Attest marketplace manifest
         uses: actions/attest@v4
         with:
           subject-path: evidence/marketplace-manifest.sha256
+
+  propose-repair:
+    needs: validate
+    if: always() && (github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && needs.validate.result == 'failure'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Elohim generate bounded safety patch, Gauntlet re-evaluate
+        run: |
+          set -euo pipefail
+          node ops/marketplace/marketplace-self-build.cjs --repair
+          node --test ops/marketplace/marketplace-autofix.test.cjs
+      - name: Open code-review draft PR only
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          changed="$(git status --porcelain -- BEC-PRIME/auction-engine.js public/auctions.html)"
+          if [ -z "$changed" ]; then echo "NO_APPLICABLE_REPAIR"; exit 0; fi
+          branch="beck/elohim-marketplace-autorepair"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$branch"
+          git add BEC-PRIME/auction-engine.js public/auctions.html
+          git commit -m "fix(gauntlet): fail-close unverified marketplace auctions"
+          git push --force-with-lease origin "$branch"
+          gh pr view "$branch" --json url >/dev/null 2>&1 ||              gh pr create --draft --base main --head "$branch"               --title "Elohim bounded auction safety repair"               --body "Generated autonomously by BECK Gauntlet and tested by CI. DRAFT ONLY, no auto-merge, Stripe, DNS, new offers, money movement or public deployment."
