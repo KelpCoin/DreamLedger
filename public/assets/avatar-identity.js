@@ -11,6 +11,8 @@
   var STREAK_KEY = 'dreammeez_streak_v1';
 
   var ALLOWED_SURFACES = ['web', 'phinhaven', 'dreammeez'];
+  var FREE_IDENTITY_FIELDS = Object.freeze(['height','build','shape','skin','style','hair','expression']);
+  function isFreeIdentityField(field) { return FREE_IDENTITY_FIELDS.indexOf(field) !== -1; }
 
   /** Catalog: impulse tier NZ$2–5. Dual surface metadata. */
   var COSMETIC_CATALOG = [
@@ -98,6 +100,7 @@
       skin: 3,
       style: 'medium',
       hair: 0,
+      expression: 'smile',
       equipped: { face: null, neck: null, body: null, hair: null, feet: null, back: null },
       owned: [],
       updated_at: null
@@ -115,6 +118,8 @@
       });
       if (!d.equipped || typeof d.equipped !== 'object') d.equipped = defaultState().equipped;
       if (!Array.isArray(d.owned)) d.owned = [];
+      if (![1,2,3,4,5].includes(Number(d.shape))) d.shape = 1;
+      if (d.expression !== 'blank') d.expression = 'smile';
       return d;
     } catch (e) {
       return defaultState();
@@ -123,6 +128,8 @@
 
   function save(state) {
     state = state || load();
+    if (![1,2,3,4,5].includes(Number(state.shape))) state.shape = 1;
+    if (state.expression !== 'blank') state.expression = 'smile';
     state.updated_at = new Date().toISOString();
     global.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     try {
@@ -197,7 +204,9 @@
         shape: s.shape,
         skin: s.skin,
         style: s.style,
-        hair: s.hair
+        hair: s.hair,
+        expression: s.expression,
+        all_body_identity_features_free: true
       },
       equipped: equipped,
       buffs: buffs,
@@ -244,6 +253,8 @@
     getCosmetic: getCosmetic,
     exportForSurface: exportForSurface,
     toPhinhavenLoadout: toPhinhavenLoadout,
-    ALLOWED_SURFACES: ALLOWED_SURFACES
+    ALLOWED_SURFACES: ALLOWED_SURFACES,
+    FREE_IDENTITY_FIELDS: FREE_IDENTITY_FIELDS,
+    isFreeIdentityField: isFreeIdentityField
   };
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -1,0 +1,67 @@
+name: DreamMeez Free Bodies and Sketch Provenance
+on:
+  pull_request:
+    branches: [billboard-verified-release-20261027, main]
+    paths:
+      - 'public/avatar.html'
+      - 'public/assets/avatar-identity.js'
+      - 'public/assets/dreammeez-free-bodies.js'
+      - 'public/catalog.json'
+      - 'IP/DreamMeez/FREE-BODY-ART-SPEC-v1.md'
+      - 'IP/DreamMeez/usp-201-203-free-identity.json'
+      - 'ops/dreammeez/**'
+      - 'scripts/test_dreammeez_free_body_contract.cjs'
+      - '.github/workflows/dreammeez-free-body.yml'
+  push:
+    branches: [billboard-verified-release-20261027, main]
+    paths:
+      - 'public/avatar.html'
+      - 'public/assets/avatar-identity.js'
+      - 'public/assets/dreammeez-free-bodies.js'
+      - 'public/catalog.json'
+      - 'IP/DreamMeez/FREE-BODY-ART-SPEC-v1.md'
+      - 'IP/DreamMeez/usp-201-203-free-identity.json'
+      - 'ops/dreammeez/**'
+      - 'scripts/test_dreammeez_free_body_contract.cjs'
+      - '.github/workflows/dreammeez-free-body.yml'
+permissions:
+  contents: read
+jobs:
+  no-body-paywall:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Free identity and anchor-map contract
+        run: |
+          set -euo pipefail
+          node --check public/assets/dreammeez-free-bodies.js
+          node --check public/assets/avatar-identity.js
+          node --check scripts/test_dreammeez_free_body_contract.cjs
+          node scripts/test_dreammeez_free_body_contract.cjs
+          node scripts/test_beck_vercel_contract.cjs
+      - name: Sketch conversion only on synthetic test image
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install bounded image library for tests
+        run: python -m pip install 'Pillow>=11,<13'
+      - name: Verify source-preserving sketch workflow
+        run: |
+          set -euo pipefail
+          python -m py_compile ops/dreammeez/sketch_to_layers.py
+          python -m unittest discover -s ops/dreammeez -p 'test_sketch_to_layers.py' -v
+      - name: No accidental artwork or purchase publication
+        run: |
+          node - <<'NODE'
+          const fs=require('node:fs');
+          const s=fs.readFileSync('IP/DreamMeez/FREE-BODY-ART-SPEC-v1.md','utf8');
+          const p=JSON.parse(fs.readFileSync('IP/DreamMeez/usp-201-203-free-identity.json','utf8'));
+          if(!s.toLowerCase().includes('free')||!s.includes('450 body configurations')||p.automatic_publication!==false||p.ideas.length!==3)process.exit(1);
+          console.log('DREAMMEEZ_HANDDRAWN_SOURCE_PENDING; PAID_BODY_SKUS=0; PUBLISHED_NEW_COSMETICS=0');
+          NODE
