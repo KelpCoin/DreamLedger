@@ -1,0 +1,30 @@
+"use strict";
+const fs=require("node:fs"),path=require("node:path"),assert=require("node:assert/strict"),crypto=require("node:crypto");
+const root=path.resolve(__dirname,"../..");
+const p=path.join(root,"IP/DreamMeez/usp-register-100-20261028.json");
+const data=JSON.parse(fs.readFileSync(p,"utf8"));
+assert.equal(data.schema,"beck/dreammeez-usp-register/v1");
+assert.equal(data.silo,"dreammeez");
+assert.equal(data.ideas.length,100);
+const codes=new Set();
+for(let i=0;i<100;i++){
+ const idea=data.ideas[i];
+ assert.equal(idea.user_number,i+1);
+ assert.equal(idea.usp_id,"DM-USP-"+String(i+1).padStart(3,"0"));
+ assert(!codes.has(idea.usp_id));codes.add(idea.usp_id);
+ assert(idea.name&&idea.unique_caveat);
+ assert.equal(idea.state,"HYPOTHESIS_NOT_CUSTOMER_PROMISE");
+ assert.equal(idea.verification_required,true);
+ assert.equal(idea.owner_approval_required,true);
+ assert.equal(idea.public_listing_allowed,false);
+ assert.equal(idea.customer_purchase_proven,false);
+}
+const score=data.ideas.reduce((n,x)=>(n[x.priority]=(n[x.priority]||0)+1,n),{});
+assert.equal(score.P0_FOUNDATION,data.counts.p0);
+assert.equal(score.P1_VALIDATION,data.counts.p1);
+assert.equal(score.P2_BACKLOG,data.counts.p2);
+const critical=[5,11,14,17,31,32,34,36,58,71,74,76,77,81,87,94,95,96,98,100];
+for(const id of critical)assert(data.ideas[id-1].unique_caveat.length>50,"Missing special claim/IP guard for USP "+id);
+const shadow=JSON.parse(fs.readFileSync(path.join(root,"IP/DreamMeez/shadow-cosmetics-20261028.json"),"utf8"));
+assert.equal(shadow.checkout_enabled,false);assert.equal(shadow.automatic_publication,false);
+console.log(JSON.stringify({result:"PASS",register_count:100,priorities:score,shadow_cosmetics:shadow.items.length,public_claims:0,sha256:crypto.createHash("sha256").update(fs.readFileSync(p)).digest("hex")}));

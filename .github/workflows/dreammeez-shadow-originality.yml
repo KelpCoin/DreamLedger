@@ -5,6 +5,7 @@ on:
     paths:
       - 'IP/DreamMeez/**'
       - 'BEC-PRIME/scripts/dreammeez-shadow-gate.cjs'
+      - 'BEC-PRIME/scripts/dreammeez-usp-register-gate.cjs'
       - 'BEC-PRIME/scripts/iterative-refinement.js'
       - '.github/workflows/dreammeez-shadow-originality.yml'
       - '.github/workflows/pc-off-refinement-gauntlet.yml'
@@ -34,6 +35,7 @@ jobs:
           node --check BEC-PRIME/scripts/dreammeez-shadow-gate.cjs
           node --check BEC-PRIME/scripts/iterative-refinement.js
           node BEC-PRIME/scripts/dreammeez-shadow-gate.cjs
+          node BEC-PRIME/scripts/dreammeez-usp-register-gate.cjs
           node - <<'NODE'
           const fs=require('node:fs');
           const w=fs.readFileSync('.github/workflows/pc-off-refinement-gauntlet.yml','utf8');
