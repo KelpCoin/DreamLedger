@@ -4,9 +4,11 @@ import json
 import sqlite3
 from datetime import datetime, timezone
 from pathlib import Path
+from . import privacy
 
 
 def build_kb_evidence(kb_dir):
+    privacy.require_private_path(kb_dir, "BECK personal research knowledge base")
     root = Path(kb_dir)
     db_file = root / 'kb.sqlite'
     if not db_file.is_file() or db_file.is_symlink():
@@ -25,6 +27,9 @@ def build_kb_evidence(kb_dir):
         h.update((aid + '\0' + digest + '\0' + url + '\n').encode('utf-8'))
     return {
         'schema': 'beck/public-rss-research-snapshot/v1',
+        'classification': privacy.POLICY['classification'],
+        'truth_oracle_auto_publication': False,
+        'allowed_website_surface': None,
         'generated_utc': datetime.now(timezone.utc).isoformat(),
         'source_type': 'public_substack_rss',
         'origin': 'offline-verified-substack_ingest-import',
@@ -43,7 +48,7 @@ def build_kb_evidence(kb_dir):
 
 def export_kb_evidence(kb_dir, output_path):
     result = build_kb_evidence(kb_dir)
-    output = Path(output_path)
+    output = Path(privacy.require_private_path(output_path, "BECK internal research evidence"))
     if output.is_symlink():
         raise ValueError('cannot overwrite evidence through symlink')
     output.parent.mkdir(parents=True, exist_ok=True)
