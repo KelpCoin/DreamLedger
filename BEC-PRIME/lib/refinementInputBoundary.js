@@ -8,7 +8,8 @@ const ROOT=path.resolve(__dirname,'../..');
 const FILES=Object.freeze([
  'public/index.html','public/go/index.html','public/marketplace.html',
  'public/avatar.html','public/shop.html','public/quote-compare-49.html',
- 'IP/DreamMeez/shadow-cosmetics-20261028.json'
+ 'IP/DreamMeez/shadow-cosmetics-20261028.json',
+ 'IP/DreamMeez/usp-201-203-free-identity.json'
 ]);
 function sha256(v){return crypto.createHash('sha256').update(v).digest('hex');}
 function structuralMetadata(relative,readFile=fs.readFileSync){
