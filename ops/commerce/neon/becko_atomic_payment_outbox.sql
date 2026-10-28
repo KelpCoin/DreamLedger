@@ -119,14 +119,15 @@ END;
 $func$;
 
 CREATE OR REPLACE FUNCTION public.becko_claim_v1(
-  p_worker_id text, p_limit integer DEFAULT 3, p_max_attempts integer DEFAULT 5,
-  p_lease_seconds integer DEFAULT 300
+  p_worker_id text, p_silo_id text, p_limit integer DEFAULT 3,
+  p_max_attempts integer DEFAULT 5, p_lease_seconds integer DEFAULT 300
 ) RETURNS TABLE(delivery_key text, lease_token text, attempts integer, payload jsonb)
 LANGUAGE plpgsql SECURITY INVOKER
 SET search_path=pg_catalog,public
 AS $func$
 BEGIN
   IF p_worker_id IS NULL OR length(p_worker_id) NOT BETWEEN 1 AND 100
+      OR p_silo_id IS NULL OR length(p_silo_id) NOT BETWEEN 1 AND 64
       OR p_limit IS NULL OR p_limit NOT BETWEEN 1 AND 20
       OR p_max_attempts IS NULL OR p_max_attempts NOT BETWEEN 1 AND 20
       OR p_lease_seconds IS NULL OR p_lease_seconds NOT BETWEEN 30 AND 1800
@@ -136,14 +137,14 @@ BEGIN
   UPDATE public.commercial_fulfillment_outbox o
     SET status='FAILED_REVIEW',worker_id=NULL,lease_token=NULL,
         leased_until=NULL,last_error='MAX_ATTEMPTS_EXCEEDED',updated_at=now()
-    WHERE o.attempts>=p_max_attempts
+    WHERE o.attempts>=p_max_attempts AND o.payload->>'silo_id'=p_silo_id
       AND ((o.status='PENDING' AND o.next_attempt_at<=now())
         OR (o.status='IN_PROGRESS' AND o.leased_until<now()));
   RETURN QUERY
     WITH due AS (
       SELECT o.delivery_key
         FROM public.commercial_fulfillment_outbox o
-        WHERE o.attempts<p_max_attempts
+        WHERE o.attempts<p_max_attempts AND o.payload->>'silo_id'=p_silo_id
           AND ((o.status='PENDING' AND o.next_attempt_at<=now())
             OR (o.status='IN_PROGRESS' AND o.leased_until<now()))
         ORDER BY o.next_attempt_at,o.created_at,o.delivery_key
@@ -207,7 +208,7 @@ $func$;
 -- users, agents, or any service role until a separate credential and authorization
 -- review. CI invokes the functions as the isolated disposable postgres owner.
 REVOKE ALL ON FUNCTION public.becko_accept_checkout_v1(text,text,text,text,text,text,integer,text,text,text,boolean) FROM PUBLIC;
-REVOKE ALL ON FUNCTION public.becko_claim_v1(text,integer,integer,integer) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.becko_claim_v1(text,text,integer,integer,integer) FROM PUBLIC;
 REVOKE ALL ON FUNCTION public.becko_confirm_v1(text,text,text,text) FROM PUBLIC;
 REVOKE ALL ON FUNCTION public.becko_retry_v1(text,text,text,text,integer) FROM PUBLIC;
 COMMIT;
