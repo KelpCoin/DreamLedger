@@ -1,0 +1,49 @@
+name: BECK DreamMeez Free Identity Commercial Guard
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'IP/DreamMeez/**'
+      - 'public/assets/dreammeez-free-bodies.js'
+      - 'public/catalog.json'
+      - 'BEC-PRIME/scripts/dreammeez-free-body-policy-gate.cjs'
+      - 'BEC-PRIME/lib/refinementInputBoundary.js'
+      - 'ops/dreammeez/**'
+      - '.github/workflows/dreammeez-free-identity-policy.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'IP/DreamMeez/**'
+      - 'public/assets/dreammeez-free-bodies.js'
+      - 'public/catalog.json'
+      - 'BEC-PRIME/scripts/dreammeez-free-body-policy-gate.cjs'
+      - 'BEC-PRIME/lib/refinementInputBoundary.js'
+      - 'ops/dreammeez/**'
+      - '.github/workflows/dreammeez-free-identity-policy.yml'
+permissions:
+  contents: read
+jobs:
+  non-negotiable-free-bodies:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Commercial baseline and model-input safety
+        run: |
+          set -euo pipefail
+          node --check BEC-PRIME/scripts/dreammeez-free-body-policy-gate.cjs
+          node --check public/assets/dreammeez-free-bodies.js
+          node BEC-PRIME/scripts/dreammeez-free-body-policy-gate.cjs
+          node --test BEC-PRIME/scripts/test-refinement-input-boundary.js
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Test deterministic private sketch cleanup on synthetic image
+        run: |
+          python -m pip install 'Pillow>=11,<13'
+          python -m unittest discover -s ops/dreammeez -p 'test_sketch_to_layers.py' -v
