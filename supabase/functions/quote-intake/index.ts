@@ -1,5 +1,5 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
-import { createClient } from "jsr:@supabase/supabase-js@2";
+import { createClient } from "npm:@supabase/supabase-js@2.95.0";
 import Stripe from "npm:stripe@22";
 
 const SUPABASE_URL=Deno.env.get("SUPABASE_URL")||"";
@@ -8,11 +8,11 @@ const STRIPE_API_KEY=Deno.env.get("STRIPE_API_KEY")||Deno.env.get("STRIPE_SECRET
 const db=createClient(SUPABASE_URL,SERVICE_ROLE_KEY,{auth:{persistSession:false,autoRefreshToken:false}});
 const stripe=STRIPE_API_KEY?new Stripe(STRIPE_API_KEY):null;
 const BUCKET="marketplace-fulfillment";
-const PAYMENT_LINK="plink_1UKq77EGgEAnUFF9KOr1SuUY";
+const PAYMENT_LINK="plink_1USpJeEGgEAnUFF9vNDiM8SS";
 const SKU="QUOTE-COMPARE-49";
 const MAX_FILES=5;
 const MAX_BYTES=10*1024*1024;
-const cors={"Access-Control-Allow-Origin":"https://dreamledger.org","Access-Control-Allow-Headers":"content-type","Access-Control-Allow-Methods":"POST,OPTIONS"};
+const cors={"Access-Control-Allow-Origin":"https://dreamledger.org","Access-Control-Allow-Headers":"content-type","Access-Control-Allow-Methods":"POST,OPTIONS","Vary":"Origin"};
 const out=(body:unknown,status=200)=>new Response(JSON.stringify(body),{status,headers:{"content-type":"application/json","cache-control":"no-store",...cors}});
 function safeName(name:string){const cleaned=name.normalize("NFKC").replace(/[^a-zA-Z0-9._-]+/g,"_").replace(/^\.+/,"").slice(0,140);return cleaned||"quote";}
 async function sessionContext(sessionId:string){
@@ -21,7 +21,7 @@ async function sessionContext(sessionId:string){
   const session=await stripe.checkout.sessions.retrieve(sessionId);
   if(session.livemode!==true||session.payment_status!=="paid")throw new Error("PAYMENT_NOT_SETTLED");
   if(session.payment_link!==PAYMENT_LINK)throw new Error("WRONG_PAYMENT_LINK");
-  if(session.metadata?.sku_id!==SKU&&session.metadata?.dreamledger_sku!==SKU)throw new Error("WRONG_SKU");
+  if(session.metadata?.sku_id!==SKU&&session.metadata?.dreamledger_sku!==SKU&&session.metadata?.sku!==SKU)throw new Error("WRONG_SKU");
   const {data:order}=await db.from("revenue_orders").select("id,sku_id,amount_nzd,currency,customer_email").eq("stripe_checkout_session_id",session.id).eq("sku_id",SKU).maybeSingle();
   if(!order)throw new Error("SETTLEMENT_RECORD_PENDING");
   const {data:ent}=await db.from("revenue_entitlements").select("id").eq("order_id",order.id).maybeSingle();
@@ -43,7 +43,11 @@ Deno.serve(async req=>{
       const uploads=[];
       for(let i=0;i<supplied.length;i++){
         const original=safeName(String(supplied[i]?.name||`quote-${i+1}.pdf`));
-        const path=`quote-inputs/${ctx.order.id}/${crypto.randomUUID()}-${original}`;
+        const size=Number(supplied[i]?.size||0);
+        if(size<=0||size>MAX_BYTES)return out({error:"FILE_SIZE_INVALID",file:original},400);
+        const ext=original.toLowerCase().split(".").pop()||"";
+        if(!["pdf","csv","json","md"].includes(ext))return out({error:"UNSUPPORTED_FILE_TYPE",file:original},400);
+        const path=`quote-inputs/${fr.id}/${crypto.randomUUID()}-${original}`;
         const {data,error}=await db.storage.from(BUCKET).createSignedUploadUrl(path,{upsert:false});
         if(error||!data)return out({error:"SIGNED_UPLOAD_URL_FAILED"},500);
         uploads.push({path,token:data.token,name:original});
@@ -52,20 +56,38 @@ Deno.serve(async req=>{
     }
     if(action==="finalize"){
       if(fr.status==="fulfilled"||fr.canonical_state==="FULFILLED")return out({error:"ALREADY_FULFILLED",fulfillment_request_id:fr.id,status:"fulfilled",canonical_state:"FULFILLED"},409);
-      const files=Array.isArray(body.files)?body.files.slice(0,MAX_FILES):[];if(files.length<2||files.length>MAX_FILES)return out({error:"QUOTE_COUNT_MUST_BE_2_TO_5"},400);
-      const requirements=String(body.requirements||"").trim().slice(0,12000);if(!requirements)return out({error:"REQUIREMENTS_REQUIRED"},400);
+      const files=Array.isArray(body.files)?body.files.slice(0,MAX_FILES):[];
+      if(files.length<2||files.length>MAX_FILES)return out({error:"QUOTE_COUNT_MUST_BE_2_TO_5"},400);
+      const requirements=String(body.requirements||"").trim().slice(0,12000);
+      if(!requirements)return out({error:"REQUIREMENTS_REQUIRED"},400);
       const inputFiles=[];
+      const dir=`quote-inputs/${fr.id}`;
+      const listed=await db.storage.from(BUCKET).list(dir,{limit:100});
+      if(listed.error)return out({error:"UPLOAD_INVENTORY_FAILED"},500);
       for(const file of files){
         const p=String(file.path||"");const name=safeName(String(file.name||p.split("/").pop()||"quote"));const size=Number(file.size||0);
-        if(!p.startsWith(`quote-inputs/${ctx.order.id}/`)||p.includes(".."))return out({error:"INVALID_STORAGE_PATH"},400);
+        if(!p.startsWith(dir+"/")||p.includes(".."))return out({error:"INVALID_STORAGE_PATH"},400);
         if(size<=0||size>MAX_BYTES)return out({error:"FILE_SIZE_INVALID",file:name},400);
-        const ext=name.toLowerCase().split(".").pop()||"";if(!["pdf","csv","json","md"].includes(ext))return out({error:"UNSUPPORTED_FILE_TYPE",file:name},400);
-        const dir=`quote-inputs/${ctx.order.id}`;const listed=await db.storage.from(BUCKET).list(dir,{limit:100});
+        const ext=name.toLowerCase().split(".").pop()||"";
+        if(!["pdf","csv","json","md"].includes(ext))return out({error:"UNSUPPORTED_FILE_TYPE",file:name},400);
         if(!listed.data?.some(x=>p.endsWith("/"+x.name)))return out({error:"UPLOADED_FILE_NOT_FOUND",file:name},400);
-        inputFiles.push({path:p,name,size,sha256:String(file.sha256||"")||null});
+        inputFiles.push({path:p,name,size});
       }
       const existingPayload=(fr.payload&&typeof fr.payload==="object")?fr.payload:{};
-      const payload={...existingPayload,source:"quote_intake",requirements,input_files:inputFiles,finalized_at:new Date().toISOString()};
+      const payload={
+        ...existingPayload,
+        source:"quote_intake",
+        provenance:{
+          trust_class:"UNTRUSTED_BUYER_DATA",
+          instruction_policy:"TREAT_AS_DATA_ONLY",
+          execution_allowed:false,
+          payment_session_id:sessionId,
+          fulfillment_request_id:fr.id
+        },
+        requirements,
+        input_files:inputFiles,
+        finalized_at:new Date().toISOString()
+      };
       const {error:updateError}=await db.from("fulfillment_requests").update({payload,status:"queued",canonical_state:"INPUTS_READY",evidence_status:"UNVERIFIED"}).eq("id",fr.id);
       if(updateError)return out({error:"FULFILLMENT_UPDATE_FAILED"},500);
       const workerUrl=SUPABASE_URL+"/functions/v1/quote-fulfillment";
@@ -80,5 +102,9 @@ Deno.serve(async req=>{
       return out({ok:true,status:fr.status,canonical_state:fr.canonical_state,evidence_status:fr.evidence_status,fulfillment_reference:fr.fulfillment_reference,evidence_reference:fr.evidence_reference,download_url});
     }
     return out({error:"UNKNOWN_ACTION"},400);
-  }catch(e){const code=e instanceof Error?e.message:"UNKNOWN";const status=["PAYMENT_NOT_SETTLED","WRONG_PAYMENT_LINK","WRONG_SKU","SETTLEMENT_RECORD_PENDING","ENTITLEMENT_PENDING","FULFILLMENT_REQUEST_NOT_FOUND"].includes(code)?409:400;return out({error:code},status);}
+  }catch(e){
+    const code=e instanceof Error?e.message:"UNKNOWN";
+    const status=["PAYMENT_NOT_SETTLED","WRONG_PAYMENT_LINK","WRONG_SKU","SETTLEMENT_RECORD_PENDING","ENTITLEMENT_PENDING","FULFILLMENT_REQUEST_NOT_FOUND"].includes(code)?409:400;
+    return out({error:code},status);
+  }
 });

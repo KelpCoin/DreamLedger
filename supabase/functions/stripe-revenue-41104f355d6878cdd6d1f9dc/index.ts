@@ -68,6 +68,14 @@ Deno.serve(async(req)=>{
      marketplaceSettlement={...marketplaceSettlement,transfer_ledger:transferLedger};
    }
  }
+ // Quote Compare has exactly one canonical authorized payment link. A verified
+ // Stripe signature alone cannot promote a different offer into this silo.
+ // The paid buyer's return URL is navigation only, never fulfillment authority.
+ if(sku==="QUOTE-COMPARE-49"){
+   if(String(session.payment_link||"")!=="plink_1USpJeEGgEAnUFF9vNDiM8SS")return new Response("quote payment link mismatch",{status:400});
+   if(amountMinor!==4900||currency!=="NZD")return new Response("quote amount or currency mismatch",{status:400});
+   if(String(metadata.silo||"")!=="truth_oracle")return new Response("quote silo mismatch",{status:400});
+ }
  if(metadata.opportunity_id==="ACNC_RESEARCH_001"&&metadata.fulfillment_worker==="ACNC_RESEARCH_WORKER"&&metadata.source_gauntlet==="ACNC_PASS"&&!charityIdentifier)return new Response("missing required ACNC charity identifier",{status:400}); if(!sku)return new Response("missing sku_id",{status:400});
  if(metadata.dreammeez_cosmetic_id){
   const cosmeticId=String(metadata.dreammeez_cosmetic_id);

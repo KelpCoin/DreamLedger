@@ -65,6 +65,9 @@ jobs:
       - name: Verify paid quote path contract
         run: python scripts/verify_quote_path_contract.py
 
+      - name: Verify first-dollar identity boundary
+        run: python scripts/verify_revenue_identity_boundary.py
+
       - name: Economic truth guard
         shell: bash
         run: |

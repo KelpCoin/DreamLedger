@@ -4,17 +4,17 @@
   "compiler": "offer-compiler-v1",
   "generated_at": null,
   "git_commit": null,
-  "input_capabilities_sha256": "1bdc927bd040e03eb7d8da6a3b5b408ae788670495593b54c15a82608b0ad005",
-  "approved_offers_sha256": "ea7641f365bf9fd429d6b14b1370d60b5a389c80d2cd24490e9c9c39259a854f",
+  "input_capabilities_sha256": "f62fbb7eb84c52a7ead5966c7fc4c0c899d7c248c652c8538d9aeecacbe81292",
+  "approved_offers_sha256": "91d18403140658633dbe165c0c6c79d67607ea46a675982293d27171f3d0b24a",
   "source": "catalog/ip-capabilities.json",
   "approval_source": "catalog/offers/approved.json",
   "schema": "compiler/schemas/offer.schema.json",
   "counts": {
-    "capabilities": 17,
-    "candidates": 35,
-    "passed": 33,
-    "approved": 2,
-    "rejected": 2
+    "capabilities": 18,
+    "candidates": 37,
+    "passed": 34,
+    "approved": 4,
+    "rejected": 3
   },
   "passed_offer_ids": [
     "OFFER-BEC-PRIME-ARCHITECTURE-DIAGNOSTIC",
@@ -50,12 +50,16 @@
     "OFFER-PRODUCT-COMMANDER-DECK-DIAGNOSTIC-001-AUDIT",
     "OFFER-PRODUCT-QUOTE-COMPARE-49-DIAGNOSTIC",
     "OFFER-PRODUCT-QUOTE-COMPARE-49-AUDIT",
+    "OFFER-PRODUCT-SELLER-PROFIT-AUDIT-001-AUDIT",
     "OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001",
-    "OFFER-CMD-DIAG-29-NZD"
+    "OFFER-CMD-DIAG-29-NZD",
+    "QUOTE-COMPARE-49",
+    "OFFER-SELLER-PROFIT-AUDIT-29-NZD"
   ],
   "rejected_offer_ids": [
     "OFFER-BEC-PRIME-DIGITAL-PROXY-ASSIST-DIAGNOSTIC",
-    "OFFER-BEC-PRIME-SENTINEL-DIAGNOSTIC"
+    "OFFER-BEC-PRIME-SENTINEL-DIAGNOSTIC",
+    "OFFER-PRODUCT-SELLER-PROFIT-AUDIT-001-DIAGNOSTIC"
   ],
   "approval_required_for_generated_offers": true,
   "checkout_disabled_for_generated_offers": true,

@@ -1,6 +1,22 @@
 name: Revenue Sentinel
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - "public/home.html"
+      - "public/quote-compare-49.html"
+      - "public/quote-intake.html"
+      - "public/terms.html"
+      - "public/contact.html"
+      - "supabase/functions/quote-intake/index.ts"
+      - "supabase/functions/quote-fulfillment/index.ts"
+      - "supabase/functions/truth-oracle-execute/index.ts"
+      - "BEC-PRIME/catalog/offers/approved.json"
+      - "BEC-PRIME/fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json"
+      - "scripts/verify_quote_path_contract.py"
+      - "scripts/verify_revenue_identity_boundary.py"
+      - ".github/workflows/revenue-sentinel.yml"
   workflow_dispatch:
   schedule:
     - cron: '17 * * * *'
@@ -85,6 +101,56 @@ jobs:
             exit 1
           fi
 
+      - name: Verify Quote Compare live commercial contract
+        env:
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$STRIPE_SECRET_KEY"
+          LINK_ID="plink_1USpJeEGgEAnUFF9vNDiM8SS"
+          EXPECTED_URL="https://buy.stripe.com/00wdR93vnbK5eqH3gwdwc3r"
+          EXPECTED_RETURN='https://dreamledger.org/quote-intake.html?session_id={CHECKOUT_SESSION_ID}'
+          curl -fsS "https://api.stripe.com/v1/payment_links/$LINK_ID" -u "$STRIPE_SECRET_KEY:" > "$RUNNER_TEMP/quote-link.json"
+          jq -e --arg u "$EXPECTED_URL" --arg r "$EXPECTED_RETURN" '
+            .active == true and .livemode == true and .url == $u and
+            .metadata.sku == "QUOTE-COMPARE-49" and
+            .metadata.silo == "truth_oracle" and
+            .after_completion.type == "redirect" and
+            .after_completion.redirect.url == $r
+          ' "$RUNNER_TEMP/quote-link.json" >/dev/null
+          curl -fsS https://api.stripe.com/v1/webhook_endpoints -u "$STRIPE_SECRET_KEY:" -G --data-urlencode limit=100 > "$RUNNER_TEMP/webhooks.json"
+          jq -e '[.data[] | select(.url=="https://wbwgroygjeyukkspnqiy.supabase.co/functions/v1/stripe-revenue-41104f355d6878cdd6d1f9dc" and .status=="enabled")] | length == 1' "$RUNNER_TEMP/webhooks.json" >/dev/null
+          jq -e '[.data[] | select(.url=="https://wbwgroygjeyukkspnqiy.supabase.co/functions/v1/dreamledger-stripe-webhook-v2" and .status=="disabled")] | length == 1' "$RUNNER_TEMP/webhooks.json" >/dev/null
+          curl -fsS https://wbwgroygjeyukkspnqiy.supabase.co/functions/v1/stripe-revenue-41104f355d6878cdd6d1f9dc > "$RUNNER_TEMP/settlement-health.json"
+          jq -e '.status=="healthy" and .configured==true' "$RUNNER_TEMP/settlement-health.json" >/dev/null
+          code="$(curl -sS -o "$RUNNER_TEMP/intake.json" -w '%{http_code}' --max-time 20 -X POST https://wbwgroygjeyukkspnqiy.supabase.co/functions/v1/quote-intake -H 'content-type: application/json' --data '{"action":"status","session_id":"bad"}' || true)"
+          test "$code" = "400"
+          jq -e '.error=="INVALID_SESSION_ID"' "$RUNNER_TEMP/intake.json" >/dev/null
+          # The live Stripe Payment Link sends actual paid buyers here.
+          # A healthy checkout with a missing intake page is a broken sale.
+          intake_code="$(curl -sS -L -o "$RUNNER_TEMP/quote-intake-page.html" -w '%{http_code}' --max-time 20 https://dreamledger.org/quote-intake.html || true)"
+          test "$intake_code" = "200"
+          grep -Fq 'Upload your supplier quotes' "$RUNNER_TEMP/quote-intake-page.html"
+          grep -Fq 'noindex,nofollow' "$RUNNER_TEMP/quote-intake-page.html"
+          grep -Fq 'https://wbwgroygjeyukkspnqiy.supabase.co/functions/v1/quote-intake' "$RUNNER_TEMP/quote-intake-page.html"
+          grep -Fq 'PAYMENT_NOT_SETTLED' "$RUNNER_TEMP/quote-intake-page.html"
+          curl -fsS https://dreamledger.org/quote-compare-49.html > "$RUNNER_TEMP/quote-page.html"
+          grep -Fq "$EXPECTED_URL" "$RUNNER_TEMP/quote-page.html"
+          grep -Fq 'DreamLedger is in trade in New Zealand' "$RUNNER_TEMP/quote-page.html"
+          # Stripe now redirects the buyer to private automatic intake. Detect the
+          # high-risk production drift where the sales page still tells buyers to
+          # email documents manually or promises a different delivery process.
+          grep -Fq 'Upload privately' "$RUNNER_TEMP/quote-page.html"
+          grep -Fq 'Stripe returns you to DreamLedger' "$RUNNER_TEMP/quote-page.html"
+          grep -Fq 'The first-pass extraction and comparison are automated' "$RUNNER_TEMP/quote-page.html"
+          if grep -Eiq 'email 2-5 quotes|manual review begins|this purchase uses the existing manual delivery process' "$RUNNER_TEMP/quote-page.html"; then
+            echo 'QUOTE_BUYER_JOURNEY_DRIFT=FAIL'
+            exit 1
+          fi
+          echo 'QUOTE_BUYER_JOURNEY_DRIFT=PASS'
+          echo 'QUOTE_REVENUE_WEDGE_LIVE_CONTRACT=PASS'
+          echo 'QUOTE_BUYER_RETURN_DESTINATION=PASS'
       - name: Emit revenue sentinel proof
         shell: bash
         run: |
@@ -101,7 +167,10 @@ jobs:
               'run_id': '${{ github.run_id }}',
               'verified_revenue_nzd': source.get('verified_revenue_nzd', 0),
               'payment_links_checked': sum(1 for x in source.get('links', []) if x.get('url')),
-              'truth_rule': source.get('truth_rule')
+              'truth_rule': source.get('truth_rule'),
+              'quote_revenue_wedge_live_contract': 'PASS',
+              'verified_external_buyer': False,
+              'verified_paid_fulfilled_quote_order': False
           }
           Path('proof/revenue-sentinel-proof.json').write_text(json.dumps(proof, indent=2) + '\n', encoding='utf-8')
           print(json.dumps(proof, indent=2))

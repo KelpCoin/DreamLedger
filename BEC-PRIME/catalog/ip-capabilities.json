@@ -159,11 +159,22 @@
       "id": "PRODUCT-QUOTE-COMPARE-49",
       "name": "Supplier Quote Comparison",
       "category": "procurement_decision_support",
-      "summary": "Normalizes 2-5 supplier quotes into a source-backed decision packet covering price, scope, missing costs, MOQ, lead time and payment terms.",
+      "summary": "Normalizes 2-5 supplier quotes into an evidence-backed decision packet covering stated price, scope, missing costs, MOQ, lead time and payment terms, with untrusted buyer files treated as data only.",
       "commercialization": "one_time_digital_fulfillment",
-      "silo": "dreamledger",
+      "silo": "truth_oracle",
       "pricing_strategy": "fixed",
       "price": 49,
+      "currency": "NZD"
+    },
+    {
+      "id": "PRODUCT-SELLER-PROFIT-AUDIT-001",
+      "name": "Seller Profit Audit",
+      "category": "seller_profitability",
+      "summary": "Reviews seller-supplied item cost, selling price, shipping, fees and volume to produce a bounded margin and channel-cost audit without requesting payment credentials.",
+      "commercialization": "one_time_manual_digital_fulfillment",
+      "silo": "seller_tools",
+      "pricing_strategy": "fixed",
+      "price": 29,
       "currency": "NZD"
     }
   ],
