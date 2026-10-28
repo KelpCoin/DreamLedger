@@ -90,17 +90,14 @@
       "id": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
       "sku": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
       "name": "DreamLedger Founding Billboard",
-      "description": "NZ$50 founding 100x100 Internet Billboard tile. Verified active Stripe Payment Link collects a required label and optional HTTPS destination. Payment creates a submission for human review, NOT automatic publication; live inventory assignment and fulfilment evidence remain unverified.",
+      "description": "Billboard preview only. Paid placement checkout is temporarily held while secure intake and live inventory reservation are repaired. No purchase is accepted from the current billboard page.",
       "price": 50,
       "currency": "nzd",
       "status": "published",
-      "checkout_available": true,
-      "checkout_url": "https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w",
+      "checkout_available": false,
+      "checkout_url": null,
       "category": "public-placements",
-      "availability": "human_review_required",
-      "payment_link_id": "plink_1U9JGTEGgEAnUFF9WRg3CKk3",
-      "stripe_price_id": "price_1U8xD6EGgEAnUFF9KGrq2t7X",
-      "offer_page": "/billboard.html"
+      "availability": "review_required"
     },
     {
       "id": "COMMANDER-DECK-DIAGNOSTIC-001",
