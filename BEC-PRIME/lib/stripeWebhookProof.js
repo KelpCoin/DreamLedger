@@ -90,6 +90,7 @@ function verifyStripeSignature(rawBody, signatureHeader, webhookSecret) {
   const timestamp = parts.t;
   const signature = parts.v1;
   if (!timestamp || !signature) throw new Error('Invalid Stripe signature header');
+  if (!/^\d{9,12}$/.test(timestamp) || !Number.isSafeInteger(Number(timestamp))) throw new Error('Invalid Stripe timestamp');
   if (Math.abs(Date.now() / 1000 - Number(timestamp)) > 300) throw new Error('Expired Stripe signature');
   const expected = crypto.createHmac('sha256', webhookSecret).update(`${timestamp}.${rawBody}`, 'utf8').digest('hex');
   const a = Buffer.from(expected, 'utf8'); const b = Buffer.from(signature, 'utf8');
@@ -131,23 +132,99 @@ function buildRecords(session, lookups = {}) {
 }
 
 function writeProofArtifacts({ tx, proof, transactionId, taxTag }, dirs = resolveDirs()) {
-  const txFile = path.join(dirs.ledger, `${transactionId}.json`);
-  const proofFile = path.join(dirs.proofs, `${transactionId}.json`);
-  if (fs.existsSync(txFile)) return { ok: true, idempotent: true, transaction_id: transactionId, first_payment_proof_written: false };
-  fs.writeFileSync(txFile, JSON.stringify(tx, null, 2) + '\n', { flag: 'wx' });
-  fs.writeFileSync(proofFile, JSON.stringify(proof, null, 2) + '\n', { flag: 'wx' });
-  let firstWritten = false;
-  if (!fs.existsSync(dirs.firstProof)) {
-    try { fs.writeFileSync(dirs.firstProof, JSON.stringify(proof, null, 2) + '\n', { flag: 'wx' }); firstWritten = true; }
-    catch (e) { if (e.code !== 'EEXIST') throw e; }
+  // This is a LOCAL FILE SYSTEM proof writer, not a cross-host transaction service.
+  // It may run only on a single shared POSIX/NTFS volume. Production serverless fulfillment
+  // requires a separate durable database uniqueness/claim boundary before any delivery.
+  if (!/^cs_(?:live|test)_[a-zA-Z0-9_]{1,200}$/.test(String(transactionId || ''))) {
+    throw new Error('INVALID_STRIPE_SESSION_ID');
   }
-  const taxResult = taxLedger.appendTaxLedger({
-    date: new Date().toISOString(), transaction_id: transactionId,
-    amount_nzd: Number(tx.amount_total || 0) / 100, gst: Number(taxTag.gst_amount_minor || 0) / 100,
-    asset_id: tx.product_id || tx.offer_id || '', tax_tag: taxTag
-  });
-  return { ok: true, idempotent: false, transaction_id: transactionId, first_payment_proof_written: firstWritten,
-    ledger_path: txFile, proof_path: proofFile, first_payment_proof_path: dirs.firstProof, tax_ledger: taxResult };
+  const txFile = path.join(dirs.ledger, transactionId + '.json');
+  const proofFile = path.join(dirs.proofs, transactionId + '.json');
+  const claimDir = path.join(dirs.ledger, '.' + transactionId + '.processing');
+  fs.mkdirSync(dirs.ledger, { recursive: true });
+  fs.mkdirSync(dirs.proofs, { recursive: true });
+  // mkdir is an atomic claim on one shared filesystem. If the owner crashes and leaves
+  // a lock, quarantine and reconcile deliberately, never silently grant another copy.
+  try { fs.mkdirSync(claimDir); }
+  catch (e) {
+    if (e.code === 'EEXIST') {
+      const err = new Error('STRIPE_PROOF_CLAIM_BUSY_OR_STALE_REQUIRES_RECONCILIATION');
+      err.code = 'PROOF_CLAIM_BUSY';
+      throw err;
+    }
+    throw e;
+  }
+  try {
+    const immutable = ['transaction_id', 'product_id', 'offer_id', 'amount_total',
+      'currency', 'stripe_payment_intent', 'payment_link_id', 'payment_status'];
+    let idempotent = false;
+    if (fs.existsSync(txFile)) {
+      const previous = JSON.parse(fs.readFileSync(txFile, 'utf8'));
+      for (const field of immutable) {
+        if ((previous[field] ?? null) !== (tx[field] ?? null)) {
+          throw new Error('STRIPE_TRANSACTION_IDENTITY_COLLISION_' + field.toUpperCase());
+        }
+      }
+      idempotent = true;
+    } else {
+      try { fs.writeFileSync(txFile, JSON.stringify(tx, null, 2) + '\n', { flag: 'wx' }); }
+      catch (err) {
+        if (err.code === 'EEXIST') throw new Error('STRIPE_TRANSACTION_CLAIM_RACE');
+        throw err;
+      }
+    }
+
+    if (fs.existsSync(proofFile)) {
+      const previousProof = JSON.parse(fs.readFileSync(proofFile, 'utf8'));
+      if (previousProof.transaction_id !== transactionId ||
+          previousProof.payment_status !== 'paid' ||
+          previousProof.amount_total !== proof.amount_total ||
+          previousProof.currency !== proof.currency) {
+        throw new Error('STRIPE_PROOF_IDENTITY_COLLISION');
+      }
+    } else {
+      fs.writeFileSync(proofFile, JSON.stringify(proof, null, 2) + '\n', { flag: 'wx' });
+    }
+
+    let firstWritten = false;
+    try {
+      fs.writeFileSync(dirs.firstProof, JSON.stringify(proof, null, 2) + '\n', { flag: 'wx' });
+      firstWritten = true;
+    } catch (e) { if (e.code !== 'EEXIST') throw e; }
+
+    // The tax journal must be serialized even for DIFFERENT checkout session IDs.
+    // The existing appendTaxLedger checks transaction IDs before appending.
+    const taxLockDir = path.join(dirs.ledger, '.tax-ledger-processing');
+    try { fs.mkdirSync(taxLockDir); }
+    catch (e) {
+      if (e.code === 'EEXIST') {
+        const err = new Error('TAX_LEDGER_BUSY_OR_STALE_REQUIRES_RECONCILIATION');
+        err.code = 'TAX_LEDGER_BUSY';
+        throw err;
+      }
+      throw e;
+    }
+    let taxResult;
+    try {
+      taxResult = taxLedger.appendTaxLedger({
+        date: new Date().toISOString(), transaction_id: transactionId,
+        amount_nzd: Number(tx.amount_total || 0) / 100,
+        gst: Number(taxTag.gst_amount_minor || 0) / 100,
+        asset_id: tx.product_id || tx.offer_id || '', tax_tag: taxTag
+      });
+    } finally {
+      fs.rmdirSync(taxLockDir);
+    }
+    return {
+      ok: true, idempotent, transaction_id: transactionId,
+      first_payment_proof_written: firstWritten,
+      delivery_status: 'PENDING', fulfilled: false,
+      ledger_path: txFile, proof_path: proofFile,
+      first_payment_proof_path: dirs.firstProof, tax_ledger: taxResult
+    };
+  } finally {
+    fs.rmdirSync(claimDir);
+  }
 }
 
 function handleStripeWebhook(rawBody, signatureHeader, opts) {
@@ -159,7 +236,7 @@ function handleStripeWebhook(rawBody, signatureHeader, opts) {
   if (session.payment_status !== 'paid') return { received: true, handled: false, type: event.type, reason: 'payment_status_not_paid', payment_status: session.payment_status };
   recordTruthOracleWebhookEvent(event);
   const records = buildRecords(session, { getProduct, getProductByPaymentLink, getOffer });
-  return { received: true, handled: true, fulfilled: true, ...writeProofArtifacts(records, dirs || resolveDirs()) };
+  return { received: true, handled: true, ...writeProofArtifacts(records, dirs || resolveDirs()) };
 }
 
 module.exports = { resolveDirs, verifyStripeSignature, buildRecords, writeProofArtifacts, handleStripeWebhook, recordTruthOracleWebhookEvent };
