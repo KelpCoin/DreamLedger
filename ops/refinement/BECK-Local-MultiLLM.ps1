@@ -49,7 +49,7 @@ function Discover-Ollama {
     $response = Invoke-RestMethod -Uri "http://127.0.0.1:11434/api/tags" -Method Get -TimeoutSec 12
     $models = @($response.models | ForEach-Object { $_.name } | Where-Object { $_ -and $_.Trim() -ne "" } | Select-Object -Unique)
     if ($models.Count -lt 2) { throw "At least two distinct local Ollama models must be installed. Found: $($models.Count)" }
-    return ,@($models | Select-Object -First 3)
+    return @($models | Select-Object -First 3)
 }
 function Invoke-Local {
     Require-Command "node"
