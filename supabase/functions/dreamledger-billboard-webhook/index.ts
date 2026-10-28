@@ -6,6 +6,11 @@ const WEBHOOK_SECRET=Deno.env.get("STRIPE_WEBHOOK_SECRET")??"";
 const PAYMENT_LINK_ID="plink_1UCrekEGgEAnUFF9XVRM04aG";
 const PRICE_ID="price_1UCrecEGgEAnUFF9lximUXtk";
 const SKU="DREAMLEDGER-BILLBOARD-FOUNDING-001";
+// The live NZ$50 public page advertises a different payment link and form.
+// Explicitly reconcile both, never infer eligibility from amount alone.
+const PUBLIC_PAYMENT_LINK_ID="plink_1U9JGTEGgEAnUFF9WRg3CKk3";
+const PUBLIC_PRICE_ID="price_1U8xD6EGgEAnUFF9KGrq2t7X";
+const PUBLIC_SKU="DL-BILLBOARD-100X100-3000-001";
 const WIDTH=100,HEIGHT=100,PRICE_NZD=50,AMOUNT_MINOR=5000,MARKET="GLOBAL";
 const ACTIVE_STATUSES=["PUBLISHED","PAID_PENDING_REVIEW"];
 
@@ -79,21 +84,27 @@ Deno.serve(async req=>{
  if(event.livemode!==true)return json(200,{received:true,ignored:"test_mode_event"});
  if(event.type!=="checkout.session.completed")return json(200,{received:true,ignored:event.type});
  const s=event.data?.object||{},m=s.metadata||{};
- if(String(s.payment_link||"")!==PAYMENT_LINK_ID)return json(200,{received:true,ignored:"non_billboard_payment_link"});
- if(String(m.sku||"")!==SKU)return json(200,{received:true,ignored:"non_billboard_sku"});
+ const liveLink=String(s.payment_link||"");
+ const isPublic=liveLink===PUBLIC_PAYMENT_LINK_ID;
+ const isLegacy=liveLink===PAYMENT_LINK_ID;
+ if(!isPublic&&!isLegacy)return json(200,{received:true,ignored:"non_billboard_payment_link"});
+ const requiredSku=isPublic?PUBLIC_SKU:SKU,requiredPrice=isPublic?PUBLIC_PRICE_ID:PRICE_ID;
+ if(String(m.sku||"")!==requiredSku)return json(200,{received:true,ignored:"non_billboard_sku"});
  if(String(s.payment_status||"")!=="paid")return json(200,{received:true,ignored:"not_paid"});
  if(String(s.currency||"").toLowerCase()!=="nzd"||Number(s.amount_total)!==AMOUNT_MINOR)return json(400,{error:"Unexpected payment amount or currency"});
 
  const lr=await stripe("checkout/sessions/"+encodeURIComponent(String(s.id))+"/line_items?limit=100");
  if(!lr.ok)return json(502,{error:"Could not retrieve Stripe line items"});
  const li=await lr.json(),prices=(li.data||[]).map((i:any)=>String(i.price?.id||""));
- if(!prices.includes(PRICE_ID))return json(400,{error:"Canonical billboard price missing"});
+ if(!prices.includes(requiredPrice))return json(400,{error:"Canonical billboard price missing"});
 
- const label=field(s,"tile_alt_text").slice(0,120);
+ const label=field(s,isPublic?"billboard_label":"tile_alt_text").slice(0,isPublic?80:120);
  const destination=field(s,"destination_url");
- const image=field(s,"tile_image_url");
+ const image=isPublic?"":field(s,"tile_image_url");
  const email=String(s.customer_details?.email||s.customer_email||"").trim()||null;
- if(!label||!validHttps(destination)){
+ // Public link explicitly makes the HTTPS destination optional: text-only tiles
+ // have no target link. Never substitute a fabricated buyer destination.
+ if(!label||(!isPublic&&!validHttps(destination))||(destination&&!validHttps(destination))){
    const refunded=await refund(String(s.payment_intent||""),"invalid_billboard_intake");
    return json(refunded?200:500,{received:true,refunded,reason:"Required billboard intake was invalid"});
  }
@@ -120,7 +131,7 @@ Deno.serve(async req=>{
  const campaign={
    campaign_id:"BB-"+String(s.id).replace(/[^A-Za-z0-9_-]/g,"").slice(-24),
    market:MARKET,x:slot.x,y:slot.y,width:WIDTH,height:HEIGHT,price_nzd:PRICE_NZD,
-   owner_email:email,image_url:image||null,destination_url:destination,content_hash:contentHash,
+   owner_email:email,image_url:image||null,destination_url:destination||null,content_hash:contentHash,
    stripe_session_id:String(s.id),status:"PAID_PENDING_REVIEW",purchased_at:new Date().toISOString(),title:label
  };
  const ins=await db("billboard_campaigns",{method:"POST",headers:{Prefer:"resolution=ignore-duplicates,return=representation"},body:JSON.stringify(campaign)});
@@ -131,5 +142,6 @@ Deno.serve(async req=>{
    return json(refunded?200:500,{received:true,refunded,reason:"Billboard payment could not be safely reserved"});
  }
  const inserted=await ins.json();
- return json(200,{received:true,billboard:true,fulfillment:inserted?.[0]||{...campaign,owner_email:undefined}});
+ return json(200,{received:true,billboard:true,accepted_payment_link:liveLink,
+  fulfillment:inserted?.[0]||{...campaign,owner_email:undefined}});
 });
