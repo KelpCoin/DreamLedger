@@ -31,7 +31,7 @@ async function stripe(path:string,init:RequestInit={}){
 }
 async function refund(paymentIntent:string,reason:string){
  if(!STRIPE_SECRET_KEY||!paymentIntent)return false;
- const r=await stripe("refunds",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:new URLSearchParams({payment_intent:paymentIntent,reason:"requested_by_customer",metadata_reason:reason} as any)});
+ const r=await stripe("refunds",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:new URLSearchParams({payment_intent:paymentIntent,reason:"requested_by_customer","metadata[reason]":reason})});
  return r.ok;
 }
 function field(session:any,key:string){
