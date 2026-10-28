@@ -13,7 +13,7 @@ let insertOk=true;
 let healthRows=[];
 const fetchMock=async (url,init={})=>{
   const u=String(url),method=init.method||'GET',body=init.body?String(init.body):'';
-  calls.push({url:u,method,body});
+  calls.push({url:u,method,body,headers:init.headers||{}});
   if(u.startsWith('https://api.stripe.com/v1/checkout/sessions/')&&u.includes('/line_items')){
     return new Response(JSON.stringify({data:[{price:{id:activePrice}}]}),{status:200});
   }
@@ -124,7 +124,12 @@ calls=[];activePrice='price_1UCrecEGgEAnUFF9lximUXtk';
 calls=[];out=await deliver(base,'t=1,v1=broken');assert.equal(out.status,400);assert.equal(calls.length,0);
 calls=[];out=await deliver({...base,livemode:false});assert.equal(out.status,200);assert.equal(calls.length,0);
 calls=[];activePrice='wrong';out=await deliver(base);assert.equal(out.status,400);assert(!calls.some(x=>x.url.endsWith('/rest/v1/billboard_campaigns')&&x.method==='POST'));activePrice='price_1UCrecEGgEAnUFF9lximUXtk';
-calls=[];insertOk=false;out=await deliver(base);assert.equal(out.status,200);assert.equal(out.body.refunded,true);assert(calls.some(x=>x.url==='https://api.stripe.com/v1/refunds'));insertOk=true;
+calls=[];insertOk=false;out=await deliver(base);assert.equal(out.status,200);assert.equal(out.body.refunded,true);
+const refundCall=calls.find(x=>x.url==='https://api.stripe.com/v1/refunds');
+assert(refundCall);
+assert.equal(refundCall.headers['Idempotency-Key'],'beck-billboard-refund-pi_synthetic_only-billboard_reservation_failed',
+ 'retries must use same stable refund idempotency key');
+insertOk=true;
 healthRows=Array.from({length:100},(_,i)=>({campaign_id:'x'+i,status:'PUBLISHED',x:(i%10)*100,y:Math.floor(i/10)*100,width:100,height:100}));
 calls=[];r=await handler(new Request('https://example.supabase.co/functions/v1/dreamledger-billboard-webhook',{method:'GET'}));h=await r.json();assert.equal(r.status,503);assert.equal(h.remaining_units,0);
 
