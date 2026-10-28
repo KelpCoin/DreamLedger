@@ -48,6 +48,7 @@ const session = {
 
 const event = {
   id: 'evt_test_offline',
+  livemode: true, // synthetic offline fixture; no Stripe or customer was contacted
   type: 'checkout.session.completed',
   data: { object: session },
 };
@@ -67,6 +68,7 @@ verifyStripeSignature(raw, header, SECRET);
 const records = buildRecords(session, {
   getOffer: (id) => (id === offer.offer_id ? offer : null),
 });
+process.env.TAX_LEDGER_PATH = path.join(tmpRoot, 'tax', 'tax.csv');
 const first = writeProofArtifacts(records, dirs);
 if (!first.ok || first.idempotent || !first.first_payment_proof_written) {
   throw new Error('First write failed: ' + JSON.stringify(first));
@@ -80,7 +82,7 @@ const handled = handleStripeWebhook(raw, header, {
   getOffer: (id) => (id === offer.offer_id ? offer : null),
   dirs,
 });
-if (!handled.received || !handled.handled) {
+if (!handled.received || !handled.handled || handled.fulfilled !== false || handled.delivery_status !== 'PENDING') {
   throw new Error('Handler failed: ' + JSON.stringify(handled));
 }
 
