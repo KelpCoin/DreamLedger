@@ -1,6 +1,22 @@
 name: Revenue Sentinel
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - "public/home.html"
+      - "public/quote-compare-49.html"
+      - "public/quote-intake.html"
+      - "public/terms.html"
+      - "public/contact.html"
+      - "supabase/functions/quote-intake/index.ts"
+      - "supabase/functions/quote-fulfillment/index.ts"
+      - "supabase/functions/truth-oracle-execute/index.ts"
+      - "BEC-PRIME/catalog/offers/approved.json"
+      - "BEC-PRIME/fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json"
+      - "scripts/verify_quote_path_contract.py"
+      - "scripts/verify_revenue_identity_boundary.py"
+      - ".github/workflows/revenue-sentinel.yml"
   workflow_dispatch:
   schedule:
     - cron: '17 * * * *'
