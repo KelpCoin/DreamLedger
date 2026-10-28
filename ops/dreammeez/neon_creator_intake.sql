@@ -56,7 +56,7 @@ BEGIN
     OR p_title IS NULL OR length(p_title) NOT BETWEEN 2 AND 90
     OR p_artist IS NULL OR length(p_artist) NOT BETWEEN 2 AND 90
     OR p_filename IS NULL OR length(p_filename) NOT BETWEEN 1 AND 110
-    OR p_filename LIKE '%/%' OR p_filename LIKE '%\%'
+    OR p_filename LIKE '%/%' OR position(chr(92) in p_filename)>0
     OR p_slot NOT IN ('head','hair','face','neck','body','hands','back','feet','accessory')
     OR p_mime NOT IN ('image/png','image/jpeg','image/webp')
     OR p_base64 IS NULL OR length(p_base64)>1600100
