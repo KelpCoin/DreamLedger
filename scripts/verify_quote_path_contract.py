@@ -90,6 +90,10 @@ require("canonical webhook retains delivery queue receipt", 'from("fulfillment_r
 require("live sentinel probes paid-buyer return page HTTP 200", 'intake_code="$(curl' in sentinel and 'test "$intake_code" = "200"' in sentinel)
 require("live sentinel checks private quote intake signature", "Upload your supplier quotes" in sentinel and "noindex,nofollow" in sentinel)
 require("live sentinel verifies intake payment rejection marker", "PAYMENT_NOT_SETTLED" in sentinel)
+require("live sentinel rejects legacy manual-email buyer instructions", "QUOTE_BUYER_JOURNEY_DRIFT=FAIL" in sentinel and "manual review begins" in sentinel)
+require("live sentinel asserts live buyer journey matches redirect", "Stripe returns you to DreamLedger" in sentinel and "Upload privately" in sentinel)
+require("proposed public quote page matches private Stripe return route", "Stripe returns you to DreamLedger" in offer_page and "Upload privately" in offer_page)
+require("proposed public quote page does not promise manual fulfilment", "Manual review begins" not in offer_page and "this purchase uses the existing manual delivery process" not in offer_page)
 require("live sentinel does not count intake as paid delivery", "'verified_paid_fulfilled_quote_order': False" in sentinel)
 require("checkout handler has no literal escaped-newline statements", ";\\n" not in handler)
 
