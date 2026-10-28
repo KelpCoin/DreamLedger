@@ -12,7 +12,7 @@
     {"id":"truth","role":"independent_verification","paths":["CORTEX/truth_adapter.py","CORTEX/proof_writer.py"]},
     {"id":"agent_bridge","role":"worker_transport","paths":["CORTEX/cortex_execution_manifest.json"]},
     {"id":"marketplace","role":"inventory_and_commerce","paths":["BEC-PRIME/AGENTIC-COMMERCE-ENGINE.json","BEC-PRIME/COMMERCE/PURCHASE-TO-SHARE-LOOP-v1.json","BEC-PRIME/routes/platformCart.js","BEC-PRIME/lib/marketplaceOrderBridge.js"]},
-    {"id":"checkout","role":"checkout_creation","paths":["api/stripe-link.ts"]},
+    {"id":"checkout","role":"checkout_creation","paths":["handlers/stripe-link.ts"]},
     {"id":"public_discovery","role":"machine_discovery","paths":["public/agent.json","public/surfaces.json"]},
     {"id":"fulfilment","role":"settled_order_fulfilment","paths":["BEC-PRIME/lib/billboardAutoFulfillment.js"]},
     {"id":"replication","role":"validated_cell_replication","paths":["public/cube.json"]},
