@@ -1,1 +1,55 @@
-{"id":"DREAMLEDGER-BILLBOARD-FOUNDING-001","offer_id":"OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001","silo":"dreamledger","name":"DreamLedger Founding Tile","description":"Billboard preview only. Paid checkout is held until the secure intake and live inventory reservation routes are deployed and independently verified.","price":50,"currency":"nzd","inventory_pixels":1000000,"placement_pixels":10000,"status":"review_required","commercial_truth":{"approval_required":true,"content_approval_required":true,"activation_gate":"STRIPE_PAYMENT_VERIFIED_AND_HUMAN_REVIEW","payment_surface":"stripe-payment-link","payment_link":null,"stripe_payment_link_id":"plink_1UCrekEGgEAnUFF9XVRM04aG","stripe_product_id":"prod_VDIEQ5D44TZA9q","stripe_price_id":"price_1UCrecEGgEAnUFF9lximUXtk","market":"GLOBAL","scarcity":"1000000_pixel_canvas","fulfillment":"verified_payment_allocation_then_human_content_approval","refund_rules":"Apply the published checkout policy; payment alone is not represented as final publication.","checkoutable_without_connected_account":true,"evidence_status":"checkout_held_missing_public_intake"},"checkout":{"mode":"payment_link","success_path":"/billboard","cancel_path":"/cancel","required_fields":["destination_url","tile_alt_text"],"optional_fields":["tile_image_url"],"optional_addon":null},"delivery":{"type":"digital_billboard_placement","target":"dreamledger-public-billboard","dimensions":"100x100","permanence":"until_3000_01_01","automation":"verified_stripe_payment -> signed_webhook -> atomic_grid_allocation -> paid_pending_review -> publication -> durable_proof"},"evidence":{"status":"review_required","transaction_id":null},"execution_atom":"EXP-2026-08-27-001"}
+{
+  "id": "DREAMLEDGER-BILLBOARD-FOUNDING-001",
+  "offer_id": "OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001",
+  "silo": "dreamledger",
+  "name": "DreamLedger Founding Tile",
+  "description": "One NZ$50 founding 100×100 digital placement on the DreamLedger canvas. Stripe captures required buyer intake and caps the offer at 100 completed purchases; publication follows human content review.",
+  "price": 50,
+  "currency": "nzd",
+  "inventory_pixels": 1000000,
+  "placement_pixels": 10000,
+  "status": "published",
+  "commercial_truth": {
+    "approval_required": true,
+    "content_approval_required": true,
+    "activation_gate": "STRIPE_PAYMENT_VERIFIED_AND_HUMAN_REVIEW",
+    "payment_surface": "stripe-payment-link",
+    "payment_link": "https://buy.stripe.com/9B66oH2rj3dz82jcR6dwc2x",
+    "stripe_payment_link_id": "plink_1UCrekEGgEAnUFF9XVRM04aG",
+    "stripe_product_id": "prod_VDIEQ5D44TZA9q",
+    "stripe_price_id": "price_1UCrecEGgEAnUFF9lximUXtk",
+    "market": "GLOBAL",
+    "scarcity": "1000000_pixel_canvas",
+    "fulfillment": "verified_payment_allocation_then_human_content_approval",
+    "refund_rules": "Apply the published checkout policy; payment alone is not represented as final publication.",
+    "checkoutable_without_connected_account": true,
+    "evidence_status": "stripe_live_capped_manual_publication_fallback",
+    "inventory_gate": "stripe_completed_sessions_limit_100"
+  },
+  "checkout": {
+    "mode": "payment_link",
+    "success_path": "/billboard",
+    "cancel_path": "/cancel",
+    "required_fields": [
+      "destination_url",
+      "tile_alt_text"
+    ],
+    "optional_fields": [
+      "tile_image_url"
+    ],
+    "optional_addon": null
+  },
+  "delivery": {
+    "type": "digital_billboard_placement",
+    "target": "dreamledger-public-billboard",
+    "dimensions": "100x100",
+    "permanence": "until_3000_01_01",
+    "automation": "verified_stripe_payment -> durable_stripe_intake -> human_content_review -> git_approved_publication -> durable_public_proof; Supabase reservation automation remains non-gating while its data plane is unhealthy"
+  },
+  "evidence": {
+    "status": "checkout_live_no_external_sale_yet",
+    "transaction_id": null
+  },
+  "execution_atom": "EXP-2026-08-27-001",
+  "inventory_units": 100
+}
