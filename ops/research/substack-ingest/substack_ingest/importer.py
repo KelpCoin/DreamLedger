@@ -4,7 +4,7 @@ import json
 import os
 import re
 from pathlib import Path
-from . import core, bundle
+from . import core, bundle, privacy
 
 ARTICLE_ID = re.compile(r'^[0-9a-f]{64}$')
 REQUIRED = ('id', 'feed_url', 'feed_name', 'title', 'author', 'published', 'link',
@@ -31,6 +31,8 @@ def validate_record(article):
 
 
 def import_bundle(bundle_dir, kb_dir):
+    privacy.require_private_path(bundle_dir, "Synced research bundle")
+    kb_dir = privacy.require_private_path(kb_dir, "Local research knowledge base")
     verified = bundle.verify_bundle(bundle_dir)
     if not verified['ok']:
         raise ValueError('bundle failed verification: %s' % verified['problems'])
