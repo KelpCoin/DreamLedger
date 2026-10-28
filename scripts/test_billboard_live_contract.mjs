@@ -10,8 +10,10 @@ const edgePath='supabase/functions/dreamledger-billboard-webhook/index.ts';
 const source=readFileSync(edgePath,'utf8').replace(/^import\s+["']jsr:[^\n]+\n/m,'');
 const page=readFileSync('public/billboard.html','utf8');
 assert(page.includes('NZ$50')&&page.includes('100 x 100'));
-assert(page.includes('https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w'));
-assert(!page.includes('https://buy.stripe.com/9B66oH2rj3dz82jcR6dwc2x'));
+assert(page.includes('Checkout temporarily held'), 'Billboard checkout must remain held until live acceptance proof');
+assert(!page.includes('https://buy.stripe.com/'), 'Held billboard may not link to active Stripe payments');
+const redirect=readFileSync('public/buy/dreamledger-billboard-founding-001/index.html','utf8');
+assert(!redirect.includes('buy.stripe.com/'), 'Legacy entry must not bypass held checkout');
 assert(page.includes('DEMO ONLY')&&page.includes('Biggie Still Here'));
 assert(page.includes('content review')||page.includes('content policy'));
 
