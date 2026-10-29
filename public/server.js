@@ -10,7 +10,7 @@ const ROOT=__dirname;
 const ENGINE_INTERNAL_URL=String(process.env.ENGINE_INTERNAL_URL||'').replace(/\/$/,'');
 const ENGINE_INTERNAL_API_KEY=String(process.env.ENGINE_INTERNAL_API_KEY||'');
 const PUBLIC_FILES={
-  '/':'index.html','/index.html':'index.html','/status':'status.html','/status/':'status.html','/status.html':'status.html',
+  '/':'home.html','/index.html':'home.html','/status':'status.html','/status/':'status.html','/status.html':'status.html',
   '/about':'about.html','/about/':'about.html','/privacy':'privacy.html','/privacy/':'privacy.html','/privacy.html':'privacy.html','/terms':'terms.html','/terms/':'terms.html','/terms.html':'terms.html','/security':'security.html','/security/':'security.html','/security.html':'security.html','/contact':'contact.html','/contact/':'contact.html','/trust':'trust.html','/trust/':'trust.html',
   '/catalogue':'catalogue.html','/catalogue/':'catalogue.html','/catalogue.html':'catalogue.html',
   '/app.js':'app.js',
