@@ -94,3 +94,14 @@ test('compiled candidate conforms to generic manifest schema without domain surg
  assert.ok(!schema.required.includes('price_nzd'));
  assert.ok(!schema.required.includes('stripe_product_id'));
 });
+
+test('committed real master and unrelated example both compile to empty private candidates',()=>{
+ for(const name of ['mtg-master.json','baby-kids.example.json']){
+  const config=JSON.parse(fs.readFileSync(path.join(__dirname,'examples',name),'utf8'));
+  const out=compileSilo(config);
+  assert.equal(out.manifest.state,'draft');
+  assert.equal(out.manifest.checkout_enabled,false);
+  assert.equal(out.catalogue.products.length,0);
+  assert.equal(out.seedReview.candidates.length,0);
+ }
+});
