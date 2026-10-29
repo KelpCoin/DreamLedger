@@ -1,0 +1,61 @@
+{
+  "schema": "dreamledger/agent-bridge-ping/v1",
+  "ping_id": "ping-2026-10-30-biggie-visibility",
+  "from": "grok-cloud",
+  "mode": "hybrid",
+  "ball": "C",
+  "intent": "handoff",
+  "summary": "BIGGIE VISIBILITY PACK. Monetization, billboard, and CI status consolidated so operator can see everything in one place. Revenue still NZ$0.",
+  "reads": [
+    "AGENT_BUS/PING_PONG_BALLS.json",
+    "AGENT_BUS/BRIDGE/outbox/2026-10-30-MONETIZE-NOW.json",
+    "ops/money/SELL-SCRIPTS.txt",
+    "ops/money/STRIPE-BUNDLE-CHECKLIST.md",
+    "ops/money/FIRST-SALE-READINESS.json",
+    "public/billboard.html",
+    ".github/workflows/billboard-contract.yml",
+    ".github/workflows/commerce-settlement-sync.yml"
+  ],
+  "writes": [
+    "AGENT_BUS/BRIDGE/outbox/2026-10-30-BIGGIE-VISIBILITY-PACK.json",
+    "AGENT_BUS/BRIDGE/outbox/2026-10-30-MONETIZE-NOW.json",
+    "AGENT_BUS/PING_PONG_BALLS.json",
+    "ops/money/COPY-PASTE-NOW.txt",
+    "public/billboard.html"
+  ],
+  "revenue_claim_nzd": 0,
+  "needs_human": true,
+  "truth_label": "UNVERIFIED",
+  "created_at": "2026-10-30T10:55:00+13:00",
+  "owner_node": "cloud",
+  "addressed_to": "biggie",
+  "operator_snapshot": {
+    "verified_external_revenue_nzd": 0,
+    "ball_c": "Distribute live offers + create $99/$129 Stripe links. No new SKUs.",
+    "live_offers": [
+      {"sku": "kit-79", "url": "https://dreamledger.org/buy/DISCORD-WEBHOOK-STARTER-KIT-001"},
+      {"sku": "diag-29", "url": "https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001"},
+      {"sku": "tile-50", "url": "https://dreamledger.org/billboard"}
+    ],
+    "must_do_today": [
+      "Post $79 kit Script 1 on one owned authorized channel",
+      "Create Stripe $99 Builder + $129 Founder links (STRIPE-BUNDLE-CHECKLIST.md)",
+      "Send 3 warm DMs from SELL-SCRIPTS.txt"
+    ],
+    "ci_status": {
+      "billboard_contract": "present — runs on billboard path changes",
+      "commerce_settlement_sync": "present — tile/diag/quote every 10 min + on main",
+      "bridge_evidence_gate": "present in llm-supabase-github-bridge"
+    },
+    "billboard_improvements": [
+      "Canonical URL standardized to /billboard",
+      "Scarcity line + clearer founder framing without inventing demand",
+      "Copy-paste scripts aligned to live /billboard path"
+    ]
+  },
+  "do_not": [
+    "Claim revenue",
+    "New SKUs before 3 paid fulfils",
+    "Discount below floors"
+  ]
+}
