@@ -1,0 +1,27 @@
+name: MTG Master Silo Safety Gate
+on:
+  pull_request:
+    paths:
+      - 'public/mtg/**'
+      - 'public/data/mtg-catalog.json'
+      - 'public/catalog.json'
+      - 'scripts/verify-mtg-master.cjs'
+      - '.github/workflows/mtg-master-safety.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  catalogue-safety:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify fail-closed storefront and produce proof
+        run: node scripts/verify-mtg-master.cjs > mtg-master-proof.json
+      - name: Publish evidence artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mtg-master-proof
+          path: mtg-master-proof.json
