@@ -11,6 +11,8 @@
   var STREAK_KEY = 'dreammeez_streak_v1';
 
   var ALLOWED_SURFACES = ['web', 'phinhaven', 'dreammeez'];
+  var VERIFIED_OWNED = [];
+  var VERIFIED_LOADED = false;
 
   /** Catalog: impulse tier NZ$2–5. Dual surface metadata. */
   var COSMETIC_CATALOG = [
@@ -21,7 +23,6 @@
       slot: 'face',
       tier: 'impulse',
       web: { className: 'cos-shades', color: '#39ff14' },
-      phinhaven: { buff: 'perception', magnitude: 1, label: '+1 Perception in Shallows' }
     },
     {
       id: 'ember-scarf',
@@ -30,7 +31,6 @@
       slot: 'neck',
       tier: 'impulse',
       web: { className: 'cos-scarf', color: '#e85d04' },
-      phinhaven: { buff: 'warmth', magnitude: 1, label: 'Resist chill on Floor 1' }
     },
     {
       id: 'kelp-hoodie',
@@ -39,7 +39,6 @@
       slot: 'body',
       tier: 'impulse',
       web: { className: 'cos-hoodie', color: '#1b4332' },
-      phinhaven: { buff: 'carry', magnitude: 1, label: '+1 inventory slot (cosmetic tier)' }
     },
     {
       id: 'star-bun',
@@ -48,7 +47,6 @@
       slot: 'hair',
       tier: 'impulse',
       web: { className: 'hair-bun', color: '#c9a227' },
-      phinhaven: { buff: 'luck', magnitude: 1, label: '+1 rare drop luck (display)' }
     },
     {
       id: 'violet-fringe',
@@ -57,7 +55,6 @@
       slot: 'hair',
       tier: 'impulse',
       web: { className: 'hair-fringe', color: '#7b2cbf' },
-      phinhaven: { buff: 'focus', magnitude: 1, label: '+1 focus on puzzles' }
     },
     {
       id: 'chrome-boots',
@@ -66,7 +63,6 @@
       slot: 'feet',
       tier: 'impulse',
       web: { className: 'cos-boots', color: '#c0c0c0' },
-      phinhaven: { buff: 'speed', magnitude: 1, label: '+1 move speed (cosmetic)' }
     },
     {
       id: 'founder-cloak',
@@ -75,7 +71,6 @@
       slot: 'back',
       tier: 'impulse',
       web: { className: 'cos-cloak', color: '#c9a04a' },
-      phinhaven: { buff: 'presence', magnitude: 1, label: 'Nameplate glow in Phinhaven' }
     },
     {
       id: 'dragon-mark',
@@ -84,10 +79,31 @@
       slot: 'face',
       tier: 'impulse',
       web: { className: 'cos-mark', color: '#e63946' },
-      phinhaven: { buff: 'threat', magnitude: 1, label: 'Cosmetic threat aura' }
     }
   ];
 
+  COSMETIC_CATALOG.forEach(function(item) {
+    item.item_id = item.id;
+    item.visual = { thumbnail_ref:null };
+    item.rarity = 'common';
+    item.consuming_systems = { avatar:{
+      compatible:true, cosmetic_slot:item.slot, display_priority:0, web:item.web
+    } };
+  });
+  function toAvatarEquip(item) {
+    var av = item && item.consuming_systems && item.consuming_systems.avatar;
+    if (!av || av.compatible!==true || !av.cosmetic_slot) return null;
+    return {id:item.item_id,item_id:item.item_id,name:item.name,slot:av.cosmetic_slot,
+      web:av.web||null,visual:item.visual||null,rarity:item.rarity,priority:av.display_priority||0};
+  }
+  function verified(state) {
+    state.owned = VERIFIED_LOADED ? VERIFIED_OWNED.slice() : [];
+    if(!state.equipped || typeof state.equipped!=='object')state.equipped={};
+    Object.keys(state.equipped).forEach(function(slot) {
+      if(VERIFIED_OWNED.indexOf(state.equipped[slot])===-1)state.equipped[slot]=null;
+    });
+    return state;
+  }
   function defaultState() {
     return {
       schema: 'dreamledger-avatar-identity-v1',
@@ -107,48 +123,65 @@
   function load() {
     try {
       var raw = global.localStorage.getItem(STORAGE_KEY);
-      if (!raw) return defaultState();
+      if (!raw) return verified(defaultState());
       var s = JSON.parse(raw);
       var d = defaultState();
       Object.keys(d).forEach(function (k) {
         if (s[k] !== undefined) d[k] = s[k];
       });
       if (!d.equipped || typeof d.equipped !== 'object') d.equipped = defaultState().equipped;
-      if (!Array.isArray(d.owned)) d.owned = [];
-      return d;
+      return verified(d);
     } catch (e) {
-      return defaultState();
+      return verified(defaultState());
     }
   }
 
   function save(state) {
     state = state || load();
     state.updated_at = new Date().toISOString();
-    global.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    try {
-      global.dispatchEvent(new CustomEvent('dreamledger:avatar-updated', { detail: state }));
-    } catch (e) {}
-    return state;
+    var stored = Object.assign({},state,{owned:[]});
+    global.localStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
+    var current=load();
+    try { global.dispatchEvent(new CustomEvent('dreamledger:avatar-updated',{detail:current})); }
+    catch(e){}
+    return current;
   }
 
   function getCosmetic(id) {
     for (var i = 0; i < COSMETIC_CATALOG.length; i++) {
-      if (COSMETIC_CATALOG[i].id === id) return COSMETIC_CATALOG[i];
+      if (COSMETIC_CATALOG[i].id === id) return toAvatarEquip(COSMETIC_CATALOG[i]);
     }
     return null;
   }
 
-  function own(id) {
-    var s = load();
-    if (s.owned.indexOf(id) === -1) s.owned.push(id);
-    return save(s);
+  // Deprecated: a browser cannot grant a purchased entitlement.
+  function own(id) { return load(); }
+  async function refreshEntitlements() {
+    VERIFIED_OWNED = []; VERIFIED_LOADED = false;
+    try {
+      var result=await global.fetch('/api/dreammeez/entitlements',{
+        method:'GET',credentials:'same-origin',cache:'no-store'
+      });
+      if(!result.ok)throw Error('ENTITLEMENTS_NOT_AVAILABLE');
+      var payload=await result.json();
+      if(!payload || payload.verified_source!=='server' || !Array.isArray(payload.owned))
+        throw Error('ENTITLEMENTS_INVALID');
+      VERIFIED_OWNED = [...new Set(payload.owned.filter(function(id){
+        return typeof id==='string' && !!getCosmetic(id);
+      }))];
+      VERIFIED_LOADED = true;
+    } catch(e) { VERIFIED_OWNED=[]; }
+    var current=load();
+    try{global.dispatchEvent(new CustomEvent('dreamledger:avatar-updated',{detail:current}));}
+    catch(e){}
+    return current;
   }
 
   function equip(id) {
     var item = getCosmetic(id);
     if (!item) return load();
     var s = load();
-    if (s.owned.indexOf(id) === -1) return s;
+    if (!VERIFIED_LOADED || VERIFIED_OWNED.indexOf(id) === -1) return s;
     s.equipped[item.slot] = id;
     // hair cosmetics also set style/color when equipped
     if (item.slot === 'hair' && item.web) {
@@ -176,14 +209,9 @@
       if (!id) return;
       var item = getCosmetic(id);
       if (!item) return;
-      equipped.push({
-        id: item.id,
-        slot: item.slot,
-        name: item.name,
-        web: item.web,
-        phinhaven: item.phinhaven
-      });
-      if (surface === 'phinhaven' && item.phinhaven) buffs.push(item.phinhaven);
+      // Client payload is a preview, never game entitlement proof.
+      if(VERIFIED_LOADED && VERIFIED_OWNED.indexOf(id)!==-1)
+        equipped.push({id:item.id,slot:item.slot,name:item.name,web:item.web});
     });
     return {
       schema: 'dreamledger-avatar-surface-v1',
@@ -198,8 +226,9 @@
         hair: s.hair
       },
       equipped: equipped,
-      buffs: buffs,
-      owned: s.owned.slice(),
+      buffs: [],
+      owned: VERIFIED_LOADED ? VERIFIED_OWNED.slice() : [],
+      gameplay_authoritative: false,
       updated_at: s.updated_at
     };
   }
@@ -217,10 +246,11 @@
           sku: e.id,
           slot: e.slot,
           visual: e.web,
-          buff: e.phinhaven || null
+          buff: null
         };
       }),
-      active_buffs: payload.buffs,
+      active_buffs: [],
+      gameplay_authoritative: false,
       body: payload.body
     };
   }
@@ -231,6 +261,8 @@
     load: load,
     save: save,
     own: own,
+    toAvatarEquip: toAvatarEquip,
+    refreshEntitlements: refreshEntitlements,
     equip: equip,
     unequip: unequip,
     getCosmetic: getCosmetic,

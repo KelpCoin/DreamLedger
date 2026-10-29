@@ -4,13 +4,69 @@ on:
     paths:
       - 'public/**'
       - 'vercel.json'
+      - 'package.json'
+      - 'handlers/cube/marketplace.js'
+      - 'handlers/cube/marketplace.test.js'
+      - 'handlers/cube/silos.js'
+      - 'handlers/cube/silos.test.js'
+      - 'handlers/cube/community.js'
+      - 'handlers/cube/community.test.js'
+      - 'handlers/cube/listing-intake.js'
+      - 'handlers/cube/listing-intake.test.js'
+      - 'migrations/20261029_cube_v2_listing_intake.sql'
+      - 'migrations/20261029_cube_v2_unpaid_hold_reaper.sql'
+      - 'migrations/20261029_cube_v2_community.sql'
+      - 'BEC-PRIME/cube/CUBE-CLONE-CONTRACT.json'
+      - 'BEC-PRIME/cube/CUBE-CLONE-MANIFEST.schema.json'
+      - 'BEC-PRIME/cube/CUBE-SILO-FACTORY-CONTRACT.json'
+      - 'BEC-PRIME/cube/clone-silo*'
+      - 'BEC-PRIME/cube/examples/**'
+      - 'BEC-PRIME/cube/silo-health*'
+      - 'BEC-PRIME/cube/order-lifecycle*'
+      - 'migrations/20261029_cube_v2_domain_neutral_supply.sql'
+      - 'migrations/20261029_cube_v2_expired_hold_recovery.sql'
+      - 'handlers/dreammeez/**'
+      - 'BEC-PRIME/compiled/website/lib/accountAuth.js'
+      - 'BEC-PRIME/compiled/website/lib/signedSession*'
+      - 'handlers/cube/stripeWebhookSignature.js'
+      - 'handlers/cube/stripeWebhookSignature.test.js'
+      - 'handlers/cube/stripe-webhook.ts'
+      - 'handlers/stripe-link.ts'
       - 'scripts/verify-vercel-public-release.cjs'
       - '.github/workflows/vercel-public-release-contract.yml'
   push:
-    branches: [main]
+    branches: [main, beck/vercel-neon-commerce-contract-20261029]
     paths:
       - 'public/**'
       - 'vercel.json'
+      - 'package.json'
+      - 'handlers/cube/marketplace.js'
+      - 'handlers/cube/marketplace.test.js'
+      - 'handlers/cube/silos.js'
+      - 'handlers/cube/silos.test.js'
+      - 'handlers/cube/community.js'
+      - 'handlers/cube/community.test.js'
+      - 'handlers/cube/listing-intake.js'
+      - 'handlers/cube/listing-intake.test.js'
+      - 'migrations/20261029_cube_v2_listing_intake.sql'
+      - 'migrations/20261029_cube_v2_unpaid_hold_reaper.sql'
+      - 'migrations/20261029_cube_v2_community.sql'
+      - 'BEC-PRIME/cube/CUBE-CLONE-CONTRACT.json'
+      - 'BEC-PRIME/cube/CUBE-CLONE-MANIFEST.schema.json'
+      - 'BEC-PRIME/cube/CUBE-SILO-FACTORY-CONTRACT.json'
+      - 'BEC-PRIME/cube/clone-silo*'
+      - 'BEC-PRIME/cube/examples/**'
+      - 'BEC-PRIME/cube/silo-health*'
+      - 'BEC-PRIME/cube/order-lifecycle*'
+      - 'migrations/20261029_cube_v2_domain_neutral_supply.sql'
+      - 'migrations/20261029_cube_v2_expired_hold_recovery.sql'
+      - 'handlers/dreammeez/**'
+      - 'BEC-PRIME/compiled/website/lib/accountAuth.js'
+      - 'BEC-PRIME/compiled/website/lib/signedSession*'
+      - 'handlers/cube/stripeWebhookSignature.js'
+      - 'handlers/cube/stripeWebhookSignature.test.js'
+      - 'handlers/cube/stripe-webhook.ts'
+      - 'handlers/stripe-link.ts'
       - 'scripts/verify-vercel-public-release.cjs'
       - '.github/workflows/vercel-public-release-contract.yml'
 permissions:
@@ -23,3 +79,39 @@ jobs:
       - uses: actions/checkout@v4
       - name: Verify actual public portfolio release tree
         run: node scripts/verify-vercel-public-release.cjs
+      - name: Adversarial Neon marketplace read-only contract
+        run: |
+          node --check handlers/cube/marketplace.js
+          node --test handlers/cube/marketplace.test.js handlers/cube/stripeWebhookSignature.test.js
+          node --test handlers/cube/silos.test.js BEC-PRIME/cube/clone-silo.test.js
+          node --test BEC-PRIME/cube/silo-health.test.js
+          node --test BEC-PRIME/cube/order-lifecycle.test.js
+          grep -q "provider_checkout_id IS NULL AND provider_event_id IS NULL" migrations/20261029_cube_v2_unpaid_hold_reaper.sql
+          grep -q "FOR UPDATE SKIP LOCKED" migrations/20261029_cube_v2_unpaid_hold_reaper.sql
+          node --check BEC-PRIME/cube/order-lifecycle.js
+          test -f migrations/20261029_cube_v2_expired_hold_recovery.sql
+          grep -q 'provider_checkout_id IS NULL' migrations/20261029_cube_v2_expired_hold_recovery.sql
+          grep -q 'provider_event_id IS NULL' migrations/20261029_cube_v2_expired_hold_recovery.sql
+          node --check BEC-PRIME/cube/silo-health.js
+          node --test handlers/cube/community.test.js
+          node --test handlers/cube/listing-intake.test.js
+          node --check handlers/cube/listing-intake.js
+          node --check handlers/cube/community.js
+          node --check handlers/cube/silos.js
+          node --check BEC-PRIME/cube/clone-silo.js
+          if grep -E "silo_id[[:space:]]*=[[:space:]]*'mtg'|silo_id[[:space:]]*<>[[:space:]]*'mtg'" migrations/20261029_cube_v2_domain_neutral_supply.sql handlers/cube/marketplace.js; then
+            echo 'DOMAIN_LEAK_IN_SHARED_CUBE'; exit 1
+          fi
+          node --check public/mtg/catalogue.js
+          node --test public/mtg/catalogue.test.js
+          node --check public/billboard-preview.js
+          node --test public/billboard-preview.test.js
+          node --test BEC-PRIME/compiled/website/lib/signedSession.test.js handlers/dreammeez/entitlements.test.js public/assets/avatar-identity.test.js
+          node --check public/assets/avatar-identity.js
+          node --check handlers/dreammeez/entitlements.js
+          node --check BEC-PRIME/compiled/website/lib/accountAuth.js
+          node --check BEC-PRIME/compiled/website/lib/signedSession.js
+          if grep -iE 'SUPABASE|dreamiez_session|readFileSync|writeFileSync' handlers/cube/marketplace.js; then
+            echo 'UNSAFE_MARKETPLACE_BACKEND'; exit 1
+          fi
+

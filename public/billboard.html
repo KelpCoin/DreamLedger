@@ -14,7 +14,7 @@ a{color:inherit}.wrap{width:min(var(--max),calc(100% - 36px));margin-inline:auto
 header{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:72px;border-bottom:1px solid var(--line)}
 .logo{font-size:15px;font-weight:950;letter-spacing:-.065em;text-decoration:none}.logo span{color:var(--signal)}.crumb{font-size:12px;color:var(--muted);text-decoration:none}
 main{padding:72px 0 60px}.eyebrow{margin:0 0 12px;color:var(--signal);font-size:11px;font-weight:850;letter-spacing:.18em;text-transform:uppercase}
-.hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(285px,370px);gap:38px;align-items:center}
+.hero{display:grid;grid-template-columns:minmax(280px,.73fr) minmax(540px,1.27fr);gap:32px;align-items:start}
 h1,h2,h3{font-family:"Space Grotesk",Inter,"Segoe UI",system-ui,sans-serif;letter-spacing:-.065em}h1{font-size:clamp(50px,8vw,110px);line-height:.91;margin:0 0 22px;max-width:850px}h1 strong{color:var(--signal)}
 .lead{color:var(--muted);font-size:clamp(16px,1.8vw,20px);max-width:660px;margin:0 0 24px}
 .offerline{display:flex;align-items:baseline;gap:12px;margin:16px 0 25px;flex-wrap:wrap}
@@ -25,8 +25,25 @@ h1,h2,h3{font-family:"Space Grotesk",Inter,"Segoe UI",system-ui,sans-serif;lette
 .button.secondary{background:transparent;color:var(--ink);border-color:#59687a}
 .actions{display:flex;gap:12px;flex-wrap:wrap}.small{color:var(--muted);font-size:12px;line-height:1.6}
 .display{padding:18px;border:1px solid var(--line);border-radius:22px;background:linear-gradient(155deg,#17202c,#0d1119);box-shadow:0 22px 60px #0006}
-.screen{min-height:278px;border:1px solid #455063;background:repeating-linear-gradient(0deg,#1c2630 0,#1c2630 1px,transparent 1px,transparent 25px),repeating-linear-gradient(90deg,#1c2630 0,#1c2630 1px,transparent 1px,transparent 25px),#0b1018;border-radius:13px;display:grid;place-items:center;padding:25px}
-.tile{height:160px;width:160px;display:grid;place-items:center;text-align:center;padding:13px;background:var(--signal);color:#080b10;border:3px solid #05080d;font-weight:950;font-size:20px;line-height:1.05;letter-spacing:-.045em;overflow-wrap:anywhere;box-shadow:0 15px 25px #0008}
+.billboard-preview-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:15px}
+.preview-panel{min-width:0;border:1px solid #354454;background:#0b111a;border-radius:14px;padding:12px}
+.preview-heading{font-size:11px;font-weight:900;letter-spacing:.11em;color:#e2ebf1;text-transform:uppercase;display:flex;justify-content:space-between;gap:8px;margin:0 0 12px}
+.preview-heading small{font-size:10px;letter-spacing:0;color:var(--muted);font-weight:600}
+.sample-board{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:2px;aspect-ratio:1;width:100%;background:#0e161f;border:2px solid #596879;padding:3px;border-radius:7px}
+.board-cell{display:block;min-width:0;min-height:0;background:#192736;border:1px solid #304153}
+.board-cell:nth-child(3n){background:#1f2b3b}.board-cell:nth-child(7n){background:#273246}
+.board-sample,.board-cell.board-sample:nth-child(n){display:grid;place-items:center;color:#081012;background:var(--signal);border-color:#e6ff9b;box-shadow:inset 0 0 0 1px #e6ff9b;font-weight:950;font-size:clamp(12px,2vw,20px)}
+.zoom-frame{display:grid;place-items:center;min-height:230px}
+.tile-zoom{width:min(100%,240px);aspect-ratio:1;display:grid;place-items:center;text-align:center;padding:17px;background:var(--signal);color:#081012;border:4px solid #eaffb0;border-radius:3px;box-shadow:0 16px 30px #0008}
+.tile-zoom span,.tile-actual span{display:block;max-width:100%;width:100%;font-weight:950;line-height:1.05;letter-spacing:-.025em;overflow-wrap:anywhere;word-break:break-word;white-space:normal}
+.tile-actual{flex:none;width:100px;height:100px;display:grid;place-items:center;text-align:center;padding:7px;background:var(--signal);color:#081012;border:2px solid #eaffb0}
+.actual-row{display:flex;align-items:center;gap:13px;margin-top:10px;padding-top:12px;border-top:1px solid #354454}
+.actual-row p{margin:0;color:var(--muted);font-size:12px}
+.full-label{margin:5px 0 10px;font-size:17px;line-height:1.35;font-weight:850;overflow-wrap:anywhere;color:var(--ink)}
+.legibility{font-size:12px;line-height:1.5;color:var(--muted);margin:5px 0}
+.preview-hint{margin:10px 0 0;font-size:12px;color:var(--muted);line-height:1.4}
+.input-heading{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.input-heading output{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
 .previewtag{font-size:11px;font-weight:900;letter-spacing:.16em;color:var(--signal);margin:16px 0 8px}
 .input-label{display:block;color:#c2cdd7;font-size:12px;margin-bottom:5px}
 input{width:100%;background:#080b10;border:1px solid #526074;border-radius:9px;color:#fff;padding:12px;font:inherit;min-height:46px}
@@ -36,8 +53,9 @@ input{width:100%;background:#080b10;border:1px solid #526074;border-radius:9px;c
 .rules{padding:24px;border:1px solid var(--line);border-radius:17px;background:#0e141e;display:grid;grid-template-columns:1fr 1fr;gap:30px}.rules p{margin:0 0 12px;color:var(--muted);font-size:14px}.rules b{color:var(--ink)}
 .fine{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
 .live-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}.live-card{border:1px solid var(--line);border-radius:14px;padding:18px;min-height:130px;background:#121b28;text-decoration:none;display:flex;flex-direction:column;justify-content:space-between;overflow-wrap:anywhere}.live-card:hover{border-color:var(--signal)}.live-card strong{font-size:18px;line-height:1.2}.live-card img{width:100%;max-height:160px;object-fit:contain;display:block}.live-card span{font:700 10px ui-monospace,monospace;color:var(--signal);margin-top:12px}.notice{color:var(--muted);font-size:14px}
-@media(max-width:850px){.hero,.rules{grid-template-columns:1fr}.display{max-width:450px}.grid{grid-template-columns:1fr}main{padding-top:42px}.section{margin-top:52px}}
-@media(max-width:510px){.wrap{width:calc(100% - 28px)}.actions .button{width:100%}.display{padding:14px}.screen{min-height:230px}.tile{width:140px;height:140px;font-size:17px}}
+@media(max-width:1020px){.hero,.rules{grid-template-columns:1fr}.display{max-width:750px}.grid{grid-template-columns:1fr}main{padding-top:42px}.section{margin-top:52px}}
+@media(max-width:620px){.billboard-preview-layout{grid-template-columns:1fr}.preview-panel{padding:14px}.sample-board{max-width:370px;margin:0 auto}.zoom-frame{min-height:250px}.tile-zoom{width:250px}}
+@media(max-width:510px){.wrap{width:calc(100% - 28px)}.actions .button{width:100%}.display{padding:12px}.preview-panel{padding:12px}.actual-row{align-items:center}}
 @media(prefers-reduced-motion:no-preference){.button{transition:background .15s,border-color .15s}}
 </style>
 </head>
@@ -57,12 +75,31 @@ input{width:100%;background:#080b10;border:1px solid #526074;border-radius:9px;c
 </div>
 <p class="small">Stripe collects your tile label and destination details at checkout. Paid submissions enter content review; purchase does not bypass approval. No traffic or sales are guaranteed.</p>
 </div>
-<aside class="display" aria-label="Interactive sample of a billboard tile, not a paid placement">
-<div class="screen"><div class="tile" id="tile-text" aria-live="polite">Biggie Still Here</div></div>
-<p class="previewtag">DEMO ONLY · NOT A PAID PLACEMENT</p>
-<label class="input-label" for="sample">Try a label in the preview (maximum 80 characters)</label>
-<input id="sample" maxlength="80" value="Biggie Still Here" autocomplete="off">
-<p class="small">This example does not reserve space or create an order. Enter your final label at Stripe checkout.</p>
+<aside class="display" aria-label="Interactive full billboard demonstration and a complete tile preview; not a paid placement">
+<p class="previewtag" style="margin-top:0">TRY THE ENTIRE BILLBOARD · DEMONSTRATION ONLY</p>
+<div class="billboard-preview-layout">
+<section class="preview-panel" aria-label="Illustrative whole billboard">
+<p class="preview-heading">Whole billboard <small>100 positions · 10 × 10</small></p>
+<div class="sample-board" id="sample-board" role="img" aria-label="Illustrative 10 by 10 billboard with one highlighted example tile. These are not live occupied or available positions."></div>
+<p class="preview-hint">The highlighted tile is an example location, not a reserved or available slot. The other squares illustrate the layout, not actual advertisers.</p>
+</section>
+<section class="preview-panel" aria-label="Enlarged tile and actual-size preview">
+<p class="preview-heading">Your tile <small>Enlarged to see every word</small></p>
+<div class="zoom-frame"><div class="tile-zoom" id="tile-text" role="img" aria-label="Enlarged example tile"><span>Biggie Still Here</span></div></div>
+<div class="actual-row">
+<div class="tile-actual" id="tile-actual" role="img" aria-label="Actual 100 by 100 pixel tile"><span>Biggie Still Here</span></div>
+<p><strong>Actual size · 100 × 100 pixels</strong><br>The full board makes individual tiles look small. Clickable published placements can show the complete label and destination.</p>
+</div>
+</section>
+</div>
+<div style="margin-top:16px">
+<div class="input-heading"><label class="input-label" for="sample">Write your exact proposed tile label</label><output id="sample-count" for="sample">17 / 80 characters</output></div>
+<input id="sample" maxlength="80" value="Biggie Still Here" autocomplete="off" aria-describedby="legibility-warning">
+<p class="previewtag">COMPLETE LABEL · NEVER CUT OFF IN THE DETAIL VIEW</p>
+<p class="full-label" id="full-label" aria-live="polite">Biggie Still Here</p>
+<p class="legibility" id="legibility-warning" role="status">Short names are easiest to recognize.</p>
+<p class="small">All 80 characters are retained, but 80 readable characters cannot be promised inside a 100-pixel square at whole-board scale. Short headlines work better. This is an unpaid illustration, not a placement, reservation or live inventory. Your final label and HTTPS destination are collected separately by Stripe.</p>
+</div>
 </aside>
 </section>
 <section class="section" id="details">
@@ -80,12 +117,19 @@ input{width:100%;background:#080b10;border:1px solid #526074;border-radius:9px;c
 </section>
 <section class="section rules">
 <div><p class="eyebrow">What you're buying</p><h2>Digital space.<br>Not fake reach.</h2><p>The placement is on DreamLedger's website, not a physical roadside billboard or a programmatic outdoor advertising screen. We do not promise impressions, clicks, leads or sales.</p></div>
-<div><p><b>Term:</b> intended to remain until 1 January 3000 while the service operates, subject to published terms and content policy. This is not a property title or a guarantee of perpetual operation.</p><p><b>Review:</b> submissions may be rejected for policy, legal, safety or technical reasons. If we cannot deliver an eligible paid order, resolution is subject to the published checkout/refund policy.</p><p><b>Proof:</b> a Stripe receipt confirms payment. A separately verifiable published placement confirms delivery. Neither is proof of an independent external buyer without attribution.</p><p><b>Founder example:</b> “Biggie Still Here” above is an unpaid demonstration, not a real order.</p></div>
+<div><p><b>Term:</b> intended to remain until 1 January 3000 while the service operates, subject to published terms and content policy. This is not a property title or a guarantee of perpetual operation.</p><p><b>Review:</b> submissions may be rejected for policy, legal, safety or technical reasons. If we cannot deliver an eligible paid order, resolution is subject to the published checkout/refund policy.</p><p><b>Proof:</b> a Stripe receipt confirms payment. A separately verifiable published placement confirms delivery. Neither is proof of an independent external buyer without attribution.</p><p><b>Preview honesty:</b> The 100-position board above is illustrative only. Only items shown in the separate verified published-placement feed are real.</p></div>
 </section>
 <p class="fine">DreamLedger Internet Billboard · NZ$50 founding offer · DreamLedger silo only · No guaranteed audience. Public promotion outside this website requires separate approval.</p>
 </main></div>
+<script src="/billboard-preview.js"></script>
 <script>
-(function(){'use strict';const input=document.getElementById('sample');const tile=document.getElementById('tile-text');input.addEventListener('input',function(){tile.textContent=input.value.trim().slice(0,80)||'YOUR IDEA HERE';});})();
+(function(){'use strict';
+ if(window.DreamLedgerBillboardPreview){
+   window.DreamLedgerBillboardPreview.mount(document);
+ }else{
+   document.getElementById('legibility-warning').textContent='Interactive preview unavailable. Enter your proposed label at checkout.';
+ }
+})();
 </script>
 <script>
 (async function(){'use strict';

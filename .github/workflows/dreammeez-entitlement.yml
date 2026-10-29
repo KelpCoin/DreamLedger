@@ -4,14 +4,27 @@ on:
   pull_request:
     paths:
       - 'public/avatar.html'
-      - 'supabase/functions/dreammeez-cosmetic-checkout/index.ts'
-      - 'BEC-PRIME/lib/dreammeezPaidEntitlement.js'
-      - 'BEC-PRIME/routes/marketplaceWebhook.js'
-      - 'BEC-PRIME/scripts/test-dreammeez-paid-entitlement.js'
+      - 'public/assets/avatar-identity.js'
+      - 'public/assets/avatar-identity.test.js'
+      - 'handlers/dreammeez/entitlements.js'
+      - 'handlers/dreammeez/entitlements.test.js'
+      - 'handlers/dreammeez/entitlementService.js'
+      - 'handlers/dreammeez/entitlementService.test.js'
+      - 'BEC-PRIME/compiled/website/lib/accountAuth.js'
+      - 'BEC-PRIME/compiled/website/lib/signedSession.js'
+      - 'BEC-PRIME/compiled/website/lib/signedSession.test.js'
+      - 'migrations/20261029_dreammeez_entitlements.sql'
       - '.github/workflows/dreammeez-entitlement.yml'
   push:
-    branches:
-      - 'feat/dreammeez-paid-entitlements'
+    branches: [beck/vercel-neon-commerce-contract-20261029]
+    paths:
+      - 'public/avatar.html'
+      - 'public/assets/avatar-identity*'
+      - 'handlers/dreammeez/**'
+      - 'BEC-PRIME/compiled/website/lib/accountAuth.js'
+      - 'BEC-PRIME/compiled/website/lib/signedSession*'
+      - 'migrations/20261029_dreammeez_entitlements.sql'
+      - '.github/workflows/dreammeez-entitlement.yml'
 
 permissions:
   contents: read
@@ -19,27 +32,24 @@ permissions:
 jobs:
   entitlement-test:
     runs-on: ubuntu-latest
+    timeout-minutes: 6
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4.2.2
         with:
-          node-version: 20
-      - uses: denoland/setup-deno@v2
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # 4.4.0
         with:
-          deno-version: v2.x
-      - name: Syntax check
+          node-version: '24'
+      - name: Verify no browser self-grant and no client RPG authority
         run: |
-          node --check BEC-PRIME/lib/dreammeezPaidEntitlement.js
-          node --check BEC-PRIME/routes/marketplaceWebhook.js
-      - name: DreamMeez checkout type check
-        run: deno check supabase/functions/dreammeez-cosmetic-checkout/index.ts
-      - name: Cosmetic catalog guard
+          node --check public/assets/avatar-identity.js
+          node --check handlers/dreammeez/entitlements.js
+          node --check BEC-PRIME/compiled/website/lib/accountAuth.js
+          node --check BEC-PRIME/compiled/website/lib/signedSession.js
+          node --test public/assets/avatar-identity.test.js handlers/dreammeez/entitlements.test.js BEC-PRIME/compiled/website/lib/signedSession.test.js handlers/dreammeez/entitlementService.test.js
+      - name: Verify server entitlement grant is not exposed to HTTP
         run: |
-          grep -q 'dreammeez-founder-cloak' public/avatar.html
-          grep -q 'dreammeez-pirate-crown' public/avatar.html
-          grep -q 'dreammeez-cosmic-hoodie' public/avatar.html
-          grep -q 'dreammeez-chrome-boots' public/avatar.html
-          grep -q 'dreammeez-dragon-mark' public/avatar.html
-          grep -q 'dreammeez-neon-sneakers' public/avatar.html
-      - name: Entitlement unit test
-        run: node BEC-PRIME/scripts/test-dreammeez-paid-entitlement.js
+          grep -q 'server' handlers/dreammeez/entitlements.js
+          grep -q 'METHOD_NOT_ALLOWED' handlers/dreammeez/entitlements.js
+          grep -q 'REVOKE ALL' migrations/20261029_dreammeez_entitlements.sql
+          if grep -q 'DreamLedgerAvatar.own(item.id)' public/avatar.html; then exit 1; fi
