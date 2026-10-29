@@ -80,3 +80,17 @@ test('legacy clone contract no longer assumes a fixed list, NZD and Stripe produ
  assert.ok(!c.required_inputs.includes('stripe_product_id'));
  assert.ok(c.activation.never_auto_publish);
 });
+
+test('compiled candidate conforms to generic manifest schema without domain surgery',()=>{
+ const schema=JSON.parse(fs.readFileSync(path.join(__dirname,'CUBE-CLONE-MANIFEST.schema.json'),'utf8'));
+ for(const config of [master,baby]){
+  const manifest=compileSilo(config).manifest;
+  for(const key of schema.required)assert.ok(Object.hasOwn(manifest,key),key);
+  for(const key of Object.keys(manifest))assert.ok(Object.hasOwn(schema.properties,key),key);
+  for(const [key,rule] of Object.entries(schema.properties))
+   if(Object.hasOwn(rule,'const'))assert.equal(manifest[key],rule.const,key);
+ }
+ assert.equal(schema.additionalProperties,false);
+ assert.ok(!schema.required.includes('price_nzd'));
+ assert.ok(!schema.required.includes('stripe_product_id'));
+});
