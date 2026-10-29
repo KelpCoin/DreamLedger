@@ -45,13 +45,13 @@ function emitHome(face,registry,routesById){
   if(m.canonical_qr?.payload!=='www.dreamledger.org'||m.canonical_qr?.destination_path!=='/')throw Error('Canonical owner QR target mismatch');
   const ids=new Set();
   for(const card of m.cards){
-    if(!card||typeof card.id!=='string'||ids.has(card.id)||typeof card.href!=='string'||!/^\\/[A-Za-z0-9/_-]+(?:\\.html)?\\/?$/.test(card.href))throw Error('Invalid or duplicate CCA card');
+    if(!card||typeof card.id!=='string'||ids.has(card.id)||typeof card.href!=='string'||!card.href.startsWith('/')||card.href.startsWith('//')||card.href.includes('..')||card.href.includes('?'))throw Error('Invalid or duplicate CCA card');
     ids.add(card.id);
   }
   const template=fs.readFileSync(templateFile,'utf8');
   if(!template.includes('id="rail"')||!template.includes('id="grid"')||!template.includes('fetch("/cca-catalog.v1.json"'))throw Error('CCA template lacks required navigation');
   if(!template.includes('<head>'))throw Error('CCA template HEAD missing');
-  return template.replace('<head>','<head>\\n<meta name="bec-compiler" content="WebsiteFaceCompiler/CCA">');
+  return template.replace('<head>','<head><meta name="bec-compiler" content="WebsiteFaceCompiler/CCA">');
 }
 function emitShop(face,registry,routesById){const list=sortedRoutes(registry,routesById);const banner=routesById[face.banner_offer_id];const cards=list.map((r,i)=>offerCard(r,i===0)).join('\n');
   return shell({title:face.title,canonical:'https://dreamledger.org/shop.html',body:`<div class="wrap">${navHtml(registry)}<span class="badge">emitted by WebsiteFaceCompiler · face=${esc(face.id)}</span><p class="eyebrow">${esc(face.eyebrow)}</p><h1>${esc(face.headline)}</h1><p class="lead">${esc(face.lead)}</p>${banner?`<div class="banner"><div><strong>Fastest path:</strong> ${esc(banner.name)} · NZ$${esc(banner.price_nzd)}</div><a class="btn" href="${esc(banner.href)}">Pay NZ$${esc(banner.price_nzd)} →</a></div>`:''}<div class="grid">${cards}</div><p class="note">Sorted by price from registry.</p></div>`});}
