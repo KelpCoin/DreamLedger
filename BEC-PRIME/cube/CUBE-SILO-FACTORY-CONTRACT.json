@@ -1,10 +1,20 @@
 {
-  "schema": "BEC-PRIME/CUBE-SILO-FACTORY-CONTRACT/v1",
-  "purpose": "Turn a verified silo definition into a reusable commercial surface with existing BEC capabilities mounted by reference.",
-  "factory_rule": "Clone the shell and capability bindings, never the inventory. A silo becomes economically active only when a verified supply atom and a buyer/payment atom exist.",
+  "schema": "BEC-PRIME/CUBE-SILO-FACTORY-CONTRACT/v2",
+  "purpose": "Clone one domain-neutral commerce, community, and evidence machine. Happy Homarid MTG is the primary reference fixture, not a constraint on clone architecture.",
+  "factory_rule": "Clone the generic shell, policy configuration and adapters, never stock, owner identities or receipts. Every new domain compiles to inactive draft, empty public catalog, unverified commercial metrics.",
   "capability_manifest": "BEC-PRIME/cube/CUBE-ASSET-CAPABILITY-MANIFEST.json",
   "economic_event_library": "BEC-PRIME/economics/CUBE-ECONOMIC-EVENTS-100.json",
-  "default_capabilities": ["catalog","cinema","auction","compiler","news-carousel","dreammeez","gauntlet","commerce-spine","fossil"],
+  "default_capabilities": [
+    "catalog",
+    "cinema",
+    "auction",
+    "compiler",
+    "news-carousel",
+    "dreammeez",
+    "gauntlet",
+    "commerce-spine",
+    "fossil"
+  ],
   "activation_pipeline": [
     "discover_signal",
     "verify_supply",
@@ -21,38 +31,85 @@
   "automation_policy": {
     "human_role": "approve_public_distribution_and_handle_exceptions",
     "agent_role": "discover_compile_test_draft_measure_and_prepare_next action",
-    "inventory_policy": "empty_until_verified_supply",
+    "inventory_policy": "empty_until_independent_attestation",
     "payment_truth": "settled_payment_only",
     "failure_policy": "quarantine_and_continue_other_silos",
-    "bottleneck_policy": "no manual per-silo code changes for ordinary cloning"
+    "bottleneck_policy": "no per-domain code edits; compile configuration and domain-specific metadata only"
   },
-  "silos": [
-    "mtg",
-    "dreammeez",
-    "media-music",
-    "digital-products",
-    "nz-secondhand",
-    "b2b",
-    "electronics-appliances",
-    "home-garden",
-    "health-beauty",
-    "pet",
-    "books-stationery",
-    "sports-outdoors",
-    "baby-kids",
-    "automotive",
-    "food-pantry",
-    "education-courses"
-  ],
   "economic_event_mapping": {
-    "catalog": ["catalog_view","offer_click","checkout_start","paid_order"],
-    "cinema": ["free_preview","paid_replay","proof_artifact"],
-    "auction": ["bid","auction_win","deposit","settled_sale"],
-    "compiler": ["candidate_compile","offer_compile","surface_compile"],
-    "news-carousel": ["signal_view","content_click","offer_discovery"],
-    "dreammeez": ["identity_session","streak","reward_unlock","repeat_purchase"],
-    "gauntlet": ["candidate_pass","candidate_quarantine","evidence_emit"],
-    "commerce-spine": ["checkout","payment","fulfilment","settlement_evidence"],
-    "fossil": ["payment_fossil","fulfilment_fossil","experiment_memory"]
-  }
+    "catalog": [
+      "catalog_view",
+      "offer_click",
+      "checkout_start",
+      "paid_order"
+    ],
+    "cinema": [
+      "free_preview",
+      "paid_replay",
+      "proof_artifact"
+    ],
+    "auction": [
+      "bid",
+      "auction_win",
+      "deposit",
+      "settled_sale"
+    ],
+    "compiler": [
+      "candidate_compile",
+      "offer_compile",
+      "surface_compile"
+    ],
+    "news-carousel": [
+      "signal_view",
+      "content_click",
+      "offer_discovery"
+    ],
+    "dreammeez": [
+      "identity_session",
+      "streak",
+      "reward_unlock",
+      "repeat_purchase"
+    ],
+    "gauntlet": [
+      "candidate_pass",
+      "candidate_quarantine",
+      "evidence_emit"
+    ],
+    "commerce-spine": [
+      "checkout",
+      "payment",
+      "fulfilment",
+      "settlement_evidence"
+    ],
+    "fossil": [
+      "payment_fossil",
+      "fulfilment_fossil",
+      "experiment_memory"
+    ]
+  },
+  "clone_contract": "BEC-PRIME/cube/CUBE-CLONE-CONTRACT.json",
+  "compiler": "BEC-PRIME/cube/clone-silo.js",
+  "source_of_truth": {
+    "silo_policies": "marketplace.silo_contracts",
+    "inventory": "marketplace.listings",
+    "trusted_stock": "marketplace.supply_attestations",
+    "stock_reservations": "marketplace.stock_reservations",
+    "provider_events": "public.stripe_event_inbox",
+    "fulfillment": "provider_specific_pending_contract",
+    "community": "isolated_per_silo_moderated_channel_pending_contract"
+  },
+  "cloning_method": "Pass a silo config into clone-silo.js; test with unrelated domain fixtures. Candidate outputs are private until legal, public release, stock, payment and fulfillment proof gates all pass.",
+  "silo_registry": "handlers/cube/silos.js reads approved Neon policies; no static allowlist",
+  "activation_invariants": [
+    "no_unverified_inventory",
+    "no_unreviewed_publication",
+    "no_provider_event_as_settlement",
+    "no_checkout_without_item_hold",
+    "no_self_issued_ownership_proof",
+    "no_cross_silo_principal_or_stock",
+    "no_fabricated_social_proof",
+    "region_and_domain_legal_review",
+    "verified_fulfillment_acceptance_or_refund_path"
+  ],
+  "closure_status": "REFERENCE_NOT_YET_PROVEN_END_TO_END"
 }
