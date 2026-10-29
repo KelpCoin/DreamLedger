@@ -4,6 +4,7 @@ on:
     paths:
       - 'public/mtg/**'
       - 'mtg/index.html'
+      - 'BEC-PRIME/website/mtg-catalog.html'
       - 'public/data/mtg-catalog.json'
       - 'public/catalog.json'
       - 'scripts/verify-mtg-master.cjs'
