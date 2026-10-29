@@ -26,9 +26,17 @@ test('public projection strips all private data',async()=>{
  assert.ok(!JSON.stringify(res.body).includes('private_address'));
  assert.equal(res.body.independent_revenue_evidence,false);
 });
-test('SQL status/stock/physical evidence gates and no wildcard select',()=>{
- assert.match(QUERY,/status = 'published'/);assert.match(QUERY,/quantity > 0/);
- assert.match(QUERY,/physical_verification_receipt_sha256/);
+test('domain-neutral policy, attested supply and immutable projection gates',()=>{
+ assert.match(QUERY,/l.status = 'published'/);
+ assert.match(QUERY,/l.quantity > 0/);
+ assert.match(QUERY,/marketplace.silo_contracts/);
+ assert.match(QUERY,/marketplace.supply_attestations/);
+ assert.match(QUERY,/sc.status = 'active'/);
+ assert.match(QUERY,/sa.status = 'verified'/);
+ assert.match(QUERY,/sa.verified_quantity >= l.quantity/);
+ assert.match(QUERY,/sa.expires_at > now\(\)/);
+ assert.match(QUERY,/sc.legal_review_approved_at IS NOT NULL/);
+ assert.doesNotMatch(QUERY,/silo_id\s*=\s*'mtg'|silo_id\s*<>\s*'mtg'/);
  assert.doesNotMatch(QUERY,/SELECT \*/);
 });
 test('query uses parameters and rejects malicious silo',async()=>{
