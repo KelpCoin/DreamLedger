@@ -1,17 +1,23 @@
 {
-  "version": 53,
-  "updated": "2026-09-26",
+  "version": 54,
+  "updated": "2026-10-30",
   "current_truth": {
     "profit_rules": "ops/money/PROFIT-RULES.md",
     "sell_scripts": "ops/money/SELL-SCRIPTS.txt",
-    "verified_external_revenue_nzd": 0
+    "verified_external_revenue_nzd": 0,
+    "monetize_handoff": "AGENT_BUS/BRIDGE/outbox/2026-10-30-MONETIZE-NOW.json"
   },
   "balls": {
-    "C": "Post $79 kit script; create $99/$129 Stripe links"
+    "C": "Distribute live offers + create $99/$129 Stripe links. No new SKUs."
   },
   "immediate_next": [
-    "Copy SELL-SCRIPTS.txt script 1 into a channel or DM",
-    "Open STRIPE-BUNDLE-CHECKLIST.md and create links"
+    "Post Script 1 ($79 kit) on one owned authorized channel",
+    "Create Stripe Payment Links for NZ$99 Builder stack and NZ$129 Founder pack (STRIPE-BUNDLE-CHECKLIST.md)",
+    "Send 3 warm DMs using SELL-SCRIPTS.txt"
   ],
-  "do_not": ["Discount below floors", "New SKUs before 3 paid fulfils"]
+  "do_not": [
+    "Discount below floors",
+    "New SKUs before 3 paid fulfils",
+    "Claim revenue without external fossil evidence"
+  ]
 }
