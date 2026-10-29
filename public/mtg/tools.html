@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en-NZ"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Free NZ Magic deck workshop: import a decklist and export text, Forge and Cockatrice decks without uploading files or creating an account.">
+<link rel="canonical" href="https://dreamledger.org/mtg/tools.html"><title>Free Deck Workshop · DreamLedger Magic NZ</title>
+<style>:root{color-scheme:dark;--bg:#090f13;--panel:#152227;--ink:#f4f6ef;--muted:#b9cac9;--lime:#bdff64;--line:#365961}*{box-sizing:border-box}body{margin:0;font:16px/1.55 system-ui,sans-serif;color:var(--ink);background:radial-gradient(ellipse at 90% 0%,#1b4c46,transparent 44%),var(--bg)}.wrap{width:min(1100px,calc(100% - 32px));margin:auto}header,footer{padding:17px 0;border-bottom:1px solid var(--line)}a{color:var(--lime)}main{padding:28px 0 65px}h1{font-size:clamp(35px,6vw,67px);letter-spacing:-.055em;line-height:1.05;margin:15px 0}h2{margin-top:0}p{color:var(--muted)}.tag{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--lime);font-weight:900}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}@media(max-width:700px){.grid{grid-template-columns:1fr}}.card{border:1px solid var(--line);border-radius:15px;background:var(--panel);padding:20px;margin:16px 0}textarea{background:#091418;border:1px solid #56818a;color:white;padding:15px;width:100%;min-height:355px;border-radius:10px;font:14px/1.5 ui-monospace,monospace}button{border:1px solid #aefb65;background:var(--lime);border-radius:9px;padding:11px 15px;font:800 14px system-ui;cursor:pointer;color:#102414;min-height:44px;margin:5px 7px 5px 0}button:disabled{cursor:not-allowed;opacity:.4}.secondary{background:#233b42;border-color:#5a7e81;color:white}.stats{display:flex;gap:9px;flex-wrap:wrap}.stat{background:#26433d;padding:9px 13px;border-radius:10px}.stat strong{font-size:22px;color:var(--lime)}.rows{max-height:260px;overflow:auto}.line{padding:7px 0;border-bottom:1px solid #3e5f63}.alert{font-size:13px;background:#302c1c;color:#ffe4a3;border:1px solid #6f6534;border-radius:8px;padding:12px}footer{border-top:1px solid var(--line);border-bottom:0;font-size:12px;color:var(--muted)}:focus-visible{outline:3px solid white;outline-offset:3px}</style></head><body>
+<header><div class="wrap"><a href="/mtg/">Magic NZ</a> / Deck Workshop</div></header><main class="wrap">
+<div class="tag">Free forever · No login · No deck upload</div>
+<h1>Bring your deck. <span style="color:var(--lime)">Take it anywhere.</span></h1>
+<p>Paste a card-name decklist from Moxfield, Archidekt, TappedOut or another builder. Count cards and export plain text, a Forge-oriented .dck or Cockatrice .cod file. The tool runs in your browser.</p>
+<div class="grid"><section class="card"><h2>1. Your deck</h2><label for="source">Use “1 Card Name” per line. Headers: Commander:, Mainboard:, Sideboard:.</label>
+<textarea id="source" spellcheck="false" placeholder="Commander:&#10;1 Muldrotha, the Gravetide&#10;Mainboard:&#10;1 Sol Ring&#10;1 Counterspell"></textarea>
+<button id="analyse" type="button">Analyse deck</button><button id="example" type="button" class="secondary">Example</button>
+<p id="status" role="status" aria-live="polite"></p></section>
+<section class="card"><h2>2. Inspect and export</h2><div class="stats">
+<div class="stat"><strong id="total">0</strong><div>Card count</div></div>
+<div class="stat"><strong id="unique">0</strong><div>Unique names</div></div>
+<div class="stat"><strong id="cmd">0</strong><div>Commander</div></div></div>
+<div><button id="plain" type="button" class="secondary" disabled>Plain text</button><button id="forge" type="button" class="secondary" disabled>Forge .dck</button><button id="cockatrice" type="button" class="secondary" disabled>Cockatrice .cod</button></div>
+<div id="rows" class="rows" aria-live="polite"></div><p class="alert">No legality, printing, price or simulator claims. Inspect imported decks before play. No account authentication or cloud sync is performed.</p></section></div>
+<section class="card"><h2>Free B2B exchange and auctions</h2><p>The master service has tested inventory reservation, ascending bids, anti-sniping, Buy Now and free business RFQ/quote/award operations. Public bidding and third-party payouts are still disabled until authenticated Postgres and settlement verification pass. A demonstration bid is not money.</p>
+<p>Builds and curated physical decks are premium products, not bulk singles. The owner's approved asking price is authoritative. Buyer-visible card values and builder fees need dated evidence and approval before they can be advertised.</p>
+<p><a href="https://moxfield.com/" rel="nofollow noopener" target="_blank">Moxfield</a> · <a href="https://archidekt.com/" rel="nofollow noopener" target="_blank">Archidekt</a> · <a href="https://tappedout.net/" rel="nofollow noopener" target="_blank">TappedOut</a> · <a href="https://github.com/Card-Forge/forge" rel="nofollow noopener" target="_blank">Forge</a> · <a href="https://cockatrice.github.io/" rel="nofollow noopener" target="_blank">Cockatrice</a> · <a href="https://scryfall.com/" rel="nofollow noopener" target="_blank">Scryfall</a></p></section>
+</main><footer><div class="wrap">Independent community utility. Unaffiliated with Wizards of the Coast or linked platforms. Your pasted decklist stays on your device.</div></footer>
+<script>
+(()=>{'use strict';const el=id=>document.getElementById(id);let groups=null;const zones=['commander','main','side'];
+function parse(text){
+ if(text.length>150000)throw Error('File too large');
+ const out={commander:new Map(),main:new Map(),side:new Map()};let zone='main',total=0;
+ for(const raw of text.replace(/\r/g,'').split('\n')){
+  const line=raw.trim();if(!line||line.startsWith('#')||line.startsWith('//'))continue;
+  const heading=line.toLowerCase().replace(/:$/,'');
+  if(['commander','commanders','main','mainboard','deck','side','sideboard'].includes(heading)){
+   zone=heading.startsWith('commander')?'commander':(heading.startsWith('side')?'side':'main');continue;
+  }
+  const m=/^(\d+)\s*[xX]?\s+(.+)$/.exec(line);
+  if(!m)throw Error('Unrecognised line: '+line.slice(0,60));
+  const n=Number(m[1]),name=m[2].trim();
+  if(!Number.isInteger(n)||n<1||n>250||name.length>150||!name.length||/[\u0000-\u001f]/.test(name))throw Error('Invalid quantity or name');
+  total+=n;if(total>1000)throw Error('Maximum 1,000 cards');
+  out[zone].set(name,(out[zone].get(name)||0)+n);
+ }
+ if(total===0)throw Error('No cards found');return out;
+}
+function xml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;')}
+function plain(g){let out='';for(const zone of zones){if(g[zone].size){out+=({commander:'Commander:',main:'Mainboard:',side:'Sideboard:'})[zone]+'\n';for(const [name,n] of g[zone])out+=n+' '+name+'\n';out+='\n'}}return out}
+function asForge(g){let out='[metadata]\nName=Portable deck export\n';for(const [z,heading] of [['main','Main'],['side','Sideboard'],['commander','Commander']]){out+='['+heading+']\n';for(const [name,n] of g[z])out+=n+' '+name+'\n'}return out}
+function asCod(g){let out='<?xml version="1.0" encoding="UTF-8"?>\n<cockatrice_deck version="1"><deckname>Portable deck</deckname>';for(const zone of zones){out+='<zone name="'+zone+'">';for(const [name,n] of g[zone])out+='<card number="'+n+'" name="'+xml(name)+'"/>';out+='</zone>'}return out+'</cockatrice_deck>'}
+function download(n,text,type){const blob=new Blob([text],{type});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=n;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)}
+el('analyse').addEventListener('click',()=>{
+ try{groups=parse(el('source').value);let total=0,cmd=0;const unique=new Set();el('rows').replaceChildren();
+  for(const zone of zones){for(const [name,n] of groups[zone]){const row=document.createElement('div');row.className='line';row.textContent=zone.toUpperCase()+' · '+n+' × '+name;el('rows').append(row);total+=n;unique.add(name);if(zone==='commander')cmd+=n}}
+  el('total').textContent=String(total);el('unique').textContent=String(unique.size);el('cmd').textContent=String(cmd);el('status').textContent='Parsed locally. No data uploaded.';
+  for(const id of ['plain','forge','cockatrice'])el(id).disabled=false;
+ }catch(e){groups=null;el('rows').replaceChildren();el('total').textContent='0';el('unique').textContent='0';el('cmd').textContent='0';el('status').textContent=String(e.message);for(const id of ['plain','forge','cockatrice'])el(id).disabled=true}
+});
+el('example').addEventListener('click',()=>{el('source').value='Commander:\n1 Muldrotha, the Gravetide\nMainboard:\n1 Sol Ring\n1 Counterspell\n1 Forest';el('analyse').click()});
+el('plain').addEventListener('click',()=>{if(groups)download('deck.txt',plain(groups),'text/plain')});
+el('forge').addEventListener('click',()=>{if(groups)download('deck.dck',asForge(groups),'text/plain')});
+el('cockatrice').addEventListener('click',()=>{if(groups)download('deck.cod',asCod(groups),'application/xml')});
+})();
+</script></body></html>
