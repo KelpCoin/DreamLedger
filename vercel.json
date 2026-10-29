@@ -42,6 +42,14 @@
     {
       "source": "/billboard/",
       "destination": "/billboard.html"
+    },
+    {
+      "source": "/success",
+      "destination": "/success.html"
+    },
+    {
+      "source": "/cancel",
+      "destination": "/cancel.html"
     }
   ]
 }
