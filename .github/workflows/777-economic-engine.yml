@@ -15,7 +15,7 @@ on:
       - "public/evergreen-silo-factory.json"
       - ".github/workflows/777-economic-engine.yml"
   schedule:
-    - cron: "7,22,37,52 * * * *"
+    - cron: "22 */4 * * *"
 
 permissions:
   contents: read
