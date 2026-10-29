@@ -76,6 +76,10 @@ async function handle(req, res, url) {
     const password = String(input.password || '');
     if (!validEmail(email)) return json(res, 422, { error: 'Please enter a valid email address.' });
     if (password.length < 8) return json(res, 422, { error: 'Password must be at least 8 characters.' });
+    let acceptedTerms;
+    try { acceptedTerms = termsAcceptance.verifyAcceptance(input); }
+    catch { return json(res, 503, { error: 'Terms unavailable. Registration paused.' }); }
+    if (!acceptedTerms.ok) return json(res, 428, { error: 'Please review and accept the current Terms of Use.' });
     if (users.some(item => String(item.email || '').toLowerCase() === email)) return json(res, 409, { error: 'An account with this email already exists. Log in instead.' });
     const id = 'u_' + crypto.randomBytes(12).toString('hex');
     const user = {
