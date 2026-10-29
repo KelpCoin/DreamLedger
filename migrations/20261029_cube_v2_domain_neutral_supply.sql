@@ -54,6 +54,7 @@ REVOKE ALL ON marketplace.supply_attestations FROM PUBLIC;
 REVOKE ALL ON marketplace.silo_contracts FROM dreamledger_app;
 REVOKE ALL ON marketplace.supply_attestations FROM dreamledger_app;
 GRANT SELECT ON marketplace.silo_contracts TO dreamledger_app;
+GRANT REFERENCES ON marketplace.silo_contracts TO dreamledger_app;
 GRANT SELECT ON marketplace.supply_attestations TO dreamledger_app;
 
 -- Add a v2 generic reservation operation. Leave legacy v1 unchanged.
