@@ -13,8 +13,8 @@ const row={
  checkout_url:'https://malicious.invalid/checkout',seller_email:'private@example.invalid'
 };
 test('the public master does not expose hardcoded Stripe or fallback stock',()=>{
- assert.doesNotMatch(page,/buy\\.stripe\\.com|checkout_url|FALLBACK|Buy securely - NZ/);
- assert.match(page,/\/mtg\/catalogue\\.js/);
+ assert.doesNotMatch(page,/buy\.stripe\.com|checkout_url|FALLBACK|Buy securely - NZ/);
+ assert.match(page,/\/mtg\/catalogue\.js/);
  assert.match(page,/Explore Commander deck references/);
  assert.match(page,/Server-listed inventory/);
 });
@@ -36,7 +36,7 @@ test('only matched live MTG items can be displayed as server-listed stock',()=>{
 });
 test('untrusted listing HTML and checkout links never leave display adapter',()=>{
  const render=api.renderItem(api.publicItem({...row,title:'<img src=x onerror=alert(1)>',description:'<script>evil</script>'}));
- assert.doesNotMatch(render,/<script>|<img src=x|malicious\\.invalid|private@example/);
+ assert.doesNotMatch(render,/<script>|<img src=x|malicious\.invalid|private@example/);
  assert.match(render,/&lt;script&gt;evil&lt;\/script&gt;/);
  assert.match(render,/mailto:hello@dreamledger.org/);
 });
