@@ -14,6 +14,7 @@ on:
       - 'handlers/cube/listing-intake.js'
       - 'handlers/cube/listing-intake.test.js'
       - 'migrations/20261029_cube_v2_listing_intake.sql'
+      - 'migrations/20261029_cube_v2_unpaid_hold_reaper.sql'
       - 'migrations/20261029_cube_v2_community.sql'
       - 'BEC-PRIME/cube/CUBE-CLONE-CONTRACT.json'
       - 'BEC-PRIME/cube/CUBE-CLONE-MANIFEST.schema.json'
@@ -48,6 +49,7 @@ on:
       - 'handlers/cube/listing-intake.js'
       - 'handlers/cube/listing-intake.test.js'
       - 'migrations/20261029_cube_v2_listing_intake.sql'
+      - 'migrations/20261029_cube_v2_unpaid_hold_reaper.sql'
       - 'migrations/20261029_cube_v2_community.sql'
       - 'BEC-PRIME/cube/CUBE-CLONE-CONTRACT.json'
       - 'BEC-PRIME/cube/CUBE-CLONE-MANIFEST.schema.json'
@@ -84,6 +86,8 @@ jobs:
           node --test handlers/cube/silos.test.js BEC-PRIME/cube/clone-silo.test.js
           node --test BEC-PRIME/cube/silo-health.test.js
           node --test BEC-PRIME/cube/order-lifecycle.test.js
+          grep -q "provider_checkout_id IS NULL AND provider_event_id IS NULL" migrations/20261029_cube_v2_unpaid_hold_reaper.sql
+          grep -q "FOR UPDATE SKIP LOCKED" migrations/20261029_cube_v2_unpaid_hold_reaper.sql
           node --check BEC-PRIME/cube/order-lifecycle.js
           test -f migrations/20261029_cube_v2_expired_hold_recovery.sql
           grep -q 'provider_checkout_id IS NULL' migrations/20261029_cube_v2_expired_hold_recovery.sql
