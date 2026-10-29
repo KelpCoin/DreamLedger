@@ -29,4 +29,4 @@ console.log(JSON.stringify({schema:'beck/mtg-master-proof/v1',master_silo:'mtg',
   safety_check:'STATIC_ASSERTIONS_PASS',reconciled_catalogues:conflicts.length===0,conflicts,
   clone_gate:conflicts.length?'HOLD':'HOLD_PENDING_EXTERNAL_COMMERCE_PROOF'},null,2));
 // Contradictions are expected until independently resolved. Gate remains held.
-if (conflicts.length) console.error('CATALOGUE_CONFLICT: checkout must remain blocked for conflicting SKUs.');
+if (conflicts.length) { console.error('CATALOGUE_CONFLICT: authoritative prices/availability disagree. PHASE1=HOLD.'); process.exitCode = 1; }
