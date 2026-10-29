@@ -11,6 +11,9 @@ on:
       - 'handlers/cube/silos.test.js'
       - 'handlers/cube/community.js'
       - 'handlers/cube/community.test.js'
+      - 'handlers/cube/listing-intake.js'
+      - 'handlers/cube/listing-intake.test.js'
+      - 'migrations/20261029_cube_v2_listing_intake.sql'
       - 'migrations/20261029_cube_v2_community.sql'
       - 'BEC-PRIME/cube/CUBE-CLONE-CONTRACT.json'
       - 'BEC-PRIME/cube/CUBE-SILO-FACTORY-CONTRACT.json'
@@ -37,6 +40,9 @@ on:
       - 'handlers/cube/silos.test.js'
       - 'handlers/cube/community.js'
       - 'handlers/cube/community.test.js'
+      - 'handlers/cube/listing-intake.js'
+      - 'handlers/cube/listing-intake.test.js'
+      - 'migrations/20261029_cube_v2_listing_intake.sql'
       - 'migrations/20261029_cube_v2_community.sql'
       - 'BEC-PRIME/cube/CUBE-CLONE-CONTRACT.json'
       - 'BEC-PRIME/cube/CUBE-SILO-FACTORY-CONTRACT.json'
@@ -67,6 +73,8 @@ jobs:
           node --test handlers/cube/marketplace.test.js handlers/cube/stripeWebhookSignature.test.js
           node --test handlers/cube/silos.test.js BEC-PRIME/cube/clone-silo.test.js
           node --test handlers/cube/community.test.js
+          node --test handlers/cube/listing-intake.test.js
+          node --check handlers/cube/listing-intake.js
           node --check handlers/cube/community.js
           node --check handlers/cube/silos.js
           node --check BEC-PRIME/cube/clone-silo.js
