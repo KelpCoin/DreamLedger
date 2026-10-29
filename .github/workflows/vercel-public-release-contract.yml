@@ -32,6 +32,9 @@ on:
       - 'handlers/cube/stripeWebhookSignature.test.js'
       - 'handlers/cube/stripe-webhook.ts'
       - 'handlers/stripe-link.ts'
+      - 'handlers/checkout-status.js'
+      - 'handlers/checkout-status.test.js'
+      - 'api/[...route].ts'
       - 'scripts/verify-vercel-public-release.cjs'
       - '.github/workflows/vercel-public-release-contract.yml'
   push:
@@ -67,6 +70,9 @@ on:
       - 'handlers/cube/stripeWebhookSignature.test.js'
       - 'handlers/cube/stripe-webhook.ts'
       - 'handlers/stripe-link.ts'
+      - 'handlers/checkout-status.js'
+      - 'handlers/checkout-status.test.js'
+      - 'api/[...route].ts'
       - 'scripts/verify-vercel-public-release.cjs'
       - '.github/workflows/vercel-public-release-contract.yml'
 permissions:
@@ -83,6 +89,8 @@ jobs:
         run: |
           node --check handlers/cube/marketplace.js
           node --test handlers/cube/marketplace.test.js handlers/cube/stripeWebhookSignature.test.js
+          node --check handlers/checkout-status.js
+          node --test handlers/checkout-status.test.js
           node --test handlers/cube/silos.test.js BEC-PRIME/cube/clone-silo.test.js
           node --test BEC-PRIME/cube/silo-health.test.js
           node --test BEC-PRIME/cube/order-lifecycle.test.js
