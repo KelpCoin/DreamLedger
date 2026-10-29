@@ -1,0 +1,31 @@
+name: 777 Qualified Buyer Intent Gate
+
+on:
+  pull_request:
+    paths:
+      - "scripts/qualified_buyer_intent.py"
+      - "scripts/test_qualified_buyer_intent.py"
+      - ".github/workflows/777-qualified-buyer-intent-gate.yml"
+  push:
+    branches: [main]
+    paths:
+      - "scripts/qualified_buyer_intent.py"
+      - "scripts/test_qualified_buyer_intent.py"
+      - ".github/workflows/777-qualified-buyer-intent-gate.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deterministic-fixtures:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run qualified-intent fixtures
+        working-directory: scripts
+        run: python -m unittest -v test_qualified_buyer_intent.py
