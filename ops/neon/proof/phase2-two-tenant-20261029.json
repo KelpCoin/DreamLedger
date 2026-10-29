@@ -1,0 +1,30 @@
+{
+  "schema": "beck/neon-phase2-evidence/v1",
+  "observed_at": "2026-10-29",
+  "project": "falling-base-50259456",
+  "branch": "br-delicate-sunset-a7dbnrso",
+  "environment": "isolated-test-branch",
+  "role": "beck_runtime_candidate",
+  "results": {
+    "role_nosuperuser": true,
+    "role_nobypassrls": true,
+    "synthetic_orgs": 2,
+    "synthetic_draft_listings": 2,
+    "tenant_A_positive_count": 1,
+    "tenant_A_cross_tenant_visible": 0,
+    "tenant_B_positive_count": 1,
+    "tenant_B_cross_tenant_visible": 0,
+    "identity_spoof_attempt": "SUCCEEDED: untrusted restricted DB role can set app.principal_id to B and read B; lack of authenticated identity binding",
+    "blind_write": "NOT_TESTED",
+    "blind_delete": "NOT_TESTED",
+    "view_isolation": "NOT_TESTED",
+    "pooled_endpoint": "NOT_TESTED; direct endpoint only",
+    "phase2": "FAIL",
+    "clone_gate": "HOLD"
+  },
+  "notes": [
+    "No production changes.",
+    "Positive and negative read controls pass only for trusted tenant context; client-controllable app.principal_id is spoofable.",
+    "Repair must bind authenticated principal in trusted transaction boundary, restrict direct DB access, and test across pooled endpoint."
+  ]
+}

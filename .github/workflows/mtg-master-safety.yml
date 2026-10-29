@@ -1,0 +1,49 @@
+name: MTG Master Silo Safety Gate
+on:
+  pull_request:
+    paths:
+      - 'public/mtg/**'
+      - 'mtg/index.html'
+      - 'BEC-PRIME/website/mtg-catalog.html'
+      - 'public/data/mtg-catalog.json'
+      - 'public/catalog.json'
+      - 'scripts/verify-mtg-master.cjs'
+      - 'scripts/verify-beck-release-gates.cjs'
+      - 'scripts/verify-beck-master-manifest.cjs'
+      - 'config/tenants/nz-mtg.master.json'
+      - '.github/workflows/mtg-master-safety.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  catalogue-safety:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify fail-closed storefront and produce proof
+        run: node scripts/verify-mtg-master.cjs > mtg-master-proof.json
+      - name: Verify fail-closed master manifest
+        run: node scripts/verify-beck-master-manifest.cjs
+      - name: Upload master manifest proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: beck-master-manifest-proof
+          path: beck-master-manifest-proof.json
+      - name: Verify Phase 1 and Phase 2 evidence (fail closed)
+        run: node scripts/verify-beck-release-gates.cjs
+      - name: Publish release-gate evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: beck-release-gate-proof
+          path: beck-gate-proof.json
+      - name: Publish evidence artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mtg-master-proof
+          path: mtg-master-proof.json

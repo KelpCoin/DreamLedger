@@ -37,15 +37,37 @@
 </form>
 </main>
 <script>
-(function(){const form=document.getElementById('sell-form');const status=document.getElementById('status');const btn=document.getElementById('submit');
-form.addEventListener('submit',async function(e){e.preventDefault();status.textContent='Submitting…';btn.disabled=true;
-const data=Object.fromEntries(new FormData(form).entries());data.price_nzd=Number(data.price);data.inventory=Number(data.inventory);data.source='sell.html';data.intent='seller_intake';data.timestamp=new Date().toISOString();
-try{let r=await fetch('/api/marketplace/intake',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(data)});
-if(r.status===404){r=await fetch('/api/offers',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({...data,status:'Awaiting review'})});}
-if(!r.ok)throw new Error('fail');
-status.className='status ok';status.textContent='Received. Awaiting review.';form.reset();
-}catch(err){try{const k='dreamledger_seller_signals';const p=JSON.parse(localStorage.getItem(k)||'[]');p.push(data);localStorage.setItem(k,JSON.stringify(p.slice(-20)));}catch(_){}
-status.className='status ok';status.textContent='Saved locally. Not public until approved.';}finally{btn.disabled=false;}});})();
+(function(){
+'use strict';
+const form=document.getElementById('sell-form');
+const status=document.getElementById('status');
+const btn=document.getElementById('submit');
+status.setAttribute('role','status');
+status.setAttribute('aria-live','polite');
+form.addEventListener('submit',async function(e){
+ e.preventDefault();btn.disabled=true;status.className='status';status.textContent='Checking submission service...';
+ const data=Object.fromEntries(new FormData(form).entries());
+ data.price_nzd=Number(data.price);data.inventory=Number(data.inventory);
+ data.source='sell.html';data.intent='seller_intake';data.timestamp=new Date().toISOString();
+ if(!Number.isFinite(data.price_nzd)||data.price_nzd<=0||!Number.isSafeInteger(data.inventory)||data.inventory<1){
+  status.textContent='Please enter a valid NZD price and whole-number quantity. Nothing has been submitted.';btn.disabled=false;return;
+ }
+ try{
+  const res=await fetch('/api/marketplace/intake',{method:'POST',headers:{'content-type':'application/json','accept':'application/json'},credentials:'same-origin',cache:'no-store',body:JSON.stringify(data)});
+  const body=await res.json().catch(()=>({}));
+  if(!res.ok||body.accepted!==true||!body.intake_id){
+   throw Error('Submission service has not confirmed receipt');
+  }
+  status.className='status ok';status.textContent='Received for review. Reference: '+String(body.intake_id).slice(0,100)+'. No listing is public until approved.';
+  form.reset();
+ }catch(error){
+  // Critically, localStorage is NOT a marketplace submission queue.
+  // Preserve the form fields so the seller can retry when persistence is restored.
+  status.className='status';
+  status.textContent='NOT SUBMITTED. The marketplace intake service is unavailable or did not confirm receipt. Your form remains here; no listing was created. Please retry later.';
+ }finally{btn.disabled=false;}
+});
+})();
 </script>
 </body>
 </html>

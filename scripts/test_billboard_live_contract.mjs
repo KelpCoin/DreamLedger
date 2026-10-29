@@ -9,10 +9,19 @@ import vm from 'node:vm';
 const edgePath='supabase/functions/dreamledger-billboard-webhook/index.ts';
 const source=readFileSync(edgePath,'utf8').replace(/^import\s+["']jsr:[^\n]+\n/m,'');
 const page=readFileSync('public/billboard.html','utf8');
-assert(page.includes('NZ$50')&&page.includes('100 x 100'));
-assert(page.includes('https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w'));
+// A held offer must NOT expose the live purchase URL until the backend
+// inventory reservation, intake and reviewed-publication gates are green.
+// Retain a positive test for a legitimately active checkout design.
+assert(page.includes('NZ$50')&&(page.includes('100 × 100')||page.includes('100 x 100')));
+const checkoutHeld=page.includes('New purchases temporarily held')&&page.includes('Payment is paused');
+if(checkoutHeld){
+  assert(!page.includes('https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w'),'Held offer must not link to an active payment link');
+  assert(page.includes('id="creative"')&&page.includes('id="canvas"'),'The held page must still demonstrate both full creative and the complete canvas');
+  assert(page.includes('Concept preview only.')&&page.includes('No paid placements are simulated.'),'Clearly distinguish demo from purchased placement');
+}else{
+  assert(page.includes('https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w'),'Open checkout must use the approved link');
+}
 assert(!page.includes('https://buy.stripe.com/9B66oH2rj3dz82jcR6dwc2x'));
-assert(page.includes('DEMO ONLY')&&page.includes('Biggie Still Here'));
 assert(page.includes('content review')||page.includes('content policy'));
 
 let handler;

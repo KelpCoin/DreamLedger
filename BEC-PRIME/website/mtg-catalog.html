@@ -74,7 +74,7 @@
       <span class="silo-pill silo-pill-gold">Singles first</span>
       <span class="silo-pill silo-pill-ok">0% success fee</span>
       <span class="silo-pill">Full card grids</span>
-      <span class="silo-pill">Confirm before pay</span>
+      <span class="silo-pill">Checkout held pending stock reconciliation</span>
     </div>
     <h1 class="silo-display" style="max-width:14ch">See the cards.<br>Then deal.</h1>
     <p class="silo-lead">List singles free with a clear face, condition, and NZD price. Open decks for a full card grid — check the list before you message or pay.</p>
@@ -85,7 +85,7 @@
     </div>
     <div class="trust-row" aria-label="Trust anchors">
       <span class="trust-chip"><strong>Condition</strong> stated</span>
-      <span class="trust-chip"><strong>Stock</strong> visible</span>
+      <span class="trust-chip"><strong>Stock</strong> requires verification</span>
       <span class="trust-chip"><strong>Shipping</strong> NZ terms</span>
       <span class="trust-chip"><strong>Confirm</strong> then pay</span>
     </div>
@@ -116,9 +116,9 @@
       </div>
       <div class="diag">
         <p class="silo-eyebrow">Platform tool · not cardboard</p>
-        <h2 class="silo-h2" style="margin:0 0 8px">Commander diagnostic · NZ$29</h2>
-        <p style="color:var(--silo-muted);margin:0 0 14px;max-width:36em">Digital structure review. Settles on Stripe. Separate from peer singles and decks.</p>
-        <a class="silo-btn silo-btn-gold" href="https://buy.stripe.com/8x228r1nfg0l3M32csdwc2I">Buy diagnostic</a>
+        <h2 class="silo-h2" style="margin:0 0 8px">Commander diagnostic · currently held</h2>
+        <p style="color:var(--silo-muted);margin:0 0 14px;max-width:36em">Digital structure review. Not available for purchase until delivery verification passes.</p>
+        <span class="silo-btn silo-btn-ghost">Checkout held</span>
       </div>
     </div>
   </section>
@@ -151,17 +151,15 @@
         grid.innerHTML='';
         return;
       }
-      status.textContent=decks.length+' deck'+(decks.length===1?'':'s')+' · open a listing for the full card grid';
+      status.textContent=decks.length+' published deck listing(s) · stock/checkout not yet reconciled';
       grid.innerHTML=decks.map(p=>{
         const price=Number(p.price)||0;
         const detail=p.detail_url||'/mtg/';
-        const inv=Number(p.inventory)>0;
-        const stock=inv?'<span class="stock">In stock</span>':'<span class="stock out">—</span>';
+        const inv=false; // Unreconciled stock is never advertised as available.
+        const stock='<span class="stock out">Availability unverified</span>';
         const cond=p.condition?('<span>'+esc(p.condition)+'</span>'):'';
         const cmd=p.commander?('<span>'+esc(p.commander)+'</span>'):'';
-        const buy=inv
-          ? '<a class="buy" href="'+esc(detail)+'">See cards &amp; buy · NZ$'+price+'</a>'
-          : '<a class="buy" href="'+esc(detail)+'" style="opacity:.65">View listing</a>';
+        const buy='<a class="buy" href="'+esc(detail)+'" style="opacity:.65">View listing · checkout held</a>';
         return '<article class="deck" role="listitem"><div class="deck-banner"><span>Commander</span>'+stock+'</div><div class="deck-body"><div class="tag">'+(p.commander?esc(p.commander):'EDH')+'</div><h3>'+esc(p.name)+'</h3><p class="desc">'+esc(p.description||'')+'</p><div class="meta">'+cmd+cond+'<span>NZ shipping noted on listing</span></div><div class="price">NZ$'+price+'</div><div class="actions">'+buy+'<a class="see" href="'+esc(detail)+'">Open full card grid</a></div></div></article>';
       }).join('');
     }catch(e){

@@ -34,8 +34,25 @@ function css(){return `:root{--bg:#0a0b0f;--surface:#141722;--ink:#f4f1ea;--mute
 function offerCard(route,hero){return `<article class="card${hero?' hero':''}"><div class="tag">${esc(route.tag||'Offer')}</div><h2>${esc(route.name)}</h2><div class="price">NZ$${esc(route.price_nzd)}</div><a class="btn" href="${esc(route.href)}">Pay on Stripe →</a></article>`;}
 function emitMoney(face,registry,routesById){const cards=(face.primary_offer_ids||[]).map((id,i)=>{const r=routesById[id];return r?offerCard(r,i===0):'';}).join('\n');
   return shell({title:face.title,canonical:'https://dreamledger.org/money.html',body:`<div class="wrap">${navHtml(registry)}<span class="badge">emitted by WebsiteFaceCompiler · face=${esc(face.id)}</span><p class="eyebrow">${esc(face.eyebrow)}</p><h1>${esc(face.headline)}</h1><p class="lead">${esc(face.lead)}</p><div class="grid">${cards}</div><p class="note">Generated from face-registry.json.</p></div>`});}
-function emitHome(face,registry,routesById){const primary=routesById[(face.primary_offer_ids||[])[0]];const secondary=(face.secondary_links||[]).map(l=>`<a class="btn ghost" href="${esc(l.href)}">${esc(l.label)}</a>`).join('');
-  return shell({title:face.title,canonical:'https://dreamledger.org/',body:`<div class="wrap">${navHtml(registry)}<span class="badge">emitted by WebsiteFaceCompiler · face=${esc(face.id)}</span><p class="eyebrow">${esc(face.eyebrow)}</p><h1>${esc(face.headline)}</h1><p class="lead">${esc(face.lead)}</p><div class="actions">${primary?`<a class="btn" href="${esc(primary.href)}">Pay NZ$${esc(primary.price_nzd)} on Stripe →</a>`:''}${secondary}</div><p class="note">Compiler exhaust.</p></div>`});}
+function emitHome(face,registry,routesById){
+  // Canonical homepage is a CCA directory, not a direct paid-offer landing page.
+  // Build it from the established CCA template and machine-readable silo manifest.
+  // Never fabricate active checkouts or paid placements from a configured doorway.
+  const templateFile=path.join(PUBLIC_OUT,'go','index.html');
+  const manifestFile=path.join(PUBLIC_OUT,'cca-catalog.v1.json');
+  const m=readJson(manifestFile);
+  if(m.schema!=='DREAMLEDGER/CCA-DISCOVERY/v1'||!Array.isArray(m.cards)||m.cards.length===0)throw Error('CCA manifest invalid');
+  if(m.canonical_qr?.payload!=='www.dreamledger.org'||m.canonical_qr?.destination_path!=='/')throw Error('Canonical owner QR target mismatch');
+  const ids=new Set();
+  for(const card of m.cards){
+    if(!card||typeof card.id!=='string'||ids.has(card.id)||typeof card.href!=='string'||!card.href.startsWith('/')||card.href.startsWith('//')||card.href.includes('..')||card.href.includes('?'))throw Error('Invalid or duplicate CCA card');
+    ids.add(card.id);
+  }
+  const template=fs.readFileSync(templateFile,'utf8');
+  if(!template.includes('id="rail"')||!template.includes('id="grid"')||!template.includes('fetch("/cca-catalog.v1.json"'))throw Error('CCA template lacks required navigation');
+  if(!template.includes('<head>'))throw Error('CCA template HEAD missing');
+  return template.replace('<head>','<head><meta name="bec-compiler" content="WebsiteFaceCompiler/CCA">');
+}
 function emitShop(face,registry,routesById){const list=sortedRoutes(registry,routesById);const banner=routesById[face.banner_offer_id];const cards=list.map((r,i)=>offerCard(r,i===0)).join('\n');
   return shell({title:face.title,canonical:'https://dreamledger.org/shop.html',body:`<div class="wrap">${navHtml(registry)}<span class="badge">emitted by WebsiteFaceCompiler · face=${esc(face.id)}</span><p class="eyebrow">${esc(face.eyebrow)}</p><h1>${esc(face.headline)}</h1><p class="lead">${esc(face.lead)}</p>${banner?`<div class="banner"><div><strong>Fastest path:</strong> ${esc(banner.name)} · NZ$${esc(banner.price_nzd)}</div><a class="btn" href="${esc(banner.href)}">Pay NZ$${esc(banner.price_nzd)} →</a></div>`:''}<div class="grid">${cards}</div><p class="note">Sorted by price from registry.</p></div>`});}
 function emitStart(face,registry){const doors=(face.doors||[]).map(d=>`<article class="card door"><h2>${esc(d.label)}</h2><p>${esc(d.blurb||'')}</p><a class="btn" href="${esc(d.href)}">Open →</a></article>`).join('\n');

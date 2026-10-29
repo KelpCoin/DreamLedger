@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Magic in New Zealand · Commander decks | DreamLedger</title>
-<meta name="description" content="NZ Magic: Commander decks, verified live Stripe checkout for EDH_0001, and request-first listings. Happy Homarid.">
+<meta name="description" content="NZ Magic Commander listings. Prices and checkout availability are cross-checked before a purchase link is shown. Happy Homarid.">
 <link rel="canonical" href="https://dreamledger.org/mtg/">
 <style>
 :root{color-scheme:dark;--bg:#080a0d;--surface:#10151b;--line:#27313a;--ink:#f5f3eb;--muted:#b3bdc7;--gold:#d8b56b;--goldb:#e8c87a;--max:1100px}
@@ -39,73 +39,89 @@ h1{font-size:clamp(2.2rem,6vw,3.6rem);line-height:1.02;letter-spacing:-.04em;mar
 <nav><a href="/mtg/">Decks</a><a href="https://patreon.com/happyhomarid" target="_blank" rel="noopener">Patreon</a><a href="/">Home</a></nav></header>
 <section class="hero">
 <p class="kicker">Commander · New Zealand · Happy Homarid</p>
-<div class="pills"><span class="pill pill-gold">0% marketplace fee</span><span class="pill">Secure Stripe for EDH_0001</span><span class="pill">#MeatiestMagic</span></div>
+<div class="pills"><span class="pill pill-gold">0% marketplace fee</span><span class="pill">Checkout only after catalogue reconciliation</span><span class="pill">#MeatiestMagic</span></div>
 <h1>Find your next deck.</h1>
-<p class="lead">Buy EDH_0001 using its existing live, one-sale Stripe checkout. Other decks remain request-first until their individual checkout and availability are confirmed. Never send card details in messages.</p>
+<p class="lead">Browse NZ Commander decks and inspect each listing. Buy-now appears only when independent published catalogues agree on price and availability; otherwise request confirmation.</p>
 </section>
 <section id="decks">
 <p class="kicker">Available decks</p>
 <div id="status" class="status-bar">Loading catalogue…</div>
 <div id="grid" class="grid" aria-live="polite"></div>
 </section>
-<div class="notice">EDH_0001: NZ$400, one physical deck, secure live Stripe checkout with New Zealand shipping address collection and a one-completed-purchase limit. Other decks remain request-first. No double-selling, fictional stock or unverified payment claims. Patreon members get priority where listed. Diagnostic SKU is not shown as inventory.</div>
+<div class="notice">Published listings are not proof of available inventory. Checkout is disabled if catalogue prices, stock or checkout authorization disagree. Peer purchases require seller confirmation until automated stock reservations and fulfilment are proven. Patreon is a separate membership boundary.</div>
 <footer class="foot"><a href="/">Home</a><a href="/mtg/">Magic</a><a href="https://patreon.com/happyhomarid" target="_blank" rel="noopener">Patreon</a></footer>
 </div>
 <script>
 (function () {
-  function esc(v) {
-    return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) {
-      return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c];
-    });
-  }
-  var FALLBACK = [
-    { id: 'EDH_QUINTORIUS_0002', name: 'Quintorius, Field Historian', price: 90, status: 'published', category: 'commander-deck', silo: 'mtg',
-      description: 'Boros graveyard-recursion Commander. NZ$90 free NZ shipping. Patreon NZ$80.',
-      claim_url: 'mailto:hello@dreamledger.org?subject=Buy%20Quintorius%20Commander%20deck%20NZ%2490' },
-    { id: 'EDH_DWYNEN_0003', name: 'Dwynen, Gilt-Leaf Daen', price: 90, status: 'published', category: 'commander-deck', silo: 'mtg',
-      description: 'Mono-green Elf tribal. NZ$90 free NZ shipping. Patreon NZ$80.',
-      claim_url: 'mailto:hello@dreamledger.org?subject=Buy%20Dwynen%20Commander%20deck%20NZ%2490' },
-    { id: 'EDH_JON_IRENICUS_0004', name: 'Jon Irenicus, Shattered One', price: 220, status: 'published', category: 'commander-deck', silo: 'mtg',
-      description: 'Physical Commander deck. Claim to confirm availability and shipping.',
-      claim_url: 'mailto:hello@dreamledger.org?subject=Claim%20Jon%20Irenicus%20Commander%20Deck' },
-    { id: 'EDH_0001', name: 'Edward Kenway - Pacin On The Plank - Commander deck', price: 400, status: 'published', inventory: 1, category: 'commander-deck', silo: 'mtg',
-      sale_mode: 'stripe_checkout', checkout_available: true, checkout_url: 'https://buy.stripe.com/14A3cvea1dSd1DV5oEdwc1J',
-      description: 'One physical deck. NZ shipping details collected at secure checkout.' }
-  ];
+  'use strict';
   var statusEl = document.getElementById('status');
   var grid = document.getElementById('grid');
-  function isMtgDeck(p) {
-    if (!p || p.status !== 'published') return false;
-    if (String(p.id || '').indexOf('DIAGNOSTIC') >= 0) return false;
-    var id = String(p.id || ''), cat = String(p.category || '').toLowerCase(), silo = String(p.silo || '').toLowerCase();
-    return silo === 'mtg' || cat === 'commander-deck' || /^EDH_/i.test(id);
+  function el(tag, cls, value) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (value != null) n.textContent = String(value);
+    return n;
   }
-  function render(decks, note) {
-    statusEl.innerHTML = '<strong>' + decks.length + ' deck' + (decks.length === 1 ? '' : 's') + '</strong> · physical · NZ · Stripe checkout for EDH_0001; request-first for others' + (note ? ' · ' + note : '');
-    grid.innerHTML = decks.map(function (p) {
-      var claim = p.claim_url || ('mailto:hello@dreamledger.org?subject=' + encodeURIComponent('Buy ' + (p.name || 'deck') + ' NZ$' + (p.price || '')));
-      var price = Number(p.price);
-      var liveEdh = p.id === 'EDH_0001' && p.status === 'published' && p.silo === 'mtg' && p.inventory === 1 && price === 400 && p.checkout_available === true && p.sale_mode === 'stripe_checkout' && p.checkout_url === 'https://buy.stripe.com/14A3cvea1dSd1DV5oEdwc1J';
-      var target = liveEdh ? p.checkout_url : claim;
-      var action = liveEdh ? 'Buy securely - NZ$400' : 'Request deck';
-      return '<article class="deck"><h3>' + esc(p.name || p.id) + '</h3><p>' + esc(p.description || '') + '</p><div class="price">' +
-        (Number.isFinite(price) ? ('NZ$' + price.toFixed(2)) : '') + '</div><a class="silo-btn silo-btn-ghost" href="' + esc(target) + '">' + action + '</a></article>';
-    }).join('');
-  }
-  function tryFetch(url) {
-    return fetch(url, { cache: 'no-store' }).then(function (r) {
-      if (!r.ok) throw new Error(String(r.status));
+  function fetchJSON(path) {
+    return fetch(path, {cache:'no-store'}).then(function(r) {
+      if (!r.ok) throw new Error(path + ': HTTP ' + r.status);
       return r.json();
     });
   }
-  render(FALLBACK, 'loading feeds…');
-  tryFetch('/data/mtg-catalog.json')
-    .catch(function () { return tryFetch('/catalog.json'); })
-    .then(function (d) {
-      var decks = ((d && d.products) || []).filter(isMtgDeck);
-      render(decks.length ? decks : FALLBACK, decks.length ? '' : 'fallback');
-    })
-    .catch(function () { render(FALLBACK, 'offline catalogue'); });
+  function isDeck(p) {
+    return p && p.silo === 'mtg' && p.category === 'commander-deck' &&
+      p.status === 'published' && /^EDH_[A-Z0-9_]+$/i.test(String(p.id || ''));
+  }
+  function currency(p) { return String(p.currency || '').toUpperCase() === 'NZD'; }
+  function checkoutAllowed(p, primary) {
+    var match = primary.find(function(x){return x && x.id === p.id;});
+    return !!match && match.status === 'published' && match.checkout_available === true &&
+      p.checkout_available === true && p.sale_mode === 'stripe_checkout' &&
+      match.inventory === 1 && p.inventory === 1 && currency(p) && currency(match) &&
+      Number(p.price) > 0 && Number(p.price) === Number(match.price) &&
+      typeof p.checkout_url === 'string' && p.checkout_url === match.checkout_url &&
+      /^https:\/\/buy\.stripe\.com\/[A-Za-z0-9]+$/.test(p.checkout_url);
+  }
+  function render(items, primary) {
+    grid.replaceChildren();
+    var purchasable = 0;
+    items.forEach(function(p) {
+      var card = el('article', 'deck');
+      card.appendChild(el('h3', '', p.name || p.id));
+      card.appendChild(el('p', '', p.description || 'Seller confirmation required.'));
+      if (currency(p) && Number.isFinite(Number(p.price)) && Number(p.price) > 0) {
+        card.appendChild(el('div','price','Listed NZ
+</body>
+</html>
+ + Number(p.price).toFixed(2)));
+      }
+      var a = el('a','silo-btn silo-btn-ghost');
+      if (checkoutAllowed(p, primary)) {
+        purchasable++;
+        a.href = p.checkout_url;
+        a.textContent = 'Buy securely';
+      } else {
+        a.href = 'mailto:hello@dreamledger.org?subject=' + encodeURIComponent('Availability request ' + p.id);
+        a.textContent = 'Request availability';
+        card.appendChild(el('p', '', 'Checkout held until authoritative inventory and pricing agree.'));
+      }
+      card.appendChild(a);
+      grid.appendChild(card);
+    });
+    statusEl.textContent = items.length + ' published deck listing(s); ' +
+      purchasable + ' verified catalogue-matched checkout link(s). Listings are not stock reservations.';
+  }
+  statusEl.textContent = 'Checking catalogue integrity...';
+  Promise.all([fetchJSON('/data/mtg-catalog.json'), fetchJSON('/catalog.json')]).then(function(results) {
+    var mtg = results[0], publicCatalog = results[1];
+    if (!mtg || mtg.silo !== 'mtg' || !Array.isArray(mtg.products) ||
+        !publicCatalog || !Array.isArray(publicCatalog.products)) throw new Error('Invalid catalogue schema');
+    render(mtg.products.filter(isDeck), publicCatalog.products);
+  }).catch(function() {
+    grid.replaceChildren();
+    statusEl.textContent = 'Catalogue verification unavailable. Purchases are temporarily disabled.';
+    grid.appendChild(el('p', '', 'Please check again later. No prices or stock are being asserted.'));
+  });
 })();
 </script>
 </body>
