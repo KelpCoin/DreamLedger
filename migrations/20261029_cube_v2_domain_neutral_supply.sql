@@ -56,9 +56,9 @@ REVOKE ALL ON marketplace.supply_attestations FROM dreamledger_app;
 GRANT SELECT ON marketplace.silo_contracts TO dreamledger_app;
 GRANT SELECT ON marketplace.supply_attestations TO dreamledger_app;
 
--- Replace the legacy MTG-only reservation predicate while retaining the API signature.
+-- Add a v2 generic reservation operation. Leave legacy v1 unchanged.
 -- This does NOT initiate Stripe checkout, settlement or fulfillment.
-CREATE OR REPLACE FUNCTION marketplace.reserve_stock(
+CREATE FUNCTION marketplace.reserve_stock_v2(
  p_listing_id uuid, p_buyer_principal_id text, p_idempotency_key text,
  p_quantity integer DEFAULT 1, p_hold_minutes integer DEFAULT 30
 ) RETURNS jsonb LANGUAGE plpgsql SECURITY INVOKER
@@ -112,6 +112,6 @@ BEGIN
  'state','held','idempotent_replay',false,'remaining_quantity',remaining);
 END
 $fn$;
-REVOKE ALL ON FUNCTION marketplace.reserve_stock(uuid,text,text,integer,integer) FROM PUBLIC;
-COMMENT ON FUNCTION marketplace.reserve_stock(uuid,text,text,integer,integer) IS
+REVOKE ALL ON FUNCTION marketplace.reserve_stock_v2(uuid,text,text,integer,integer) FROM PUBLIC;
+COMMENT ON FUNCTION marketplace.reserve_stock_v2(uuid,text,text,integer,integer) IS
  'CUBE v2 cross-domain guarded stock hold. Requires active approved silo and independent supply attestation. No Stripe settlement or fulfillment.';
