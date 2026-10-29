@@ -1,6 +1,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { createMarketplaceSellerTransfers } from "./shared/marketplace-transfers.ts";
+import { claimWebhookEvent } from "./webhook-claim.mjs";
 const FUNCTION_NAME="stripe-revenue-41104f355d6878cdd6d1f9dc";
 const SUPABASE_URL=Deno.env.get("SUPABASE_URL")||"";
 const SERVICE_ROLE_KEY=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")||"";
@@ -15,9 +16,10 @@ Deno.serve(async(req)=>{
  const signature=req.headers.get("stripe-signature")||""; const raw=await req.text(); let event:any;
  try{event=await stripe.webhooks.constructEventAsync(raw,signature,STRIPE_WEBHOOK_SIGNING_SECRET,undefined,cryptoProvider)}catch(error){return new Response("invalid signature",{status:400})}
  const eventId=String(event.id||""); const eventType=String(event.type||""); if(!eventId)return new Response("missing event id",{status:400});
- const {data:existingWebhook}=await supabase.from("stripe_webhook_events").select("event_id,processed").eq("event_id",eventId).maybeSingle();
- if(existingWebhook?.processed===true)return Response.json({received:true,duplicate:true,event_id:eventId});
- const {error:webhookInsertError}=await supabase.from("stripe_webhook_events").upsert({event_id:eventId,event_type:eventType,processed:false,processed_at:null,payload:event},{onConflict:"event_id"}); if(webhookInsertError)return new Response("webhook event persistence failed",{status:500});
+ const claim=await claimWebhookEvent(supabase,event);
+ if(claim.kind==="duplicate")return Response.json({received:true,duplicate:true,event_id:eventId});
+ if(claim.kind==="pending")return new Response("event processing or awaiting manual recovery",{status:503});
+ if(claim.kind!=="claimed")return new Response("webhook event claim failed",{status:500});
  if(eventType==="transfer.created"||eventType==="transfer.updated"||eventType==="transfer.reversed"){
    const transfer:any=event.data?.object||{};
    const transferId=String(transfer.id||"");

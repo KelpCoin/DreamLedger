@@ -1,0 +1,21 @@
+name: Stripe Webhook Claim Safety
+on:
+  pull_request:
+    paths:
+      - 'supabase/functions/stripe-revenue-41104f355d6878cdd6d1f9dc/**'
+      - 'scripts/test-stripe-webhook-claim.cjs'
+      - '.github/workflows/stripe-webhook-claim-safety.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  claim-test:
+    name: Synthetic duplicate-delivery proof (no Stripe secrets)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test scripts/test-stripe-webhook-claim.cjs
