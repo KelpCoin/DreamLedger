@@ -42,7 +42,7 @@ function validAvatar(avatar) {
 
 async function handle(req, res, url) {
   const route = typeof url === 'string' ? url : String(req.url || '').split('?')[0];
-  const authRoute = ['/api/account/register','/api/account/login','/api/account/logout','/api/account/me','/api/account/update'].includes(route);
+  const authRoute = ['/api/account/register','/api/account/login','/api/account/logout','/api/account/me','/api/account/update','/api/account/terms-version'].includes(route);
   if (!authRoute) return false;
   const users = readUsers();
   const sessionId = getCookie(req, COOKIE);
