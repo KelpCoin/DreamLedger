@@ -58,7 +58,9 @@ function advance(order,event) {
   processed_events:{...order.processed_events,[event.event_id]:event.evidence_sha256||'unverified'},
   last_evidence_sha256:event.evidence_sha256||null,
   replayed:false,
-  externally_settled:edge[0]==='SETTLED'||['FULFILLING','DELIVERED','COMPLETED'].includes(edge[0]),
-  customer_acceptance_verified:edge[0]==='COMPLETED'};
+  externally_settled:Boolean(order.externally_settled)||edge[0]==='SETTLED',
+  customer_acceptance_verified:Boolean(order.customer_acceptance_verified)||edge[0]==='COMPLETED',
+  refund_verified:edge[0]==='REFUNDED',
+  net_revenue_proved:false};
 }
 module.exports={EDGES,makeOrder,advance};
