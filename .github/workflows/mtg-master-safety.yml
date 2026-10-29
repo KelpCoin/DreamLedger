@@ -9,6 +9,8 @@ on:
       - 'public/catalog.json'
       - 'scripts/verify-mtg-master.cjs'
       - 'scripts/verify-beck-release-gates.cjs'
+      - 'scripts/verify-beck-master-manifest.cjs'
+      - 'config/tenants/nz-mtg.master.json'
       - '.github/workflows/mtg-master-safety.yml'
   workflow_dispatch:
 permissions:
@@ -23,6 +25,14 @@ jobs:
           node-version: '22'
       - name: Verify fail-closed storefront and produce proof
         run: node scripts/verify-mtg-master.cjs > mtg-master-proof.json
+      - name: Verify fail-closed master manifest
+        run: node scripts/verify-beck-master-manifest.cjs
+      - name: Upload master manifest proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: beck-master-manifest-proof
+          path: beck-master-manifest-proof.json
       - name: Verify Phase 1 and Phase 2 evidence (fail closed)
         run: node scripts/verify-beck-release-gates.cjs
       - name: Publish release-gate evidence
