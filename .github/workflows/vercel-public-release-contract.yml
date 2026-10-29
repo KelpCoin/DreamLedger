@@ -9,6 +9,9 @@ on:
       - 'handlers/cube/marketplace.test.js'
       - 'handlers/cube/silos.js'
       - 'handlers/cube/silos.test.js'
+      - 'handlers/cube/community.js'
+      - 'handlers/cube/community.test.js'
+      - 'migrations/20261029_cube_v2_community.sql'
       - 'BEC-PRIME/cube/CUBE-CLONE-CONTRACT.json'
       - 'BEC-PRIME/cube/CUBE-SILO-FACTORY-CONTRACT.json'
       - 'BEC-PRIME/cube/clone-silo*'
@@ -32,6 +35,9 @@ on:
       - 'handlers/cube/marketplace.test.js'
       - 'handlers/cube/silos.js'
       - 'handlers/cube/silos.test.js'
+      - 'handlers/cube/community.js'
+      - 'handlers/cube/community.test.js'
+      - 'migrations/20261029_cube_v2_community.sql'
       - 'BEC-PRIME/cube/CUBE-CLONE-CONTRACT.json'
       - 'BEC-PRIME/cube/CUBE-SILO-FACTORY-CONTRACT.json'
       - 'BEC-PRIME/cube/clone-silo*'
@@ -60,6 +66,8 @@ jobs:
           node --check handlers/cube/marketplace.js
           node --test handlers/cube/marketplace.test.js handlers/cube/stripeWebhookSignature.test.js
           node --test handlers/cube/silos.test.js BEC-PRIME/cube/clone-silo.test.js
+          node --test handlers/cube/community.test.js
+          node --check handlers/cube/community.js
           node --check handlers/cube/silos.js
           node --check BEC-PRIME/cube/clone-silo.js
           if grep -E "silo_id[[:space:]]*=[[:space:]]*'mtg'|silo_id[[:space:]]*<>[[:space:]]*'mtg'" migrations/20261029_cube_v2_domain_neutral_supply.sql handlers/cube/marketplace.js; then
