@@ -12,6 +12,7 @@ assert.ok(Array.isArray(globalCatalog.products));
 assert.ok(page.includes("Promise.all([fetchJSON('/data/mtg-catalog.json'), fetchJSON('/catalog.json')])"));
 assert.ok(page.includes('Checkout held until authoritative inventory and pricing agree.'));
 assert.ok(!page.includes('var FALLBACK ='));
+assert.equal(fs.readFileSync(path.join(root,'mtg/index.html'),'utf8'),page,'Legacy and public MTG storefront must stay identical');
 const globalById = new Map(globalCatalog.products.map(p => [p.id,p]));
 const conflicts = [];
 for (const p of mtg.products.filter(x => x.silo === 'mtg' && x.category === 'commander-deck' && x.status === 'published')) {
