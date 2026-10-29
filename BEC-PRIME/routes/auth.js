@@ -46,6 +46,10 @@ async function handle(req, res, url) {
   if (!authRoute) return false;
   const users = readUsers();
   const sessionId = getCookie(req, COOKIE);
+  if (req.method === 'GET' && route === '/api/account/terms-version') {
+    try { return json(res, 200, termsAcceptance.currentTerms()); }
+    catch { return json(res, 503, { error: 'Terms not available.' }); }
+  }
 
   if (req.method === 'GET' && route === '/api/account/me') {
     const user = sessionId ? users.find(item => item.id === sessionId && item.email) : null;
