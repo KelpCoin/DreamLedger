@@ -7,6 +7,12 @@ on:
       - 'package.json'
       - 'handlers/cube/marketplace.js'
       - 'handlers/cube/marketplace.test.js'
+      - 'handlers/cube/silos.js'
+      - 'handlers/cube/silos.test.js'
+      - 'BEC-PRIME/cube/CUBE-CLONE-CONTRACT.json'
+      - 'BEC-PRIME/cube/CUBE-SILO-FACTORY-CONTRACT.json'
+      - 'BEC-PRIME/cube/clone-silo*'
+      - 'migrations/20261029_cube_v2_domain_neutral_supply.sql'
       - 'handlers/dreammeez/**'
       - 'BEC-PRIME/compiled/website/lib/accountAuth.js'
       - 'BEC-PRIME/compiled/website/lib/signedSession*'
@@ -24,6 +30,12 @@ on:
       - 'package.json'
       - 'handlers/cube/marketplace.js'
       - 'handlers/cube/marketplace.test.js'
+      - 'handlers/cube/silos.js'
+      - 'handlers/cube/silos.test.js'
+      - 'BEC-PRIME/cube/CUBE-CLONE-CONTRACT.json'
+      - 'BEC-PRIME/cube/CUBE-SILO-FACTORY-CONTRACT.json'
+      - 'BEC-PRIME/cube/clone-silo*'
+      - 'migrations/20261029_cube_v2_domain_neutral_supply.sql'
       - 'handlers/dreammeez/**'
       - 'BEC-PRIME/compiled/website/lib/accountAuth.js'
       - 'BEC-PRIME/compiled/website/lib/signedSession*'
@@ -47,6 +59,12 @@ jobs:
         run: |
           node --check handlers/cube/marketplace.js
           node --test handlers/cube/marketplace.test.js handlers/cube/stripeWebhookSignature.test.js
+          node --test handlers/cube/silos.test.js BEC-PRIME/cube/clone-silo.test.js
+          node --check handlers/cube/silos.js
+          node --check BEC-PRIME/cube/clone-silo.js
+          if grep -E "silo_id[[:space:]]*=[[:space:]]*'mtg'|silo_id[[:space:]]*<>[[:space:]]*'mtg'" migrations/20261029_cube_v2_domain_neutral_supply.sql handlers/cube/marketplace.js; then
+            echo 'DOMAIN_LEAK_IN_SHARED_CUBE'; exit 1
+          fi
           node --check public/mtg/catalogue.js
           node --test public/mtg/catalogue.test.js
           node --check public/billboard-preview.js
