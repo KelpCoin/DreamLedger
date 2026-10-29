@@ -1,0 +1,121 @@
+{
+  "schema": "DREAMLEDGER/CCA-DISCOVERY/v1",
+  "version": "2026-10-29",
+  "intent": "Visitor-facing CCA cards; each card is a doorway to an existing silo destination, not a product listing or a claim of transaction readiness.",
+  "ux_contract": "One front door, many independent spaces. Preserve server-side isolation and approval gates.",
+  "categories": [
+    {
+      "id": "all",
+      "label": "Everything"
+    },
+    {
+      "id": "shop",
+      "label": "Shop"
+    },
+    {
+      "id": "tools",
+      "label": "Useful tools"
+    },
+    {
+      "id": "worlds",
+      "label": "Worlds"
+    },
+    {
+      "id": "create",
+      "label": "Create"
+    }
+  ],
+  "cards": [
+    {
+      "id": "marketplace",
+      "title": "Marketplace",
+      "eyebrow": "Find something",
+      "description": "Browse goods, services and independent seller pathways.",
+      "category": "shop",
+      "href": "/marketplace.html",
+      "accent": "#87d4ff",
+      "symbol": "◈",
+      "featured": true,
+      "owner": "marketplace",
+      "template": "storefront"
+    },
+    {
+      "id": "truth-oracle",
+      "title": "Truth Oracle",
+      "eyebrow": "Better decisions",
+      "description": "Inspect evidence and explore comparisons without the guesswork.",
+      "category": "tools",
+      "href": "/truth-oracle.html",
+      "accent": "#b3ff84",
+      "symbol": "◇",
+      "featured": true,
+      "owner": "truth_oracle",
+      "template": "evidence"
+    },
+    {
+      "id": "dreammeez",
+      "title": "DreamMeez",
+      "eyebrow": "Explore an identity",
+      "description": "Create an avatar and discover a new digital world.",
+      "category": "worlds",
+      "href": "/avatar.html",
+      "accent": "#c19cff",
+      "symbol": "✦",
+      "featured": true,
+      "owner": "dreammeez",
+      "template": "avatar_world"
+    },
+    {
+      "id": "billboard",
+      "title": "The Internet Billboard",
+      "eyebrow": "Make your mark",
+      "description": "Explore a shared canvas and see how placements work.",
+      "category": "create",
+      "href": "/billboard.html",
+      "accent": "#ffc87c",
+      "symbol": "▦",
+      "featured": true,
+      "owner": "billboard",
+      "template": "creative_space"
+    },
+    {
+      "id": "free-tools",
+      "title": "Free Tools",
+      "eyebrow": "Start with something useful",
+      "description": "Practical calculators and worksheets you can use without joining.",
+      "category": "tools",
+      "href": "/tools/free.html",
+      "accent": "#89f7db",
+      "symbol": "✳",
+      "featured": true,
+      "owner": "truth_oracle",
+      "template": "utility"
+    },
+    {
+      "id": "your-corner",
+      "title": "Your Corner",
+      "eyebrow": "Make a space",
+      "description": "Explore the existing pathway for independent sellers and creators.",
+      "category": "create",
+      "href": "/sell.html",
+      "accent": "#ffb2ce",
+      "symbol": "◎",
+      "featured": true,
+      "owner": "marketplace",
+      "template": "creator_space"
+    },
+    {
+      "id": "collectibles",
+      "title": "Cards & Collectibles",
+      "eyebrow": "A specialist shelf",
+      "description": "Explore a specialist catalogue of tabletop cards and decks.",
+      "category": "shop",
+      "href": "/mtg/",
+      "accent": "#d3c4ff",
+      "symbol": "♧",
+      "featured": false,
+      "owner": "mtg",
+      "template": "specialist_shop"
+    }
+  ]
+}
