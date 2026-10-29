@@ -96,7 +96,8 @@ async function handle(req, res, url) {
       guild: null,
       seller: { display_name: name, location: '', bio: '' },
       password: passwordRecord(password),
-      account_created_at: new Date().toISOString()
+      account_created_at: new Date().toISOString(),
+      terms_acceptance: acceptedTerms.record
     };
     users.push(user);
     writeUsers(users);
