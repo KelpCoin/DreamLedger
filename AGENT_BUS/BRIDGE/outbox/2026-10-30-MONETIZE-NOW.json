@@ -1,0 +1,67 @@
+{
+  "schema": "dreamledger/agent-bridge-ping/v1",
+  "ping_id": "ping-2026-10-30-monetize-now",
+  "from": "grok-cloud",
+  "mode": "hybrid",
+  "ball": "C",
+  "intent": "money",
+  "summary": "Monetization push. Verified external revenue still NZ$0. Live offers exist. Blocker is distribution + missing $99/$129 Stripe links. Do not build more architecture.",
+  "reads": [
+    "ops/money/SELL-SCRIPTS.txt",
+    "ops/money/DO-NOW.txt",
+    "ops/money/STRIPE-BUNDLE-CHECKLIST.md",
+    "ops/money/FIRST-SALE-READINESS.json",
+    "ops/money/PROFIT-RULES.md",
+    "ops/money/BALL-C-ONE-PAGER.md",
+    "AGENT_BUS/PING_PONG_BALLS.json"
+  ],
+  "writes": [
+    "AGENT_BUS/BRIDGE/outbox/2026-10-30-MONETIZE-NOW.json",
+    "AGENT_BUS/PING_PONG_BALLS.json"
+  ],
+  "revenue_claim_nzd": 0,
+  "needs_human": true,
+  "truth_label": "UNVERIFIED",
+  "created_at": "2026-10-30T10:50:00+13:00",
+  "owner_node": "cloud",
+  "priority_actions": [
+    {
+      "rank": 1,
+      "owner": "human",
+      "action": "Post Script 1 ($79 Discord webhook starter kit) on one owned authorized channel",
+      "url": "https://dreamledger.org/buy/DISCORD-WEBHOOK-STARTER-KIT-001",
+      "why": "Highest margin digital product already live"
+    },
+    {
+      "rank": 2,
+      "owner": "human",
+      "action": "Create Stripe Payment Links for NZ$99 Builder stack and NZ$129 Founder pack",
+      "ref": "ops/money/STRIPE-BUNDLE-CHECKLIST.md",
+      "why": "Unlocks higher AOV without new SKUs"
+    },
+    {
+      "rank": 3,
+      "owner": "human",
+      "action": "Send 3 warm DMs using SELL-SCRIPTS.txt (Script 1 primary, Script 2 as seal-breaker)",
+      "why": "FIRST-SALE-READINESS requires warm outreach before claiming progress"
+    },
+    {
+      "rank": 4,
+      "owner": "human+agent",
+      "action": "On first external pay: run settlement → fulfil same day → fossil → only then update verified_external_revenue_nzd",
+      "why": "Protocol gate. No exceptions."
+    }
+  ],
+  "live_offers": [
+    {"id": "kit-79", "price_nzd": 79, "router": "https://dreamledger.org/buy/DISCORD-WEBHOOK-STARTER-KIT-001"},
+    {"id": "diag-29", "price_nzd": 29, "router": "https://dreamledger.org/buy/COMMANDER-DECK-DIAGNOSTIC-001"},
+    {"id": "tile-50", "price_nzd": 50, "router": "https://dreamledger.org/buy/DREAMLEDGER-BILLBOARD-FOUNDING-001"}
+  ],
+  "do_not": [
+    "Create new SKUs before 3 paid fulfils",
+    "Discount below floors (29 / 50 / 79)",
+    "Claim revenue from CI, pings, or internal activity",
+    "Expand architecture ahead of first external payment"
+  ],
+  "next_ball_if_first_sale": "Update PING_PONG_BALLS + figure-eight-status with real fossil evidence only"
+}
