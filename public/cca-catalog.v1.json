@@ -117,5 +117,19 @@
       "owner": "mtg",
       "template": "specialist_shop"
     }
-  ]
+  ],
+  "canonical_qr": {
+    "id": "QR-CANONICAL-001",
+    "original_asset_name": "DreamLedger-QR-CANONICAL-001-original.jpeg",
+    "original_sha256": "c795c6cc5b6b0e021fd5bd344ea0ac5773097e9ed51d1778844f0d8adeb190cf",
+    "image_owner": "DreamLedger",
+    "stored_master": "/Brand Assets/DreamLedger-QR-CANONICAL-001-original.jpeg",
+    "payload": "www.dreamledger.org",
+    "destination_path": "/",
+    "asset_rule": "REUSE_EXACT_ORIGINAL_ONLY",
+    "payload_test": "PASS_AFTER_CYAN_THRESHOLD",
+    "physical_scan_test": "PENDING",
+    "public_asset_deployment": "NOT_VERIFIED",
+    "discovery_contract": "CCA carousel on the root homepage; do not alter QR pixels or target"
+  }
 }
