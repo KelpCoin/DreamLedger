@@ -1,70 +1,65 @@
 <!doctype html>
 <html lang="en-NZ">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#101b2b">
-<title>DreamLedger | One Doorway</title>
-<meta name="description" content="One canonical doorway to DreamLedger's marketplace, free tools, evidence surfaces and machine-readable capabilities.">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#08100a">
+<meta name="description" content="DreamLedger: discover shops, free tools, creative worlds and your own corner of the Internet. One doorway, many independent spaces.">
+<title>DreamLedger | Your corner of the Internet</title>
+<link rel="canonical" href="https://dreamledger.org/">
 <style>
-:root{color-scheme:dark;--bg:#0b1220;--panel:#142237;--line:#2a3b51;--ink:#f4f7fb;--muted:#b4c0cf;--accent:#e8c66a}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,Segoe UI,sans-serif}
-main{max-width:980px;margin:0 auto;padding:clamp(24px,5vw,64px) 22px}
-.kicker{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:800}
-h1{font-size:clamp(2.7rem,8vw,5.6rem);line-height:.94;letter-spacing:-.045em;margin:16px 0}
-.lead{font-size:clamp(1.05rem,2vw,1.35rem);color:var(--muted);max-width:720px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin:30px 0}
-.card{display:block;border:1px solid var(--line);border-radius:14px;padding:20px;background:var(--panel);color:var(--ink);text-decoration:none;min-height:150px}
-.card:hover,.card:focus{border-color:var(--accent);outline:none}
-.card strong{display:block;font-size:1.15rem;margin-bottom:8px}
-.card span{color:var(--muted);font-size:.94rem}
-small{color:var(--muted)}footer{border-top:1px solid var(--line);padding-top:18px;color:var(--muted);font-size:.9rem}
-.status{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:5px 10px;font-size:.8rem;color:var(--muted)}
+:root{color-scheme:dark;--bg:#080e0a;--panel:#132016;--ink:#effaf0;--muted:#bdd0bf;--line:#335a3d;--lime:#96ffac}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(ellipse at 15% 0,#235a34,transparent 42%),radial-gradient(ellipse at 90% 4%,#244331,transparent 37%),var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}a{color:inherit;text-decoration:none}button,input{font:inherit}button{cursor:pointer}
+.wrap{width:min(1200px,calc(100% - 32px));margin:auto}
+header{border-bottom:1px solid var(--line)}.top{min-height:70px;display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:12px 0}.brand{font-size:25px;font-weight:950;letter-spacing:-.055em}.brand span{color:var(--lime)}nav{display:flex;gap:10px;flex-wrap:wrap}nav a{font-size:13px;font-weight:700;color:var(--muted);padding:8px 10px;border-radius:30px}nav a:hover,nav a:focus-visible{background:#1a3422}
+.hero{padding:clamp(32px,6vw,64px) 0 20px}.eyebrow{font-size:12px;font-weight:850;letter-spacing:.17em;text-transform:uppercase;color:var(--lime)}
+h1{font-size:clamp(39px,7.5vw,79px);line-height:1.03;letter-spacing:-.07em;max-width:900px;margin:10px 0 14px}h1 span{color:var(--lime)}.lede{font-size:clamp(16px,2.1vw,19px);max-width:670px;color:var(--muted);margin:0 0 22px}
+.action{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:11px 18px;border:1px solid #47724f;border-radius:12px;font-weight:850;margin:0 8px 8px 0}.action.primary{color:#092311;background:var(--lime);border-color:var(--lime)}.action.secondary{background:#16291b}
+section{padding:12px 0 26px}.sectionhead{display:flex;justify-content:space-between;align-items:end;gap:14px;flex-wrap:wrap}.sectionhead h2{font-size:clamp(25px,4vw,33px);margin:0;letter-spacing:-.045em}.sectionhead p{color:var(--muted);font-size:14px;margin:5px 0 0}.arrows{display:flex;gap:8px}.arrow{border-radius:99px;background:#172b1c;border:1px solid #44664d;color:var(--ink);font-size:24px;width:44px;height:44px}.arrow:disabled{opacity:.35}
+.rail{display:flex;gap:15px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding:4px;padding:17px 4px 20px;scrollbar-color:#5b9764 transparent;scrollbar-width:thin;-webkit-overflow-scrolling:touch}
+.card{--accent:#96ffac;display:flex;flex-direction:column;flex:0 0 clamp(252px,36vw,351px);min-height:288px;scroll-snap-align:start;border:1px solid #45684c;border-radius:19px;overflow:hidden;background:linear-gradient(145deg,#1a2d20,#101a14);transition:transform .18s ease,border-color .18s ease}
+.card:hover,.card:focus-visible{border-color:var(--accent);transform:translateY(-2px);outline-offset:3px}
+.art{height:119px;background:radial-gradient(circle at 50% 50%,color-mix(in srgb,var(--accent) 28%,transparent),transparent 64%),linear-gradient(130deg,#1b3826,#101b14);display:grid;place-items:center;position:relative;overflow:hidden}.art:after{content:"";position:absolute;border:1px solid color-mix(in srgb,var(--accent) 60%,transparent);width:175px;height:175px;border-radius:31%;transform:rotate(29deg) translate(43%,-25%)}.symbol{font-size:64px;color:var(--accent);line-height:1;text-shadow:0 0 28px color-mix(in srgb,var(--accent) 40%,transparent)}
+.body{padding:17px 18px 20px;display:flex;flex-direction:column;flex:1}.tag{color:var(--accent);font-weight:850;text-transform:uppercase;letter-spacing:.1em;font-size:11px}.name{font-size:23px;font-weight:870;letter-spacing:-.038em;margin:4px 0}.desc{color:#c8d8ca;line-height:1.48;font-size:14px;margin:0 0 10px;flex:1}.enter{color:var(--accent);font-size:13px;font-weight:850}
+.finder{margin-top:2px}.search{width:100%;margin:18px 0 12px;padding:15px 17px;min-height:55px;border-radius:14px;background:#15291c;color:white;border:1px solid #4b7b56;font-size:16px}.search::placeholder{color:#a4c0ab}.filters{display:flex;gap:8px;overflow-x:auto;padding:4px 0 16px}.filter{white-space:nowrap;border-radius:99px;background:#17291c;color:#d0e3d2;border:1px solid #3c6144;padding:9px 15px;font-size:13px;font-weight:800}.filter[aria-pressed=true]{background:var(--lime);border-color:var(--lime);color:#0b2611}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,259px),1fr));gap:15px}.grid .card{width:100%;min-width:0;min-height:278px}.grid .art{height:100px}
+.empty{padding:20px;border-radius:14px;border:1px solid var(--line);background:#15291b;color:var(--muted)}[hidden]{display:none!important}
+.future{margin:12px 0 36px;padding:24px;border-radius:20px;background:linear-gradient(115deg,#173521,#101d14);border:1px solid #426c4b}.future h2{letter-spacing:-.04em;font-size:clamp(23px,3vw,31px);margin:0 0 8px}.future p{color:var(--muted);max-width:720px;margin:0 0 17px}
+footer{color:var(--muted);font-size:13px;border-top:1px solid #34533a;padding:20px 0 42px}footer a{color:var(--lime);text-decoration:underline}
+@media(max-width:520px){nav{width:100%;justify-content:space-between}nav a{padding:7px 8px}.card{min-height:280px;flex-basis:min(82vw,305px)}.art{height:107px}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
 </style>
 </head>
 <body>
-<main>
-<p class="kicker">DreamLedger · One Doorway, Many Roads</p>
-<h1>Find the right<br>next action.</h1>
-<p class="lead">One canonical entry point to discover useful tools, inspect evidence, browse existing services, or connect through machine-readable capability contracts.</p>
-<p><span class="status" id="attribution-status">Attribution is optional</span></p>
-<div class="grid">
-<a class="card" href="/marketplace.html" data-attribution><strong>Browse the marketplace</strong><span>Explore existing listings and service surfaces.</span></a>
-<a class="card" href="/cost-of-living.html" data-attribution><strong>Free tools</strong><span>Start with public utility and decision support.</span></a>
-<a class="card" href="/truth-oracle.html" data-attribution><strong>Inspect evidence</strong><span>Review observations, provenance, contradictions and unknowns.</span></a>
-<a class="card" href="/quote-comparison/" data-attribution><strong>Supplier quote comparison</strong><span>Review the current comparison workflow and its availability before relying on it.</span></a>
-<a class="card" href="/.well-known/agent-commerce.json" data-attribution><strong>Agent commerce manifest</strong><span>Machine-readable discovery and current offer status.</span></a>
-<a class="card" href="/toll-road" data-attribution><strong>Try the NZ$0.50 API probe</strong><span>Experimental paid interoperability test. The first settlement and fulfilled probe are still being verified.</span></a>
-<a class="card" href="/api/toll/v1/manifest" data-attribution><strong>API / toll-road manifest</strong><span>Inspect the existing machine-facing route. Checkout and fulfillment must be verified separately.</span></a>
-</div>
-<footer>
-<p>Campaign identifiers are optional. This page validates ref/c values locally and carries accepted values to internal links. It does not record a server-side impression, authorize a payment, or claim that an offer is available.</p>
-<p>DreamLedger counts revenue only after an independent settled payment, successful fulfillment, delivery evidence and attribution reconcile.</p>
-</footer>
+<header><div class="wrap top"><a href="/" class="brand">Dream<span>Ledger</span></a><nav aria-label="Explore"><a href="#featured">Discover</a><a href="#browse">Explore all</a><a href="/marketplace.html">Shop</a><a href="/sell.html">Create</a></nav></div></header>
+<main class="wrap">
+<section class="hero"><div class="eyebrow">One doorway · Many worlds</div><h1>Your corner of the <span>Internet starts here.</span></h1><p class="lede">Explore independent shops, clever tools, creative spaces and worlds worth discovering. Swipe a card. Find your thing. No account needed to look around.</p><a class="action primary" href="#featured">Explore the cards</a><a class="action secondary" href="#browse">Search everything</a></section>
+<section id="featured" aria-labelledby="featured-label"><div class="sectionhead"><div><h2 id="featured-label">Pick a doorway</h2><p>Each card opens a whole space, not just one product. Swipe to see more.</p></div><div class="arrows"><button type="button" class="arrow" id="prev" aria-label="Previous cards">‹</button><button type="button" class="arrow" id="next" aria-label="Next cards">›</button></div></div><div class="rail" id="rail" tabindex="0" aria-label="Featured spaces, swipe horizontally"><a class="card" href="/marketplace.html"><span class="art"><span class="symbol">◈</span></span><span class="body"><span class="tag">Find something</span><span class="name">Marketplace</span><span class="desc">Shops, services and places to explore.</span><span class="enter">Enter this space →</span></span></a><a class="card" href="/truth-oracle.html"><span class="art"><span class="symbol">◇</span></span><span class="body"><span class="tag">Better decisions</span><span class="name">Truth Oracle</span><span class="desc">Find tools and evidence-backed comparisons.</span><span class="enter">Enter this space →</span></span></a><a class="card" href="/avatar.html"><span class="art"><span class="symbol">✦</span></span><span class="body"><span class="tag">Explore an identity</span><span class="name">DreamMeez</span><span class="desc">Create your avatar and discover a world.</span><span class="enter">Enter this space →</span></span></a></div></section>
+<section id="browse" class="finder" aria-labelledby="browse-label"><div class="sectionhead"><div><h2 id="browse-label">Explore every corner</h2><p>Find a place to shop, make something or just look around.</p></div></div><label for="search" style="display:block;margin-top:16px;font-size:14px;font-weight:750">Search spaces</label><input type="search" class="search" id="search" placeholder="What are you interested in?" autocomplete="off"><div id="filters" class="filters" aria-label="Filter by interest"><button class="filter" aria-pressed="true" data-filter="all">Everything</button><button class="filter" aria-pressed="false" data-filter="shop">Shop</button><button class="filter" aria-pressed="false" data-filter="tools">Useful tools</button><button class="filter" aria-pressed="false" data-filter="worlds">Worlds</button><button class="filter" aria-pressed="false" data-filter="create">Create</button></div><div class="grid" id="grid" aria-live="polite"><a class="card" href="/marketplace.html"><span class="body"><span class="name">Marketplace</span><span class="desc">Browse goods, services and sellers.</span><span class="enter">Enter →</span></span></a><a class="card" href="/truth-oracle.html"><span class="body"><span class="name">Truth Oracle</span><span class="desc">Evidence-backed decisions and comparisons.</span><span class="enter">Enter →</span></span></a><a class="card" href="/avatar.html"><span class="body"><span class="name">DreamMeez</span><span class="desc">Explore an avatar world.</span><span class="enter">Enter →</span></span></a><a class="card" href="/billboard.html"><span class="body"><span class="name">Internet Billboard</span><span class="desc">Explore the canvas.</span><span class="enter">Enter →</span></span></a><a class="card" href="/sell.html"><span class="body"><span class="name">Your Corner</span><span class="desc">Explore seller and creator entry points.</span><span class="enter">Enter →</span></span></a></div><p class="empty" id="empty" hidden>No matches yet. Try another search or choose Everything.</p><p class="empty" id="loaderror" hidden>The catalogue couldn't refresh. The visible links still work.</p></section>
+<section class="future" aria-labelledby="create-label"><h2 id="create-label">Want a corner of your own?</h2><p>A profile, a shop, a creative space or a community. Explore the current creator and seller pathway as new spaces take shape. Browsing is free; seller activation and other features depend on availability and approval.</p><a class="action primary" href="/sell.html">Explore creating a space</a></section>
 </main>
+<footer><div class="wrap">One connected discovery experience. Independent spaces keep their own rules, customer data and payment boundaries. <a href="/privacy.html">Privacy</a> · <a href="/terms.html">Terms</a> · <a href="/go">QR doorway</a></div></footer>
 <script>
-(function () {
-  "use strict";
-  var pattern = /^[A-Za-z0-9_-]{1,64}$/;
-  var params = new URLSearchParams(window.location.search);
-  var ref = params.get("ref") || "";
-  var campaign = params.get("c") || "";
-  var safeRef = pattern.test(ref) ? ref : "";
-  var safeCampaign = pattern.test(campaign) ? campaign : "";
-  try {
-    if (safeRef) sessionStorage.setItem("dl_ref", safeRef);
-    if (safeCampaign) sessionStorage.setItem("dl_campaign", safeCampaign);
-  } catch (_) {}
-  document.querySelectorAll("a[data-attribution]").forEach(function (link) {
-    var target = new URL(link.href, window.location.origin);
-    if (target.origin !== window.location.origin) return;
-    if (safeRef) target.searchParams.set("ref", safeRef);
-    if (safeCampaign) target.searchParams.set("c", safeCampaign);
-    link.href = target.pathname + target.search + target.hash;
-  });
-  var label = (safeRef || safeCampaign) ? "Campaign attribution accepted" : "Direct / organic entry";
-  document.getElementById("attribution-status").textContent = label;
+(() => {
+"use strict";
+const $=id=>document.getElementById(id);
+const validPath=p=>typeof p==="string"&&/^\/[a-zA-Z0-9/_-]+(?:\.html)?\/?$/.test(p)&&!p.startsWith("//");
+const validHex=x=>typeof x==="string"&&/^#[a-f\d]{6}$/i.test(x);
+const validCard=c=>c&&typeof c.id==="string"&&typeof c.title==="string"&&typeof c.description==="string"&&typeof c.eyebrow==="string"&&validPath(c.href)&&validHex(c.accent)&&typeof c.category==="string";
+let records=[],filter="all";
+const params=new URLSearchParams(location.search),ref=params.get("ref"),campaign=params.get("c");const safe=/^[A-Za-z0-9_-]{1,64}$/;
+function destination(path){const url=new URL(path,location.origin);if(ref&&safe.test(ref))url.searchParams.set("ref",ref);if(campaign&&safe.test(campaign))url.searchParams.set("c",campaign);return url.pathname+url.search+url.hash}
+function renderCard(c){const a=document.createElement("a");a.className="card";a.href=destination(c.href);a.style.setProperty("--accent",c.accent);a.setAttribute("aria-label","Enter "+c.title);const art=document.createElement("span");art.className="art";art.setAttribute("aria-hidden","true");const symbol=document.createElement("span");symbol.className="symbol";symbol.textContent=c.symbol||"✦";art.append(symbol);const body=document.createElement("span");body.className="body";for(const [className,value] of [["tag",c.eyebrow],["name",c.title],["desc",c.description],["enter","Explore space →"]]){const e=document.createElement("span");e.className=className;e.textContent=value;body.append(e)}a.append(art,body);return a}
+function draw(){const needle=$("search").value.trim().toLowerCase();const selected=records.filter(c=>(filter==="all"||c.category===filter)&&(!needle||[c.title,c.description,c.eyebrow,c.category].join(" ").toLowerCase().includes(needle)));$("grid").replaceChildren(...selected.map(renderCard));$("empty").hidden=selected.length!==0}
+$("search").addEventListener("input",draw);
+$("filters").addEventListener("click",e=>{const b=e.target.closest("button[data-filter]");if(!b)return;filter=b.dataset.filter;for(const x of $("filters").querySelectorAll("button"))x.setAttribute("aria-pressed",String(x===b));draw()});
+const rail=$("rail");
+function scrollCards(n){const first=rail.querySelector(".card");rail.scrollBy({left:n*((first?.getBoundingClientRect().width)||300)+n*15,behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"instant":"smooth"})}
+$("prev").addEventListener("click",()=>scrollCards(-1));$("next").addEventListener("click",()=>scrollCards(1));
+function setButtons(){$("prev").disabled=rail.scrollLeft<6;$("next").disabled=rail.scrollLeft+rail.clientWidth>=rail.scrollWidth-6}
+rail.addEventListener("scroll",setButtons,{passive:true});addEventListener("resize",setButtons);
+for(const link of document.querySelectorAll("a[href^='/']")){const raw=link.getAttribute("href");if(validPath(raw))link.href=destination(raw)}
+fetch("/cca-catalog.v1.json",{credentials:"omit",cache:"default"}).then(r=>{if(!r.ok)throw Error("catalogue unavailable");return r.json()}).then(m=>{if(!m||m.schema!=="DREAMLEDGER/CCA-DISCOVERY/v1"||!Array.isArray(m.cards)||m.cards.length>100)throw Error("unsupported catalogue");records=m.cards.filter(validCard);if(!records.length)throw Error("empty catalogue");rail.replaceChildren(...records.filter(c=>c.featured).map(renderCard));draw();setButtons()}).catch(()=>{$("loaderror").hidden=false;setButtons()});
+setButtons();
 })();
 </script>
-</body>
-</html>
+</body></html>
