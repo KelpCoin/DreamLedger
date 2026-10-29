@@ -20,3 +20,5 @@ jobs:
         with:
           node-version: '22'
       - run: node BEC-PRIME/scripts/test-terms-clickwrap.js
+      - run: node BEC-PRIME/scripts/verify-auth-terms-integration.js
+      - run: node --check BEC-PRIME/routes/auth.js
