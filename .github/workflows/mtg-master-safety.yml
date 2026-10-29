@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - 'public/mtg/**'
+      - 'mtg/index.html'
       - 'public/data/mtg-catalog.json'
       - 'public/catalog.json'
       - 'scripts/verify-mtg-master.cjs'
@@ -21,6 +22,7 @@ jobs:
       - name: Verify fail-closed storefront and produce proof
         run: node scripts/verify-mtg-master.cjs > mtg-master-proof.json
       - name: Publish evidence artifact
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: mtg-master-proof
