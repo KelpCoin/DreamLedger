@@ -2,7 +2,7 @@ name: 777 Guntis Bounded Solver
 
 on:
   schedule:
-    - cron: "37 */2 * * *"
+    - cron: "37 8,20 * * *"
   workflow_dispatch:
 
 permissions:
