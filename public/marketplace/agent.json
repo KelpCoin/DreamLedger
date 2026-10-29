@@ -1,6 +1,6 @@
 {
   "schema": "dreamledger.marketplace.agent.v1",
-  "name": "DreamLedger Universal Economic Marketplace",
+  "name": "Kelphaven.n Universal Economic Marketplace",
   "capabilities": [
     "discover_listings",
     "search_b2b_supply",

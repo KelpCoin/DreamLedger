@@ -66,6 +66,34 @@ function run(candidate, proofPath) {
   if (candidate.proof_of_delivery && candidate.verification_rules) pass(checks, 'candidate.proof', 'Proof and verification are explicit');
   else fail(checks, 'candidate.proof', 'Proof of delivery and verification rules are required');
 
+  if (candidate.pricing_evidence_required === true) {
+    const evidence = candidate.pricing_evidence;
+    const validEvidence = Array.isArray(evidence) && evidence.length > 0 && evidence.every(item =>
+      typeof item?.source === 'string' && item.source.trim().length > 0 &&
+      typeof item?.kind === 'string' && item.kind.trim().length > 0 &&
+      typeof item?.retrieved_at === 'string' && Number.isFinite(Date.parse(item.retrieved_at)) &&
+      /^[a-f0-9]{64}$/i.test(String(item?.sha256 || ''))
+    );
+    if (validEvidence) pass(checks, 'candidate.pricing_evidence', 'Timestamped, source-referenced price evidence has SHA-256 metadata');
+    else fail(checks, 'candidate.pricing_evidence', 'Each price evidence item needs source, valid timestamp, kind and SHA-256');
+    if (validEvidence && candidate.pricing_evidence_sha256 === sha256(JSON.stringify(evidence))) {
+      pass(checks, 'candidate.pricing_evidence_hash', 'Price evidence manifest hash matches the evidence payload');
+    } else {
+      fail(checks, 'candidate.pricing_evidence_hash', 'Price evidence manifest hash missing or mismatched');
+    }
+    const costFloor = Number(candidate.price_cost_floor_nzd);
+    if (Number.isFinite(costFloor) && costFloor > 0 && Number(candidate.price) >= costFloor) {
+      pass(checks, 'candidate.price_cost_floor', 'Proposed price covers the disclosed cost floor');
+    } else {
+      fail(checks, 'candidate.price_cost_floor', 'Proposed price must cover a positive evidenced cost floor');
+    }
+    if (candidate.pricing_policy_version && candidate.price_proposal_id) {
+      pass(checks, 'candidate.pricing_policy', 'Versioned pricing policy and proposal identity are present');
+    } else {
+      fail(checks, 'candidate.pricing_policy', 'Versioned pricing policy and proposal identity are required');
+    }
+  }
+
   const status = checks.every(x => x.status === 'PASS') ? 'PASS' : 'FAIL';
   const payload = {
     type: 'dreamledger-candidate-gauntlet-proof',

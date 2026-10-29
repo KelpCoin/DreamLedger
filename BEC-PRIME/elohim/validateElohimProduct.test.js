@@ -79,13 +79,19 @@ test('ElohimCreate emits validated candidate in allowed silo', () => {
   assert.equal(c.created_by, 'ELOHIM');
 });
 
-test('dreamledger host silo maps to digital_products', () => {
+test('missing Elohim price is held instead of receiving an invented NZ$49 default', () => {
   const c = createCandidate({
     id: 'CAP-HOST',
     name: 'Host product',
     silo: 'dreamledger'
   });
   assert.equal(c.silo, 'digital_products');
+  assert.equal(c.status, 'UNPRICED_HELD');
+  assert.equal(c.price_status, 'HELD_MISSING_PRICE_EVIDENCE');
+  assert.deepEqual(c.price_proposal_nzd, []);
+  assert.equal(c.checkout_available, false);
+  assert.equal(c.validation.ok, false);
+  assert.ok(c.validation.errors.some(e => e.code === 'PRICE_EVIDENCE_REQUIRED'));
 });
 
 test('candidateToDraftProduct produces draft catalog product', () => {

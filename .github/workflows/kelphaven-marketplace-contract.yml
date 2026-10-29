@@ -1,0 +1,27 @@
+name: Kelphaven.n Marketplace Contract
+on:
+  pull_request:
+    paths:
+      - 'BEC-PRIME/commerce/kelphaven-marketplace-contract.*'\n      - 'BEC-PRIME/commerce/kelphaven-elohim-product-pipeline.*'\n      - 'BEC-PRIME/elohim/**'\n      - 'BEC-PRIME/council/ElohimCreate.js'\n      - 'BEC-PRIME/gauntlet/CandidateGauntlet.js'\n      - 'public/b2b-marketplace.html'\n      - 'public/a2a-marketplace.html'\n      - 'BEC-PRIME/scripts/kelphaven-live-smoke.mjs'
+      - 'docs/KELPHAVEN-B2B-A2A-MARKETPLACE-CONTRACT.md'
+      - '.github/workflows/kelphaven-marketplace-contract.yml'
+  push:
+    branches:
+      - main
+      - 'beck/kelphaven-b2b-a2a-marketplace-20261020'
+    paths:
+      - 'BEC-PRIME/commerce/kelphaven-marketplace-contract.*'
+      - 'docs/KELPHAVEN-B2B-A2A-MARKETPLACE-CONTRACT.md'
+      - '.github/workflows/kelphaven-marketplace-contract.yml'
+permissions:
+  contents: read
+jobs:
+  contract-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run Kelphaven marketplace contract tests
+        run: node --test BEC-PRIME/commerce/kelphaven-marketplace-contract.test.mjs BEC-PRIME/commerce/kelphaven-elohim-product-pipeline.test.mjs BEC-PRIME/elohim/validateElohimProduct.test.js
