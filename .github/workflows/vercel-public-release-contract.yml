@@ -19,6 +19,7 @@ on:
       - 'BEC-PRIME/cube/CUBE-SILO-FACTORY-CONTRACT.json'
       - 'BEC-PRIME/cube/clone-silo*'
       - 'BEC-PRIME/cube/silo-health*'
+      - 'BEC-PRIME/cube/order-lifecycle*'
       - 'migrations/20261029_cube_v2_domain_neutral_supply.sql'
       - 'handlers/dreammeez/**'
       - 'BEC-PRIME/compiled/website/lib/accountAuth.js'
@@ -49,6 +50,7 @@ on:
       - 'BEC-PRIME/cube/CUBE-SILO-FACTORY-CONTRACT.json'
       - 'BEC-PRIME/cube/clone-silo*'
       - 'BEC-PRIME/cube/silo-health*'
+      - 'BEC-PRIME/cube/order-lifecycle*'
       - 'migrations/20261029_cube_v2_domain_neutral_supply.sql'
       - 'handlers/dreammeez/**'
       - 'BEC-PRIME/compiled/website/lib/accountAuth.js'
@@ -75,6 +77,8 @@ jobs:
           node --test handlers/cube/marketplace.test.js handlers/cube/stripeWebhookSignature.test.js
           node --test handlers/cube/silos.test.js BEC-PRIME/cube/clone-silo.test.js
           node --test BEC-PRIME/cube/silo-health.test.js
+          node --test BEC-PRIME/cube/order-lifecycle.test.js
+          node --check BEC-PRIME/cube/order-lifecycle.js
           node --check BEC-PRIME/cube/silo-health.js
           node --test handlers/cube/community.test.js
           node --test handlers/cube/listing-intake.test.js
