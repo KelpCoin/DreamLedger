@@ -87,5 +87,5 @@
       return {state:'INVENTORY_UNVERIFIED',count:0};
     });
   }
-  return Object.freeze({ENDPOINT,isSellablePublicItem,selectItems,renderItem,loadLive,mount});
+  return Object.freeze({ENDPOINT,isSellablePublicItem,publicItem,selectItems,renderItem,loadLive,mount});
 });
