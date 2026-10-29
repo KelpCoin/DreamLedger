@@ -131,10 +131,10 @@
     {
       "id": "EDH_0001",
       "name": "Edward Kenway – Pacin’ On The Plank",
-      "description": "Edward Kenway Pirate/Vehicle Commander deck. Public listing price: NZ$230. The connected live Stripe Payment Link currently charges NZ$400, so purchase is held until price and payment link are reconciled. This listing is visible for transparency but is not purchasable.",
-      "price": 230,
+      "description": "Owner-approved asking price NZ$400 (2026-10-23), subject to physical stock, condition and full decklist verification. Not currently available for checkout.",
+      "price": 400,
       "currency": "nzd",
-      "status": "published",
+      "status": "held",
       "checkout_available": false,
       "checkout_url": null,
       "sku": "EDH-EDWARD-KENWAY-PACIN-ON-THE-PLANK-001",
@@ -148,11 +148,10 @@
         "piratetribal",
         "mtgsale"
       ],
-      "patron_price_nzd": 200,
       "patron_url": "https://patreon.com/happyhomarid",
       "category": "mtg",
       "availability": "review_required",
-      "checkout_hold_reason": "Live Stripe checkout charges NZ$400 while public listing is NZ$230; checkout remains held until parity is restored."
+      "checkout_hold_reason": "Physical inventory, card condition, shipping and final listing approval remain unverified. Do not sell until confirmed."
     },
     {
       "id": "EDH_QUINTORIUS_0002",
@@ -344,7 +343,8 @@
       "payment_link_id": "plink_1UKq77EGgEAnUFF9KOr1SuUY",
       "stripe_price_id": "price_1UKq73EGgEAnUFF92KC3fkh5",
       "category": "procurement-tools",
-      "availability": "review_required"
+      "availability": "review_required",
+      "silo": "truth_oracle"
     },
     {
       "id": "DOC-EXTRACT-50",
