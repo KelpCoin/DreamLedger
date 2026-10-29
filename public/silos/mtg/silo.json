@@ -22,7 +22,13 @@
     "content": true,
     "promotion": true
   },
-  "capabilities_by_ref": ["catalog", "gauntlet", "commerce-spine", "news-carousel", "fossil"],
+  "capabilities_by_ref": [
+    "catalog",
+    "gauntlet",
+    "commerce-spine",
+    "news-carousel",
+    "fossil"
+  ],
   "inventory_policy": "empty_until_verified_supply",
   "payment_truth": "settled_payment_only",
   "browse_free": true,
@@ -30,23 +36,61 @@
   "success_fee_peer": 0,
   "currency": "NZD",
   "listing_template_ref": "AGENT_BUS/SILOS/MTG-LISTING-TEMPLATE.md",
-  "listing_fields_required": ["title", "condition", "finish", "price_nzd", "city", "meetup_or_post"],
-  "listing_fields_optional": ["photos", "language", "quantity", "bundle_discount", "trades_wanted"],
+  "listing_fields_required": [
+    "title",
+    "condition",
+    "finish",
+    "price_nzd",
+    "city",
+    "meetup_or_post"
+  ],
+  "listing_fields_optional": [
+    "photos",
+    "language",
+    "quantity",
+    "bundle_discount",
+    "trades_wanted"
+  ],
   "product_kinds": [
-    {"id": "single", "label": "Single", "primary": true},
-    {"id": "commander-deck", "label": "Commander deck", "detail_pattern": "/mtg/{slug}.html", "grid_capability": "card_image_grid"}
+    {
+      "id": "single",
+      "label": "Single",
+      "primary": true
+    },
+    {
+      "id": "commander-deck",
+      "label": "Commander deck",
+      "detail_pattern": "/mtg/{slug}.html",
+      "grid_capability": "card_image_grid"
+    }
   ],
   "clone": {
-    "rule": "Clone shell + capability bindings. Never copy inventory. Never invent templates outside factory.",
+    "rule": "MTG is the reference fixture, not an item schema to copy. Use the domain-neutral CUBE v2 compiler. Generated candidates never contain copied stock, buyers or payment identities.",
+    "compiler": "BEC-PRIME/cube/clone-silo.js",
+    "contract": "BEC-PRIME/cube/CUBE-CLONE-CONTRACT.json",
+    "manifest_schema": "BEC-PRIME/cube/CUBE-CLONE-MANIFEST.schema.json",
     "steps": [
-      "Copy public/silos/mtg/silo.json to public/silos/{slug}/silo.json",
-      "Set slug, name, short, accent, routes, catalog path",
-      "Create empty catalog public/data/{slug}-catalog.json with products: []",
-      "Point public/{slug}/index.html at silo-master.css + new manifest path",
-      "Cube compile_candidate then gauntlet_check then publish_approval_gate",
-      "Activate only with verified supply atom and buyer path"
+      "Provide independent silo configuration with brand, locale, ISO currency, fulfilment, legal pack and domain_fields",
+      "Run node BEC-PRIME/cube/clone-silo.js config.json private-output-directory",
+      "Inspect empty public catalogue and separate pending seed-review queue",
+      "Run CUBE generic integrity, isolation, supply and checkout lifecycle tests",
+      "Apply independently reviewed jurisdiction legal pack and obtain public release approval",
+      "Activate provider checkout only after trusted supply attestation, settlement and fulfilment gates"
     ],
-    "do_not_copy": ["product inventory rows", "customer data", "stripe credentials", "analytics identities", "other silo promotion"]
+    "domain_fields_not_inherited": true,
+    "do_not_copy": [
+      "MTG domain_fields",
+      "card grades",
+      "decklists",
+      "physical inventory records",
+      "seller/customer identities",
+      "payment credentials",
+      "historical receipts",
+      "Patreon memberships",
+      "analytics history",
+      "community claims",
+      "domain legal conclusions"
+    ]
   },
   "gauntlet": {
     "accept_when": [
@@ -64,13 +108,35 @@
     ]
   },
   "surface": {
-    "hero_pills": ["Singles first", "0% success fee", "See the cards"],
-    "primary_cta": {"label": "Sell a single", "href_key": "list_route"},
-    "secondary_cta": {"label": "Browse decks", "href": "#decks"},
+    "hero_pills": [
+      "Singles first",
+      "0% success fee",
+      "See the cards"
+    ],
+    "primary_cta": {
+      "label": "Sell a single",
+      "href_key": "list_route"
+    },
+    "secondary_cta": {
+      "label": "Browse decks",
+      "href": "#decks"
+    },
     "community_blocks": [
-      {"title": "List a single", "body": "Name, condition, NZD price, city. Buyers see a clean card face — not a blurry album."},
-      {"title": "Buy with eyes open", "body": "Open lists for decks. Clear terms for singles. Confirm before you pay or ship."},
-      {"title": "Trade carefully", "body": "Accounts keep people reachable. Deals stay between humans who show up as themselves."}
+      {
+        "title": "List a single",
+        "body": "Name, condition, NZD price, city. Buyers see a clean card face — not a blurry album."
+      },
+      {
+        "title": "Buy with eyes open",
+        "body": "Open lists for decks. Clear terms for singles. Confirm before you pay or ship."
+      },
+      {
+        "title": "Trade carefully",
+        "body": "Accounts keep people reachable. Deals stay between humans who show up as themselves."
+      }
     ]
-  }
+  },
+  "silo_role": "master_reference_fixture_for_domain_neutral_cube_v2",
+  "core_schema_source": "BEC-PRIME/cube/CUBE-CLONE-MANIFEST.schema.json",
+  "domain_fields_scope": "mtg_only_not_clone_defaults"
 }
