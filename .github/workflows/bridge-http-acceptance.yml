@@ -30,6 +30,13 @@ jobs:
             body=$(curl -fsS "$BRIDGE_URL/version" || true)
             printf '%s\n' "$body"
             prod=$(printf '%s' "$body" | node -e "let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{try{process.stdout.write(JSON.parse(d).commit||'')}catch{}})")
+            if [ -z "$prod" ] || [ "$prod" = "unknown" ]; then
+              echo 'DEPLOYED_COMMIT=FAIL'
+              echo 'PRODUCTION_SHA_FIELD=missing'
+              echo 'ERROR=Production /version did not return a nonempty commit field; deploy a commit-aware runtime before running bridge acceptance.'
+              echo "EXPECTED_SHA=$EXPECTED_COMMIT"
+              exit 1
+            fi
             if [ "$prod" = "$EXPECTED_COMMIT" ]; then
               echo 'DEPLOYED_COMMIT=PASS'
               echo "PRODUCTION_SHA=$prod"

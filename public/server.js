@@ -104,7 +104,7 @@ http.createServer(async (req,res)=>{
     return send(res,200,JSON.stringify({ok:true,service:'dreamledger-storefront'}),'application/json; charset=utf-8');
   }
   if(req.method==='GET'&&p==='/version'){
-    return send(res,200,JSON.stringify({service:'dreamledger-storefront',status:'ok',mtg:'master'}),'application/json; charset=utf-8');
+    return send(res,200,JSON.stringify({service:'dreamledger-storefront',status:'ok',commit:COMMIT==='unknown'?null:COMMIT,mtg:'master'}),'application/json; charset=utf-8');
   }
   if(req.method==='GET' && p==='/api/billboard/public'){
     const base=String(process.env.SUPABASE_URL||'').replace(/\/$/,'');
