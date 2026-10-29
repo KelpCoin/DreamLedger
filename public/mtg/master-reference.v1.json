@@ -1,0 +1,106 @@
+{
+  "schema": "BECK/CUBE/REFERENCE-SILO/v1",
+  "canonical_reference": "mtg",
+  "reference_version": "2026.10.29-3",
+  "public_entry": "/mtg/",
+  "free_player_tool": "/mtg/tools.html",
+  "operating_mode": "SOURCE_ONLY",
+  "existing_factory": "BrownEye-CUBE",
+  "platform_fees": {
+    "listing_nzd": 0,
+    "bid_nzd": 0,
+    "b2b_rfq_nzd": 0,
+    "b2b_quote_nzd": 0,
+    "seller_commission_bps": 0,
+    "processor_shipping_dispute_costs": "excluded_from_free_policy"
+  },
+  "capabilities": {
+    "tested_offline": [
+      "mana_box_import",
+      "scryfall_fixture_identity",
+      "stock_location_approval",
+      "single_deck_bundle_allocation",
+      "auction_bid_increment",
+      "reserve",
+      "buy_now",
+      "anti_sniping",
+      "auction_to_unpaid_order",
+      "b2b_rfq",
+      "b2b_quotes",
+      "b2b_award",
+      "deck_portability",
+      "source_proof",
+      "premium_deck_quote"
+    ],
+    "frontend_available": [
+      "public_decklist_import",
+      "text_export",
+      "forge_dck_export",
+      "cockatrice_cod_export"
+    ],
+    "blocked_live": [
+      "public_authenticated_bids",
+      "public_authenticated_rfq_posting",
+      "third_party_seller_payouts",
+      "stripe_auction_order_settlement",
+      "automated_playtest_simulation",
+      "collectr_sync"
+    ]
+  },
+  "premium_physical_decks": {
+    "valuation": "condition_adjusted_cards_with_source",
+    "builder_fee": "explicit_owner_price",
+    "materials": "separate",
+    "shipping": "separate",
+    "pricing_formula": "card_value + builder_fee + materials",
+    "original_owner_approved_asking_price_nzd_held": 400,
+    "auto_discount_singles_policy": false,
+    "auto_reprice": false,
+    "physical_proof_required": true
+  },
+  "third_party": {
+    "scryfall": "bulk-data cache subject to access rules",
+    "moxfield": "user-export only",
+    "archidekt": "user-export only",
+    "tappedout": "user-export only",
+    "forge": "portable file interoperability only",
+    "cockatrice": "portable file interoperability only",
+    "collectr": "user-authorised export pending adapter",
+    "mtgstocks": "reference only",
+    "tcgplayer": "no new API keys issued; rights restricted",
+    "mtgsingles_nz": "NZ market external link; no scraper"
+  },
+  "boundary": {
+    "other_tcg": "future configuration only",
+    "customer_data_isolated": true,
+    "inventory_isolated": true,
+    "orders_isolated": true,
+    "credentials_isolated": true,
+    "patreon_separate": true,
+    "other_brand_cross_promotion": false
+  },
+  "release_gates": {
+    "database_rls": "UNVERIFIED",
+    "authenticated_bid_api": "NOT_IMPLEMENTED",
+    "stripe_connect_payout": "UNVERIFIED",
+    "public_seller_onboarding": "UNVERIFIED",
+    "live_inventory": "UNVERIFIED",
+    "real_order_fulfilment": "UNVERIFIED",
+    "copyright_and_terms": "PENDING",
+    "owner_go_live": "REQUIRED"
+  },
+  "automation": {
+    "agent_can_propose": true,
+    "agent_can_run_fixture_tests": true,
+    "agent_can_create_draft_pr": true,
+    "agent_cannot_approve_own_release": true,
+    "agent_cannot_create_real_customer_or_payment": true,
+    "production_merge_requires_owner_approval": true
+  },
+  "proven_tests": {
+    "local_count": 67,
+    "test_command": "python -W ignore::ResourceWarning -m unittest discover -q",
+    "fixture_only": true,
+    "production_verified": false
+  }
+}
