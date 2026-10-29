@@ -1,112 +1,231 @@
 <!doctype html>
-<html lang="en">
+<html lang="en-NZ">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#080b10">
-<meta name="description" content="DreamLedger Internet Billboard: reserve a reviewed 100 x 100 web tile for NZ$50. Clear terms, live preview, secure Stripe checkout.">
-<link rel="canonical" href="https://dreamledger.org/billboard">
+<meta name="theme-color" content="#080e13">
+<meta name="description" content="See exactly what your own 100 x 100 placement looks like on DreamLedger's million-pixel Internet Billboard. Design and preview locally, before buying.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://dreamledger.org/billboard.html">
 <title>Internet Billboard | DreamLedger</title>
 <style>
-:root{color-scheme:dark;--bg:#080b10;--panel:#111722;--line:#2c3747;--ink:#f7f9fb;--muted:#b2bdca;--signal:#c5ff35;--max:1160px}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(ellipse at 75% -25%,#1d2f37 0,transparent 55%),var(--bg);color:var(--ink);font:16px/1.55 Inter,"Segoe UI",system-ui,sans-serif}
-a{color:inherit}.wrap{width:min(var(--max),calc(100% - 36px));margin-inline:auto}
-header{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:72px;border-bottom:1px solid var(--line)}
-.logo{font-size:15px;font-weight:950;letter-spacing:-.065em;text-decoration:none}.logo span{color:var(--signal)}.crumb{font-size:12px;color:var(--muted);text-decoration:none}
-main{padding:72px 0 60px}.eyebrow{margin:0 0 12px;color:var(--signal);font-size:11px;font-weight:850;letter-spacing:.18em;text-transform:uppercase}
-.hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(285px,370px);gap:38px;align-items:center}
-h1,h2,h3{font-family:"Space Grotesk",Inter,"Segoe UI",system-ui,sans-serif;letter-spacing:-.065em}h1{font-size:clamp(50px,8vw,110px);line-height:.91;margin:0 0 22px;max-width:850px}h1 strong{color:var(--signal)}
-.lead{color:var(--muted);font-size:clamp(16px,1.8vw,20px);max-width:660px;margin:0 0 24px}
-.offerline{display:flex;align-items:baseline;gap:12px;margin:16px 0 25px;flex-wrap:wrap}
-.price{font-size:clamp(36px,4vw,56px);line-height:1;font-weight:950;letter-spacing:-.07em}
-.offerline span{font-size:13px;color:var(--muted)}
-.button{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:13px 20px;border-radius:11px;background:var(--signal);color:#080b10;text-decoration:none;font-size:15px;font-weight:900;border:2px solid var(--signal)}
-.button:hover,.button:focus-visible{background:#e1ff94;border-color:#e1ff94}.button:focus-visible,input:focus-visible{outline:3px solid #fff;outline-offset:3px}
-.button.secondary{background:transparent;color:var(--ink);border-color:#59687a}
-.actions{display:flex;gap:12px;flex-wrap:wrap}.small{color:var(--muted);font-size:12px;line-height:1.6}
-.display{padding:18px;border:1px solid var(--line);border-radius:22px;background:linear-gradient(155deg,#17202c,#0d1119);box-shadow:0 22px 60px #0006}
-.screen{min-height:278px;border:1px solid #455063;background:repeating-linear-gradient(0deg,#1c2630 0,#1c2630 1px,transparent 1px,transparent 25px),repeating-linear-gradient(90deg,#1c2630 0,#1c2630 1px,transparent 1px,transparent 25px),#0b1018;border-radius:13px;display:grid;place-items:center;padding:25px}
-.tile{height:160px;width:160px;display:grid;place-items:center;text-align:center;padding:13px;background:var(--signal);color:#080b10;border:3px solid #05080d;font-weight:950;font-size:20px;line-height:1.05;letter-spacing:-.045em;overflow-wrap:anywhere;box-shadow:0 15px 25px #0008}
-.previewtag{font-size:11px;font-weight:900;letter-spacing:.16em;color:var(--signal);margin:16px 0 8px}
-.input-label{display:block;color:#c2cdd7;font-size:12px;margin-bottom:5px}
-input{width:100%;background:#080b10;border:1px solid #526074;border-radius:9px;color:#fff;padding:12px;font:inherit;min-height:46px}
-.display .small{margin:9px 0 0}
-.section{margin-top:70px}h2{font-size:clamp(28px,3.8vw,48px);line-height:1.06;margin:0 0 20px}
-.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.card{padding:23px;border:1px solid var(--line);background:var(--panel);border-radius:16px}.card h3{font-size:21px;margin:7px 0 9px}.card p{margin:0;color:var(--muted);font-size:14px}.step{font:800 12px ui-monospace,"Cascadia Code",monospace;color:var(--signal)}
-.rules{padding:24px;border:1px solid var(--line);border-radius:17px;background:#0e141e;display:grid;grid-template-columns:1fr 1fr;gap:30px}.rules p{margin:0 0 12px;color:var(--muted);font-size:14px}.rules b{color:var(--ink)}
-.fine{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
-.live-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}.live-card{border:1px solid var(--line);border-radius:14px;padding:18px;min-height:130px;background:#121b28;text-decoration:none;display:flex;flex-direction:column;justify-content:space-between;overflow-wrap:anywhere}.live-card:hover{border-color:var(--signal)}.live-card strong{font-size:18px;line-height:1.2}.live-card img{width:100%;max-height:160px;object-fit:contain;display:block}.live-card span{font:700 10px ui-monospace,monospace;color:var(--signal);margin-top:12px}.notice{color:var(--muted);font-size:14px}
-@media(max-width:850px){.hero,.rules{grid-template-columns:1fr}.display{max-width:450px}.grid{grid-template-columns:1fr}main{padding-top:42px}.section{margin-top:52px}}
-@media(max-width:510px){.wrap{width:calc(100% - 28px)}.actions .button{width:100%}.display{padding:14px}.screen{min-height:230px}.tile{width:140px;height:140px;font-size:17px}}
-@media(prefers-reduced-motion:no-preference){.button{transition:background .15s,border-color .15s}}
+:root{color-scheme:dark;--bg:#070e13;--panel:#102027;--ink:#f1faf8;--sub:#b4c9c8;--line:#2d4c51;--lime:#b6ff58;--cyan:#57f3e1;--pink:#ff67bd}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:radial-gradient(ellipse at 85% 0%,#144c47 0,transparent 38%),radial-gradient(ellipse at 10% 10%,#293919 0,transparent 38%),var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,Segoe UI,sans-serif}
+button,input{font:inherit}button{cursor:pointer}a{color:inherit}h1,h2,h3{line-height:1.13;letter-spacing:-.05em}
+.wrap{width:min(1240px,calc(100% - 28px));margin:auto}
+header{border-bottom:1px solid #28505a;background:#081419b8;backdrop-filter:blur(10px)}
+.header{min-height:66px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.logo{text-decoration:none;font-weight:950;font-size:22px;letter-spacing:-.065em}.logo span{color:var(--cyan)}
+.navlinks{display:flex;gap:14px;font-size:13px;color:var(--sub)}.navlinks a:hover{color:white}
+main{padding:28px 0 66px}.eyebrow{color:var(--lime);letter-spacing:.18em;font-size:11px;font-weight:950;text-transform:uppercase}
+.hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(245px,340px);gap:26px;align-items:end;margin:12px 0 34px}
+h1{font-size:clamp(40px,6.8vw,78px);margin:8px 0 18px;max-width:810px}
+h1 em{font-style:normal;color:var(--cyan)}.lead{color:var(--sub);font-size:clamp(16px,2vw,20px);max-width:710px}
+.statuspill{display:inline-flex;align-items:center;gap:9px;border:1px solid #a98c49;background:#302b1b;color:#ffe5aa;border-radius:100px;padding:8px 13px;font-weight:750;font-size:12px}
+.statuspill:before{content:"";width:8px;height:8px;background:#ffd47a;border-radius:50%}
+.pricebox{border:1px solid #4d6a60;background:#102629;border-radius:22px;padding:23px;box-shadow:0 20px 55px #0004}
+.pricebox strong{font-size:46px;line-height:1;letter-spacing:-.07em;display:block;color:var(--lime)}
+.pricebox p{font-size:14px;color:var(--sub);margin:12px 0}.pricebox small{font-size:12px;color:#d9d1b9}
+.btn{min-height:48px;display:inline-flex;align-items:center;justify-content:center;padding:12px 19px;border-radius:11px;border:1px solid #477c81;text-decoration:none;color:white;background:#153039;font-weight:850;gap:8px}
+.btn:hover{border-color:var(--cyan)}.btn.primary{background:var(--lime);border-color:var(--lime);color:#10210e}.btn:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid white;outline-offset:3px}
+button.btn:disabled{opacity:.55;cursor:not-allowed}
+.sectionhead{display:flex;align-items:end;justify-content:space-between;gap:14px;flex-wrap:wrap}.sectionhead h2{font-size:clamp(27px,4vw,42px);margin:5px 0}.sectionhead p{color:var(--sub);max-width:700px;margin:0 0 9px}
+.studio{display:grid;grid-template-columns:minmax(255px,360px) minmax(0,1fr);gap:16px;margin-top:20px;align-items:start}
+.panel{background:linear-gradient(145deg,#172b2b,#0d1b21);border:1px solid #345961;border-radius:20px;padding:21px}
+.panel h3{font-size:20px;margin:0 0 7px}.muted{color:var(--sub)}.small{font-size:12px;color:var(--sub);line-height:1.5}
+label{display:block;font-size:13px;font-weight:800;margin:17px 0 7px}
+input[type=text],input[type=url]{width:100%;min-height:47px;padding:12px;background:#0a171d;border:1px solid #52737b;color:#fff;border-radius:10px}
+input[type=file]{width:100%;font-size:12px;padding:12px;border:1px dashed #547880;border-radius:10px;background:#0b1b21;color:#e7f3f2}
+#message{font-size:12px;min-height:20px;color:#ffe7ad}
+.themes{display:flex;gap:8px;flex-wrap:wrap}.theme{border-radius:10px;background:#193139;border:1px solid #567782;color:#e9f8f4;padding:9px 12px;font-size:12px;font-weight:850}.theme[aria-pressed=true]{border-color:var(--lime);box-shadow:inset 0 0 0 1px var(--lime);color:var(--lime)}
+.preset{width:100%;background:transparent;border:1px solid #46656c;border-radius:10px;padding:10px;color:#eaf6f4;text-align:left;font-weight:750;margin-top:8px}
+.preset:hover{border-color:var(--cyan)}
+.worktop{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}
+.previewpanel{background:#0b161b;border:1px solid #345860;border-radius:16px;padding:14px;min-width:0}
+.paneltag{font-size:11px;color:var(--cyan);letter-spacing:.08em;font-weight:900;text-transform:uppercase;margin:0 0 10px}
+.creative{--cre-bg:#b6ff58;--cre-fg:#102111;aspect-ratio:1;width:100%;position:relative;isolation:isolate;border:3px solid #eafde8;border-radius:13px;background:var(--cre-bg);color:var(--cre-fg);overflow:hidden;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:9%;box-shadow:0 5px 30px #0005}
+.creative:before{content:"";position:absolute;z-index:-1;border:1px solid color-mix(in srgb,var(--cre-fg) 30%,transparent);width:80%;height:80%;border-radius:50%;transform:translate(35%,-30%) rotate(-16deg)}
+.creative[data-theme=cyan]{--cre-bg:#1de3e1;--cre-fg:#06252b}
+.creative[data-theme=sunset]{--cre-bg:#ff89ac;--cre-fg:#361426}
+.creative img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#111b25;z-index:-1}
+.creative.hasimage:before{display:none}
+.creative h3{font-family:Impact,Haettenschweiler,system-ui,sans-serif;text-transform:uppercase;font-size:clamp(19px,3.25vw,51px);line-height:1.02;margin:0;max-width:100%;overflow-wrap:anywhere;text-wrap:balance}
+.creative.hasimage h3,.creative.hasimage p{display:none}
+.creative p{font-size:clamp(11px,1.4vw,17px);line-height:1.22;font-weight:800;margin:12px 0 0;max-width:100%;overflow-wrap:anywhere}
+.creative .corner{position:absolute;bottom:5%;left:8%;right:8%;display:flex;justify-content:space-between;gap:10px;font-size:10px;font-weight:950;letter-spacing:.12em;border-top:1px solid currentColor;padding-top:7px}
+.creative.hasimage .corner{display:none}
+.canvas{aspect-ratio:1;background:#080f15;border:2px solid #2d5057;border-radius:12px;padding:5px;display:grid;grid-template-columns:repeat(10,minmax(0,1fr));grid-template-rows:repeat(10,minmax(0,1fr));gap:1px;min-width:0;position:relative}
+.cell{border:1px solid #23404a;background:linear-gradient(145deg,#101e24,#121d24);border-radius:2px;padding:0;min-width:0;min-height:0;color:#607f86;font-size:clamp(6px,.8vw,10px);line-height:1;display:flex;justify-content:center;align-items:center;position:relative;overflow:hidden}
+.cell:hover,.cell:focus-visible{border-color:var(--cyan);z-index:3}.cell.active{border:2px solid #fff;outline:2px solid var(--lime);outline-offset:-2px;box-shadow:0 0 20px #a4ff5888;z-index:2;background:#b6ff58;color:#101c14}
+.cell .mini{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:var(--lime)}
+.cell .mini-title{font-weight:950;color:#0d2113;text-align:center;overflow-wrap:anywhere;line-height:1.02;font-size:clamp(3px,.5vw,6px);padding:0 2px}
+.cell[data-theme=cyan].active{background:#1de3e1}
+.cell[data-theme=sunset].active{background:#ff89ac}
+.workfoot{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:14px}
+.position{font-weight:900;font-size:14px;color:var(--lime)}.notice{font-size:12px;color:var(--sub)}
+.legend{font-size:12px;color:var(--sub);margin:12px 0 0}
+.explain{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:42px}
+.explain .panel{padding:20px}.explain h3{margin:6px 0;font-size:18px}.explain p{font-size:14px;color:var(--sub);margin:0}
+.directory{margin:45px 0 0;padding:25px 0;border-top:1px solid #35565e}
+.directory h2{font-size:28px;margin:8px 0}.directory p{color:var(--sub)}.directory a{color:var(--cyan)}
+#published{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-top:13px}
+.liveitem{display:block;text-decoration:none;background:#13252c;border:1px solid #41616b;border-radius:12px;padding:17px}.liveitem strong{display:block}.liveitem small{color:var(--sub)}
+footer{border-top:1px solid #33535b;color:var(--sub);padding:20px 0 40px;font-size:13px}
+@media(max-width:930px){.hero{grid-template-columns:1fr}.pricebox{max-width:550px}.studio{grid-template-columns:1fr}.panel{padding:17px}}
+@media(max-width:540px){.worktop{grid-template-columns:1fr}.creative h3{font-size:clamp(23px,9vw,53px)}.creative p{font-size:clamp(12px,4vw,19px)}.cell .mini-title{font-size:3px}.explain{grid-template-columns:1fr}.navlinks{gap:8px;font-size:12px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 </style>
 </head>
 <body>
-<div class="wrap">
-<header><a class="logo" href="/">DREAM<span>LEDGER</span></a><a class="crumb" href="/">Back to marketplace</a></header>
-<main>
-<section class="hero" aria-labelledby="headline">
+<header><div class="wrap header"><a class="logo" href="/">DREAM<span>LEDGER</span></a><nav class="navlinks" aria-label="Page navigation"><a href="#studio">Design your tile</a><a href="#how">How it works</a><a href="#published">Published</a></nav></div></header>
+<main class="wrap">
+<section class="hero">
 <div>
-<p class="eyebrow">The Internet Billboard / founding placement</p>
-<h1 id="headline">YOUR SPACE.<br><strong>STILL HERE.</strong></h1>
-<p class="lead">A small piece of the internet with your name on it. Reserve a 100 x 100 tile for a project, business, idea or identity on DreamLedger's public web canvas.</p>
-<div class="offerline"><b class="price">NZ$50</b><span>One-time payment · one 100 x 100 placement</span></div>
-<div class="actions">
-<a class="button" id="checkout" href="https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w?utm_source=dreamledger&amp;utm_medium=billboard&amp;utm_campaign=founding">Reserve a tile securely</a>
-<a class="button secondary" href="#details">See what you get</a>
+<p class="eyebrow">The Internet Billboard · One million pixels · One shared canvas</p>
+<h1>Imagine your <em>whole brand</em> up there.</h1>
+<p class="lead">Not three cropped letters. Design your complete creative, see it close up, then see precisely where it would sit on the 1000 × 1000 public canvas. Explore it free, without an account or uploading anything to us.</p>
+<a href="#studio" class="btn primary">Design a free preview</a>
 </div>
-<p class="small">Stripe collects your tile label and destination details at checkout. Paid submissions enter content review; purchase does not bypass approval. No traffic or sales are guaranteed.</p>
+<aside class="pricebox"><span class="statuspill">New purchases temporarily held</span><p style="margin-top:18px;color:#a9ffbc;font-size:12px;font-weight:850;text-transform:uppercase;letter-spacing:.12em">Founding placement</p><strong>NZ$50</strong><p>One-time reference price · one 100 × 100 pixel tile · content review required.</p><a class="btn" href="#studio">See your placement first</a><p><small>Payment is paused until secure intake, reservation and publication are verified. This is a website billboard, not physical roadside DOOH. We cannot promise traffic, clicks or sales.</small></p></aside>
+</section>
+<section id="studio" aria-labelledby="studioheading">
+<div class="sectionhead"><div><p class="eyebrow">Free · Local · Interactive</p><h2 id="studioheading">Your own creative studio</h2><p>The large view shows the entire 100 × 100 tile at an enlarged scale. The board shows its real proportional footprint: one of 100 cells, or 1% of the full canvas.</p></div></div>
+<div class="studio">
+<div class="panel">
+<h3>Make it yours</h3><p class="small">Concept preview only. Nothing is submitted, reserved or published.</p>
+<label for="brand">Your headline</label><input id="brand" type="text" maxlength="80" autocomplete="off" value="YOUR BRAND HERE">
+<label for="tagline">Optional short line</label><input id="tagline" type="text" maxlength="90" autocomplete="off" value="A little corner of the Internet">
+<label>Choose your creative style</label>
+<div class="themes" role="group" aria-label="Creative style"><button class="theme" data-theme="lime" aria-pressed="true" type="button">Signal lime</button><button class="theme" data-theme="cyan" aria-pressed="false" type="button">Electric cyan</button><button class="theme" data-theme="sunset" aria-pressed="false" type="button">Neon rose</button></div>
+<label for="artfile">Or add your own finished artwork</label><input id="artfile" type="file" accept="image/png,image/jpeg,image/webp">
+<p class="small">PNG, JPEG or WebP, maximum 5 MB. Your file remains in this browser and is never uploaded.</p><button class="theme" id="removeart" type="button">Remove image</button>
+<p id="message" aria-live="polite"></p>
+<label>Start from a concept</label>
+<button class="preset" type="button" data-preset="shop">Independent shop →</button>
+<button class="preset" type="button" data-preset="music">Artist / musician →</button>
+<button class="preset" type="button" data-preset="creator">Creator / community →</button>
 </div>
-<aside class="display" aria-label="Interactive sample of a billboard tile, not a paid placement">
-<div class="screen"><div class="tile" id="tile-text" aria-live="polite">Biggie Still Here</div></div>
-<p class="previewtag">DEMO ONLY · NOT A PAID PLACEMENT</p>
-<label class="input-label" for="sample">Try a label in the preview (maximum 80 characters)</label>
-<input id="sample" maxlength="80" value="Biggie Still Here" autocomplete="off">
-<p class="small">This example does not reserve space or create an order. Enter your final label at Stripe checkout.</p>
-</aside>
-</section>
-<section class="section" id="details">
-<p class="eyebrow">One product. One checkout.</p><h2>How your placement works</h2>
-<div class="grid">
-<article class="card"><div class="step">01 / SELECT</div><h3>One clear offer</h3><p>A standard 100 x 100 digital tile. One NZ$50 charge. No auction, subscription or speculative impression package.</p></article>
-<article class="card"><div class="step">02 / PAY &amp; SUBMIT</div><h3>Secure Stripe checkout</h3><p>Enter your billboard label and HTTPS destination at checkout. Keep the Stripe receipt. The payment is not itself proof of publication.</p></article>
-<article class="card"><div class="step">03 / REVIEW &amp; DELIVERY</div><h3>Approved tiles go live</h3><p>Content is checked before publication. A completed placement needs a visible live tile and delivery evidence, not just a payment notification.</p></article>
+<div class="panel">
+<div class="worktop">
+<div class="previewpanel">
+<p class="paneltag">01 · Your complete creative · Enlarged</p>
+<div id="creative" class="creative" data-theme="lime"><h3 id="previewbrand">YOUR BRAND HERE</h3><p id="previewtag">A little corner of the Internet</p><span class="corner"><span>DREAMLEDGER</span><span>YOUR SPACE</span></span></div>
+<p class="legend">Readable close-up. This is the whole artwork, not a cropped sample. Live rendering must respect the original creative after approval.</p>
+</div>
+<div class="previewpanel">
+<p class="paneltag">02 · The actual million-pixel canvas</p>
+<div id="canvas" class="canvas" role="grid" aria-label="100 selectable positions on a conceptual billboard"></div>
+<p class="legend">Tap any square or use arrow keys to explore. Unmarked squares do not imply availability. No paid placements are simulated.</p>
+</div>
+</div>
+<div class="workfoot"><span id="selected" class="position" aria-live="polite">Preview position 45 / 100</span><button type="button" id="download" class="btn">Download your preview PNG</button></div>
+<p class="notice">Preview layout and themes are examples, not an active creative scheduling product. The NZ$50 offer is one static reviewed placement. A clickable destination, if approved, depends on the final publication workflow.</p>
+</div>
 </div>
 </section>
-<section class="section" id="live-board" aria-labelledby="live-heading">
-<p class="eyebrow">Public canvas</p><h2 id="live-heading">Verified published placements</h2>
-<p class="notice">Only placements returned by the existing public billboard data view appear here. The sample above is not included.</p>
-<div id="live-items" class="live-grid" aria-live="polite"><p class="notice">Checking published inventory...</p></div>
+<section id="how">
+<div class="sectionhead"><div><p class="eyebrow">Inspired by high-quality digital advertising</p><h2>Clarity before checkout. Evidence after.</h2></div></div>
+<div class="explain">
+<div class="panel"><span class="eyebrow">01 / Preview</span><h3>See the entire advert</h3><p>Inspect a large close-up and the true-scale canvas. Keep your entire brand legible, rather than accepting a teaser with missing letters.</p></div>
+<div class="panel"><span class="eyebrow">02 / Review</span><h3>Reserve only when ready</h3><p>Once checkout reopens, submission requires valid inventory, policy review and a working delivery path. No fabricated available squares.</p></div>
+<div class="panel"><span class="eyebrow">03 / Verify</span><h3>See what actually went live</h3><p>A published tile needs a real public location and evidence. Future features may add creative variants and verified display reporting, but they are not included yet.</p></div>
+</div>
 </section>
-<section class="section rules">
-<div><p class="eyebrow">What you're buying</p><h2>Digital space.<br>Not fake reach.</h2><p>The placement is on DreamLedger's website, not a physical roadside billboard or a programmatic outdoor advertising screen. We do not promise impressions, clicks, leads or sales.</p></div>
-<div><p><b>Term:</b> intended to remain until 1 January 3000 while the service operates, subject to published terms and content policy. This is not a property title or a guarantee of perpetual operation.</p><p><b>Review:</b> submissions may be rejected for policy, legal, safety or technical reasons. If we cannot deliver an eligible paid order, resolution is subject to the published checkout/refund policy.</p><p><b>Proof:</b> a Stripe receipt confirms payment. A separately verifiable published placement confirms delivery. Neither is proof of an independent external buyer without attribution.</p><p><b>Founder example:</b> “Biggie Still Here” above is an unpaid demonstration, not a real order.</p></div>
-</section>
-<p class="fine">DreamLedger Internet Billboard · NZ$50 founding offer · DreamLedger silo only · No guaranteed audience. Public promotion outside this website requires separate approval.</p>
-</main></div>
+<section class="directory" aria-labelledby="directoryhead"><span class="eyebrow">Evidence-backed public directory</span><h2 id="directoryhead">Actually published placements</h2><p>Only verified PUBLISHED entries from DreamLedger's existing public feed appear here. Design examples are never shown as paying advertisers.</p><div id="published" aria-live="polite"><p>Checking the existing published-placement feed…</p></div></section>
+</main>
+<footer><div class="wrap">DreamLedger Internet Billboard · Website placement only · NZ$50 founding reference price · Checkout held. Terms and refunds: <a href="/terms.html">Terms</a>. Privacy: <a href="/privacy.html">Privacy</a>. No guaranteed audience or financial outcome. Public promotion and final activation require approval.</div></footer>
 <script>
-(function(){'use strict';const input=document.getElementById('sample');const tile=document.getElementById('tile-text');input.addEventListener('input',function(){tile.textContent=input.value.trim().slice(0,80)||'YOUR IDEA HERE';});})();
-</script>
-<script>
-(async function(){'use strict';
- const root=document.getElementById('live-items');
+(() => {
+"use strict";
+const $=id=>document.getElementById(id);
+const canvas=$("canvas"),creative=$("creative"),brand=$("brand"),tagline=$("tagline"),live=$("published");
+let choice=44,theme="lime",objectUrl=null,uploaded=null;
+const colors={lime:["#b6ff58","#102111"],cyan:["#1de3e1","#06252b"],sunset:["#ff89ac","#361426"]};
+const presets={shop:["THE LITTLE SHOP","Discover something different","lime"],music:["NEW MUSIC / HERE","Hear it. Share it. Be there.","cyan"],creator:["YOUR PEOPLE","Your space. Your community.","sunset"]};
+function text(){return (brand.value.trim()||"YOUR BRAND HERE").slice(0,80)}
+function caption(){return tagline.value.trim().slice(0,90)}
+function setTheme(t){if(!colors[t])return;theme=t;creative.dataset.theme=t;for(const b of document.querySelectorAll(".theme[data-theme]"))b.setAttribute("aria-pressed",String(b.dataset.theme===t))}
+function fit(){
+ const h=$("previewbrand"); h.style.fontSize=""; if(uploaded)return;
+ // Font size is reduced only when the COMPLETE headline overflows.
+ let n=Math.min(52,Math.max(20,creative.clientWidth*.145));
+ for(;n>=10;n-=1){h.style.fontSize=n+"px";if(h.scrollHeight<creative.clientHeight*.69&&h.scrollWidth<=creative.clientWidth*.88)break}
+}
+function mini(){
+ const b=canvas.querySelectorAll(".cell");
+ b.forEach((cell,i)=>{
+ cell.classList.toggle("active",i===choice);cell.dataset.theme=theme;
+ cell.replaceChildren();
+ if(i===choice){
+ if(uploaded){const img=document.createElement("img");img.className="mini";img.alt="";img.src=objectUrl;cell.append(img)}
+ else {const t=document.createElement("span");t.className="mini-title";t.textContent=text();cell.append(t)}
+ cell.setAttribute("aria-label","Preview position "+(i+1)+" of 100, selected");
+ cell.setAttribute("aria-pressed","true");
+ }else{cell.setAttribute("aria-label","Preview position "+(i+1)+" of 100, not confirmed available");cell.setAttribute("aria-pressed","false")}
+ });
+ $("selected").textContent="Preview position "+(choice+1)+" / 100 · Row "+(Math.floor(choice/10)+1)+", column "+(choice%10+1);
+}
+function render(){
+ $("previewbrand").textContent=text();$("previewtag").textContent=caption();
+ creative.classList.toggle("hasimage",Boolean(uploaded));
+ const old=creative.querySelector("img");
+ if(old)old.remove();
+ if(uploaded){const img=document.createElement("img");img.alt="";img.src=objectUrl;creative.prepend(img)}
+ fit();mini();
+}
+for(let i=0;i<100;i++){
+ const b=document.createElement("button");b.className="cell";b.type="button";b.setAttribute("role","gridcell");b.dataset.index=String(i);
+ b.addEventListener("click",()=>{choice=i;mini()});
+ b.addEventListener("keydown",e=>{const moves={ArrowLeft:-1,ArrowRight:1,ArrowUp:-10,ArrowDown:10,Home:-i,End:99-i};if(!(e.key in moves))return;e.preventDefault();choice=Math.max(0,Math.min(99,choice+moves[e.key]));mini();canvas.querySelectorAll(".cell")[choice].focus()});
+ canvas.append(b);
+}
+brand.addEventListener("input",render);tagline.addEventListener("input",render);
+for(const b of document.querySelectorAll(".theme[data-theme]"))b.addEventListener("click",()=>{setTheme(b.dataset.theme);render()});
+for(const b of document.querySelectorAll("[data-preset]"))b.addEventListener("click",()=>{const p=presets[b.dataset.preset];if(!p)return;brand.value=p[0];tagline.value=p[1];setTheme(p[2]);clearImage();render()});
+function clearImage(){if(objectUrl)URL.revokeObjectURL(objectUrl);objectUrl=null;uploaded=null;$("artfile").value="";$("message").textContent=""}
+$("removeart").addEventListener("click",()=>{clearImage();render()});
+$("artfile").addEventListener("change",e=>{
+ const file=e.target.files&&e.target.files[0];if(!file)return;
+ const allowed=["image/png","image/jpeg","image/webp"];
+ if(!allowed.includes(file.type)||file.size>5*1024*1024){$("message").textContent="Use a PNG, JPEG or WebP image smaller than 5 MB.";e.target.value="";return}
+ clearImage();uploaded=file;objectUrl=URL.createObjectURL(file);$("message").textContent="Your image is shown locally. No upload has occurred.";render();
+});
+window.addEventListener("resize",fit);
+$("download").addEventListener("click",()=>{
+ const out=document.createElement("canvas");out.width=1000;out.height=1000;
+ const ctx=out.getContext("2d");if(!ctx)return;
+ const palette=colors[theme];ctx.fillStyle=palette[0];ctx.fillRect(0,0,1000,1000);
+ function save(){const a=document.createElement("a");a.download="dreamledger-billboard-concept-not-published.png";a.href=out.toDataURL("image/png");a.click()}
+ function textArt(){ctx.fillStyle=palette[1];ctx.textAlign="center";ctx.textBaseline="middle";ctx.font="900 65px sans-serif";const s=text();
+ const words=s.split(/\s+/);const lines=[];let line="";
+ for(const w of words){const v=line?line+" "+w:w;if(ctx.measureText(v).width>835&&line){lines.push(line);line=w}else line=v}if(line)lines.push(line);
+ let fs=65;while(lines.length*fs*1.2>590&&fs>15)fs-=1;
+ ctx.font="900 "+fs+"px sans-serif";lines.forEach((v,i)=>ctx.fillText(v,500,430+(i-(lines.length-1)/2)*fs*1.18,865));
+ ctx.font="bold 34px sans-serif";const sub=caption();if(sub)ctx.fillText(sub.slice(0,90),500,760,850);
+ ctx.font="bold 24px sans-serif";ctx.fillText("CONCEPT PREVIEW · NOT A PUBLISHED PLACEMENT",500,965,930);save()}
+ if(uploaded&&objectUrl){const image=new Image();image.onload=()=>{ctx.fillStyle="#0d1720";ctx.fillRect(0,0,1000,1000);const ratio=Math.min(1000/image.width,1000/image.height);const w=image.width*ratio,h=image.height*ratio;ctx.drawImage(image,(1000-w)/2,(1000-h)/2,w,h);save()};image.onerror=()=>{$("message").textContent="The image could not be exported.";};image.src=objectUrl}else textArt();
+});
+setTheme("lime");render();
+(async()=>{
  try{
-   const response=await fetch('/api/billboard/public',{cache:'no-store'});
-   if(!response.ok)throw Error('unavailable');
-   const payload=await response.json();
-   if(!Array.isArray(payload.items))throw Error('invalid');
-   root.replaceChildren();
-   if(!payload.items.length){const p=document.createElement('p');p.className='notice';p.textContent='No verified published tiles are currently available to display.';root.appendChild(p);return;}
-   for(const item of payload.items){
-     const a=document.createElement('a');a.className='live-card';
-     const destination=String(item.destination_url||'');
-     if(/^https:\/\//i.test(destination)){a.href=destination;a.target='_blank';a.rel='noopener noreferrer nofollow sponsored';}
-     else {a.removeAttribute('href');}
-     const title=document.createElement('strong');title.textContent=String(item.title||'Published placement').slice(0,80);a.appendChild(title);
-     const label=document.createElement('span');label.textContent='PUBLISHED · '+String(item.market||'NZ').slice(0,20);a.appendChild(label);
-     root.appendChild(a);
-   }
- }catch{root.replaceChildren();const p=document.createElement('p');p.className='notice';p.textContent='The live placement feed cannot be verified right now. No placements are being invented or shown as paid.';root.appendChild(p);}
+ const res=await fetch("/api/billboard/public",{cache:"no-store",credentials:"omit"});if(!res.ok)throw Error("unavailable");
+ const p=await res.json();if(!p||!Array.isArray(p.items))throw Error("invalid feed");
+ live.replaceChildren();
+ if(!p.items.length){const n=document.createElement("p");n.textContent="No independently verified published placements are available to display yet.";live.append(n);return}
+ for(const item of p.items.slice(0,100)){
+ if(!item||String(item.status).toUpperCase()!=="PUBLISHED")continue;
+ const a=document.createElement("a");a.className="liveitem";
+ const title=document.createElement("strong");title.textContent=String(item.title||"Published tile").slice(0,80);a.append(title);
+ const details=document.createElement("small");details.textContent="PUBLISHED · "+String(item.market||"").slice(0,20);a.append(details);
+ try{const u=new URL(String(item.destination_url||""));if(u.protocol==="https:"){a.href=u.href;a.rel="nofollow sponsored noopener noreferrer";a.target="_blank"}}catch{}
+ live.append(a);
+ }
+ if(!live.children.length){const n=document.createElement("p");n.textContent="No verified published placements with displayable details.";live.append(n)}
+ }catch{live.replaceChildren();const n=document.createElement("p");n.textContent="Published inventory could not be verified right now. No paid placements are being invented.";live.append(n)}
+})();
 })();
 </script>
-</body></html>
+</body>
+</html>
