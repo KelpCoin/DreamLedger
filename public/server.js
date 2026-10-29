@@ -3,6 +3,7 @@
 const http=require('http'),fs=require('fs'),path=require('path'),{URL}=require('url');
 const commercialCell=require('../BEC-PRIME/routes/commercialCell');
 const tollRoad=require('../BEC-PRIME/routes/tollRoad');
+const {verifyFactory:verifyCsvRescue}=require('./data-rescue-verify');
 const TollRuntime=require('../BEC-PRIME/runtime/TollRoad');
 const PORT=Number(process.env.PORT||10000);
 const COMMIT=process.env.RENDER_GIT_COMMIT||process.env.RENDER_GIT_COMMIT_SHA||process.env.GITHUB_SHA||'unknown';
@@ -105,6 +106,13 @@ http.createServer(async (req,res)=>{
   }
   if(req.method==='GET'&&p==='/version'){
     return send(res,200,JSON.stringify({service:'dreamledger-storefront',status:'ok',mtg:'master'}),'application/json; charset=utf-8');
+  }
+  if(req.method==='GET' && p==='/api/data-rescue/verify'){
+    res.setHeader('Cache-Control','no-store, private');
+    res.setHeader('X-Robots-Tag','noindex, nofollow');
+    const sessionId=u.searchParams.get('session_id');
+    const {code,body}=await verifyCsvRescue()(sessionId);
+    return send(res,code,JSON.stringify(body),'application/json; charset=utf-8');
   }
   if(req.method==='GET' && p==='/api/billboard/public'){
     const base=String(process.env.SUPABASE_URL||'').replace(/\/$/,'');
