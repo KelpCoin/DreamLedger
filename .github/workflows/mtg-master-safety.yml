@@ -7,7 +7,8 @@ on:
       - 'BEC-PRIME/website/mtg-catalog.html'
       - 'public/data/mtg-catalog.json'
       - 'public/catalog.json'
-      - 'scripts/verify-mtg-master.cjs'\n      - 'scripts/verify-beck-release-gates.cjs'
+      - 'scripts/verify-mtg-master.cjs'
+      - 'scripts/verify-beck-release-gates.cjs'
       - '.github/workflows/mtg-master-safety.yml'
   workflow_dispatch:
 permissions:
@@ -22,7 +23,15 @@ jobs:
           node-version: '22'
       - name: Verify fail-closed storefront and produce proof
         run: node scripts/verify-mtg-master.cjs > mtg-master-proof.json
-      - name: Verify Phase 1 and Phase 2 evidence (fail closed)\n        run: node scripts/verify-beck-release-gates.cjs\n      - name: Publish release-gate evidence\n        if: always()\n        uses: actions/upload-artifact@v4\n        with:\n          name: beck-release-gate-proof\n          path: beck-gate-proof.json\n      - name: Publish evidence artifact
+      - name: Verify Phase 1 and Phase 2 evidence (fail closed)
+        run: node scripts/verify-beck-release-gates.cjs
+      - name: Publish release-gate evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: beck-release-gate-proof
+          path: beck-gate-proof.json
+      - name: Publish evidence artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
