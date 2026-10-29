@@ -1,0 +1,77 @@
+{
+  "schema_version": "BEC-FIVE-MILESTONE-EXECUTION-PROOF-1.0",
+  "observed_at_utc": "2026-10-25T23:30:00Z",
+  "status": "PARTIAL_WITH_HARD_BLOCKERS",
+  "repository": "KelpCoin/DreamLedger",
+  "milestone_results": [
+    {
+      "id": 1,
+      "name": "Repair canonical release blockers",
+      "status": "PARTIAL",
+      "evidence": [
+        "AgentBridge Contract Gate passed at run https://github.com/KelpCoin/DreamLedger/actions/runs/40243850631",
+        "CI unit policy tests pass after correcting stale MTG contract expectations",
+        "Production contract verification still fails with STRIPE_LINK_DRIFT and PRODUCT_NOT_SELLABLE because canonical Commander Diagnostic is held while approved/featured offer metadata still advertises an active live Stripe link",
+        "Read-only production checks returned HTTP 503 for DreamLedger public endpoints",
+        "Read-only live Stripe inspection: payment link plink_1URUN1EGgEAnUFF9qPz94dqS is active in livemode and already contains sku_id=COMMANDER-DECK-DIAGNOSTIC-001, product_id, product_sku, and offer_id=OFFER-CMD-DIAG-29-NZD. Therefore adding sku_id is not the missing step.",
+        "The same Stripe link uses after_completion.type=hosted_confirmation, not a configured redirect URL. The hosted confirmation promises manual email delivery within 24 hours after receiving an accessible decklist URL; actual fulfilment remains unverified."
+      ],
+      "blocker": "Render DreamLedger1 is suspended by billing. The live Commander Diagnostic payment link is active and already has sku_id metadata, but its post-payment behavior is hosted confirmation rather than a verified live thank-you route. Separately, the canonical product is held while approved/featured metadata conflicts with that held state. Do not silently reactivate or mutate payment links to make CI green."
+    },
+    {
+      "id": 2,
+      "name": "Prove multi-LLM loop",
+      "status": "CONTRACT_TESTS_ADDED",
+      "evidence": [
+        "Provider-neutral AgentBridge profile contract is verified at https://github.com/KelpCoin/DreamLedger/actions/runs/40243850631",
+        "COURT_REVIEW is accepted by the server to match the existing ChatGPT/Luna profiles",
+        "Each declared agent profile is checked against the server allowlist and its declared event/lane contract"
+      ],
+      "blocker": "No authenticated live calls to external model providers were performed; provider credentials and end-to-end worker execution remain unverified."
+    },
+    {
+      "id": 3,
+      "name": "Connect distribution to canonical product lifecycle",
+      "status": "FAIL_CLOSED_ADAPTER_IMPLEMENTED",
+      "evidence": [
+        "PR #835 adds PrepareCanonicalCatalog.js and tests",
+        "Dedicated CI run 40243387223 passed 12 tests",
+        "Proof artifact reports 48 source products, 0 eligible, 48 blocked, 0 channel drafts, 0 published"
+      ],
+      "blocker": "No product currently meets all canonical sellability, approval, source URL, silo and verified zero-human fulfillment registry gates."
+    },
+    {
+      "id": 4,
+      "name": "Platform-specific authorized adapters",
+      "status": "DRAFT_COMPILER_ONLY",
+      "evidence": [
+        "Seven channel draft contracts are defined in PR #835",
+        "Canonical catalog adapter and fan-out compiler tests pass in run https://github.com/KelpCoin/DreamLedger/actions/runs/40243387223",
+        "Patreon Shop requires native checkout; Trade Me is physical-goods only",
+        "Publication and money movement are hard-disabled"
+      ],
+      "blocker": "Seller accounts, OAuth/API credentials, eligibility and native delivery receipts are not verified. No listings were created."
+    },
+    {
+      "id": 5,
+      "name": "Complete genuine external buyer-to-delivery transaction",
+      "status": "BLOCKED",
+      "evidence": [
+        "Read-only checks returned HTTP 503 for dreamledger.org/billboard, dreamledger1.onrender.com/healthz, dreamledger1.onrender.com/billboard and dreamledger.org/api/agent-bridge/manifest",
+        "Render service DreamLedger1 (srv-d8ud55lckfvc73f1t4eg) is marked suspended with suspenders=[billing]",
+        "Stripe payment link plink_1URUN1EGgEAnUFF9qPz94dqS is active in livemode; this proves link state only, not a buyer payment or delivered product."
+      ],
+      "blocker": "Production service is suspended by billing controls and migration away from Render/Supabase is not yet verified. External buyer checkout, settlement and delivery cannot be verified until an approved production target is healthy."
+    }
+  ],
+  "truth": {
+    "verified_external_revenue_nzd_from_this_work": 0,
+    "public_actions_performed": false,
+    "payment_or_checkout_mutations_performed": false,
+    "deployments_performed": false,
+    "marketplace_listings_created": false
+  },
+  "next_unblocking_action": "Complete the already-requested hosting/data migration away from Render and Supabase using the migration PR and connected provider inventory; preserve financial history, verify read/write parity and recovery, and do not switch public traffic or delete source resources until independently verified and explicitly approved. Then resolve the held Commander Diagnostic versus active-link metadata conflict.",
+  "repository_head": "20e79a03f1b31817f1010e99483dbb745e706eae",
+  "evidence": null
+}

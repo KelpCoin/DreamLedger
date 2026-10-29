@@ -3,6 +3,7 @@
 const assert = require('assert/strict');
 const http = require('http');
 const bridge = require('../runtime/AgentBridge');
+const { AGENT_PROFILES, canEmit } = require('../runtime/AgentBridgeProfiles');
 
 function request(port, path) {
   return new Promise((resolve, reject) => {
@@ -25,6 +26,14 @@ async function main() {
   assert.equal(typeof bridge.handle, 'function');
   assert.equal(typeof bridge.validateEventEnvelope, 'function');
   assert.equal(bridge.STRUCTURED_EVENT_TYPES.has('CANDIDATE_FOUND'), true);
+  assert.equal(bridge.STRUCTURED_EVENT_TYPES.has('COURT_REVIEW'), true);
+  for (const [agent, profile] of Object.entries(AGENT_PROFILES)) {
+    assert.equal(bridge.ALLOWED_AGENTS.has(agent), true, agent + ' must be server-allowlisted');
+    for (const eventType of profile.event_types) {
+      if (eventType === 'COURT_REVIEW') assert.equal(bridge.STRUCTURED_EVENT_TYPES.has(eventType), true, 'court review must be accepted by server');
+      assert.equal(canEmit(agent, eventType, profile.lanes[0]), true, agent + ' profile should permit its declared event/lane');
+    }
+  }
   assert.equal(bridge.STRUCTURED_EVENT_TYPES.has('COURT_VERDICT'), true);
   assert.equal(bridge.STRUCTURED_EVENT_TYPES.has('ACTION_APPROVED'), true);
   assert.equal(bridge.ALLOWED_AGENTS.has('grok'), true);
