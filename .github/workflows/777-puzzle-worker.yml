@@ -2,7 +2,7 @@ name: 777 Public Puzzle Worker
 
 on:
   schedule:
-    - cron: "17 * * * *"
+    - cron: "17 9 * * *"
   workflow_dispatch:
 
 permissions:
