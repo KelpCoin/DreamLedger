@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BECK | Local RLS & Webhook Checker</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,Arial,sans-serif;background:#080d0a;color:#eaffed}
+body{max-width:1050px;margin:0 auto;padding:24px 16px 70px}h1{font-size:clamp(30px,5vw,52px);letter-spacing:-.045em;margin-bottom:8px}h1 span{color:#78ff8b}
+p,small{color:#b4c8b9;line-height:1.6}.kicker{color:#78ff8b;letter-spacing:.16em;text-transform:uppercase;font-weight:bold}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}@media(max-width:680px){.grid{grid-template-columns:1fr}}
+.panel{background:#101b14;border:1px solid #2c5c39;border-radius:14px;padding:18px;margin:18px 0}textarea{width:100%;min-height:210px;box-sizing:border-box;background:#070f09;color:#d6ffdf;border:1px solid #347747;border-radius:9px;padding:12px;font:13px/1.5 monospace;resize:vertical}
+button{background:#78ff8b;color:#06280e;border:0;border-radius:8px;font-weight:700;padding:12px 16px;cursor:pointer}button.secondary{background:#23462b;color:#ecfff0;margin-left:7px}
+.item{border-left:4px solid #ffcb6a;background:#18251a;padding:12px 15px;margin:10px 0}.item.fail{border-color:#ff7b7b}.item.note{border-color:#8cc3ff}.item.pass{border-color:#78ff8b}
+.item h3{margin:0 0 6px}.item p{margin:0}#results[hidden]{display:none}a{color:#78ff8b}
+</style></head>
+<body><div class="kicker">BECK / Free diagnostic / Local first</div><h1>Find <span>security warning signs</span> before launch.</h1>
+<p>Paste non-sensitive SQL or webhook code. This static analyzer runs only inside your browser. No login, upload, tracking, remote API or backend call. It flags suspicious patterns, not proven exploits, and cannot certify security.</p>
+<div class="grid"><section class="panel"><label for="sql"><strong>PostgreSQL / Supabase SQL</strong></label><p><small>Schema, policies, grants or role inspection output. Do not paste secrets, customer records or private data.</small></p><textarea id="sql" spellcheck="false" placeholder="ALTER TABLE marketplace.listings ENABLE ROW LEVEL SECURITY;&#10;CREATE POLICY ...;"></textarea></section>
+<section class="panel"><label for="webhook"><strong>Stripe webhook code</strong></label><p><small>A code excerpt without API keys, signatures or customer data.</small></p><textarea id="webhook" spellcheck="false" placeholder="const event = stripe.webhooks.constructEvent(rawBody, signature, secret);"></textarea></section></div>
+<button id="scan">Analyze locally</button><button id="clear" class="secondary">Clear</button>
+<section class="panel" id="results" hidden aria-live="polite"><h2>Preliminary findings</h2><p id="summary"></p><div id="findings"></div><button class="secondary" id="copy">Copy findings</button><p><small>Warnings are not audit findings without manual verification. A clean scan does not establish safety. For actual tenant isolation, test disjoint seeded tenants with a genuinely restricted role and authenticated principal binding.</small></p></section>
+<section class="panel"><h2>Boundaries of this tool</h2><p>FORCE RLS is not universally mandatory: it matters for table-owner access, and it does not override roles with BYPASSRLS. Published listings may be intentionally public. Webhook transaction safety cannot be established from keywords alone. Concurrency safety can use atomic UPDATE or other correct patterns, not just SELECT FOR UPDATE. Never execute generated SQL against production based on a static warning.</p><p>A professional diagnostic can include role and grant inspection, actual two-tenant read/write tests, Stripe signature and idempotency review, and controlled concurrent reservation tests. <strong>Paid assessment is not yet offered or linked here.</strong></p></section>
+<script>
+(() => {
+'use strict';
+const $ = id => document.getElementById(id);
+let report = '';
+function finding(level,title,detail){ return {level,title,detail}; }
+function analyze(sql,code){
+  const out = [],s=sql.toLowerCase(),c=code.toLowerCase();
+  if(!s.trim()&&!c.trim())return [finding('note','Input needed','Paste a non-sensitive SQL or webhook excerpt to inspect.')];
+  if(s.trim()){
+    if(/\bbypassrls\b/i.test(sql)) out.push(finding('note','BYPASSRLS mentioned','Check whether an actual runtime connection role has rolbypassrls=true; mentioning the term in a query or comment is not evidence of a vulnerable role.'));
+    if(/\brolbypassrls\s*[=:]\s*(true|t|1)\b/i.test(sql))out.push(finding('fail','Privileged runtime role signal','A supplied role inspection appears to report BYPASSRLS=true. Confirm whether this is the application runtime identity.'));
+    const enabled=[...sql.matchAll(/alter\s+table\s+(?:if\s+exists\s+)?([\w".]+)\s+enable\s+row\s+level\s+security/gi)].map(m=>m[1].toLowerCase());
+    const forced=new Set([...sql.matchAll(/alter\s+table\s+(?:if\s+exists\s+)?([\w".]+)\s+force\s+row\s+level\s+security/gi)].map(m=>m[1].toLowerCase()));
+    for(const t of enabled)if(!forced.has(t))out.push(finding('note','Review owner access on '+t,'ENABLE RLS was found without FORCE RLS in this excerpt. Confirm table ownership and whether FORCE is required for this table.'));
+    if(/current_setting\s*\(\s*['"]app\.(principal_id|tenant_id|current_organization)/i.test(sql))out.push(finding('note','Custom tenant context needs a trust boundary','Custom PostgreSQL settings can be modified by roles permitted to execute SQL. Confirm a trusted server authenticates and binds context per transaction.'));
+    if(!enabled.length)out.push(finding('note','Insufficient RLS coverage evidence','No ENABLE RLS statements were found in this excerpt. This does not imply RLS is absent.'));
+  }
+  if(c.trim()){
+    if(!/constructevent\s*\(|verify(header|signature)|webhooks\.signature/i.test(code))out.push(finding('note','Signature verification not evident','No familiar Stripe webhook signature verification pattern detected. Verify against the original raw request body.'));
+    if(!/event\.id|event_id|eventid|idempotenc/i.test(code))out.push(finding('note','Event deduplication not evident','No recognizable event-ID or idempotency handling found. Confirm durable deduplication and idempotent state transitions.'));
+    if(/event\.id|event_id|eventid|idempotenc/i.test(code))out.push(finding('note','Idempotency requires transaction review','An event-ID pattern exists, but a static excerpt cannot prove atomic inbox insertion and business-state transitions.'));
+    if(!/\b(transaction|begin|commit|atomic)\b/i.test(code))out.push(finding('note','Atomic state update not established','No obvious transaction marker detected. Confirm inbox and state changes are atomic, including failure recovery.'));
+  }
+  return out.length?out:[finding('pass','No selected patterns flagged','This is not a PASS for security. Only a narrow static heuristic completed.')];
+}
+function show(){
+ const findings=analyze($('sql').value,$('webhook').value);
+ report='BECK LOCAL STATIC HEURISTIC — NOT A SECURITY AUDIT\n'+findings.map(f=>f.level.toUpperCase()+' | '+f.title+' | '+f.detail).join('\n');
+ $('results').hidden=false;$('summary').textContent=findings.length+' preliminary observation(s). All require appropriate review.';
+ const root=$('findings');root.replaceChildren();
+ for(const f of findings){const d=document.createElement('div');d.className='item '+f.level;const h=document.createElement('h3');h.textContent=f.level.toUpperCase()+': '+f.title;const p=document.createElement('p');p.textContent=f.detail;d.append(h,p);root.append(d);}
+}
+$('scan').addEventListener('click',show);
+$('clear').addEventListener('click',()=>{$('sql').value='';$('webhook').value='';$('results').hidden=true;report='';});
+$('copy').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(report);$('copy').textContent='Copied';}catch{$('copy').textContent='Copy unavailable';}});
+})();
+</script></body></html>
