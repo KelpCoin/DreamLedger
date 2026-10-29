@@ -1,0 +1,78 @@
+{
+  "schema": "beck/tenant-master-manifest/v1",
+  "master_silo": "nz-mtg",
+  "display_name": "Happy Homarid",
+  "deployment": {
+    "provider": "vercel",
+    "public_path": "https://dreamledger.org/mtg/",
+    "production_project_id": null,
+    "verified": false
+  },
+  "database": {
+    "provider": "supabase",
+    "project_ref": "wbwgroygjeyukkspnqiy",
+    "table_inventory": "UNVERIFIED",
+    "tenant_key": "UNVERIFIED",
+    "rls": "UNVERIFIED"
+  },
+  "commerce": {
+    "currency": "NZD",
+    "fee_pct": 0,
+    "pricing_authority": "UNRESOLVED",
+    "inventory_authority": "UNVERIFIED",
+    "payment_routing": "UNVERIFIED",
+    "payout_credentials": "NOT_IN_MANIFEST",
+    "edh_0001": {
+      "catalogue_price_nzd": 400,
+      "global_catalogue_price_nzd": 230,
+      "checkout_status": "HELD_PRICE_CONFLICT"
+    },
+    "diagnostic": {
+      "sku": "COMMANDER-DECK-DIAGNOSTIC-001",
+      "checkout_status": "HELD"
+    }
+  },
+  "kit": {
+    "name": "master-commerce",
+    "version": 0,
+    "applied_kit_version": null,
+    "status": "NOT_PROVISIONED"
+  },
+  "clone": {
+    "enabled": false,
+    "batch_enabled": false,
+    "requires": [
+      "phase1_verified",
+      "commercial_sale_fulfilled_reconciled",
+      "phase2_isolation_verified",
+      "phase3_idempotent_provisioning_verified",
+      "phase4_agent_boundaries_verified"
+    ],
+    "core_code_changes_allowed": false
+  },
+  "silo_boundaries": {
+    "identity": "separate",
+    "catalogue": "separate",
+    "credentials": "separate",
+    "settlement": "separate",
+    "adult_silo_cross_reference": "FORBIDDEN"
+  },
+  "evidence": {
+    "phase1": "HOLD",
+    "phase2": "HOLD",
+    "phase3": "HOLD",
+    "phase4": "HOLD",
+    "clone_gate": "HOLD",
+    "verified_external_sale": false
+  },
+  "sources": {
+    "catalogue": "public/data/mtg-catalog.json",
+    "global_catalogue": "public/catalog.json",
+    "storefront": "public/mtg/index.html"
+  },
+  "notes": [
+    "Manifest export only; not a deployed database or activated tenant.",
+    "Custom-domain strings are not DNS ownership proof.",
+    "Do not provision 10 domains from unverified inventory and settlement state."
+  ]
+}
