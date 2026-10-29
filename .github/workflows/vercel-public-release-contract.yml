@@ -49,6 +49,8 @@ jobs:
           node --test handlers/cube/marketplace.test.js handlers/cube/stripeWebhookSignature.test.js
           node --check public/mtg/catalogue.js
           node --test public/mtg/catalogue.test.js
+          node --check public/billboard-preview.js
+          node --test public/billboard-preview.test.js
           node --test BEC-PRIME/compiled/website/lib/signedSession.test.js handlers/dreammeez/entitlements.test.js public/assets/avatar-identity.test.js
           node --check public/assets/avatar-identity.js
           node --check handlers/dreammeez/entitlements.js
