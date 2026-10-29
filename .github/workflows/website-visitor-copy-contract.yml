@@ -1,0 +1,43 @@
+name: Website Visitor Copy Contract
+on:
+  pull_request:
+    paths:
+      - 'BEC-PRIME/compiler/WebsiteFaceCompiler.js'
+      - 'BEC-PRIME/compiler/face-registry.json'
+      - '.github/workflows/website-visitor-copy-contract.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Check generator syntax
+        run: node --check BEC-PRIME/compiler/WebsiteFaceCompiler.js
+      - name: Generate public-facing preview in CI only
+        run: node BEC-PRIME/compiler/WebsiteFaceCompiler.js
+      - name: Verify customer vocabulary and existing CTA routes
+        run: |
+          node - <<'NODE'
+          const fs=require('node:fs');
+          const path=require('node:path');
+          const files=['home.html','shop.html','money.html','start.html','offers.html'];
+          const forbidden=/BECK compiler|Compiler exhaust|emitted by WebsiteFaceCompiler|Silo clone engine|private factory|Generated from face-registry|Sorted by price from registry/i;
+          const results=[];
+          for(const f of files){
+            const html=fs.readFileSync(path.join('public',f),'utf8');
+            if(forbidden.test(html))throw Error('INTERNAL_JARGON_LEAK '+f);
+            if(!html.includes('DreamLedger'))throw Error('MISSING_BRAND '+f);
+            results.push({file:f,bytes:Buffer.byteLength(html)});
+          }
+          const home=fs.readFileSync('public/home.html','utf8');
+          for(const route of ['/shop.html','/tools/free.html','/mtg/','/avatar.html','/quote-compare-49.html']){
+            if(!home.includes('href="'+route+'"'))throw Error('CTA_ROUTE_MISSING '+route);
+          }
+          console.log(JSON.stringify({status:'PASS',scope:'CI_SANDBOX_ONLY',no_deploy:true,publications:0,results},null,2));
+          NODE

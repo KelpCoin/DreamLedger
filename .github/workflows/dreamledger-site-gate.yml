@@ -22,6 +22,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
+      - name: Generate visitor-facing pages from the existing registry
+        run: node BEC-PRIME/compiler/WebsiteFaceCompiler.js
       - name: Validate public storefront files
         shell: bash
         run: |
@@ -32,10 +34,13 @@ jobs:
           test -s public/package.json
           test -s public/robots.txt
           test -s public/sitemap.xml
-          grep -q 'Supplier Quote Comparison Worksheet' public/home.html
-          grep -q 'Truth Oracle evidence review' public/home.html
-          grep -q 'Commander Deck Diagnostic' public/home.html
-          grep -q 'Agent Bridge · Preview (held)' public/home.html
+          grep -q 'DreamLedger' public/home.html
+          grep -q 'href="/shop.html"' public/home.html
+          grep -q 'href="/mtg/"' public/home.html
+          grep -q 'href="/tools/free.html"' public/home.html
+          if grep -Eiq 'BECK compiler|Compiler exhaust|emitted by WebsiteFaceCompiler|Silo clone engine|private factory' public/home.html; then
+            echo 'FAIL: internal implementation language leaked to visitors'; exit 1
+          fi
           grep -q "p==='/api/offers' || p==='/api/products'" public/server.js
           grep -q "'/sitemap.xml':'sitemap.xml'" public/server.js
           grep -q "p.startsWith('/buy/')" public/server.js
