@@ -15,6 +15,7 @@ const routes: Record<string, Route> = {
   "/api/cube/marketplace": { kind: "node", load: () => import("../handlers/cube/marketplace.js") },
   "/api/cube/stripe-webhook": { kind: "web", load: () => import("../handlers/cube/stripe-webhook.ts") },
   "/api/cube/silos": { kind: "node", load: () => import("../handlers/cube/silos.js") },
+  "/api/cube/community": { kind: "node", load: () => import("../handlers/cube/community.js") },
   "/api/dreammeez/checkin": { kind: "node", load: () => import("../handlers/dreammeez/checkin.js") },
   "/api/dreammeez/entitlements": { kind: "node", load: () => import("../handlers/dreammeez/entitlements.js") },
   "/api/stripe-link": { kind: "web", load: () => import("../handlers/stripe-link.ts") },
