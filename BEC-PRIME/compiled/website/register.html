@@ -21,6 +21,7 @@
       <input id="email" type="email" autocomplete="email" required>
       <label for="password">Password</label>
       <input id="password" type="password" autocomplete="new-password" required minlength="8">
+      <label for="termsAccepted" style="display:block;margin:12px 0;line-height:1.5"><input id="termsAccepted" type="checkbox" required style="width:auto;margin-right:8px">I have read and agree to the <a href="/terms" target="_blank" rel="noopener noreferrer">Terms of Use</a>. <a href="/privacy" target="_blank" rel="noopener noreferrer">Privacy notice</a>.</label>
       <button type="submit">Sign up</button>
       <div id="msg" class="msg" role="alert"></div>
     </form>
@@ -28,7 +29,9 @@
   </div>
 </div>
 <script>
-document.getElementById('register').addEventListener('submit',async(e)=>{e.preventDefault();const m=document.getElementById('msg');m.textContent='';m.className='msg';try{const r=await fetch('/api/account/register',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:email.value,password:password.value})});const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||'Could not create account');location.href=d.next||'/avatar.html'}catch(err){m.className='msg error';m.textContent=err.message}});
+let currentTermsMeta = null;
+fetch('/api/account/terms-version',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('Terms unavailable');return r.json()}).then(x=>{currentTermsMeta=x}).catch(()=>{document.getElementById('msg').textContent='Registration temporarily unavailable: terms could not be loaded.'});
+document.getElementById('register').addEventListener('submit',async(e)=>{e.preventDefault();const m=document.getElementById('msg');m.textContent='';m.className='msg';try{if(!document.getElementById('termsAccepted').checked||!currentTermsMeta)throw new Error('Review the current Terms of Use first.');const r=await fetch('/api/account/register',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:email.value,password:password.value,terms_acceptance:{accepted:true,version:currentTermsMeta.version,sha256:currentTermsMeta.sha256}})});const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||'Could not create account');location.href=d.next||'/avatar.html'}catch(err){m.className='msg error';m.textContent=err.message}});
 </script>
 </body>
 </html>

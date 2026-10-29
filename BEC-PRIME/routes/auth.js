@@ -3,6 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const termsAcceptance = require('../lib/termsAcceptance');
 
 const ROOT = path.join(__dirname, '..');
 const DATA_ROOT = process.env.DREAMIEZ_DATA_DIR || ((fs.existsSync('/var/data') && fs.statSync('/var/data').isDirectory()) ? '/var/data/dreamiez' : path.join(ROOT, 'data', 'dreamiez'));
@@ -41,10 +42,14 @@ function validAvatar(avatar) {
 
 async function handle(req, res, url) {
   const route = typeof url === 'string' ? url : String(req.url || '').split('?')[0];
-  const authRoute = ['/api/account/register','/api/account/login','/api/account/logout','/api/account/me','/api/account/update'].includes(route);
+  const authRoute = ['/api/account/register','/api/account/login','/api/account/logout','/api/account/me','/api/account/update','/api/account/terms-version'].includes(route);
   if (!authRoute) return false;
   const users = readUsers();
   const sessionId = getCookie(req, COOKIE);
+  if (req.method === 'GET' && route === '/api/account/terms-version') {
+    try { return json(res, 200, termsAcceptance.currentTerms()); }
+    catch { return json(res, 503, { error: 'Terms not available.' }); }
+  }
 
   if (req.method === 'GET' && route === '/api/account/me') {
     const user = sessionId ? users.find(item => item.id === sessionId && item.email) : null;
@@ -71,6 +76,10 @@ async function handle(req, res, url) {
     const password = String(input.password || '');
     if (!validEmail(email)) return json(res, 422, { error: 'Please enter a valid email address.' });
     if (password.length < 8) return json(res, 422, { error: 'Password must be at least 8 characters.' });
+    let acceptedTerms;
+    try { acceptedTerms = termsAcceptance.verifyAcceptance(input); }
+    catch { return json(res, 503, { error: 'Terms unavailable. Registration paused.' }); }
+    if (!acceptedTerms.ok) return json(res, 428, { error: 'Please review and accept the current Terms of Use.' });
     if (users.some(item => String(item.email || '').toLowerCase() === email)) return json(res, 409, { error: 'An account with this email already exists. Log in instead.' });
     const id = 'u_' + crypto.randomBytes(12).toString('hex');
     const user = {
@@ -87,7 +96,8 @@ async function handle(req, res, url) {
       guild: null,
       seller: { display_name: name, location: '', bio: '' },
       password: passwordRecord(password),
-      account_created_at: new Date().toISOString()
+      account_created_at: new Date().toISOString(),
+      terms_acceptance: acceptedTerms.record
     };
     users.push(user);
     writeUsers(users);

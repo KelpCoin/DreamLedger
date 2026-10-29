@@ -92,6 +92,7 @@ button[type=submit]:disabled{opacity:.55;cursor:wait}
       </div>
       <input id="password" name="password" type="password" autocomplete="new-password" required minlength="8" placeholder="At least 8 characters">
       <p class="hint">Minimum 8 characters. You can change this later.</p>
+      <label for="termsAccepted" style="display:block;line-height:1.5"><input id="termsAccepted" type="checkbox" required style="width:auto;min-height:0;margin-right:8px">I agree to the <a href="/terms" target="_blank" rel="noopener noreferrer"><u>Terms of Use</u></a>. <a href="/privacy" target="_blank" rel="noopener noreferrer"><u>Privacy notice</u></a>.</label>
       <button type="submit" id="go">Create account</button>
       <div id="msg" class="msg" role="alert" aria-live="polite"></div>
     </form>
@@ -107,6 +108,8 @@ button[type=submit]:disabled{opacity:.55;cursor:wait}
   var email=document.getElementById('email');
   var password=document.getElementById('password');
   var showPw=document.getElementById('showPw');
+  var termsMeta=null;
+  fetch('/api/account/terms-version',{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('Unavailable');return r.json()}).then(function(x){termsMeta=x}).catch(function(){msg.textContent='Registration temporarily unavailable: terms could not be loaded.';msg.className='msg err'});
   showPw.addEventListener('click',function(){
     var on=password.type==='password';
     password.type=on?'text':'password';
@@ -121,12 +124,13 @@ button[type=submit]:disabled{opacity:.55;cursor:wait}
     if(!password.value||password.value.length<8){
       msg.textContent='Password needs at least 8 characters.';msg.className='msg err';password.focus();return;
     }
+    if(!document.getElementById('termsAccepted').checked||!termsMeta){msg.textContent='Review and accept the current Terms of Use first.';msg.className='msg err';return;}
     go.disabled=true;go.textContent='Creating account…';
     try{
       var r=await fetch('/api/account/register',{
         method:'POST',credentials:'include',
         headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({email:em,password:password.value})
+        body:JSON.stringify({email:em,password:password.value,terms_acceptance:{accepted:true,version:termsMeta.version,sha256:termsMeta.sha256}})
       });
       var d=await r.json().catch(function(){return {};});
       if(!r.ok)throw new Error(d.error||'Could not create account.');

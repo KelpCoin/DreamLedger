@@ -1,0 +1,24 @@
+name: BECK draft NZ terms and clickwrap verifier
+on:
+  pull_request:
+    paths:
+      - 'BEC-PRIME/compiled/website/terms.html'
+      - 'public/terms.html'
+      - 'BEC-PRIME/lib/termsAcceptance.js'
+      - 'BEC-PRIME/scripts/test-terms-clickwrap.js'
+      - '.github/workflows/beck-legal-draft-review.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  legal-draft-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node BEC-PRIME/scripts/test-terms-clickwrap.js
+      - run: node BEC-PRIME/scripts/verify-auth-terms-integration.js
+      - run: node --check BEC-PRIME/routes/auth.js
