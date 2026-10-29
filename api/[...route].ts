@@ -19,6 +19,7 @@ const routes: Record<string, Route> = {
   "/api/cube/listing-intake": { kind: "node", load: () => import("../handlers/cube/listing-intake.js") },
   "/api/dreammeez/checkin": { kind: "node", load: () => import("../handlers/dreammeez/checkin.js") },
   "/api/dreammeez/entitlements": { kind: "node", load: () => import("../handlers/dreammeez/entitlements.js") },
+  "/api/checkout-status": { kind: "web", load: () => import("../handlers/checkout-status.js") },
   "/api/stripe-link": { kind: "web", load: () => import("../handlers/stripe-link.ts") },
   "/api/offer-checkout/create": { kind: "web", load: () => import("../handlers/stripe-link.ts") },
   "/api/molt-beach-checkout": { kind: "web", load: () => import("../handlers/billboard-checkout.ts") },

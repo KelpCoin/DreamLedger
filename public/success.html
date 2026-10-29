@@ -3,51 +3,77 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="robots" content="noindex">
-<title>Payment received · DreamLedger</title>
-<meta name="description" content="Thank you. Your DreamLedger payment was received. Complete any required next step.">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=Instrument+Serif&display=swap" rel="stylesheet">
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
+<title>Verify checkout | DreamLedger</title>
+<meta name="description" content="Check payment status securely with Stripe. Returning from checkout does not prove payment.">
 <link rel="stylesheet" href="/shop.css">
 <style>
-main{max-width:520px;margin:48px auto;padding:0 20px}
+main{max-width:560px;margin:48px auto;padding:0 20px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:28px}
 h1{font-size:1.75rem;margin-bottom:8px}
-.ok{color:#15803d;font-size:13px;font-weight:700;margin-bottom:12px}
+.state{font-size:13px;font-weight:700;margin-bottom:12px}
 p{color:var(--muted);font-size:15px;margin-bottom:12px}
-.session{font-family:ui-monospace,Menlo,monospace;font-size:12px;word-break:break-all;background:#f0eeea;padding:10px 12px;border-radius:10px;margin:16px 0}
+.session{font-family:ui-monospace,Menlo,monospace;font-size:12px;overflow-wrap:anywhere;padding:10px 12px;border-radius:10px;margin:16px 0;border:1px solid var(--line)}
 .actions{display:flex;flex-direction:column;gap:10px;margin-top:20px}
 .actions a{text-align:center}
+[hidden]{display:none!important}
 </style>
 </head>
 <body>
-<header class="hdr"><div class="hdr-inner">
-  <a class="brand" href="/">DreamLedger</a>
-  <nav class="hdr-nav"><a href="/shop.html">Shop</a></nav>
-</div></header>
-<main>
-  <div class="card">
-    <div class="ok">Payment received</div>
-    <h1>Thank you</h1>
-    <p>Stripe has confirmed checkout. A sale only becomes a completed delivery after any product-specific next step below.</p>
-    <div class="session" id="session">Looking up session…</div>
-    <div class="actions">
-      <a class="btn btn-dark btn-block" id="diag" href="/diagnostic-input.html">Commander diagnostic — submit decklist</a>
-      <a class="btn btn-line btn-block" href="/">Back to shop</a>
-    </div>
-    <p style="margin-top:18px;font-size:13px">Billboard and digital downloads: we will follow the fulfilment path for that product. Keep your receipt email.</p>
+<header class="hdr"><div class="hdr-inner"><a class="brand" href="/">DreamLedger</a>
+<nav class="hdr-nav"><a href="/shop.html">Shop</a></nav></div></header>
+<main><div class="card">
+  <div class="state" id="state" role="status" aria-live="polite">Checking with Stripe</div>
+  <h1 id="heading">Verifying checkout</h1>
+  <p id="detail">A return URL or checkout session ID is not evidence of payment. We are checking the server-side record.</p>
+  <div class="session" id="session" hidden></div>
+  <div class="actions">
+    <a class="btn btn-dark btn-block" id="diag" href="/diagnostic-input.html" hidden>Submit diagnostic decklist</a>
+    <a class="btn btn-line btn-block" href="/">Back to DreamLedger</a>
   </div>
-</main>
+  <p style="margin-top:18px;font-size:13px">A Stripe payment report is not proof of settlement, dispatch or completed delivery. Product fulfilment requires a separate confirmed workflow.</p>
+</div></main>
 <script>
-(function(){
-  var q=new URLSearchParams(location.search);
-  var sid=q.get('session_id')||q.get('sessionId')||'';
-  var el=document.getElementById('session');
-  var diag=document.getElementById('diag');
-  if(sid){
-    el.textContent='Session: '+sid;
-    diag.href='/diagnostic-input.html?session_id='+encodeURIComponent(sid);
-  }else{
-    el.textContent='No session id in this URL. If you paid for the Commander diagnostic, open the decklist form and paste the session id from your receipt.';
+(async function(){
+  'use strict';
+  const params=new URLSearchParams(location.search);
+  const sid=params.get('session_id')||params.get('sessionId')||'';
+  const state=document.getElementById('state');
+  const heading=document.getElementById('heading');
+  const detail=document.getElementById('detail');
+  const session=document.getElementById('session');
+  const diag=document.getElementById('diag');
+  function show(label,title,message){
+    state.textContent=label;heading.textContent=title;detail.textContent=message;
+  }
+  if(!/^cs_[A-Za-z0-9_]{8,128}$/.test(sid)){
+    show('Not verified','No valid checkout reference','Use the secure checkout receipt or contact the seller. No payment is confirmed by this page.');
+    return;
+  }
+  session.hidden=false;
+  session.textContent='Checkout reference: '+sid;
+  try{
+    const response=await fetch('/api/checkout-status?session_id='+encodeURIComponent(sid),
+      {method:'GET',cache:'no-store',credentials:'omit',referrerPolicy:'no-referrer'});
+    if(!response.ok)throw new Error('VERIFICATION_UNAVAILABLE');
+    const result=await response.json();
+    if(result.verified!==true || result.paid!==true){
+      show('Not confirmed','Payment not verified','Stripe has not confirmed a completed paid checkout. Do not interpret the return URL as a receipt.');
+      return;
+    }
+    if(result.test_mode===true){
+      show('Test mode','Test checkout recorded','This was a Stripe test-mode checkout. It is not real revenue and no physical order is cleared for dispatch.');
+      return;
+    }
+    if(result.test_mode!==false)throw new Error('UNKNOWN_MODE');
+    show('Stripe reports paid','Payment reported by Stripe','Stripe reports this checkout as paid. Independent settlement, order matching and product fulfilment are still pending verification.');
+    if(result.next_step==='DIAGNOSTIC_INPUT'){
+      diag.href='/diagnostic-input.html?session_id='+encodeURIComponent(sid);
+      diag.hidden=false;
+    }
+  }catch{
+    show('Verification unavailable','Payment status unknown','The server could not verify this checkout with Stripe. Do not retry payment solely because of this message. Retain your receipt and contact the seller.');
   }
 })();
 </script>
