@@ -1,0 +1,21 @@
+name: BECK UTM lineage review (no deploy)
+on:
+  pull_request:
+    paths:
+      - 'BEC-PRIME/routes/distributionDoorway.js'
+      - 'BEC-PRIME/scripts/verify-campaign-utm.js'
+      - '.github/workflows/beck-utm-attribution-pr.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  static-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --check BEC-PRIME/routes/distributionDoorway.js
+      - run: node BEC-PRIME/scripts/verify-campaign-utm.js
