@@ -17,9 +17,11 @@ main{padding:72px 0 60px}.eyebrow{margin:0 0 12px;color:var(--signal);font-size:
 .hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(285px,370px);gap:38px;align-items:center}
 h1,h2,h3{font-family:"Space Grotesk",Inter,"Segoe UI",system-ui,sans-serif;letter-spacing:-.065em}h1{font-size:clamp(50px,8vw,110px);line-height:.91;margin:0 0 22px;max-width:850px}h1 strong{color:var(--signal)}
 .lead{color:var(--muted);font-size:clamp(16px,1.8vw,20px);max-width:660px;margin:0 0 24px}
-.offerline{display:flex;align-items:baseline;gap:12px;margin:16px 0 25px;flex-wrap:wrap}
+.offerline{display:flex;align-items:baseline;gap:12px;margin:16px 0 12px;flex-wrap:wrap}
 .price{font-size:clamp(36px,4vw,56px);line-height:1;font-weight:950;letter-spacing:-.07em}
 .offerline span{font-size:13px;color:var(--muted)}
+.scarcity{display:inline-flex;align-items:center;gap:8px;margin:0 0 20px;padding:8px 12px;border:1px solid #3a4a5c;border-radius:999px;background:#0f1620;color:var(--muted);font-size:12px;font-weight:700}
+.scarcity b{color:var(--signal)}
 .button{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:13px 20px;border-radius:11px;background:var(--signal);color:#080b10;text-decoration:none;font-size:15px;font-weight:900;border:2px solid var(--signal)}
 .button:hover,.button:focus-visible{background:#e1ff94;border-color:#e1ff94}.button:focus-visible,input:focus-visible{outline:3px solid #fff;outline-offset:3px}
 .button.secondary{background:transparent;color:var(--ink);border-color:#59687a}
@@ -51,8 +53,9 @@ input{width:100%;background:#080b10;border:1px solid #526074;border-radius:9px;c
 <h1 id="headline">YOUR SPACE.<br><strong>STILL HERE.</strong></h1>
 <p class="lead">A small piece of the internet with your name on it. Reserve a 100 x 100 tile for a project, business, idea or identity on DreamLedger's public web canvas.</p>
 <div class="offerline"><b class="price">NZ$50</b><span>One-time payment · one 100 x 100 placement</span></div>
+<p class="scarcity"><b>FOUNDING OFFER</b> · Fixed price · Content review before publication · No traffic promises</p>
 <div class="actions">
-<a class="button" id="checkout" href="https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w?utm_source=dreamledger&amp;utm_medium=billboard&amp;utm_campaign=founding">Reserve a tile securely</a>
+<a class="button" id="checkout" href="https://buy.stripe.com/00w4gz6HzeWhcizeZedwc2w?utm_source=dreamledger&utm_medium=billboard&utm_campaign=founding">Reserve a tile securely</a>
 <a class="button secondary" href="#details">See what you get</a>
 </div>
 <p class="small">Stripe collects your tile label and destination details at checkout. Paid submissions enter content review; purchase does not bypass approval. No traffic or sales are guaranteed.</p>
@@ -69,8 +72,8 @@ input{width:100%;background:#080b10;border:1px solid #526074;border-radius:9px;c
 <p class="eyebrow">One product. One checkout.</p><h2>How your placement works</h2>
 <div class="grid">
 <article class="card"><div class="step">01 / SELECT</div><h3>One clear offer</h3><p>A standard 100 x 100 digital tile. One NZ$50 charge. No auction, subscription or speculative impression package.</p></article>
-<article class="card"><div class="step">02 / PAY &amp; SUBMIT</div><h3>Secure Stripe checkout</h3><p>Enter your billboard label and HTTPS destination at checkout. Keep the Stripe receipt. The payment is not itself proof of publication.</p></article>
-<article class="card"><div class="step">03 / REVIEW &amp; DELIVERY</div><h3>Approved tiles go live</h3><p>Content is checked before publication. A completed placement needs a visible live tile and delivery evidence, not just a payment notification.</p></article>
+<article class="card"><div class="step">02 / PAY & SUBMIT</div><h3>Secure Stripe checkout</h3><p>Enter your billboard label and HTTPS destination at checkout. Keep the Stripe receipt. The payment is not itself proof of publication.</p></article>
+<article class="card"><div class="step">03 / REVIEW & DELIVERY</div><h3>Approved tiles go live</h3><p>Content is checked before publication. A completed placement needs a visible live tile and delivery evidence, not just a payment notification.</p></article>
 </div>
 </section>
 <section class="section" id="live-board" aria-labelledby="live-heading">
