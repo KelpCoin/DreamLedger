@@ -2,7 +2,7 @@
 const {createHash}=require('node:crypto');
 const signedSession=require('../../BEC-PRIME/compiled/website/lib/signedSession');
 const QUERY=[
- "INSERT INTO marketplace.silo_listing_intake",
+ "WITH inserted AS (INSERT INTO marketplace.silo_listing_intake",
  "(silo_id,submitter_principal_id,idempotency_key,payload_sha256,listing_kind,",
  "title,description,price_minor,currency,quantity,fulfillment_mode,attributes,photo_urls)",
  "SELECT sc.silo_id,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12::jsonb,$13::jsonb",
@@ -13,7 +13,13 @@ const QUERY=[
  "WHERE q.silo_id=$1 AND q.submitter_principal_id=$2",
  "AND q.created_at > now()-interval '24 hours') < 20",
  "ON CONFLICT (silo_id,submitter_principal_id,idempotency_key) DO NOTHING",
- "RETURNING id::text AS id,status"
+ "RETURNING id::text AS id,status)",
+ "SELECT id,status FROM inserted",
+ "UNION ALL",
+ "SELECT q.id::text AS id,q.status FROM marketplace.silo_listing_intake q",
+ "WHERE q.silo_id=$1 AND q.submitter_principal_id=$2 AND q.idempotency_key=$3",
+ "AND q.payload_sha256=$4",
+ "LIMIT 1"
 ].join(' ');
 function reply(res,status,body){
  res.statusCode=status;
@@ -85,7 +91,7 @@ function createHandler(deps={}){
     if(!Array.isArray(rows))throw Error('DATABASE_RESPONSE_INVALID');
     if(rows.length!==1)return reply(res,409,{error:'NOT_ACCEPTED_OR_DUPLICATE'});
     return reply(res,202,{schema:'CUBE/LISTING-INTAKE/v1',silo:x.silo,
-      intake_id:String(rows[0].id),status:'pending',
+      intake_id:String(rows[0].id),status:String(rows[0].status),
       available_for_sale:false,publication_authorized:false});
   }catch{return reply(res,503,{error:'LISTING_INTAKE_UNAVAILABLE'});}
  };
