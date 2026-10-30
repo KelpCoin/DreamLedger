@@ -21,6 +21,7 @@ on:
       - 'BEC-PRIME/cube/CUBE-SILO-FACTORY-CONTRACT.json'
       - 'BEC-PRIME/cube/clone-silo*'
       - 'BEC-PRIME/cube/swarm-batch*'
+      - 'BEC-PRIME/cube/godot-workspace-audit*'
       - 'BEC-PRIME/cube/examples/**'
       - 'BEC-PRIME/cube/silo-health*'
       - 'BEC-PRIME/cube/order-lifecycle*'
@@ -57,6 +58,7 @@ on:
       - 'BEC-PRIME/cube/CUBE-SILO-FACTORY-CONTRACT.json'
       - 'BEC-PRIME/cube/clone-silo*'
       - 'BEC-PRIME/cube/swarm-batch*'
+      - 'BEC-PRIME/cube/godot-workspace-audit*'
       - 'BEC-PRIME/cube/examples/**'
       - 'BEC-PRIME/cube/silo-health*'
       - 'BEC-PRIME/cube/order-lifecycle*'
@@ -87,6 +89,7 @@ jobs:
           node --test handlers/cube/marketplace.test.js handlers/cube/stripeWebhookSignature.test.js
           node --test handlers/cube/silos.test.js BEC-PRIME/cube/clone-silo.test.js
           node --test BEC-PRIME/cube/swarm-batch.test.js
+          node --test BEC-PRIME/cube/godot-workspace-audit.test.js
           node --test BEC-PRIME/cube/silo-health.test.js
           node --test BEC-PRIME/cube/order-lifecycle.test.js
           grep -q "provider_checkout_id IS NULL AND provider_event_id IS NULL" migrations/20261029_cube_v2_unpaid_hold_reaper.sql
