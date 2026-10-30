@@ -22,8 +22,8 @@
     "activation_gate": "EXPLICIT_OPERATOR_APPROVAL",
     "activation_timestamp": "2026-08-12T00:00:00.000Z",
     "payment_surface": "historical_reference_only",
-    "payment_link": "https://buy.stripe.com/00waEYgbu1Muf0Y2iI9oc0b",
-    "payment_link_id": "plink_1UBRZXJt4ieIQDFzdUP0KL2z"
+    "payment_link": null,
+    "payment_link_id": null
   },
   "evidence": {
     "status": "NOT_VERIFIED_CHECKOUT_HELD_PRICE_AND_STOCK_CONTRACT",
