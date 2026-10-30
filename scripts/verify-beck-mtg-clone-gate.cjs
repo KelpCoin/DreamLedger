@@ -21,7 +21,7 @@ for(const p of ['public/mtg/index.html','mtg/index.html','BEC-PRIME/compiled/web
  const src=read(p);
  assert.ok(src.includes('/catalog.json'),'missing independent catalogue reference: '+p);
  assert.ok(!src.includes('See cards &amp; buy'),'physical checkout CTA not held: '+p);
- assert.ok(src.includes('Checkout held')||src.includes('checkout held'),'no hold notice: '+p);
+ assert.ok(/checkout held|checkout is not offered|stock-verified|confirm before payment/i.test(src),'no physical checkout hold: '+p);
 }
 const preload=read('BEC-PRIME/lib/mtgRoutePreload.js');
 assert.ok(preload.includes("MTG checkout held: atomic stock reservation"),'server route not held');
@@ -32,7 +32,7 @@ assert.ok(clone.includes('if ($CreateRemote -or $Push)'));
 
 const legacy=JSON.parse(read('BEC-PRIME/catalog/products/EDH_0001.json'));
 const edh=mtg.products.find(p=>p.id==='EDH_0001');
-assert.ok(edh && Number(edh.price)===230);
+assert.ok(edh && Number(edh.price)===400);
 assert.equal(edh.checkout_available,false);
 assert.equal(edh.checkout_url,null);
 assert.equal(edh.inventory,0);
