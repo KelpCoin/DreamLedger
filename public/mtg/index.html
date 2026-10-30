@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Magic · Buy &amp; sell singles | DreamLedger NZ</title>
-<meta name="description" content="NZ Magic marketplace. List singles free. See the cards. Safe deals.">
+<title>Magic in New Zealand | Cards, Commander and community | DreamLedger</title>
+<meta name="description" content="A New Zealand Magic home: create free card listing drafts, explore Commander previews and find the Happy Homarid community.">
 <link rel="canonical" href="https://dreamledger.org/mtg/">
 <link rel="stylesheet" href="/assets/silo-master.css">
 <style>
@@ -42,11 +42,12 @@
     <span>Dream<em>Ledger</em> · <span id="navShort">Magic</span></span>
   </a>
   <nav class="silo-nav">
-    <a id="navList" href="/mtg-list">Sell single</a>
+    <a id="navList" href="/mtg-list">Draft a card</a>
     <a href="#decks">Decks</a>
     <a href="#how">How it works</a>
-    <a href="/register">Join free</a>
-    <a class="silo-cta" id="navCta" href="/mtg-list">List free</a>
+    <a href="/tcg/">Other TCGs</a>
+    <a href="https://www.patreon.com/HappyHomarid" rel="noopener noreferrer">Community</a>
+    <a class="silo-cta" id="navCta" href="/mtg-list">Create draft</a>
   </nav>
 </div></header>
 <main class="silo-wrap">
@@ -60,10 +61,11 @@
     <h1 class="silo-display" style="margin-top:14px;max-width:16ch">Sell singles. See the cards.</h1>
     <p class="silo-lead" id="tagline">List free with a clear card face, condition, and price. Browse decks when you want a whole pile.</p>
     <div class="silo-actions">
-      <a class="silo-btn silo-btn-gold" id="ctaPrimary" href="/mtg-list">Sell a single</a>
+      <a class="silo-btn silo-btn-gold" id="ctaPrimary" href="/mtg-list">Draft a card</a>
       <a class="silo-btn silo-btn-ghost" href="#decks">Browse decks</a>
-      <a class="silo-btn silo-btn-line" href="/register">Join free</a>
+      <a class="silo-btn silo-btn-line" href="/tcg/">Other TCGs</a>
     </div>
+    <p class="status-bar" style="margin-top:18px">The singles tool saves a private draft on your device; it does not automatically publish a listing or match buyers. Commander prices are previews only until stock and fulfilment are verified.</p>
   </section>
   <section class="silo-section" id="how">
     <div class="silo-section-h"><h2 class="silo-h2">How this space works</h2></div>
@@ -73,12 +75,12 @@
     <div class="diag">
       <p class="silo-eyebrow">Commander custom build preview</p>
       <h2 class="silo-h2" style="margin:0 0 8px">Make EDH_0001 yours</h2>
-      <p style="color:var(--silo-muted);margin:0 0 14px">Owner-locked base price NZ$400. Explore verified land packages and up to two approved substitutions when inventory is checked. No purchases or reservations until the deck and card stock are independently verified.</p>
+      <p style="color:var(--silo-muted);margin:0 0 14px">Owner-locked base price NZ$400. Preview the NZ$400 base deck and its customization rules. Land packages and substitutions remain unconfigured; no purchases or reservations until the physical stock and delivery process are verified.</p>
       <a class="silo-btn silo-btn-line" href="/mtg/customize/">Explore customization preview</a>
     </div>
   </section>
   <section class="silo-section" id="decks">
-    <div class="silo-section-h"><h2 class="silo-h2">Decks for sale</h2></div>
+    <div class="silo-section-h"><h2 class="silo-h2">Commander catalogue previews</h2></div>
     <div id="status" class="status-bar">Loading inventory…</div>
     <div id="grid" class="grid"></div>
   </section>
@@ -86,17 +88,17 @@
     <div class="diag">
       <p class="silo-eyebrow">Platform tool · not cardboard</p>
       <h2 class="silo-h2" style="margin:0 0 8px">Commander diagnostic · NZ$29</h2>
-      <p style="color:var(--silo-muted);margin:0 0 14px;max-width:36em">Digital structure review. Settles on Stripe. Separate from peer singles.</p>
+      <p style="color:var(--silo-muted);margin:0 0 14px;max-width:36em">Digital deck-review offer. Not currently accepting payments until delivery is proven.</p>
       <span class="silo-btn silo-btn-ghost" role="status">Diagnostic checkout held until delivery proof</span>
     </div>
   </section>
-  <p class="clone-meta" id="cloneMeta">Master silo · driven by /silos/mtg/silo.json · clone = new manifest + empty catalog · gauntlet before activation</p>
+  <p class="clone-meta" id="cloneMeta">Independent NZ Magic community initiative. Listings, stock and payment status are individually verified before sale.</p>
 </main>
 <footer class="silo-footer silo-wrap">
   <a href="/">Home</a>
   <a href="/mtg/">Magic</a>
-  <a id="footList" href="/mtg-list">Sell single</a>
-  <a href="/register">Join</a>
+  <a id="footList" href="/mtg-list">Create a draft</a>
+  <a href="/tcg/">Other TCGs</a>
   <p style="margin-top:12px">DreamLedger Magic — see the cards, then deal.</p>
 </footer>
 <script>
@@ -129,7 +131,7 @@ async function applyManifest(){
         '<article><h3>'+esc(b.title)+'</h3><p>'+esc(b.body)+'</p></article>'
       ).join('');
     }
-    document.getElementById('cloneMeta').textContent='Master silo · '+MANIFEST+' · inventory_policy='+(m.inventory_policy||'')+' · clone via cube → gauntlet';
+    document.getElementById('cloneMeta').textContent='Independent New Zealand Magic community. All purchases held until inventory and fulfilment are independently confirmed.';
     return m;
   }catch(e){return null;}
 }
@@ -157,7 +159,28 @@ async function loadCatalog(manifest){
         (!p.checkout_available || (p.checkout_url && p.checkout_url===master.checkout_url));
       if(!matched)conflicts++;
       const detail=typeof p.detail_url==='string'&&/^\/mtg\/[a-z0-9/_-]+\.html$/i.test(p.detail_url)?p.detail_url:'/mtg/';
-      const price=matched?'NZ$'+Number(p.price).toFixed(2):'Price pending verification';
+      const price=matched?'Indicative NZ
+      const state=matched?'Catalogue preview only. Physical stock and shipping must be confirmed before payment.':'Catalogue mismatch. Purchase held.';
+      return '<article class="deck"><div class="deck-banner">Commander · stock unverified</div><div class="deck-body">'+
+        '<div class="tag">'+esc(p.commander||'EDH')+'</div><h3>'+esc(p.name||p.id)+'</h3>'+
+        '<p class="desc">'+esc(p.description||'')+'</p><div class="price">'+esc(price)+'</div>'+
+        '<p class="desc">'+esc(state)+'</p><div class="actions"><a class="see" href="'+esc(detail)+'">View listing</a></div></div></article>';
+    }).join('');
+    status.textContent=decks.length+' catalogue preview(s) · '+conflicts+
+      ' catalogue discrepancy/discrepancies · checkout held until atomic stock reservation, payment and fulfilment gates pass.';
+    if(!decks.length)status.textContent='No available deck previews; checkout held.';
+  }catch(e){
+    status.className='status-bar error';
+    status.textContent='Inventory verification unavailable. Purchases held.';
+    grid.innerHTML='';
+  }
+}
+applyManifest().then(loadCatalog);
+})();
+</script>
+</body>
+</html>
++Number(p.price).toFixed(2):'Price pending verification';
       const state=matched?'Listing only. Stock and payment not reserved.':'Catalogue mismatch. Purchase held.';
       return '<article class="deck"><div class="deck-banner">Commander · listing only</div><div class="deck-body">'+
         '<div class="tag">'+esc(p.commander||'EDH')+'</div><h3>'+esc(p.name||p.id)+'</h3>'+
