@@ -1,34 +1,43 @@
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
-const root=path.join(__dirname,'..'),read=p=>fs.readFileSync(path.join(root,p),'utf8'),sha=p=>crypto.createHash('sha256').update(read(p)).digest('hex');
-const page=read('public/mtg/exchange.html'),diag=read('public/mtg/diagnostic/index.html'),master=read('public/mtg/index.html'),engine=require('../public/mtg/diagnostic/engine.js');
-const news=JSON.parse(read('public/mtg/exchange-news.json')),deck=JSON.parse(read('public/data/decklists/quintorius.json')),policy=JSON.parse(read('docs/BECK-SILO-FEE-POLICY.json'));
-const claims={
- master_parity:read('mtg/index.html')===master&&read('BEC-PRIME/compiled/website/mtg/index.html')===master,
- master_entry:master.includes('/mtg/exchange.html')&&master.includes('/mtg/diagnostic/'),
- visual_gallery:page.includes('id="deckGrid"')&&page.includes('gridButton')&&page.includes('listButton'),
- catalogue_consistency:page.includes('/data/mtg-catalog.json')&&page.includes('/catalog.json')&&page.includes('Checkout held'),
- trade_draft_only:page.includes('dl_mtg_trade_notes_v1')&&page.includes('published:false'),
- free_b2b_link:page.includes('/b2b-marketplace.html'),
- auction_bidding_held:page.includes('Bidding remains held'),
- invites_and_patreon:['https://discord.gg/aYdc4h5cpU','https://discord.gg/tKxJkhJhCp','https://www.patreon.com/happyhomarid'].every(u=>page.includes(u)&&master.includes(u)),
- sponsors_not_active:page.includes('No paid ranking is active'),
- source_linked_ticker:Array.isArray(news.items)&&news.items.length>=3&&news.items.every(x=>x.reviewed===true&&x.source&&x.date&&/^https:\/\//.test(x.url)),
- avatar_reuses_existing:page.includes('/assets/avatar-identity.js')&&page.includes('/avatar.html'),
- diagnostic_paid_hold:diag.includes('NZ$29 per diagnostic')&&diag.includes('Verify Patreon: integration held')&&!diag.includes('MTGFreeDiagnostic.evaluate'),
- no_fake_email:diag.includes('report delivery have not passed')&&diag.includes('No payment is taken by this page'),
- mtg_fee_zero:policy.rules['dreamledger-mtg'].platform_fee_bps===0
+const root=path.resolve(__dirname,'..'),read=p=>fs.readFileSync(path.join(root,p),'utf8'),hash=p=>crypto.createHash('sha256').update(read(p)).digest('hex');
+const home=read('public/mtg/index.html'),exchange=read('public/mtg/exchange.html'),community=read('public/mtg/community.html'),diagnostic=read('public/mtg/diagnostic/index.html');
+const catalog=JSON.parse(read('public/data/mtg-catalog.json')),global=JSON.parse(read('public/catalog.json')),
+decks=JSON.parse(read('public/data/mtg-owner-decks.json')),singles=JSON.parse(read('public/data/mtg-owner-singles.json')),
+policy=JSON.parse(read('docs/BECK-SILO-FEE-POLICY.json')),terms=JSON.parse(read('docs/MTG-COMMERCIAL-TERMS-LOCK.json'));
+const byId=new Map(global.products.map(p=>[p.id,p]));
+const conflicts=[];
+for(const p of catalog.products.filter(p=>p.status==='published')){
+ const x=byId.get(p.id);
+ if(!x||Number(x.price)!==Number(p.price)||String(x.currency).toUpperCase()!==String(p.currency||catalog.currency).toUpperCase()||Boolean(x.checkout_available)!==Boolean(p.checkout_available))conflicts.push(p.id);
+}
+const edh=catalog.products.find(p=>p.id==='EDH_0001');
+const checks={
+homepage_routes:home.includes('href="/mtg/community.html"')&&home.includes('href="/mtg/exchange.html"')&&home.includes('href="/mtg/diagnostic/"'),
+home_owner_card_carousel:home.includes('id="deckRail"')&&home.includes('id="singleRail"'),
+home_catalogue_reads:home.includes('/data/mtg-catalog.json')&&home.includes('/catalog.json')&&home.includes('/data/mtg-owner-decks.json')&&home.includes('/data/mtg-owner-singles.json'),
+gallery_search_and_filter:exchange.includes('id="find"')&&exchange.includes('id="sort"')&&exchange.includes('data-kind="deck"')&&exchange.includes('id="deckGrid"'),
+gallery_first_party_only:exchange.includes('OUR OWN STOCK')&&exchange.includes('enquire')&&!exchange.includes('buy.stripe.com'),
+community_copy_only:community.includes('id="compose"')&&community.includes('navigator.clipboard.writeText')&&community.includes('Nothing has been submitted'),
+discord_handoff:home.includes('https://discord.gg/tKxJkhJhCp')&&exchange.includes('https://discord.gg/tKxJkhJhCp')&&community.includes('https://discord.gg/tKxJkhJhCp'),
+ledger_not_live:home.includes('not live yet')&&community.includes('not live yet'),
+diagnostic_nzd29:diagnostic.includes('NZ$29')&&diagnostic.includes('checkout held')&&diagnostic.includes('integration held'),
+paid_patron_tiers:terms.commander_diagnostic.patreon_benefit.entry_tier.included_reports_per_month===1&&terms.commander_diagnostic.patreon_benefit.higher_tiers.included_reports_per_month_max===5,
+physical_checkout_held:catalog.products.every(p=>p.checkout_available===false)&&edh.price===400&&edh.inventory===0,
+owned_singles_empty_truth:Array.isArray(singles.singles)&&singles.singles.length===0,
+owned_deck_list_empty_truth:Array.isArray(decks.decks)&&decks.decks.length===0,
+catalogue_prices_reconciled:conflicts.length===0,
+zero_peer_commission:policy.rules['dreamledger-mtg'].platform_fee_bps===0,
+preserved_silo_isolation:home.includes('data-silo="mtg"')&&!home.includes('amplissa.com')
 };
-const make=(lands,mv,synergy)=>{const names=Array.from({length:100},(_,i)=>'Card'+i);
-return {deck:{id:'SYNTHETIC_TEST_ONLY',name:'Synthetic test deck',commander:'Card0',boards:{commander:[names[0]],main:names.slice(1)}},
- cards:names.map((name,i)=>({name,type_line:i<lands?'Basic Land':'Creature',cmc:i<lands?0:mv,oracle_text:i>=lands&&i<lands+synergy?'Spirit returns from the graveyard':''}))};};
-const p=make(36,2,16),f=make(22,5,0),outcomes={
- synthetic_pass:engine.evaluate(p.deck,p.cards).verdict==='PASS',
- synthetic_fail:engine.evaluate(f.deck,f.cards).verdict==='FAIL',
- uncertainty_quarantine:engine.evaluate(deck,[]).verdict==='QUARANTINE',
- real_deck_source:deck.id==='EDH_QUINTORIUS_0002'};
-for(const [k,v] of Object.entries({...claims,...outcomes}))assert.equal(v,true,k);
-const files=['public/mtg/exchange.html','public/mtg/exchange-news.json','public/mtg/diagnostic/index.html','public/mtg/diagnostic/engine.js'];
-const proof={schema:'BECK/MTG-EXCHANGE-STAGE-PROOF/v1',generated_at:new Date().toISOString(),silo:'mtg',stage:'STATIC_IMPLEMENTATION_PASS',production_release:'HOLD',live_email_delivery:'NOT_VERIFIED',live_auction_bids:'NOT_ENABLED',real_payments:'NOT_TESTED',automatic_news_ingestion:'NOT_ENABLED',avatar_sync_across_domains:'NOT_VERIFIED',social_publication:'NOT_AUTHORISED',checks:claims,fixture_tests:outcomes,hashes:Object.fromEntries(files.map(p=>[p,sha(p)]))};
-fs.mkdirSync(path.join(root,'artifacts'),{recursive:true});const dest=path.join(root,'artifacts/mtg-exchange-proof.json');fs.writeFileSync(dest,JSON.stringify(proof,null,2)+'\n');
-console.log(JSON.stringify({result:proof.stage,production:proof.production_release,proof:dest,checks:Object.keys(claims).length,fixtures:outcomes},null,2));
+for(const [name,ok] of Object.entries(checks))assert.equal(ok,true,name);
+const engine=require('../public/mtg/diagnostic/engine.js');
+const fake=(lands,mv,spirit)=>{const names=Array.from({length:100},(_,i)=>'Card'+i);return {deck:{id:'SYNTHETIC_TEST_ONLY',name:'Synthetic deck',commander:'Card0',boards:{commander:[names[0]],main:names.slice(1)}},
+cards:names.map((name,i)=>({name,type_line:i<lands?'Basic Land':'Creature',cmc:i<lands?0:mv,oracle_text:i>=lands&&i<lands+spirit?'Spirit returns from the graveyard':''}))}};
+const pass=fake(36,2,16),fail=fake(22,5,0);
+const fixture_tests={synthetic_pass:engine.evaluate(pass.deck,pass.cards).verdict==='PASS',synthetic_fail:engine.evaluate(fail.deck,fail.cards).verdict==='FAIL',uncertainty_quarantine:engine.evaluate(pass.deck,[]).verdict==='QUARANTINE'};
+for(const [name,ok] of Object.entries(fixture_tests))assert.equal(ok,true,name);
+const files=['public/mtg/index.html','public/mtg/exchange.html','public/mtg/community.html','public/mtg/diagnostic/index.html','public/assets/dreamledger-mtg-theme.css','docs/MTG-COMMERCIAL-TERMS-LOCK.json'];
+const proof={schema:'dreamledger/mtg-redesign-static-proof/v2',generated_at:new Date().toISOString(),silo:'mtg',result:'STATIC_TEST_PASS',release:'HOLD',public_production_checked:false,real_trades_completed:0,paid_deliveries_verified:false,patreon_entitlements_live:false,peer_ledger_live:false,inventory_verified:false,checks,fixture_tests,conflicts,file_sha256:Object.fromEntries(files.map(p=>[p,hash(p)]))};
+fs.mkdirSync(path.join(root,'artifacts'),{recursive:true});fs.writeFileSync(path.join(root,'artifacts/mtg-exchange-proof.json'),JSON.stringify(proof,null,2)+'\n');
+console.log(JSON.stringify({result:proof.result,release:proof.release,proof:'artifacts/mtg-exchange-proof.json',checks:checks.length,static_checks:Object.keys(checks).length,fixtures:fixture_tests},null,2));
