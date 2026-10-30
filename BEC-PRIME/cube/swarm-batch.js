@@ -38,6 +38,9 @@ function compileQueue(queue, compiler=compileSilo) {
     insist(Object.keys(job).sort().join(',')==='config,task_id','unexpected job properties');
     insist(typeof job.task_id==='string'&&/^[a-z][a-z0-9-]{2,63}$/.test(job.task_id),'task_id invalid');
     insist(!ids.has(job.task_id),'duplicate task id');ids.add(job.task_id);
+    insist(job.config&&typeof job.config==='object'&&!Array.isArray(job.config),'job config invalid');
+    const permitted=new Set(['slug','display_name','locale','jurisdiction','currency','inventory_mode','payment_provider','brand','domain_fields','peer_fee_basis_points','legal_pack','seed_candidates']);
+    for(const key of Object.keys(job.config))insist(permitted.has(key),'unsupported config key: '+key);
     const output=compiler(job.config);
     insist(output&&output.manifest&&output.catalogue&&output.health&&output.seedReview,'compiler output incomplete');
     const slug=output.manifest.slug;
@@ -52,7 +55,7 @@ function compileQueue(queue, compiler=compileSilo) {
     const digest=sha(Object.keys(contents).sort().map(x=>x+'\n'+contents[x]).join(''));
     return {task_id:job.task_id,slug,digest,contents};
   });
-  jobs.sort((a,b)=>a.task_id.localeCompare(b.task_id,'en'));
+  jobs.sort((a,b)=>a.task_id<b.task_id?-1:(a.task_id>b.task_id?1:0));
   return {schema:'CUBE/SWARM-RESULT/v1',status:'PRIVATE_DRAFT_ONLY',checkout_enabled:false,
     public_published:false,provider_mutations:0,paid_orders_verified:null,
     jobs:jobs.map(({task_id,slug,digest})=>({task_id,slug,digest,status:'DRAFT_HOLD'})),
