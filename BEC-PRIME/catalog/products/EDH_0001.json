@@ -2,30 +2,31 @@
   "id": "EDH_0001",
   "silo": "mtg",
   "name": "EDH_0001 Commander Deck",
-  "description": "Physical Commander deck EDH_0001. One available unit. Ships from Tauranga, New Zealand.",
+  "description": "Historic physical EDH_0001 draft (NZ$400 minor-unit legacy pricing); not a live purchasable stock assertion.",
   "price": 40000,
   "price_unit": "minor",
   "currency": "nzd",
-  "inventory": 1,
+  "inventory": 0,
   "inventory_type": "physical",
-  "status": "published",
+  "status": "held",
   "checkout": {
     "mode": "payment",
     "success_path": "/checkout/success",
-    "cancel_path": "/mtg"
+    "cancel_path": "/mtg",
+    "enabled": false
   },
   "commercial_truth": {
     "experiment": "EDH-0001-FIRST-SALE",
-    "approval_required": false,
-    "sellable": true,
+    "approval_required": true,
+    "sellable": false,
     "activation_gate": "EXPLICIT_OPERATOR_APPROVAL",
     "activation_timestamp": "2026-08-12T00:00:00.000Z",
-    "payment_surface": "stripe-payment-link",
+    "payment_surface": "historical_reference_only",
     "payment_link": "https://buy.stripe.com/00waEYgbu1Muf0Y2iI9oc0b",
     "payment_link_id": "plink_1UBRZXJt4ieIQDFzdUP0KL2z"
   },
   "evidence": {
-    "status": "checkout_ready_waiting_for_first_customer_payment",
+    "status": "NOT_VERIFIED_CHECKOUT_HELD_PRICE_AND_STOCK_CONTRACT",
     "transaction_id": null
   },
   "deployment_trigger": "EDH_0001_FIRST_SALE"

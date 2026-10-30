@@ -29,6 +29,23 @@ const clone=read('BEC-PRIME/cube/CUBE-Clone-Silo.ps1');
 assert.ok(clone.includes("status='SYNTHETIC_PRIVATE_ONLY'"));
 assert.ok(!clone.includes("Copy-Item -Recurse"));
 assert.ok(clone.includes('if ($CreateRemote -or $Push)'));
+
+const legacy=JSON.parse(read('BEC-PRIME/catalog/products/EDH_0001.json'));
+const edh=mtg.products.find(p=>p.id==='EDH_0001');
+assert.ok(edh && Number(edh.price)===230);
+assert.equal(edh.checkout_available,false);
+assert.equal(edh.checkout_url,null);
+assert.equal(edh.inventory,0);
+assert.equal(legacy.status,'held');
+assert.equal(legacy.commercial_truth.approval_required,true);
+assert.equal(legacy.commercial_truth.sellable,false);
+const cart=read('BEC-PRIME/routes/platformCart.js');
+assert.ok(cart.includes("if(silos.some(s=>s.toLowerCase()==='mtg'))"),'MTG cart must fail closed');
+assert.ok(cart.includes("String(p?.silo||'').toLowerCase()==='mtg'"),'product checkout must fail closed');
+for(const p of ['BEC-PRIME/compiled/website/mtg/index.html','BEC-PRIME/website/mtg-catalog.html']){
+  assert.ok(!read(p).includes('>Buy diagnostic</a>'),'unverified diagnostic payment link exposed: '+p);
+}
+
 const output={
  schema:'BECK/MTG-GOLDEN-MASTER-SAFETY-CHECK/v2',
  safety_controls:'STATIC_PASS',
@@ -36,6 +53,8 @@ const output={
  conflicts,
  physical_checkout:'HELD_UNTIL_ATOMIC_RESERVATION_PROOF',
  clone_generator:'PRIVATE_EMPTY_ALLOWLIST_ONLY',
+ diagnostic_checkout:'HELD_UNTIL_DELIVERY_PROOF',
+ legacy_stripe_link_state:'EXTERNAL_STATUS_UNVERIFIED',
  live_database_race_test:'NOT_RUN',
  stripe_reconciliation_test:'NOT_RUN',
  tenant_isolation_test:'NOT_RUN',

@@ -69,18 +69,17 @@
       "sku": "EDH_0001",
       "name": "Edward Kenway - Pacin' On The Plank - Commander deck",
       "commander": "Edward Kenway",
-      "description": "Single physical EDH_0001 Commander deck. New Zealand delivery address collected at secure checkout. Seller confirms dispatch after payment.",
-      "price": 400,
+      "description": "Physical Commander deck listing. Availability and final selling price require seller confirmation. Checkout is held while historic NZ$400 payment links are reconciled.",
+      "price": 230,
       "currency": "NZD",
       "status": "published",
-      "inventory": 1,
+      "inventory": 0,
       "silo": "mtg",
       "category": "commander-deck",
-      "sale_mode": "stripe_checkout",
-      "checkout_available": true,
-      "checkout_url": "https://buy.stripe.com/14A3cvea1dSd1DV5oEdwc1J",
-      "stripe_payment_link_id": "plink_1U6V3BEGgEAnUFF93nnPFUmr",
-      "stripe_price_id": "price_1U6V3BEGgEAnUFF9kTU0OQqQ"
+      "sale_mode": "request_confirmation",
+      "checkout_available": false,
+      "checkout_url": null,
+      "availability": "review_required"
     }
   ]
 }
