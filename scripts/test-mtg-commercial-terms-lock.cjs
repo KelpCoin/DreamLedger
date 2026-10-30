@@ -1,0 +1,32 @@
+'use strict';
+const fs=require('node:fs');
+const path=require('node:path');
+const assert=require('node:assert/strict');
+const root=path.join(__dirname,'..');
+const read=p=>fs.readFileSync(path.join(root,p),'utf8');
+const charter=JSON.parse(read('docs/MTG-COMMERCIAL-TERMS-LOCK.json'));
+const policy=JSON.parse(read('docs/BECK-SILO-FEE-POLICY.json'));
+assert.equal(charter.commander_diagnostic.price_nzd,29);
+assert.equal(charter.commander_diagnostic.patreon_benefit.included_reports_per_member_per_month,2);
+assert.equal(charter.commander_diagnostic.patreon_benefit.additional_report_price_nzd,29);
+assert.equal(charter.commander_diagnostic.free_no_login_reports,'PROHIBITED');
+assert.equal(charter.commander_diagnostic.public_checkout,'HOLD_UNTIL_VERIFIED');
+assert.equal(charter.commander_diagnostic.patreon_oauth,'NOT_CONNECTED');
+assert.equal(policy.rules['dreamledger-mtg'].platform_fee_bps,0);
+const pages=['public/mtg/diagnostic/index.html','public/mtg/index.html','public/mtg/exchange.html','mtg/index.html','BEC-PRIME/compiled/website/mtg/index.html','BEC-PRIME/website/mtg-catalog.html'];
+for(const file of pages){
+ const body=read(file);
+ assert.match(body,/NZ\$29/,file+': missing diagnostic price');
+ assert.doesNotMatch(body,/Free deck diagnostic|Free Commander diagnostic|no-login deck diagnostic|Run free diagnostic/i,file+': diagnostic cannot be free');
+ assert.match(body,/Patreon/i,file+': missing Patreon qualification');
+}
+const diagnostic=read('public/mtg/diagnostic/index.html');
+assert.match(diagnostic,/two included diagnostics per month/i);
+assert.match(diagnostic,/Pay NZ\$29: checkout held/);
+assert.match(diagnostic,/Verify Patreon: integration held/);
+assert.doesNotMatch(diagnostic,/MTGFreeDiagnostic\.evaluate|diagnostic\/parse\.js|Scryfall.*no login/i);
+assert.equal(fs.existsSync(path.join(root,'public/mtg/diagnostic/parse.js')),false,'free parser must not be published');
+assert.equal(fs.existsSync(path.join(root,'scripts/test-mtg-free-diagnostic.cjs')),false);
+assert.match(read('public/mtg/exchange.html'),/two included diagnostics each month/i);
+assert.match(read('public/mtg/index.html'),/two included per month/i);
+console.log('PASS MTG paid diagnostic: NZD29 / 2 included per paid Patreon month / additional NZD29 / public checkout held; MTG platform commission 0 bps');
