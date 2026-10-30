@@ -8,7 +8,7 @@ function fixture(){
  return {schema:'dreamledger/mtg-trade-public-receipt/v1',
  silo:'dreamledger-mtg',trade_id:ID,both_agreed:true,status:'completed',
  terms_sha256:HASH,latest_event_sha256:HASH,event_count:9,
- party_a_gives:[],party_b_gives:[],party_a_label:'Trader A',party_b_label:'Trader B',
+ party_a_gives:[{name:'Sol Ring',set:'CMM',collector_number:'395',condition:'NM',finish:'nonfoil',quantity:1,private_note:'DO_NOT_LEAK'}],party_b_gives:[],party_a_label:'Trader A',party_b_label:'Trader B',
  private_shipping_address:'SHOULD_NOT_LEAK',party_a:'u_'+'f'.repeat(24),
  notes:'SHOULD_NOT_LEAK'};
 }
@@ -31,6 +31,7 @@ test('never reveals extra private DB fields even when present',async()=>{
  assert.equal(r.res.body.private_shipping_address,undefined);
  assert.equal(r.res.body.party_a,undefined);
  assert.equal(r.res.body.notes,undefined);
+ assert.equal(r.res.body.party_a_gives[0].private_note,undefined);
  assert.equal(r.res.body.terms_sha256,HASH);
 });
 test('refuse false dual consent',async()=>{
