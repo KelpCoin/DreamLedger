@@ -1,0 +1,25 @@
+{
+  "date": "2026-10-30",
+  "base_commit": "ea61919bbf80660fb761c7b56145834260df9a94",
+  "product": "Free Seller Profit Calculator",
+  "tests": {
+    "command": "node --test scripts/test-seller-profit.cjs",
+    "passed": 6,
+    "failed": 0,
+    "scope": "actual browser script in minimal DOM harness; no real-browser test"
+  },
+  "sample": {
+    "item_price": 100,
+    "buyer_postage": 10,
+    "item_cost": 40,
+    "platform_percent": 5,
+    "payment_percent": 2,
+    "fixed_fee": 0.3,
+    "postage_paid": 9,
+    "packaging": 1,
+    "expected_profit_nzd": 52
+  },
+  "deployment": "NOT_DEPLOYED",
+  "public_release": "OWNER_APPROVAL_REQUIRED",
+  "revenue_added": 0
+}
