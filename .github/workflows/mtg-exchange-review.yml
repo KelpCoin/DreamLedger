@@ -7,6 +7,8 @@ on:
       - 'BEC-PRIME/compiled/website/mtg/index.html'
       - 'BEC-PRIME/website/mtg-catalog.html'
       - 'scripts/verify-mtg-exchange-worldwide.cjs'
+      - 'scripts/test-mtg-commercial-terms-lock.cjs'
+      - 'docs/MTG-COMMERCIAL-TERMS-LOCK.json'
       - '.github/workflows/mtg-exchange-review.yml'
   workflow_dispatch:
 permissions:
