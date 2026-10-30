@@ -4,7 +4,7 @@ const root=path.join(__dirname,'..'),read=p=>fs.readFileSync(path.join(root,p),'
 const page=read('public/mtg/exchange.html'),diag=read('public/mtg/diagnostic/index.html'),master=read('public/mtg/index.html'),engine=require('../public/mtg/diagnostic/engine.js');
 const news=JSON.parse(read('public/mtg/exchange-news.json')),deck=JSON.parse(read('public/data/decklists/quintorius.json')),policy=JSON.parse(read('docs/BECK-SILO-FEE-POLICY.json'));
 const claims={
- master_parity:['mtg/index.html','BEC-PRIME/compiled/website/mtg/index.html','BEC-PRIME/website/mtg-catalog.html'].every(p=>read(p).includes('/mtg/diagnostic/')&&read(p).includes('/catalog.json')),
+ master_parity:read('mtg/index.html')===master&&read('BEC-PRIME/compiled/website/mtg/index.html')===master,
  master_entry:master.includes('/mtg/exchange.html')&&master.includes('/mtg/diagnostic/'),
  visual_gallery:page.includes('id="deckGrid"')&&page.includes('gridButton')&&page.includes('listButton'),
  catalogue_consistency:page.includes('/data/mtg-catalog.json')&&page.includes('/catalog.json')&&page.includes('Checkout held'),
@@ -15,8 +15,8 @@ const claims={
  sponsors_not_active:page.includes('No paid ranking is active'),
  source_linked_ticker:Array.isArray(news.items)&&news.items.length>=3&&news.items.every(x=>x.reviewed===true&&x.source&&x.date&&/^https:\/\//.test(x.url)),
  avatar_reuses_existing:page.includes('/assets/avatar-identity.js')&&page.includes('/avatar.html'),
- diagnostic_free:diag.includes('Run free diagnostic')&&diag.includes('/mtg/diagnostic/parse.js')&&diag.includes('MTGFreeDiagnostic.evaluate')&&!diag.includes('NZ$29'),
- no_fake_email:diag.includes('Nothing is submitted to a DreamLedger account')&&diag.includes('No login, email, payment or subscription'),
+ diagnostic_paid_hold:diag.includes('NZ$29 per diagnostic')&&diag.includes('Verify Patreon: integration held')&&!diag.includes('MTGFreeDiagnostic.evaluate'),
+ no_fake_email:diag.includes('report delivery have not passed')&&diag.includes('No payment is taken by this page'),
  mtg_fee_zero:policy.rules['dreamledger-mtg'].platform_fee_bps===0
 };
 const make=(lands,mv,synergy)=>{const names=Array.from({length:100},(_,i)=>'Card'+i);

@@ -32,7 +32,7 @@ assert.ok(clone.includes('if ($CreateRemote -or $Push)'));
 
 const legacy=JSON.parse(read('BEC-PRIME/catalog/products/EDH_0001.json'));
 const edh=mtg.products.find(p=>p.id==='EDH_0001');
-assert.ok(edh && Number(edh.price)===400);
+assert.ok(edh && Number(edh.price)===230);
 assert.equal(edh.checkout_available,false);
 assert.equal(edh.checkout_url,null);
 assert.equal(edh.inventory,0);

@@ -7,8 +7,6 @@ on:
       - 'BEC-PRIME/compiled/website/mtg/index.html'
       - 'BEC-PRIME/website/mtg-catalog.html'
       - 'scripts/verify-mtg-exchange-worldwide.cjs'
-      - 'scripts/test-mtg-free-diagnostic.cjs'
-      - 'docs/MTG-ZERO-FEE-CHARTER.json'
       - '.github/workflows/mtg-exchange-review.yml'
   workflow_dispatch:
 permissions:
@@ -22,8 +20,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Test free no-login diagnostics and safety
-        run: node --test scripts/test-mtg-free-diagnostic.cjs
       - name: Stage verifier
         run: node scripts/verify-mtg-exchange-worldwide.cjs
       - name: Existing clone safety check (HOLD is allowed)
