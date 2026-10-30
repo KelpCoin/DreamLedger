@@ -99,6 +99,17 @@ check('Other TCG game pages explicitly describe previews',()=>{
   assert.doesNotMatch(s,/Buy &amp; sell singles|>List free<\/a>|>Sell a single<\/a>/);
  }
 });
+check('Vercel resolves NZ TCG paths without public release',()=>{
+ const cfg=json('vercel.json');
+ assert.equal(cfg.git.deploymentEnabled,false);
+ const routes=Object.fromEntries(cfg.rewrites.map(x=>[x.source,x.destination]));
+ for(const [source,destination] of Object.entries({
+  '/mtg':'/mtg/index.html',
+  '/tcg':'/tcg/index.html',
+  '/mtg-list':'/mtg-list.html',
+  '/tcg-list':'/tcg-list.html'
+ })) assert.equal(routes[source],destination,source);
+});
 check('Client scripts are syntactically valid',()=>{
  for(const p of [hub,listing,mtg,'public/mtg-list.html']){
   const source=read(p);
@@ -107,7 +118,7 @@ check('Client scripts are syntactically valid',()=>{
   for(const m of matches){try{new vm.Script(m[1],{filename:p});}catch(e){throw new Error(p+': '+e.message);}}
  }
 });
-const files=[mtg,hub,listing,'public/mtg-list.html','public/silos/mtg/silo.json'];
+const files=[mtg,hub,listing,'public/mtg-list.html','public/silos/mtg/silo.json','vercel.json'];
 const proof={
  schema:'BECK/MTG-NZ-TCG-RELEASE-CONTRACT/v1',
  checked_at:new Date().toISOString(),
