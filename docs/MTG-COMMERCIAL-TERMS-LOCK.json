@@ -18,7 +18,7 @@
     "currency": "NZD",
     "pay_per_report": true,
     "patreon_benefit": {
-      "eligible": "active paid Happy Homarid Patreon membership (tier eligibility must be verified)",
+      "eligible": "any active paid Happy Homarid Patreon member; verify paid status and monthly usage independently; no extra tier threshold",
       "included_reports_per_member_per_month": 2,
       "unused_quota_rollover": "NOT_SPECIFIED",
       "additional_report_price_nzd": 29
