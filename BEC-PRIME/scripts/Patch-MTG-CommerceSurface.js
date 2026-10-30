@@ -50,9 +50,23 @@ function patch() {
     // embeds no such function. DO NOT splice the legacy renderer into it.
     // Safely skip an obsolete MTG-only presentation patch without blocking
     // the niche-agnostic commerce compiler for other silos.
-    if (html.includes('id="grid"') && html.includes('const decks=(data.products||[]).filter(isPhysical);') &&
-        html.includes('See cards &amp; buy')) {
-      console.log('MTG_LEGACY_PATCH_SKIPPED_MODERN_TEMPLATE');
+    // Only accept the specific newer, checkout-held deck-grid architecture.
+    // This signature deliberately fails closed if buying becomes enabled,
+    // the inventory reconciliation is removed, or the template changes again.
+    const modernHeldTemplate = [
+      'data-silo="mtg"',
+      'id="grid"',
+      "const decks=data.products.filter(p=>p&&p.status==='published'&&isPhysical(p));",
+      "Boolean(p.checkout_available)===Boolean(m.checkout_available)",
+      "Checkout held until independent reservation and fulfilment proof."
+    ].every(signature => html.includes(signature));
+    const unsafeCheckoutCode = [
+      'buy.stripe.com',
+      "fetch('/api/offer-checkout/create'",
+      "location.assign(data.checkout_url)"
+    ].some(signature => html.includes(signature));
+    if (modernHeldTemplate && !unsafeCheckoutCode) {
+      console.log('MTG_LEGACY_PATCH_SKIPPED_MODERN_HELD_TEMPLATE');
       writeProof('SKIPPED_MODERN_TEMPLATE_CHECKOUT_UNVERIFIED');
       return;
     }
