@@ -5,7 +5,7 @@
   "slug": "mtg",
   "name": "Magic: The Gathering",
   "short": "Magic",
-  "tagline": "Singles and decks — see the cards, then deal.",
+  "tagline": "Create a private singles listing draft, explore Commander catalogue previews, and find the NZ Magic community. Automatic listings and payments are not yet live.",
   "accent": "#d8b56b",
   "accent_bright": "#e8c87a",
   "route": "/mtg/",
@@ -111,12 +111,12 @@
   },
   "surface": {
     "hero_pills": [
-      "Singles first",
-      "0% success fee",
-      "See the cards"
+      "Free private card drafts",
+      "Proposed 0% peer-sale fee",
+      "NZ Commander previews"
     ],
     "primary_cta": {
-      "label": "Sell a single",
+      "label": "Create a card draft",
       "href_key": "list_route"
     },
     "secondary_cta": {
@@ -125,16 +125,16 @@
     },
     "community_blocks": [
       {
-        "title": "List a single",
-        "body": "Name, condition, NZD price, city. Buyers see a clean card face — not a blurry album."
+        "title": "Prepare a clear listing",
+        "body": "Choose the exact card and printing, condition, NZD price and your region. The draft remains on this device until you choose to share it."
       },
       {
-        "title": "Buy with eyes open",
-        "body": "Open lists for decks. Clear terms for singles. Confirm before you pay or ship."
+        "title": "Explore deck previews",
+        "body": "See catalogue and decklist details. All physical stock and shipping must be independently confirmed before any payment."
       },
       {
-        "title": "Trade carefully",
-        "body": "Accounts keep people reachable. Deals stay between humans who show up as themselves."
+        "title": "Talk Magic",
+        "body": "Join existing Happy Homarid community conversations through Patreon. The on-site forum and peer marketplace are not yet active."
       }
     ]
   },
