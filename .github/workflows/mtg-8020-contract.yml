@@ -7,6 +7,10 @@ on:
       - 'BEC-PRIME/website/mtg-8020.html'
       - 'BEC-PRIME/scripts/Build-MTG-8020-MegaBootstrap.ps1'
       - 'public/mtg/index.html'
+      - 'public/tcg/index.html'
+      - 'public/tcg-list.html'
+      - 'public/silos/mtg/silo.json'
+      - 'scripts/test-tcg-nz-home.cjs'
       - 'public/mtg/customize/**'
       - 'scripts/test-mtg-8020.cjs'
       - '.github/workflows/mtg-8020-contract.yml'
@@ -23,3 +27,13 @@ jobs:
           node-version: '22'
       - name: Verify canonical NZD400, stock and checkout gates
         run: node scripts/test-mtg-8020.cjs
+      - name: Verify NZ TCG home, seller draft and legacy listing safety
+        run: node scripts/test-tcg-nz-home.cjs
+      - name: Preserve TCG home evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mtg-nz-tcg-home-proof
+          path: artifacts/mtg-nz-tcg-home-proof.json
+          if-no-files-found: warn
+
