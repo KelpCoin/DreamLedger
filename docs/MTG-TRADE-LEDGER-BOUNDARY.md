@@ -47,3 +47,7 @@ IMPORTANT: NZ genuine private sales generally fall outside FTA and CGA, but CCLA
 - A stored hash chain is tamper-evident relative to the preserved events, NOT immutable to the database administrator. Independently time-stamped daily heads, access controls, retention backups and third-party verification remain release requirements.
 - Public permalink uses /mtg/trade/?id=UUID. The desired pretty /mtg/trade/UUID route is a separate Vercel rewrite decision requiring independently tested deployment routing. Never claim it exists already.
 - Diagnostic is NZ$29, Patreon membership exemption only after verified eligibility. No free diagnostic CTA should be released from stale templates.
+
+## Live Neon staging read-only verification, 2026-10-31 NZDT
+
+Connected project: dreamledger-migration-staging (Neon project falling-base-50259456), default database neondb. Read-only SQL observed `marketplace.mtg_trade_agreements` ABSENT, connected `current_user=dreamledger_app`, and `pg_roles.rolbypassrls=true` for the current application role. This is a decisive release BLOCK. Do not migrate the ledger into this unsegregated owner/app role, grant app CREATE/DML, or claim permission-safe append-only evidence. Staging verification needs an independent migration/owner role, a NO BYPASSRLS runtime role, deliberate EXECUTE-only grants, read/write denial tests and an independent immutable anchor. No database mutations were made by this verification.
