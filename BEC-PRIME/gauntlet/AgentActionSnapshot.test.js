@@ -21,7 +21,8 @@ function sample(){
     ],history:{seen_action_ids:[]}
   };
 }
-const run=x=>evaluate(x,{evaluatedAt:AT});
+const {evaluateAgentActionSnapshot}=require('./GauntletV6');
+const run=x=>evaluateAgentActionSnapshot(x,{evaluatedAt:AT});
 test('seven deterministic rules',()=>{
   const a=run(sample()),b=run(sample());
   assert.equal(a.overall,'PASS');assert.equal(a.rules.length,7);
@@ -70,4 +71,11 @@ test('append-only and hash verified, no Elohim scores',()=>{
       {runId:'fixture_001'}),/already_exists/);
     assert.ok(!fs.readdirSync(dir).some(x=>x.includes('scorecard')));
   }finally{fs.rmSync(dir,{recursive:true,force:true});}
+});
+
+test('existing Gauntlet V6 entrypoint delegates to versioned offline adapter',()=>{
+  assert.equal(typeof evaluateAgentActionSnapshot,'function');
+  const a=run(sample());
+  assert.equal(a.engine,'BEC-PRIME/gauntlet/AgentActionSnapshot.js');
+  assert.equal(a.scorecard_authority,'ELOHIM_ONLY');
 });
