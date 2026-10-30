@@ -5,6 +5,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
 const {compileSilo} = require('./clone-silo');
+const {renderStorefront} = require('./render-storefront');
 const SCHEMA = 'CUBE/BATCH-QUEUE/v1';
 const FILES = {manifest:'silo.json', catalogue:'catalogue.json',health:'health-contract.json',seedReview:'seed-review.json'};
 const SECRET_KEY = /(?:^|[_-])(secret|password|passwd|token|credential|customer|buyer|payment[_-]?intent|api[_-]?key|private[_-]?key|auth[_-]?header|webhook[_-]?secret)(?:$|[_-])/i;
@@ -52,6 +53,7 @@ function compileQueue(queue, compiler=compileSilo) {
     insist(output.seedReview.public===false,'seed review cannot be public');
     const contents={};
     for(const [key,filename] of Object.entries(FILES))contents[filename]=JSON.stringify(output[key],null,2)+'\n';
+    contents['preview.html']=renderStorefront(output);
     const digest=sha(Object.keys(contents).sort().map(x=>x+'\n'+contents[x]).join(''));
     return {task_id:job.task_id,slug,digest,contents};
   });
