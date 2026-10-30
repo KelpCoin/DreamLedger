@@ -14,7 +14,8 @@ const required = [
   'compiled/website/transparency-policy.json',
   'catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json',
   'catalog/offers/approved.json',
-  'catalog/featured-offer.json'
+  'catalog/featured-offer.json',
+  'fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json'
 ];
 
 for (const rel of required) {
@@ -64,22 +65,42 @@ if (
   errors.push('SKU_DRIFT');
 }
 
-const paymentLink = product.commercial_truth?.payment_link || '';
-
-if (
-  product.commercial_truth?.payment_link !== paymentLink ||
-  featured.payment_link_url !== paymentLink ||
-  offer?.payment_link_url !== paymentLink
-) {
-  errors.push('STRIPE_LINK_DRIFT');
-}
-
-if (offer && offer.payment_link_status !== 'ACTIVE_LIVEMODE') {
-  errors.push('STRIPE_LINK_NOT_LIVEMODE');
-}
-
-if (product.commercial_truth?.approval_required !== false || product.commercial_truth?.sellable !== true) {
-  errors.push('PRODUCT_NOT_SELLABLE');
+// A successful *contract* is not a declaration that every stored offer is
+// approved for sale. Held digital products must remain unpurchasable, even
+// if Stripe still has an active historical Payment Link.
+const held = product.status === 'held';
+const fulfillment = readJson('fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json');
+const fulfillmentEntry = fulfillment.entries?.[product.id];
+if (held) {
+  const holds = {
+    PRODUCT_CHECKOUT_NOT_DISABLED:
+      product.checkout?.mode !== 'disabled' || product.checkout?.url != null,
+    PRODUCT_IS_MISREPRESENTED_AS_SELLABLE:
+      product.commercial_truth?.sellable !== false || product.commercial_truth?.approval_required !== true,
+    PRODUCT_HAS_PAYMENT_SURFACE: Boolean(product.commercial_truth?.payment_link),
+    HELD_FULFILLMENT_MISREPRESENTED_AS_READY:
+      !fulfillmentEntry || fulfillmentEntry.ready !== false || fulfillmentEntry.operator_required !== true,
+    HELD_OFFER_EXPOSED_AS_ACTIVE:
+      !offer || offer.checkout_available !== false || offer.public_distribution_allowed !== false ||
+      offer.activation_state !== 'HELD_NOT_SELLABLE',
+    HELD_FEATURED_OFFER_EXPOSES_CHECKOUT:
+      featured.public_visibility !== 'held' || featured.checkout_url != null ||
+      featured.payment_link_url != null || featured.distribution_allowed !== false ||
+      featured.activation_state !== 'HELD_NOT_SELLABLE',
+    HISTORICAL_LINK_EVIDENCE_MISMATCH:
+      !offer || !offer.payment_link_url || featured.historical_payment_link_url !== offer.payment_link_url
+  };
+  for (const [code, fails] of Object.entries(holds)) if (fails) errors.push(code);
+} else {
+  const paymentLink = product.commercial_truth?.payment_link || '';
+  if (!paymentLink || featured.payment_link_url !== paymentLink ||
+      offer?.payment_link_url !== paymentLink) errors.push('STRIPE_LINK_DRIFT');
+  if (offer?.payment_link_status !== 'ACTIVE_LIVEMODE') errors.push('STRIPE_LINK_NOT_LIVEMODE');
+  if (product.commercial_truth?.approval_required !== false ||
+      product.commercial_truth?.sellable !== true ||
+      product.checkout?.enabled !== true ||
+      fulfillmentEntry?.ready !== true ||
+      fulfillmentEntry?.operator_required !== false) errors.push('PRODUCT_NOT_SELLABLE');
 }
 
 const homepageFile = path.join(root, 'compiled/website/index.html');
@@ -115,6 +136,8 @@ const result = {
     price_nzd: 29,
     payment_link_status: offer?.payment_link_status || null
   },
+  commerce_state: held ? 'HELD_CHECKOUT_DISABLED' : 'PUBLISHED_REQUIRES_LIVE_VERIFICATION',
+  sale_certified: false,
   excluded_surfaces: ['cinema', 'private-adult-boundary'],
   errors
 };
