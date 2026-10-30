@@ -1,47 +1,36 @@
-<!doctype html><html lang="en-NZ" data-silo="mtg"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#0c161a"><title>Free MTG Deck Diagnostic | DreamLedger NZ</title>
-<meta name="description" content="Free no-login Commander deck structure diagnostic. Mana curve, land count and visible synergy; instant verdict when deck data is available.">
-<link rel="canonical" href="https://dreamledger.org/mtg/diagnostic/">
+<!doctype html>
+<html lang="en-NZ" data-silo="mtg">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MTG Commander Diagnostic NZ$29 | Happy Homarid</title>
+<meta name="description" content="New Zealand Commander deck diagnostic: NZ$29, with an exemption for verified eligible Happy Homarid Patreon members. Checkout and membership verification are currently held.">
+<meta name="theme-color" content="#0c161a"><link rel="canonical" href="https://dreamledger.org/mtg/diagnostic/">
 <style>
-:root{color-scheme:dark;--bg:#0c161a;--panel:#14262b;--line:#395150;--ink:#f8f6eb;--muted:#b8c9c7;--gold:#eac479;--mint:#a2e8c7}
-*{box-sizing:border-box}body{background:radial-gradient(circle at 85% 0,#2d5244,transparent 55%),var(--bg);color:var(--ink);font:15px/1.55 system-ui,sans-serif;margin:0}.wrap{width:min(850px,calc(100% - 32px));margin:auto}a{color:var(--mint)}header{padding:20px 0;border-bottom:1px solid var(--line)}header a{font-weight:800;text-decoration:none}.eyebrow{font-size:.75rem;color:var(--gold);font-weight:900;letter-spacing:.18em;text-transform:uppercase}h1{font:400 clamp(2.5rem,7vw,4.4rem)/1.02 Georgia,serif;letter-spacing:-.045em;margin:14px 0}p{color:var(--muted)}main{padding:42px 0 65px}.panel{background:var(--panel);padding:24px;border:1px solid var(--line);border-radius:18px;margin:22px 0}label{display:block;font-weight:800;margin:15px 0 6px}input,select{display:block;width:100%;padding:13px;background:#0b1c21;border:1px solid var(--line);border-radius:11px;color:white;font:inherit}button{background:var(--gold);color:#162019;border:0;border-radius:10px;padding:12px 20px;font:800 15px system-ui;cursor:pointer;margin-top:18px}button:disabled{opacity:.55;cursor:default}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--mint)}.small{font-size:.81rem}.verdict{font:900 2.4rem/1.1 system-ui;color:var(--mint)}.check{padding:12px 0;border-top:1px solid var(--line)}.check strong{display:inline-block;margin-right:12px}.check span{color:var(--gold)}.badge{font-size:.75rem;border-radius:99px;border:1px solid var(--line);padding:5px 9px;color:var(--gold)}.actions{display:flex;gap:10px;flex-wrap:wrap}.actions button,.actions a{font-size:.8rem;background:#1c3835;color:white;border:1px solid var(--line);text-decoration:none;border-radius:9px;padding:10px 13px;margin:0;cursor:pointer}.hidden{display:none}.foot{border-top:1px solid var(--line);padding:28px 0;color:var(--muted);font-size:.78rem}
-@media print{header,.actions,form,.foot{display:none!important}body{background:white;color:#111}.panel{background:white;color:#111;border:1px solid #777}p,.check{color:#111!important}.verdict{color:#111}}
-</style><script defer src="/mtg/diagnostic/engine.js"></script></head><body>
-<header><div class="wrap"><a href="/mtg/">DreamLedger MTG</a> / <a href="/mtg/exchange.html">Exchange</a></div></header>
-<main class="wrap"><p class="eyebrow">Free, no account required</p><h1>One-page deck diagnostic.</h1>
-<p>Choose a listed deck, enter your email address and inspect a PASS, QUARANTINE or FAIL report. Checks only land count, mana curve and visible synergy indicators. It does not assess legality, prices or tournament performance.</p>
-<div class="panel"><form id="diagnostic">
-<label for="deck">Choose a listed deck</label><select id="deck" required><option value="quintorius">Quintorius, Field Historian (full decklist available)</option><option disabled>Dwynen (full decklist not independently available)</option><option disabled>Jon Irenicus (full decklist not independently available)</option><option disabled>Edward Kenway (catalogue reconciliation held)</option></select>
-<label for="email">Email address</label><input id="email" type="email" autocomplete="email" required placeholder="you@example.com" maxlength="254">
-<p class="small"><strong>Delivery status:</strong> Email delivery is not yet connected or verified. Your address is checked in this browser, never sent to our server or retained. The verdict appears here immediately; you can print, download or open an email draft yourself. This is a preview of the email-only workflow, not a claim that an email will be sent.</p>
-<button id="submit" type="submit">Generate free verdict</button><p id="status" role="status" aria-live="polite">No payment or login required.</p></form></div>
-<section class="panel hidden" id="result" aria-live="polite"><p class="eyebrow">Browser deck structure check · cloud Elohim review pending</p><div class="verdict" id="verdict"></div><h2 id="deckName"></h2><p id="summary"></p><div id="checks"></div><p class="small">This report is a rough heuristic, not a simulation. Unknown card metadata produces QUARANTINE rather than an invented pass. An unavailable external card-data service also produces QUARANTINE.</p><div class="actions"><button type="button" id="download">Download verdict JSON</button><button type="button" id="print">Print one page</button><a href="#diagnostic" id="emailDraft">Prepare email draft (manual send)</a></div></section>
-<p class="small">Card metadata is queried only when you run the check using Scryfall's collection API. No user email goes to Scryfall. Rate-limited calls and data provider outages may prevent a full result.</p>
-<p><a href="https://www.patreon.com/happyhomarid" target="_blank" rel="noopener noreferrer">Happy Homarid Patreon</a> · <a href="https://discord.gg/tKxJkhJhCp" target="_blank" rel="noopener noreferrer">MTG NZ Discord</a> · <a href="https://discord.gg/aYdc4h5cpU" target="_blank" rel="noopener noreferrer">DreamLedger Discord</a></p>
-</main><footer class="foot"><div class="wrap">No claim of inventory availability or tournament performance without verified evidence. Unofficial fan tool, not affiliated with Wizards of the Coast or Scryfall.</div></footer>
-<script>
-(function(){
-'use strict';
-const $=id=>document.getElementById(id);let last=null;
-function setStatus(s){$('status').textContent=s}
-function fill(report){last=report;$('result').classList.remove('hidden');$('verdict').textContent=report.verdict;$('deckName').textContent=report.deck_name||'Selected deck';
-$('summary').textContent='Resolved '+report.matched_cards+' of '+report.deck_cards+' deck cards. '+(report.unresolved?'Unresolved metadata: '+report.unresolved+'. ':'')+'Verdict recorded locally at '+new Date().toLocaleString('en-NZ')+'.';
-$('checks').replaceChildren();for(const c of report.checks){const div=document.createElement('div');div.className='check';const heading=document.createElement('strong');heading.textContent=c.name+' ';const badge=document.createElement('span');badge.className='badge';badge.textContent=c.status;const p=document.createElement('p');p.textContent=c.value+'. '+c.note;div.append(heading,badge,p);$('checks').append(div)}
-const body='Free MTG deck diagnostic\n'+report.deck_name+'\nVerdict: '+report.verdict+'\n'+report.checks.map(x=>x.name+': '+x.status+' - '+x.value).join('\n')+'\n'+report.disclaimer;
-$('emailDraft').href='mailto:'+encodeURIComponent($('email').value)+'?subject='+encodeURIComponent('My free MTG deck verdict')+'&body='+encodeURIComponent(body);
-$('result').scrollIntoView({behavior:'smooth',block:'start'});
-}
-async function loadCards(names){const unique=[...new Set(names)];const rows=[];for(let n=0;n<unique.length;n+=75){const items=unique.slice(n,n+75).map(name=>({name}));const abort=new AbortController();const timer=setTimeout(()=>abort.abort(),12000);try{const r=await fetch('https://api.scryfall.com/cards/collection',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({identifiers:items}),signal:abort.signal});if(!r.ok)throw Error('Metadata unavailable: '+r.status);const parsed=await r.json();rows.push(...(parsed.data||[]))}finally{clearTimeout(timer)}if(n+75<unique.length)await new Promise(resolve=>setTimeout(resolve,300));}return rows}
-$('diagnostic').addEventListener('submit',async function(e){e.preventDefault();if(!$('email').checkValidity()){ $('email').reportValidity();return }$('submit').disabled=true;setStatus('Reading listed deck and card metadata...');try{
- const r=await fetch('/data/decklists/quintorius.json',{cache:'no-store'});if(!r.ok)throw Error('Decklist not available');
- const deck=await r.json();if(deck.id!=='EDH_QUINTORIUS_0002'||!deck.boards)throw Error('Decklist identity mismatch');
- const names=deck.boards.commander.concat(deck.boards.main);let cards=[];let warning='';
- try{cards=await loadCards(names)}catch(err){warning='Card metadata service unavailable; this verdict is quarantined.'}
- const report=window.MTGFreeDiagnostic.evaluate(deck,cards);if(warning)report.warning=warning;
- fill(report);setStatus(warning||'Report generated on this device. No email was sent.');}
- catch(err){setStatus('Diagnostic unavailable: '+err.message+'. No verdict was fabricated.');}
- finally{$('submit').disabled=false}});
-$('download').addEventListener('click',()=>{if(!last)return;const b=new Blob([JSON.stringify(last,null,2)+'\n'],{type:'application/json'}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download='mtg-free-diagnostic.json';a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)});
-$('print').addEventListener('click',()=>window.print());
-})();
-</script></body></html>
+:root{color-scheme:dark;--bg:#0c161a;--panel:#14262c;--ink:#f8f4ed;--muted:#bdcacb;--line:#47605e;--gold:#ecc57d}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% 0,#244a44,transparent 60%),var(--bg);color:var(--ink);font:16px/1.6 system-ui,Arial,sans-serif}
+main{max-width:790px;margin:0 auto;padding:64px 22px 96px}a{color:var(--gold)}.eyebrow{color:var(--gold);font-size:.8rem;letter-spacing:.16em;text-transform:uppercase;font-weight:800}
+h1{font:400 clamp(2.7rem,8vw,5rem)/1.05 Georgia,serif;margin:14px 0 23px}h2{margin:0 0 10px}p{color:var(--muted)}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:24px;margin:22px 0}
+.actions{display:flex;gap:12px;flex-wrap:wrap;margin:22px 0}.btn{background:var(--gold);color:#122020;border:0;padding:12px 20px;font-weight:850;border-radius:9px;text-decoration:none;display:inline-block}.btn[disabled]{background:#69736c;color:#f2f2eb;cursor:not-allowed}
+.note{border-left:3px solid var(--gold);padding-left:16px}footer{margin-top:28px;font-size:.85rem}
+</style>
+</head>
+<body><main>
+<p><a href="/mtg/">MTG master silo</a> / Commander Diagnostics</p>
+<p class="eyebrow">New Zealand Commander analysis</p>
+<h1>Know what your deck needs.</h1>
+<p>Request a one-page Commander deck diagnostic with a PASS, QUARANTINE or FAIL verdict. Intended checks: mana curve, land count, ramp density and commander synergy. We will only advertise and deliver checks that the release-tested service actually performs.</p>
+<section class="panel" aria-label="Diagnostic pricing">
+<h2>NZ$29 per diagnostic</h2>
+<p>Eligible active Happy Homarid Patreon members are exempt from the diagnostic fee after independent entitlement verification. The exact eligible membership tiers must be confirmed before release. A free Patreon follow does not qualify by itself.</p>
+<div class="actions"><button class="btn" disabled>Pay NZ$29: checkout held</button><button class="btn" disabled>Verify Patreon: integration held</button></div>
+<p class="note"><strong>Not accepting paid orders yet.</strong> Payment checkout, Patreon OAuth v2 verification and report delivery have not passed the production release checks. No payment is taken by this page.</p>
+<p><a href="https://www.patreon.com/happyhomarid" rel="noopener noreferrer" target="_blank">Visit Happy Homarid Patreon</a></p>
+</section>
+<section class="panel">
+<h2>What the diagnostic will cover</h2>
+<p>A clearly labelled, one-page assessment of mana curve, land count, ramp density and commander synergy, subject to a validated complete decklist and a verified analysis engine. This is not a promise that all checks are currently operating.</p>
+<p>It does not certify card legality, prices, real inventory, authenticity or tournament performance. Time-to-delivery and email service levels remain uncommitted until measured. Any unresolved data will be labelled QUARANTINE rather than guessed.</p>
+</section>
+<footer><a href="https://discord.gg/tKxJkhJhCp">Happy Homarid MTG NZ Discord</a> · <a href="https://discord.gg/aYdc4h5cpU">DreamLedger Discord</a><p>Independent Magic fan project. No affiliation with Wizards of the Coast. MTG trades and listings remain separate from unrelated DreamLedger silos.</p></footer>
+</main></body></html>
