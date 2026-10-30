@@ -35,4 +35,19 @@ REVOKE ALL ON beck_reconciliation.provider_receipts FROM PUBLIC;
 REVOKE ALL ON beck_reconciliation.provider_receipts FROM dreamledger_app;
 COMMENT ON TABLE beck_reconciliation.provider_receipts IS
  'Quarantined historical Stripe snapshots. No buyer attribution, external revenue or fulfilment established. Not accessible to application role.';
+-- Fail closed if the same application role can self-certify evidence.
+-- A separate privileged database owner must apply this migration.
+DO $role_gate$
+BEGIN
+ IF EXISTS (
+   SELECT 1 FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
+   WHERE n.nspname='beck_reconciliation' AND c.relname='provider_receipts'
+     AND pg_get_userbyid(c.relowner)='dreamledger_app'
+ ) OR has_schema_privilege('dreamledger_app','beck_reconciliation','USAGE')
+   OR has_table_privilege('dreamledger_app','beck_reconciliation.provider_receipts','SELECT')
+ THEN RAISE EXCEPTION 'BECK_HISTORICAL_EVIDENCE_OWNER_NOT_ISOLATED';
+ END IF;
+END
+$role_gate$;
+
 COMMIT;
