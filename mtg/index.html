@@ -159,7 +159,7 @@ async function loadCatalog(manifest){
         (!p.checkout_available || (p.checkout_url && p.checkout_url===master.checkout_url));
       if(!matched)conflicts++;
       const detail=typeof p.detail_url==='string'&&/^\/mtg\/[a-z0-9/_-]+\.html$/i.test(p.detail_url)?p.detail_url:'/mtg/';
-      const price=matched?'Indicative NZ
+      const price=matched?'Indicative NZ$'+Number(p.price).toFixed(2):'Price pending verification';
       const state=matched?'Catalogue preview only. Physical stock and shipping must be confirmed before payment.':'Catalogue mismatch. Purchase held.';
       return '<article class="deck"><div class="deck-banner">Commander · stock unverified</div><div class="deck-body">'+
         '<div class="tag">'+esc(p.commander||'EDH')+'</div><h3>'+esc(p.name||p.id)+'</h3>'+
