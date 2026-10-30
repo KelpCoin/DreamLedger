@@ -8,6 +8,9 @@ on:
       - 'BEC-PRIME/website/mtg-catalog.html'
       - 'scripts/verify-mtg-exchange-worldwide.cjs'
       - 'scripts/test-mtg-commercial-terms-lock.cjs'
+      - 'scripts/test-mtg-visual-identity.cjs'
+      - 'public/assets/dreamledger-mtg-theme.css'
+      - 'public/silos/mtg/silo.json'
       - 'docs/MTG-COMMERCIAL-TERMS-LOCK.json'
       - '.github/workflows/mtg-exchange-review.yml'
   workflow_dispatch:
@@ -24,6 +27,8 @@ jobs:
           node-version: '22'
       - name: Enforce owner-approved NZD29 and Patreon quota
         run: node scripts/test-mtg-commercial-terms-lock.cjs
+      - name: Verify DreamLedger MTG brand continuity and creator footer
+        run: node scripts/test-mtg-visual-identity.cjs
       - name: Stage verifier
         run: node scripts/verify-mtg-exchange-worldwide.cjs
       - name: Existing clone safety check (HOLD is allowed)
