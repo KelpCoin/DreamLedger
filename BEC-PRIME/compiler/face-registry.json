@@ -2,10 +2,22 @@
   "schema": "BEC-PRIME/FACE-REGISTRY/v1",
   "rule": "Faces are emitted by WebsiteFaceCompiler from this registry + live_checkout_routes. Hand-edited public HTML is legacy.",
   "nav": [
-    {"label": "Pay", "href": "/money.html"},
-    {"label": "Shop", "href": "/shop.html"},
-    {"label": "Magic", "href": "/mtg/"},
-    {"label": "Avatar", "href": "/avatar.html"}
+    {
+      "label": "Pay",
+      "href": "/money.html"
+    },
+    {
+      "label": "Shop",
+      "href": "/shop.html"
+    },
+    {
+      "label": "Magic",
+      "href": "/mtg/"
+    },
+    {
+      "label": "Avatar",
+      "href": "/avatar.html"
+    }
   ],
   "faces": [
     {
@@ -21,7 +33,6 @@
         "LIVE-DREAMMEEZ-SUPPORTER-SPROUT",
         "LIVE-DOC-EXTRACT-50",
         "LIVE-SUPPLIER-CHECK-50",
-        "LIVE-COMMANDER-DECK-DIAGNOSTIC-001",
         "LIVE-SELLER-PROFIT-AUDIT-001"
       ]
     },
@@ -34,12 +45,26 @@
       "headline": "Build the factory. Get paid.",
       "lead": "Free tools stay free. Paid surfaces are compiler-emitted from structured offers. Validated by receipts.",
       "cta_source": "live_checkout_routes",
-      "primary_offer_ids": ["LIVE-DREAMMEEZ-SUPPORTER-SPROUT"],
+      "primary_offer_ids": [
+        "LIVE-DREAMMEEZ-SUPPORTER-SPROUT"
+      ],
       "secondary_links": [
-        {"label": "All cash offers", "href": "/money.html"},
-        {"label": "Shop", "href": "/shop.html"},
-        {"label": "Magic", "href": "/mtg/"},
-        {"label": "Avatar", "href": "/avatar.html"}
+        {
+          "label": "All cash offers",
+          "href": "/money.html"
+        },
+        {
+          "label": "Shop",
+          "href": "/shop.html"
+        },
+        {
+          "label": "Magic",
+          "href": "/mtg/"
+        },
+        {
+          "label": "Avatar",
+          "href": "/avatar.html"
+        }
       ]
     },
     {
@@ -62,9 +87,21 @@
       "headline": "Three doors. One receipt.",
       "lead": "Pick a path. Money validates the system. Magic and avatar are surfaces on the same spine.",
       "doors": [
-        {"label": "Pay from NZ$3.99", "href": "/money.html", "blurb": "Settled Stripe — economic validation"},
-        {"label": "Magic silo", "href": "/mtg/", "blurb": "Singles and decks — see the cards"},
-        {"label": "Avatar studio", "href": "/avatar.html", "blurb": "Cosmetics that follow you to Phinhaven"}
+        {
+          "label": "Pay from NZ$3.99",
+          "href": "/money.html",
+          "blurb": "Settled Stripe — economic validation"
+        },
+        {
+          "label": "Magic silo",
+          "href": "/mtg/",
+          "blurb": "Singles and decks — see the cards"
+        },
+        {
+          "label": "Avatar studio",
+          "href": "/avatar.html",
+          "blurb": "Cosmetics that follow you to Phinhaven"
+        }
       ]
     },
     {
@@ -79,11 +116,40 @@
     }
   ],
   "live_checkout_routes": [
-    {"id": "LIVE-DREAMMEEZ-SUPPORTER-SPROUT", "name": "Supporter — Sprout", "price_nzd": 3.99, "href": "/buy/DREAMMEEZ-SUPPORTER-SPROUT", "tag": "Lowest friction"},
-    {"id": "LIVE-DOC-EXTRACT-50", "name": "Document Extraction", "price_nzd": 5, "href": "/buy/DOC-EXTRACT-50", "tag": "Micro"},
-    {"id": "LIVE-SUPPLIER-CHECK-50", "name": "Supplier Check", "price_nzd": 5, "href": "/buy/SUPPLIER-CHECK-50", "tag": "Micro"},
-    {"id": "LIVE-COMMANDER-DECK-DIAGNOSTIC-001", "name": "Commander Deck Diagnostic", "price_nzd": 29, "href": "/buy/COMMANDER-DECK-DIAGNOSTIC-001", "tag": "Magic"},
-    {"id": "LIVE-SELLER-PROFIT-AUDIT-001", "name": "Seller Profit Audit", "price_nzd": 29, "href": "/buy/SELLER-PROFIT-AUDIT-001", "tag": "Seller"},
-    {"id": "LIVE-DISCORD-WEBHOOK-STARTER-KIT-001", "name": "Discord Webhook Kit", "price_nzd": 79, "href": "/buy/DISCORD-WEBHOOK-STARTER-KIT-001", "tag": "Tools"}
+    {
+      "id": "LIVE-DREAMMEEZ-SUPPORTER-SPROUT",
+      "name": "Supporter — Sprout",
+      "price_nzd": 3.99,
+      "href": "/buy/DREAMMEEZ-SUPPORTER-SPROUT",
+      "tag": "Lowest friction"
+    },
+    {
+      "id": "LIVE-DOC-EXTRACT-50",
+      "name": "Document Extraction",
+      "price_nzd": 5,
+      "href": "/buy/DOC-EXTRACT-50",
+      "tag": "Micro"
+    },
+    {
+      "id": "LIVE-SUPPLIER-CHECK-50",
+      "name": "Supplier Check",
+      "price_nzd": 5,
+      "href": "/buy/SUPPLIER-CHECK-50",
+      "tag": "Micro"
+    },
+    {
+      "id": "LIVE-SELLER-PROFIT-AUDIT-001",
+      "name": "Seller Profit Audit",
+      "price_nzd": 29,
+      "href": "/buy/SELLER-PROFIT-AUDIT-001",
+      "tag": "Seller"
+    },
+    {
+      "id": "LIVE-DISCORD-WEBHOOK-STARTER-KIT-001",
+      "name": "Discord Webhook Kit",
+      "price_nzd": 79,
+      "href": "/buy/DISCORD-WEBHOOK-STARTER-KIT-001",
+      "tag": "Tools"
+    }
   ]
 }
