@@ -57,7 +57,7 @@ jobs:
       - name: Run economic supervisor
         env:
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_URL: https://wbwgroygjeyukkspnqiy.supabase.co
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
           AGENTBRIDGE_BASE_URL: https://dreamledger.org
@@ -68,7 +68,7 @@ jobs:
       - name: Locate latest evidence run
         id: evidence
         run: |
-          $run = Get-ChildItem '.\economic-bootstrap' -Directory | Sort-Object LastWriteTimeUtc -Descending | Select-Object -First 1
+          $run = Get-ChildItem (Join-Path $env:GITHUB_WORKSPACE 'economic-bootstrap') -Directory | Sort-Object LastWriteTimeUtc -Descending | Select-Object -First 1
           if (-not $run) { throw 'No economic bootstrap evidence directory was produced.' }
           "path=$($run.FullName)" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding ascii
           Write-Host "Evidence run: $($run.FullName)"
@@ -85,7 +85,7 @@ jobs:
       - name: Emit next action
         if: always()
         run: |
-          $next = Get-ChildItem '.\economic-bootstrap' -Recurse -Filter '12_NEXT_ACTION.json' | Sort-Object LastWriteTimeUtc -Descending | Select-Object -First 1
+          $next = Get-ChildItem (Join-Path $env:GITHUB_WORKSPACE 'economic-bootstrap') -Recurse -Filter '12_NEXT_ACTION.json' | Sort-Object LastWriteTimeUtc -Descending | Select-Object -First 1
           if ($next) {
             Write-Host '--- ECONOMIC NEXT ACTION ---'
             Get-Content $next.FullName -Raw
