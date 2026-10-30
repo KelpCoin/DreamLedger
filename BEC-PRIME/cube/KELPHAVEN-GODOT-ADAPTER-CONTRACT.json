@@ -1,0 +1,81 @@
+{
+  "schema": "CUBE/GODOT-BUILD-ADAPTER/v1",
+  "game_id": "kelphaven",
+  "display_name": "KelpHaven",
+  "game_type": "PvE MMO/avatar world",
+  "engine": "Godot 4",
+  "existing_project": {
+    "project_file": "project.godot",
+    "source_mode": "existing_workspace_only",
+    "absolute_path_supplied_at_runtime": true,
+    "never_clone_empty_game": true
+  },
+  "shared_cube_capabilities": [
+    "identity",
+    "avatar-reference",
+    "cosmetic-offer-candidates",
+    "subscription-boundary",
+    "evidence",
+    "community-policy"
+  ],
+  "avatar_contract": {
+    "primary_asset_route": "/avatars/cache/{user_id}.png",
+    "fallback": "text-emoji avatar",
+    "privacy": "no cross-silo identity leak",
+    "commerce": "game progress never independently proves paid entitlement"
+  },
+  "execution_stages": [
+    {
+      "id": "01-static-recon",
+      "tool": "BEC-PRIME/cube/godot-workspace-audit.js",
+      "writes_to_source": false,
+      "proof": "CUBE/GODOT-WORKSPACE-OBSERVATION/v1"
+    },
+    {
+      "id": "02-import-and-parse",
+      "tool": "pinned Godot 4 headless CI against a separate temporary copy",
+      "required": true,
+      "status": "NOT_VERIFIED"
+    },
+    {
+      "id": "03-gameplay-tests",
+      "tool": "Godot scene/combat/AI/player persistence tests",
+      "required": true,
+      "status": "NOT_VERIFIED"
+    },
+    {
+      "id": "04-avatar-adapter",
+      "tool": "real avatar cache/fallback integration and test",
+      "required": true,
+      "status": "NOT_VERIFIED"
+    },
+    {
+      "id": "05-economy-boundary",
+      "tool": "entitlement verification with test-mode receipts, never self-issued",
+      "required": true,
+      "status": "NOT_VERIFIED"
+    },
+    {
+      "id": "06-private-build",
+      "tool": "hashed artifacts plus manifest and isolated QA evidence",
+      "required": true,
+      "status": "NOT_VERIFIED"
+    },
+    {
+      "id": "07-release",
+      "tool": "explicit owner approval; separate commerce and public distribution",
+      "required": true,
+      "status": "HOLD"
+    }
+  ],
+  "never_auto_execute": [
+    "Godot code",
+    "unreviewed project scripts",
+    "live payment",
+    "public deployment",
+    "private uploads",
+    "unbounded network operations"
+  ],
+  "success_definition": "A private runnable PvE game build with scene, gameplay, avatar, persistence, entitlement and regression proof; owner-approved release. A draft CUBE silo alone is not a finished game.",
+  "status": "RECON_ONLY_NOT_GAME_READY"
+}
