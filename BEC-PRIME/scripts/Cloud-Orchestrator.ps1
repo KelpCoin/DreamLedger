@@ -10,7 +10,7 @@ $root=if($env:CLOUD_PROOF_ROOT){$env:CLOUD_PROOF_ROOT}else{Join-Path $PWD 'cloud
 $dir=Join-Path $root $run
 New-Item -ItemType Directory -Force -Path $dir|Out-Null
 function Rpc([string]$name,[hashtable]$args){$j=$args|ConvertTo-Json -Depth 40 -Compress;return Invoke-RestMethod -Uri "$base/rest/v1/rpc/$name" -Headers $h -Method Post -Body $j -TimeoutSec 30}
-function GetRows([string]$table,[string]$query=''){ $u="$base/rest/v1/$table?select=*";if($query){$u+="&$query"};return @(Invoke-RestMethod -Uri $u -Headers $h -Method Get -TimeoutSec 30)}
+function GetRows([string]$table,[string]$query=''){ $u="$base/rest/v1/$table";if($query){$u+="?$query"}else{$u+='?select=*'};return @(Invoke-RestMethod -Uri $u -Headers $h -Method Get -TimeoutSec 30)}
 function Patch([string]$table,[string]$query,[object]$body){$hh=@{}+$h;$hh.Prefer='return=representation';$j=$body|ConvertTo-Json -Depth 40 -Compress;return @(Invoke-RestMethod -Uri "$base/rest/v1/$table?$query" -Headers $hh -Method Patch -Body $j -TimeoutSec 30)}
 function Insert([string]$table,[object]$body){$hh=@{}+$h;$hh.Prefer='return=representation';$j=@($body)|ConvertTo-Json -Depth 40 -Compress;return @(Invoke-RestMethod -Uri "$base/rest/v1/$table" -Headers $hh -Method Post -Body $j -TimeoutSec 30)}
 function WriteProof([string]$name,[object]$body){$p=Join-Path $dir $name;[IO.File]::WriteAllText($p,($body|ConvertTo-Json -Depth 50),[Text.Encoding]::ASCII);return $p}
