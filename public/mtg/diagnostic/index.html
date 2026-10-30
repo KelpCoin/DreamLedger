@@ -1,76 +1,36 @@
 <!doctype html>
 <html lang="en-NZ" data-silo="mtg">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#0c161a">
-<title>Free Commander Deck Diagnostic | DreamLedger MTG Aotearoa</title>
-<meta name="description" content="Free, no-login MTG Commander deck diagnostic in New Zealand. Paste 100 cards, check land count, mana curve and transparent synergy indicators. No commissions or hidden fees.">
-<link rel="canonical" href="https://dreamledger.org/mtg/diagnostic/">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MTG Commander Diagnostic NZ$29 | Happy Homarid</title>
+<meta name="description" content="New Zealand Commander deck diagnostic: NZ$29, with an exemption for verified eligible Happy Homarid Patreon members. Checkout and membership verification are currently held.">
+<meta name="theme-color" content="#0c161a"><link rel="canonical" href="https://dreamledger.org/mtg/diagnostic/">
 <style>
-:root{color-scheme:dark;--bg:#0c161a;--panel:#14262c;--ink:#f8f4ed;--muted:#bdcacb;--line:#47605e;--gold:#ecc57d;--mint:#a1dbc7}
+:root{color-scheme:dark;--bg:#0c161a;--panel:#14262c;--ink:#f8f4ed;--muted:#bdcacb;--line:#47605e;--gold:#ecc57d}
 *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% 0,#244a44,transparent 60%),var(--bg);color:var(--ink);font:16px/1.6 system-ui,Arial,sans-serif}
-main{max-width:1010px;margin:auto;padding:32px 20px 90px}a{color:var(--gold)}h1{font:400 clamp(2.6rem,8vw,4.8rem)/1.06 Georgia,serif;margin:15px 0}h2{margin:0 0 10px}.eyebrow{color:var(--gold);font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;font-weight:800}.lead{color:var(--muted);max-width:68ch}
-.panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px;margin:22px 0}.cols{display:grid;grid-template-columns:1fr;gap:20px}@media(min-width:800px){.cols{grid-template-columns:1fr 1fr}}
-label{display:block;margin:13px 0 6px;font-weight:760}input,textarea{width:100%;background:#081c22;border:1px solid #78908b;color:var(--ink);font:inherit;border-radius:10px;padding:12px}textarea{min-height:340px;resize:vertical}button,.btn{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:10px 18px;background:var(--gold);border:1px solid var(--gold);border-radius:10px;color:#122020;font:inherit;font-weight:850;cursor:pointer;text-decoration:none}button:disabled{opacity:.6;cursor:wait}.secondary{background:transparent;color:var(--gold)}.actions{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}.note{font-size:.86rem;color:var(--muted)}.report{border:1px solid var(--line);border-radius:15px;padding:20px;background:#081c22}.verdict{font-size:1.7rem;font-weight:900;color:var(--gold);letter-spacing:.04em}ul{padding-left:23px}li{margin:7px 0}.small{font-size:.85rem;color:var(--muted)}[hidden]{display:none!important}@media print{header,.entry,.actions,footer{display:none!important}body,main,.report{background:white;color:black}main{padding:0}.report{border:none}}
-</style></head>
-<body><main><header><a href="/mtg/">DreamLedger / MTG</a> &nbsp; <a href="/mtg/exchange.html">Exchange</a> &nbsp; <a href="https://www.patreon.com/happyhomarid" target="_blank" rel="noopener noreferrer">Happy Homarid</a></header>
-<p class="eyebrow">Aotearoa MTG / free community tool</p><h1>Better Commander decks.<br>Zero paywalls.</h1>
-<p class="lead">Paste a complete 100-card Commander decklist to get a one-page structure report. No login, email, payment or subscription. The decklist is processed in your browser; card names are requested from Scryfall for metadata. Nothing is submitted to a DreamLedger account.</p>
-<div class="panel entry"><h2>Analyse your deck</h2><div class="cols"><div>
-<label for="commander">Commander name</label><input id="commander" maxlength="180" required placeholder="e.g. Quintorius, Field Historian">
-<p class="note">Include this commander as one card in your 100-card pasted list. Copy/paste imports from ManaBox, Moxfield or most plain-text deck exports.</p>
-<label for="decklist">Decklist (one card per line)</label><textarea id="decklist" maxlength="30000" spellcheck="false" required placeholder="1 Quintorius, Field Historian&#10;36 Plains&#10;..."></textarea></div>
-<div><h2>What you get</h2><ul><li>PASS / QUARANTINE / FAIL structure verdict</li><li>Land count and average nonland mana value</li><li>Visible graveyard / Spirit synergy indicators, when relevant</li><li>Missing card metadata and uncertainty disclosed</li><li>Print or save your one-page report locally</li></ul>
-<p class="note">Scryfall is an independent card-information service. Card names are sent to Scryfall to retrieve card types and mana values; their service may be unavailable. No pricing, card legality, tournament performance or gameplay win rate is assessed.</p>
-<p class="note">Not a complete simulation. A PASS means only these limited structural checks passed. A QUARANTINE result means missing inputs, metadata or unassessed synergy. Response time depends on Scryfall; no under-60-second delivery guarantee is made.</p>
-</div></div>
-<div class="actions"><button id="run" type="button">Run free diagnostic</button><button id="clear" type="button" class="secondary">Clear deck</button></div><p id="status" role="status" aria-live="polite">Ready. No user data is uploaded to DreamLedger.</p></div>
-<section class="panel" id="result" hidden aria-label="Diagnostic report"><div class="report" id="paper"><p class="eyebrow">DreamLedger MTG / no-login diagnostic</p><h2 id="reportTitle">Deck report</h2><div id="verdict" class="verdict"></div><p id="reportSummary"></p><div id="checks"></div><p id="reportDisclaimer" class="small"></p><p id="reportTime" class="small"></p></div><div class="actions"><button id="print" type="button">Print / Save PDF</button><button id="export" class="secondary" type="button">Export JSON</button></div><p id="reportStatus" role="status" class="small"></p></section>
-<footer class="small"><p>Always free: decks, listings, community trades and diagnostics. DreamLedger charges 0% marketplace commission. If a future card purchase uses Stripe, the actual payment-processing fee may apply. This site makes no guarantee about third-party trades.</p><p><a href="https://discord.gg/tKxJkhJhCp" rel="noopener noreferrer" target="_blank">Happy Homarid MTG Discord</a> · Independent Magic fan project, not affiliated with Wizards of the Coast or Scryfall.</p></footer>
-</main><script src="/mtg/diagnostic/parse.js"></script><script src="/mtg/diagnostic/engine.js"></script>
-<script>
-(function(){
-'use strict';
-const $=id=>document.getElementById(id);let last=null;
-function status(msg){$('status').textContent=msg}
-function download(obj,name){const blob=new Blob([JSON.stringify(obj,null,2)+'\n'],{type:'application/json'}),a=document.createElement('a'),url=URL.createObjectURL(blob);a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),2500)}
-async function resolveCards(list){
- const names=[...new Set(list.map(x=>x.name.toLocaleLowerCase('en')))].map(s=>list.find(x=>x.name.toLocaleLowerCase('en')===s).name);
- const found=[],notFound=[];
- for(let offset=0;offset<names.length;offset+=75){
-  const part=names.slice(offset,offset+75);status('Checking card metadata '+(offset+1)+'-'+Math.min(offset+75,names.length)+' of '+names.length+'...');
-  const response=await fetch('https://api.scryfall.com/cards/collection',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({identifiers:part.map(name=>({name}))})});
-  if(!response.ok)throw Error('Scryfall request unavailable ('+response.status+'). No verdict was guessed.');
-  const j=await response.json();
-  if(!Array.isArray(j.data))throw Error('Card metadata not returned.');
-  for(const x of j.data){const y={name:x.name,type_line:x.type_line,oracle_text:x.oracle_text||x.card_faces?.map(f=>f.oracle_text||'').join(' '),cmc:x.cmc};found.push(y)}
-  if(Array.isArray(j.not_found))notFound.push(...j.not_found.map(x=>x.name||'unknown'));
-  if(offset+75<names.length)await new Promise(done=>setTimeout(done,150));
- }
- return {found,notFound};
-}
-function add(tag,text,parent){const el=document.createElement(tag);el.textContent=text;parent.append(el);return el}
-$('run').addEventListener('click',async()=>{
- $('run').disabled=true;last=null;$('result').hidden=true;
- try{
-  if(!window.MTGDeckParser||!window.MTGFreeDiagnostic)throw Error('Diagnostic scripts unavailable.');
-  const parsed=window.MTGDeckParser.parse($('decklist').value,$('commander').value);
-  if(!parsed.valid){last={parse:parsed,verdict:'QUARANTINE',reason:parsed.warnings.join(' ')};status('QUARANTINE: '+parsed.warnings.join(' '));return}
-  const remote=await resolveCards(parsed.cards);
-  const report=window.MTGFreeDiagnostic.evaluate(parsed.deck,remote.found);
-  if(remote.notFound.length){report.verdict='QUARANTINE';report.not_found=remote.notFound}
-  last={schema:'dreamledger/mtg-free-report/v1',generated_at:new Date().toISOString(),parse:{total:parsed.total,commander:parsed.commander},report};
-  $('result').hidden=false;$('reportTitle').textContent=report.deck_name;
-  $('verdict').textContent=report.verdict;
-  $('reportSummary').textContent=report.matched_cards+'/'+report.deck_cards+' cards matched; '+report.land_count+' lands; average nonland mana value '+(report.average_nonland_mana_value??'unresolved')+'.';
-  $('checks').replaceChildren();for(const c of report.checks){const p=add('p',c.name+': '+c.status+' | '+c.value,$('checks'));add('small',c.note,p)}
-  $('reportDisclaimer').textContent=report.disclaimer+(remote.notFound.length?' Unresolved: '+remote.notFound.join(', '):'');
-  $('reportTime').textContent='Generated locally at '+last.generated_at+'. Scryfall supplied card metadata.';
-  status('Report ready: '+report.verdict+'. No checkout or email involved.');
- }catch(e){status('QUARANTINE: '+(e&&e.message?e.message:'Unable to resolve card metadata.')+' Your deck was not charged or stored by DreamLedger.')}
- finally{$('run').disabled=false}
-});
-$('clear').addEventListener('click',()=>{$('decklist').value='';$('commander').value='';$('result').hidden=true;last=null;status('Cleared.')});
-$('print').addEventListener('click',()=>window.print());
-$('export').addEventListener('click',()=>{if(last&&last.report)download(last,'dreamledger-mtg-diagnostic.json');else $('reportStatus').textContent='Run a complete diagnostic first.'});
-})();
-</script></body></html>
+main{max-width:790px;margin:0 auto;padding:64px 22px 96px}a{color:var(--gold)}.eyebrow{color:var(--gold);font-size:.8rem;letter-spacing:.16em;text-transform:uppercase;font-weight:800}
+h1{font:400 clamp(2.7rem,8vw,5rem)/1.05 Georgia,serif;margin:14px 0 23px}h2{margin:0 0 10px}p{color:var(--muted)}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:24px;margin:22px 0}
+.actions{display:flex;gap:12px;flex-wrap:wrap;margin:22px 0}.btn{background:var(--gold);color:#122020;border:0;padding:12px 20px;font-weight:850;border-radius:9px;text-decoration:none;display:inline-block}.btn[disabled]{background:#69736c;color:#f2f2eb;cursor:not-allowed}
+.note{border-left:3px solid var(--gold);padding-left:16px}footer{margin-top:28px;font-size:.85rem}
+</style>
+</head>
+<body><main>
+<p><a href="/mtg/">MTG master silo</a> / Commander Diagnostics</p>
+<p class="eyebrow">New Zealand Commander analysis</p>
+<h1>Know what your deck needs.</h1>
+<p>Request a one-page Commander deck diagnostic with a PASS, QUARANTINE or FAIL verdict. Intended checks: mana curve, land count, ramp density and commander synergy. We will only advertise and deliver checks that the release-tested service actually performs.</p>
+<section class="panel" aria-label="Diagnostic pricing">
+<h2>NZ$29 per diagnostic</h2>
+<p>Pay NZ$29 per diagnostic, or receive two included diagnostics per month with an eligible paid Happy Homarid Patreon membership. Active membership and the two-per-month usage limit must be verified independently before access is granted. Further diagnostics cost NZ$29 each. A free Patreon follow does not qualify.</p>
+<div class="actions"><button class="btn" disabled>Pay NZ$29: checkout held</button><button class="btn" disabled>Verify Patreon: integration held</button></div>
+<p class="note"><strong>Not accepting paid orders yet.</strong> Payment checkout, Patreon OAuth v2 verification and report delivery have not passed the production release checks. No payment is taken by this page. The Patreon two-per-month quota is not yet active.</p>
+<p><a href="https://www.patreon.com/happyhomarid" rel="noopener noreferrer" target="_blank">Visit Happy Homarid Patreon</a></p>
+</section>
+<section class="panel">
+<h2>What the diagnostic will cover</h2>
+<p>A clearly labelled, one-page assessment of mana curve, land count, ramp density and commander synergy, subject to a validated complete decklist and a verified analysis engine. This is not a promise that all checks are currently operating.</p>
+<p>It does not certify card legality, prices, real inventory, authenticity or tournament performance. Time-to-delivery and email service levels remain uncommitted until measured. Any unresolved data will be labelled QUARANTINE rather than guessed.</p>
+</section>
+<footer><a href="https://discord.gg/tKxJkhJhCp">Happy Homarid MTG NZ Discord</a> · <a href="https://discord.gg/aYdc4h5cpU">DreamLedger Discord</a><p>Independent Magic fan project. No affiliation with Wizards of the Coast. MTG trades and listings remain separate from unrelated DreamLedger silos.</p></footer>
+</main></body></html>
