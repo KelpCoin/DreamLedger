@@ -1,0 +1,34 @@
+{
+  "schema": "dreamledger/mtg-commercial-terms/v1",
+  "silo": "mtg",
+  "owner_authoritative": true,
+  "effective_policy_date": "2026-10-31",
+  "marketplace": {
+    "accounts_price_nzd": 0,
+    "listing_price_nzd": 0,
+    "trading_price_nzd": 0,
+    "platform_commission_bps": 0,
+    "organic_visibility_fee_nzd": 0,
+    "community_access_price_nzd": 0,
+    "payment_processing_costs": "Only actually applicable, clearly disclosed Stripe processing costs. No markups. Free card-for-card trades incur no Stripe processing fee."
+  },
+  "commander_diagnostic": {
+    "sku": "COMMANDER-DECK-DIAGNOSTIC-001",
+    "price_nzd": 29,
+    "currency": "NZD",
+    "pay_per_report": true,
+    "patreon_benefit": {
+      "eligible": "active paid Happy Homarid Patreon membership (tier eligibility must be verified)",
+      "included_reports_per_member_per_month": 2,
+      "unused_quota_rollover": "NOT_SPECIFIED",
+      "additional_report_price_nzd": 29
+    },
+    "public_checkout": "HOLD_UNTIL_VERIFIED",
+    "patreon_oauth": "NOT_CONNECTED",
+    "usage_tracking": "NOT_CONNECTED",
+    "automated_report_delivery": "NOT_VERIFIED",
+    "free_no_login_reports": "PROHIBITED"
+  },
+  "separation": "Keep MTG commercial rules independent from other DreamLedger silos",
+  "release_policy": "No public checkout, Patreon access or site deployment without verified entitlement, limit, delivery, security and appropriate hosting, plus explicit release approval"
+}
