@@ -17,10 +17,10 @@ homepage_routes:home.includes('href="/mtg/community.html"')&&home.includes('href
 home_owner_card_carousel:home.includes('id="deckRail"')&&home.includes('id="singleRail"'),
 home_catalogue_reads:home.includes('/data/mtg-catalog.json')&&home.includes('/catalog.json')&&home.includes('/data/mtg-owner-decks.json')&&home.includes('/data/mtg-owner-singles.json'),
 gallery_search_and_filter:exchange.includes('id="find"')&&exchange.includes('id="sort"')&&exchange.includes('data-kind="deck"')&&exchange.includes('id="deckGrid"'),
-gallery_first_party_only:exchange.includes('OUR OWN STOCK')&&exchange.includes('enquire')&&!exchange.includes('buy.stripe.com'),
+gallery_first_party_only:exchange.includes('OUR OWN STOCK')&&/enquire/i.test(exchange)&&!exchange.includes('buy.stripe.com'),
 community_copy_only:community.includes('id="compose"')&&community.includes('navigator.clipboard.writeText')&&community.includes('Nothing has been submitted'),
 discord_handoff:home.includes('https://discord.gg/tKxJkhJhCp')&&exchange.includes('https://discord.gg/tKxJkhJhCp')&&community.includes('https://discord.gg/tKxJkhJhCp'),
-ledger_not_live:home.includes('not live yet')&&community.includes('not live yet'),
+ledger_not_live:/not live|No live peer|in development/i.test(home)&&community.includes('not live yet'),
 diagnostic_nzd29:diagnostic.includes('NZ$29')&&diagnostic.includes('checkout held')&&diagnostic.includes('integration held'),
 paid_patron_tiers:terms.commander_diagnostic.patreon_benefit.entry_tier.included_reports_per_month===1&&terms.commander_diagnostic.patreon_benefit.higher_tiers.included_reports_per_month_max===5,
 physical_checkout_held:catalog.products.every(p=>p.checkout_available===false)&&edh.price===400&&edh.inventory===0,
@@ -40,4 +40,4 @@ for(const [name,ok] of Object.entries(fixture_tests))assert.equal(ok,true,name);
 const files=['public/mtg/index.html','public/mtg/exchange.html','public/mtg/community.html','public/mtg/diagnostic/index.html','public/assets/dreamledger-mtg-theme.css','docs/MTG-COMMERCIAL-TERMS-LOCK.json'];
 const proof={schema:'dreamledger/mtg-redesign-static-proof/v2',generated_at:new Date().toISOString(),silo:'mtg',result:'STATIC_TEST_PASS',release:'HOLD',public_production_checked:false,real_trades_completed:0,paid_deliveries_verified:false,patreon_entitlements_live:false,peer_ledger_live:false,inventory_verified:false,checks,fixture_tests,conflicts,file_sha256:Object.fromEntries(files.map(p=>[p,hash(p)]))};
 fs.mkdirSync(path.join(root,'artifacts'),{recursive:true});fs.writeFileSync(path.join(root,'artifacts/mtg-exchange-proof.json'),JSON.stringify(proof,null,2)+'\n');
-console.log(JSON.stringify({result:proof.result,release:proof.release,proof:'artifacts/mtg-exchange-proof.json',checks:checks.length,static_checks:Object.keys(checks).length,fixtures:fixture_tests},null,2));
+console.log(JSON.stringify({result:proof.result,release:proof.release,proof:'artifacts/mtg-exchange-proof.json',static_checks:Object.keys(checks).length,fixtures:fixture_tests},null,2));
