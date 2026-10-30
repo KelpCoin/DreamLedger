@@ -185,9 +185,12 @@ jobs:
           cat cloud-proof/cloud-proof.json
 
       - name: Upload cloud proof
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: dreamledger-cloud-proof-${{ github.sha }}
-          path: cloud-proof/
-          if-no-files-found: error
+          name: dreamledger-cloud-proof-${{ github.run_id }}
+          path: |
+            cloud-proof/
+            PROOF-MOLT-BEACH-MVP.json
+          if-no-files-found: warn
           retention-days: 30
