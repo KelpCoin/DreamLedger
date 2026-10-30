@@ -56,7 +56,7 @@ function Contradiction([string]$Component,[string]$Expected,[string]$Observed,[s
 function SafeGet([string]$Uri,[hashtable]$Headers=@{},[int]$Timeout=20) {
     try {
         $r = Invoke-WebRequest -Uri $Uri -Method GET -Headers $Headers -TimeoutSec $Timeout -UseBasicParsing -ErrorAction Stop
-        return @{ ok=$true; status=[int]$r.StatusCode; content=$r.Content }
+        return @{ ok=$true; status=[int]$r.StatusCode; content=$r.Content; error=$null }
     } catch {
         $status=$null
         if ($_.Exception.Response) { try { $status=[int]$_.Exception.Response.StatusCode } catch {} }
@@ -67,7 +67,7 @@ function SafeGet([string]$Uri,[hashtable]$Headers=@{},[int]$Timeout=20) {
 function SafeJson([string]$Uri,[hashtable]$Headers=@{},[int]$Timeout=20) {
     $r=SafeGet $Uri $Headers $Timeout
     if (-not $r.ok) { return $r }
-    try { return @{ ok=$true; status=$r.status; data=($r.content | ConvertFrom-Json) } }
+    try { return @{ ok=$true; status=$r.status; data=($r.content | ConvertFrom-Json); error=$null } }
     catch { return @{ ok=$false; status=$r.status; error=('Invalid JSON: ' + $_.Exception.Message) } }
 }
 
