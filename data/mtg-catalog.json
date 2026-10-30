@@ -49,14 +49,14 @@
       "description": "Flagship physical Commander deck from the NZ collection. One unit.",
       "price": 400,
       "currency": "NZD",
-      "status": "published",
-      "inventory": 1,
+      "status": "held",
+      "inventory": 0,
       "silo": "mtg",
       "category": "commander-deck",
-      "sale_mode": "claim_by_message",
+      "sale_mode": "request_confirmation",
       "checkout_available": false,
       "detail_url": "/buy/edh-0001/",
-      "claim_url": "mailto:hello@dreamledger.org?subject=Buy%20EDH_0001%20Commander%20deck%20NZ%24400&body=I%20want%20to%20buy%20EDH_0001%20(NZ%24400).",
+      "claim_url": null,
       "commander": "See listing"
     },
     {
