@@ -1,44 +1,94 @@
 <!doctype html>
-<html lang="en-NZ">
+<html lang="en-NZ" data-silo="tcg-hub">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>TCG markets · DreamLedger NZ</title>
-<meta name="description" content="Buy and sell TCG singles in New Zealand. Magic, Pokémon, One Piece, Yu-Gi-Oh!, Lorcana, and more. Free to list.">
+<title>Trading card games in New Zealand | DreamLedger</title>
+<meta name="description" content="A New Zealand home for Magic, Pokemon, One Piece, Yu-Gi-Oh and other TCG players. Browse game pages and create a free, private listing draft.">
+<link rel="canonical" href="https://dreamledger.org/tcg/">
 <style>
-:root{color-scheme:dark;--bg:#07080c;--ink:#f3f0e8;--muted:#9aa0b0;--line:#2a3040;--gold:#d8b56b;--surface:#11141c}
-*{box-sizing:border-box}body{margin:0;font:15px/1.5 system-ui,sans-serif;background:var(--bg);color:var(--ink)}
-a{color:var(--gold);text-decoration:none}
-.wrap{max-width:1000px;margin:auto;padding:28px 16px 80px}
-h1{font-size:clamp(1.8rem,5vw,2.8rem);letter-spacing:-.04em;line-height:1.1;margin:12px 0}
-.lead{color:var(--muted);max-width:40em}
-.grid{display:grid;gap:12px;grid-template-columns:1fr;margin-top:28px}
-@media(min-width:600px){.grid{grid-template-columns:1fr 1fr}}
-@media(min-width:900px){.grid{grid-template-columns:1fr 1fr 1fr 1fr}}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;display:flex;flex-direction:column;min-height:160px}
-.card .rank{font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
-.card h2{margin:0 0 6px;font-size:1.15rem}
-.card p{margin:0 0 12px;color:var(--muted);font-size:13px;flex:1}
-.card a.btn{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:0 12px;border-radius:10px;background:var(--gold);color:#14120c;font-weight:800;font-size:13px}
-.badge{display:inline-block;font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);border:1px solid rgba(216,181,107,.35);padding:5px 10px;border-radius:999px}
-.nav{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:8px;font-size:13px}
-.nav a{color:var(--muted);font-weight:700}
+:root{color-scheme:dark;--bg:#080b11;--surface:#151b25;--line:#344052;--ink:#f4f1e8;--muted:#b9c2ce;--gold:#f0ce89}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+a{color:var(--gold)}a:focus-visible{outline:3px solid #ffffff;outline-offset:4px}
+.wrap{max-width:1140px;margin:auto;padding:28px 20px 64px}
+nav{display:flex;flex-wrap:wrap;gap:20px;font-size:14px}
+nav a{text-decoration:none;font-weight:700}
+.eyebrow{font-size:12px;letter-spacing:.13em;text-transform:uppercase;color:var(--gold);font-weight:800}
+h1{font-size:clamp(2.3rem,7vw,4.8rem);line-height:1.06;letter-spacing:-.05em;max-width:16ch;margin:12px 0}
+h2{font-size:1.5rem;line-height:1.2}h3{margin:0;font-size:1.18rem}
+.lead{max-width:690px;font-size:1.12rem;color:var(--muted)}
+.notice{background:#1b2833;border:1px solid #667484;border-radius:12px;padding:14px 18px;margin:22px 0;max-width:820px}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin:22px 0 32px}
+.button{display:inline-flex;min-height:46px;align-items:center;justify-content:center;border:1px solid var(--gold);background:var(--gold);color:#16130d;padding:10px 16px;border-radius:10px;font-weight:800;text-decoration:none}
+.button.secondary{background:transparent;color:var(--gold)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;margin:18px 0 28px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:12px}
+.card p{color:var(--muted);margin:0;flex:1}
+.pill{font-size:12px;color:#e6c785;font-weight:800}
+.card-actions{display:flex;flex-wrap:wrap;gap:10px}
+.card-actions a{font-size:14px;font-weight:700}
+small{color:var(--muted)}
+.guides{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.guides article{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px}
+.guides p{color:var(--muted);margin-bottom:0}
+footer{border-top:1px solid var(--line);padding-top:16px;margin-top:36px}
 </style>
 </head>
 <body>
 <main class="wrap">
-  <nav class="nav"><a href="/">Home</a><a href="/mtg/">Magic</a><a href="/mtg-list">Sell single</a></nav>
-  <span class="badge">Cube swarm · Top TCGs 2026</span>
-  <h1>One board. Every major TCG.</h1>
-  <p class="lead">Singles-first markets cloned from the Magic master silo. Free to list. Same safe-deal rules. Ranked from 2026 GMV / secondary market performance — not hype.</p>
-  <div class="grid" id="grid">Loading…</div>
-  <p style="margin-top:24px;font-size:12px;color:var(--muted)">Sources: TCGplayer Q2 2026 GMV; TCGIndex secondary size. Swarm expands when a silo shows real use.</p>
+<nav aria-label="Main"><a href="/">DreamLedger</a><a href="/mtg/">Magic home</a><a href="/mtg-list">Magic card draft</a><a href="/tools/seller-profit/">Seller profit tool</a></nav>
+<section aria-labelledby="heading">
+<p class="eyebrow">Aotearoa / New Zealand / Trading cards</p>
+<h1 id="heading">Your game. Your cards. Your local scene.</h1>
+<p class="lead">Explore Magic: The Gathering and other trading card games, prepare a clear NZD listing, and learn how to trade safely. No invented stock, fake buyer counts or checkout promises.</p>
+<div class="actions"><a class="button" href="/tcg-list">Create a free card listing draft</a><a class="button secondary" href="/mtg/">Explore Magic home</a></div>
+<div class="notice" role="status"><strong>What works today:</strong> Game pages, a local-only card listing draft with export, and free seller tools. <strong>Not live:</strong> automatic listing publication, buyer matching, multi-seller checkout or guaranteed inventory. A draft is not a published listing.</div>
+</section>
+<section aria-labelledby="games-title">
+<h2 id="games-title">Choose your game</h2>
+<div id="grid" class="grid" aria-live="polite"><p>Loading game directory...</p></div>
+<noscript><p>JavaScript is needed for the game directory. You can still <a href="/mtg/">visit the Magic home</a> or <a href="/tcg-list">create a listing draft</a>.</p></noscript>
+</section>
+<section aria-labelledby="safer-title">
+<h2 id="safer-title">A better trade starts before the money changes hands</h2>
+<div class="guides">
+<article><h3>Get the details right</h3><p>Check exact set, print, language, condition and quantity. Use recent photos of the actual card, including its back.</p></article>
+<article><h3>Agree on NZ delivery</h3><p>Confirm price in NZD, postage, tracking, packaging, and who carries transit risk. Meet in a safe public place if trading locally.</p></article>
+<article><h3>Protect both sides</h3><p>Use payment methods with appropriate buyer protection. Never treat an enquiry or a saved draft as a reservation or completed order.</p></article>
+</div>
+</section>
+<footer><small>DreamLedger is an independent TCG community project. Game names belong to their respective owners. No game publisher endorsement is implied. No listings are automatically submitted or made public from this page.</small></footer>
 </main>
 <script>
-fetch('/data/tcg-swarm.json').then(r=>r.json()).then(d=>{
-  const g=document.getElementById('grid');
-  g.innerHTML=(d.silos||[]).map((s,i)=>'<article class="card"><div class="rank">#'+(s.rank_gmv_q2_2026||i+1)+' · '+(s.status||'clone')+'</div><h2>'+s.short+'</h2><p>'+s.name+' · '+(s.focus||'singles')+'</p><a class="btn" href="'+s.route+'">Open market</a></article>').join('');
-}).catch(()=>{document.getElementById('grid').textContent='Could not load swarm registry.';});
+(function(){
+'use strict';
+const allowed=new Set(['mtg','pokemon','onepiece','yugioh','lorcana','riftbound','gundam','digimon']);
+const grid=document.getElementById('grid');
+function link(text,url){
+ const a=document.createElement('a');a.href=url;a.textContent=text;return a;
+}
+function render(items){
+ grid.replaceChildren();
+ const seen=new Set();
+ for(const entry of items){
+  if(!entry||typeof entry.slug!=='string'||!allowed.has(entry.slug)||seen.has(entry.slug))continue;
+  seen.add(entry.slug);
+  const slug=entry.slug;
+  const article=document.createElement('article');article.className='card';
+  const status=document.createElement('div');status.className='pill';status.textContent=slug==='mtg'?'Magic master / stock unverified':'Game page / early preview';
+  const title=document.createElement('h3');title.textContent=typeof entry.name==='string'?entry.name:slug;
+  const description=document.createElement('p');
+  description.textContent=slug==='mtg'?'Commander previews, community links, and card listing drafts. Checkout is held.':'Browse the game page and prepare a private listing draft. No active peer marketplace is claimed.';
+  const actions=document.createElement('div');actions.className='card-actions';
+  actions.append(link('Explore game','/'+slug+'/'),link('Draft a card',slug==='mtg'?'/mtg-list':'/tcg-list?game='+slug));
+  article.append(status,title,description,actions);grid.append(article);
+ }
+ if(!seen.size)throw new Error('No supported games in directory');
+}
+fetch('/data/tcg-swarm.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('Directory unavailable');return r.json()})
+.then(d=>{if(!d||!Array.isArray(d.silos))throw new Error('Invalid directory');render(d.silos)})
+.catch(()=>{grid.replaceChildren();const p=document.createElement('p');p.textContent='Game directory temporarily unavailable. The Magic page and card draft tool still work independently. ';p.append(link('Magic home','/mtg/'),' / ',link('Card draft','/tcg-list'));grid.append(p);});
+})();
 </script>
 </body>
 </html>
