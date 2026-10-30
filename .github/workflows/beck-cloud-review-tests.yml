@@ -1,0 +1,56 @@
+name: BECK Cloud Fail-Closed Review Tests
+
+on:
+  pull_request:
+    paths:
+      - 'ops/cloud/credential-gate*'
+      - 'BEC-PRIME/scripts/Verify-MoltBeachMVP*'
+      - '.github/workflows/beck-cloud-review-tests.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  contract-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout review source
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Test source and runner credential gates
+        run: node --test ops/cloud/credential-gate.test.cjs BEC-PRIME/scripts/Verify-MoltBeachMVP.test.cjs
+
+      - name: Confirm actual source remains held
+        shell: bash
+        run: |
+          set -euo pipefail
+          if node BEC-PRIME/scripts/Verify-MoltBeachMVP.js > source-gate-output.json; then
+            echo 'Source check unexpectedly passed; inspect source before any approval.'
+            exit 1
+          fi
+          node - <<'NODE'
+          const fs = require('fs');
+          const proof = JSON.parse(fs.readFileSync('PROOF-MOLT-BEACH-MVP.json', 'utf8'));
+          if (proof.status !== 'FAIL') throw new Error('Expected missing-source HOLD not recorded');
+          for (const f of ['api/molt-beach-checkout.ts','api/molt-beach-inventory.ts','api/molt-beach-webhook.ts']) {
+            if (!proof.missing_files.includes(f)) throw new Error('Missing source not identified: ' + f);
+          }
+          console.log('REVIEW_TESTS_PASS; PRODUCTION_SOURCE_GATE_FAIL_EXPECTED');
+          NODE
+
+      - name: Upload review proof, not production certification
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: beck-cloud-source-gate-review-\${{ github.run_id }}
+          path: |
+            PROOF-MOLT-BEACH-MVP.json
+            source-gate-output.json
+          if-no-files-found: warn
+          retention-days: 14
