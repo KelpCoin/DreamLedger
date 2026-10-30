@@ -1,0 +1,14 @@
+{
+  "schema": "BEC/MTG_8020/v1",
+  "id": "EDH_0001",
+  "silo": "mtg",
+  "land_packages": [],
+  "approved_swaps": [],
+  "premium_upgrades": [],
+  "max_card_swaps": 2,
+  "stock_checked": false,
+  "full_100_card_list_verified": false,
+  "simulation_evidence": null,
+  "primer_evidence": null,
+  "approved_for_public_checkout": false
+}
