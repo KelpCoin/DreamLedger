@@ -27,67 +27,15 @@ function mtgPriceMinor(product) {
 try {
   const platformCart = require('../routes/platformCart');
   const originalCreateProductCheckout = platformCart.createProductCheckout;
+  // This physical-commerce route must never bypass the shared atomic stock reservation.
+  // Do not turn it on via an environment variable. Wire a durable, tenant-scoped
+  // reservation and idempotent order transition before reopening MTG checkout.
   platformCart.createProductCheckout = async function mtgSafeCreateProductCheckout(productId, silo) {
-    if (String(silo || '').toLowerCase() !== 'mtg') return originalCreateProductCheckout(productId, silo);
-
-    const catalogFile = path.join(__dirname, '..', 'catalog', 'products', String(productId) + '.json');
-    if (!fs.existsSync(catalogFile)) throw new Error('Product is not checkoutable');
-    const product = JSON.parse(fs.readFileSync(catalogFile, 'utf8'));
-    if (String(product.silo || '').toLowerCase() !== 'mtg') return originalCreateProductCheckout(productId, silo);
-    if (product.status !== 'published' || Number(product.inventory || 0) < 1 || product.commercial_truth?.approval_required !== false) {
-      throw new Error('Product is not checkoutable');
-    }
-
-    const secret = String(process.env.STRIPE_SECRET_KEY || '');
-    if (!secret) throw new Error('STRIPE_SECRET_KEY is not configured');
-    const base = (process.env.PUBLIC_BASE_URL || 'https://dreamledger.org').replace(/\/$/, '');
-    const cartId = 'direct_' + crypto.randomUUID();
-    const params = new URLSearchParams();
-    const set = (k, v) => params.set(k, String(v));
-    set('mode', 'payment');
-    set('success_url', base + '/checkout/success?product_id=' + encodeURIComponent(product.id));
-    set('cancel_url', base + '/mtg?checkout_cancelled=1');
-    set('metadata[product_id]', product.id);
-    set('metadata[silo]', 'mtg');
-    set('metadata[commerce_version]', 'bec-mtg-direct-v2');
-    set('metadata[product_sku]', product.sku || product.id);
-    set('metadata[offer_id]', product.default_offer_id || product.id);
-    set('metadata[source]', 'mtg_direct');
-    set('payment_intent_data[metadata][product_id]', product.id);
-    set('payment_intent_data[metadata][product_sku]', product.sku || product.id);
-    set('payment_intent_data[metadata][offer_id]', product.default_offer_id || product.id);
-    set('payment_intent_data[metadata][silo]', 'mtg');
-    set('payment_intent_data[metadata][source]', 'mtg_direct');
-    set('line_items[0][price_data][currency]', String(product.currency || 'nzd').toLowerCase());
-    set('line_items[0][price_data][unit_amount]', mtgPriceMinor(product));
-    set('line_items[0][price_data][product_data][name]', product.name);
-    set('line_items[0][price_data][product_data][metadata][product_id]', product.id);
-    set('line_items[0][price_data][product_data][metadata][silo]', 'mtg');
-    set('line_items[0][quantity]', 1);
-
-    const response = await fetch('https://api.stripe.com/v1/checkout/sessions', {
-      method: 'POST',
-      headers: {
-        Authorization: 'Bearer ' + secret,
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Idempotency-Key': 'dreamledger-mtg-direct-' + product.id + '-' + cartId
-      },
-      body: params
-    });
-    const text = await response.text();
-    let data;
-    try { data = JSON.parse(text); } catch { data = {}; }
-    if (!response.ok) throw new Error(data?.error?.message || 'Stripe checkout creation failed');
-    return {
-      ok: true,
-      offer_id: product.id,
-      session_id: data.id,
-      checkout_url: data.url,
-      url: data.url,
-      amount_minor: mtgPriceMinor(product),
-      currency: String(product.currency || 'nzd').toLowerCase()
-    };
+    if (String(silo || '').toLowerCase() !== 'mtg')
+      return originalCreateProductCheckout(productId, silo);
+    throw new Error('MTG checkout held: atomic stock reservation and order reconciliation not certified');
   };
+
 } catch (err) {
   console.error('MTG_PRELOAD_PATCH_FAILED', err && err.message ? err.message : err);
 }

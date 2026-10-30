@@ -141,32 +141,41 @@
   function isPhysical(p){return p.category==='commander-deck'||/^EDH/i.test(p.id||'');}
   async function load(){
     try{
-      try{ await fetch(MANIFEST,{cache:'no-store'}); }catch(e){}
-      const r=await fetch(CATALOG,{cache:'no-store'});
-      if(!r.ok) throw new Error('Catalogue unavailable ('+r.status+'). Deploy may still be syncing.');
-      const data=await r.json();
-      const decks=(data.products||[]).filter(isPhysical);
-      if(!decks.length){
-        status.textContent='No verified deck supply listed yet. List a single free while inventory is verified.';
-        grid.innerHTML='';
-        return;
-      }
-      status.textContent=decks.length+' deck'+(decks.length===1?'':'s')+' · open a listing for the full card grid';
+      const [r,g]=await Promise.all([
+        fetch(CATALOG,{cache:'no-store'}),
+        fetch('/catalog.json',{cache:'no-store'})
+      ]);
+      if(!r.ok||!g.ok)throw new Error('Catalogue unavailable; purchases held');
+      const [data,globalCatalog]=await Promise.all([r.json(),g.json()]);
+      if(data.silo!=='mtg'||!Array.isArray(data.products)||!Array.isArray(globalCatalog.products))
+        throw new Error('Catalogue schema invalid');
+      const other=new Map(globalCatalog.products.map(p=>[p.id,p]));
+      const decks=data.products.filter(p=>p&&p.status==='published'&&isPhysical(p));
+      let conflicts=0;
       grid.innerHTML=decks.map(p=>{
-        const price=Number(p.price)||0;
-        const detail=p.detail_url||'/mtg/';
-        const inv=Number(p.inventory)>0;
-        const stock=inv?'<span class="stock">In stock</span>':'<span class="stock out">—</span>';
-        const cond=p.condition?('<span>'+esc(p.condition)+'</span>'):'';
-        const cmd=p.commander?('<span>'+esc(p.commander)+'</span>'):'';
-        const buy=inv
-          ? '<a class="buy" href="'+esc(detail)+'">See cards &amp; buy · NZ$'+price+'</a>'
-          : '<a class="buy" href="'+esc(detail)+'" style="opacity:.65">View listing</a>';
-        return '<article class="deck" role="listitem"><div class="deck-banner"><span>Commander</span>'+stock+'</div><div class="deck-body"><div class="tag">'+(p.commander?esc(p.commander):'EDH')+'</div><h3>'+esc(p.name)+'</h3><p class="desc">'+esc(p.description||'')+'</p><div class="meta">'+cmd+cond+'<span>NZ shipping noted on listing</span></div><div class="price">NZ$'+price+'</div><div class="actions">'+buy+'<a class="see" href="'+esc(detail)+'">Open full card grid</a></div></div></article>';
+        const m=other.get(p.id);
+        const match=!!m&&m.status===p.status&&Number.isFinite(Number(p.price))&&Number(p.price)>0&&
+          Number(p.price)===Number(m.price)&&
+          String(p.currency||data.currency).toUpperCase()===String(m.currency||globalCatalog.currency_default).toUpperCase()&&
+          Boolean(p.checkout_available)===Boolean(m.checkout_available)&&
+          (!p.checkout_available||(p.checkout_url&&p.checkout_url===m.checkout_url));
+        if(!match)conflicts++;
+        const detail=typeof p.detail_url==='string'&&/^\/mtg\/[a-z0-9/_-]+\.html$/i.test(p.detail_url)?p.detail_url:'/mtg/';
+        const price=match?'NZ$'+Number(p.price).toFixed(2):'Price pending verification';
+        const state=match?'Listing only; stock and payment unverified.':'Catalogue conflict; checkout held.';
+        return '<article class="deck" role="listitem"><div class="deck-banner"><span>Commander · listing only</span></div>'+
+          '<div class="deck-body"><div class="tag">'+esc(p.commander||'EDH')+'</div>'+
+          '<h3>'+esc(p.name||p.id)+'</h3><p class="desc">'+esc(p.description||'')+'</p>'+
+          '<div class="price">'+esc(price)+'</div><p class="desc">'+esc(state)+'</p>'+
+          '<div class="actions"><a class="see" href="'+esc(detail)+'">View listing</a></div></div></article>';
       }).join('');
+      status.textContent=decks.length+' published listing(s) · '+conflicts+
+        ' catalogue discrepancy/discrepancies. Checkout held until independent reservation and fulfilment proof.';
+      if(!decks.length)status.textContent='No verified inventory. Checkout held.';
     }catch(e){
       status.className='status-bar error';
-      status.textContent=e.message||'Load failed';
+      status.textContent='Catalogue verification unavailable. Checkout held.';
+      grid.innerHTML='';
     }
   }
   load();

@@ -127,30 +127,42 @@ async function applyManifest(){
 }
 function isPhysical(p){return p.category==='commander-deck'||/^EDH/i.test(p.id||'');}
 async function loadCatalog(manifest){
-  const catalogUrl=(manifest&&manifest.catalog)||CATALOG;
   try{
-    const r=await fetch(catalogUrl,{cache:'no-store'});
-    if(!r.ok)throw new Error('Catalogue unavailable');
-    const data=await r.json();
-    const decks=(data.products||[]).filter(isPhysical);
-    if(!decks.length){
-      status.textContent='No verified deck supply listed yet. Inventory stays empty until supply is verified.';
-      grid.innerHTML='';
-      return;
-    }
-    status.textContent=decks.length+' deck'+(decks.length===1?'':'s')+' · open listing to see cards';
+    if(!manifest || manifest.slug!=='mtg' || manifest.catalog!=='/data/mtg-catalog.json') throw new Error('Master manifest not verified');
+    const [r,g]=await Promise.all([
+      fetch('/data/mtg-catalog.json',{cache:'no-store'}),
+      fetch('/catalog.json',{cache:'no-store'})
+    ]);
+    if(!r.ok||!g.ok)throw new Error('Catalogue unavailable; purchases held');
+    const [catalog,globalCatalog]=await Promise.all([r.json(),g.json()]);
+    if(catalog.silo!=='mtg'||!Array.isArray(catalog.products)||!Array.isArray(globalCatalog.products))
+      throw new Error('Catalogue schema mismatch; purchases held');
+    const byId=new Map(globalCatalog.products.map(p=>[p.id,p]));
+    const decks=catalog.products.filter(p=>p&&p.status==='published'&&isPhysical(p));
+    let conflicts=0;
     grid.innerHTML=decks.map(p=>{
-      const price=Number(p.price)||0;
-      const detail=p.detail_url||'#';
-      const inv=Number(p.inventory)>0;
-      const buy=inv
-        ? '<a class="buy" href="'+esc(detail)+'">See cards &amp; buy · NZ$'+price+'</a>'
-        : '<a class="buy" href="'+esc(detail)+'" style="opacity:.6">View</a>';
-      return '<article class="deck"><div class="deck-banner">Commander · '+(inv?'In stock':'—')+'</div><div class="deck-body"><div class="tag">'+(p.commander?esc(p.commander):'EDH')+'</div><h3>'+esc(p.name)+'</h3><p class="desc">'+esc(p.description||'')+'</p><div class="price">NZ$'+price+'</div><div class="actions">'+buy+'<a class="see" href="'+esc(detail)+'">Open full card grid</a></div></div></article>';
+      const master=byId.get(p.id);
+      const matched=!!master && master.status===p.status && Number.isFinite(Number(p.price)) &&
+        Number(p.price)>0 && Number(p.price)===Number(master.price) &&
+        String(p.currency||catalog.currency).toUpperCase()===String(master.currency||globalCatalog.currency_default).toUpperCase() &&
+        Boolean(p.checkout_available)===Boolean(master.checkout_available) &&
+        (!p.checkout_available || (p.checkout_url && p.checkout_url===master.checkout_url));
+      if(!matched)conflicts++;
+      const detail=typeof p.detail_url==='string'&&/^\/mtg\/[a-z0-9/_-]+\.html$/i.test(p.detail_url)?p.detail_url:'/mtg/';
+      const price=matched?'NZ$'+Number(p.price).toFixed(2):'Price pending verification';
+      const state=matched?'Listing only. Stock and payment not reserved.':'Catalogue mismatch. Purchase held.';
+      return '<article class="deck"><div class="deck-banner">Commander · listing only</div><div class="deck-body">'+
+        '<div class="tag">'+esc(p.commander||'EDH')+'</div><h3>'+esc(p.name||p.id)+'</h3>'+
+        '<p class="desc">'+esc(p.description||'')+'</p><div class="price">'+esc(price)+'</div>'+
+        '<p class="desc">'+esc(state)+'</p><div class="actions"><a class="see" href="'+esc(detail)+'">View listing</a></div></div></article>';
     }).join('');
+    status.textContent=decks.length+' published deck listing(s) · '+conflicts+
+      ' catalogue discrepancy/discrepancies · checkout held until atomic stock reservation, payment and fulfilment gates pass.';
+    if(!decks.length)status.textContent='No verified deck listings; checkout held.';
   }catch(e){
     status.className='status-bar error';
-    status.textContent=e.message||'Load failed';
+    status.textContent='Inventory verification unavailable. Purchases held.';
+    grid.innerHTML='';
   }
 }
 applyManifest().then(loadCatalog);
