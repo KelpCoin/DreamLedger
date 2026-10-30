@@ -48,7 +48,7 @@ html[data-silo="mtg"] .silo-nav .silo-cta,
 html[data-silo="mtg"] .silo-btn-gold,
 html[data-silo="mtg"] .deck .buy,
 html[data-silo="mtg"] .btn.primary,
-html[data-silo="mtg"] button:not(.secondary){
+html[data-silo="mtg"] button:not(.secondary):not(:disabled){
   background:var(--silo-accent);
   color:#06140c!important;
   border-color:var(--silo-accent);
@@ -88,3 +88,22 @@ html[data-silo="mtg"] a:hover{color:var(--silo-accent-bright)}
 html[data-silo="mtg"] .silo-hdr .silo-logo:hover,
 html[data-silo="mtg"] .silo-btn-gold:hover{color:#06140c}
 @media(prefers-reduced-motion:reduce){html[data-silo="mtg"] *{scroll-behavior:auto!important;transition:none!important}}
+
+/* Legacy deep-page components use their own local classes; unify them too. */
+html[data-silo="mtg"] header:not(.silo-hdr),
+html[data-silo="mtg"] .top,
+html[data-silo="mtg"] .topbar{
+  background-color:rgba(7,12,10,.95);
+}
+html[data-silo="mtg"] .art::before{color:var(--silo-accent);text-shadow:0 0 70px rgba(69,250,132,.2)}
+html[data-silo="mtg"] .silo-display em,
+html[data-silo="mtg"] h1 em{color:var(--silo-accent-bright)}
+html[data-silo="mtg"] .btn[disabled],
+html[data-silo="mtg"] button:disabled{
+  background:#273d30!important;
+  border-color:#405c48!important;
+  color:#b6c6ba!important;
+  cursor:not-allowed;
+}
+html[data-silo="mtg"] .top a,
+html[data-silo="mtg"] nav a{transition:color .15s ease}
