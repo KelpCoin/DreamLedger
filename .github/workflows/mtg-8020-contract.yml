@@ -1,0 +1,25 @@
+name: MTG 8020 Held Configurator Contract
+on:
+  pull_request:
+    paths:
+      - 'BEC-PRIME/catalog/customization/EDH_0001.json'
+      - 'BEC-PRIME/catalog/products/EDH_0001.json'
+      - 'BEC-PRIME/website/mtg-8020.html'
+      - 'BEC-PRIME/scripts/Build-MTG-8020-MegaBootstrap.ps1'
+      - 'public/mtg/index.html'
+      - 'public/mtg/customize/**'
+      - 'scripts/test-mtg-8020.cjs'
+      - '.github/workflows/mtg-8020-contract.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate-held-configurator:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify canonical NZD400, stock and checkout gates
+        run: node scripts/test-mtg-8020.cjs
