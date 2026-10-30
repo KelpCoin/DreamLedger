@@ -187,6 +187,8 @@ async function loadCatalog(manifest){
     status.className='status-bar error';
     status.textContent='Inventory verification unavailable. Purchases held.';
     grid.innerHTML='';
+  }finally{
+    window.dispatchEvent(new Event('mtg-owner-base-ready'));
   }
 }
 applyManifest().then(loadCatalog);
@@ -201,6 +203,8 @@ applyManifest().then(loadCatalog);
   const mail=(kind,name)=>'mailto:hello@dreamledger.org?subject='+encodeURIComponent('MTG '+kind+' enquiry: '+name);
   const safeMox=v=>typeof v==='string'&&v.startsWith('https://www.moxfield.com/decks/')&&v.length<150&&
     /^[A-Za-z0-9_-]+$/.test(v.slice('https://www.moxfield.com/decks/'.length))?v:null;
+  // Render supplementary decks only after the authoritative base catalogue.
+  await new Promise(resolve=>window.addEventListener('mtg-owner-base-ready',resolve,{once:true}));
   try{
     const [a,b]=await Promise.all([fetch('/data/mtg-owner-decks.json',{cache:'no-store'}),fetch('/data/mtg-owner-singles.json',{cache:'no-store'})]);
     if(!a.ok||!b.ok)throw Error('owner feeds missing');
