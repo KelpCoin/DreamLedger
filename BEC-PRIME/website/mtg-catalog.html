@@ -1,202 +1,119 @@
 <!doctype html>
 <html lang="en-NZ" data-silo="mtg">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Magic · Buy & sell singles and decks | DreamLedger NZ</title>
-<meta name="description" content="NZ Magic marketplace. List singles free. Open full card grids on decks. Clear condition, price, and deal terms.">
-<meta name="theme-color" content="#070c0a">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#060a08">
+<title>DreamLedger MTG | Trade, collect, play. Aotearoa New Zealand</title>
+<meta name="description" content="A place for New Zealand Magic: The Gathering players. Free buy, sell and trade community, Commander decks and singles, with a two-party trade ledger on the way.">
 <link rel="canonical" href="https://dreamledger.org/mtg/">
-<link rel="preconnect" href="https://api.scryfall.com" crossorigin>
-<link rel="stylesheet" href="/assets/silo-master.css">
 <link rel="stylesheet" href="/assets/dreamledger-mtg-theme.css">
-<style>
-:root{--silo-accent:#45fa84;--silo-accent-bright:#79ffa2}
-.hero{padding:40px 0 12px}
-.trust-row{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 8px}
-.trust-chip{font-size:11px;font-weight:700;letter-spacing:.04em;padding:7px 12px;border-radius:999px;border:1px solid var(--silo-line);background:var(--silo-surface);color:var(--silo-muted)}
-.trust-chip strong{color:var(--silo-ink);font-weight:800}
-.grid{display:grid;gap:16px;grid-template-columns:1fr}
-@media(min-width:640px){.grid{grid-template-columns:1fr 1fr}}
-@media(min-width:960px){.grid{grid-template-columns:1fr 1fr 1fr}}
-.deck{background:var(--silo-surface);border:1px solid var(--silo-line);border-radius:var(--silo-radius);overflow:hidden;display:flex;flex-direction:column;transition:border-color .15s,transform .15s}
-.deck:hover{border-color:rgba(216,181,107,.45);transform:translateY(-2px)}
-.deck-banner{height:88px;background:linear-gradient(135deg,#2a2418,#12151c 55%,#0e1520);display:flex;align-items:flex-end;justify-content:space-between;padding:12px 14px;gap:8px}
-.deck-banner span{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:rgba(232,200,122,.9)}
-.deck-banner .stock{font-size:10px;padding:4px 8px;border-radius:999px;background:rgba(61,155,110,.2);color:#8fd3a2;border:1px solid rgba(61,155,110,.35)}
-.deck-banner .stock.out{background:rgba(239,146,146,.12);color:#ef9292;border-color:rgba(239,146,146,.3)}
-.deck-body{padding:16px 16px 18px;display:flex;flex-direction:column;flex:1}
-.deck .tag{font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--silo-accent);margin-bottom:6px}
-.deck h3{font-family:var(--silo-serif);font-size:1.35rem;font-weight:400;margin:0 0 8px;letter-spacing:-.02em;line-height:1.15}
-.deck .desc{color:var(--silo-muted);font-size:13px;flex:1;margin:0 0 12px;line-height:1.5}
-.deck .meta{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
-.deck .meta span{font-size:11px;color:var(--silo-dim);border:1px solid var(--silo-line);padding:4px 8px;border-radius:8px}
-.deck .price{font-size:1.5rem;font-weight:800;margin:0 0 12px;letter-spacing:-.02em}
-.deck .actions{display:flex;flex-direction:column;gap:8px}
-.deck .actions a{display:flex;align-items:center;justify-content:center;min-height:48px;border-radius:12px;font-weight:800;font-size:13px;text-decoration:none}
-.deck .buy{background:linear-gradient(180deg,var(--silo-accent-bright),var(--silo-accent));color:#14120c}
-.deck .see{background:var(--silo-surface-2);border:1px solid var(--silo-line);color:var(--silo-ink)}
-.status-bar{padding:12px 16px;border-radius:12px;background:var(--silo-surface);border:1px solid var(--silo-line);color:var(--silo-muted);font-size:14px;margin-bottom:16px}
-.status-bar.error{border-color:rgba(239,146,146,.4);color:#ef9292}
-.community{display:grid;gap:12px;grid-template-columns:1fr}
-@media(min-width:720px){.community{grid-template-columns:1fr 1fr 1fr}}
-.community article{padding:18px;border-radius:16px;border:1px solid var(--silo-line);background:var(--silo-surface)}
-.community h3{margin:0 0 6px;font-size:1rem}
-.community p{margin:0;color:var(--silo-muted);font-size:13px;line-height:1.45}
-.diag{border:1px solid rgba(212,168,75,.35);background:linear-gradient(160deg,var(--silo-accent-soft),var(--silo-surface));padding:22px;border-radius:18px}
-.split{display:grid;gap:20px}
-@media(min-width:900px){.split{grid-template-columns:1.4fr .9fr}}
-.panel{padding:20px;border-radius:16px;border:1px solid var(--silo-line);background:var(--silo-surface)}
-.panel h3{margin:0 0 8px;font-family:var(--silo-serif);font-weight:400;font-size:1.25rem}
-.panel ul{margin:0;padding-left:1.1em;color:var(--silo-muted);font-size:13px;line-height:1.55}
-.panel li{margin:6px 0}
-.compare{font-size:12px;color:var(--silo-dim);margin-top:10px;line-height:1.45}
-.foot-note{font-size:12px;color:var(--silo-dim);margin-top:28px;line-height:1.45;max-width:42em}
-</style>
 </head>
-<body class="silo-body">
-<header class="silo-hdr"><div class="silo-hdr-inner">
-  <a class="silo-logo" href="/mtg/">
-    <span class="silo-logo-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M4 8l8-5 8 5v8l-8 5-8-5V8z" stroke="currentColor" stroke-width="1.4"/></svg></span>
-    <span>Dream<em>Ledger</em> · Magic</span>
-  </a>
-  <nav class="silo-nav" aria-label="Magic">
-    <a href="/mtg-list">Sell single</a>
-    <a href="#decks">Decks</a>
-    <a href="#how">How it works</a>
-    <a href="/register">Join free</a>
-    <a class="silo-cta" href="/mtg-list">List free</a>
-  </nav>
-</div></header>
-<main class="silo-wrap">
-  <section class="hero">
-    <p class="silo-eyebrow">Magic: The Gathering · New Zealand</p>
-    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px">
-      <span class="silo-pill silo-pill-gold">Singles first</span>
-      <span class="silo-pill silo-pill-ok">0% success fee</span>
-      <span class="silo-pill">Full card grids</span>
-      <span class="silo-pill">Confirm before pay</span>
-    </div>
-    <h1 class="silo-display" style="max-width:14ch">See the cards.<br>Then deal.</h1>
-    <p class="silo-lead">List singles free with a clear face, condition, and NZD price. Open decks for a full card grid — check the list before you message or pay.</p>
-    <div class="silo-actions">
-      <a class="silo-btn silo-btn-gold" href="/mtg-list">Sell a single</a>
-      <a class="silo-btn silo-btn-ghost" href="#decks">Browse decks</a>
-      <a class="silo-btn silo-btn-line" href="/register">Join free</a>
-    </div>
-    <div class="trust-row" aria-label="Trust anchors">
-      <span class="trust-chip"><strong>Condition</strong> stated</span>
-      <span class="trust-chip"><strong>Stock</strong> visible</span>
-      <span class="trust-chip"><strong>Shipping</strong> NZ terms</span>
-      <span class="trust-chip"><strong>Confirm</strong> then pay</span>
-    </div>
-  </section>
-  <section class="silo-section" id="exchange" aria-label="New MTG exchange features">
-    <div class="silo-section-h"><h2 class="silo-h2">The Aotearoa Exchange</h2></div>
-    <p class="silo-lead" style="max-width:66ch">Explore our visual Commander gallery, source-linked Magic ticker, free trade binder, B2B community and NZ$29 Commander diagnostic with one included per month at the $2.99 Patreon tier; higher tiers up to five monthly. Free listings and trades. DreamLedger MTG charges zero platform commission; Stripe processing costs apply if a payment is processed.</p>
-    <div class="silo-actions">
-      <a class="silo-btn silo-btn-gold" href="/mtg/exchange.html">Enter the MTG Exchange</a>
-      <a class="silo-btn silo-btn-line" href="/mtg/diagnostic/">Commander diagnostic NZ$29</a>
-      <a class="silo-btn silo-btn-ghost" href="/mtg/community.html">Community trading</a>
-    </div>
-    <div class="community" style="margin-top:16px">
-      <article><h3>Happy Homarid MTG NZ Discord</h3><p>Meet the local Commander community, talk cards and trades.</p><p style="margin-top:10px"><a href="https://discord.gg/tKxJkhJhCp" target="_blank" rel="noopener noreferrer">Join MTG Discord</a></p></article>
-      <article><h3>DreamLedger Discord</h3><p>Free wider product and creator community.</p><p style="margin-top:10px"><a href="https://discord.gg/aYdc4h5cpU" target="_blank" rel="noopener noreferrer">Join DreamLedger Discord</a></p></article>
-      <article><h3>Free DreamMeez avatars</h3><p>Bring a free portable DreamLedger avatar to the MTG experience with privacy boundaries.</p><p style="margin-top:10px"><a href="/avatar.html">Open avatar studio</a></p></article>
-    </div>
-  </section>
-  <section class="silo-section" id="how">
-    <div class="silo-section-h"><h2 class="silo-h2">How this space works</h2></div>
-    <div class="community">
-      <article><h3>List a single</h3><p>Search the card, set condition and NZD price, add city. Buyers see a clean face — not a blurry album dump.</p></article>
-      <article><h3>Open the full grid</h3><p>Decks show every card. Check the list before you message or pay. No mystery piles.</p></article>
-      <article><h3>Deal carefully</h3><p>Accounts keep people reachable. Confirm condition and meetup or post before money moves.</p></article>
-    </div>
-  </section>
-  <section class="silo-section" id="decks">
-    <div class="silo-section-h"><h2 class="silo-h2">Decks for sale</h2></div>
-    <div id="status" class="status-bar">Loading inventory…</div>
-    <div id="grid" class="grid" role="list"></div>
-  </section>
-  <section class="silo-section">
-    <div class="split">
-      <div class="panel">
-        <h3>What this is (and isn’t)</h3>
-        <ul>
-          <li><strong>Is:</strong> NZ peer marketplace for singles and physical decks, with visible lists and free listings.</li>
-          <li><strong>Isn’t:</strong> TCGPlayer-scale price oracle, global logistics, or a collection manager like Moxfield.</li>
-          <li><strong>Next:</strong> More verified supply, cleaner claim paths, and the same shell cloned only after gauntlet pass.</li>
-        </ul>
-        <p class="compare">We optimise for “see the cards, then deal” — not for matching every feature of US marketplaces on day one.</p>
-      </div>
-      <div class="diag">
-        <p class="silo-eyebrow">Platform tool · not cardboard</p>
-        <h2 class="silo-h2" style="margin:0 0 8px">Commander diagnostic · NZ$29</h2>
-        <p style="color:var(--silo-muted);margin:0 0 14px;max-width:36em">Digital structure review. Settles on Stripe. Separate from peer singles and decks.</p>
-        <span class="silo-btn silo-btn-ghost" role="status">Diagnostic checkout held until delivery proof</span>
-      </div>
-    </div>
-  </section>
-  <p class="foot-note">DreamLedger Magic is the reference silo shell. Inventory stays empty until supply is verified. Clone only via cube → gauntlet → publish approval.</p>
-</main>
-<footer class="silo-footer silo-wrap">
-  <a href="/">Home</a>
-  <a href="/mtg/">Magic</a>
-  <a href="/mtg-list">Sell single</a>
-  <a href="/register">Join</a>
-  <a href="https://www.patreon.com/happyhomarid" target="_blank" rel="noopener noreferrer">Happy Homarid Patreon</a>
-  <a href="https://discord.gg/tKxJkhJhCp" target="_blank" rel="noopener noreferrer">Happy Homarid MTG Discord</a>
-  <p style="margin-top:12px">See the cards, then deal.</p>
-</footer>
+<body>
+<header class="mtg-header"><div class="mtg-container mtg-top">
+<a class="mtg-wordmark" href="/mtg/" aria-label="DreamLedger Magic home">
+<span class="mtg-mark" aria-hidden="true">D</span><span>dream<span class="mtg-mark-text">ledger</span><small>MAGIC NZ</small></span></a>
+<nav class="mtg-nav" aria-label="Magic navigation">
+<a href="/mtg/" aria-current="page">Explore</a><a href="/mtg/exchange.html">Card gallery</a>
+<a href="#shop">Our decks</a><a href="/mtg/diagnostic/">Diagnostic</a>
+<a class="mtg-nav-cta" href="/mtg/community.html">Trade free <span aria-hidden="true">↗</span></a>
+</nav></div></header>
+<main class="mtg-main">
+<div class="mtg-container">
+<section class="mtg-hero" aria-labelledby="mtg-title">
+<div>
+<div class="mtg-kicker"><span class="mtg-dot"></span> BUILT FOR THE NZ MAGIC COMMUNITY</div>
+<h1 id="mtg-title">Your next<br><em>great trade</em><br>starts here.</h1>
+<p class="mtg-lead">Cards to discover. Decks to build. People to meet. A New Zealand-first home for Magic: The Gathering, with free peer trading and no DreamLedger marketplace cut.</p>
+<div class="mtg-actions"><a class="mtg-button primary" href="/mtg/community.html">Start trading free <span aria-hidden="true">↗</span></a>
+<a class="mtg-button" href="#shop">Explore decks and singles</a></div>
+<div class="mtg-micro"><span><b>NZ first</b> · Global players welcome</span><span><b>0%</b> platform commission</span><span><b>Discord</b> trading now</span></div>
+</div>
+<div class="mtg-visual" aria-label="Stylized three-card Commander collection illustration">
+<div class="mtg-fan" aria-hidden="true">
+<div class="fan-card"><span class="fan-title">THE COMMANDER</span><div class="fan-art"><span>✧</span></div><div class="fan-foot"></div></div>
+<div class="fan-card"><span class="fan-title">THE COLLECTION</span><div class="fan-art"><span>✥</span></div><div class="fan-foot"></div></div>
+<div class="fan-card"><span class="fan-title">THE NEXT TRADE</span><div class="fan-art"><span>↗</span></div><div class="fan-foot"></div></div>
+</div><div class="mtg-visual-badge"><span><strong>WORD IS BOND</strong> · Digital trade ledger coming</span><span aria-hidden="true">◈</span></div>
+</div>
+</section>
+
+<section class="mtg-section" id="start"><div class="mtg-section-head"><div>
+<div class="mtg-kicker">YOUR GAME. YOUR RULES.</div><h2>Everything starts with the cards.</h2>
+<p>No ghost-town forum. Start with an actual community and real utility. Use Discord to finish trades today; the two-party evidence ledger is being built separately.</p>
+</div></div>
+<div class="mtg-grid">
+<article class="mtg-feature"><span class="mtg-icon" aria-hidden="true">⇄</span><h3>Buy, sell & trade</h3><p>Make an offer, find a player, and continue in the existing NZ MTG Discord. Free participation, no platform commission.</p><a href="/mtg/community.html">Go to community trading ↗</a></article>
+<article class="mtg-feature"><span class="mtg-icon" aria-hidden="true">▦</span><h3>Explore the collection</h3><p>Browse our own Commander decks and card listings. Detailed decks link to card-by-card lists; community sellers stay separate.</p><a href="#shop">See our cards ↗</a></article>
+<article class="mtg-feature"><span class="mtg-icon" aria-hidden="true">◈</span><h3>A better trade record</h3><p>Both traders reviewing the same card terms, each confirming the agreement, and a consent-controlled receipt. Under development, not live.</p><a href="#ledger">How the ledger will work ↗</a></article>
+</div></section>
+
+<section class="mtg-section" id="shop"><div class="mtg-section-head">
+<div><div class="mtg-kicker">THE FIRST-PARTY COLLECTION</div><h2>Decks worth playing.<br>Cards worth finding.</h2><p>This is DreamLedger's own inventory, clearly separated from community sellers. Some decklists are complete; others are quick previews with pricing to confirm.</p></div>
+<a class="mtg-text-link" href="/mtg/exchange.html">See the card gallery ↗</a></div>
+<div class="mtg-rail" id="deckRail" aria-label="Featured Commander deck carousel"><p class="mtg-notice">Loading featured decks...</p></div>
+<p class="mtg-micro" id="deckStatus" role="status">Owner prices are indicative until confirmed. Only stock-verified items may display a Stripe checkout.</p>
+<h3 style="margin:35px 0 16px;font-size:22px;letter-spacing:-.04em">Singles from our collection</h3>
+<div class="mtg-rail" id="singleRail" aria-label="Owner singles carousel"><p class="mtg-notice">Checking verified singles...</p></div>
+<p class="mtg-micro" id="singleStatus" role="status"></p>
+</section>
+
+<section class="mtg-section" id="ledger"><div class="mtg-banner">
+<div><div class="mtg-kicker">THE NEXT CHAPTER</div><h3>Word is bond. Soon, in writing.</h3>
+<p>Our upcoming Dream Ledger records exact trade terms and both participants' agreement. It is not escrow, shipment insurance or a guarantee. For now, use Discord to agree on and complete your trades.</p></div>
+<a class="mtg-button primary" href="/mtg/community.html">Find a trading partner ↗</a></div></section>
+
+<section class="mtg-section" id="diagnostic"><div class="mtg-section-head"><div><div class="mtg-kicker">DECK INTELLIGENCE</div>
+<h2>Know your deck.<br>Know your next move.</h2>
+<p>Commander Diagnostic: NZ$29 per report. Paid Patreon members may receive monthly inclusions: one at the $2.99 entry tier, up to five at higher tiers. Checkout and membership verification are being completed.</p>
+</div></div><div class="mtg-actions"><a class="mtg-button primary" href="/mtg/diagnostic/">Explore the NZ$29 diagnostic ↗</a><a class="mtg-button" href="/mtg/exchange.html">Explore Commander decks</a></div>
+</section>
+</div></main>
+<footer class="mtg-footer"><div class="mtg-container"><div class="mtg-footer-grid">
+<div><a class="mtg-wordmark" href="/mtg/"><span class="mtg-mark">D</span><span>dream<span class="mtg-mark-text">ledger</span></span></a><p>For the Magic players of Aotearoa. Independent fan platform, not affiliated with Wizards of the Coast.</p></div>
+<div><a href="/mtg/">Magic home</a><a href="/mtg/community.html">Community trading</a><a href="/mtg/exchange.html">Cards & decks</a><a href="/mtg/diagnostic/">Commander Diagnostic</a>
+<p><a href="https://discord.gg/tKxJkhJhCp" target="_blank" rel="noopener noreferrer">Happy Homarid MTG Discord</a><a href="https://www.patreon.com/happyhomarid" target="_blank" rel="noopener noreferrer">Happy Homarid Patreon</a></p></div>
+</div><p>Free peer listings and trades. 0% DreamLedger commission. Actual, disclosed payment processing costs may apply to card purchases. No live peer-trade settlement or ledger yet.</p></div></footer>
 <script>
 (function(){
-  const CATALOG='/data/mtg-catalog.json';
-  const MANIFEST='/silos/mtg/silo.json';
-  const grid=document.getElementById('grid');
-  const status=document.getElementById('status');
-  function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-  function isPhysical(p){return p.category==='commander-deck'||/^EDH/i.test(p.id||'');}
-  async function load(){
-    try{
-      const [r,g]=await Promise.all([
-        fetch(CATALOG,{cache:'no-store'}),
-        fetch('/catalog.json',{cache:'no-store'})
-      ]);
-      if(!r.ok||!g.ok)throw new Error('Catalogue unavailable; purchases held');
-      const [data,globalCatalog]=await Promise.all([r.json(),g.json()]);
-      if(data.silo!=='mtg'||!Array.isArray(data.products)||!Array.isArray(globalCatalog.products))
-        throw new Error('Catalogue schema invalid');
-      const other=new Map(globalCatalog.products.map(p=>[p.id,p]));
-      const decks=data.products.filter(p=>p&&p.status==='published'&&isPhysical(p));
-      let conflicts=0;
-      grid.innerHTML=decks.map(p=>{
-        const m=other.get(p.id);
-        const match=!!m&&m.status===p.status&&Number.isFinite(Number(p.price))&&Number(p.price)>0&&
-          Number(p.price)===Number(m.price)&&
-          String(p.currency||data.currency).toUpperCase()===String(m.currency||globalCatalog.currency_default).toUpperCase()&&
-          Boolean(p.checkout_available)===Boolean(m.checkout_available)&&
-          (!p.checkout_available||(p.checkout_url&&p.checkout_url===m.checkout_url));
-        if(!match)conflicts++;
-        const detail=typeof p.detail_url==='string'&&/^\/mtg\/[a-z0-9/_-]+\.html$/i.test(p.detail_url)?p.detail_url:'/mtg/';
-        const price=match?'NZ$'+Number(p.price).toFixed(2):'Price pending verification';
-        const state=match?'Listing only; stock and payment unverified.':'Catalogue conflict; checkout held.';
-        return '<article class="deck" role="listitem"><div class="deck-banner"><span>Commander · listing only</span></div>'+
-          '<div class="deck-body"><div class="tag">'+esc(p.commander||'EDH')+'</div>'+
-          '<h3>'+esc(p.name||p.id)+'</h3><p class="desc">'+esc(p.description||'')+'</p>'+
-          '<div class="price">'+esc(price)+'</div><p class="desc">'+esc(state)+'</p>'+
-          '<div class="actions"><a class="see" href="'+esc(detail)+'">View listing</a></div></div></article>';
-      }).join('');
-      status.textContent=decks.length+' published listing(s) · '+conflicts+
-        ' catalogue discrepancy/discrepancies. Checkout held until independent reservation and fulfilment proof.';
-      if(!decks.length)status.textContent='No verified inventory. Checkout held.';
-    }catch(e){
-      status.className='status-bar error';
-      status.textContent='Catalogue verification unavailable. Checkout held.';
-      grid.innerHTML='';
-    }
-  }
-  load();
+'use strict';
+const $=id=>document.getElementById(id);
+const ownerContact=(p,kind)=>'mailto:hello@dreamledger.org?subject='+encodeURIComponent('DreamLedger MTG '+kind+' enquiry: '+String(p.name||p.card_name||p.id||'').slice(0,160));
+const link=(url)=>typeof url==='string'&&/^\/mtg\/[a-z0-9-]+\.html$/i.test(url)?url:null;
+function el(tag,cls,text){const v=document.createElement(tag);if(cls)v.className=cls;if(text!==undefined)v.textContent=String(text);return v}
+function product(p,kind){
+ const card=el('article','mtg-product'),art=el('div','mtg-product-art'),body=el('div','mtg-product-content');
+ art.append(el('span','',kind==='single'?'OWNER COLLECTION · SINGLE':'OWNER COLLECTION · COMMANDER'));
+ body.append(el('div','mtg-kicker',kind==='single'?(p.set_code?String(p.set_code).toUpperCase()+' #'+String(p.collector_number||''): 'SINGLE CARD'):String(p.commander||'COMMANDER')));
+ body.append(el('h3','',p.name||p.card_name||'Unlisted card'));
+ body.append(el('p','',p.description||p.condition||'Ask about the exact printing, condition and availability.'));
+ const price=Number(p.price_nzd??p.price);body.append(el('div','mtg-price',Number.isFinite(price)&&price>0?'NZ$'+price.toFixed(2):'Price on enquiry'));
+ const allowed=kind==='deck'&&p.checkout_verified===true&&p.inventory_verified===true&&p.checkout_available===true&&Number(p.inventory)>0&&typeof p.checkout_url==='string'&&/^https:\/\/buy\.stripe\.com\/[A-Za-z0-9]+$/.test(p.checkout_url);
+ const a=el('a','mtg-button '+(allowed?'primary':''),allowed?'Buy securely with Stripe ↗':'Enquire about this '+(kind==='deck'?'deck':'card')+' ↗');
+ a.href=allowed?p.checkout_url:ownerContact(p,kind);if(allowed){a.target='_blank';a.rel='noopener noreferrer'}body.append(a);
+ const detail=link(p.detail_url);if(detail){const d=el('a','mtg-text-link','View card list →');d.href=detail;d.style.cssText='display:block;margin-top:12px';body.append(d)}
+ art.append();card.append(art,body);return card;
+}
+async function read(url){const r=await fetch(url,{cache:'no-store'});if(!r.ok)throw Error('Catalogue unavailable');return r.json()}
+async function load(){
+ try{
+ const [a,b,q]=await Promise.all([read('/data/mtg-catalog.json'),read('/catalog.json'),read('/data/mtg-owner-decks.json')]);
+ if(a.silo!=='mtg'||!Array.isArray(a.products)||!Array.isArray(b.products)||q.silo!=='mtg'||!Array.isArray(q.decks))throw Error('Catalogue format invalid');
+ const global=new Map(b.products.map(x=>[x.id,x])),base=a.products.filter(x=>x.category==='commander-deck'&&x.status==='published');
+ const combined=base.filter(x=>{const g=global.get(x.id);return !!g&&Number(g.price)===Number(x.price)&&String(g.currency).toUpperCase()===String(x.currency||a.currency).toUpperCase()}).map(x=>({...x,checkout_verified:false}));
+ const ids=new Set(combined.map(x=>x.id));
+ for(const p of q.decks){if(p&&p.status==='listed'&&p.id&&!ids.has(p.id)&&p.name&&p.commander&&Number(p.price_nzd)>0){combined.push({...p,checkout_available:false});ids.add(p.id)}}
+ $('deckRail').replaceChildren(...combined.slice(0,120).map(x=>product(x,'deck')));
+ $('deckStatus').textContent=combined.length+' owner deck listings. Swipe to browse. Prices and availability confirmed before payment.';
+ if(!combined.length)$('deckRail').append(el('p','mtg-notice','New decks are being catalogued. Enquire about specific cards.'));
+ }catch(e){$('deckRail').replaceChildren(el('p','mtg-notice','The owner catalogue could not be verified. Buying is temporarily unavailable.'))}
+ try{
+ const s=await read('/data/mtg-owner-singles.json');if(s.silo!=='mtg'||!Array.isArray(s.singles))throw Error('Invalid singles list');
+ const items=s.singles.filter(x=>x.status==='listed'&&x.card_name&&Number(x.price_nzd)>0).slice(0,100);
+ $('singleRail').replaceChildren(...items.map(x=>product(x,'single')));
+ if(!items.length)$('singleRail').append(el('p','mtg-notice','Singles are being catalogued. Tell us which card or printing you need.'));
+ $('singleStatus').textContent=items.length?items.length+' owner singles available to enquire about.':'Bulk inventory is not yet published or individually stock-verified.';
+ }catch(e){$('singleRail').replaceChildren(el('p','mtg-notice','Singles catalogue unavailable. Contact us about a card.'))}
+}
+load();
 })();
-</script>
-</body>
-</html>
+</script></body></html>
