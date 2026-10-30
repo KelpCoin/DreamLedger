@@ -34,6 +34,7 @@ jobs:
         run: |
           node --check handlers/cube/mtg-trades.js
           node --check handlers/cube/mtg-trade-public.js
+          node scripts/test-mtg-public-receipt-page.cjs
       - name: Real PostgreSQL acceptance and privacy test (rolled back)
         env:
           PGPASSWORD: postgres
@@ -52,7 +53,7 @@ jobs:
       - name: Record code hashes
         run: |
           mkdir -p artifacts
-          sha256sum handlers/cube/mtg-trades.js handlers/cube/mtg-trades.test.js migrations/20261031_mtg_bilateral_trade_ledger.sql tests/mtg-bilateral-trade-ledger.sql migrations/20261031_mtg_trade_handoff_public.sql tests/mtg-handoff-public.sql handlers/cube/mtg-trade-public.js handlers/cube/mtg-trade-public.test.js public/mtg/trade/index.html > artifacts/mtg-trade-ledger-code.sha256
+          sha256sum handlers/cube/mtg-trades.js handlers/cube/mtg-trades.test.js migrations/20261031_mtg_bilateral_trade_ledger.sql tests/mtg-bilateral-trade-ledger.sql migrations/20261031_mtg_trade_handoff_public.sql tests/mtg-handoff-public.sql handlers/cube/mtg-trade-public.js handlers/cube/mtg-trade-public.test.js public/mtg/trade/index.html scripts/test-mtg-public-receipt-page.cjs > artifacts/mtg-trade-ledger-code.sha256
       - uses: actions/upload-artifact@v4
         with:
           name: mtg-bilateral-trade-code-proof
