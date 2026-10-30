@@ -42,6 +42,22 @@
     {
       "source": "/billboard/",
       "destination": "/billboard.html"
+    },
+    {
+      "source": "/mtg-list",
+      "destination": "/mtg-list.html"
+    },
+    {
+      "source": "/tcg-list",
+      "destination": "/tcg-list.html"
+    },
+    {
+      "source": "/mtg",
+      "destination": "/mtg/index.html"
+    },
+    {
+      "source": "/tcg",
+      "destination": "/tcg/index.html"
     }
   ]
 }
