@@ -1,0 +1,6 @@
+{
+  "schema": "dreamledger/mtg-owner-singles/v1",
+  "silo": "mtg",
+  "description": "Only owner-attested single-card records belong here. Empty until source listings are supplied. No peer listings, no invented printing, and no checkout without matching authoritative catalogue and physical inventory proof.",
+  "singles": []
+}
