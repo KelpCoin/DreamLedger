@@ -36,7 +36,7 @@ test('secret and personal data keys fail closed',()=>{
 test('cannot activate or override payment state through job',()=>{
  const q={schema:SCHEMA,jobs:[{task_id:'job-001',config:gameConfig,checkout_enabled:true}]};
  assert.throws(()=>compileQueue(q),/unexpected job/);
- assert.throws(()=>compileQueue({schema:SCHEMA,jobs:[{task_id:'job-001',config:{...gameConfig,public_approved:true}}]},()=>({manifest:{slug:'kelphaven',state:'active',checkout_enabled:true},catalogue:{products:[{}]}})),/activation|compiler output incomplete/);
+ assert.throws(()=>compileQueue({schema:SCHEMA,jobs:[{task_id:'job-001',config:{...gameConfig,public_approved:true}}]},()=>({manifest:{slug:'kelphaven',state:'active',checkout_enabled:true},catalogue:{products:[{}]}})),/unsupported config key/);
 });
 test('duplicate ids, duplicate slugs, bad currency, overflow reject',()=>{
  assert.throws(()=>compileQueue({schema:SCHEMA,jobs:[{task_id:'job-001',config:mtg},{task_id:'job-001',config:baby}]}),/duplicate task/);
