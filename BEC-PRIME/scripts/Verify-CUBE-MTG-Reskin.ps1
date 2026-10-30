@@ -19,10 +19,10 @@ if ($html -notmatch 'Commander Deck Diagnostic') { throw 'Diagnostic missing fro
 $product = Get-Content (Join-Path $Root 'catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json') -Raw | ConvertFrom-Json
 if ($product.status -eq 'held') {
   if ($html -notmatch 'Currently held' -or $html -notmatch 'not available for purchase') { throw 'Held MTG diagnostic page must clearly disclose its status' }
-  if ($html -match 'https://buy[.]stripe[.]com|/api/mtg/diagnostic/intake|<form\\b') { throw 'Held MTG diagnostic must not expose a checkout or intake form' }
+  if ($html -match 'https://buy[.]stripe[.]com|/api/mtg/diagnostic/intake|<form\b') { throw 'Held MTG diagnostic must not expose a checkout or intake form' }
   Write-Host '[PASS] CUBE MTG reskin: isolated, held page; commerce readiness NOT certified'
 } elseif ($product.status -eq 'published') {
-  if ($html -notmatch 'NZ\\$29') { throw 'Price missing from published MTG surface' }
+  if ($html -notmatch 'NZ\$29') { throw 'Price missing from published MTG surface' }
   if ($html -notmatch '/api/mtg/diagnostic/intake') { throw 'Automated checkout route missing' }
   Write-Host '[PASS] CUBE MTG reskin: published-state HTML contract; independent live checkout certification still required'
 } else {
