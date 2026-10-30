@@ -33,6 +33,16 @@ function createHandler(deps={}){
       item.silo!=='dreamledger-mtg'||item.both_agreed!==true||
       !/^[0-9a-f]{64}$/.test(item.terms_sha256||''))
      throw Error('BAD_RECEIPT_PROJECTION');
+   // Hard whitelist nested card fields as well as root fields.
+   for(const side of ['party_a_gives','party_b_gives']){
+    if(!Array.isArray(item[side])||item[side].length>100)
+      throw Error('INVALID_CARD_PROJECTION');
+    item[side]=item[side].map(card=>{
+      if(!card||typeof card!=='object')throw Error('INVALID_CARD_PROJECTION');
+      const allowed=['name','set','collector_number','condition','finish','quantity'];
+      return Object.fromEntries(allowed.map(k=>[k,card[k]]));
+    });
+   }
    // Whitelist projection to avoid accidentally exposing new private SQL fields.
    const keys=['schema','silo','trade_id','status','party_a_label','party_b_label',
      'both_agreed','agreed_at_utc','completed_at_utc','dispatched_a','dispatched_b',
