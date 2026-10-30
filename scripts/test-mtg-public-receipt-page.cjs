@@ -1,0 +1,18 @@
+'use strict';
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const vm=require('node:vm');
+const page=fs.readFileSync('public/mtg/trade/index.html','utf8');
+const api=fs.readFileSync('api/[...route].ts','utf8');
+const sql=fs.readFileSync('migrations/20261031_mtg_trade_handoff_public.sql','utf8');
+assert.ok(page.includes('/api/cube/mtg-trade-public?trade_id='));
+assert.ok(page.includes('both traders explicitly authorize sharing'));
+assert.ok(page.includes('not yet active'));
+assert.ok(!page.includes('.innerHTML ='));
+assert.ok(api.includes('/api/cube/mtg-trade-public'));
+assert.ok(sql.includes('share_a AND share_b AND party_a_accepted AND party_b_accepted'));
+const start=page.indexOf('<script>');
+const end=page.indexOf('</script>',start);
+assert.ok(start>=0 && end>start,'browser script required');
+new vm.Script(page.slice(start+'<script>'.length,end),{filename:'public/mtg/trade/index.html'});
+console.log('MTG_STATIC_PUBLIC_RECEIPT_PASS');

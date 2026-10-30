@@ -1,0 +1,60 @@
+name: MTG Bilateral Trade Ledger Review
+on:
+  push:
+    branches:
+      - beck/mtg-bilateral-trade-ledger-20261031
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  consent-and-safety:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: mtg_receipt_review
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify bilateral consent
+        run: node --test handlers/cube/mtg-trades.test.js handlers/cube/mtg-trade-public.test.js
+      - name: Validate JavaScript syntax
+        run: |
+          node --check handlers/cube/mtg-trades.js
+          node --check handlers/cube/mtg-trade-public.js
+          node scripts/test-mtg-public-receipt-page.cjs
+      - name: Real PostgreSQL acceptance and privacy test (rolled back)
+        env:
+          PGPASSWORD: postgres
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-client
+          psql -h localhost -U postgres -d mtg_receipt_review -v ON_ERROR_STOP=1 <<'SQL'
+          BEGIN;
+          CREATE SCHEMA marketplace;
+          \i migrations/20261031_mtg_bilateral_trade_ledger.sql
+          \i tests/mtg-bilateral-trade-ledger.sql
+          \i migrations/20261031_mtg_trade_handoff_public.sql
+          \i tests/mtg-handoff-public.sql
+          ROLLBACK;
+          SQL
+      - name: Record code hashes
+        run: |
+          mkdir -p artifacts
+          sha256sum handlers/cube/mtg-trades.js handlers/cube/mtg-trades.test.js migrations/20261031_mtg_bilateral_trade_ledger.sql tests/mtg-bilateral-trade-ledger.sql migrations/20261031_mtg_trade_handoff_public.sql tests/mtg-handoff-public.sql handlers/cube/mtg-trade-public.js handlers/cube/mtg-trade-public.test.js public/mtg/trade/index.html scripts/test-mtg-public-receipt-page.cjs > artifacts/mtg-trade-ledger-code.sha256
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mtg-bilateral-trade-code-proof
+          path: artifacts/mtg-trade-ledger-code.sha256

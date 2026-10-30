@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en-NZ" data-silo="mtg"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b1519"><meta name="robots" content="noindex,nofollow">
+<title>MTG Trade Receipt | DreamLedger NZ</title>
+<meta name="description" content="A consent-gated New Zealand MTG trade receipt showing terms, both traders' acceptance, and dispatch and receipt status.">
+<link rel="canonical" href="https://dreamledger.org/mtg/trade/">
+<style>
+:root{color-scheme:dark;--bg:#0b1519;--p:#14282c;--line:#405e60;--ink:#f7f3e9;--muted:#c3ceca;--gold:#ecc77c;--mint:#9ce5c3}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse 850px 590px at 50% -12%,#25504a,transparent 70%),var(--bg);color:var(--ink);font:16px/1.55 system-ui,Arial,sans-serif}
+main{max-width:940px;margin:auto;padding:38px 20px 90px}.eyebrow{font-size:.76rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:800}
+h1{font:400 clamp(2.5rem,8vw,4.7rem)/1.07 Georgia,serif;letter-spacing:-.03em;margin:18px 0}
+a{color:var(--gold)}.panel{background:var(--p);border:1px solid var(--line);border-radius:17px;padding:22px;margin:18px 0}
+h2{margin:0 0 12px;font-size:1.18rem}p{color:var(--muted)}.small{font-size:.82rem}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:16px}
+label{display:block;font-weight:700;margin-bottom:6px}input{width:100%;padding:11px;background:#071519;border:1px solid #60807c;border-radius:8px;color:var(--ink);font:inherit}button{background:var(--gold);color:#102320;border:0;border-radius:8px;padding:11px 18px;font-weight:800;cursor:pointer}.buttonset{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.hash{overflow-wrap:anywhere;font-family:ui-monospace,monospace;font-size:.85rem;background:#08191d;padding:10px;border-radius:7px;color:var(--mint)}
+table{width:100%;border-collapse:collapse}td,th{padding:9px 6px;border-bottom:1px solid #3d5557;text-align:left;font-size:.89rem}
+th{color:var(--gold)}.status{font-weight:900;color:var(--mint)}.hidden{display:none}.warn{border-left:3px solid var(--gold);padding-left:13px}
+</style></head><body><main>
+<p><a href="/mtg/">MTG NZ</a> / Trade evidence</p><p class="eyebrow">Dream Ledger / consensual trade proof</p>
+<h1>A trade worth keeping on record.</h1>
+<p>Both people agree to the same card terms, then record dispatch and receipt. This view is available only when both traders explicitly authorize sharing it. No private contact details are displayed.</p>
+<section class="panel"><form id="lookup"><label for="receiptId">Trade receipt ID</label>
+<input id="receiptId" type="text" inputmode="text" placeholder="Paste trade UUID" autocomplete="off" required>
+<div class="buttonset"><button type="submit">View consented receipt</button></div></form>
+<p class="small">A missing, private, unapproved or disabled receipt will not be shown. Trade records and access controls are not yet released to production.</p>
+<p id="notice" role="status" aria-live="polite">Enter an agreed trade ID to check whether a shareable receipt is available.</p></section>
+<div id="proof" class="hidden">
+<section class="panel"><p class="eyebrow">Verification record</p><h2 id="tradeTitle"></h2>
+<p class="status" id="tradeStatus"></p><p id="timeline"></p>
+<div class="grid"><div><strong>Agreement terms SHA-256</strong><div class="hash" id="termsHash"></div></div>
+<div><strong>Latest event SHA-256</strong><div class="hash" id="headHash"></div></div></div>
+<p class="small" id="count"></p><div class="buttonset"><button id="share" type="button">Copy receipt link</button><button id="download" type="button">Export public receipt JSON</button></div>
+</section>
+<section class="grid">
+<div class="panel"><h2>Trader A gives</h2><table><thead><tr><th>Card</th><th>Printing</th><th>Condition</th></tr></thead><tbody id="cardsA"></tbody></table></div>
+<div class="panel"><h2>Trader B gives</h2><table><thead><tr><th>Card</th><th>Printing</th><th>Condition</th></tr></thead><tbody id="cardsB"></tbody></table></div></section>
+<section class="panel"><h2>Handoff and confirmation</h2><p id="dispatchStatus"></p><p id="receiptStatus"></p><p id="cashStatus"></p></section></div>
+<section class="panel"><h2>What this evidence means</h2><p class="warn">The hash-linked record documents agreement and self-reported handoff events. It does not itself prove card authenticity, payment, physical delivery, ownership or legal finality. A disputed trade may still be challenged under applicable New Zealand law.</p><p class="small">Independent tamper-resistant anchoring is not yet active. A visible hash alone cannot prove that the entire private history has not been rewritten or truncated.</p></section>
+<footer><p><a href="/mtg/">Return to MTG</a> | <a href="https://www.patreon.com/happyhomarid">Happy Homarid Patreon</a></p><p class="small">No account identifiers or personal shipping details are published. MTG remains isolated from unrelated DreamLedger silos.</p></footer>
+</main>
+<script>
+(()=>{
+const $=id=>document.getElementById(id);
+const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+let current=null;
+const put=(id,value)=>$(id).textContent=String(value==null?'Unknown':value);
+function cards(id,values){
+ $(id).replaceChildren();
+ for(const card of values||[]){
+  const row=document.createElement('tr');
+  for(const val of [card.name,card.set+' #'+card.collector_number,card.condition+' / '+card.finish+' / x'+card.quantity]){
+   const td=document.createElement('td');td.textContent=String(val||'');row.append(td);
+  }$(id).append(row);
+ }
+}
+function show(v){
+ current=v;
+ $('proof').classList.remove('hidden');
+ put('tradeTitle','Trade '+v.trade_id);
+ put('tradeStatus',String(v.status||'UNKNOWN').toUpperCase()+' | both traders agreed');
+ put('timeline','Agreement: '+(v.agreed_at_utc?new Date(v.agreed_at_utc).toLocaleString('en-NZ'):'Not recorded')+
+  (v.completed_at_utc?' | Completion reported: '+new Date(v.completed_at_utc).toLocaleString('en-NZ'):''));
+ put('termsHash',v.terms_sha256);put('headHash',v.latest_event_sha256);
+ put('count','Recorded events: '+v.event_count+' | external independent anchor: not yet available');
+ cards('cardsA',v.party_a_gives);cards('cardsB',v.party_b_gives);
+ put('dispatchStatus','Dispatch or handoff reported: Trader A '+(v.dispatched_a?'yes':'no')+', Trader B '+(v.dispatched_b?'yes':'no'));
+ put('receiptStatus','Receipt acknowledged by: Trader A '+(v.received_a?'yes':'no')+', Trader B '+(v.received_b?'yes':'no'));
+ put('cashStatus','Cash difference: '+new Intl.NumberFormat('en-NZ',{style:'currency',currency:'NZD'}).format(Number(v.cash_minor||0)/100)+
+  ' | mode: '+v.handoff+' | DreamLedger platform fee: NZ$0');
+}
+async function load(id){
+ if(!UUID.test(id)){put('notice','Enter a valid trade UUID.');return}
+ $('proof').classList.add('hidden');current=null;put('notice','Checking public consent and receipt status...');
+ try{
+  const response=await fetch('/api/cube/mtg-trade-public?trade_id='+encodeURIComponent(id),{credentials:'omit',cache:'no-store'});
+  if(!response.ok){put('notice',response.status===404?'Receipt not public, unknown or withdrawn.':response.status===503?'Trade receipt service not released or unavailable.':'Receipt lookup failed.');return}
+  const data=await response.json();
+  if(data.schema!=='dreamledger/mtg-trade-public-receipt/v1'||data.both_agreed!==true)throw Error('Invalid public receipt');
+  show(data);put('notice','Public receipt loaded with both parties\' sharing consent.');
+ }catch{put('notice','Could not validate this receipt. No successful trade is being claimed.')}
+}
+$('lookup').addEventListener('submit',e=>{e.preventDefault();const id=$('receiptId').value.trim();history.replaceState(null,'','?id='+encodeURIComponent(id));load(id)});
+$('share').addEventListener('click',()=>{if(current&&navigator.clipboard)navigator.clipboard.writeText(location.origin+'/mtg/trade/?id='+encodeURIComponent(current.trade_id)).then(()=>put('notice','Link copied.'))});
+$('download').addEventListener('click',()=>{
+ if(!current)return;const b=new Blob([JSON.stringify(current,null,2)+'\n'],{type:'application/json'});
+ const a=document.createElement('a'),url=URL.createObjectURL(b);a.href=url;a.download='mtg-trade-public-receipt.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+});
+const id=new URL(location.href).searchParams.get('id');
+if(id){$('receiptId').value=id;load(id)}
+})();
+</script></body></html>
