@@ -1,0 +1,90 @@
+/* DreamLedger / MTG visual continuity bridge.
+   Scoped to the MTG silo: one black-and-neon-green identity for every MTG surface.
+   Inherits the DreamLedger system sans typography; no external font dependency.
+*/
+html[data-silo="mtg"]{
+  color-scheme:dark;
+  --silo-bg:#070c0a;--silo-bg-elev:#101915;
+  --silo-surface:#101b16;--silo-surface-2:#18271e;
+  --silo-ink:#f2fff6;--silo-muted:#b3cbbc;--silo-dim:#88a393;
+  --silo-line:#2a4735;--silo-accent:#45fa84;--silo-accent-bright:#79ffa2;
+  --silo-accent-soft:rgba(69,250,132,.12);--silo-ok:#38d67b;
+  --silo-ok-soft:rgba(56,214,123,.13);
+  --silo-serif:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+  --silo-sans:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+  --bg:#070c0a;--panel:#101b16;--ink:#f2fff6;--muted:#b3cbbc;
+  --line:#2a4735;--gold:#45fa84;--mint:#79ffa2;
+  font-family:var(--silo-sans);
+}
+html[data-silo="mtg"] body{
+  background-color:#070c0a;
+  background-image:radial-gradient(ellipse 70% 35% at 85% 0%,rgba(19,93,48,.22),transparent 65%);
+  color:var(--silo-ink);
+  font-family:var(--silo-sans);
+}
+html[data-silo="mtg"] body.silo-body{
+  background:radial-gradient(ellipse 70% 30% at 80% 0%,rgba(19,93,48,.22),transparent 65%),#070c0a;
+}
+html[data-silo="mtg"] h1,
+html[data-silo="mtg"] h2,
+html[data-silo="mtg"] h3,
+html[data-silo="mtg"] .silo-display,
+html[data-silo="mtg"] .silo-h2,
+html[data-silo="mtg"] .silo-h3{
+  font-family:var(--silo-sans);
+  letter-spacing:-.04em;
+}
+html[data-silo="mtg"] .silo-hdr,
+html[data-silo="mtg"] header{
+  border-bottom-color:var(--silo-line);
+}
+html[data-silo="mtg"] .silo-hdr{
+  background:rgba(7,12,10,.94);
+}
+html[data-silo="mtg"] .silo-logo-mark{
+  background:#101b16;border-color:var(--silo-line);
+}
+html[data-silo="mtg"] .silo-nav .silo-cta,
+html[data-silo="mtg"] .silo-btn-gold,
+html[data-silo="mtg"] .deck .buy,
+html[data-silo="mtg"] .btn.primary,
+html[data-silo="mtg"] button:not(.secondary){
+  background:var(--silo-accent);
+  color:#06140c!important;
+  border-color:var(--silo-accent);
+}
+html[data-silo="mtg"] .silo-pill-gold,
+html[data-silo="mtg"] .tag{
+  color:var(--silo-accent);
+}
+html[data-silo="mtg"] .silo-pill-gold{
+  border-color:rgba(69,250,132,.42);
+  background:var(--silo-accent-soft);
+}
+html[data-silo="mtg"] .deck-banner,
+html[data-silo="mtg"] .art,
+html[data-silo="mtg"] .diag{
+  background:linear-gradient(135deg,#14261c,#080f0c 82%);
+  border-color:var(--silo-line);
+  color:var(--silo-accent-bright);
+}
+html[data-silo="mtg"] .panel,
+html[data-silo="mtg"] .tile,
+html[data-silo="mtg"] .deck,
+html[data-silo="mtg"] .pilot,
+html[data-silo="mtg"] .status-bar{
+  background-color:var(--silo-surface);
+  border-color:var(--silo-line);
+}
+html[data-silo="mtg"] a:focus-visible,
+html[data-silo="mtg"] button:focus-visible,
+html[data-silo="mtg"] input:focus-visible,
+html[data-silo="mtg"] textarea:focus-visible,
+html[data-silo="mtg"] select:focus-visible{
+  outline:3px solid var(--silo-accent);
+  outline-offset:3px;
+}
+html[data-silo="mtg"] a:hover{color:var(--silo-accent-bright)}
+html[data-silo="mtg"] .silo-hdr .silo-logo:hover,
+html[data-silo="mtg"] .silo-btn-gold:hover{color:#06140c}
+@media(prefers-reduced-motion:reduce){html[data-silo="mtg"] *{scroll-behavior:auto!important;transition:none!important}}
