@@ -43,12 +43,14 @@ jobs:
           CREATE SCHEMA marketplace;
           \i migrations/20261031_mtg_bilateral_trade_ledger.sql
           \i tests/mtg-bilateral-trade-ledger.sql
+          \i migrations/20261031_mtg_trade_handoff_public.sql
+          \i tests/mtg-handoff-public.sql
           ROLLBACK;
           SQL
       - name: Record code hashes
         run: |
           mkdir -p artifacts
-          sha256sum handlers/cube/mtg-trades.js handlers/cube/mtg-trades.test.js migrations/20261031_mtg_bilateral_trade_ledger.sql tests/mtg-bilateral-trade-ledger.sql > artifacts/mtg-trade-ledger-code.sha256
+          sha256sum handlers/cube/mtg-trades.js handlers/cube/mtg-trades.test.js migrations/20261031_mtg_bilateral_trade_ledger.sql tests/mtg-bilateral-trade-ledger.sql migrations/20261031_mtg_trade_handoff_public.sql tests/mtg-handoff-public.sql > artifacts/mtg-trade-ledger-code.sha256
       - uses: actions/upload-artifact@v4
         with:
           name: mtg-bilateral-trade-code-proof
