@@ -39,7 +39,24 @@ li{margin:12px 0}.muted{color:#c4d0d6}footer{margin-top:40px;font-size:13px;colo
 <footer><a href="/">DreamLedger home</a> | Customer support: Dreamledger.org@gmail.com</footer>
 </main>
 <script>
-(function(){try{if(location.search){history.replaceState(null,'',location.pathname);}}catch(e){}})();
+(function(){
+  try {
+    const params = new URLSearchParams(location.search);
+    const sessionId = params.get('session_id') || '';
+    // Strip checkout references from the address bar immediately. A session ID is
+    // a matching reference only, never evidence that the payment was successful.
+    if (location.search) history.replaceState(null, '', location.pathname + location.hash);
+    if (!/^cs_(?:test_|live_)?[A-Za-z0-9_]{5,200}$/.test(sessionId)) return;
+    const handoff = document.querySelector('a.button[href^="mailto:"]');
+    if (!handoff) return;
+    const mail = new URL(handoff.href);
+    const previous = mail.searchParams.get('body') || '';
+    mail.searchParams.set('body', previous + '\nStripe Checkout session ID (operator must verify payment): ' + sessionId);
+    handoff.href = mail.toString();
+  } catch (e) {
+    // The standalone page remains usable even if mail prefill is unavailable.
+  }
+})();
 </script>
 </body>
 </html>
