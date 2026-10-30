@@ -1,0 +1,33 @@
+name: MTG Exchange Review Proof
+on:
+  pull_request:
+    paths:
+      - 'public/mtg/**'
+      - 'mtg/index.html'
+      - 'BEC-PRIME/compiled/website/mtg/index.html'
+      - 'BEC-PRIME/website/mtg-catalog.html'
+      - 'scripts/verify-mtg-exchange-worldwide.cjs'
+      - '.github/workflows/mtg-exchange-review.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Stage verifier
+        run: node scripts/verify-mtg-exchange-worldwide.cjs
+      - name: Existing clone safety check (HOLD is allowed)
+        run: node scripts/verify-beck-mtg-clone-gate.cjs
+      - name: Upload proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mtg-exchange-stage-proof
+          path: artifacts/mtg-exchange-proof.json
+          if-no-files-found: warn
