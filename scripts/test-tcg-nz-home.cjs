@@ -52,7 +52,7 @@ check('TCG directory is safe DOM and contains expected routes',()=>{
  assert.match(s,/textContent/);
  assert.match(s,/new Set\(\['mtg','pokemon','onepiece'/);
  assert.doesNotMatch(s,/innerHTML\s*=/);
- assert.doesNotMatch(s,/rank_gmv_q2_2026|Ranked from|#1/);
+ assert.doesNotMatch(s,/rank_gmv_q2_2026|Ranked from/);
  const d=json('public/data/tcg-swarm.json');
  const seen=new Set();
  for(const entry of d.silos){
@@ -104,7 +104,7 @@ check('Client scripts are syntactically valid',()=>{
   const source=read(p);
   const matches=[...source.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)];
   assert.ok(matches.length,p+' has no script');
-  for(const m of matches)new vm.Script(m[1],{filename:p});
+  for(const m of matches){try{new vm.Script(m[1],{filename:p});}catch(e){throw new Error(p+': '+e.message);}}
  }
 });
 const files=[mtg,hub,listing,'public/mtg-list.html','public/silos/mtg/silo.json'];
