@@ -1,72 +1,126 @@
 <!doctype html>
-<html lang="en-NZ">
+<html lang="en-NZ" data-silo="tcg-draft">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Sell a TCG single | DreamLedger NZ</title>
-<meta name="description" content="List a trading card single free in New Zealand. Any major TCG.">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Free TCG listing draft for NZ sellers | DreamLedger</title>
+<meta name="description" content="Prepare, copy or download a private trading card listing draft. NZD pricing, condition and delivery details. No account or payment needed.">
+<link rel="canonical" href="https://dreamledger.org/tcg-list">
 <style>
-:root{color-scheme:dark;--bg:#07080c;--surface:#11141c;--ink:#f3f0e8;--muted:#9aa0b0;--line:#2a3040;--gold:#d8b56b}
-*{box-sizing:border-box}body{margin:0;font:15px/1.5 system-ui,sans-serif;background:var(--bg);color:var(--ink)}
-.wrap{max-width:520px;margin:auto;padding:28px 16px 80px}a{color:var(--gold)}
-h1{font-size:1.8rem;letter-spacing:-.03em;margin:10px 0}
-label{display:block;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:14px 0 6px}
-input,select,textarea{width:100%;padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit}
-.btn{display:flex;align-items:center;justify-content:center;min-height:50px;margin-top:18px;border-radius:14px;background:var(--gold);color:#14120c;font-weight:800;border:0;width:100%;cursor:pointer}
-.badge{font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);border:1px solid rgba(216,181,107,.35);padding:5px 10px;border-radius:999px}
-.note{font-size:12px;color:var(--muted);margin-top:14px}.status{margin-top:10px;font-size:13px;color:#6bcf9a}
+:root{color-scheme:dark;--bg:#080b11;--surface:#141b25;--ink:#f5f0e5;--muted:#b9c3d0;--line:#344152;--gold:#f0ce89}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+.wrap{max-width:840px;margin:auto;padding:24px 18px 72px}
+a{color:var(--gold)}a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #fff;outline-offset:3px}
+nav{display:flex;gap:18px;flex-wrap:wrap;font-size:14px}
+h1{font-size:clamp(1.9rem,6vw,3.5rem);line-height:1.1;letter-spacing:-.04em;margin:20px 0 8px}
+.lead,.help{color:var(--muted)}.help{font-size:13px;margin:4px 0 14px}
+.note{border:1px solid #697889;background:#1c2935;padding:12px 16px;border-radius:10px;margin:18px 0}
+form{background:var(--surface);padding:20px;border:1px solid var(--line);border-radius:14px}
+.fields{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:600px){.fields{grid-template-columns:1fr 1fr}.wide{grid-column:1 / -1}}
+label{display:block;font-size:14px;font-weight:750;margin-bottom:5px}
+input,select,textarea{font:inherit;width:100%;padding:11px;border:1px solid #6f7c8b;border-radius:9px;background:#080d13;color:var(--ink)}
+textarea{resize:vertical}
+.buttons{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+button{font:inherit;cursor:pointer;border-radius:9px;min-height:46px;padding:10px 16px;font-weight:800;border:1px solid var(--gold);background:var(--gold);color:#17130c}
+button.secondary{background:transparent;color:var(--gold)}
+button:disabled{opacity:.5;cursor:not-allowed}
+#status{min-height:1.5em;color:#b1e4be;font-size:14px}
+.preview{white-space:pre-wrap;overflow-wrap:anywhere;color:var(--ink);background:#080d13;border:1px solid var(--line);border-radius:10px;padding:14px;font:14px/1.5 ui-monospace,Consolas,monospace}
+footer{margin-top:26px;border-top:1px solid var(--line);padding-top:15px}
 </style>
 </head>
-<body>
-<main class="wrap">
-  <span class="badge">Singles · 0% fee · NZ</span>
-  <h1>Sell a single</h1>
-  <p style="color:var(--muted)">Works for every TCG silo in the swarm. Magic sellers can also use <a href="/mtg-list">Scryfall search</a>.</p>
-  <form id="f">
-    <label>Game</label>
-    <select id="game" name="game">
-      <option value="pokemon">Pokémon</option>
-      <option value="onepiece">One Piece</option>
-      <option value="yugioh">Yu-Gi-Oh!</option>
-      <option value="lorcana">Lorcana</option>
-      <option value="riftbound">Riftbound</option>
-      <option value="gundam">Gundam</option>
-      <option value="digimon">Digimon</option>
-      <option value="mtg">Magic</option>
-    </select>
-    <label>Card name</label>
-    <input id="card_name" required placeholder="Exact card name">
-    <label>Condition</label>
-    <select id="condition"><option>NM</option><option>LP</option><option>MP</option><option>HP</option><option>DMG</option></select>
-    <label>Price (NZD)</label>
-    <input id="price" type="number" min="0.5" step="0.5" required placeholder="5">
-    <label>City / region</label>
-    <input id="city" required placeholder="Auckland">
-    <label>Meetup or post</label>
-    <input id="logistics" placeholder="Tracked post +$6">
-    <label>Notes</label>
-    <textarea id="notes" rows="3"></textarea>
-    <button class="btn" type="submit">Save draft</button>
-    <p id="status" class="status"></p>
-    <p class="note"><a href="/register">Free account to publish</a> · <a href="/tcg/">All TCG markets</a></p>
-  </form>
+<body><main class="wrap">
+<nav aria-label="Site"><a href="/tcg/">All TCGs</a><a href="/mtg/">Magic</a><a href="/mtg-list">Magic card search</a><a href="/tools/seller-profit/">Free seller profit tool</a></nav>
+<h1>Prepare a card listing for New Zealand.</h1>
+<p class="lead">Build a clear, reusable listing for Magic, Pokemon, One Piece and other TCGs. Save it privately, copy the description, or download the data for your own records.</p>
+<div class="note"><strong>Private draft only.</strong> This form does not publish, send, sell, reserve inventory, contact buyers or process payments. All details stay in this browser unless you choose to copy or download them.</div>
+<form id="form">
+<div class="fields">
+<div><label for="game">Game</label><select id="game" required>
+<option value="pokemon">Pokemon</option><option value="mtg">Magic: The Gathering</option><option value="onepiece">One Piece</option><option value="yugioh">Yu-Gi-Oh!</option><option value="lorcana">Lorcana</option><option value="riftbound">Riftbound</option><option value="gundam">Gundam</option><option value="digimon">Digimon</option>
+</select></div>
+<div><label for="card_name">Card name</label><input id="card_name" required maxlength="140" placeholder="Exact printed card name"></div>
+<div><label for="set_name">Set / printing</label><input id="set_name" maxlength="140" placeholder="Set code, number or edition"></div>
+<div><label for="finish">Finish</label><select id="finish"><option>Standard / non-foil</option><option>Foil</option><option>Special finish</option><option>Unknown</option></select></div>
+<div><label for="condition">Condition</label><select id="condition"><option>Near Mint</option><option>Lightly Played</option><option>Moderately Played</option><option>Heavily Played</option><option>Damaged</option></select></div>
+<div><label for="quantity">Quantity</label><input id="quantity" type="number" required min="1" max="9999" step="1" value="1"></div>
+<div><label for="price">Asking price (NZD, per card)</label><input id="price" type="number" required min="0.50" max="1000000" step="0.01" placeholder="12.00"></div>
+<div><label for="city">City or region (not street address)</label><input id="city" required maxlength="100" placeholder="Wellington"></div>
+<div class="wide"><label for="logistics">Delivery / meetup</label><select id="logistics"><option>Postage available - terms to confirm</option><option>Meetup preferred - terms to confirm</option><option>Meetup only - terms to confirm</option></select></div>
+<div class="wide"><label for="notes">Extra details (optional)</label><textarea id="notes" rows="3" maxlength="1000" placeholder="Language, visible wear, photos to provide, postage price..."></textarea><p class="help">Do not include private addresses or payment credentials. Buyers should request photographs of the actual card.</p></div>
+</div>
+<div class="buttons"><button type="submit">Save draft on this device</button><button id="copy" class="secondary" type="button" disabled>Copy listing text</button><button id="download" class="secondary" type="button" disabled>Download JSON</button></div>
+<p id="status" role="status" aria-live="polite"></p>
+</form>
+<h2>Listing preview</h2>
+<pre class="preview" id="preview">Complete the form and save a draft to generate a seller-ready description.</pre>
+<p class="help">To make a real sale, independently verify ownership, condition, buyer identity, payment terms and shipping. A registered account here does not currently activate automatic publication.</p>
+<footer><small>DreamLedger NZ. Draft export is free; no success fee is charged by this tool. Independent marketplaces and payment providers may charge their own fees.</small></footer>
 </main>
 <script>
 (function(){
-  const params=new URLSearchParams(location.search);
-  if(params.get('game')) document.getElementById('game').value=params.get('game');
-  document.getElementById('f').onsubmit=function(e){
-    e.preventDefault();
-    const data={type:'single',game:document.getElementById('game').value,card_name:document.getElementById('card_name').value,condition:document.getElementById('condition').value,price_nzd:Number(document.getElementById('price').value),city:document.getElementById('city').value,logistics:document.getElementById('logistics').value,notes:document.getElementById('notes').value,created_at:new Date().toISOString()};
-    try{
-      localStorage.setItem('dreamledger_tcg_draft_listing',JSON.stringify(data));
-      const bag=JSON.parse(localStorage.getItem('dreamledger_tcg_singles_bag')||'[]');
-      bag.unshift(data);
-      localStorage.setItem('dreamledger_tcg_singles_bag',JSON.stringify(bag.slice(0,80)));
-      document.getElementById('status').textContent='Draft saved. Create a free account to publish.';
-    }catch(err){document.getElementById('status').textContent='Could not save.';}
-  };
+'use strict';
+const allowed=new Set(['mtg','pokemon','onepiece','yugioh','lorcana','riftbound','gundam','digimon']);
+const ids=['game','card_name','set_name','finish','condition','quantity','price','city','logistics','notes'];
+const form=document.getElementById('form'),message=document.getElementById('status'),preview=document.getElementById('preview');
+const copy=document.getElementById('copy'),download=document.getElementById('download');
+let current=null,text='';
+const params=new URLSearchParams(location.search);
+if(allowed.has(params.get('game')))document.getElementById('game').value=params.get('game');
+function collect(){
+ const d={schema:'dreamledger/tcg-private-listing-draft/v1'};
+ for(const id of ids)d[id]=document.getElementById(id).value.trim();
+ d.quantity=Number(d.quantity);d.price_nzd=Number(d.price);delete d.price;
+ d.saved_at=new Date().toISOString();
+ if(!allowed.has(d.game)||!Number.isInteger(d.quantity)||d.quantity<1||d.quantity>9999||
+ !Number.isFinite(d.price_nzd)||d.price_nzd<.5||d.price_nzd>1000000)throw new Error('Check the game, quantity and NZD price.');
+ return d;
+}
+function format(d){
+ return [
+ 'TCG: '+d.game.toUpperCase(),
+ 'Card: '+d.card_name,
+ 'Printing: '+(d.set_name||'Confirm with seller'),
+ 'Finish: '+d.finish,
+ 'Condition: '+d.condition,
+ 'Quantity: '+d.quantity,
+ 'Ask: NZ$'+d.price_nzd.toFixed(2)+' each',
+ 'Location: '+d.city,
+ 'Delivery: '+d.logistics,
+ 'Notes: '+(d.notes||'None supplied'),
+ 'Photos of the actual card, final availability, payment and postage to be confirmed.'
+ ].join('\n');
+}
+function show(d){current=d;text=format(d);preview.textContent=text;copy.disabled=false;download.disabled=false;}
+form.addEventListener('submit',function(e){
+ e.preventDefault();if(!form.reportValidity())return;
+ try{
+  const d=collect();show(d);
+  localStorage.setItem('dreamledger_tcg_draft_listing',JSON.stringify(d));
+  message.textContent='Saved on this device. Nothing was published or sent.';
+ }catch(err){message.textContent=err instanceof Error?err.message:'Could not save draft on this device. You can still copy or download the preview.';}
+});
+copy.addEventListener('click',async function(){
+ if(!current)return;
+ try{
+  if(navigator.clipboard&&navigator.clipboard.writeText){await navigator.clipboard.writeText(text);}
+  else{const field=document.createElement('textarea');field.value=text;field.style.position='fixed';field.style.opacity='0';document.body.append(field);field.select();if(!document.execCommand('copy'))throw new Error('Copy unsupported');field.remove();}
+  message.textContent='Listing text copied. It has not been published.';
+ }catch(e){message.textContent='Automatic copy unavailable. Select and copy the preview below.';}
+});
+download.addEventListener('click',function(){
+ if(!current)return;
+ const data=JSON.stringify(current,null,2)+'\n';
+ const blob=new Blob([data],{type:'application/json'});
+ const url=URL.createObjectURL(blob);
+ const a=document.createElement('a');a.href=url;a.download='dreamledger-'+current.game+'-listing-draft.json';
+ document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+ message.textContent='Draft downloaded. No listing was published.';
+});
+try{
+ const raw=localStorage.getItem('dreamledger_tcg_draft_listing');
+ if(raw){const d=JSON.parse(raw);if(allowed.has(d.game)){for(const id of ids){const val=id==='price'?d.price_nzd:d[id];if(val!==undefined&&val!==null)document.getElementById(id).value=String(val);}form.reportValidity();show(d);message.textContent='Restored a draft saved on this device. Not published.';}}
+}catch(e){message.textContent='Saved draft could not be restored.';}
 })();
 </script>
-</body>
-</html>
+</body></html>
