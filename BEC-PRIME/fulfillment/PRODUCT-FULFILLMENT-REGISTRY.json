@@ -69,9 +69,9 @@
       "reason": "not approved for sale"
     },
     "COMMANDER-DECK-DIAGNOSTIC-001": {
-      "ready": true,
-      "operator_required": false,
-      "reason": "Automated MTG digital fulfillment contract validated by the MTG Diagnostic Fulfillment Gate; public sale readiness enabled 2026-08-26."
+      "ready": false,
+      "operator_required": true,
+      "reason": "HELD: paid settlement, entitlement issuance, and automatic delivery have not been independently verified; live checkout prohibited."
     },
     "BEC-PRIME-ARCHITECTURE-AUDIT-001": {
       "ready": false,

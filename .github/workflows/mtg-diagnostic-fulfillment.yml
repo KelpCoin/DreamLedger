@@ -26,11 +26,24 @@ jobs:
           $p = Get-Content BEC-PRIME/catalog/products/COMMANDER-DECK-DIAGNOSTIC-001.json -Raw | ConvertFrom-Json
           $f = Get-Content BEC-PRIME/fulfillment/PRODUCT-FULFILLMENT-REGISTRY.json -Raw | ConvertFrom-Json
           if ($p.price -ne 29) { throw 'Commander diagnostic price contract failed' }
-          if ($p.fulfillment.mode -ne 'automated') { throw 'Automated fulfillment contract failed' }
-          if ($p.fulfillment.operator_required -ne $false) { throw 'Operator-free fulfillment contract failed' }
-          if ($f.entries.'COMMANDER-DECK-DIAGNOSTIC-001'.operator_required -ne $false) { throw 'Registry still requires operator' }
-          if ($f.entries.'COMMANDER-DECK-DIAGNOSTIC-001'.ready -ne $true) { throw 'Registry is not ready' }
-          Write-Host '[PASS] MTG diagnostic commercial and fulfillment contract'
+          $entry = $f.entries.'COMMANDER-DECK-DIAGNOSTIC-001'
+          if ($p.status -eq 'held') {
+            if ($p.checkout.mode -ne 'disabled' -or $p.commercial_truth.sellable -ne $false -or $p.commercial_truth.approval_required -ne $true) {
+              throw 'Held diagnostic must not allow checkout or public sale'
+            }
+            if ($p.fulfillment.mode -ne 'disabled' -or $p.fulfillment.operator_required -ne $true) {
+              throw 'Held diagnostic fulfillment must remain disabled'
+            }
+            if ($entry.ready -ne $false) { throw 'Held diagnostic must not have ready=true in fulfillment registry' }
+            Write-Host '[PASS] MTG diagnostic is HELD and fail-closed; NOT commerce certified'
+          } elseif ($p.status -eq 'published') {
+            if ($p.fulfillment.mode -ne 'automated' -or $p.fulfillment.operator_required -ne $false) { throw 'Published diagnostic requires automated fulfillment' }
+            if ($entry.operator_required -ne $false -or $entry.ready -ne $true) { throw 'Published diagnostic requires verified registry readiness' }
+            if ($p.commercial_truth.sellable -ne $true -or $p.commercial_truth.approval_required -ne $false) { throw 'Published diagnostic requires explicit sellable approval' }
+            Write-Host '[PASS] MTG diagnostic published-state configuration contract; live settlement and delivery are separate gates'
+          } else {
+            throw "Unrecognized Commander diagnostic status: $($p.status)"
+          }
       - name: Compile MTG surface
         run: node BEC-PRIME/compiler/MTGCatalogCompiler.js
       - name: Verify CUBE MTG reskin
@@ -48,11 +61,14 @@ jobs:
             'BEC-PRIME/compiled/website/billboard.html'
           )
           foreach ($f in $required) { if (!(Test-Path $f)) { throw "Missing public surface: $f" } }
-          # DreamLedger1 serves public/home.html at /. Check the actual canonical storefront,
-          # not a stale compiled snapshot maintained by a different build path.
-          $homeHtml = Get-Content public/home.html -Raw
-          foreach ($token in @('DreamLedger','Supplier Quote Comparison Worksheet','Commander Deck Diagnostic','Truth Oracle')) {
-            if ($homeHtml -notmatch [regex]::Escape($token)) { throw "Canonical storefront token missing: $token" }
+          # Vercel uses public/ as its outputDirectory and serves public/index.html at /.
+          # Do not verify the legacy public/home.html (used by a separate runtime).
+          # The diagnostic is held: require an MTG doorway, not a buy button.
+          $homeHtml = Get-Content public/index.html -Raw
+          foreach ($token in @('DreamLedger','Commander Deck Diagnostic','Truth Oracle')) {
+            if ($homeHtml -notmatch [regex]::Escape($token)) { throw "Canonical Vercel homepage token missing: $token" }
           }
+          if ($homeHtml -notmatch 'href="/mtg/?(?:")') { throw 'Canonical Vercel homepage has no MTG storefront link' }
+          if ($homeHtml -match '/buy/COMMANDER-DECK-DIAGNOSTIC-001') { throw 'Held diagnostic must not have a direct buy CTA' }
           if ($homeHtml -match 'Agentic Commerce Readiness Audit|BrownEye Cortex|Economic Court|ELOHIM|AMPLISSA|COLLECTORSCOAST') { throw 'Internal or historical homepage residue detected' }
-          Write-Host '[PASS] DreamLedger catalogue doorway + MTG + Billboard surfaces present'
+          Write-Host '[PASS] Canonical Vercel homepage and MTG doorway verified; diagnostic checkout remains held'

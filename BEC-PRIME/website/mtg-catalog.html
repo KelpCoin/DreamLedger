@@ -139,6 +139,7 @@
   const status=document.getElementById('status');
   function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
   function isPhysical(p){return p.category==='commander-deck'||/^EDH/i.test(p.id||'');}
+  function conditionEligible(p){return p.category==='single' && typeof p.condition==='string' && p.condition.trim().length>0;}
   async function load(){
     try{
       const [r,g]=await Promise.all([

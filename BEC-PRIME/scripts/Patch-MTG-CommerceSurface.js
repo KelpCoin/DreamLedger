@@ -50,8 +50,8 @@ function patch() {
     // embeds no such function. DO NOT splice the legacy renderer into it.
     // Safely skip an obsolete MTG-only presentation patch without blocking
     // the niche-agnostic commerce compiler for other silos.
-    if (html.includes('id="grid"') && html.includes('const decks=(data.products||[]).filter(isPhysical);') &&
-        html.includes('See cards &amp; buy')) {
+    if (html.includes('id="grid"') && html.includes('const decks=data.products.filter(p=>p&&p.status===\'published\'&&isPhysical(p));') &&
+        html.includes('grid.innerHTML=decks.map(p=>') && html.includes("fetch('/catalog.json'")) {
       console.log('MTG_LEGACY_PATCH_SKIPPED_MODERN_TEMPLATE');
       writeProof('SKIPPED_MODERN_TEMPLATE_CHECKOUT_UNVERIFIED');
       return;
