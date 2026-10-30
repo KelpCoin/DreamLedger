@@ -1,20 +1,166 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "BEC CUBE Clone Manifest",
+  "title": "CUBE v2 private silo candidate manifest; not a publish approval",
   "type": "object",
-  "required": ["cube_version", "silo_name", "product_name", "price_nzd", "stripe_product_id", "domain", "repo_name", "surface", "status"],
+  "required": [
+    "schema",
+    "slug",
+    "display_name",
+    "currency",
+    "locale",
+    "jurisdiction",
+    "brand",
+    "inventory_mode",
+    "payment_provider",
+    "peer_fee_basis_points",
+    "domain_fields",
+    "legal_pack",
+    "route",
+    "listing_route",
+    "state",
+    "checkout_enabled",
+    "community_enabled",
+    "public_approved",
+    "legal_review_approved",
+    "inventory_authority",
+    "payment_authority",
+    "no_inventory_clone"
+  ],
   "properties": {
-    "cube_version": {"type": "string"},
-    "silo_name": {"type": "string", "pattern": "^[a-z0-9_-]+$"},
-    "product_name": {"type": "string", "minLength": 1},
-    "price_nzd": {"type": "integer", "minimum": 1},
-    "stripe_product_id": {"type": "string"},
-    "domain": {"type": "string"},
-    "repo_name": {"type": "string"},
-    "surface": {"type": "string"},
-    "status": {"enum": ["template", "approved", "deployed", "retired"]},
-    "source_template": {"type": "string"},
-    "isolation": {"type": "boolean"}
+    "schema": {
+      "const": "CUBE/SILO/v2"
+    },
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "minLength": 2,
+      "maxLength": 48
+    },
+    "display_name": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 120
+    },
+    "currency": {
+      "type": "string",
+      "pattern": "^[A-Z]{3}$"
+    },
+    "locale": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 32
+    },
+    "jurisdiction": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 64
+    },
+    "brand": {
+      "type": "object",
+      "required": [
+        "name",
+        "accent"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 120
+        },
+        "accent": {
+          "type": "string",
+          "pattern": "^#[a-fA-F0-9]{6}$"
+        }
+      },
+      "additionalProperties": false
+    },
+    "inventory_mode": {
+      "enum": [
+        "physical",
+        "digital",
+        "service",
+        "mixed"
+      ]
+    },
+    "payment_provider": {
+      "enum": [
+        "stripe",
+        "external",
+        "none"
+      ]
+    },
+    "peer_fee_basis_points": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "domain_fields": {
+      "type": "array",
+      "maxItems": 40,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9_]{1,47}$"
+      }
+    },
+    "legal_pack": {
+      "type": "object",
+      "required": [
+        "jurisdiction",
+        "required_policy_types",
+        "status"
+      ],
+      "properties": {
+        "jurisdiction": {
+          "type": "string",
+          "minLength": 2
+        },
+        "required_policy_types": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 30,
+          "items": {
+            "type": "string"
+          }
+        },
+        "status": {
+          "const": "requires_independent_jurisdiction_review"
+        }
+      },
+      "additionalProperties": false
+    },
+    "route": {
+      "type": "string",
+      "pattern": "^/[a-z0-9-]+/$"
+    },
+    "listing_route": {
+      "type": "string",
+      "pattern": "^/[a-z0-9-]+/list$"
+    },
+    "state": {
+      "const": "draft"
+    },
+    "checkout_enabled": {
+      "const": false
+    },
+    "community_enabled": {
+      "const": false
+    },
+    "public_approved": {
+      "const": false
+    },
+    "legal_review_approved": {
+      "const": false
+    },
+    "inventory_authority": {
+      "const": "marketplace.supply_attestations"
+    },
+    "payment_authority": {
+      "const": "verified_provider_settlement"
+    },
+    "no_inventory_clone": {
+      "const": true
+    }
   },
-  "additionalProperties": true
+  "additionalProperties": false
 }
