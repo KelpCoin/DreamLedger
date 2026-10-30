@@ -1,1 +1,62 @@
-<!doctype html><html lang="en-NZ"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Quote Comparison Intake · DreamLedger</title><style>body{margin:0;background:#090909;color:#eee;font:16px/1.5 system-ui,sans-serif}main{max-width:760px;margin:auto;padding:40px 20px 80px}.k{color:#d5b45c;font-weight:800;letter-spacing:.14em;text-transform:uppercase;font-size:12px}h1{font-size:42px;line-height:1;margin:14px 0}.card{border:1px solid #333;background:#111;padding:22px;margin:20px 0}.muted{color:#aaa}label{display:block;margin:16px 0 7px;font-weight:700}textarea,input[type=file]{width:100%;box-sizing:border-box;background:#181818;color:#eee;border:1px solid #444;padding:12px;border-radius:8px}button{margin-top:18px;background:#d5b45c;color:#090909;border:0;padding:13px 18px;font-weight:900;border-radius:8px}#status{white-space:pre-wrap}.ok{color:#9fe3a4}.err{color:#ff8f8f}a{color:#d5b45c}</style></head><body><main><div class="k">DreamLedger · Automated Fulfilment</div><h1>Quote comparison intake</h1><div class="card"><p class="muted">Payment is verified before intake. The system extracts the supplied quotes, normalizes comparable fields, flags unknowns, builds an evidence-backed decision packet, and delivers it automatically.</p><label for="files">2-5 quote files</label><input id="files" type="file" multiple accept=".pdf,.csv,.json,.md"><label for="requirements">Purchase requirements / scope</label><textarea id="requirements" rows="8" placeholder="What are you buying? Include quantities, specifications, delivery location, deadline, currency or comparison rules."></textarea><button id="start">Submit quotes</button><div id="status" class="muted"></div></div></main><script>const qs=new URLSearchParams(location.search),sessionId=qs.get("session_id"),api="https://wbwgroygjeyukkspnqiy.supabase.co/functions/v1/quote-intake",statusEl=document.getElementById("status"),filesEl=document.getElementById("files"),reqEl=document.getElementById("requirements");function status(t,c){statusEl.textContent=t;statusEl.className=c||"muted"}async function call(action,extra={}){const r=await fetch(api,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({action,session_id:sessionId,...extra})});const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||"Request failed");return j}async function poll(){try{const j=await call("status");if(j.status==="fulfilled"&&j.download_url){status("Complete. Your decision packet is ready.\n\n"+j.download_url,"ok");return}if(j.status==="failed"){status("Fulfilment failed safely. Payment and evidence remain recorded for retry.","err");return}status("Processing automatically. No operator action is required.");setTimeout(poll,5000)}catch(e){if(String(e.message).includes("SETTLEMENT_RECORD_PENDING")||String(e.message).includes("ENTITLEMENT_PENDING")){status("Payment is settled; finalizing the fulfilment record...");setTimeout(poll,3000);return}status(e.message,"err")}}document.getElementById("start").onclick=async()=>{try{if(!sessionId)throw new Error("Missing checkout session.");const files=[...filesEl.files];if(files.length<2||files.length>5)throw new Error("Upload 2-5 quote files.");if(!reqEl.value.trim())throw new Error("Purchase requirements are required.");status("Preparing secure upload paths...");const init=await call("initialize",{files:files.map(f=>({name:f.name,size:f.size}))});const uploaded=[];for(let i=0;i<files.length;i++){const f=files[i],u=init.uploads[i];const r=await fetch("https://wbwgroygjeyukkspnqiy.supabase.co/storage/v1/object/upload/sign/"+u.path.split("/").map(encodeURIComponent).join("/")+"?token="+encodeURIComponent(u.token),{method:"PUT",headers:{"content-type":f.type||"application/octet-stream","x-upsert":"false"},body:f});if(!r.ok)throw new Error("Upload failed for "+f.name);uploaded.push({path:u.path,name:f.name,size:f.size})}status("Files received. Starting automated comparison...");await call("finalize",{files:uploaded,requirements:reqEl.value});document.getElementById("start").disabled=true;poll()}catch(e){status(e.message,"err")}};if(sessionId)poll();else status("This page must be opened from a completed Stripe checkout.","err");</script></body></html>
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
+<title>Quote Compare | Secure customer handoff | DreamLedger</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#091018;color:#f1f5f7;font:16px/1.65 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:760px;margin:auto;padding:42px 20px 80px}
+h1{font-size:clamp(30px,6vw,48px);line-height:1.12;margin:12px 0 20px}
+h2{font-size:21px}.tag{font-size:12px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:#e4c16f}
+.card{background:#131e28;border:1px solid #3b5260;border-radius:14px;padding:24px;margin:24px 0}
+.notice{border-left:4px solid #e4c16f;padding:10px 18px;background:#1a2229}
+a{color:#e4c16f;overflow-wrap:anywhere}.button{display:inline-block;padding:12px 16px;border-radius:8px;color:#0e1820;background:#e4c16f;font-weight:800;text-decoration:none}
+li{margin:12px 0}.muted{color:#c4d0d6}footer{margin-top:40px;font-size:13px;color:#c4d0d6}
+</style>
+</head>
+<body>
+<main>
+<p class="tag">DreamLedger / Quote comparison / Customer handoff</p>
+<h1>Your next step: send your supplier quotes</h1>
+<p class="notice"><strong>Already paid?</strong> Do not pay again. This page is not a payment-confirmation receipt and does not independently verify a Stripe payment. Save the Stripe receipt you received.</p>
+<div class="card">
+<h2>How to receive your NZ$49 comparison</h2>
+<ol>
+<li>From the same email address you used at Stripe checkout, email <strong>2 to 5 readable supplier quotations</strong> or private file-sharing links to <a href="mailto:Dreamledger.org@gmail.com?subject=Quote%20Compare%20-%20Stripe%20receipt">Dreamledger.org@gmail.com</a>.</li>
+<li>Include the Stripe receipt reference, quantities, buying requirements, delivery location, currency and deadline. If a quote is confidential, ask for an agreed secure transfer method before sharing it.</li>
+<li>We will check the payment against Stripe before starting. Once the complete intake is received, the target is delivery of a side-by-side CSV and plain-language comparison within 24 hours.</li>
+</ol>
+<p><a class="button" href="mailto:Dreamledger.org@gmail.com?subject=Quote%20Compare%20-%20Stripe%20receipt&body=Stripe%20receipt%20reference%3A%0APurchasing%20requirements%3A%0AQuantities%20and%20delivery%20location%3A%0AQuote%20files%20or%20private%20links%3A">Email your quotes securely</a></p>
+</div>
+<h2>What this service does and does not promise</h2>
+<p>We compare the stated price, minimum order quantity, delivery lead time and commercial terms where present. Missing or conflicting information is flagged rather than invented. We cannot guarantee a supplier's performance, inventory or final invoice.</p>
+<p class="muted">Fulfilment currently involves manual review. The automated upload and delivery system is not verified and is not used by this handoff page. If a receipt cannot be matched, an intake is incomplete or delivery cannot be completed, contact the same email for review and an appropriate remedy or refund.</p>
+<p><strong>Never email card numbers, bank passwords or identity documents.</strong> Do not submit confidential quotes through public issue trackers or comments.</p>
+<p>If you have not purchased and only want to read the offer, <a href="/quote-compare-49.html">return to the NZ$49 service description</a>.</p>
+<footer><a href="/">DreamLedger home</a> | Customer support: Dreamledger.org@gmail.com</footer>
+</main>
+<script>
+(function(){
+  try {
+    const params = new URLSearchParams(location.search);
+    const sessionId = params.get('session_id') || '';
+    // Strip checkout references from the address bar immediately. A session ID is
+    // a matching reference only, never evidence that the payment was successful.
+    if (location.search) history.replaceState(null, '', location.pathname + location.hash);
+    if (!/^cs_(?:test_|live_)?[A-Za-z0-9_]{5,200}$/.test(sessionId)) return;
+    const handoff = document.querySelector('a.button[href^="mailto:"]');
+    if (!handoff) return;
+    const mail = new URL(handoff.href);
+    const previous = mail.searchParams.get('body') || '';
+    mail.searchParams.set('body', previous + '\nStripe Checkout session ID (operator must verify payment): ' + sessionId);
+    handoff.href = mail.toString();
+  } catch (e) {
+    // The standalone page remains usable even if mail prefill is unavailable.
+  }
+})();
+</script>
+</body>
+</html>
