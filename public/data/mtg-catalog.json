@@ -15,7 +15,6 @@
       "currency": "NZD",
       "status": "published",
       "inventory": 1,
-      "condition": "Sleeved · playtested",
       "silo": "mtg",
       "category": "commander-deck",
       "sale_mode": "claim_by_message",
@@ -35,7 +34,6 @@
       "currency": "NZD",
       "status": "published",
       "inventory": 1,
-      "condition": "Sleeved · playtested",
       "silo": "mtg",
       "category": "commander-deck",
       "sale_mode": "claim_by_message",
@@ -54,7 +52,6 @@
       "currency": "NZD",
       "status": "published",
       "inventory": 1,
-      "condition": "Sleeved · playtested",
       "silo": "mtg",
       "category": "commander-deck",
       "sale_mode": "claim_by_message",
@@ -80,6 +77,21 @@
       "checkout_available": false,
       "checkout_url": null,
       "availability": "review_required"
+    },
+    {
+      "id": "COMMANDER-DECK-DIAGNOSTIC-001",
+      "sku": "CMD-DIAG-29",
+      "name": "Commander Deck Diagnostic",
+      "description": "Held digital service; not currently available for purchase.",
+      "price": 29,
+      "currency": "NZD",
+      "status": "held",
+      "inventory": 0,
+      "inventory_type": "digital",
+      "silo": "mtg",
+      "category": "digital-service",
+      "sale_mode": "disabled",
+      "checkout_available": false
     }
   ]
 }
