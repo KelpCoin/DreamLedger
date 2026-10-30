@@ -1,0 +1,11 @@
+{
+  "id": "EDH_0001",
+  "silo": "mtg",
+  "name": "EDH_0001 Commander Deck",
+  "price": 40000,
+  "price_unit": "minor",
+  "currency": "nzd",
+  "inventory": 0,
+  "status": "held",
+  "checkout_enabled": false
+}

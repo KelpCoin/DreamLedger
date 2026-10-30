@@ -41,13 +41,31 @@ jobs:
             }
           }
           const html = fs.readFileSync('mtg/index.html', 'utf8');
-          if (!html.includes('/public/catalog.json')) throw new Error('Root preview catalogue must use tracked public catalogue data');
           const liveHtml = fs.readFileSync('public/mtg/index.html', 'utf8');
-          if (!liveHtml.includes("get('/catalog.json')")) throw new Error('Live public MTG page must load the tracked catalogue.json');
+          if (html !== liveHtml) throw new Error('MTG preview/public storefront drift');
+          for (const expected of ["fetch('/catalog.json'", "fetch('/data/mtg-catalog.json'"]) {
+            if (!liveHtml.includes(expected)) throw new Error('Missing tracked catalogue loader: ' + expected);
+          }
+          if (!liveHtml.includes('href="/mtg/customize/"')) throw new Error('Commander customizer doorway missing');
+          const publicMtg = fs.readFileSync('public/data/mtg-catalog.json', 'utf8');
+          const sourceMtg = fs.readFileSync('data/mtg-catalog.json', 'utf8');
+          if (publicMtg !== sourceMtg) throw new Error('MTG source and public catalogue must match');
+          const mtgProducts = JSON.parse(publicMtg).products;
+          const sourceProduct = JSON.parse(fs.readFileSync('BEC-PRIME/catalog/products/EDH_0001.json','utf8'));
+          const edh = products.find(p => p.id === 'EDH_0001');
+          const edhMtg = mtgProducts.find(p => p.id === 'EDH_0001');
+          if (!edh || !edhMtg || edh.price !== 400 || edhMtg.price !== 400 || sourceProduct.price !== 40000) {
+            throw new Error('EDH_0001 public/source price must equal canonical NZD400');
+          }
+          if (edh.checkout_available !== false || edhMtg.checkout_available !== false || sourceProduct.checkout.enabled !== false || sourceProduct.inventory !== 0) {
+            throw new Error('EDH_0001 must be held pending independently attested physical stock');
+          }
+          for (const id of ['EDH_QUINTORIUS_0002', 'EDH_DWYNEN_0003']) {
+            if (!mtgProducts.find(p => p.id === id)) throw new Error('MTG public catalogue missing established deck: ' + id);
+          }
           for (const page of ['public/mtg/quintorius-field-historian.html', 'public/mtg/dwynen-gilt-leaf-daen.html']) {
             if (!fs.existsSync(page)) throw new Error('Missing deployed public route: ' + page);
           }
-          if (!html.includes('EDH_QUINTORIUS_0002') || !html.includes('EDH_DWYNEN_0003')) throw new Error('Catalogue must prioritize the new decks');
           for (const page of ['mtg/quintorius-field-historian.html', 'mtg/dwynen-gilt-leaf-daen.html']) {
             const body = fs.readFileSync(page, 'utf8');
             if (!body.includes('decklist') && !body.includes('decklist')) throw new Error('Missing decklist reference in ' + page);

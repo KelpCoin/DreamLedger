@@ -15,7 +15,6 @@
       "currency": "NZD",
       "status": "published",
       "inventory": 1,
-      "condition": "Sleeved · playtested",
       "silo": "mtg",
       "category": "commander-deck",
       "sale_mode": "claim_by_message",
@@ -35,7 +34,6 @@
       "currency": "NZD",
       "status": "published",
       "inventory": 1,
-      "condition": "Sleeved · playtested",
       "silo": "mtg",
       "category": "commander-deck",
       "sale_mode": "claim_by_message",
@@ -54,7 +52,6 @@
       "currency": "NZD",
       "status": "published",
       "inventory": 1,
-      "condition": "Sleeved · playtested",
       "silo": "mtg",
       "category": "commander-deck",
       "sale_mode": "claim_by_message",
@@ -69,8 +66,8 @@
       "sku": "EDH_0001",
       "name": "Edward Kenway - Pacin' On The Plank - Commander deck",
       "commander": "Edward Kenway",
-      "description": "Physical Commander deck listing. Availability and final selling price require seller confirmation. Checkout is held while historic NZ$400 payment links are reconciled.",
-      "price": 230,
+      "description": "Edward Kenway Commander deck. Owner-locked NZ$400 price. Inventory and fulfilment unverified; not available for checkout until physical attestation, reservation and delivery proof.",
+      "price": 400,
       "currency": "NZD",
       "status": "published",
       "inventory": 0,
@@ -80,6 +77,21 @@
       "checkout_available": false,
       "checkout_url": null,
       "availability": "review_required"
+    },
+    {
+      "id": "COMMANDER-DECK-DIAGNOSTIC-001",
+      "sku": "CMD-DIAG-29",
+      "name": "Commander Deck Diagnostic",
+      "description": "Held digital service; not currently available for purchase.",
+      "price": 29,
+      "currency": "NZD",
+      "status": "held",
+      "inventory": 0,
+      "inventory_type": "digital",
+      "silo": "mtg",
+      "category": "digital-service",
+      "sale_mode": "disabled",
+      "checkout_available": false
     }
   ]
 }

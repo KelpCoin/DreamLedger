@@ -131,8 +131,8 @@
     {
       "id": "EDH_0001",
       "name": "Edward Kenway – Pacin’ On The Plank",
-      "description": "Physical Commander deck listing, NZ$230 indicative asking price. Historic payment links charge NZ$400 and are not authorised for this listing. Checkout is held until owner-approved price, stock reservation and payment reconciliation pass.",
-      "price": 230,
+      "description": "Edward Kenway Commander deck, owner-locked NZ$400. Physical stock, decklist completeness and fulfilment are not independently verified; direct checkout is held.",
+      "price": 400,
       "currency": "nzd",
       "status": "published",
       "checkout_available": false,
@@ -148,11 +148,10 @@
         "piratetribal",
         "mtgsale"
       ],
-      "patron_price_nzd": 200,
       "patron_url": "https://patreon.com/happyhomarid",
       "category": "mtg",
       "availability": "review_required",
-      "checkout_hold_reason": "Legacy NZ$400 payment links require independent reconciliation. Physical checkout disabled pending stock and fulfilment proof."
+      "checkout_hold_reason": "Canonical NZ$400, stock unverified; signed inventory attestation, reservation, exact payment and delivery proof required before sale."
     },
     {
       "id": "EDH_QUINTORIUS_0002",

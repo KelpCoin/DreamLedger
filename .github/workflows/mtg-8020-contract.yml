@@ -1,0 +1,48 @@
+name: MTG 8020 Held Configurator Contract
+on:
+  pull_request:
+    paths:
+      - 'BEC-PRIME/catalog/customization/EDH_0001.json'
+      - 'BEC-PRIME/catalog/products/EDH_0001.json'
+      - 'BEC-PRIME/website/mtg-8020.html'
+      - 'BEC-PRIME/scripts/Build-MTG-8020-MegaBootstrap.ps1'
+      - 'public/mtg/index.html'
+      - 'public/tcg/index.html'
+      - 'public/tcg-list.html'
+      - 'public/mtg-list.html'
+      - 'public/pokemon/**'
+      - 'public/onepiece/**'
+      - 'public/yugioh/**'
+      - 'public/lorcana/**'
+      - 'public/riftbound/**'
+      - 'public/gundam/**'
+      - 'public/digimon/**'
+      - 'public/silos/mtg/silo.json'
+      - 'scripts/test-tcg-nz-home.cjs'
+      - 'vercel.json'
+      - 'public/mtg/customize/**'
+      - 'scripts/test-mtg-8020.cjs'
+      - '.github/workflows/mtg-8020-contract.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate-held-configurator:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify canonical NZD400, stock and checkout gates
+        run: node scripts/test-mtg-8020.cjs
+      - name: Verify NZ TCG home, seller draft and legacy listing safety
+        run: node scripts/test-tcg-nz-home.cjs
+      - name: Preserve TCG home evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mtg-nz-tcg-home-proof
+          path: artifacts/mtg-nz-tcg-home-proof.json
+          if-no-files-found: warn
+
