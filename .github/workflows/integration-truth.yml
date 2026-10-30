@@ -25,6 +25,9 @@ jobs:
         with:
           node-version: 24
 
+      - name: Test fail-closed cloud source and credential gates
+        run: node --test ops/cloud/credential-gate.test.cjs BEC-PRIME/scripts/Verify-MoltBeachMVP.test.cjs
+
       - name: Install runtime dependencies
         working-directory: BEC-PRIME
         run: npm install
