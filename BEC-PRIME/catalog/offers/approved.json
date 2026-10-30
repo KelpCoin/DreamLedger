@@ -1,6 +1,6 @@
 {
   "schema": "BEC-PRIME/APPROVED-OFFERS/v7",
-  "rule": "A commercial offer may be checkout-enabled only when payment verification, finite allocation, and the stated fulfillment gate are implemented.",
+  "rule": "An offer can appear in the approved registry for historical provenance without becoming an active checkout; product readiness and explicit distribution permission must both be verified. An active Stripe link alone never establishes sellability.",
   "approved": [
     {
       "offer_id": "OFFER-DREAMLEDGER-BILLBOARD-FOUNDING-001",
@@ -107,7 +107,11 @@
       },
       "approved_by": "operator",
       "approved_at": "2026-08-23",
-      "payment_link_note": "Canonical NZD 29 Stripe price is retained as the Checkout Session line item; public purchase starts at first-party intake so the decklist and intake ID are attached to the session."
+      "payment_link_note": "Canonical NZD 29 Stripe price is retained as the Checkout Session line item; public purchase starts at first-party intake so the decklist and intake ID are attached to the session. Owner reconciliation 2026-10-30: historical Stripe ACTIVE_LIVEMODE is provider state only. This offer is NOT authorized for customer checkout while settlement, entitlement and automated fulfilment lack independent proof. No promotion.",
+      "checkout_available": false,
+      "public_distribution_allowed": false,
+      "activation_state": "HELD_NOT_SELLABLE",
+      "approval_required": true
     },
     {
       "offer_id": "QUOTE-COMPARE-49",
