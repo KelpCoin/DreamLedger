@@ -32,3 +32,18 @@ This is not yet externally immutable. A privileged database operator can rewrite
 ## Short verification
 
 Run `node --test handlers/cube/mtg-trades.test.js`. The private review workflow emits `artifacts/mtg-trade-ledger-proof.json` keyed by exact commit SHA. This evidence is CODE_PROOF, not a two-party trade receipt, payment or legal certification.
+
+## Trade-first product decision, 31 October 2026
+
+The owner has explicitly decided NOT to build a general MTG forum, votes, karma, or generic deck-sharing network as an acquisition strategy. These duplicate incumbent advantages. The product wedge is a FREE New Zealand-first bilateral trade record that captures exact accepted card terms and self-reported dispatch/receipt. A public /mtg/trade/?id=<uuid> page is an opt-in, anonymous projection, only after BOTH traders authorize sharing. No name, account ID, contact, tracking number, notes, private photo hash, or delivery address is displayed. The endpoint returns 404 if the sharing requirement is not met. An agreed trade can be disputed later.
+
+IMPORTANT: NZ genuine private sales generally fall outside FTA and CGA, but CCLA and contract-law remedies can still apply. Recording evidence does not mean no dispute or proven shipment. EchoMTG already offers haves/wants matching and shipping confirmation, so do not claim invention of trade logging. Our candidate differentiator is evidence quality and NZ-specific workflow, still unproven commercially.
+
+## What is implemented versus still missing
+
+- Code-stage: existing migration for terms and consent; additive migration for dispatch, receipt, mutual public opt-in/unpublish, dispute and anonymous public projection; signed-session action API; public GET API; static responsive receipt view; ephemeral PostgreSQL and Node tests.
+- NOT DONE: migrations in even the actual Neon staging deployment, independent authenticated real two-user end-to-end trial, durable third-party anchoring, signed nonrepudiation, mail/notifications, seller matching, proven shipment, delivery evidence from carrier, rate limiting and independent review, reputation from genuinely completed trades, production deployment, customer records and turnover.
+- Deployment must require current exact-head CI and owner approval. Server-side feature flag defaults OFF. The app DB role should have only audited EXECUTE access after ownership and privileges are separated. No table DML, PUBLIC function EXECUTE, or BYPASSRLS.
+- A stored hash chain is tamper-evident relative to the preserved events, NOT immutable to the database administrator. Independently time-stamped daily heads, access controls, retention backups and third-party verification remain release requirements.
+- Public permalink uses /mtg/trade/?id=UUID. The desired pretty /mtg/trade/UUID route is a separate Vercel rewrite decision requiring independently tested deployment routing. Never claim it exists already.
+- Diagnostic is NZ$29, Patreon membership exemption only after verified eligibility. No free diagnostic CTA should be released from stale templates.
