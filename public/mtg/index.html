@@ -28,11 +28,11 @@
 <a class="mtg-button" href="#shop">Explore decks and singles</a></div>
 <div class="mtg-micro"><span><b>NZ first</b> · Global players welcome</span><span><b>0%</b> platform commission</span><span><b>Discord</b> trading now</span></div>
 </div>
-<div class="mtg-visual" aria-label="Stylized three-card Commander collection illustration">
+<div class="mtg-visual" role="img" aria-label="Illustrative Commander card art from Scryfall; actual physical card printings may differ">
 <div class="mtg-fan" aria-hidden="true">
-<div class="fan-card"><span class="fan-title">THE COMMANDER</span><div class="fan-art"><span>✧</span></div><div class="fan-foot"></div></div>
-<div class="fan-card"><span class="fan-title">THE COLLECTION</span><div class="fan-art"><span>✥</span></div><div class="fan-foot"></div></div>
-<div class="fan-card"><span class="fan-title">THE NEXT TRADE</span><div class="fan-art"><span>↗</span></div><div class="fan-foot"></div></div>
+<div class="fan-card"><span class="fan-title">THE COMMANDER</span><div class="fan-art"><img src="https://api.scryfall.com/cards/named?exact=Dwynen%2C%20Gilt-Leaf%20Daen&amp;format=image&amp;version=normal" alt="" loading="lazy" referrerpolicy="no-referrer"></div><div class="fan-foot"></div></div>
+<div class="fan-card"><span class="fan-title">THE COLLECTION</span><div class="fan-art"><img src="https://api.scryfall.com/cards/named?exact=Jon%20Irenicus%2C%20Shattered%20One&amp;format=image&amp;version=normal" alt="" loading="lazy" referrerpolicy="no-referrer"></div><div class="fan-foot"></div></div>
+<div class="fan-card"><span class="fan-title">THE NEXT TRADE</span><div class="fan-art"><img src="https://api.scryfall.com/cards/named?exact=Quintorius%2C%20Field%20Historian&amp;format=image&amp;version=normal" alt="" loading="lazy" referrerpolicy="no-referrer"></div><div class="fan-foot"></div></div>
 </div><div class="mtg-visual-badge"><span><strong>WORD IS BOND</strong> · Digital trade ledger coming</span><span aria-hidden="true">◈</span></div>
 </div>
 </section>
@@ -69,7 +69,7 @@
 </section>
 </div></main>
 <footer class="mtg-footer"><div class="mtg-container"><div class="mtg-footer-grid">
-<div><a class="mtg-wordmark" href="/mtg/"><span class="mtg-mark">D</span><span>dream<span class="mtg-mark-text">ledger</span></span></a><p>For the Magic players of Aotearoa. Independent fan platform, not affiliated with Wizards of the Coast.</p></div>
+<div><a class="mtg-wordmark" href="/mtg/"><span class="mtg-mark">D</span><span>dream<span class="mtg-mark-text">ledger</span></span></a><p>For the Magic players of Aotearoa. Independent fan platform, not affiliated with Wizards of the Coast. Illustrative art via Scryfall; physical printings may differ.</p></div>
 <div><a href="/mtg/">Magic home</a><a href="/mtg/community.html">Community trading</a><a href="/mtg/exchange.html">Cards & decks</a><a href="/mtg/diagnostic/">Commander Diagnostic</a>
 <p><a href="https://discord.gg/tKxJkhJhCp" target="_blank" rel="noopener noreferrer">Happy Homarid MTG Discord</a><a href="https://www.patreon.com/happyhomarid" target="_blank" rel="noopener noreferrer">Happy Homarid Patreon</a></p></div>
 </div><p>Free peer listings and trades. 0% DreamLedger commission. Actual, disclosed payment processing costs may apply to card purchases. No live peer-trade settlement or ledger yet.</p></div></footer>
@@ -82,6 +82,11 @@ const link=(url)=>typeof url==='string'&&/^\/mtg\/[a-z0-9-]+\.html$/i.test(url)?
 function el(tag,cls,text){const v=document.createElement(tag);if(cls)v.className=cls;if(text!==undefined)v.textContent=String(text);return v}
 function product(p,kind){
  const card=el('article','mtg-product'),art=el('div','mtg-product-art'),body=el('div','mtg-product-content');
+ if(kind==='deck'&&typeof p.commander==='string'&&p.commander.trim()){
+  const img=el('img','');img.alt='';img.loading='lazy';img.referrerPolicy='no-referrer';
+  img.src='https://api.scryfall.com/cards/named?exact='+encodeURIComponent(p.commander.trim())+'&format=image&version=art_crop';
+  art.append(img);
+ }
  art.append(el('span','',kind==='single'?'OWNER COLLECTION · SINGLE':'OWNER COLLECTION · COMMANDER'));
  body.append(el('div','mtg-kicker',kind==='single'?(p.set_code?String(p.set_code).toUpperCase()+' #'+String(p.collector_number||''): 'SINGLE CARD'):String(p.commander||'COMMANDER')));
  body.append(el('h3','',p.name||p.card_name||'Unlisted card'));
