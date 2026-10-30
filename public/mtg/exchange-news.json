@@ -1,0 +1,33 @@
+{
+  "schema": "dreamledger/mtg-reviewed-news/v1",
+  "items": [
+    {
+      "title": "Aotearoa exchange: free trade binder and Commander gallery preview",
+      "url": "https://dreamledger.org/mtg/exchange.html",
+      "source": "DreamLedger release draft",
+      "date": "2026-10-31",
+      "reviewed": true
+    },
+    {
+      "title": "Free deck diagnostic: review the Quintorius list",
+      "url": "https://dreamledger.org/mtg/diagnostic/",
+      "source": "DreamLedger release draft",
+      "date": "2026-10-31",
+      "reviewed": true
+    },
+    {
+      "title": "Search verified Magic card printings through Scryfall",
+      "url": "https://scryfall.com/advanced",
+      "source": "Scryfall",
+      "date": "2026-10-31",
+      "reviewed": true
+    },
+    {
+      "title": "Explore MTGStocks market movements (external research)",
+      "url": "https://www.mtgstocks.com/",
+      "source": "MTGStocks",
+      "date": "2026-10-31",
+      "reviewed": true
+    }
+  ]
+}
