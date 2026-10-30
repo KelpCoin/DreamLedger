@@ -6,8 +6,8 @@
   "name": "Magic: The Gathering",
   "short": "Magic",
   "tagline": "Your NZ Magic gathering place: community trades and a separate owner deck collection.",
-  "accent": "#d8b56b",
-  "accent_bright": "#e8c87a",
+  "accent": "#45fa84",
+  "accent_bright": "#79ffa2",
   "route": "/mtg/",
   "list_route": "/mtg-list",
   "catalog": "/data/mtg-catalog.json",
@@ -146,5 +146,7 @@
     "inventory_authority": "UNVERIFIED",
     "payment_reconciliation": "UNVERIFIED",
     "fulfillment": "UNVERIFIED"
-  }
+  },
+  "surface_theme": "dreamledger-neon-black",
+  "font_family": "system-ui,-apple-system,Segoe UI,Arial,sans-serif"
 }
