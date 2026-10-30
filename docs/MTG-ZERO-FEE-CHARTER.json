@@ -1,0 +1,53 @@
+{
+  "schema": "dreamledger/mtg-zero-fee-charter/v1",
+  "scope": {
+    "silo": "mtg",
+    "base_route": "/mtg/",
+    "includes": [
+      "NZ players",
+      "international players",
+      "individual sellers",
+      "game stores",
+      "B2B traders"
+    ]
+  },
+  "currency": "NZD",
+  "rates_bps": {
+    "buyer_platform_fee": 0,
+    "seller_platform_fee": 0,
+    "listing_fee": 0,
+    "trade_fee": 0,
+    "auction_platform_fee": 0,
+    "diagnostic_fee": 0,
+    "community_access_fee": 0,
+    "account_fee": 0,
+    "deck_building_fee": 0,
+    "basic_visibility_fee": 0
+  },
+  "promises": [
+    "Free baseline participation does not require a Patreon subscription, account payment or paid upgrade.",
+    "Digital trades can happen without payment processing, therefore no Stripe fee applies to a pure card-for-card trade.",
+    "For a paid physical item, the seller's agreed item price, any disclosed real shipping and taxes remain separate from DreamLedger platform fees.",
+    "If Stripe is used, only actual, disclosed Stripe processing costs may be passed through, without DreamLedger markup. No fee may be described as a Stripe cost unless independently verified.",
+    "No paid placement or ranking currently operates. Any future voluntary sponsorship requires explicit owner approval and must not compromise free organic discovery.",
+    "B2B and P2P exchange participation are free.",
+    "Disputes, fraudulent listings, and unsupported payment methods do not create an automatic DreamLedger charge."
+  ],
+  "controls": {
+    "automatic_charge_authorized": false,
+    "compulsory_paid_upgrade": false,
+    "paid_visibility_enabled": false,
+    "platform_commission_enabled": false,
+    "public_rollout_approval": "OWNER_REQUIRED",
+    "seller_settlement_enabled": false
+  },
+  "legacy_hold": {
+    "sku": "COMMANDER-DECK-DIAGNOSTIC-001",
+    "historic_price_nzd": 29,
+    "public_checkout": "HELD",
+    "new_free_browser_tool": "/mtg/diagnostic/",
+    "legacy_product_record": "PRESERVED_UNMODIFIED"
+  },
+  "boundary": "Only MTG. Do not change fee or privacy rules in unrelated silos.",
+  "source_policy": "docs/BECK-SILO-FEE-POLICY.json"
+}
