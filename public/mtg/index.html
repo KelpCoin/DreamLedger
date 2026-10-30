@@ -214,9 +214,7 @@ applyManifest().then(loadCatalog);
         const m=safeMox(x.moxfield_url);
         return '<article class="deck"><div class="deck-banner">DreamLedger owner · Commander</div><div class="deck-body">'+
           '<div class="tag">'+esc(title(x.commander))+'</div><h3>'+esc(title(x.name))+'</h3>'+
-          '<p class="desc">Indicative price. Stock and exact cards confirmed on enquiry.</p><div class="price">Approx. NZ
-</html>
-+Number(x.price_nzd).toFixed(2)+'</div>'+
+          '<p class="desc">Indicative price. Stock and exact cards confirmed on enquiry.</p><div class="price">Approx. NZ$'+Number(x.price_nzd).toFixed(2)+'</div>'+
           '<div class="actions"><a class="see" href="'+esc(mail('deck',title(x.name)))+'">Ask about this deck</a>'+
           (m?'<a class="see" href="'+esc(m)+'" target="_blank" rel="noopener noreferrer">Full decklist on Moxfield</a>':'')+
           '</div></div></article>';
@@ -230,9 +228,7 @@ applyManifest().then(loadCatalog);
       return '<article class="deck"><div class="deck-banner">DreamLedger owner · Single</div><div class="deck-body">'+
        '<div class="tag">'+esc(printing)+'</div><h3>'+esc(title(x.card_name))+'</h3>'+
        '<p class="desc">'+esc(title(x.condition)||'Condition on request')+'</p>'+
-       '<div class="price">NZ
-</html>
-+Number(x.price_nzd).toFixed(2)+'</div>'+
+       '<div class="price">NZ$'+Number(x.price_nzd).toFixed(2)+'</div>'+
        '<p class="desc">Enquiry only until inventory and checkout are individually verified.</p>'+
        '<div class="actions"><a class="see" href="'+esc(mail('single',title(x.card_name)))+'">Ask about this card</a></div></div></article>';
     }).join('');
