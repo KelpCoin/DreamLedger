@@ -1,0 +1,21 @@
+name: BECK Modern Held MTG Compiler Contract
+on:
+  pull_request:
+    paths:
+      - 'BEC-PRIME/scripts/Patch-MTG-CommerceSurface.js'
+      - 'scripts/test-mtg-legacy-patch-boundary.cjs'
+      - '.github/workflows/mtg-legacy-patch-boundary.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Assert modern held template and fail-closed unknown boundary
+        run: node scripts/test-mtg-legacy-patch-boundary.cjs

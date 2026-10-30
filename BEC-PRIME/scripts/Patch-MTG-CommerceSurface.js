@@ -30,6 +30,27 @@ function writeProof(status = 'PASS') {
   console.log(JSON.stringify(proof, null, 2));
 }
 
+// Recognize the current NZ deck-grid implementation, but only when it
+// explicitly cross-checks inventory and keeps checkout held. This is NOT an
+// authorization to publish/sell or a fallback for unknown templates.
+function isKnownHeldModernDeckGrid(html) {
+  const required = [
+    'id="grid"',
+    "const CATALOG='/data/mtg-catalog.json'",
+    "const decks=data.products.filter(p=>p&&p.status==='published'&&isPhysical(p));",
+    "Boolean(p.checkout_available)===Boolean(m.checkout_available)",
+    "if(!r.ok||!g.ok)throw new Error('Catalogue unavailable; purchases held')",
+    'Checkout held until independent reservation and fulfilment proof.'
+  ];
+  const forbidden = [
+    'buy.stripe.com',
+    "fetch('/api/offer-checkout/create'",
+    'window.location.assign(data.checkout_url)'
+  ];
+  return required.every(x => html.includes(x)) &&
+    forbidden.every(x => !html.includes(x));
+}
+
 function patch() {
   let html = fs.readFileSync(SOURCE, 'utf8');
   if (html.includes(MARKER)) {
@@ -50,8 +71,7 @@ function patch() {
     // embeds no such function. DO NOT splice the legacy renderer into it.
     // Safely skip an obsolete MTG-only presentation patch without blocking
     // the niche-agnostic commerce compiler for other silos.
-    if (html.includes('id="grid"') && html.includes('const decks=(data.products||[]).filter(isPhysical);') &&
-        html.includes('See cards &amp; buy')) {
+    if (isKnownHeldModernDeckGrid(html)) {
       console.log('MTG_LEGACY_PATCH_SKIPPED_MODERN_TEMPLATE');
       writeProof('SKIPPED_MODERN_TEMPLATE_CHECKOUT_UNVERIFIED');
       return;
@@ -108,4 +128,5 @@ rail.querySelectorAll('.mtg-buy').forEach(button=>button.addEventListener('click
   writeProof();
 }
 
-patch();
+if (require.main === module) patch();
+module.exports = { patch, isKnownHeldModernDeckGrid };
