@@ -41,13 +41,14 @@ jobs:
             }
           }
           const html = fs.readFileSync('mtg/index.html', 'utf8');
-          if (!html.includes('/public/catalog.json')) throw new Error('Root preview catalogue must use tracked public catalogue data');
+          if (!html.includes('/data/mtg-catalog.json') || !html.includes('/catalog.json')) throw new Error('Master homepage must read both tracked catalogues');
           const liveHtml = fs.readFileSync('public/mtg/index.html', 'utf8');
-          if (!liveHtml.includes("get('/catalog.json')")) throw new Error('Live public MTG page must load the tracked catalogue.json');
+          if (!liveHtml.includes("read('/catalog.json')") || !liveHtml.includes("read('/data/mtg-catalog.json')")) throw new Error('Live public MTG homepage must load both tracked catalogues');
           for (const page of ['public/mtg/quintorius-field-historian.html', 'public/mtg/dwynen-gilt-leaf-daen.html']) {
             if (!fs.existsSync(page)) throw new Error('Missing deployed public route: ' + page);
           }
-          if (!html.includes('EDH_QUINTORIUS_0002') || !html.includes('EDH_DWYNEN_0003')) throw new Error('Catalogue must prioritize the new decks');
+          const mtgCatalog=JSON.parse(fs.readFileSync('public/data/mtg-catalog.json','utf8'));
+          if (!['EDH_QUINTORIUS_0002','EDH_DWYNEN_0003'].every(id => mtgCatalog.products.some(p => p.id===id))) throw new Error('Canonical catalogue must retain the two featured decks');
           for (const page of ['mtg/quintorius-field-historian.html', 'mtg/dwynen-gilt-leaf-daen.html']) {
             const body = fs.readFileSync(page, 'utf8');
             if (!body.includes('decklist') && !body.includes('decklist')) throw new Error('Missing decklist reference in ' + page);
