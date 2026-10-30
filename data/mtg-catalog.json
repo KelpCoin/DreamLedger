@@ -3,7 +3,7 @@
   "silo": "mtg",
   "currency": "NZD",
   "shipping": "Free shipping within Aotearoa New Zealand unless noted.",
-  "updated": "2026-10-14",
+  "updated": "2026-10-27",
   "products": [
     {
       "id": "EDH_QUINTORIUS_0002",
@@ -39,47 +39,14 @@
       "sale_mode": "claim_by_message",
       "checkout_available": false,
       "detail_url": "/mtg/dwynen-gilt-leaf-daen.html",
-      "claim_url": "mailto:hello@dreamledger.org?subject=Buy%20Dwynen%20Commander%20deck%20NZ%2490&body=I%20want%20to%20buy%20the%20Dwynen%20Elf%20tribal%20Commander%20deck%20(NZ%2490%2C%20free%20NZ%20shipping).",
+      "claim_url": "mailto:hello@dreamledger.org?subject=Buy%20Dwynen%20Commander%20deck%20NZ%2490&body=I%20want%20to%20buy%20the%20Dwynen%20Gilt-Leaf%20Daen%20Commander%20deck%20(NZ%2490%2C%20free%20NZ%20shipping).",
       "commander": "Dwynen, Gilt-Leaf Daen"
     },
     {
-      "id": "EDH_0001",
-      "sku": "EDH-0001",
-      "name": "EDH_0001 — Commander deck",
-      "description": "Flagship physical Commander deck from the NZ collection. One unit.",
-      "price": 400,
-      "currency": "NZD",
-      "status": "published",
-      "inventory": 1,
-      "silo": "mtg",
-      "category": "commander-deck",
-      "sale_mode": "claim_by_message",
-      "checkout_available": false,
-      "detail_url": "/buy/edh-0001/",
-      "claim_url": "mailto:hello@dreamledger.org?subject=Buy%20EDH_0001%20Commander%20deck%20NZ%24400&body=I%20want%20to%20buy%20EDH_0001%20(NZ%24400).",
-      "commander": "See listing"
-    },
-    {
-      "id": "COMMANDER-DECK-DIAGNOSTIC-001",
-      "sku": "CMD-DIAG-29",
-      "name": "Commander Deck Diagnostic",
-      "description": "Held. Digital service, not a physical card or deck. Not currently offered for purchase.",
-      "price": 29,
-      "currency": "NZD",
-      "status": "held",
-      "inventory": 0,
-      "silo": "mtg",
-      "category": "digital-service",
-      "sale_mode": "checkout",
-      "checkout_available": false,
-      "detail_url": "/buy/COMMANDER-DECK-DIAGNOSTIC-001",
-      "commander": null
-    },
-    {
       "id": "EDH_JON_IRENICUS_0004",
-      "sku": "EDH-JON-IRENICUS-SHATTERED-ONE-004",
-      "name": "Jon Irenicus, Shattered One – Give Them the Problem",
-      "description": "Chaotic Dimir Commander deck built around gifting opponents dangerous or restrictive creatures they are forced to keep. Fully sleeved, rigorously playtested, and ready to play.",
+      "sku": "EDH-JON-IRENICUS",
+      "name": "Jon Irenicus, Shattered One — Commander deck",
+      "description": "Dimir table-politics Commander. Fully sleeved, playtested. Physical deck for sale in NZ.",
       "price": 220,
       "patreon_price": 200,
       "currency": "NZD",
@@ -90,27 +57,41 @@
       "sale_mode": "claim_by_message",
       "checkout_available": false,
       "detail_url": "/mtg/jon-irenicus-shattered-one.html",
-      "claim_url": "mailto:hello@dreamledger.org?subject=Claim%20Jon%20Irenicus%20Commander%20Deck&body=I%27d%20like%20to%20claim%20the%20Jon%20Irenicus%2C%20Shattered%20One%20Commander%20deck%20(NZ%24220%2C%20or%20NZ%24200%20for%20Patreon%20members).%20Please%20confirm%20availability%20and%20shipping.",
+      "claim_url": "mailto:hello@dreamledger.org?subject=Claim%20Jon%20Irenicus%20Commander%20Deck&body=I%27d%20like%20to%20claim%20the%20Jon%20Irenicus%2C%20Shattered%20One%20Commander%20deck.%20Please%20confirm%20availability%20and%20shipping.",
       "decklist_url": "https://manabox.app/decks/AZ2BaCy-c-a8MpZUUcgxqw",
-      "commander": "Jon Irenicus, Shattered One",
-      "metadata": {
-        "archetype": "Table Politician (Chaotic)",
-        "strategy": "Give opponents creatures that restrict their plays or punish them for using them, then manipulate ownership and combat decisions to keep the table off-balance.",
-        "patron_price_nzd": 200,
-        "patron_url": "https://patreon.com/happyhomarid",
-        "shipping": "Free shipping within Aotearoa New Zealand",
-        "tags": [
-          "mtg",
-          "magicthegathering",
-          "edh",
-          "commander",
-          "dimir",
-          "jonirenicus",
-          "edhcommunity",
-          "mtgsale"
-        ],
-        "payment_note": "DM to claim. Online checkout is not enabled for this listing."
-      }
+      "commander": "Jon Irenicus, Shattered One"
+    },
+    {
+      "id": "EDH_0001",
+      "sku": "EDH_0001",
+      "name": "Edward Kenway - Pacin' On The Plank - Commander deck",
+      "commander": "Edward Kenway",
+      "description": "Edward Kenway Commander deck. Owner-locked NZ$400 price. Inventory and fulfilment unverified; not available for checkout until physical attestation, reservation and delivery proof.",
+      "price": 400,
+      "currency": "NZD",
+      "status": "published",
+      "inventory": 0,
+      "silo": "mtg",
+      "category": "commander-deck",
+      "sale_mode": "request_confirmation",
+      "checkout_available": false,
+      "checkout_url": null,
+      "availability": "review_required"
+    },
+    {
+      "id": "COMMANDER-DECK-DIAGNOSTIC-001",
+      "sku": "CMD-DIAG-29",
+      "name": "Commander Deck Diagnostic",
+      "description": "Held digital service; not currently available for purchase.",
+      "price": 29,
+      "currency": "NZD",
+      "status": "held",
+      "inventory": 0,
+      "inventory_type": "digital",
+      "silo": "mtg",
+      "category": "digital-service",
+      "sale_mode": "disabled",
+      "checkout_available": false
     }
   ]
 }
