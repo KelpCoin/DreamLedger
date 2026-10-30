@@ -7,7 +7,8 @@ const UUID=/^[0-9a-f-]{36}$/i;
 const QUERIES={
  propose:'SELECT marketplace.mtg_trade_propose($1::text,$2::text,$3::jsonb,$4::text) AS receipt',
  act:'SELECT marketplace.mtg_trade_act($1::text,$2::uuid,$3::text,$4::text,$5::text) AS receipt',
- receipt:'SELECT marketplace.mtg_trade_receipt($1::text,$2::uuid) AS receipt'
+ receipt:'SELECT marketplace.mtg_trade_receipt($1::text,$2::uuid) AS receipt',
+ transition:'SELECT marketplace.mtg_trade_transition($1::text,$2::uuid,$3::text,$4::text,$5::text,$6::text) AS receipt'
 };
 function reply(res,code,body){
  res.statusCode=code;
@@ -83,8 +84,20 @@ function createHandler(deps={}){
        !ACCOUNT.test(b.party_b||'')||b.party_b===actor||!KEY.test(b.idempotency_key||''))
        return reply(res,400,{error:'INVALID_PROPOSAL'});
      sql=QUERIES.propose;args=[actor,b.party_b,JSON.stringify(validateTerms(b.terms)),b.idempotency_key];
+    }else if(['dispatch','receive','publish','unpublish','dispute'].includes(b.action)){
+     if(!Object.keys(b).every(k=>['action','trade_id','terms_sha256','idempotency_key','evidence_sha256','acknowledge_publication'].includes(k))||
+       !UUID.test(b.trade_id||'') || !HASH.test(b.terms_sha256||'')||
+       !KEY.test(b.idempotency_key||''))return reply(res,400,{error:'INVALID_TRANSITION'});
+     const handoff=['dispatch','receive'].includes(b.action);
+     if((handoff&&(!HASH.test(b.evidence_sha256||'')||b.acknowledge_publication!==undefined))||
+       (!handoff&&b.evidence_sha256!==undefined)||
+       (b.action==='publish'&&b.acknowledge_publication!==true)||
+       (b.action!=='publish'&&b.acknowledge_publication!==undefined))
+       return reply(res,400,{error:'INVALID_TRANSITION'});
+     sql=QUERIES.transition;
+     args=[actor,b.trade_id,b.action,b.terms_sha256,b.idempotency_key,handoff?b.evidence_sha256:null];
     }else{
-     if(!['accept','decline','cancel','dispute'].includes(b.action)||
+     if(!['accept','decline','cancel'].includes(b.action)||
        !UUID.test(b.trade_id||'')||!KEY.test(b.idempotency_key||'')||
        !HASH.test(b.terms_sha256||'')||
        (b.action==='accept'&&b.acknowledge_exact_terms!==true)||
