@@ -46,6 +46,11 @@ jobs:
           node BEC-PRIME/factory/UniversalFactoryCompiler.js
           npm run compile:factory-approval
 
+      - name: Check runner Stripe credential gate
+        env:
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+        run: node ops/cloud/credential-gate.cjs stripe
+
       - name: Reconcile approved live offers
         env:
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
@@ -56,6 +61,7 @@ jobs:
         run: npm run factory:x402
 
       - name: Upload factory evidence
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: factory-factory-evidence-${{ github.run_id }}
@@ -63,6 +69,7 @@ jobs:
             BEC-PRIME/data/factory-factory/**
             BEC-PRIME/data/x402-factory/**
             proof/commerce/latest-approved-offer-reconciliation.json
+            proof/cloud/stripe-credential-presence.json
           if-no-files-found: warn
           retention-days: 14
 
