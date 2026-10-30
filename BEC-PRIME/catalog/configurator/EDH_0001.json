@@ -1,6 +1,6 @@
 {
   "schema_version": "mtg-80-20-config-v1",
-  "status": "LIVE_CONFIGURABLE",
+  "status": "HELD",
   "deck_id": "EDH_0001",
   "name": "Edward Kenway - Grixis Pirates",
   "commander": "Edward Kenway",
@@ -9,7 +9,7 @@
   "bracket_target": "3",
   "base_price_minor": 40000,
   "currency": "NZD",
-  "inventory_status": "ASSEMBLED_BASE_UNIT",
+  "inventory_status": "NO_VERIFIED_AVAILABLE_STOCK",
   "testing_status": "TESTING_DATA_REQUIRED",
   "testing_note": "Do not publish numerical win-rate claims until the complete 100-card decklist and simulation evidence are ingested and verified.",
   "primer_status": "DRAFT_REQUIRED",
