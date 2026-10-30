@@ -26,7 +26,7 @@ jobs:
           node --check BEC-PRIME/cube/clone-silo.js
           node --check BEC-PRIME/cube/cube-batch.js
           node --check BEC-PRIME/cube/render-storefront.js
-          node --test BEC-PRIME/cube/clone-silo.test.js BEC-PRIME/cube/cube-batch.test.js BEC-PRIME/cube/render-storefront.test.js
+          node --test BEC-PRIME/cube/clone-silo.test.js BEC-PRIME/cube/clone-silo.security.test.js BEC-PRIME/cube/cube-batch.test.js BEC-PRIME/cube/render-storefront.test.js
       - name: CUBE two-niche build smoke
         run: |
           OUT="$(mktemp -d)"
