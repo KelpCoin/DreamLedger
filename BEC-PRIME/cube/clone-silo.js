@@ -5,7 +5,8 @@ const path = require('node:path');
 
 const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const ISO_CURRENCY = /^[A-Z]{3}$/;
-const FORBIDDEN = /^(?:secret|password|api_?key|token|credential|customer_data|buyer_data|payment_intent|private_key|stripe_secret|inventory_records)$/i;
+const FORBIDDEN = /(?:^|[_-])(?:secret|password|passwd|token|credential|customer|buyer|payment[_-]?intent|api[_-]?key|private[_-]?key|auth[_-]?header|webhook[_-]?secret|inventory[_-]?records)(?:$|[_-])/i;
+const SECRET_VALUE = /(?:sk_live_|sk_test_|rk_live_|rk_test_|whsec_|-----BEGIN [A-Z ]*PRIVATE KEY-----|Bearer\s+[A-Za-z0-9_.-]{12,})/i;
 const INVENTORY_MODES = new Set(['physical','digital','service','mixed']);
 const PAYMENT_PROVIDERS = new Set(['stripe','external','none']);
 function must(condition, message) {
@@ -15,12 +16,22 @@ function simpleText(value, max, key) {
   must(typeof value === 'string' && value.trim() && value.length <= max, key);
   return value.trim();
 }
-function rejectSecrets(obj) {
+function rejectSecrets(obj, depth=0) {
+  must(depth <= 20, 'excessive input nesting');
+  if (typeof obj === 'string') {
+    must(obj.length <= 4096 && !SECRET_VALUE.test(obj), 'credential-like input string');
+    return;
+  }
   if (!obj || typeof obj !== 'object') return;
-  if (Array.isArray(obj)) { obj.forEach(rejectSecrets); return; }
+  if (Array.isArray(obj)) {
+    must(obj.length <= 500, 'array too large');
+    obj.forEach(value => rejectSecrets(value, depth+1));
+    return;
+  }
+  must(Object.keys(obj).length <= 500, 'object too large');
   for (const [key, value] of Object.entries(obj)) {
     must(!FORBIDDEN.test(key), 'forbidden input: ' + key);
-    rejectSecrets(value);
+    rejectSecrets(value, depth+1);
   }
 }
 function compileSilo(config) {
@@ -109,8 +120,21 @@ function main(args) {
   const config = JSON.parse(fs.readFileSync(args[0], 'utf8'));
   const compiled = compileSilo(config);
   const dir = path.resolve(args[1]);
-  must(!dir.startsWith(path.resolve('public') + path.sep) &&
-       dir !== path.resolve('public'), 'refuse automatic public writes');
+  const repo = path.resolve(__dirname,'..','..');
+  const within = (parent, child) => {
+    const rel=path.relative(parent,child);
+    return rel==='' || (rel!=='..' && !rel.startsWith('..'+path.sep) && !path.isAbsolute(rel));
+  };
+  const publicDir=path.join(repo,'public'),gitDir=path.join(repo,'.git');
+  must(!within(publicDir,dir) && !within(gitDir,dir), 'refuse automatic public writes');
+  let ancestor=dir;
+  while(!fs.existsSync(ancestor)){
+    const next=path.dirname(ancestor);
+    must(next!==ancestor, 'no existing output ancestor');
+    ancestor=next;
+  }
+  const actual=fs.realpathSync(ancestor);
+  must(!within(publicDir,actual) && !within(gitDir,actual),'refuse symlink public writes');
   fs.mkdirSync(dir,{recursive:true});
   for (const [key,file] of Object.entries({manifest:'silo.json',
      catalogue:'catalogue.json',health:'health-contract.json',seedReview:'seed-review.json'}))
