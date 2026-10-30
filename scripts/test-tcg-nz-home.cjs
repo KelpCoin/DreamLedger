@@ -81,15 +81,33 @@ check('Legacy NZ deck pages do not promise attested stock',()=>{
   assert.doesNotMatch(s,/1 in stock|Buy · NZ\$90|buy\.stripe\.com/i);
  }
 });
+check('Magic Scryfall draft has private copy and JSON export',()=>{
+ const s=read('public/mtg-list.html');
+ assert.match(s,/api\.scryfall\.com/);
+ assert.match(s,/private listing draft|private Magic singles listing draft|Drafts save on this device/i);
+ assert.match(s,/localStorage\.setItem/);
+ assert.match(s,/navigator\.clipboard\.writeText/);
+ assert.match(s,/new Blob/);
+ assert.match(s,/Number\.isInteger\(qty\)/);
+ assert.doesNotMatch(s,/Join free to publish|Join to publish|Sell a single<\/h1>/i);
+});
+check('Other TCG game pages explicitly describe previews',()=>{
+ for(const slug of ['pokemon','onepiece','yugioh','lorcana','riftbound','gundam','digimon']){
+  const s=read('public/'+slug+'/index.html');
+  assert.match(s,/Automatic publishing, buyer matching and checkout are not live/);
+  assert.match(s,/No listings are submitted from this game page/);
+  assert.doesNotMatch(s,/Buy &amp; sell singles|>List free<\/a>|>Sell a single<\/a>/);
+ }
+});
 check('Client scripts are syntactically valid',()=>{
- for(const p of [hub,listing,mtg]){
+ for(const p of [hub,listing,mtg,'public/mtg-list.html']){
   const source=read(p);
   const matches=[...source.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)];
   assert.ok(matches.length,p+' has no script');
   for(const m of matches)new vm.Script(m[1],{filename:p});
  }
 });
-const files=[mtg,hub,listing,'public/silos/mtg/silo.json'];
+const files=[mtg,hub,listing,'public/mtg-list.html','public/silos/mtg/silo.json'];
 const proof={
  schema:'BECK/MTG-NZ-TCG-RELEASE-CONTRACT/v1',
  checked_at:new Date().toISOString(),
