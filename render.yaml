@@ -51,6 +51,8 @@ services:
           envVarKey: DREAMLEDGER_TOLL_KEY_SECRET
       - key: TOLL_CHECKOUT_ENABLED
         value: "false"
+      - key: CSV_RESCUE_ACCOUNT_ID
+        value: acct_1SNVPvEGgEAnUFF9
       - key: CSV_RESCUE_LINK_ID
         value: plink_1UVoBUEGgEAnUFF9pVYJ5bEw
       - key: CSV_RESCUE_PRICE_ID
