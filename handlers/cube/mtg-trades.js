@@ -49,7 +49,10 @@ function validateTerms(t){
 }
 function createHandler(deps={}){
  const env=deps.env||(()=>process.env);
- const db=deps.db||((url)=>require('@neondatabase/serverless').neon(url).query);
+ const db=deps.db||((url)=>{
+  const neon=require('@neondatabase/serverless').neon(url);
+  return (sql,args)=>neon.query(sql,args);
+ });
  const identity=deps.identity||session.fromCookie;
  return async function(req,res){
   const cfg=env();
