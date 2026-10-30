@@ -27,6 +27,11 @@ jobs:
       - name: Verify runtime
         run: node --version
 
+      - name: Check Stripe runner credential gate (tile)
+        env:
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+        run: node ops/cloud/credential-gate.cjs stripe
+
       - name: Reconcile settlement evidence (tile)
         env:
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
@@ -46,12 +51,14 @@ jobs:
           cat proof/commerce/tile/reconciliation.sha256
 
       - name: Upload tile settlement proof
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: commerce-settlement-tile-${{ github.run_id }}
           path: |
             proof/commerce/tile/reconciliation.json
             proof/commerce/tile/reconciliation.sha256
+            proof/cloud/stripe-credential-presence.json
           if-no-files-found: error
           retention-days: 90
 
@@ -62,6 +69,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Check Stripe runner credential gate (quote comparison)
+        env:
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+        run: node ops/cloud/credential-gate.cjs stripe
 
       - name: Reconcile settlement evidence (quote comparison)
         env:
@@ -81,12 +93,14 @@ jobs:
           cat proof/commerce/quote-comparison/reconciliation.sha256
 
       - name: Upload quote comparison settlement proof
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: commerce-settlement-quote-${{ github.run_id }}
           path: |
             proof/commerce/quote-comparison/reconciliation.json
             proof/commerce/quote-comparison/reconciliation.sha256
+            proof/cloud/stripe-credential-presence.json
           if-no-files-found: error
           retention-days: 90
 
@@ -97,6 +111,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Check Stripe runner credential gate (diagnostic)
+        env:
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+        run: node ops/cloud/credential-gate.cjs stripe
 
       - name: Reconcile settlement evidence (diagnostic)
         env:
@@ -117,11 +136,13 @@ jobs:
           cat proof/commerce/diagnostic/reconciliation.sha256
 
       - name: Upload diagnostic settlement proof
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: commerce-settlement-diagnostic-${{ github.run_id }}
           path: |
             proof/commerce/diagnostic/reconciliation.json
             proof/commerce/diagnostic/reconciliation.sha256
+            proof/cloud/stripe-credential-presence.json
           if-no-files-found: error
           retention-days: 90

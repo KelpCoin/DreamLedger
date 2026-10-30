@@ -128,6 +128,7 @@ jobs:
             exit 0
           fi
           if [ -z "${RENDER_API_KEY:-}" ]; then
+            printf '{"schema":"BECK/RENDER-RECOVERY-GATE/v1","state":"HOLD_MISSING_CREDENTIAL","credential_value_recorded":false,"production_repaired":false,"pc_required":false}\n' > proof/beck/render-recovery-gate.json
             echo 'RENDER_API_KEY is not configured; cannot self-heal deployment drift.'
             exit 0
           fi
