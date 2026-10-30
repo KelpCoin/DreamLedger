@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - 'BEC-PRIME/gauntlet/AgentActionSnapshot.js'
+      - 'BEC-PRIME/gauntlet/GauntletV6.js'
       - 'BEC-PRIME/gauntlet/AgentActionSnapshot.test.js'
       - 'BEC-PRIME/gauntlet/rulepacks/agent-action-snapshot/**'
       - '.github/workflows/gauntlet-agent-snapshot.yml'
