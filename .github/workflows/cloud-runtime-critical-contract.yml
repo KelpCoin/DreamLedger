@@ -1,0 +1,23 @@
+name: BECK Cloud Runtime Critical Regression
+on:
+  pull_request:
+    paths:
+      - 'BEC-PRIME/scripts/Cloud-Orchestrator.ps1'
+      - 'BEC-PRIME/scripts/DreamLedger-Economic-Bootstrap.ps1'
+      - '.github/workflows/ledger-verifier.yml'
+      - '.github/workflows/orchestrator-tick.yml'
+      - '.github/workflows/economic-supervisor.yml'
+      - 'scripts/test-cloud-critical-repair.ps1'
+      - '.github/workflows/cloud-runtime-critical-contract.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: windows-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify repaired helpers in Windows PowerShell 5.1 without live credentials
+        shell: powershell
+        run: .\\scripts\\test-cloud-critical-repair.ps1
