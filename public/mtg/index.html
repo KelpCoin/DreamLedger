@@ -99,7 +99,13 @@
     <div class="silo-section-h"><h2 class="silo-h2">Featured DreamLedger owner cards &amp; Commander decks</h2></div>
     <p class="decks-help">This is our own inventory, separate from community sellers. Browse the carousel. Some decks show an indicative asking price and a contact link while their full card-by-card printing list is being added. A Stripe buy link appears only after the item, price, stock, postage and checkout are individually approved and verified.</p>
     <div id="status" class="status-bar">Loading the owner catalogue…</div>
-    <div id="grid" class="grid"></div>
+    <div id="grid" class="grid" aria-label="Owner Commander deck carousel"></div>
+  </section>
+  <section class="silo-section" id="singles">
+    <div class="silo-section-h"><h2 class="silo-h2">Owner singles</h2></div>
+    <p class="decks-help">Exact printings and conditions appear only when supplied and checked. Until a single is verified for checkout, contact us for an individual offer. Community sellers use the separate trade space.</p>
+    <div id="singlesStatus" class="status-bar">Checking owner singles catalogue…</div>
+    <div id="singlesGrid" class="grid" aria-label="Owner singles carousel"></div>
   </section>
   <section class="silo-section">
     <div class="diag">
@@ -184,6 +190,56 @@ async function loadCatalog(manifest){
   }
 }
 applyManifest().then(loadCatalog);
+})();
+</script>
+<script>
+(async function(){
+  const grid=document.getElementById('grid'),sg=document.getElementById('singlesGrid'),ss=document.getElementById('singlesStatus');
+  const esc=v=>String(v==null?'':v).replace(/[&<>"']/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x]));
+  const title=v=>String(v||'').trim().slice(0,180);
+  const price=v=>typeof v==='number'&&Number.isFinite(v)&&v>0&&v<=1000000;
+  const mail=(kind,name)=>'mailto:hello@dreamledger.org?subject='+encodeURIComponent('MTG '+kind+' enquiry: '+name);
+  const safeMox=v=>typeof v==='string'&&v.startsWith('https://www.moxfield.com/decks/')&&v.length<150&&
+    /^[A-Za-z0-9_-]+$/.test(v.slice('https://www.moxfield.com/decks/'.length))?v:null;
+  try{
+    const [a,b]=await Promise.all([fetch('/data/mtg-owner-decks.json',{cache:'no-store'}),fetch('/data/mtg-owner-singles.json',{cache:'no-store'})]);
+    if(!a.ok||!b.ok)throw Error('owner feeds missing');
+    const [d,s]=await Promise.all([a.json(),b.json()]);
+    if(d.schema!=='dreamledger/mtg-owner-decks/v1'||d.silo!=='mtg'||!Array.isArray(d.decks)||
+       s.schema!=='dreamledger/mtg-owner-singles/v1'||s.silo!=='mtg'||!Array.isArray(s.singles))throw Error('invalid owner feed');
+    const quick=d.decks.filter(x=>x&&x.status==='listed'&&title(x.name)&&title(x.commander)&&price(x.price_nzd))
+      .filter(x=>!['EDH_0001','EDH_QUINTORIUS_0002','EDH_DWYNEN_0003','EDH_JON_IRENICUS_0004'].includes(x.id)).slice(0,1000);
+    if(quick.length){
+      grid.insertAdjacentHTML('beforeend',quick.map(x=>{
+        const m=safeMox(x.moxfield_url);
+        return '<article class="deck"><div class="deck-banner">DreamLedger owner · Commander</div><div class="deck-body">'+
+          '<div class="tag">'+esc(title(x.commander))+'</div><h3>'+esc(title(x.name))+'</h3>'+
+          '<p class="desc">Indicative price. Stock and exact cards confirmed on enquiry.</p><div class="price">Approx. NZ
+</html>
++Number(x.price_nzd).toFixed(2)+'</div>'+
+          '<div class="actions"><a class="see" href="'+esc(mail('deck',title(x.name)))+'">Ask about this deck</a>'+
+          (m?'<a class="see" href="'+esc(m)+'" target="_blank" rel="noopener noreferrer">Full decklist on Moxfield</a>':'')+
+          '</div></div></article>';
+      }).join(''));
+    }
+    const singles=s.singles.filter(x=>x&&x.status==='listed'&&title(x.card_name)&&price(x.price_nzd)).slice(0,2500);
+    sg.innerHTML=singles.map(x=>{
+      const printing=typeof x.set_code==='string'&&/^[a-z0-9]{2,6}$/i.test(x.set_code)&&
+       typeof x.collector_number==='string'&&/^[a-z0-9-]{1,8}$/i.test(x.collector_number)?
+       x.set_code.toUpperCase()+' #'+x.collector_number:'Printing to be confirmed';
+      return '<article class="deck"><div class="deck-banner">DreamLedger owner · Single</div><div class="deck-body">'+
+       '<div class="tag">'+esc(printing)+'</div><h3>'+esc(title(x.card_name))+'</h3>'+
+       '<p class="desc">'+esc(title(x.condition)||'Condition on request')+'</p>'+
+       '<div class="price">NZ
+</html>
++Number(x.price_nzd).toFixed(2)+'</div>'+
+       '<p class="desc">Enquiry only until inventory and checkout are individually verified.</p>'+
+       '<div class="actions"><a class="see" href="'+esc(mail('single',title(x.card_name)))+'">Ask about this card</a></div></div></article>';
+    }).join('');
+    ss.textContent=singles.length?singles.length+' owner singles listed. Swipe to browse.':
+      'Owner singles are being added. Contact us about a specific card.';
+    if(quick.length)document.getElementById('status').textContent+=' Plus '+quick.length+' quick deck listings for enquiry.';
+  }catch(e){ss.className='status-bar error';ss.textContent='Owner singles catalogue unavailable; unverified inventory is not shown.';}
 })();
 </script>
 </body>
