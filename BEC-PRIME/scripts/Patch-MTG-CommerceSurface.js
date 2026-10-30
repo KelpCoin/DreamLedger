@@ -47,8 +47,28 @@ function isKnownHeldModernDeckGrid(html) {
     "fetch('/api/offer-checkout/create'",
     'window.location.assign(data.checkout_url)'
   ];
-  return required.every(x => html.includes(x)) &&
-    forbidden.every(x => !html.includes(x));
+  const legacyHeld=required.every(x=>html.includes(x)) &&
+    forbidden.every(x=>!html.includes(x));
+  // The 2026 MTG flagship uses a scoped client-side owner catalogue.
+  // The only physically purchasable branch is hard-disabled: its mapped
+  // product objects always carry checkout_verified:false. This is not
+  // checkout verification, nor permission to deploy.
+  const redesignedHeld=[
+    'data-silo="mtg"',
+    'dreamledger-mtg-theme.css',
+    'id="deckRail"',
+    'id="singleRail"',
+    '/data/mtg-catalog.json',
+    '/catalog.json',
+    '/data/mtg-owner-decks.json',
+    'checkout_verified:false',
+    'p.checkout_verified===true',
+    'Only stock-verified items may display a Stripe checkout.'
+  ].every(x=>html.includes(x)) &&
+    !html.includes('window.location.assign(data.checkout_url)') &&
+    !html.includes("fetch('/api/offer-checkout/create'") &&
+    !html.includes('data-dreamledger-mtg-commerce-v2');
+  return legacyHeld || redesignedHeld;
 }
 
 function patch() {
