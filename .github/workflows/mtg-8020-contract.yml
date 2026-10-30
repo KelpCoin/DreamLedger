@@ -19,6 +19,7 @@ on:
       - 'public/digimon/**'
       - 'public/silos/mtg/silo.json'
       - 'scripts/test-tcg-nz-home.cjs'
+      - 'vercel.json'
       - 'public/mtg/customize/**'
       - 'scripts/test-mtg-8020.cjs'
       - '.github/workflows/mtg-8020-contract.yml'
