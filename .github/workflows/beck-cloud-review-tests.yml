@@ -48,7 +48,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: beck-cloud-source-gate-review-\${{ github.run_id }}
+          name: beck-cloud-source-gate-review-${{ github.run_id }}
           path: |
             PROOF-MOLT-BEACH-MVP.json
             source-gate-output.json
