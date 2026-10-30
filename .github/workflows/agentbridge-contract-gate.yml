@@ -17,6 +17,11 @@ on:
       - '.github/workflows/agentbridge-contract-gate.yml'
   pull_request:
     paths:
+      - 'handlers/agentbridge/cosmetic-*'
+      - 'ops/dreammeez/neon_creator_*'
+      - 'api/[...route].ts'
+      - 'public/creator-studio.html'
+      - 'package.json'
       - 'BEC-PRIME/runtime/AgentBridge.js'
       - 'BEC-PRIME/runtime/AgentBridgeFencedAdapter.js'
       - 'BEC-PRIME/runtime/AgentBridgeProxyAdapter.js'
@@ -65,6 +70,25 @@ jobs:
       - name: Test Agent Bridge productization context gate
         run: python -m unittest tests.test_agent_bridge_productization_context -v
 
+      - name: Creator Bridge unit and authorization gate
+        run: |
+          node --check handlers/agentbridge/cosmetic-policy.js
+          node --check handlers/agentbridge/cosmetic-intake.js
+          node --test handlers/agentbridge/cosmetic-policy.test.js handlers/agentbridge/cosmetic-intake.test.js
+      - name: Private Peggy Neon SQL integration (disposable Docker only)
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker run -d --rm --name beck-creator-pg             -e POSTGRES_USER=becko_ci -e POSTGRES_PASSWORD=ci-only             -e POSTGRES_DB=becko_ci postgres:16
+          trap 'docker rm -f beck-creator-pg >/dev/null 2>&1 || true' EXIT
+          for i in $(seq 1 30); do
+            if docker exec beck-creator-pg pg_isready -U becko_ci -d becko_ci >/dev/null 2>&1; then break; fi
+            sleep 1
+          done
+          docker cp ops/dreammeez/neon_creator_intake.sql beck-creator-pg:/tmp/creator-schema.sql
+          docker cp ops/dreammeez/neon_creator_ci_verify.sql beck-creator-pg:/tmp/creator-verify.sql
+          docker exec beck-creator-pg psql -X -U becko_ci -d becko_ci -v ON_ERROR_STOP=1 -f /tmp/creator-schema.sql
+          docker exec beck-creator-pg psql -X -U becko_ci -d becko_ci -v ON_ERROR_STOP=1 -f /tmp/creator-verify.sql
       - name: Report boundary
         run: |
           echo 'PASS: AgentBridge syntax gate executed.'
