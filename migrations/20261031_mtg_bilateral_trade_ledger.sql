@@ -61,7 +61,7 @@ BEGIN
      OR jsonb_typeof(p_terms)<>'object' OR octet_length(p_terms::text)>16000 THEN
     RAISE EXCEPTION 'TRADE_INVALID' USING ERRCODE='22023';
   END IF;
-  v_hash:=encode(digest(convert_to('DL-MTG-TERMS/v1:'||p_terms::text,'UTF8'),'sha256'),'hex');
+  v_hash:=encode(pg_catalog.sha256(convert_to('DL-MTG-TERMS/v1:'||p_terms::text,'UTF8')),'hex');
   INSERT INTO marketplace.mtg_trade_agreements(party_a,party_b,terms,terms_sha256,offer_key)
   VALUES(p_actor,p_other,p_terms,v_hash,p_key)
   ON CONFLICT (party_a,offer_key) DO NOTHING RETURNING * INTO t;
@@ -75,7 +75,7 @@ BEGIN
   v_stamp:=clock_timestamp();
   v_payload:=jsonb_build_object('trade_id',t.id,'seq',1,'action','propose','actor',p_actor,
      'terms_sha256',v_hash,'previous_sha256',repeat('0',64),'at_utc',to_char(v_stamp AT TIME ZONE 'UTC','YYYY-MM-DD"T"HH24:MI:SS.US"Z"'));
-  v_event_hash:=encode(digest(convert_to('DL-MTG-EVENT/v1:'||v_payload::text,'UTF8'),'sha256'),'hex');
+  v_event_hash:=encode(pg_catalog.sha256(convert_to('DL-MTG-EVENT/v1:'||v_payload::text,'UTF8')),'hex');
   INSERT INTO marketplace.mtg_trade_events(trade_id,seq,actor,action,idempotency_key,payload,previous_sha256,event_sha256,happened_at)
     VALUES(t.id,1,p_actor,'propose',p_key,v_payload,repeat('0',64),v_event_hash,v_stamp);
   UPDATE marketplace.mtg_trade_agreements SET seq=1,head_sha256=v_event_hash WHERE id=t.id;
@@ -133,7 +133,7 @@ BEGIN
   v_payload:=jsonb_build_object('trade_id',t.id,'seq',t.seq+1,'action',p_action,'actor',p_actor,
      'terms_sha256',t.terms_sha256,'previous_sha256',t.head_sha256,
      'at_utc',to_char(v_stamp AT TIME ZONE 'UTC','YYYY-MM-DD"T"HH24:MI:SS.US"Z"'));
-  v_event_hash:=encode(digest(convert_to('DL-MTG-EVENT/v1:'||v_payload::text,'UTF8'),'sha256'),'hex');
+  v_event_hash:=encode(pg_catalog.sha256(convert_to('DL-MTG-EVENT/v1:'||v_payload::text,'UTF8')),'hex');
   INSERT INTO marketplace.mtg_trade_events(trade_id,seq,actor,action,idempotency_key,payload,previous_sha256,event_sha256,happened_at)
     VALUES(t.id,t.seq+1,p_actor,p_action,p_key,v_payload,t.head_sha256,v_event_hash,v_stamp);
   UPDATE marketplace.mtg_trade_agreements
