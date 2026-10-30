@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Sell a single · Magic | DreamLedger NZ</title>
-<meta name="description" content="List Magic singles free in New Zealand. Search the card, see the art, set price and condition.">
+<title>Magic card listing draft for NZ | DreamLedger</title>
+<meta name="description" content="Prepare a private Magic singles listing draft for New Zealand with Scryfall search, copyable text and JSON export.">
 <link rel="canonical" href="https://dreamledger.org/mtg-list">
 <link rel="stylesheet" href="/assets/silo-master.css">
 <style>
@@ -28,12 +28,12 @@
 <body class="silo-body">
 <header class="silo-hdr"><div class="silo-hdr-inner">
   <a class="silo-logo" href="/mtg/"><span class="silo-logo-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M4 8l8-5 8 5v8l-8 5-8-5V8z" stroke="currentColor" stroke-width="1.4"/></svg></span><span>Dream<em>Ledger</em> · Magic</span></a>
-  <nav class="silo-nav"><a href="/mtg/">Decks</a><a href="/mtg-list">Sell single</a><a class="silo-cta" href="/register">Join free</a></nav>
+  <nav class="silo-nav"><a href="/mtg/">Decks</a><a href="/mtg-list">Card draft</a><a class="silo-cta" href="/register">Join free</a></nav>
 </div></header>
 <main class="silo-wrap" style="padding-top:28px;padding-bottom:80px">
-  <p class="silo-eyebrow">Free listing · 0% success fee</p>
-  <h1 class="silo-display" style="max-width:12ch">Sell a single</h1>
-  <p class="silo-lead">Search the official card name, pick the print, set condition and NZD price.</p>
+  <p class="silo-eyebrow">Free private listing draft · New Zealand</p>
+  <h1 class="silo-display" style="max-width:12ch">Draft a Magic listing</h1>
+  <p class="silo-lead">Search Scryfall for a card preview, set the condition and your NZD ask. The draft is private: no listing is automatically published.</p>
   <div class="layout">
     <div class="form-card">
       <label class="silo-label" for="q">Card name</label>
@@ -46,8 +46,8 @@
           <select class="silo-select" id="finish"><option>Non-foil</option><option>Foil</option><option>Etched</option></select></div>
       </div>
       <div class="row two">
-        <div><label class="silo-label" for="price">Price (NZD)</label><input class="silo-input" id="price" type="number" min="0" step="0.5" placeholder="12"></div>
-        <div><label class="silo-label" for="qty">Quantity</label><input class="silo-input" id="qty" type="number" min="1" value="1"></div>
+        <div><label class="silo-label" for="price">Price (NZD)</label><input class="silo-input" id="price" type="number" min="0.5" step="0.01" required placeholder="12"></div>
+        <div><label class="silo-label" for="qty">Quantity</label><input class="silo-input" id="qty" type="number" min="1" step="1" max="9999" value="1" required></div>
       </div>
       <div class="row two">
         <div><label class="silo-label" for="city">City</label><input class="silo-input" id="city" placeholder="Tauranga"></div>
@@ -56,12 +56,14 @@
       </div>
       <label class="silo-label" for="notes">Notes (optional)</label>
       <textarea class="silo-textarea" id="notes" placeholder="Language, set code, slight whitening…"></textarea>
-      <p class="hint">Draft saves on this device. Publish requires an account so deals stay reachable.</p>
+      <p class="hint">Drafts save on this device only. No automatic publication, buyer matching, reservations or checkout.</p>
       <div class="silo-actions" style="margin-top:16px">
         <button type="button" class="silo-btn silo-btn-gold" id="save">Save draft</button>
-        <a class="silo-btn silo-btn-line" href="/register">Join to publish</a>
+        <button type="button" class="silo-btn silo-btn-line" id="copy" disabled>Copy listing</button>
+        <button type="button" class="silo-btn silo-btn-line" id="download" disabled>Download JSON</button>
       </div>
-      <p id="msg" class="ok" hidden></p>
+      <p id="msg" class="ok" role="status" aria-live="polite" hidden></p>
+      <pre id="listingPreview" class="hint" style="white-space:pre-wrap;overflow-wrap:anywhere">Save a draft to generate a shareable description.</pre>
     </div>
     <aside class="preview">
       <p class="silo-eyebrow">Buyer preview</p>
@@ -104,10 +106,68 @@
       }catch(e){results.style.display='none';}
     },280);
   });
+  let current=null,listingText='';
+  const msg=document.getElementById('msg');
+  function announce(message){msg.hidden=false;msg.textContent=message;}
+  function describe(d){
+    return [
+      'Magic: The Gathering / NZ',
+      'Card: '+d.title,
+      'Printing: '+(d.printing||'Confirm with seller'),
+      'Condition: '+d.condition,
+      'Finish: '+d.finish,
+      'Asking price: NZ$'+d.price_nzd.toFixed(2)+' each',
+      'Quantity: '+d.quantity,
+      'City/region: '+d.city,
+      'Delivery: '+d.meetup_or_post,
+      'Notes: '+(d.notes||'None supplied'),
+      'Availability, exact printing, actual card photos and delivery terms must be confirmed before payment.'
+    ].join('\n');
+  }
   document.getElementById('save').addEventListener('click',function(){
-    const draft={title:selected&&selected.name||q.value.trim(),scryfall_id:selected&&selected.id||null,condition:document.getElementById('condition').value,finish:document.getElementById('finish').value,price_nzd:Number(document.getElementById('price').value)||0,quantity:Number(document.getElementById('qty').value)||1,city:document.getElementById('city').value.trim(),meetup_or_post:document.getElementById('ship').value,notes:document.getElementById('notes').value.trim(),saved_at:new Date().toISOString()};
-    try{localStorage.setItem('dreamledger_mtg_single_draft',JSON.stringify(draft));}catch(e){}
-    const msg=document.getElementById('msg'); msg.hidden=false; msg.textContent='Draft saved on this device. Join free to publish.';
+    const price=Number(document.getElementById('price').value);
+    const qty=Number(document.getElementById('qty').value);
+    const title=q.value.trim(),city=document.getElementById('city').value.trim();
+    if(!title||!city||!Number.isFinite(price)||price<.5||price>1000000||!Number.isInteger(qty)||qty<1||qty>9999){
+      announce('Enter the card name, region, valid NZD price and whole-card quantity before saving.');return;
+    }
+    const draft={
+      schema:'dreamledger/mtg-private-listing-draft/v1',
+      silo:'mtg',
+      title,
+      scryfall_id:selected&&selected.name===title?selected.id:null,
+      printing:selected&&selected.name===title?[selected.set_name,selected.collector_number].filter(Boolean).join(' / '):'',
+      condition:document.getElementById('condition').value,
+      finish:document.getElementById('finish').value,
+      price_nzd:price,quantity:qty,city,
+      meetup_or_post:document.getElementById('ship').value,
+      notes:document.getElementById('notes').value.trim(),
+      saved_at:new Date().toISOString()
+    };
+    current=draft;listingText=describe(draft);
+    document.getElementById('listingPreview').textContent=listingText;
+    document.getElementById('copy').disabled=false;
+    document.getElementById('download').disabled=false;
+    try{
+      localStorage.setItem('dreamledger_mtg_single_draft',JSON.stringify(draft));
+      announce('Private draft saved on this device. No listing was published.');
+    }catch(e){announce('Local storage is unavailable. Use Copy listing or Download JSON to keep your draft.');}
+  });
+  document.getElementById('copy').addEventListener('click',async function(){
+    if(!current)return;
+    try{
+      if(!navigator.clipboard||!navigator.clipboard.writeText)throw new Error('Clipboard unavailable');
+      await navigator.clipboard.writeText(listingText);
+      announce('Listing text copied. Nothing has been published.');
+    }catch(e){announce('Select the preview below and copy it manually.');}
+  });
+  document.getElementById('download').addEventListener('click',function(){
+    if(!current)return;
+    const blob=new Blob([JSON.stringify(current,null,2)+'\n'],{type:'application/json'});
+    const url=URL.createObjectURL(blob),a=document.createElement('a');
+    a.href=url;a.download='dreamledger-magic-card-draft.json';document.body.appendChild(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+    announce('Draft downloaded. No listing was published.');
   });
   try{const raw=localStorage.getItem('dreamledger_mtg_single_draft');if(raw){const d=JSON.parse(raw);if(d.title)q.value=d.title;if(d.condition)document.getElementById('condition').value=d.condition;if(d.price_nzd)document.getElementById('price').value=d.price_nzd;if(d.city)document.getElementById('city').value=d.city;}}catch(e){}
 })();
