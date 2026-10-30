@@ -1,0 +1,37 @@
+name: MTG Bilateral Trade Ledger Review
+on:
+  push:
+    branches:
+      - beck/mtg-bilateral-trade-ledger-20261031
+  pull_request:
+    paths:
+      - 'handlers/cube/mtg-trades*'
+      - 'migrations/20261031_mtg_bilateral_trade_ledger.sql'
+      - 'api/[...route].ts'
+      - '.github/workflows/mtg-bilateral-trade-ledger.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  consent-and-safety:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test bilateral consent and no-release gates
+        run: node --test handlers/cube/mtg-trades.test.js
+      - name: Check receipt and API syntax
+        run: |
+          node --check handlers/cube/mtg-trades.js
+          node --check handlers/cube/mtg-trades.test.js
+      - name: Produce review-only evidence
+        run: |
+          mkdir -p artifacts
+          node -e 'const fs=require("fs"),c=require("crypto");const files=["handlers/cube/mtg-trades.js","handlers/cube/mtg-trades.test.js","migrations/20261031_mtg_bilateral_trade_ledger.sql","api/[...route].ts"];const digests=Object.fromEntries(files.map(f=>[f,c.createHash("sha256").update(fs.readFileSync(f)).digest("hex")]));fs.writeFileSync("artifacts/mtg-trade-ledger-proof.json",JSON.stringify({schema:"dreamledger/mtg-trade-code-proof/v1",commit:process.env.GITHUB_SHA,stage:"PRIVATE_CODE_TEST_ONLY",deployed:false,db_migrated:false,dual_party_live_verified:false,legal_waiver:false,files:digests},null,2)+"\n")'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mtg-bilateral-trade-code-proof
+          path: artifacts/mtg-trade-ledger-proof.json
