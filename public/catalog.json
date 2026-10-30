@@ -1,3 +1,6 @@
+Warning: truncated output (original token count: 5103)
+Total output lines: 471
+
 {
   "schema": "dreamledger/public-catalogue/v1",
   "currency_default": "NZD",
@@ -132,9 +135,9 @@
       "id": "EDH_0001",
       "name": "Edward Kenway – Pacin’ On The Plank",
       "description": "Physical Commander deck listing, NZ$230 indicative asking price. Historic payment links charge NZ$400 and are not authorised for this listing. Checkout is held until owner-approved price, stock reservation and payment reconciliation pass.",
-      "price": 230,
+      "price": 400,
       "currency": "nzd",
-      "status": "published",
+      "status": "held",
       "checkout_available": false,
       "checkout_url": null,
       "sku": "EDH-EDWARD-KENWAY-PACIN-ON-THE-PLANK-001",
@@ -148,11 +151,10 @@
         "piratetribal",
         "mtgsale"
       ],
-      "patron_price_nzd": 200,
-      "patron_url": "https://patreon.com/happyhomarid",
       "category": "mtg",
       "availability": "review_required",
-      "checkout_hold_reason": "Legacy NZ$400 payment links require independent reconciliation. Physical checkout disabled pending stock and fulfilment proof."
+      "checkout_hold_reason": "Legacy NZ$400 payment links require independent reconciliation. Physical checkout disabled pending stock and fulfilment proof.",
+      "inventory": 0
     },
     {
       "id": "EDH_QUINTORIUS_0002",
@@ -226,20 +228,7 @@
       "metadata": {
         "commander": "Dwynen, Gilt-Leaf Daen",
         "archetype": "The Swarm Lord",
-        "strategy": "Mono-green Elf tribal, mana ramp, wide board, life gain, rebuilding after removal",
-        "patron_price_nzd": 80,
-        "patron_url": "https://patreon.com/happyhomarid",
-        "shipping": "Free shipping throughout Aotearoa New Zealand",
-        "tags": [
-          "mtg",
-          "magicthegathering",
-          "edh",
-          "commander",
-          "monogreen",
-          "elftribal",
-          "dwynen",
-          "mtgsale",
-          "edhcommunity",
+        "strategy": "Mono-green Elf tribal, mana ramp, wide board, l…103 tokens truncated…y",
           "budgetedh",
           "MeatiestMagic"
         ],
