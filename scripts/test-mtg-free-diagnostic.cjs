@@ -48,6 +48,16 @@ test('missing metadata or unrelated archetype is quarantined, not guessed',()=>{
  assert.equal(engine.evaluate(p.deck,[]).verdict,'QUARANTINE');
  assert.equal(engine.evaluate(p.deck,cards).verdict,'QUARANTINE');
 });
+test('zero-fee MTG charter and canonical platform policy cannot charge users',()=>{
+ const c=JSON.parse(fs.readFileSync(path.join(root,'docs/MTG-ZERO-FEE-CHARTER.json'),'utf8'));
+ const p=JSON.parse(fs.readFileSync(path.join(root,'docs/BECK-SILO-FEE-POLICY.json'),'utf8'));
+ assert.equal(p.rules['dreamledger-mtg'].platform_fee_bps,0);
+ for(const [name,amount] of Object.entries(c.rates_bps))assert.equal(amount,0,'Nonzero MTG fee: '+name);
+ assert.equal(c.controls.automatic_charge_authorized,false);
+ assert.equal(c.controls.paid_visibility_enabled,false);
+ assert.equal(c.controls.platform_commission_enabled,false);
+ assert.equal(c.legacy_hold.public_checkout,'HELD');
+});
 test('root and source masters link the free tool',()=>{
  for(const file of ['public/mtg/index.html','mtg/index.html','BEC-PRIME/compiled/website/mtg/index.html','BEC-PRIME/website/mtg-catalog.html','public/mtg/exchange.html']){
   const s=fs.readFileSync(path.join(root,file),'utf8');
