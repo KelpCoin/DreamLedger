@@ -1,0 +1,39 @@
+name: CUBE Master Silo Standalone Contract
+on:
+  pull_request:
+    paths:
+      - 'BEC-PRIME/cube/**'
+      - '.github/workflows/cube-master-standalone.yml'
+  push:
+    branches:
+      - 'beck/cube-master-standalone-20261030'
+    paths:
+      - 'BEC-PRIME/cube/**'
+      - '.github/workflows/cube-master-standalone.yml'
+permissions:
+  contents: read
+jobs:
+  cube-master:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: CUBE compiler, private batch, storefront, isolation
+        run: |
+          node --check BEC-PRIME/cube/clone-silo.js
+          node --check BEC-PRIME/cube/cube-batch.js
+          node --check BEC-PRIME/cube/render-storefront.js
+          node --test BEC-PRIME/cube/clone-silo.test.js BEC-PRIME/cube/clone-silo.security.test.js BEC-PRIME/cube/cube-batch.test.js BEC-PRIME/cube/render-storefront.test.js
+      - name: CUBE two-niche build smoke
+        run: |
+          OUT="$(mktemp -d)"
+          node BEC-PRIME/cube/cube-batch.js BEC-PRIME/cube/examples/cube-free-first.example.json "$OUT/private"
+          test -f "$OUT/private/kelphaven/preview.html"
+          test -f "$OUT/private/free-tools/preview.html"
+          grep -q 'PRIVATE PREVIEW / CHECKOUT OFF' "$OUT/private/free-tools/preview.html"
+          grep -q '"checkout_enabled": false' "$OUT/private/kelphaven/silo.json"
+          node -e 'const a=require(process.argv[1]);if(a.status!=="PRIVATE_DRAFT_ONLY"||a.checkout_enabled||a.jobs.length!==2)process.exit(1)' "$OUT/private/cube-proof.json"
+          echo 'CUBE_MASTER_PRIVATE_CLONE_PROVEN'
