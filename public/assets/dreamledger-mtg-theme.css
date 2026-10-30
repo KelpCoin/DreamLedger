@@ -1,109 +1,90 @@
-/* DreamLedger / MTG visual continuity bridge.
-   Scoped to the MTG silo: one black-and-neon-green identity for every MTG surface.
-   Inherits the DreamLedger system sans typography; no external font dependency.
-*/
-html[data-silo="mtg"]{
-  color-scheme:dark;
-  --silo-bg:#070c0a;--silo-bg-elev:#101915;
-  --silo-surface:#101b16;--silo-surface-2:#18271e;
-  --silo-ink:#f2fff6;--silo-muted:#b3cbbc;--silo-dim:#88a393;
-  --silo-line:#2a4735;--silo-accent:#45fa84;--silo-accent-bright:#79ffa2;
-  --silo-accent-soft:rgba(69,250,132,.12);--silo-ok:#38d67b;
-  --silo-ok-soft:rgba(56,214,123,.13);
-  --silo-serif:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
-  --silo-sans:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
-  --bg:#070c0a;--panel:#101b16;--ink:#f2fff6;--muted:#b3cbbc;
-  --line:#2a4735;--gold:#45fa84;--mint:#79ffa2;
-  font-family:var(--silo-sans);
-}
-html[data-silo="mtg"] body{
-  background-color:#070c0a;
-  background-image:radial-gradient(ellipse 70% 35% at 85% 0%,rgba(19,93,48,.22),transparent 65%);
-  color:var(--silo-ink);
-  font-family:var(--silo-sans);
-}
-html[data-silo="mtg"] body.silo-body{
-  background:radial-gradient(ellipse 70% 30% at 80% 0%,rgba(19,93,48,.22),transparent 65%),#070c0a;
-}
-html[data-silo="mtg"] h1,
-html[data-silo="mtg"] h2,
-html[data-silo="mtg"] h3,
-html[data-silo="mtg"] .silo-display,
-html[data-silo="mtg"] .silo-h2,
-html[data-silo="mtg"] .silo-h3{
-  font-family:var(--silo-sans);
-  letter-spacing:-.04em;
-}
-html[data-silo="mtg"] .silo-hdr,
-html[data-silo="mtg"] header{
-  border-bottom-color:var(--silo-line);
-}
-html[data-silo="mtg"] .silo-hdr{
-  background:rgba(7,12,10,.94);
-}
-html[data-silo="mtg"] .silo-logo-mark{
-  background:#101b16;border-color:var(--silo-line);
-}
-html[data-silo="mtg"] .silo-nav .silo-cta,
-html[data-silo="mtg"] .silo-btn-gold,
-html[data-silo="mtg"] .deck .buy,
-html[data-silo="mtg"] .btn.primary,
-html[data-silo="mtg"] button:not(.secondary):not(:disabled){
-  background:var(--silo-accent);
-  color:#06140c!important;
-  border-color:var(--silo-accent);
-}
-html[data-silo="mtg"] .silo-pill-gold,
-html[data-silo="mtg"] .tag{
-  color:var(--silo-accent);
-}
-html[data-silo="mtg"] .silo-pill-gold{
-  border-color:rgba(69,250,132,.42);
-  background:var(--silo-accent-soft);
-}
-html[data-silo="mtg"] .deck-banner,
-html[data-silo="mtg"] .art,
-html[data-silo="mtg"] .diag{
-  background:linear-gradient(135deg,#14261c,#080f0c 82%);
-  border-color:var(--silo-line);
-  color:var(--silo-accent-bright);
-}
-html[data-silo="mtg"] .panel,
-html[data-silo="mtg"] .tile,
-html[data-silo="mtg"] .deck,
-html[data-silo="mtg"] .pilot,
-html[data-silo="mtg"] .status-bar{
-  background-color:var(--silo-surface);
-  border-color:var(--silo-line);
-}
-html[data-silo="mtg"] a:focus-visible,
-html[data-silo="mtg"] button:focus-visible,
-html[data-silo="mtg"] input:focus-visible,
-html[data-silo="mtg"] textarea:focus-visible,
-html[data-silo="mtg"] select:focus-visible{
-  outline:3px solid var(--silo-accent);
-  outline-offset:3px;
-}
-html[data-silo="mtg"] a:hover{color:var(--silo-accent-bright)}
-html[data-silo="mtg"] .silo-hdr .silo-logo:hover,
-html[data-silo="mtg"] .silo-btn-gold:hover{color:#06140c}
-@media(prefers-reduced-motion:reduce){html[data-silo="mtg"] *{scroll-behavior:auto!important;transition:none!important}}
-
-/* Legacy deep-page components use their own local classes; unify them too. */
-html[data-silo="mtg"] header:not(.silo-hdr),
-html[data-silo="mtg"] .top,
-html[data-silo="mtg"] .topbar{
-  background-color:rgba(7,12,10,.95);
-}
-html[data-silo="mtg"] .art::before{color:var(--silo-accent);text-shadow:0 0 70px rgba(69,250,132,.2)}
-html[data-silo="mtg"] .silo-display em,
-html[data-silo="mtg"] h1 em{color:var(--silo-accent-bright)}
-html[data-silo="mtg"] .btn[disabled],
-html[data-silo="mtg"] button:disabled{
-  background:#273d30!important;
-  border-color:#405c48!important;
-  color:#b6c6ba!important;
-  cursor:not-allowed;
-}
-html[data-silo="mtg"] .top a,
-html[data-silo="mtg"] nav a{transition:color .15s ease}
+/* DreamLedger MTG design system v2. Scoped. No external font requests. */
+html[data-silo="mtg"]{color-scheme:dark;--bg:#060a08;--panel:#101b15;--panel-2:#17251c;--line:#2b4735;--ink:#f5fff7;--muted:#a4bca9;--soft:#789281;--gold:#45fa84;--mint:#69ffa0;--silo-bg:#060a08;--silo-bg-elev:#101b15;--silo-surface:#101b15;--silo-surface-2:#17251c;--silo-ink:#f5fff7;--silo-muted:#a4bca9;--silo-dim:#789281;--silo-line:#2b4735;--silo-accent:#45fa84;--silo-accent-bright:#69ffa0;--silo-accent-soft:rgba(69,250,132,.11);--silo-ok:#45fa84;--silo-serif:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;--silo-sans:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;font-family:var(--silo-sans);background:#060a08}
+html[data-silo="mtg"] *,html[data-silo="mtg"] *::before,html[data-silo="mtg"] *::after{box-sizing:border-box}
+html[data-silo="mtg"] body{margin:0;font:16px/1.55 system-ui,-apple-system,"Segoe UI",Arial,sans-serif;color:#f5fff7;background:radial-gradient(ellipse 60% 400px at 80% 0,rgba(45,171,90,.105),transparent 85%),#060a08;background-attachment:fixed}
+html[data-silo="mtg"] h1,html[data-silo="mtg"] h2,html[data-silo="mtg"] h3,html[data-silo="mtg"] .silo-display,html[data-silo="mtg"] .silo-h2{font-family:var(--silo-sans);letter-spacing:-.045em}
+html[data-silo="mtg"] a{color:inherit;text-decoration:none}html[data-silo="mtg"] a:hover{color:#69ffa0}html[data-silo="mtg"] button,html[data-silo="mtg"] input,html[data-silo="mtg"] select,html[data-silo="mtg"] textarea{font:inherit}
+html[data-silo="mtg"] a:focus-visible,html[data-silo="mtg"] button:focus-visible,html[data-silo="mtg"] input:focus-visible,html[data-silo="mtg"] select:focus-visible,html[data-silo="mtg"] textarea:focus-visible{outline:2px solid #69ffa0;outline-offset:4px}
+html[data-silo="mtg"] .mtg-container{width:min(1216px,calc(100% - 40px));margin-inline:auto}
+html[data-silo="mtg"] .mtg-header{z-index:100;position:sticky;top:0;background:rgba(6,10,8,.93);backdrop-filter:blur(18px);border-bottom:1px solid #233628}
+html[data-silo="mtg"] .mtg-top{display:flex;align-items:center;justify-content:space-between;gap:20px;min-height:76px}
+html[data-silo="mtg"] .mtg-wordmark{display:inline-flex;align-items:center;gap:11px;font-size:18px;letter-spacing:-.055em;font-weight:900;white-space:nowrap;color:#f5fff7}
+html[data-silo="mtg"] .mtg-wordmark .mtg-mark{display:grid;place-items:center;flex:none;height:38px;width:38px;background:#45fa84;color:#06100a;border-radius:12px;font-size:20px;font-weight:950;box-shadow:0 0 30px rgba(69,250,132,.1)}
+html[data-silo="mtg"] .mtg-wordmark .mtg-mark-text{color:#45fa84}html[data-silo="mtg"] .mtg-wordmark small{display:inline-block;border-left:1px solid #34553a;margin-left:9px;padding-left:12px;color:#bbd2be;font-size:12px;font-weight:650;letter-spacing:.02em}
+html[data-silo="mtg"] .mtg-nav{display:flex;gap:4px;align-items:center;flex-wrap:wrap}
+html[data-silo="mtg"] .mtg-nav a{padding:11px 13px;border-radius:10px;color:#b4c9b9;font-size:13px;font-weight:700}
+html[data-silo="mtg"] .mtg-nav a:hover,html[data-silo="mtg"] .mtg-nav a[aria-current="page"]{background:#17271b;color:#fff}
+html[data-silo="mtg"] .mtg-nav .mtg-nav-cta{background:#45fa84;color:#06150b;font-weight:850;padding:11px 17px;margin-left:8px}
+html[data-silo="mtg"] .mtg-nav .mtg-nav-cta:hover{background:#8dffb3;color:#06150b}
+html[data-silo="mtg"] .mtg-main{padding-bottom:65px}
+html[data-silo="mtg"] .mtg-kicker{display:inline-flex;align-items:center;gap:9px;color:#69ffa0;font-size:11px;letter-spacing:.19em;text-transform:uppercase;font-weight:850}
+html[data-silo="mtg"] .mtg-dot{height:7px;width:7px;border-radius:50%;background:#45fa84;box-shadow:0 0 14px #45fa84}
+html[data-silo="mtg"] .mtg-hero{min-height:550px;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(310px,.9fr);gap:42px;align-items:center;padding:60px 0 68px;border-bottom:1px solid #203428}
+html[data-silo="mtg"] .mtg-hero h1{max-width:780px;font-size:clamp(3.4rem,6.6vw,6.9rem);line-height:.96;font-weight:860;letter-spacing:-.08em;margin:21px 0 24px}
+html[data-silo="mtg"] .mtg-hero h1 em{font-style:normal;color:#45fa84}
+html[data-silo="mtg"] .mtg-lead{font-size:clamp(1.03rem,1.5vw,1.22rem);line-height:1.65;color:#acc5b2;max-width:570px;margin:0 0 25px}
+html[data-silo="mtg"] .mtg-actions{display:flex;gap:11px;flex-wrap:wrap}
+html[data-silo="mtg"] .mtg-button{display:inline-flex;justify-content:center;align-items:center;gap:9px;min-height:48px;padding:13px 19px;border:1px solid #37523d;border-radius:12px;font-size:14px;font-weight:800;color:#f2fff5;text-decoration:none;background:#142018;cursor:pointer;transition:transform .15s ease,background .15s ease}
+html[data-silo="mtg"] .mtg-button:hover{transform:translateY(-2px);border-color:#69ffa0;color:#fff}
+html[data-silo="mtg"] .mtg-button.primary{background:#45fa84;color:#07150a;border-color:#45fa84}
+html[data-silo="mtg"] .mtg-button.primary:hover{background:#8dffb3;color:#07150a}
+html[data-silo="mtg"] .mtg-button:disabled{cursor:not-allowed;opacity:.56;transform:none}
+html[data-silo="mtg"] .mtg-micro{display:flex;gap:12px 20px;flex-wrap:wrap;margin-top:25px;font-size:12px;color:#91aa98}
+html[data-silo="mtg"] .mtg-micro b{color:#dcfbe2;font-weight:750}
+html[data-silo="mtg"] .mtg-visual{position:relative;min-height:445px;border:1px solid #36523e;border-radius:25px;overflow:hidden;background:radial-gradient(circle at 60% 35%,rgba(87,241,134,.23),transparent 54%),linear-gradient(140deg,#182f1f,#08120c 72%);isolation:isolate}
+html[data-silo="mtg"] .mtg-visual::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent 96%,rgba(148,247,170,.07) 97%),linear-gradient(0deg,transparent 96%,rgba(148,247,170,.07) 97%);background-size:31px 31px;mask-image:linear-gradient(to bottom,#000,transparent 100%);pointer-events:none}
+html[data-silo="mtg"] .mtg-fan{position:absolute;left:50%;top:45%;transform:translate(-50%,-50%);width:245px;height:300px}
+html[data-silo="mtg"] .mtg-fan .fan-card{position:absolute;width:184px;height:268px;left:31px;top:12px;border:1px solid #8ac59b;border-radius:15px;background:linear-gradient(145deg,#355b3e,#132c1e 53%,#07120c);box-shadow:0 18px 45px #0009,0 0 0 5px rgba(0,0,0,.18);overflow:hidden}
+html[data-silo="mtg"] .fan-card:nth-child(1){transform:rotate(-22deg) translateX(-38px);opacity:.7}
+html[data-silo="mtg"] .fan-card:nth-child(2){transform:rotate(16deg) translateX(31px);background:linear-gradient(145deg,#365b47,#132317 60%,#06120c)}
+html[data-silo="mtg"] .fan-card:nth-child(3){transform:rotate(-2deg);background:linear-gradient(160deg,#284b31 1%,#77c783 45%,#142a1c 46%,#0b180f)}
+html[data-silo="mtg"] .fan-card .fan-title{display:block;margin:12px;padding:5px 8px;background:#0a190fdf;border:1px solid #789a7a;border-radius:6px;color:#e9ffef;font-size:10px;font-weight:800}
+html[data-silo="mtg"] .fan-art{display:grid;place-items:center;height:158px;margin:8px 12px;border:1px solid #3d7951;border-radius:6px;background:radial-gradient(ellipse,#377c46,#152e1b 60%,#071008)}
+html[data-silo="mtg"] .fan-art span{font-size:65px;line-height:1;font-weight:1000;color:#b0ffc2;text-shadow:0 5px 25px #47df7880}
+html[data-silo="mtg"] .fan-foot{height:40px;background:#102115;border-top:2px solid #67866c;margin:10px 12px;border-radius:4px}
+html[data-silo="mtg"] .mtg-visual-badge{position:absolute;bottom:20px;left:20px;right:20px;padding:13px 15px;display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid #406248;border-radius:13px;background:#07120be8;color:#eaffed;font-size:12px}
+html[data-silo="mtg"] .mtg-visual-badge strong{color:#69ffa0}
+html[data-silo="mtg"] .mtg-section{padding:64px 0;border-bottom:1px solid #203428}
+html[data-silo="mtg"] .mtg-section-head{display:flex;justify-content:space-between;align-items:end;gap:20px;margin-bottom:25px}
+html[data-silo="mtg"] .mtg-section-head h2{font-size:clamp(2rem,3.7vw,3.5rem);font-weight:850;line-height:1.06;margin:8px 0 0;letter-spacing:-.065em}
+html[data-silo="mtg"] .mtg-section-head p{margin:10px 0 0;max-width:670px;color:#9eb5a4}
+html[data-silo="mtg"] .mtg-text-link{font-size:13px;font-weight:800;color:#69ffa0;white-space:nowrap}
+html[data-silo="mtg"] .mtg-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+html[data-silo="mtg"] .mtg-feature{display:flex;flex-direction:column;gap:14px;padding:27px;border:1px solid #2c4635;background:linear-gradient(145deg,#15261a,#0c150f);border-radius:19px;min-height:235px}
+html[data-silo="mtg"] .mtg-feature .mtg-icon{display:grid;place-items:center;font-size:20px;font-weight:900;border:1px solid #345b3d;background:#173320;color:#69ffa0;border-radius:13px;width:47px;height:47px}
+html[data-silo="mtg"] .mtg-feature h3{font-size:23px;font-weight:790;line-height:1.14;margin:3px 0 0}
+html[data-silo="mtg"] .mtg-feature p{color:#a2b7a5;margin:0;font-size:14px;flex:1}
+html[data-silo="mtg"] .mtg-feature a{font-size:13px;color:#69ffa0;font-weight:850}
+html[data-silo="mtg"] .mtg-rail{display:flex;gap:16px;overflow:auto;scroll-snap-type:x mandatory;padding:3px 1px 17px;scrollbar-color:#385d42 #0a110c}
+html[data-silo="mtg"] .mtg-product{scroll-snap-align:start;flex:0 0 clamp(255px,28%,325px);border:1px solid #2b4633;border-radius:19px;overflow:hidden;background:#111c16}
+html[data-silo="mtg"] .mtg-product-art{min-height:190px;display:flex;align-items:end;padding:17px;border-bottom:1px solid #304934;background:radial-gradient(circle at 80% 25%,#274e32,#102518 50%,#0a140d)}
+html[data-silo="mtg"] .mtg-product-art span{font-size:11px;letter-spacing:.11em;text-transform:uppercase;color:#b2eec0;font-weight:750}
+html[data-silo="mtg"] .mtg-product-content{padding:20px}
+html[data-silo="mtg"] .mtg-product h3{font-size:21px;line-height:1.14;margin:5px 0 9px;font-weight:800}
+html[data-silo="mtg"] .mtg-product p{margin:0 0 15px;color:#a1b7a6;font-size:13px;min-height:47px}
+html[data-silo="mtg"] .mtg-price{font-size:24px;font-weight:900;margin:5px 0 15px}
+html[data-silo="mtg"] .mtg-product .mtg-button{width:100%}
+html[data-silo="mtg"] .mtg-banner{display:flex;justify-content:space-between;align-items:center;gap:24px;padding:29px;border:1px solid #3e694b;background:linear-gradient(110deg,#15331f,#0c160f);border-radius:20px}
+html[data-silo="mtg"] .mtg-banner h3{margin:5px 0;font-size:25px;line-height:1.2}
+html[data-silo="mtg"] .mtg-banner p{margin:0;color:#a9c3ad;font-size:14px}
+html[data-silo="mtg"] .mtg-badge{display:inline-block;border:1px solid #3c6c49;border-radius:100px;padding:5px 12px;background:#102419;color:#91ffb5;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+html[data-silo="mtg"] .mtg-footer{padding:37px 0 60px;font-size:13px;color:#a3b4a6}
+html[data-silo="mtg"] .mtg-footer-grid{display:flex;justify-content:space-between;gap:28px;flex-wrap:wrap;padding-bottom:25px;border-bottom:1px solid #2a4031}
+html[data-silo="mtg"] .mtg-footer a{color:#c5d9c7;margin:0 15px 8px 0;display:inline-block}
+html[data-silo="mtg"] .mtg-footer a:hover{color:#69ffa0}
+html[data-silo="mtg"] .mtg-subpage{padding:53px 0 64px}
+html[data-silo="mtg"] .mtg-page-title{font-size:clamp(2.7rem,6vw,5.6rem);font-weight:850;line-height:1.02;letter-spacing:-.07em;margin:13px 0 20px}
+html[data-silo="mtg"] .mtg-form{padding:25px;border:1px solid #2e4b37;background:#111d16;border-radius:19px}
+html[data-silo="mtg"] .mtg-form label{display:block;font-weight:750;font-size:13px;margin:15px 0 6px}
+html[data-silo="mtg"] .mtg-form input,html[data-silo="mtg"] .mtg-form select,html[data-silo="mtg"] .mtg-form textarea{width:100%;border:1px solid #36563e;border-radius:10px;background:#0a140e;color:#f5fff7;padding:11px 12px;min-height:43px}
+html[data-silo="mtg"] .mtg-form textarea{min-height:140px;resize:vertical}
+html[data-silo="mtg"] .mtg-form output{display:block;white-space:pre-wrap;overflow-wrap:anywhere;padding:17px;margin-top:17px;border:1px solid #36563e;border-radius:12px;background:#080f0b;color:#daefdf;min-height:85px}
+html[data-silo="mtg"] .mtg-notice{padding:17px 19px;background:#121f17;border:1px solid #385442;border-radius:13px;font-size:13px;color:#b7cbb9}
+html[data-silo="mtg"] .mtg-notice strong{color:#e2ffee}
+html[data-silo="mtg"] .silo-hdr{background:#060a08ed}
+html[data-silo="mtg"] .silo-display em,html[data-silo="mtg"] .silo-pill-gold{color:#69ffa0}
+html[data-silo="mtg"] .silo-nav .silo-cta,html[data-silo="mtg"] .silo-btn-gold{background:#45fa84;color:#07160d}
+html[data-silo="mtg"] button:disabled,html[data-silo="mtg"] .btn[disabled]{opacity:.56;cursor:not-allowed}
+@media(max-width:980px){html[data-silo="mtg"] .mtg-hero{grid-template-columns:1fr;gap:20px;padding:50px 0 45px}html[data-silo="mtg"] .mtg-visual{min-height:330px}html[data-silo="mtg"] .mtg-fan{transform:translate(-50%,-50%) scale(.78)}html[data-silo="mtg"] .mtg-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:700px){html[data-silo="mtg"] .mtg-container{width:calc(100% - 30px)}html[data-silo="mtg"] .mtg-top{flex-direction:column;align-items:stretch;justify-content:center;padding:12px 0;gap:7px}html[data-silo="mtg"] .mtg-nav{display:flex;overflow:auto;flex-wrap:nowrap;scrollbar-width:none;margin:0 -3px;padding:3px 0}html[data-silo="mtg"] .mtg-nav a{white-space:nowrap;padding:9px 10px}html[data-silo="mtg"] .mtg-nav .mtg-nav-cta{margin-left:0}html[data-silo="mtg"] .mtg-hero{min-height:0}html[data-silo="mtg"] .mtg-hero h1{font-size:clamp(2.85rem,12vw,5rem)}html[data-silo="mtg"] .mtg-visual{min-height:265px}html[data-silo="mtg"] .mtg-fan{top:45%;transform:translate(-50%,-50%) scale(.58)}html[data-silo="mtg"] .mtg-visual-badge{font-size:10px}html[data-silo="mtg"] .mtg-section{padding:44px 0}html[data-silo="mtg"] .mtg-section-head{display:block}html[data-silo="mtg"] .mtg-section-head h2{font-size:2.25rem}html[data-silo="mtg"] .mtg-grid{grid-template-columns:1fr}html[data-silo="mtg"] .mtg-product{flex-basis:80vw}html[data-silo="mtg"] .mtg-banner{display:block}html[data-silo="mtg"] .mtg-banner .mtg-button{margin-top:16px}html[data-silo="mtg"] .mtg-wordmark small{font-size:11px}}
+@media(prefers-reduced-motion:reduce){html[data-silo="mtg"] *{transition:none!important;scroll-behavior:auto!important}}
