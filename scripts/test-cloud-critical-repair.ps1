@@ -34,9 +34,9 @@ Assert ($gotJson.ContainsKey('error')) 'SAFEJSON_MISSING_ERROR_KEY'
 Assert ($null -eq $gotJson.error) 'SAFEJSON_UNEXPECTED_ERROR'
 Assert ($gotJson.data.ok -eq $true) 'SAFEJSON_BAD_DATA'
 
-$line = [regex]::Match($cloud,'(?m)^function GetRows\([^\r\n]+$')
-Assert $line.Success 'GETROWS_FUNCTION_NOT_FOUND'
-Invoke-Expression $line.Value
+$line = @($cloud -split "`n" | Where-Object { $_.TrimStart().StartsWith('function GetRows(') } | Select-Object -First 1)
+Assert ($line.Count -eq 1 -and -not [string]::IsNullOrWhiteSpace($line[0])) 'GETROWS_FUNCTION_NOT_FOUND'
+Invoke-Expression $line[0].Trim()
 $base = 'https://example.invalid'
 $h = @{}
 $script:lastUri = $null
