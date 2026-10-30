@@ -60,9 +60,9 @@ footer{border-top:1px solid var(--line);margin-top:65px;padding:24px 0 52px;colo
 </div></section>
 <section class="section wrap" id="commander">
 <div class="section-head"><div><span class="eyebrow">Happy Homarid / Deck shelf</span><h2>Commander, ready for the table.</h2><p class="section-intro">Verified catalogue records only. A purchase link appears only for a confirmed offer; all other listings require a stock and terms check before payment.</p></div></div>
-<div id="decks" class="status"><strong>Edward Kenway · EDH_0001</strong> · one verified Stripe checkout listing at NZ$400. <a id="edh-0001-direct-checkout" href="https://buy.stripe.com/14A3cvea1dSd1DV5oEdwc1J" target="_blank" rel="noopener noreferrer">Review secure checkout →</a></div>
+<div id="decks" class="status"><strong>Edward Kenway · EDH_0001</strong> · indicative NZ$230 listing. Checkout held until independently verified pricing, stock and fulfilment.</div>
 <div class="status" id="catalogue-status" role="status">Loading our Commander shelf…</div><div class="deck-grid" id="deck-grid" aria-live="polite"></div>
-<p class="note">The Edward Kenway EDH_0001 deck is a single physical product with a one-sale Stripe checkout. Other listed decks are request-first. Never send card details or payment credentials by email.</p>
+<p class="note">All Commander decks are inquiry-first. Published listings do not prove available inventory. Checkout held until reservation, price and delivery evidence pass. Never send card details or payment credentials by email.</p>
 </section>
 <section class="section wrap" id="community">
 <div class="wide-grid">
@@ -81,7 +81,7 @@ footer{border-top:1px solid var(--line);margin-top:65px;padding:24px 0 52px;colo
 </section>
 <section class="section wrap" id="questions"><span class="eyebrow">Quick answers</span><h2>Before your first trade.</h2>
 <details class="faq"><summary>Is it free to list Magic cards?</summary><p>Preparing a listing request costs nothing. The proposed peer marketplace has a 0% DreamLedger success fee. Listings still need review before appearing publicly; there is not yet an automatic multi-seller publishing system. Independent payment or shipping charges may still apply between peers.</p></details>
-<details class="faq"><summary>Can I buy a Commander deck?</summary><p>You can review the listed Commander decks below. Edward Kenway EDH_0001 has an existing limited Stripe checkout. Other decks use an availability-and-terms inquiry before payment. These are Happy Homarid inventory, not community seller listings.</p></details>
+<details class="faq"><summary>Can I buy a Commander deck?</summary><p>You can review the listed Commander decks below. EDH_0001 and other decks are inquiry-first until pricing, availability, reservation and payment fulfilment are verified. These are Happy Homarid inventory, not community seller listings.</p></details>
 <details class="faq"><summary>Where is the MTG forum?</summary><p>The <a href="/mtg/forum/">discussion hub</a> describes the planned forum rooms. For existing community participation visit <a href="https://www.patreon.com/HappyHomarid">Happy Homarid on Patreon</a>. Access to free memberships, comments and community chats is set by the creator.</p></details>
 <details class="faq"><summary>Is this an official Magic: The Gathering website?</summary><p>No. Happy Homarid MTG / DreamLedger is an independent fan and marketplace initiative, not endorsed by Wizards of the Coast or Hasbro.</p></details>
 </section>
@@ -90,37 +90,37 @@ footer{border-top:1px solid var(--line);margin-top:65px;padding:24px 0 52px;colo
 <script>
 (function(){
 'use strict';
-var catalog=document.getElementById('deck-grid'),status=document.getElementById('catalogue-status');
-var FALLBACK=[
-{id:'EDH_0001',name:'Edward Kenway · Pacin’ On The Plank',price:400,inventory:1,status:'published',silo:'mtg',category:'commander-deck',sale_mode:'stripe_checkout',checkout_available:true,checkout_url:'https://buy.stripe.com/14A3cvea1dSd1DV5oEdwc1J',detail_url:'/mtg/edh-0001.html',description:'Single physical Commander deck. Secure Stripe checkout, NZ delivery details collected.'},
-{id:'EDH_QUINTORIUS_0002',name:'Quintorius, Field Historian',price:90,status:'published',silo:'mtg',category:'commander-deck',description:'Boros graveyard-recursion Commander. Confirm availability and shipping.'},
-{id:'EDH_DWYNEN_0003',name:'Dwynen, Gilt-Leaf Daen',price:90,status:'published',silo:'mtg',category:'commander-deck',description:'Mono-green Elf tribal Commander. Request stock confirmation.'},
-{id:'EDH_JON_IRENICUS_0004',name:'Jon Irenicus, Shattered One',price:220,status:'published',silo:'mtg',category:'commander-deck',description:'Dimir table-politics Commander. Confirm availability before paying.'}
-];
-function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
-function mail(p){return 'mailto:Dreamledger.org@gmail.com?subject='+encodeURIComponent('Happy Homarid NZ MTG deck inquiry: '+String(p.name||p.id||''));}
-function valid(p){return p&&p.status==='published'&&p.silo==='mtg'&&p.category==='commander-deck'&&!String(p.id||'').includes('DIAGNOSTIC')&&Number(p.inventory||0)>0;}
-function render(items,source){
-var decks=items.filter(valid);status.textContent=decks.length+' listed Commander deck'+(decks.length===1?'':'s')+' · '+(source==='catalog'?'catalogue loaded':'fallback catalogue')+' · checkout restricted to verified offers';
-catalog.innerHTML=decks.map(function(p){
-var live=p.id==='EDH_0001'&&p.inventory===1&&p.checkout_available===true&&p.sale_mode==='stripe_checkout'&&Number(p.price)===400&&p.checkout_url==='https://buy.stripe.com/14A3cvea1dSd1DV5oEdwc1J';
-var target=live?p.checkout_url:mail(p);
-var title=esc(p.name||p.id);var commander=esc(p.commander||'Commander details on request');var desc=esc(p.description||'Physical Commander deck. Full list can be supplied or completed on request.');var price=Number(p.price);
-var href=(live?'https://buy.stripe.com/14A3cvea1dSd1DV5oEdwc1J':target);
-var more=(typeof p.detail_url==='string'&&p.detail_url.startsWith('/mtg/'))?'<p><a href="'+esc(p.detail_url)+'">View deck details →</a></p>':'';
-return '<article class="card deck"><span class="tag">'+(live?'Live secure checkout':'Available · ask to finish listing')+'</span><h3>'+title+'</h3><small>Commander: '+commander+'</small><p>'+desc+'</p><div class="price">'+(Number.isFinite(price)?'Approx. NZ
-}).join('');
-}
-render(FALLBACK,'fallback');
-fetch('/catalog.json',{cache:'no-store'}).then(function(r){if(!r.ok)throw Error('Catalogue unavailable');return r.json()}).then(function(d){var q=Array.isArray(d.products)?d.products.filter(valid):[];if(q.length)render(q,'catalog');}).catch(function(){});
-})();
-</script>
-</body>
-</html>+price.toFixed(0):'Price on request')+'</div><a class="btn small" href="'+esc(href)+'"'+(live?' target="_blank" rel="noopener noreferrer"':'')+'>'+(live?'Review checkout':'Ask for decklist / buy details')+'</a>'+more+'</article>';
-}).join('');
-}
-render(FALLBACK,'fallback');
-fetch('/data/mtg-catalog.json',{cache:'no-store'}).then(function(r){if(!r.ok)throw Error('Catalogue unavailable');return r.json()}).then(function(d){var q=Array.isArray(d.products)?d.products.filter(valid):[];if(q.length)render(q,'catalog');}).catch(function(){});
+const grid=document.getElementById('deck-grid');
+const status=document.getElementById('catalogue-status');
+function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function deck(p){return p&&p.status==='published'&&p.silo==='mtg'&&p.category==='commander-deck'&&!String(p.id||'').includes('DIAGNOSTIC');}
+function detail(p){return typeof p.detail_url==='string'&&/^\/mtg\/[a-z0-9/_-]+\.html$/i.test(p.detail_url)?p.detail_url:'/mtg/';}
+Promise.all([
+ fetch('/data/mtg-catalog.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('MTG catalogue unavailable');return r.json()}),
+ fetch('/catalog.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('General catalogue unavailable');return r.json()})
+]).then(([local,global])=>{
+ if(local.silo!=='mtg'||!Array.isArray(local.products)||!Array.isArray(global.products))throw Error('Catalogue invalid');
+ const other=new Map(global.products.map(p=>[p.id,p]));
+ const decks=local.products.filter(deck);
+ let conflicts=0;
+ grid.innerHTML=decks.map(p=>{
+  const m=other.get(p.id);
+  const consistent=!!m&&m.status===p.status&&Number(m.price)===Number(p.price)&&
+   String(m.currency||global.currency_default).toUpperCase()===String(p.currency||local.currency).toUpperCase()&&
+   m.checkout_available===p.checkout_available;
+  if(!consistent)conflicts++;
+  const price=consistent&&Number.isFinite(Number(p.price))?'Indicative NZ$'+Number(p.price).toFixed(2):'Price pending verification';
+  return '<article class="card deck"><span class="tag">Listing only · checkout held</span><h3>'+esc(p.name||p.id)+
+   '</h3><p>'+esc(p.description||'Confirm availability and conditions before buying.')+
+   '</p><div class="price">'+esc(price)+'</div><a class="btn small" href="'+esc(detail(p))+'">View listing details</a></article>';
+ }).join('');
+ status.textContent=decks.length+' Commander listing(s) · '+conflicts+
+  ' catalogue discrepancy/discrepancies. No online physical-deck checkout until stock and payment controls are certified.';
+ if(!decks.length)status.textContent='No published deck listings. Checkout held.';
+}).catch(()=>{
+ grid.innerHTML='';
+ status.textContent='Catalogue verification unavailable. Checkout held; no stale fallback sale.';
+});
 })();
 </script>
 </body>

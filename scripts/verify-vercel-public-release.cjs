@@ -33,18 +33,21 @@ for (const source of ['/marketplace','/marketplace/']) {
   if (!vercel.rewrites?.some(rule=>rule.source===source&&rule.destination==='/marketplace.html'))
     throw new Error('PUBLIC_MARKETPLACE_ROUTE_REWRITE_MISSING: '+source);
 }
-// Buyer-journey guard: real EDH inventory must point to the existing guarded link.
+// Golden-master safety gate: published deck listings cannot expose unreserved payment.
 const mtgCatalog=JSON.parse(fs.readFileSync(path.join(root,'public/data/mtg-catalog.json'),'utf8'));
 const edh=(mtgCatalog.products||[]).find(p=>p.id==='EDH_0001');
-const edhLink='https://buy.stripe.com/14A3cvea1dSd1DV5oEdwc1J';
-if(!edh || edh.price!==400 || edh.currency!=='NZD' || edh.inventory!==1 ||
-   edh.checkout_available!==true || edh.checkout_url!==edhLink || edh.silo!=='mtg')
-  throw new Error('EDH_0001_GUARDED_CHECKOUT_INVALID');
+const globalEdh=catalog.products.find(p=>p.id==='EDH_0001');
+if(!edh||!globalEdh||edh.silo!=='mtg'||edh.price!==globalEdh.price||
+   edh.price!==230||edh.inventory!==0||edh.checkout_available!==false||
+   globalEdh.checkout_available!==false||edh.checkout_url!==null)
+  throw new Error('MTG_MASTER_UNVERIFIED_STOCK_OR_PRICE');
 const mtgHtml=fs.readFileSync(path.join(root,'public/mtg/index.html'),'utf8');
-if(!mtgHtml.includes('id="edh-0001-direct-checkout"') || !mtgHtml.includes(edhLink))
-  throw new Error('EDH_0001_DIRECT_CHECKOUT_NOT_EXPOSED');
-if(!home.includes('View deck &amp; secure checkout') || !home.includes('href="/mtg/#decks"'))
-  throw new Error('MTG_HOME_PURCHASE_ENTRY_NOT_EXPOSED');
+const detail=fs.readFileSync(path.join(root,'public/mtg/edh-0001.html'),'utf8');
+if(!mtgHtml.includes('Checkout held')||!detail.includes('checkout held')||
+   mtgHtml.includes('buy.stripe.com')||detail.includes('buy.stripe.com')||
+   mtgHtml.includes('var FALLBACK')||mtgHtml.split('</html>').length!==2)
+  throw new Error('MTG_MASTER_UNSAFE_PAYMENT_OR_MALFORMED_HTML');
+if(!home.includes('href="/mtg/"'))throw new Error('MTG_HOME_ENTRY_MISSING');
 const billboardHtml=fs.readFileSync(path.join(root,'public/billboard.html'),'utf8');
 if(!billboardHtml.includes('Your HTTPS destination URL is optional'))
   throw new Error('BILLBOARD_OPTIONAL_URL_COPY_REGRESSION');
