@@ -17,7 +17,18 @@ function loadRoutes(registry){
   const byId={};
   for(const r of registry.live_checkout_routes||[]) byId[r.id]=r;
   try{if(fs.existsSync(APPROVED)){const approved=readJson(APPROVED);
-    for(const o of approved.approved||[]){const link=o.payment_link_url||o.payment_link;if(!link)continue;
+    for(const o of approved.approved||[]){
+      // MTG is checkout-held unless its exact product and delivery are certified.
+      // An active historical Stripe link is not a public selling permission.
+      if(o.silo==='mtg'){
+        const productFile=path.join(ROOT,'catalog','products',String(o.product_id||'')+'.json');
+        if(!fs.existsSync(productFile))continue;
+        const product=readJson(productFile);
+        if(product.status!=='published'||product.commercial_truth?.sellable!==true||
+           product.checkout?.enabled!==true||o.checkout_available===false||
+           o.public_distribution_allowed===false)continue;
+      }
+      const link=o.payment_link_url||o.payment_link;if(!link)continue;
       const id='APPROVED-'+(o.product_id||o.offer_id);if(byId[id])continue;
       byId[id]={id,name:o.name,price_nzd:Number(o.price),href:link,tag:o.silo||'approved'};}}}
   catch(_){}
