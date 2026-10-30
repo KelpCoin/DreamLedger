@@ -86,3 +86,28 @@ test('does not present the hash as payment or fulfilment evidence',()=>{
  assert.equal('payment_verified' in t,false);
  assert.equal('fulfilment_verified' in t,false);
 });
+
+
+test('dispatch requires an evidence hash and preserves signed identity',async()=>{
+ const no=await mock('POST',{action:'dispatch',trade_id:ID,terms_sha256:H,idempotency_key:KEY},B);
+ assert.equal(no.res.statusCode,400);assert.equal(no.calls.length,0);
+ const yes=await mock('POST',{action:'dispatch',trade_id:ID,terms_sha256:H,idempotency_key:KEY,evidence_sha256:H},B);
+ assert.equal(yes.res.statusCode,200);
+ assert.equal(yes.calls[0].sql,QUERIES.transition);
+ assert.deepEqual(yes.calls[0].args,[B,ID,'dispatch',H,KEY,H]);
+});
+test('only explicit opt-in publication routes to ledger',async()=>{
+ const no=await mock('POST',{action:'publish',trade_id:ID,terms_sha256:H,idempotency_key:KEY},A);
+ assert.equal(no.res.statusCode,400);assert.equal(no.calls.length,0);
+ const yes=await mock('POST',{action:'publish',trade_id:ID,terms_sha256:H,idempotency_key:KEY,acknowledge_publication:true},A);
+ assert.equal(yes.res.statusCode,200);
+ assert.deepEqual(yes.calls[0].args,[A,ID,'publish',H,KEY,null]);
+ const undo=await mock('POST',{action:'unpublish',trade_id:ID,terms_sha256:H,idempotency_key:KEY},A);
+ assert.equal(undo.res.statusCode,200);
+ assert.deepEqual(undo.calls[0].args,[A,ID,'unpublish',H,KEY,null]);
+});
+test('dispute can be logged through the post-agreement transition',async()=>{
+ const yes=await mock('POST',{action:'dispute',trade_id:ID,terms_sha256:H,idempotency_key:KEY},A);
+ assert.equal(yes.calls[0].sql,QUERIES.transition);
+ assert.deepEqual(yes.calls[0].args,[A,ID,'dispute',H,KEY,null]);
+});
