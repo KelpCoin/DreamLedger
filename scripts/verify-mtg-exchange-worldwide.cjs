@@ -15,8 +15,8 @@ const claims={
  sponsors_not_active:page.includes('No paid ranking is active'),
  source_linked_ticker:Array.isArray(news.items)&&news.items.length>=3&&news.items.every(x=>x.reviewed===true&&x.source&&x.date&&/^https:\/\//.test(x.url)),
  avatar_reuses_existing:page.includes('/assets/avatar-identity.js')&&page.includes('/avatar.html'),
- diagnostic_free:diag.includes('MTGFreeDiagnostic.evaluate')&&!diag.includes('checkout/create')&&diag.includes('No payment or login required'),
- no_fake_email:diag.includes('Email delivery is not yet connected')&&diag.includes('No email was sent'),
+ diagnostic_paid_hold:diag.includes('NZ$29 per diagnostic')&&diag.includes('Verify Patreon: integration held')&&!diag.includes('MTGFreeDiagnostic.evaluate'),
+ no_fake_email:diag.includes('report delivery have not passed')&&diag.includes('No payment is taken by this page'),
  mtg_fee_zero:policy.rules['dreamledger-mtg'].platform_fee_bps===0
 };
 const make=(lands,mv,synergy)=>{const names=Array.from({length:100},(_,i)=>'Card'+i);
