@@ -20,6 +20,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Enforce owner-approved NZD29 and Patreon quota
+        run: node scripts/test-mtg-commercial-terms-lock.cjs
       - name: Stage verifier
         run: node scripts/verify-mtg-exchange-worldwide.cjs
       - name: Existing clone safety check (HOLD is allowed)
