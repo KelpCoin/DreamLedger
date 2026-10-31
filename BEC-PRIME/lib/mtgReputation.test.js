@@ -42,3 +42,26 @@ test('negative verified event reduces score',()=>{
  const mixed=reputation('seller-a',[rec('1'),rec('2'),rec('3'),bad]);
  assert(mixed.score_0_to_100<good.score_0_to_100);
 });
+
+test('independently evidenced card-for-card swaps build reputation with zero payment',()=>{
+ const swap={id:'swap-proof-1',kind:'trade',trade_id:'trade_abc1',
+   silo:'mtg',seller_id:'seller-a',buyer_id:'separate-user-9',
+   source:'INDEPENDENT_TRADE_EVIDENCE_RECONCILED',
+   counterparty_verified_independently:true,item_exchange_verified_independently:true,
+   delivery_sha256:'c'.repeat(64),delivery_confirmed:true,
+   independent_counterparty_confirmed:true,outcome:'positive'};
+ const r=reputation('seller-a',[swap]);
+ assert.equal(r.verified_transactions,1);
+ assert(r.score_0_to_100!==null);
+ assert.equal(r.external_reference_score_credit,0);
+});
+test('two anonymous self-issued trade tokens alone cannot buy reputation',()=>{
+ const swap={id:'swap-fake-1',kind:'trade',trade_id:'trade_fake',
+   silo:'mtg',seller_id:'seller-a',buyer_id:'unverified-buyer',
+   source:'PEER_ATTESTED_ONLY',
+   delivery_sha256:'d'.repeat(64),delivery_confirmed:true,
+   independent_counterparty_confirmed:true,outcome:'positive'};
+ const r=reputation('seller-a',[swap]);
+ assert.equal(r.score_0_to_100,null);
+ assert.equal(r.verified_transactions,0);
+});
