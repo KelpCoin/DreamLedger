@@ -169,9 +169,9 @@ async function loadCatalog(manifest){
         String(p.currency||catalog.currency).toUpperCase()===String(master.currency||globalCatalog.currency_default).toUpperCase() &&
         Boolean(p.checkout_available)===Boolean(master.checkout_available) &&
         (!p.checkout_available || (p.checkout_url && p.checkout_url===master.checkout_url));
-      const detail=typeof p.detail_url==='string'&&/^\\/mtg\\/[a-z0-9/_-]+\\.html$/i.test(p.detail_url)?p.detail_url:null;
+      const detail=typeof p.detail_url==='string' && p.detail_url.startsWith('/mtg/') && p.detail_url.endsWith('.html') && !p.detail_url.includes('..') ? p.detail_url : null;
       const safeClaim=matched && Number(p.inventory)>0 && p.sale_mode==='claim_by_message' &&
-        typeof p.claim_url==='string' && /^mailto:[^\\s]+$/i.test(p.claim_url) ? p.claim_url : null;
+        typeof p.claim_url==='string' && p.claim_url.startsWith('mailto:') && !/[<>\\s]/.test(p.claim_url) ? p.claim_url : null;
       return {p,matched,detail,safeClaim};
     });
     function render(){
