@@ -31,8 +31,10 @@ small{display:block;color:var(--muted)}.notice{border-left:4px solid var(--gold)
 <button id="register">Request seller account</button>
 <details><summary>Submit one physical item for review</summary><label for="item-title">Card or bundle description</label><input id="item-title" maxlength="180">
 <label for="condition">Condition and visible defects</label><input id="condition" maxlength="100">
-<label for="evidence">SHA-256 of original card photos / evidence archive</label><input id="evidence" maxlength="64" pattern="[0-9a-f]{64}">
-<small>Hash only. The file itself is not uploaded here; you must provide the original evidence during human review.</small><button id="inventory-submit">Save pending inventory record</button>
+<label for="photo">Original card photo (JPEG, PNG or WebP, maximum 5 MB)</label><input id="photo" type="file" accept="image/jpeg,image/png,image/webp">
+<button id="photo-upload" type="button">Securely upload evidence</button><p id="photo-status" role="status" class="status"></p>
+<label for="evidence">Server SHA-256 evidence receipt</label><input id="evidence" maxlength="64" pattern="[0-9a-f]{64}" readonly required>
+<small>Photo is kept in private evidence storage for human review. Upload does not verify ownership or authenticity.</small><button id="inventory-submit">Save pending inventory record</button>
 </details><details><summary>Submit an auction for manual approval</summary>
 <label for="inventory-id">Verified inventory UUID</label><input id="inventory-id">
 <div class="row"><div><label for="start">Starting price (NZD)</label><input id="start" type="number" min="1" step="0.01"></div>
@@ -70,9 +72,15 @@ async function lots(){
    const btn=el("button","Place recorded bid");btn.disabled=!token;btn.onclick=async()=>{
     try{
      const amount=Math.round(Number(field.value)*100);if(!Number.isSafeInteger(amount)||amount<100)throw Error("Invalid amount");
-     const result=await api("bid",{p_auction:a.id,p_amount_cents:amount,p_request_id:uuid()});
+     const key="mtg_pending_bid_"+a.id;
+     let previous=null;try{previous=JSON.parse(sessionStorage.getItem(key)||"null")}catch{}
+     const requestId=previous?.amount===amount&&previous?.id?previous.id:uuid();
+     sessionStorage.setItem(key,JSON.stringify({amount,id:requestId}));
+     btn.disabled=true;
+     const result=await api("bid",{p_auction:a.id,p_amount_cents:amount,p_request_id:requestId});
+     sessionStorage.removeItem(key);
      $("catalogue-status").textContent="Bid recorded: "+result.result.bid_id;await lots();
-    }catch(e){$("catalogue-status").textContent="Bid refused: "+e.message}
+    }catch(e){$("catalogue-status").textContent="Bid not confirmed: "+e.message+". If your network failed, retry the same amount to reuse the request ID.";btn.disabled=false}
    };
    card.append(field,btn,el("small",token?"Final acceptance is server-side.":"Sign in before bidding."));$("lots").append(card);
   }
@@ -102,6 +110,21 @@ $("login").onclick=async()=>{try{let d=await api("login",{email:$("email").value
 $("signup").onclick=async()=>{try{let d=await api("signup",{email:$("email").value,password:$("password").value});$("password").value="";$("account-status").textContent=d.confirmation_required?"Check your email to confirm your account.":"Account created; sign in to continue."}catch(e){$("account-status").textContent=e.message}};
 $("logout").onclick=()=>{token="";sessionStorage.removeItem(tokenKey);authUI();lots();$("account-status").textContent="Signed out"};
 $("register").onclick=async()=>{try{const d=await api("register",{});$("seller-status").textContent="Seller review status: "+d.result.status}catch(e){$("seller-status").textContent=e.message}};
+$("photo-upload").onclick=async()=>{
+ const file=$("photo").files?.[0], status=$("photo-status");
+ try{
+  if(!token)throw Error("Sign in first");
+  if(!file||file.size<32||file.size>5242880||!["image/jpeg","image/png","image/webp"].includes(file.type))throw Error("Choose a JPEG, PNG or WebP photo smaller than 5 MB");
+  const cfg=await api("evidence_config");
+  if(!cfg.url.startsWith("https://")||!cfg.url.endsWith("/functions/v1/mtg-auction-evidence"))throw Error("Evidence endpoint unavailable");
+  status.textContent="Uploading to private review storage...";
+  const res=await fetch(cfg.url,{method:"POST",headers:{Authorization:"Bearer "+token,apikey:cfg.apikey,"content-type":file.type},body:file});
+  const result=await res.json().catch(()=>({}));
+  if(!res.ok||!result.ok||!/^[0-9a-f]{64}$/.test(result.sha256||""))throw Error(result.error||"Upload not confirmed");
+  $("evidence").value=result.sha256;
+  status.textContent="Private photo received; checksum "+result.sha256.slice(0,16)+"... Review pending.";
+ }catch(err){$("evidence").value="";status.textContent=err.message}
+};
 $("inventory-submit").onclick=async()=>{try{const d=await api("inventory",{p_title:$("item-title").value,p_condition:$("condition").value,p_evidence_sha256:$("evidence").value});$("inventory-id").value=d.result;$("seller-status").textContent="Inventory submitted for human review: "+d.result}catch(e){$("seller-status").textContent=e.message}};
 $("lot-submit").onclick=async()=>{try{const end=new Date($("end").value);if(!Number.isFinite(end.getTime()))throw Error("Choose a valid end date");const d=await api("auction_submit",{p_inventory:$("inventory-id").value,p_start_cents:cents("start"),p_increment_cents:cents("increment"),p_reserve_cents:cents("reserve"),p_ends_at:end.toISOString()});$("seller-status").textContent="Auction draft created. Manual approval required. ID: "+d.result}catch(e){$("seller-status").textContent=e.message}};
 authUI();lots();orders();
