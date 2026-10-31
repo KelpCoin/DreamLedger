@@ -4,6 +4,13 @@ on:
   schedule:
     - cron: "17,47 * * * *"
   workflow_dispatch:
+  pull_request:
+    paths:
+      - "ops/cube/multisilo_777_portfolio.py"
+      - "ops/cube/test_multisilo_777_portfolio.py"
+      - "BEC-PRIME/runtime/RevenueBanditEvidence.js"
+      - "BEC-PRIME/runtime/RevenueBanditEvidence.test.js"
+      - ".github/workflows/cloud-777-economic-heartbeat.yml"
 
 permissions:
   contents: read
@@ -14,7 +21,7 @@ concurrency:
 
 jobs:
   economic-heartbeat:
-    if: "${{ github.event_name != 'push' || !contains(github.event.head_commit.message, 'chore: fossilize cloud 777 economic artifact') }}"
+    if: github.event_name != 'pull_request'
     name: Build and fossilize the next 777 artifact
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -39,6 +46,11 @@ jobs:
 
       - name: Run 777 economic search
         run: npm run 777:run
+
+      - name: Audit all source product contracts and compile 777 bounded hypotheses
+        run: |
+          python3 -m unittest discover -s ../ops/cube -p 'test_multisilo_777_portfolio.py' -v
+          python3 ../ops/cube/multisilo_777_portfolio.py --root .. --output data/777/777-MULTISILO-PORTFOLIO.json
 
       - name: Verify artifact truth boundary
         run: |
@@ -76,6 +88,36 @@ jobs:
           name: cloud-777-heartbeat-${{ github.run_id }}
           path: |
             BEC-PRIME/data/777/777-LATEST.json
+            BEC-PRIME/data/777/777-MULTISILO-PORTFOLIO.json
             proof/cloud-777-heartbeat.json
           if-no-files-found: warn
           retention-days: 14
+
+  portfolio-contract:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Unit tests for portfolio separation and proof gates
+        run: python3 -m unittest discover -s ops/cube -p 'test_multisilo_777_portfolio.py' -v
+      - name: Bandit reward, tenant isolation and proof red-team tests
+        run: node --test BEC-PRIME/runtime/RevenueBanditEvidence.test.js
+      - name: Generate read-only 777 audit proof
+        run: |
+          python3 ops/cube/multisilo_777_portfolio.py --output /tmp/777-MULTISILO-PORTFOLIO.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path('/tmp/777-MULTISILO-PORTFOLIO.json').read_text())
+          assert r['expedition_count']==777
+          assert r['global_commercial_actions']['external_action']=='BLOCKED'
+          assert not r['gold_mode']['enabled']
+          assert not r['price_policy']['mutable_stripe_prices']
+          print('MULTISILO_777_GAUNTLET=PASS')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: multisilo-777-private-proof
+          path: /tmp/777-MULTISILO-PORTFOLIO.json
+          retention-days: 7
