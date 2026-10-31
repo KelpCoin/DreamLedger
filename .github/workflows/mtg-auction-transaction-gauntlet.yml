@@ -8,6 +8,8 @@ on:
       - 'handlers/mtg-auction-v2.ts'
       - 'supabase/functions/mtg-auction-*/**'
       - 'tests/mtg-auction-v2-*'
+      - 'tests/mtg-auction-gateway.test.mjs'
+      - 'scripts/mtg-auction-live-release-gate.mjs'
       - 'BEC-PRIME/auction-engine.js'
       - '.github/workflows/mtg-auction-transaction-gauntlet.yml'
   workflow_dispatch:
@@ -39,6 +41,10 @@ jobs:
         run: bash tests/mtg-auction-v2-test.sh
       - name: Adversarial authorization and replay tests
         run: bash tests/mtg-auction-v2-adversarial.sh
+      - name: Bid deadline lock-race and anti-snipe regression
+        run: bash tests/mtg-auction-v2-deadline.sh
+      - name: Web gateway HTTP Request smoke tests
+        run: node --test tests/mtg-auction-gateway.test.mjs
       - name: Verify public UI has no fake auction lots or local accepted bids
         run: |
           ! grep -q 'local_sandbox' public/auctions.html
