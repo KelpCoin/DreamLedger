@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en-NZ" data-silo="mtg"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0c0818"><meta name="referrer" content="no-referrer">
+<title>MTG Auctions | DreamLedger</title>
+<meta name="description" content="Verified New Zealand Magic auction lots, seller submissions and protected bidding. No fake lots.">
+<style>
+:root{color-scheme:dark;--bg:#0c0818;--panel:#211631;--line:#675080;--ink:#fffaf0;--muted:#ded0ec;--gold:#ffe28a;--action:#f5c451}
+*{box-sizing:border-box}body{margin:0;padding:0 18px 50px;font:16px/1.55 system-ui,sans-serif;background:radial-gradient(ellipse at top,#3c2258,transparent 500px),var(--bg);color:var(--ink)}
+main,header{max-width:1000px;margin:auto}header{padding:22px 0;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+a{color:var(--gold)}h1{font-size:clamp(2.2rem,7vw,3.7rem);margin:22px 0 8px}h2{font-size:1.3rem;margin:0 0 12px}p{color:var(--muted)}
+section{background:var(--panel);border:1px solid var(--line);border-radius:17px;padding:20px;margin-top:18px}
+input,button,select,textarea{font:inherit;min-height:46px;padding:10px;border-radius:9px;border:1px solid var(--line)}
+input,select,textarea{width:100%;background:#130c20;color:var(--ink)}label{display:block;margin-top:11px;font-size:14px;font-weight:650}
+button{background:var(--action);color:#211007;font-weight:800;cursor:pointer;margin-top:12px}button:disabled{opacity:.5;cursor:not-allowed}
+a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}.row>*{flex:1;min-width:180px}.lot{padding:18px;background:#140d23;border:1px solid var(--line);border-radius:12px;margin-bottom:12px}
+.lot strong{color:var(--gold)}.muted{color:var(--muted);font-size:14px}.status{min-height:25px;color:var(--gold)}
+#seller,#buyer{display:none}details{margin-top:12px}summary{cursor:pointer;color:var(--gold);font-weight:700}
+small{display:block;color:var(--muted)}.notice{border-left:4px solid var(--gold);padding-left:14px}
+</style></head><body><header><strong>DreamLedger / MTG Auctions</strong><nav><a href="/mtg/">MTG Home</a> · <a href="/mtg-list/">Card listings</a></nav></header>
+<main><h1>Real lots. Real bid records.</h1>
+<p class="notice">Only approved and verified lots appear. An accepted bid is not payment. Buyer protection here means documented terms, dispute records and review; it is not escrow, guaranteed refunds or an insurance policy.</p>
+<section><h2>Verified auction catalogue</h2><p id="catalogue-status" class="status" role="status" aria-live="polite">Checking backend…</p><div id="lots"></div><button id="refresh">Refresh real listings</button></section>
+<section><h2>Account access</h2><p>MTG auction accounts use verified Supabase email authentication. This does not automatically connect an older DreamLedger account.</p>
+<div class="row"><div><label for="email">Email</label><input id="email" type="email" autocomplete="email" maxlength="254"></div>
+<div><label for="password">Password</label><input id="password" type="password" autocomplete="current-password" minlength="8"></div></div>
+<div class="row"><button id="login">Sign in</button><button id="signup">Create account</button><button id="logout">Sign out</button></div>
+<p id="account-status" class="status" aria-live="polite"></p></section>
+<section id="seller"><h2>Seller intake and approval</h2><p>Seller and inventory verification are manual. Submitting a lot does not publish an auction or take a payment.</p>
+<button id="register">Request seller account</button>
+<details><summary>Submit one physical item for review</summary><label for="item-title">Card or bundle description</label><input id="item-title" maxlength="180">
+<label for="condition">Condition and visible defects</label><input id="condition" maxlength="100">
+<label for="evidence">SHA-256 of original card photos / evidence archive</label><input id="evidence" maxlength="64" pattern="[0-9a-f]{64}">
+<small>Hash only. The file itself is not uploaded here; you must provide the original evidence during human review.</small><button id="inventory-submit">Save pending inventory record</button>
+</details><details><summary>Submit an auction for manual approval</summary>
+<label for="inventory-id">Verified inventory UUID</label><input id="inventory-id">
+<div class="row"><div><label for="start">Starting price (NZD)</label><input id="start" type="number" min="1" step="0.01"></div>
+<div><label for="increment">Minimum increment (NZD)</label><input id="increment" type="number" min="1" step="0.01" value="1"></div>
+<div><label for="reserve">Reserve (NZD)</label><input id="reserve" type="number" min="0" step="0.01" value="0"></div></div>
+<label for="end">Requested closing date and time</label><input id="end" type="datetime-local">
+<button id="lot-submit">Submit auction draft</button></details>
+<p id="seller-status" class="status" aria-live="polite"></p></section>
+<section id="buyer"><h2>Your auction orders</h2><p id="orders-status" class="status" aria-live="polite">Loading orders…</p><div id="orders"></div></section>
+<section><h2>Transaction rules</h2><p>Stock and seller identity must pass verification before auction publication. Server-locked bids are immutable, and the clock closes by server time. Winning creates an order, not a charge. Stripe payment must match the exact order, currency and amount. Dispatch requires seller proof; the buyer can confirm receipt or open a time-limited dispute. No automatic seller payouts are enabled.</p></section>
+</main>
+<script>
+(()=>{
+const $=id=>document.getElementById(id), tokenKey="mtg_auction_jwt_v2";let token=sessionStorage.getItem(tokenKey)||"";
+const money=n=>"NZ$"+(Number(n)/100).toFixed(2);
+function el(tag,text,cls){let e=document.createElement(tag);if(text!=null)e.textContent=text;if(cls)e.className=cls;return e}
+async function api(action,body){
+ const headers={"accept":"application/json"};if(token)headers.authorization="Bearer "+token;
+ const opts=body?{method:"POST",headers:{...headers,"content-type":"application/json"},body:JSON.stringify(body)}:{headers,cache:"no-store"};
+ let r=await fetch("/api/mtg-auction?action="+encodeURIComponent(action),opts);
+ let d=await r.json().catch(()=>({error:"INVALID_RESPONSE"}));
+ if(!r.ok)throw Error(d.error||"HTTP_"+r.status);return d;
+}
+const cents=id=>{const v=Number($(id).value);if(!Number.isFinite(v)||v<0||Math.round(v*100)/100!==v)throw Error("Enter a valid NZD amount.");return Math.round(v*100)};
+const uuid=()=>crypto.randomUUID();
+function authUI(){$("seller").style.display=token?"block":"none";$("buyer").style.display=token?"block":"none";}
+async function lots(){
+ $("catalogue-status").textContent="Checking verified inventory…";$("lots").replaceChildren();
+ try{
+  const d=await api("list");const rows=d.auctions||[];
+  $("catalogue-status").textContent=rows.length?rows.length+" approved live lot(s).":"No approved live auction lots. No bids are being accepted.";
+  for(const a of rows){
+   const card=el("article",null,"lot");card.append(el("h2",a.title),el("p","Current "+money(a.high_bid_cents||a.start_cents)+" · Minimum increment "+money(a.increment_cents)),el("p","Closing "+new Date(a.ends_at).toLocaleString("en-NZ")));
+   const field=el("input");field.type="number";field.min="1";field.step=".01";field.placeholder="Your bid in NZD";field.setAttribute("aria-label","Bid on "+a.title);
+   const btn=el("button","Place recorded bid");btn.disabled=!token;btn.onclick=async()=>{
+    try{
+     const amount=Math.round(Number(field.value)*100);if(!Number.isSafeInteger(amount)||amount<100)throw Error("Invalid amount");
+     const result=await api("bid",{p_auction:a.id,p_amount_cents:amount,p_request_id:uuid()});
+     $("catalogue-status").textContent="Bid recorded: "+result.result.bid_id;await lots();
+    }catch(e){$("catalogue-status").textContent="Bid refused: "+e.message}
+   };
+   card.append(field,btn,el("small",token?"Final acceptance is server-side.":"Sign in before bidding."));$("lots").append(card);
+  }
+ }catch(e){$("catalogue-status").textContent="Auctions unavailable: "+e.message+". No simulated listings or bids are shown."}
+}
+async function orders(){
+ $("orders").replaceChildren();if(!token)return;
+ try{const d=await api("my_orders"),o=d.orders||[];$("orders-status").textContent=o.length?o.length+" real order(s).":"No auction orders.";
+ for(const item of o){
+  const c=el("article",null,"lot");c.append(el("p",item.status+" · "+money(item.amount_cents)+" · order "+item.id));
+  if(item.status==="shipped"){let b=el("button","Confirm received");b.onclick=async()=>{try{await api("deliver",{p_order:item.id});orders()}catch(e){$("orders-status").textContent=e.message}};c.append(b)}
+  if(["paid","shipped"].includes(item.status)){let b=el("button","Open dispute");b.onclick=async()=>{const reason=prompt("Describe the issue (minimum 10 characters)");if(reason){try{await api("dispute",{p_order:item.id,p_reason:reason});orders()}catch(e){$("orders-status").textContent=e.message}}};c.append(b)}
+  if(item.status==="paid"){let b=el("button","Mark dispatched (seller only)");b.onclick=async()=>{let hash=prompt("SHA-256 of shipping evidence");if(hash){try{await api("ship",{p_order:item.id,p_proof_sha256:hash});orders()}catch(e){$("orders-status").textContent=e.message}}};c.append(b)}
+  $("orders").append(c);
+ }}catch(e){$("orders-status").textContent="Order records unavailable: "+e.message}
+}
+$("refresh").onclick=lots;
+$("login").onclick=async()=>{try{let d=await api("login",{email:$("email").value,password:$("password").value});if(!d.access_token)throw Error("Verify email first");token=d.access_token;sessionStorage.setItem(tokenKey,token);$("password").value="";$("account-status").textContent="Signed in";authUI();lots();orders()}catch(e){$("account-status").textContent=e.message}};
+$("signup").onclick=async()=>{try{let d=await api("signup",{email:$("email").value,password:$("password").value});$("password").value="";$("account-status").textContent=d.confirmation_required?"Check your email to confirm your account.":"Account created; sign in to continue."}catch(e){$("account-status").textContent=e.message}};
+$("logout").onclick=()=>{token="";sessionStorage.removeItem(tokenKey);authUI();lots();$("account-status").textContent="Signed out"};
+$("register").onclick=async()=>{try{const d=await api("register",{});$("seller-status").textContent="Seller review status: "+d.result.status}catch(e){$("seller-status").textContent=e.message}};
+$("inventory-submit").onclick=async()=>{try{const d=await api("inventory",{p_title:$("item-title").value,p_condition:$("condition").value,p_evidence_sha256:$("evidence").value});$("inventory-id").value=d.result;$("seller-status").textContent="Inventory submitted for human review: "+d.result}catch(e){$("seller-status").textContent=e.message}};
+$("lot-submit").onclick=async()=>{try{const end=new Date($("end").value);if(!Number.isFinite(end.getTime()))throw Error("Choose a valid end date");const d=await api("auction_submit",{p_inventory:$("inventory-id").value,p_start_cents:cents("start"),p_increment_cents:cents("increment"),p_reserve_cents:cents("reserve"),p_ends_at:end.toISOString()});$("seller-status").textContent="Auction draft created. Manual approval required. ID: "+d.result}catch(e){$("seller-status").textContent=e.message}};
+authUI();lots();orders();
+})();
+</script></body></html>
