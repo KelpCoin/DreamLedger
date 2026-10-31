@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - 'public/mtg/**'
+      - 'public/index.html'
       - 'mtg/index.html'
       - 'BEC-PRIME/compiled/website/mtg/index.html'
       - 'BEC-PRIME/website/mtg-catalog.html'
