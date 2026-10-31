@@ -23,6 +23,25 @@ sql "set request.jwt.claim.sub='$seller';set role authenticated;
  select public.mtg_auction_set_buy_now_v2('$lot',1900);" >/dev/null
 sql "set role service_role;select public.mtg_auction_publish_v2('$lot');" >/dev/null
 [ "$(sql "select buy_now_cents from public.mtg_auction_lots_v2 where id='$lot'")" = 1900 ] || exit 1
+
+# Watchlist is private to each buyer and never writable via direct RLS-bypassing inserts.
+sql "set request.jwt.claim.sub='$buyer1';set role authenticated;
+ select public.mtg_auction_watch_v2('$lot',true);" >/dev/null
+watched="$(sql "set request.jwt.claim.sub='$buyer1';set role authenticated;
+ select count(*) from public.mtg_auction_watchlist_v2 where auction_id='$lot';")"
+[ "$watched" = 1 ] || { echo "BUYER_WATCH_NOT_VISIBLE_TO_OWNER";exit 1; }
+foreign="$(sql "set request.jwt.claim.sub='$buyer2';set role authenticated;
+ select count(*) from public.mtg_auction_watchlist_v2 where auction_id='$lot';")"
+[ "$foreign" = 0 ] || { echo "BUYER_WATCH_CROSSES_RLS";exit 1; }
+if sql "set request.jwt.claim.sub='$buyer2';set role authenticated;
+ insert into public.mtg_auction_watchlist_v2(auction_id,user_id) values('$lot','$buyer1');" >/dev/null 2>&1;then
+ echo "FORGED_WATCHLIST_OWNER_ALLOWED";exit 1
+fi
+sql "set request.jwt.claim.sub='$buyer1';set role authenticated;
+ select public.mtg_auction_watch_v2('$lot',false);" >/dev/null
+[ "$(sql "select count(*) from public.mtg_auction_watchlist_v2 where auction_id='$lot'")" = 0 ] ||
+ { echo "UNWATCH_NOT_PERSISTED";exit 1; }
+
 tmp="$(mktemp -d)";trap 'rm -rf "$tmp"' EXIT
 (
  sql "set request.jwt.claim.sub='$buyer1';set role authenticated;
