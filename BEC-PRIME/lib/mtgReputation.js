@@ -29,12 +29,12 @@ function reputation(ownerId,receipts,references=[]){
  if(!ownerId||typeof ownerId!=='string')throw new Error('SELLER_ID_REQUIRED');
  if(!Array.isArray(receipts)||receipts.length>50000||
     !Array.isArray(references)||references.length>50000)throw new Error('INPUT_LIMIT');
- const ids=new Set(),payments=new Set();
+ const ids=new Set(),payments=new Set(),uniqueBuyers=new Set();
  let positive=0,negative=0,ignored=0;
  for(const x of receipts){
    const proofId=x.kind==='trade'?'trade:'+String(x.trade_id):'payment:'+String(x.payment_id);
-   if(!validReceipt(x,ownerId)||ids.has(x.id)||payments.has(proofId)){ignored++;continue;}
-   ids.add(x.id);payments.add(proofId);
+   if(!validReceipt(x,ownerId)||ids.has(x.id)||payments.has(proofId)||uniqueBuyers.has(x.buyer_id)){ignored++;continue;}
+   ids.add(x.id);payments.add(proofId);uniqueBuyers.add(x.buyer_id);
    if(x.outcome==='positive')positive++;else negative++;
  }
  const total=positive+negative;
@@ -42,15 +42,15 @@ function reputation(ownerId,receipts,references=[]){
  return Object.freeze({
    status:total?'VERIFIED_TRANSACTION_HISTORY':'NEW_NO_VERIFIED_TRANSACTIONS',
    score_0_to_100:total?Math.round(wilsonLower(positive,total)*100):null,
-   model:'WILSON_95_LOWER_BOUND_VERIFIED_SETTLED_DELIVERED',
-   verified_transactions:total,positive,negative,
+   model:'WILSON_95_LOWER_BOUND_UNIQUE_VERIFIED_COUNTERPARTIES',
+   verified_transactions:total,unique_verified_counterparties:uniqueBuyers.size,positive,negative,
    ignored_unverified_receipts:ignored,
    external_reference_count:references.length,
    external_ownership_verified_count:external,
    external_reference_score_credit:0,
    proof_requirement:'INDEPENDENT_PROVIDER_AND_COUNTERPARTY_EVIDENCE',
    silo:'mtg',
-   warning:total?'Score describes proven outcomes, not a fraud guarantee.':'No verified deal history; not a negative rating.'
+   warning:total?'Only one independently evidenced outcome per counterparty contributes to score. Not a fraud guarantee.':'No verified deal history; not a negative rating.'
  });
 }
 module.exports={reputation,wilsonLower,validReceipt};
