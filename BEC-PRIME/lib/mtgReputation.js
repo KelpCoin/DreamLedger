@@ -3,15 +3,22 @@
    Call only with independently verified first-party receipt data. */
 const SHA256=/^[a-f0-9]{64}$/;
 function validReceipt(x,ownerId){
- return !!(x&&typeof x==='object'&&x.source==='INDEPENDENT_PROVIDER_RECONCILED'&&
-   x.silo==='mtg'&&x.seller_id===ownerId&&
+ if(!(x&&typeof x==='object'&&x.silo==='mtg'&&x.seller_id===ownerId&&
    typeof x.buyer_id==='string'&&x.buyer_id.length>0&&x.buyer_id!==ownerId&&
    typeof x.id==='string'&&x.id.length>0&&
-   typeof x.payment_id==='string'&&x.payment_id.length>2&&
    typeof x.delivery_sha256==='string'&&SHA256.test(x.delivery_sha256)&&
-   x.payment_settled===true&&x.delivery_confirmed===true&&
-   x.independent_counterparty_confirmed===true&&
-   (x.outcome==='positive'||x.outcome==='negative'));
+   x.delivery_confirmed===true&&x.independent_counterparty_confirmed===true&&
+   (x.outcome==='positive'||x.outcome==='negative')))return false;
+ if(x.kind==='trade'){
+   // A free card-for-card swap can earn reputation without any money changing hands,
+   // but two anonymous capability tokens are not independent evidence.
+   return x.source==='INDEPENDENT_TRADE_EVIDENCE_RECONCILED'&&
+     x.counterparty_verified_independently===true&&
+     x.item_exchange_verified_independently===true&&
+     typeof x.trade_id==='string'&&x.trade_id.length>0;
+ }
+ return x.source==='INDEPENDENT_PROVIDER_RECONCILED'&&
+   typeof x.payment_id==='string'&&x.payment_id.length>2&&x.payment_settled===true;
 }
 function wilsonLower(pos,total){
  if(total===0)return null;
@@ -25,8 +32,9 @@ function reputation(ownerId,receipts,references=[]){
  const ids=new Set(),payments=new Set();
  let positive=0,negative=0,ignored=0;
  for(const x of receipts){
-   if(!validReceipt(x,ownerId)||ids.has(x.id)||payments.has(x.payment_id)){ignored++;continue;}
-   ids.add(x.id);payments.add(x.payment_id);
+   const proofId=x.kind==='trade'?'trade:'+String(x.trade_id):'payment:'+String(x.payment_id);
+   if(!validReceipt(x,ownerId)||ids.has(x.id)||payments.has(proofId)){ignored++;continue;}
+   ids.add(x.id);payments.add(proofId);
    if(x.outcome==='positive')positive++;else negative++;
  }
  const total=positive+negative;
