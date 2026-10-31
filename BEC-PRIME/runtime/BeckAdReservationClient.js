@@ -23,7 +23,7 @@ function validate(input) {
     p_x:placement.x,p_y:placement.y,p_width:placement.width,p_height:placement.height,
     p_canvas_width:placement.canvas_width,p_canvas_height:placement.canvas_height,
     p_start:placement.start_utc,p_end:placement.end_utc,p_price_minor:placement.price_minor,p_currency:placement.currency,
-    p_hold_minutes:30
+    p_hold_minutes:60
   };
 }
 async function reserve(input,{env=process.env,fetchImpl=globalThis.fetch,timeoutMs=DEFAULT_TIMEOUT_MS}={}) {
@@ -53,6 +53,6 @@ async function reserve(input,{env=process.env,fetchImpl=globalThis.fetch,timeout
      (result.status==='HELD'&&!(Date.parse(result.hold_expires_at)>Date.now())))
     throw Error('beck_ad_reservation_not_active');
   return {reservation_id:result.reservation_id,expires_at:result.hold_expires_at,status:result.status,
-    exhaust:result.exhaust,silo:result.silo,canvas:result.canvas,idempotent:true};
+    exhaust:result.exhaust,silo:result.silo,canvas:result.canvas,idempotency_key:params.p_key};
 }
 module.exports={configured,validate,reserve};
