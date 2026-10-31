@@ -3,8 +3,8 @@
 import {readFile} from 'node:fs/promises';
 import assert from 'node:assert/strict';
 import {test} from 'node:test';
-const source=await readFile(new URL('../handlers/mtg-auction-v2.ts',import.meta.url),'utf8');
-const {default:handler}=await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
+import {issueAuctionAllocation} from '../BEC-PRIME/capabilities/auction/authorization.mjs';
+const {default:handler}=await import(new URL('../handlers/mtg-auction-v2.ts',import.meta.url).href);
 const saved={url:process.env.SUPABASE_URL,key:process.env.SUPABASE_ANON_KEY};
 const originalFetch=globalThis.fetch;
 const root='https://dreamledger.org/api/mtg-auction?action=';
@@ -15,7 +15,22 @@ function request(action,options={}) {
 }
 async function result(request){const r=await handler(request);return {status:r.status,data:await r.json(),headers:r.headers}}
 const apiKey='test-publishable-public-only';
+const gateSecret='test-only-not-for-deployment-'.repeat(3);
+const deploymentSha='f'.repeat(40);
+function grant(silo='mtg-master',duration_seconds=600){
+ const scorecard={schema:'gauntlet-scorecard/v1',overall:'PASS',scope:{id:silo,type:'silo'},scorecard_id:'test-auction-scorecard-001'};
+ return issueAuctionAllocation({scorecard,scorecardBytes:JSON.stringify(scorecard),
+ approval:{explicit:true,reference:'test-owner-approval-001',economic_basis:'EXPERIMENT_APPROVED',
+ capability:'kingdom.auction.v1',silo_id:silo},
+ resource:{capability_id:'kingdom.auction.v1',silo_id:silo,
+ actions:['register','inventory','auction_submit','bid','ship','deliver','dispute','checkout'],
+ duration_seconds,deployment_sha:deploymentSha},secret:gateSecret});
+}
+
 function setup(){
+ process.env.KINGDOM_AUCTION_ALLOCATION_SECRET=gateSecret;
+ process.env.KINGDOM_AUCTION_DEPLOYMENT_SHA=deploymentSha;
+ process.env.KINGDOM_AUCTION_ALLOCATION_JSON=JSON.stringify(grant());
  process.env.SUPABASE_URL='https://example.supabase.co';
  process.env.SUPABASE_ANON_KEY=apiKey;
  delete process.env.SUPABASE_PUBLISHABLE_KEY;
@@ -89,5 +104,21 @@ test('upstream auth failures never become accepted bids',async()=>{
  const payload={p_auction:'11111111-1111-4111-8111-111111111111',p_amount_cents:200,p_request_id:'22222222-2222-4222-8222-222222222222'};
  const r=await result(request('bid',{method:'POST',headers:{authorization:'Bearer opaque'},body:payload}));
  assert.equal(r.status,403);assert.equal(r.data.error,'AUCTION_OPERATION_REJECTED');
+});
+test('Kingdom auction grant missing denies bids even with JWT, before upstream request',async()=>{
+ setup();delete process.env.KINGDOM_AUCTION_ALLOCATION_JSON;
+ let calls=0;globalThis.fetch=async()=>{calls++;throw Error('must not call upstream')};
+ const r=await result(request('bid',{method:'POST',headers:{authorization:'Bearer opaque'},
+ body:{p_auction:'11111111-1111-4111-8111-111111111111',p_amount_cents:1000,
+ p_request_id:'22222222-2222-4222-8222-222222222222'}}));
+ assert.equal(r.status,503);assert.equal(r.data.error,'KINGDOM_GAUNTLET_ALLOCATION_HOLD');assert.equal(calls,0);
+});
+test('Cross-silo signed grant cannot buy authorization to bid on MTG',async()=>{
+ setup();process.env.KINGDOM_AUCTION_ALLOCATION_JSON=JSON.stringify(grant('other-silo'));
+ let calls=0;globalThis.fetch=async()=>{calls++;throw Error('must not call upstream')};
+ const r=await result(request('bid',{method:'POST',headers:{authorization:'Bearer opaque'},
+ body:{p_auction:'11111111-1111-4111-8111-111111111111',p_amount_cents:1000,
+ p_request_id:'22222222-2222-4222-8222-222222222222'}}));
+ assert.equal(r.status,503);assert.equal(r.data.gate,'WRONG_SILO');assert.equal(calls,0);
 });
 process.on('exit',()=>{globalThis.fetch=originalFetch;process.env.SUPABASE_URL=saved.url;process.env.SUPABASE_ANON_KEY=saved.key});
