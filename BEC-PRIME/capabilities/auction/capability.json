@@ -12,7 +12,25 @@
     "distribution": "dreamledger",
     "gateway": "handlers/mtg-auction-v2.ts",
     "state": "DRAFT_DEPENDENCY_BLOCKED",
-    "backend": "supabase-postgrest-rpc-v2"
+    "backend": "supabase-postgrest-rpc-v2",
+    "features": [
+      "seller_registration",
+      "private_evidence_upload",
+      "inventory_review",
+      "auction_draft",
+      "auction_publish",
+      "locked_bids",
+      "anti_sniping",
+      "reserve",
+      "buy_now",
+      "winner_order",
+      "test_checkout",
+      "signed_webhook",
+      "shipment_evidence",
+      "delivery_confirmation",
+      "dispute",
+      "refund_reconciliation"
+    ]
   },
   "requires": {
     "gauntlet_scorecard_schema": "gauntlet-scorecard/v1",
@@ -34,7 +52,9 @@
     "ship",
     "deliver",
     "dispute",
-    "checkout"
+    "checkout",
+    "buy_now_set",
+    "buy_now"
   ],
   "sectors": "general: no per-silo hardcoding in authorization package",
   "external_actions_default": "HOLD",
