@@ -83,6 +83,14 @@ async function orders(){
  try{const d=await api("my_orders"),o=d.orders||[];$("orders-status").textContent=o.length?o.length+" real order(s).":"No auction orders.";
  for(const item of o){
   const c=el("article",null,"lot");c.append(el("p",item.status+" · "+money(item.amount_cents)+" · order "+item.id));
+  if(item.status==="awaiting_checkout"){
+   let b=el("button","Open secure Stripe checkout");
+   b.onclick=async()=>{try{const result=await api("checkout",{order_id:item.id});const link=result.result?.checkout_url;
+     if(typeof link!=="string"||!/^https:\/\/checkout\.stripe\.com\//.test(link))throw Error("Checkout not verified");
+     location.assign(link);
+   }catch(e){$("orders-status").textContent="Checkout held: "+e.message}};
+   c.append(b);
+  }
   if(item.status==="shipped"){let b=el("button","Confirm received");b.onclick=async()=>{try{await api("deliver",{p_order:item.id});orders()}catch(e){$("orders-status").textContent=e.message}};c.append(b)}
   if(["paid","shipped"].includes(item.status)){let b=el("button","Open dispute");b.onclick=async()=>{const reason=prompt("Describe the issue (minimum 10 characters)");if(reason){try{await api("dispute",{p_order:item.id,p_reason:reason});orders()}catch(e){$("orders-status").textContent=e.message}}};c.append(b)}
   if(item.status==="paid"){let b=el("button","Mark dispatched (seller only)");b.onclick=async()=>{let hash=prompt("SHA-256 of shipping evidence");if(hash){try{await api("ship",{p_order:item.id,p_proof_sha256:hash});orders()}catch(e){$("orders-status").textContent=e.message}}};c.append(b)}
