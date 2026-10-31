@@ -75,7 +75,7 @@ function assessPortfolio(arms){
     fatal(!seen.has(r.arm_id),'DUPLICATE_ARM');
     seen.add(r.arm_id);reports.push(r);
   }
-  const ready=reports.filter(x=>x.provider_reconciled_sales_reported>0&&x.exposures>=MIN_EXPOSURES);
+  const ready=reports.filter(x=>x.provider_reconciled_sales_reported>0&&x.exposures>=MIN_EXPOSURES&&\n    x.reported_contribution_minor>0&&x.issue_codes.length===0);
   const total=ready.reduce((s,a)=>s+a.exposures,0);
   const priorities=ready.map(x=>({
     arm_id:x.arm_id,
