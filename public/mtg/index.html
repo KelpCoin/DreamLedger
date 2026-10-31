@@ -89,7 +89,11 @@ body.silo-body{background-image:radial-gradient(ellipse at 12% 2%,rgba(120,64,19
   </section>
   <section class="silo-section" id="decks">
     <div class="silo-section-h"><h2 class="silo-h2">Decks for sale</h2></div>
-    <div id="status" class="status-bar">Loading inventory…</div>
+    <label class="silo-label" for="deckSearch">Find a Commander deck</label>
+    <input class="silo-input" id="deckSearch" type="search" placeholder="Search commander, deck name or strategy" autocomplete="off">
+    <label class="silo-label" for="deckSort">Sort decks</label>
+    <select class="silo-select" id="deckSort"><option value="name">Name A to Z</option><option value="low">Price low to high</option><option value="high">Price high to low</option></select>
+    <div id="status" class="status-bar" role="status" aria-live="polite">Loading inventory…</div>
     <div id="grid" class="grid"></div>
   </section>
   <section class="silo-section">
@@ -117,8 +121,8 @@ function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&l
 async function applyManifest(){
   try{
     const m=await (await fetch(MANIFEST,{cache:'no-store'})).json();
-    if(m.accent) document.documentElement.style.setProperty('--silo-accent', m.accent);
-    if(m.accent_bright) document.documentElement.style.setProperty('--silo-accent-bright', m.accent_bright);
+    // MTG theme is authoritative here; manifest accents cannot overwrite accessible tokens.
+
     const short=m.short||'Magic';
     document.getElementById('navShort').textContent=short;
     document.getElementById('eyebrow').textContent=(m.name||short)+' · New Zealand';
@@ -158,26 +162,40 @@ async function loadCatalog(manifest){
       throw new Error('Catalogue schema mismatch; purchases held');
     const byId=new Map(globalCatalog.products.map(p=>[p.id,p]));
     const decks=catalog.products.filter(p=>p&&p.status==='published'&&isPhysical(p));
-    let conflicts=0;
-    grid.innerHTML=decks.map(p=>{
+    const rows=decks.map(p=>{
       const master=byId.get(p.id);
       const matched=!!master && master.status===p.status && Number.isFinite(Number(p.price)) &&
         Number(p.price)>0 && Number(p.price)===Number(master.price) &&
         String(p.currency||catalog.currency).toUpperCase()===String(master.currency||globalCatalog.currency_default).toUpperCase() &&
         Boolean(p.checkout_available)===Boolean(master.checkout_available) &&
         (!p.checkout_available || (p.checkout_url && p.checkout_url===master.checkout_url));
-      if(!matched)conflicts++;
-      const detail=typeof p.detail_url==='string'&&/^\/mtg\/[a-z0-9/_-]+\.html$/i.test(p.detail_url)?p.detail_url:'/mtg/';
-      const price=matched?'NZ$'+Number(p.price).toFixed(2):'Price pending verification';
-      const state=matched?'Listing only. Stock and payment not reserved.':'Catalogue mismatch. Purchase held.';
-      return '<article class="deck"><div class="deck-banner">Commander · listing only</div><div class="deck-body">'+
-        '<div class="tag">'+esc(p.commander||'EDH')+'</div><h3>'+esc(p.name||p.id)+'</h3>'+
-        '<p class="desc">'+esc(p.description||'')+'</p><div class="price">'+esc(price)+'</div>'+
-        '<p class="desc">'+esc(state)+'</p><div class="actions"><a class="see" href="'+esc(detail)+'">View listing</a></div></div></article>';
-    }).join('');
-    status.textContent=decks.length+' published deck listing(s) · '+conflicts+
-      ' catalogue discrepancy/discrepancies · checkout held until atomic stock reservation, payment and fulfilment gates pass.';
-    if(!decks.length)status.textContent='No verified deck listings; checkout held.';
+      const detail=typeof p.detail_url==='string'&&/^\\/mtg\\/[a-z0-9/_-]+\\.html$/i.test(p.detail_url)?p.detail_url:null;
+      const safeClaim=matched && Number(p.inventory)>0 && p.sale_mode==='claim_by_message' &&
+        typeof p.claim_url==='string' && /^mailto:[^\\s]+$/i.test(p.claim_url) ? p.claim_url : null;
+      return {p,matched,detail,safeClaim};
+    });
+    function render(){
+      const q=document.getElementById('deckSearch').value.trim().toLowerCase();
+      const sort=document.getElementById('deckSort').value;
+      const visible=rows.filter(x=>(x.p.name+' '+(x.p.commander||'')+' '+(x.p.description||'')).toLowerCase().includes(q));
+      visible.sort((a,b)=>sort==='low'?Number(a.p.price)-Number(b.p.price):sort==='high'?Number(b.p.price)-Number(a.p.price):String(a.p.name).localeCompare(String(b.p.name)));
+      grid.innerHTML=visible.map(({p,matched,detail,safeClaim})=>{
+        const price=matched?'NZ$'+Number(p.price).toFixed(2):'Price pending verification';
+        const state=!matched?'Catalogue discrepancy; transaction held.':Number(p.inventory)<=0?'Availability requires confirmation.':'Confirm price and stock before payment. No reservation has been made.';
+        const actions=(detail?'<a class="see" href="'+esc(detail)+'">View deck details</a>':'')+
+          (safeClaim?'<a class="buy" href="'+esc(safeClaim)+'">Enquire about this deck</a>':'');
+        return '<article class="deck"><div class="deck-banner">Commander · inquiry first</div><div class="deck-body">'+
+          '<div class="tag">'+esc(p.commander||'EDH')+'</div><h3>'+esc(p.name||p.id)+'</h3>'+
+          '<p class="desc">'+esc(p.description||'')+'</p><div class="price">'+esc(price)+'</div>'+
+          '<p class="desc">'+esc(state)+'</p><div class="actions">'+(actions||'<span class="silo-small">Enquiries currently held</span>')+'</div></div></article>';
+      }).join('');
+      status.textContent=visible.length+' of '+rows.length+' published deck listing(s) shown; '+rows.filter(x=>!x.matched).length+' catalogue discrepancies. Checkout remains held pending verified stock, price and fulfilment.';
+      if(!rows.length)status.textContent='No verified Commander listings available.';
+      else if(!visible.length)status.textContent='No decks match your search. Try another commander or clear the filter.';
+    }
+    document.getElementById('deckSearch').addEventListener('input',render);
+    document.getElementById('deckSort').addEventListener('change',render);
+    render();
   }catch(e){
     status.className='status-bar error';
     status.textContent='Inventory verification unavailable. Purchases held.';
