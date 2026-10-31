@@ -1,0 +1,10 @@
+{
+  "requirements": "100 reusable storage boxes delivered to Auckland",
+  "currency": "NZD",
+  "quotes": [
+    {"supplier": "FICTIONAL SUPPLIER A", "price": 420, "delivery": 35, "lead_time": "7 business days", "moq": "100", "terms": "Due on invoice", "notes": "Packaging unknown"},
+    {"supplier": "FICTIONAL SUPPLIER B", "price": 445, "delivery": null, "lead_time": "5 business days", "moq": "100", "terms": "", "notes": "Delivery unknown"}
+  ],
+  "generated_at": "2026-10-31T00:00:00.000Z",
+  "truth_status": "USER_ENTERED_COMPARISON_NOT_INDEPENDENTLY_VERIFIED"
+}
