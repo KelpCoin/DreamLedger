@@ -91,4 +91,7 @@ function run(options = {}) {
   return payload;
 }
 
-module.exports = { run };
+// Preserve the existing offer Gauntlet and expose the offline action adapter through the same entry point.
+// This never creates a scorecard or authorizes a live action.
+const { evaluate: evaluateAgentActionSnapshot } = require('./AgentActionSnapshot');
+module.exports = { run, evaluateAgentActionSnapshot };

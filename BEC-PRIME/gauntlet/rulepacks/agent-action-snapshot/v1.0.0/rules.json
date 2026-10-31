@@ -1,0 +1,22 @@
+{
+  "schema": "gauntlet-rulepack/v1",
+  "rulepack_id": "agent-action-snapshot",
+  "version": "1.0.0",
+  "title": "BECK Agent Action Verification Snapshot",
+  "description": "Offline deterministic checks of a customer-supplied agent action. Not transaction authorization, KYC, security audit or guarantee.",
+  "engine": "BEC-PRIME/gauntlet/AgentActionSnapshot.js",
+  "rules": [
+    "agent.schema.valid@1.0.0",
+    "agent.identities.unique@1.0.0",
+    "agent.amount_currency.consistent@1.0.0",
+    "agent.tenant.scope@1.0.0",
+    "agent.evidence.integrity@1.0.0",
+    "agent.replay.timestamp@1.0.0",
+    "agent.acceptance.criteria@1.0.0"
+  ],
+  "domain": "agent-action-verification",
+  "hard_gate": true,
+  "production_approval": false,
+  "external_api": false,
+  "customer_data_published": false
+}

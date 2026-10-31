@@ -1,0 +1,22 @@
+name: Gauntlet Agent Action Snapshot Offline Contract
+on:
+  pull_request:
+    paths:
+      - 'BEC-PRIME/gauntlet/AgentActionSnapshot.js'
+      - 'BEC-PRIME/gauntlet/GauntletV6.js'
+      - 'BEC-PRIME/gauntlet/AgentActionSnapshot.test.js'
+      - 'BEC-PRIME/gauntlet/rulepacks/agent-action-snapshot/**'
+      - '.github/workflows/gauntlet-agent-snapshot.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Offline deterministic agent verification
+        run: node --test BEC-PRIME/gauntlet/AgentActionSnapshot.test.js
