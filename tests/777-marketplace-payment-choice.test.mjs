@@ -12,7 +12,7 @@ const item={
 const provider={code:'synthetic_provider',available:true,seller_enabled:true,
  supported_currency:'NZD',provider_terms_url:'https://example.invalid/terms',
  provider_terms_sha256:'b'.repeat(64),observed_at:'2026-10-31T00:00:00.000Z',
- total_fee_cents:175};
+ total_fee_cents:175,monthly_platform_fee_cents:0,assumed_monthly_transactions:1};
 const args={listing:item,silo_id:'dreamledger-mtg',item_cents:40000,
  shipping_cents:1240,payment_quotes:[provider],policy,actor:{kind:'human',id:'buyer:synthetic'},now:at};
 const quote=(d={})=>evaluateMarketplaceQuote({...args,...d});
@@ -80,4 +80,17 @@ test('multiple alternative rails compare quotes without forcing a rail',()=>{
 test('provider evidence is a quoted fee only, no real processor account or payout',()=>{
  let a=quote();assert.equal(a.payment_options[0].provider_onboarding,'NOT_VERIFIED_BY_THIS_MODULE');
  assert.match(a.legal_review,/REQUIRED/);
+});
+
+test('provider monthly plan cost must be allocated explicitly before a quote',()=>{
+ assert.throws(()=>quote({payment_quotes:[{...provider,monthly_platform_fee_cents:undefined}]}),/INVALID_MONTHLY_FEE/);
+ assert.throws(()=>quote({payment_quotes:[{...provider,assumed_monthly_transactions:0}]}),/MONTHLY_TRANSACTION_BASIS_REQUIRED/);
+});
+test('large fixed monthly plan can reverse the fee ranking; costs are scenarios',()=>{
+ const a={...provider,code:'sandbox_a',total_fee_cents:35,monthly_platform_fee_cents:9900,assumed_monthly_transactions:10};
+ const b={...provider,code:'sandbox_b',total_fee_cents:1090,monthly_platform_fee_cents:0,assumed_monthly_transactions:10};
+ const q=quote({payment_quotes:[a,b]});
+ assert.deepEqual(q.payment_options.map(x=>x.code),['sandbox_b','sandbox_a']);
+ assert.equal(q.payment_options[1].estimated_plan_fee_share_cents,990);
+ assert.equal(q.economically_validated,false);
 });
