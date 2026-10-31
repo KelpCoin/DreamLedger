@@ -3,6 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const { inspectListing } = require('../lib/mtgMarketplaceGauntlet');
 
 const ROOT = path.join(__dirname, '..');
 const DATA_ROOT = process.env.DREAMIEZ_DATA_DIR || ((fs.existsSync('/var/data') && fs.statSync('/var/data').isDirectory()) ? '/var/data/dreamiez' : path.join(ROOT, 'data', 'dreamiez'));
@@ -92,6 +93,9 @@ async function handle(req, res, url) {
     if (!user) return json(res, 401, { error: 'Log in before listing a card.' });
     const input = await body(req);
     const title = clean(input.title, 160);
+    const decision = inspectListing(input);
+    if(decision.decision==='REJECT')
+      return json(res,422,{error:'Listing content failed validation.',reason_codes:decision.reason_codes});
     const price = Number(input.price_nzd);
     const acceptsBuy = bool(input.accepts_buy);
     const acceptsTrade = bool(input.accepts_trade);
@@ -130,9 +134,21 @@ async function handle(req, res, url) {
       }
     };
     const listings = read(LISTINGS, []);
+    const recent = listings.filter(x=>x.seller_id===user.id &&
+      Date.now()-Date.parse(x.created_at)<60*60*1000);
+    if(recent.length>=10)return json(res,429,{error:'Listing limit reached. Try again later.'});
+    const duplicate=recent.some(x=>x.title.toLowerCase()===title.toLowerCase() &&
+      Number(x.price_nzd)===Number(listing.price_nzd) &&
+      x.status!=='removed');
+    if(duplicate)return json(res,409,{error:'This listing has already been submitted.'});
+    listing.status=decision.decision==='QUARANTINE'?'quarantined':'active';
+    listing.moderation={rulepack:decision.policy,status:decision.decision,
+      reason_codes:decision.reason_codes,requires_review:decision.reviewer_required};
     listings.push(listing);
     write(LISTINGS, listings);
-    return json(res, 201, { ok: true, listing: safeListing(listing), fee_nzd: 0, fee_policy: 'MTG_ZERO_FEE' });
+    return json(res, 201, { ok: true, listing: safeListing(listing),
+      publication_state: listing.status==='active'?'ACTIVE':'QUARANTINED_PENDING_REVIEW',
+      fee_nzd: 0, fee_policy: 'MTG_ZERO_FEE' });
   }
 
   if (req.method === 'POST' && route === '/api/mtg/marketplace/request') {
