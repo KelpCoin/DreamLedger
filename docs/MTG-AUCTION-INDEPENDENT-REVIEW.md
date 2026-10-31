@@ -4,7 +4,7 @@
 
 ## Reviewer tasks
 
-1. Attempt to break bidding concurrency: two equal bids, end-time races, idempotency reuse, anti-sniping deadline extension, self-bidding, anonymous users, and integer overflow.
+1. Attempt to break bidding concurrency, including the after-FOR-UPDATE clock check: two equal bids, end-time races, idempotency reuse, anti-sniping deadline extension, self-bidding, anonymous users, and integer overflow.
 2. Attempt webhook replay and forged success: signature verification, event-type handling, payment intent/session metadata binding, refund amount and double-entry balance.
 3. Inspect account boundary and checkout liability: no payout automation, no escrow claim, approvals before inventory publication, authorization for seller vs buyer.
 4. Identify blockers that would prevent an NZ marketplace from handling buyer funds legally and safely. Recommend connected-account/direct-charge path if appropriate, subject to NZ advice.
@@ -12,10 +12,10 @@
 
 ## Database bid-placement function
 ```sql
-create or replace function public.mtg_auction_bid_v2(p_auction uuid,p_amount_cents bigint,p_request_id uuid)
+ccreate or replace function public.mtg_auction_bid_v2(p_auction uuid,p_amount_cents bigint,p_request_id uuid)
 returns jsonb language plpgsql security definer set search_path='' as $$
 declare u uuid:=auth.uid(); l public.mtg_auction_lots_v2%rowtype; oldbid public.mtg_auction_bids_v2%rowtype;
- b uuid; floor_price bigint; t timestamptz:=clock_timestamp();
+ b uuid; floor_price bigint; t timestamptz;
 begin
  if u is null then raise exception 'AUTH_REQUIRED'; end if;
  if not exists(select 1 from auth.users where id=u and email_confirmed_at is not null)
@@ -23,6 +23,8 @@ begin
  if p_request_id is null or p_amount_cents is null or p_amount_cents>100000000000 then raise exception 'INVALID_BID'; end if;
  select * into l from public.mtg_auction_lots_v2 where id=p_auction for update;
  if not found then raise exception 'AUCTION_NOT_FOUND'; end if;
+ -- Evaluate the deadline AFTER any wait on FOR UPDATE, never at function entry.
+ t:=clock_timestamp();
  select * into oldbid from public.mtg_auction_bids_v2
  where auction_id=l.id and bidder_id=u and request_id=p_request_id;
  if found then
@@ -48,7 +50,7 @@ end $$;
 
 ## Database paid-event reconciliation
 ```sql
-create or replace function public.mtg_auction_reconcile_v2(
+ccreate or replace function public.mtg_auction_reconcile_v2(
  p_event_id text,p_event_type text,p_session text,p_amount_cents bigint,p_currency text,p_payload_sha256 text,
  p_payment_intent text default null)
 returns jsonb language plpgsql security definer set search_path='' as $$
@@ -74,6 +76,8 @@ begin
   perform mtg_private.event(o.auction_id,'stripe_paid',null,jsonb_build_object('event_id',p_event_id,'amount_cents',o.amount_cents));
   outcome:='applied';
  end if;
+ -- Never deduplicate a mismatched event as permanently held. Roll back and retry.
+ if outcome<>'applied' then raise exception 'PAYMENT_EVENT_REQUIRES_RECONCILIATION'; end if;
  insert into public.mtg_auction_external_v2(stripe_event_id,event_type,stripe_session,payload_sha256,order_id,outcome)
  values(p_event_id,p_event_type,p_session,p_payload_sha256,case when found then o.id else null end,outcome);
  return jsonb_build_object('idempotent',false,'outcome',outcome);
@@ -82,7 +86,7 @@ end $$;
 
 ## Database refund reconciliation
 ```sql
-create or replace function public.mtg_auction_refund_reconcile_v2(
+ccreate or replace function public.mtg_auction_refund_reconcile_v2(
  p_event_id text,p_payment_intent text,p_refunded_cents bigint,p_currency text,p_payload_sha256 text)
 returns jsonb language plpgsql security definer set search_path='' as $$
 declare o public.mtg_auction_orders_v2%rowtype; outcome text:='held';
@@ -105,6 +109,8 @@ begin
   perform mtg_private.event(o.auction_id,'stripe_refunded',null,jsonb_build_object('event_id',p_event_id,'amount_cents',o.amount_cents));
   outcome:='applied';
  end if;
+ -- Never deduplicate a mismatched event as permanently held. Roll back and retry.
+ if outcome<>'applied' then raise exception 'REFUND_EVENT_REQUIRES_RECONCILIATION'; end if;
  insert into public.mtg_auction_external_v2(stripe_event_id,event_type,payload_sha256,order_id,outcome)
  values(p_event_id,'charge.refunded',p_payload_sha256,case when found then o.id else null end,outcome);
  return jsonb_build_object('idempotent',false,'outcome',outcome);
@@ -113,9 +119,9 @@ end $$;
 
 ## Stripe webhook handler (verbatim)
 ```typescript
-// MTG Stripe webhook. Raw request signature verified before touching the external ledger.
+/// MTG Stripe webhook. Raw request signature verified before touching the external ledger.
 // Never infer a paid order from a client redirect or a client-submitted ID.
-import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+// Built-in Deno runtime types, no JSR edge-runtime dependency.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 import Stripe from "https://esm.sh/stripe@18.5.0?target=denonext";
 const reply=(v:unknown,s=200)=>new Response(JSON.stringify(v),{status:s,headers:{"content-type":"application/json","cache-control":"no-store"}});
@@ -132,6 +138,9 @@ Deno.serve(async req=>{
  let event:Stripe.Event;
  try{event=await stripe.webhooks.constructEventAsync(raw,signature,secret)}
  catch{return reply({error:"BAD_STRIPE_SIGNATURE"},400)}
+ // This integration remains a TEST-only payment lane; no real-money recognition.
+ if(event.livemode!==false||!key.startsWith("sk_test_"))
+   return reply({error:"LIVE_AUCTION_EVENTS_NOT_AUTHORIZED"},503);
  // This endpoint is platform-MTG-only; Connect events have a separate owner.
  if(event.account)return reply({received:true,ignored:"connected_account"});
  const admin=createClient(base,service,{auth:{autoRefreshToken:false,persistSession:false}});
@@ -145,7 +154,7 @@ Deno.serve(async req=>{
     .select("id,stripe_session,amount_cents,currency")
     .eq("id",s.metadata.mtg_order_id).maybeSingle();
   if(orderError)return reply({error:"ORDER_LOOKUP_RETRY"},503);
-  if(!mtgOrder||mtgOrder.stripe_session!==s.id)return reply({received:true,ignored:"mtg_order_session_mismatch"});
+  if(!mtgOrder||mtgOrder.stripe_session!==s.id)return reply({error:"MTG_ORDER_SESSION_RECONCILIATION_REQUIRED"},503);
   if(mtgOrder.amount_cents!==s.amount_total||mtgOrder.currency.toLowerCase()!==s.currency)
     return reply({error:"ORDER_AMOUNT_CURRENCY_MISMATCH"},409);
   const {data,error}=await admin.rpc("mtg_auction_reconcile_v2",{
@@ -179,9 +188,9 @@ Deno.serve(async req=>{
 
 ## Stripe checkout creation (verbatim)
 ```typescript
-// Stripe Checkout creation for confirmed MTG auction winners only.
+/// Stripe Checkout creation for confirmed MTG auction winners only.
 // Protected by JWT, trusted database order, and explicit release gate.
-import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+// Deno global types are supplied by the deployed Edge runtime and Deno CI.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 import Stripe from "https://esm.sh/stripe@18.5.0?target=denonext";
 const reply=(v:unknown,s=200)=>new Response(JSON.stringify(v),{status:s,headers:{"content-type":"application/json","cache-control":"no-store"}});
@@ -248,3 +257,7 @@ Deno.serve(async(req)=>{
 
 ## Independent review output
 Return BLOCK / CONDITIONAL / READY, findings by severity, patch recommendations, and tests. BLOCK real-money operation if any high-severity issue remains.
+
+## 2026-10-31 correction
+
+Never permanently inbox a mismatched paid or refund event as `held`; the RPC now rolls back and requests provider retry. The bidder deadline is evaluated after the auction row lock. `OUTBID` is HTTP 409. CI exercises contention, failed payment posting, API HTTP boundary and Stripe isolation. Source is still DRAFT, not deployed or independently audited.
