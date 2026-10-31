@@ -37,3 +37,9 @@ No other service required.
 
 ## Rollback and truth contract
 Close the draft PR or revert its commits. No production route, live Stripe link, public post, Supabase schema or price was changed by this candidate. The current state is STAGED_NOT_DEPLOYED, not a working ad sales system.
+
+## Staged read-only storefront integration
+- public/server.js now has GET /api/molt-beach-inventory for the NZ 1000x1000 registered canvas. This is still on the review branch, NOT the live site.
+- BEC-PRIME/runtime/BeckAdInventoryRead.js reads registered canvas and nonexpired bookings from the existing Supabase PostgREST service role, which is used only server-side. It computes real 100x100 free cells instead of claiming a constant 100, and never outputs customer email or payment credentials.
+- Missing or unregistered canvas, inconsistent overlapping rows, truncated provider output or network failure returns HTTP 503. There is no public checkout activation and no replacement for unverified earlier inventory until validated backfill.
+- The original public/billboard.html is still not the compiled billboard; all legacy claims must be reconciled before approving any publication.
