@@ -56,6 +56,10 @@ create table if not exists public.mtg_auction_lots_v2(
  created_at timestamptz not null default now(),
  check(high_bid_cents=0 or high_bidder is not null)
 );
+-- Fixed Buy Now is optional and is disabled once bidding begins.
+alter table public.mtg_auction_lots_v2 add column if not exists buy_now_cents bigint;
+alter table public.mtg_auction_lots_v2 add constraint mtg_v2_buy_now_positive
+ check(buy_now_cents is null or buy_now_cents>=start_cents);
 create unique index if not exists mtg_v2_one_lot_per_inventory on public.mtg_auction_lots_v2(inventory_id);
 create index if not exists mtg_v2_open_due on public.mtg_auction_lots_v2(status,ends_at);
 create table if not exists public.mtg_auction_bids_v2(
@@ -264,6 +268,54 @@ begin
  perform mtg_private.event(l.id,'bid_accepted',u,jsonb_build_object('bid_id',b,'amount_cents',p_amount_cents));
  return jsonb_build_object('bid_id',b,'accepted_cents',p_amount_cents,'idempotent',false);
 end $$;
+-- Seller may set an optional fixed price ONLY while the lot is still a private draft.
+create or replace function public.mtg_auction_set_buy_now_v2(p_auction uuid,p_buy_now_cents bigint)
+returns jsonb language plpgsql security definer set search_path='' as $
+declare u uuid:=auth.uid(); l public.mtg_auction_lots_v2%rowtype;
+begin
+ if u is null then raise exception 'AUTH_REQUIRED'; end if;
+ select * into l from public.mtg_auction_lots_v2 where id=p_auction for update;
+ if not found or l.seller_id<>u or l.status<>'draft' then raise exception 'DRAFT_SELLER_REQUIRED'; end if;
+ if p_buy_now_cents is not null and
+ (p_buy_now_cents<l.start_cents or p_buy_now_cents>100000000000)
+ then raise exception 'INVALID_BUY_NOW_PRICE'; end if;
+ update public.mtg_auction_lots_v2 set buy_now_cents=p_buy_now_cents,version=version+1 where id=l.id;
+ perform mtg_private.event(l.id,'buy_now_terms_set',u,jsonb_build_object('enabled',p_buy_now_cents is not null));
+ return jsonb_build_object('id',l.id,'buy_now_cents',p_buy_now_cents);
+end $;
+
+-- Buy Now converts one available lot to an unpaid order atomically. NO real charge is taken.
+create or replace function public.mtg_auction_buy_now_v2(p_auction uuid)
+returns jsonb language plpgsql security definer set search_path='' as $
+declare u uuid:=auth.uid(); l public.mtg_auction_lots_v2%rowtype; o uuid; existing record;
+begin
+ if u is null then raise exception 'AUTH_REQUIRED'; end if;
+ if not exists(select 1 from auth.users where id=u and email_confirmed_at is not null)
+ then raise exception 'VERIFIED_BUYER_EMAIL_REQUIRED'; end if;
+ select * into l from public.mtg_auction_lots_v2 where id=p_auction for update;
+ if not found then raise exception 'AUCTION_NOT_FOUND'; end if;
+ if l.status='awaiting_payment' then
+  select id,buyer_id into existing from public.mtg_auction_orders_v2 where auction_id=l.id;
+  if found and existing.buyer_id=u then
+    return jsonb_build_object('order_id',existing.id,'idempotent',true,'checkout_pending',true);
+  end if;
+ end if;
+ if l.status<>'open' or l.starts_at>clock_timestamp() or l.ends_at<=clock_timestamp()
+ or l.buy_now_cents is null or l.high_bidder is not null or l.high_bid_cents<>0
+ then raise exception 'BUY_NOW_UNAVAILABLE'; end if;
+ if l.seller_id=u then raise exception 'SELF_PURCHASE_FORBIDDEN'; end if;
+ if not exists(select 1 from public.mtg_inventory_v2 i
+ join public.mtg_seller_profiles_v2 s on i.seller_id=s.user_id
+ where i.id=l.inventory_id and i.status='reserved' and s.status='verified')
+ then raise exception 'SELLER_OR_STOCK_UNVERIFIED'; end if;
+ insert into public.mtg_auction_orders_v2(auction_id,buyer_id,seller_id,amount_cents)
+ values(l.id,u,l.seller_id,l.buy_now_cents) returning id into o;
+ update public.mtg_auction_lots_v2 set status='awaiting_payment',
+ high_bid_cents=buy_now_cents,high_bidder=u,version=version+1 where id=l.id;
+ perform mtg_private.event(l.id,'buy_now_reserved',u,jsonb_build_object('order_id',o,'amount_cents',l.buy_now_cents));
+ return jsonb_build_object('order_id',o,'idempotent',false,'checkout_pending',true);
+end $;
+
 create or replace function public.mtg_auction_close_v2(p_auction uuid)
 returns jsonb language plpgsql security definer set search_path='' as $$
 declare l public.mtg_auction_lots_v2%rowtype; o uuid;
@@ -376,6 +428,7 @@ do $tag$ declare f text; begin
   'mtg_auction_submit_v2(uuid,bigint,bigint,bigint,timestamptz)',
   'mtg_seller_verify_v2(uuid,text)','mtg_inventory_verify_v2(uuid,text)',
   'mtg_auction_publish_v2(uuid)','mtg_auction_bid_v2(uuid,bigint,uuid)',
+  'mtg_auction_set_buy_now_v2(uuid,bigint)','mtg_auction_buy_now_v2(uuid)',
   'mtg_auction_close_v2(uuid)','mtg_auction_bind_session_v2(uuid,text)',
   'mtg_auction_reconcile_v2(text,text,text,bigint,text,text,text)',
   'mtg_auction_ship_v2(uuid,text)','mtg_auction_deliver_v2(uuid)',
@@ -386,6 +439,8 @@ grant execute on function public.mtg_seller_register_v2() to authenticated;
 grant execute on function public.mtg_inventory_submit_v2(text,text,text) to authenticated;
 grant execute on function public.mtg_auction_submit_v2(uuid,bigint,bigint,bigint,timestamptz) to authenticated;
 grant execute on function public.mtg_auction_bid_v2(uuid,bigint,uuid) to authenticated;
+grant execute on function public.mtg_auction_set_buy_now_v2(uuid,bigint) to authenticated;
+grant execute on function public.mtg_auction_buy_now_v2(uuid) to authenticated;
 grant execute on function public.mtg_auction_ship_v2(uuid,text) to authenticated;
 grant execute on function public.mtg_auction_deliver_v2(uuid) to authenticated;
 grant execute on function public.mtg_auction_dispute_v2(uuid,text) to authenticated;
