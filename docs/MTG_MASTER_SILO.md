@@ -192,3 +192,13 @@ The user-supplied **Edward Kenway – Pacin’ On The Plank** listing is the sty
 Do not merge this fixed-deck sale format with the separate 80% prepared core + 20% buyer-directed customization offer. Primer, matchup, upgrade, and simulation sections are future enhancements only after the decklist-driven multi-colour primer pipeline exists and its output is verified. Until then, no primer is required or to be fabricated.
 
 Publication workflow: **DRAFT → FACT CHECK → HUMAN APPROVAL → PUBLISH**. No automatic public posting.
+
+## Kingdom-wide CUBE master and universal capability replication
+
+MTG is the permanent **master/gold reference silo** from which CUBE clones any niche or unrelated sector, including B2B procurement and wholesale, regardless of theme. The auction capability itself belongs to **BrownEye Cortex Kingdom**, not MTG, DreamLedger or a future SPV. MTG integrates and rigorously tests the reference auction adapter. Each later silo receives a new scoped capability allocation and isolated backend, identity, storage, secrets, commercial ledger and brand. Copy transaction contracts and approved code, never historical customer or inventory data.
+
+**Quality inheritance**: fail-closed master CI and Gauntlet scorecards establish a minimum; each derivative must additionally pass its own sector-specific tests. Elohim can recommend allocation and continuous refinement; it cannot mint an owner approval or declare payments without external evidence. Improvements return to the master only through review, then are available to subsequent clones.
+
+**Cross-industry formats**: the reference currently implements English ascending bids, anti-sniping and test-only checkout. Reverse procurement, sealed tenders, bulk lots and Dutch auctions are legitimate Kingdom roadmap formats but NOT yet certified. Do not label an unimplemented format production-ready. CUBE clone blueprints reside in `BEC-PRIME/capabilities/auction/clone-blueprint.mjs` and must emit `PREPARED_NOT_AUTHORIZED` until approval and target-adapter verification.
+
+**Orchestration is pluggable**: PowerShell, Python, Notion, Zapier, Super.io or Kubernetes are optional sanctioned adapters with per-SPV credentials; none is a reason to create a new control plane, bypass Gauntlet, publish without owner approval or intermingle adult and MTG data.

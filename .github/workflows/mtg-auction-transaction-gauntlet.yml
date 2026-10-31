@@ -1,0 +1,87 @@
+name: Kingdom auction capability gauntlet (MTG master)
+on:
+  pull_request:
+    paths:
+      - 'supabase/migrations/*mtg_auction_durable_v2.sql'
+      - 'supabase/migrations/*mtg_auction_evidence_storage.sql'
+      - 'public/mtg/auctions/**'
+      - 'api/[...route].ts'
+      - 'handlers/kingdom-auction.ts'
+      - 'tests/kingdom-auction-router.test.mjs'
+      - 'BEC-PRIME/capabilities/auction/**'
+      - 'tests/kingdom-auction-authorization.test.mjs'
+      - 'tests/kingdom-auction-master-clone.test.mjs'
+      - 'handlers/mtg-auction-v2.ts'
+      - 'supabase/functions/mtg-auction-*/**'
+      - 'supabase/functions/mtg-auction-deno.json'
+      - 'tests/mtg-auction-v2-*'
+      - 'tests/mtg-auction-gateway.test.mjs'
+      - 'scripts/mtg-auction-live-release-gate.mjs'
+      - 'BEC-PRIME/auction-engine.js'
+      - '.github/workflows/mtg-auction-transaction-gauntlet.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  mtg-postgres-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Verify MTG master to cross-industry CUBE clones, ownership and approval
+        run: node --test tests/kingdom-auction-authorization.test.mjs tests/kingdom-auction-router.test.mjs tests/kingdom-auction-master-clone.test.mjs
+      - name: Ensure PostgreSQL client
+        run: command -v psql >/dev/null || (sudo apt-get update -qq && sudo apt-get install -y postgresql-client)
+      - name: Execute isolated database and auction safety gauntlet
+        run: bash tests/mtg-auction-v2-test.sh
+      - name: Adversarial authorization and replay tests
+        run: bash tests/mtg-auction-v2-adversarial.sh
+      - name: Bid deadline lock-race and anti-snipe regression
+        run: bash tests/mtg-auction-v2-deadline.sh
+      - name: Atomic Buy Now and competing buyer regression
+        run: bash tests/mtg-auction-v2-buy-now.sh
+      - name: Web gateway HTTP Request smoke tests
+        run: node --test tests/mtg-auction-gateway.test.mjs
+      - name: Verify public UI has no fake auction lots or local accepted bids
+        run: |
+          ! grep -q 'local_sandbox' public/auctions.html
+          ! grep -q 'AUC-MTG-FETCHLAND-001' public/auctions.html
+          grep -q 'id="auctions"' public/mtg/index.html
+          grep -q 'AUCTION_V1_DISABLED' BEC-PRIME/auction-engine.js
+          grep -q 'Original card photo' public/mtg/auctions/index.html
+          grep -q 'mtg-auction-evidence' supabase/functions/mtg-auction-evidence/index.ts
+          grep -q 'not_an_mtg_auction_order' supabase/functions/mtg-auction-webhook/index.ts
+          grep -q 'LIVE_THIRD_PARTY_FUNDS_NOT_AUTHORIZED' supabase/functions/mtg-auction-checkout/index.ts
+          grep -q 'mtg_auction_reconcile_v2' supabase/functions/mtg-auction-webhook/index.ts
+
+  mtg-edge-typecheck:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Type-check exact MTG Edge-function source
+        run: |
+          deno check --config supabase/functions/mtg-auction-deno.json supabase/functions/mtg-auction-checkout/index.ts
+          deno check --config supabase/functions/mtg-auction-deno.json supabase/functions/mtg-auction-webhook/index.ts
+          deno check --config supabase/functions/mtg-auction-deno.json supabase/functions/mtg-auction-evidence/index.ts
+          deno check --config supabase/functions/mtg-auction-deno.json supabase/functions/mtg-auction-close/index.ts

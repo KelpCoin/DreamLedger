@@ -33,6 +33,7 @@ function publicAuction(a, bids) {
   };
 }
 function createAuction(input) {
+  throw new Error('AUCTION_V1_DISABLED: use authenticated durable auction service');
   if (!input || !input.silo || !input.title) throw new Error('silo and title are required');
   const state = loadState();
   const auction = {
@@ -49,6 +50,7 @@ function createAuction(input) {
   state.auctions.push(auction); saveState(state); return publicAuction(auction, state.bids);
 }
 function placeBid(auctionId, bidderId, amount) {
+  throw new Error('AUCTION_V1_DISABLED: local-file bids are not real bids');
   if (!bidderId) throw new Error('bidder_id is required');
   const state = loadState(); const auction = state.auctions.find(a => a.auction_id === auctionId);
   if (!auction) throw new Error('Auction not found');
@@ -81,12 +83,14 @@ function refreshExpired(state) {
   if (changed) saveState(state);
 }
 function listAuctions(silo) {
+  return []; // Fail closed; file fixtures are not verified inventory.
   const state = loadState();
   refreshExpired(state);
   const fresh = loadState();
   return fresh.auctions.filter(a => !silo || a.silo === silo).map(a => publicAuction(a, fresh.bids));
 }
 function getAuction(id) {
+  return null; // Do not expose local seeded fixtures as active auctions.
   const state = loadState();
   refreshExpired(state);
   const fresh = loadState(); const auction = fresh.auctions.find(a => a.auction_id === id);

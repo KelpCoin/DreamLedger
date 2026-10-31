@@ -1,0 +1,101 @@
+{
+  "schema": "kingdom.capability/v1",
+  "capability_id": "kingdom.auction.v1",
+  "owner": "BrownEye Cortex Kingdom",
+  "kind": "reusable commercial capability",
+  "version": "1.1.0-draft",
+  "state": "NON_PRODUCTION",
+  "default_allocation": "DENY",
+  "core_engine": "BEC-PRIME/capabilities/auction/authorization.mjs",
+  "requires": {
+    "gauntlet_scorecard_schema": "gauntlet-scorecard/v1",
+    "decision": "PASS",
+    "owner_explicit_approval": true,
+    "economic_basis": [
+      "EXPERIMENT_APPROVED",
+      "REPEATABLE_MARGIN_VERIFIED"
+    ],
+    "signed_deployment_bound_allocation": true,
+    "isolated_tenant_data": true,
+    "payment_authorization": "SEPARATE_FROM_CAPABILITY_GRANT"
+  },
+  "operations": [
+    "auction_submit",
+    "bid",
+    "buy_now",
+    "buy_now_set",
+    "checkout",
+    "deliver",
+    "dispute",
+    "inventory",
+    "register",
+    "ship",
+    "watch"
+  ],
+  "sectors": "general: no per-silo hardcoding in authorization package",
+  "external_actions_default": "HOLD",
+  "silo_data_separation": "different silo IDs require separate signed grants and dedicated storage policies",
+  "economics": {
+    "prediction": "NONE",
+    "success_proof": "independent_paid_order + delivered_item + actual_variable_costs",
+    "financial_status": "NOT_VALIDATED"
+  },
+  "third_party_risk": "No escrow, marketplace payout, seller disbursement or real-money deployment authorized",
+  "canonical_master_template": {
+    "silo_id": "mtg-master",
+    "quality_reference": "docs/MTG_MASTER_SILO.md",
+    "purpose": "CUBE canonical gold master for all niche and non-niche silo clones",
+    "scope": "reference behavior, tests, transaction contracts and evidence only",
+    "status": "REFERENCE_IMPLEMENTATION_NOT_RELEASED",
+    "reference_adapter": {
+      "distribution": "dreamledger",
+      "gateway": "handlers/mtg-auction-v2.ts",
+      "backend": "supabase-postgrest-rpc-v2",
+      "state": "DRAFT_DEPENDENCY_BLOCKED"
+    }
+  },
+  "supported_consumption": {
+    "market_models": [
+      "b2b",
+      "b2c",
+      "c2c",
+      "internal"
+    ],
+    "target_silo_requirement": "independent verified commercial purpose",
+    "unrelated_sectors_supported_as_blueprints": true,
+    "implemented_auction_format": "english_ascending",
+    "planned_formats": [
+      "reverse_procurement",
+      "sealed_bid",
+      "dutch_descending",
+      "bulk_lot"
+    ]
+  },
+  "clone_compiler": "BEC-PRIME/capabilities/auction/clone-blueprint.mjs",
+  "clone_policy": {
+    "no_raw_data_copy": true,
+    "no_credentials_copy": true,
+    "only_master_reference_tests": "PASS",
+    "clone_outputs": "PREPARED_NOT_AUTHORIZED",
+    "requires_new_silo_gauntlet": true,
+    "requires_owner_release_approval": true,
+    "always_separate": [
+      "identity",
+      "database",
+      "storage",
+      "secrets",
+      "payment",
+      "commercial_ledger",
+      "public_brand"
+    ],
+    "automation_adapters": [
+      "powershell",
+      "python",
+      "zapier",
+      "notion",
+      "superio",
+      "kubernetes"
+    ],
+    "automated_execution_default": "HOLD"
+  }
+}

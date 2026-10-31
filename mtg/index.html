@@ -8,7 +8,15 @@
 <link rel="canonical" href="https://dreamledger.org/mtg/">
 <link rel="stylesheet" href="/assets/silo-master.css">
 <style>
-:root{ --silo-name:"Magic"; --silo-accent:#d8b56b; --silo-accent-bright:#e8c87a; }
+:root{--silo-name:"Magic";--silo-bg:#0c0818;--silo-bg-elev:#171027;--silo-surface:#211631;--silo-surface-2:#302143;--silo-line:#675080;--silo-ink:#fffaf0;--silo-muted:#ded0ec;--silo-dim:#c9b6d9;--silo-accent:#f5c451;--silo-accent-bright:#ffe28a;--silo-accent-soft:rgba(245,196,81,.16)}
+body.silo-body{background-image:radial-gradient(ellipse at 12% 2%,rgba(120,64,194,.26),transparent 54%),radial-gradient(ellipse at 90% 16%,rgba(245,196,81,.09),transparent 43%)}
+.silo-hdr{background:rgba(12,8,24,.96)}
+.silo-nav a:focus-visible,.silo-btn:focus-visible,.silo-body a:focus-visible{outline:3px solid #ffe28a;outline-offset:3px}
+.silo-eyebrow,.deck .tag,.silo-section-h a{color:#ffe28a}
+.silo-small,.clone-meta{color:#c9b6d9}
+.deck-banner{background:linear-gradient(120deg,#553076,#211631 75%);color:#ffe28a}
+.silo-pill-gold{border-color:#a78747}
+@media(max-width:690px){.silo-hdr-inner{height:auto;min-height:64px;flex-wrap:wrap;padding-top:8px;padding-bottom:8px}.silo-nav{width:100%;justify-content:flex-start;overflow-x:auto;flex-wrap:nowrap}.silo-nav a{white-space:nowrap;padding:8px 10px}}
 .hero{padding:36px 0 20px}
 .grid{display:grid;gap:14px;grid-template-columns:1fr}
 @media(min-width:640px){.grid{grid-template-columns:1fr 1fr}}
@@ -44,6 +52,7 @@
   <nav class="silo-nav">
     <a id="navList" href="/mtg-list">Sell single</a>
     <a href="#decks">Decks</a>
+    <a href="/mtg/auctions/">Auctions</a>
     <a href="#how">How it works</a>
     <a href="/register">Join free</a>
     <a class="silo-cta" id="navCta" href="/mtg-list">List free</a>
@@ -69,9 +78,22 @@
     <div class="silo-section-h"><h2 class="silo-h2">How this space works</h2></div>
     <div class="community" id="community"></div>
   </section>
+  <section class="silo-section" id="auctions" aria-labelledby="auction-heading">
+    <div class="silo-section-h"><h2 class="silo-h2" id="auction-heading">MTG auctions</h2></div>
+    <div class="silo-panel silo-panel-accent">
+      <span class="silo-pill silo-pill-gold">Auction launch pending</span>
+      <p class="silo-lead" style="margin-top:12px">Auction bidding requires an authenticated buyer and verified stock. The auction console shows the real backend state, including when unavailable. No simulated lots or bids.</p>
+      <p style="color:var(--silo-muted)">The auction system will require verified stock, published closing times, recorded bids, seller review and a clear winner and payment process before activation.</p>
+      <a class="silo-btn silo-btn-gold" href="/mtg/auctions/">View verified auctions / seller intake</a>
+    </div>
+  </section>
   <section class="silo-section" id="decks">
     <div class="silo-section-h"><h2 class="silo-h2">Decks for sale</h2></div>
-    <div id="status" class="status-bar">Loading inventory…</div>
+    <label class="silo-label" for="deckSearch">Find a Commander deck</label>
+    <input class="silo-input" id="deckSearch" type="search" placeholder="Search commander, deck name or strategy" autocomplete="off">
+    <label class="silo-label" for="deckSort">Sort decks</label>
+    <select class="silo-select" id="deckSort"><option value="name">Name A to Z</option><option value="low">Price low to high</option><option value="high">Price high to low</option></select>
+    <div id="status" class="status-bar" role="status" aria-live="polite">Loading inventory…</div>
     <div id="grid" class="grid"></div>
   </section>
   <section class="silo-section">
@@ -87,6 +109,7 @@
 <footer class="silo-footer silo-wrap">
   <a href="/">Home</a>
   <a href="/mtg/">Magic</a>
+  <a href="/mtg/auctions/">Auctions</a>
   <a id="footList" href="/mtg-list">Sell single</a>
   <a href="/register">Join</a>
   <p style="margin-top:12px">DreamLedger Magic — see the cards, then deal.</p>
@@ -98,8 +121,8 @@ function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&l
 async function applyManifest(){
   try{
     const m=await (await fetch(MANIFEST,{cache:'no-store'})).json();
-    if(m.accent) document.documentElement.style.setProperty('--silo-accent', m.accent);
-    if(m.accent_bright) document.documentElement.style.setProperty('--silo-accent-bright', m.accent_bright);
+    // MTG theme is authoritative here; manifest accents cannot overwrite accessible tokens.
+
     const short=m.short||'Magic';
     document.getElementById('navShort').textContent=short;
     document.getElementById('eyebrow').textContent=(m.name||short)+' · New Zealand';
@@ -139,26 +162,40 @@ async function loadCatalog(manifest){
       throw new Error('Catalogue schema mismatch; purchases held');
     const byId=new Map(globalCatalog.products.map(p=>[p.id,p]));
     const decks=catalog.products.filter(p=>p&&p.status==='published'&&isPhysical(p));
-    let conflicts=0;
-    grid.innerHTML=decks.map(p=>{
+    const rows=decks.map(p=>{
       const master=byId.get(p.id);
       const matched=!!master && master.status===p.status && Number.isFinite(Number(p.price)) &&
         Number(p.price)>0 && Number(p.price)===Number(master.price) &&
         String(p.currency||catalog.currency).toUpperCase()===String(master.currency||globalCatalog.currency_default).toUpperCase() &&
         Boolean(p.checkout_available)===Boolean(master.checkout_available) &&
         (!p.checkout_available || (p.checkout_url && p.checkout_url===master.checkout_url));
-      if(!matched)conflicts++;
-      const detail=typeof p.detail_url==='string'&&/^\/mtg\/[a-z0-9/_-]+\.html$/i.test(p.detail_url)?p.detail_url:'/mtg/';
-      const price=matched?'NZ$'+Number(p.price).toFixed(2):'Price pending verification';
-      const state=matched?'Listing only. Stock and payment not reserved.':'Catalogue mismatch. Purchase held.';
-      return '<article class="deck"><div class="deck-banner">Commander · listing only</div><div class="deck-body">'+
-        '<div class="tag">'+esc(p.commander||'EDH')+'</div><h3>'+esc(p.name||p.id)+'</h3>'+
-        '<p class="desc">'+esc(p.description||'')+'</p><div class="price">'+esc(price)+'</div>'+
-        '<p class="desc">'+esc(state)+'</p><div class="actions"><a class="see" href="'+esc(detail)+'">View listing</a></div></div></article>';
-    }).join('');
-    status.textContent=decks.length+' published deck listing(s) · '+conflicts+
-      ' catalogue discrepancy/discrepancies · checkout held until atomic stock reservation, payment and fulfilment gates pass.';
-    if(!decks.length)status.textContent='No verified deck listings; checkout held.';
+      const detail=typeof p.detail_url==='string' && p.detail_url.startsWith('/mtg/') && p.detail_url.endsWith('.html') && !p.detail_url.includes('..') ? p.detail_url : null;
+      const safeClaim=matched && Number(p.inventory)>0 && p.sale_mode==='claim_by_message' &&
+        typeof p.claim_url==='string' && p.claim_url.startsWith('mailto:') && !/[<>\\s]/.test(p.claim_url) ? p.claim_url : null;
+      return {p,matched,detail,safeClaim};
+    });
+    function render(){
+      const q=document.getElementById('deckSearch').value.trim().toLowerCase();
+      const sort=document.getElementById('deckSort').value;
+      const visible=rows.filter(x=>(x.p.name+' '+(x.p.commander||'')+' '+(x.p.description||'')).toLowerCase().includes(q));
+      visible.sort((a,b)=>sort==='low'?Number(a.p.price)-Number(b.p.price):sort==='high'?Number(b.p.price)-Number(a.p.price):String(a.p.name).localeCompare(String(b.p.name)));
+      grid.innerHTML=visible.map(({p,matched,detail,safeClaim})=>{
+        const price=matched?'NZ$'+Number(p.price).toFixed(2):'Price pending verification';
+        const state=!matched?'Catalogue discrepancy; transaction held.':Number(p.inventory)<=0?'Availability requires confirmation.':'Confirm price and stock before payment. No reservation has been made.';
+        const actions=(detail?'<a class="see" href="'+esc(detail)+'">View deck details</a>':'')+
+          (safeClaim?'<a class="buy" href="'+esc(safeClaim)+'">Enquire about this deck</a>':'');
+        return '<article class="deck"><div class="deck-banner">Commander · inquiry first</div><div class="deck-body">'+
+          '<div class="tag">'+esc(p.commander||'EDH')+'</div><h3>'+esc(p.name||p.id)+'</h3>'+
+          '<p class="desc">'+esc(p.description||'')+'</p><div class="price">'+esc(price)+'</div>'+
+          '<p class="desc">'+esc(state)+'</p><div class="actions">'+(actions||'<span class="silo-small">Enquiries currently held</span>')+'</div></div></article>';
+      }).join('');
+      status.textContent=visible.length+' of '+rows.length+' published deck listing(s) shown; '+rows.filter(x=>!x.matched).length+' catalogue discrepancies. Checkout remains held pending verified stock, price and fulfilment.';
+      if(!rows.length)status.textContent='No verified Commander listings available.';
+      else if(!visible.length)status.textContent='No decks match your search. Try another commander or clear the filter.';
+    }
+    document.getElementById('deckSearch').addEventListener('input',render);
+    document.getElementById('deckSort').addEventListener('change',render);
+    render();
   }catch(e){
     status.className='status-bar error';
     status.textContent='Inventory verification unavailable. Purchases held.';
