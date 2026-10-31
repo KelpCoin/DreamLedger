@@ -308,7 +308,7 @@ begin
  if exists(select 1 from public.mtg_auction_external_v2 where stripe_event_id=p_event_id) then
   if exists(select 1 from public.mtg_auction_external_v2 where stripe_event_id=p_event_id and payload_sha256<>p_payload_sha256)
   then raise exception 'EVENT_ID_PAYLOAD_CONFLICT'; end if;
-  return jsonb_build_object('idempotent',true,'outcome',(select outcome from public.mtg_auction_external_v2 where stripe_event_id=p_event_id));
+  return jsonb_build_object('idempotent',true,'outcome',(select e.outcome from public.mtg_auction_external_v2 e where e.stripe_event_id=p_event_id));
  end if;
  select * into o from public.mtg_auction_orders_v2 where stripe_session=p_session for update;
  if found and p_event_type in ('checkout.session.completed','checkout.session.async_payment_succeeded') and o.status='awaiting_checkout' and
@@ -403,7 +403,7 @@ begin
  if exists(select 1 from public.mtg_auction_external_v2 where stripe_event_id=p_event_id) then
   if exists(select 1 from public.mtg_auction_external_v2 where stripe_event_id=p_event_id and payload_sha256<>p_payload_sha256)
   then raise exception 'EVENT_ID_PAYLOAD_CONFLICT'; end if;
-  return jsonb_build_object('idempotent',true,'outcome',(select outcome from public.mtg_auction_external_v2 where stripe_event_id=p_event_id));
+  return jsonb_build_object('idempotent',true,'outcome',(select e.outcome from public.mtg_auction_external_v2 e where e.stripe_event_id=p_event_id));
  end if;
  select * into o from public.mtg_auction_orders_v2 where stripe_payment_intent=p_payment_intent for update;
  if found and o.status in ('paid','shipped','delivered','disputed') and p_refunded_cents=o.amount_cents and p_currency='nzd' then
