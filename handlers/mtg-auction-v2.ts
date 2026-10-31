@@ -114,7 +114,8 @@ export default async function handler(request){
      confirmation_required:!data.access_token
    });
    return json(action==="list"?{live:true,auctions:Array.isArray(data)?data:[]}:
-     action==="my_orders"?{orders:Array.isArray(data)?data:[]}: {result:data});
+     action==="my_orders"?{orders:Array.isArray(data)?data:[]}:
+     action==="my_watchlist"?{watched:Array.isArray(data)?data:[]}: {result:data});
  }catch{return json({error:"AUCTION_UPSTREAM_UNAVAILABLE",live:false},503)}
  finally{clearTimeout(timeout)}
 }
