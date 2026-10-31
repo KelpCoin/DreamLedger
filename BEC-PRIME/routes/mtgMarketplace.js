@@ -173,8 +173,9 @@ async function handle(req, res, url) {
 
   if (req.method === 'POST' && route === '/api/mtg/marketplace/list') {
     const user = currentUser(req);
-    if (!user) return json(res, 401, { error: 'Log in before listing a card.' });
+    const guest = !user;
     const input = await body(req);
+    if(guest && !attemptGuest(req))return json(res,429,{error:'Too many guest listings from this connection. Try later.'});
     const title = clean(input.title, 160);
     const decision = inspectListing(input);
     if(decision.decision==='REJECT')
@@ -185,13 +186,28 @@ async function handle(req, res, url) {
     if (!title) return json(res, 422, { error: 'Card name is required.' });
     if (!acceptsBuy && !acceptsTrade) return json(res, 422, { error: 'Choose buy, trade, or both.' });
     if (acceptsBuy && (!Number.isFinite(price) || price <= 0)) return json(res, 422, { error: 'Enter a valid NZD price when accepting buys.' });
-    let compliance;
-    try { compliance = sellerRecord(user, req, input); } catch (err) { return json(res, err.statusCode || 422, { error: err.message }); }
+    let compliance, guestHandle=null, guestContact=null;
+    try{
+      if(guest){
+        guestHandle=clean(input.seller_display_name,80);
+        if(!guestHandle)throw Object.assign(new Error('Choose a trading handle.'),{statusCode:422});
+        guestContact=publicContactUrl(input.contact_url);
+        const kind=String(input.trader_status||'').toLowerCase();
+        if(!['trader','private'].includes(kind))throw Object.assign(new Error('Choose private seller or in-trade seller.'),{statusCode:422});
+        compliance={legal_name:null,contact_address:null,online_trading_identity:guestHandle,
+          trader_status:kind,ip_address:null};
+      }else compliance=sellerRecord(user,req,input);
+    }catch(err){return json(res,err.statusCode||422,{error:err.message});}
+    const ownerToken=guest?crypto.randomBytes(32).toString('hex'):null;
+    const sellerId=guest?'guest_mtg_'+crypto.randomBytes(12).toString('hex'):user.id;
     const now = new Date().toISOString();
     const listing = {
       id: 'mtg_' + crypto.randomBytes(10).toString('hex'),
-      seller_id: user.id,
-      seller_display_name: clean(user.seller?.display_name || user.name, 80),
+      seller_id: sellerId,
+      seller_display_name: guest?guestHandle:clean(user.seller?.display_name || user.name, 80),
+      public_contact_url: guest?guestContact:null,
+      seller_claim_token_sha256:ownerToken?crypto.createHash('sha256').update(ownerToken).digest('hex'):null,
+      contact_verification:'SELF_SUBMITTED_UNVERIFIED',
       title,
       set_name: clean(input.set_name, 120),
       collector_number: clean(input.collector_number, 40),
@@ -217,9 +233,10 @@ async function handle(req, res, url) {
       }
     };
     const listings = read(LISTINGS, []);
-    const recent = listings.filter(x=>x.seller_id===user.id &&
+    const recent = listings.filter(x=>
+      (guest?x.public_contact_url===guestContact:x.seller_id===user.id) &&
       Date.now()-Date.parse(x.created_at)<60*60*1000);
-    if(recent.length>=10)return json(res,429,{error:'Listing limit reached. Try again later.'});
+    if(recent.length>=(guest?4:10))return json(res,429,{error:'Listing limit reached. Try again later.'});
     const duplicate=recent.some(x=>x.title.toLowerCase()===title.toLowerCase() &&
       Number(x.price_nzd)===Number(listing.price_nzd) &&
       x.status!=='removed');
@@ -231,7 +248,26 @@ async function handle(req, res, url) {
     write(LISTINGS, listings);
     return json(res, 201, { ok: true, listing: safeListing(listing),
       publication_state: listing.status==='active'?'ACTIVE':'QUARANTINED_PENDING_REVIEW',
+      guest_owner_token:ownerToken,owner_token_recovery:'NONE_SAVE_PRIVATELY',
       fee_nzd: 0, fee_policy: 'MTG_ZERO_FEE' });
+  }
+
+  if (req.method === 'POST' && route === '/api/mtg/marketplace/list/remove') {
+    const input=await body(req);
+    const id=clean(input.listing_id,80),provided=clean(input.owner_token,128);
+    const listings=read(LISTINGS,[]);
+    const listing=listings.find(x=>x.id===id);
+    if(!listing)return json(res,404,{error:'Listing not found.'});
+    const user=currentUser(req);
+    const authenticated=user && user.id===listing.seller_id;
+    const hashed=listing.seller_claim_token_sha256;
+    const hasGuestToken=hashed && /^[a-f0-9]{64}$/.test(provided) &&
+      crypto.timingSafeEqual(Buffer.from(hashed,'hex'),
+        Buffer.from(crypto.createHash('sha256').update(provided).digest('hex'),'hex'));
+    if(!authenticated&&!hasGuestToken)return json(res,403,{error:'Owner access required.'});
+    listing.status='removed';listing.updated_at=new Date().toISOString();
+    write(LISTINGS,listings);
+    return json(res,200,{ok:true,status:'REMOVED',fee_nzd:0});
   }
 
   if (req.method === 'POST' && route === '/api/mtg/marketplace/request') {
