@@ -121,6 +121,10 @@ do $$ declare t text; begin
  execute format('revoke all on public.%I from public, anon, authenticated',t);
  end loop;
 end $$;
+grant select,insert,update,delete on public.mtg_seller_profiles_v2,public.mtg_inventory_v2,
+ public.mtg_auction_lots_v2,public.mtg_auction_bids_v2,public.mtg_auction_orders_v2,
+ public.mtg_auction_events_v2,public.mtg_auction_external_v2,public.mtg_auction_postings_v2
+ to service_role;
 grant select(id,title,currency,start_cents,increment_cents,high_bid_cents,status,starts_at,ends_at,version) on public.mtg_auction_lots_v2 to anon,authenticated;
 grant select on public.mtg_auction_bids_v2,public.mtg_auction_orders_v2,
  public.mtg_inventory_v2,public.mtg_seller_profiles_v2 to authenticated;
