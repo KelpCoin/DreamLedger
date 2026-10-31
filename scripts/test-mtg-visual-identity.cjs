@@ -2,13 +2,13 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
 const root=path.resolve(__dirname,'..'),read=p=>fs.readFileSync(path.join(root,p),'utf8');
 const css=read('public/assets/dreamledger-mtg-theme.css');
-assert.match(css,/--silo-accent:#45fa84/);
-assert.match(css,/#060a08/);
+assert.match(css,/--silo-accent:#32db89/);
+assert.match(css,/#090e12/);
 assert.match(css,/--silo-serif:system-ui/);
 assert.match(css,/@media\(max-width:700px\)/);
 assert.doesNotMatch(css,/@import|fonts\.googleapis/);
 const m=JSON.parse(read('public/silos/mtg/silo.json'));
-assert.equal(m.accent,'#45fa84');
+assert.equal(m.accent,'#32db89');
 const pages=['public/mtg/index.html','public/mtg/exchange.html','public/mtg/community.html',
 'public/mtg/diagnostic/index.html','public/mtg/quintorius-field-historian.html',
 'public/mtg/dwynen-gilt-leaf-daen.html','public/mtg/jon-irenicus-shattered-one.html',
@@ -33,7 +33,7 @@ for(const p of ['public/mtg/index.html','public/mtg/exchange.html','public/mtg/c
 }
 const home=read('public/mtg/index.html');
 assert.match(home,/class="mtg-hero"/);
-assert.match(home,/0%.*platform commission/);
+assert.match(home,/0%.*peer sale fee/);
 assert.match(home,/id="deckRail"/);
 assert.match(home,/id="singleRail"/);
 assert.match(home,/\/data\/mtg-owner-decks\.json/);
@@ -46,7 +46,7 @@ const trade=read('public/mtg/community.html');
 assert.match(trade,/id="compose"/);
 assert.match(trade,/navigator\.clipboard\.writeText/);
 assert.doesNotMatch(trade,/fetch\(['"]\/api\/.*(create|post|listing)|buy\.stripe\.com/i);
-assert.match(trade,/ledger is not live yet|ledger is not live|ledger is being tested|ledger is being built|bilateral ledger is not live yet/i);
+assert.match(trade,/does not handle peer payments|No on-site trade ledger/i);
 const gallery=read('public/mtg/exchange.html');
 assert.match(gallery,/id="find"/);assert.match(gallery,/id="sort"/);
 assert.match(gallery,/id="deckGrid"/);
