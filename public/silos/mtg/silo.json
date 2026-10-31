@@ -111,12 +111,12 @@
   },
   "surface": {
     "hero_pills": [
-      "Singles first",
-      "0% success fee",
-      "See the cards"
+      "Browse without a login",
+      "0% peer success fee",
+      "Reuse existing references"
     ],
     "primary_cta": {
-      "label": "Sell a single",
+      "label": "Prepare a free listing",
       "href_key": "list_route"
     },
     "secondary_cta": {
@@ -125,18 +125,24 @@
     },
     "community_blocks": [
       {
-        "title": "List a single",
-        "body": "Name, condition, NZD price, city. Buyers see a clean card face — not a blurry album."
+        "title": "Browse without joining a discussion",
+        "body": "Open listings and deck pages. You do not need an account or a forum post just to explore."
       },
       {
-        "title": "Buy with eyes open",
-        "body": "Open lists for decks. Clear terms for singles. Confirm before you pay or ship."
+        "title": "Bring listings and references",
+        "body": "Paste an existing card listing or link reference posts in a private draft. No scraping or automatic publication."
       },
       {
-        "title": "Trade carefully",
-        "body": "Accounts keep people reachable. Deals stay between humans who show up as themselves."
+        "title": "Reputation needs evidence",
+        "body": "External profile references are labelled unverified. Verified transaction feedback requires independent buyer, settlement and delivery proof."
       }
-    ]
+    ],
+    "external_reference_policy": {
+      "mode": "PRIVATE_DRAFT_ONLY",
+      "verified_transaction_credit": 0,
+      "expose_public_score_without_proof": false,
+      "external_scraping": false
+    }
   },
   "commerce_gate": {
     "physical_checkout": "HELD",

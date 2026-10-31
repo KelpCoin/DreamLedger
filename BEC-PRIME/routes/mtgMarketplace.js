@@ -3,6 +3,8 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const { inspectListing } = require('../lib/mtgMarketplaceGauntlet');
+const passport = require('../lib/mtgTradePassport');
 
 const ROOT = path.join(__dirname, '..');
 const DATA_ROOT = process.env.DREAMIEZ_DATA_DIR || ((fs.existsSync('/var/data') && fs.statSync('/var/data').isDirectory()) ? '/var/data/dreamiez' : path.join(ROOT, 'data', 'dreamiez'));
@@ -10,6 +12,11 @@ const LISTINGS = path.join(DATA_ROOT, 'mtg-marketplace-listings.json');
 const REQUESTS = path.join(DATA_ROOT, 'mtg-marketplace-requests.json');
 const USERS = path.join(DATA_ROOT, 'users.json');
 const COOKIE = 'dreamiez_session';
+// Separate MTG passport storage; private records never appear in listing responses.
+const TRADE_ROOT = process.env.DREAMLEDGER_MTG_LEDGER_DIR ||
+  (fs.existsSync('/var/data') ? '/var/data/mtg' : path.join(ROOT,'data','mtg'));
+const TRADES = path.join(TRADE_ROOT,'private-trade-passports.json');
+const guestLimits = new Map();
 
 function read(file, fallback) { try { return JSON.parse(fs.readFileSync(file, 'utf8')); } catch { return fallback; } }
 function write(file, value) {
@@ -48,6 +55,79 @@ function bool(v) { return v === true || v === 'true' || v === 'on' || v === 1 ||
 function ip(req) {
   return clean(String(req.headers['true-client-ip'] || req.headers['cf-connecting-ip'] || String(req.headers['x-forwarded-for'] || '').split(',')[0] || req.socket?.remoteAddress || ''), 128);
 }
+function publicContactUrl(value){
+  const raw=clean(value,1500);
+  if(!/^https:\/\//i.test(raw))throw new Error('Public contact profile must be HTTPS.');
+  let url;
+  try{url=new URL(raw);}catch{throw new Error('Invalid contact profile link.');}
+  if(url.username||url.password||url.port||!url.hostname.includes('.')||
+     /^(localhost|[0-9.]+|\[.*\])$/i.test(url.hostname)||
+     /\.(local|internal|test)$/i.test(url.hostname)){
+    throw new Error('Invalid public contact profile address.');
+  }
+  url.hash='';
+  return url.toString().slice(0,1500);
+}
+function attemptGuest(req){
+  const key=crypto.createHash('sha256').update(ip(req)).digest('hex');
+  const now=Date.now();
+  // Best-effort per-process anti-spam. Requires upstream rate limiting before launch.
+  if(guestLimits.size>20000)guestLimits.clear();
+  const prior=(guestLimits.get(key)||[]).filter(t=>now-t<3600000);
+  if(prior.length>=4)return false;
+  prior.push(now);guestLimits.set(key,prior);
+  return true;
+}
+function getTrade(input){
+  const id=clean(input.trade_id,80);
+  if(!passport.ID.test(id))throw Object.assign(new Error('Invalid trade receipt ID'),{statusCode:422});
+  const list=read(TRADES,[]);
+  const rec=list.find(x=>x.trade_id===id);
+  if(!rec)throw Object.assign(new Error('Trade receipt not found'),{statusCode:404});
+  if(!passport.verifyChain(rec))throw Object.assign(new Error('Trade proof integrity failure'),{statusCode:409});
+  return {list,rec};
+}
+async function passportHandle(req,res,route){
+  if(req.method!=='POST'||!route.startsWith('/api/mtg/marketplace/trade/'))return false;
+  const action=route.slice('/api/mtg/marketplace/trade/'.length);
+  if(!['create','join','view','agree','complete','feedback'].includes(action))return false;
+  const input=await body(req);
+  try{
+    if(action==='create'){
+      if(!attemptGuest(req))return json(res,429,{error:'Too many new trade receipts. Try later.'});
+      const check=inspectListing({title:input.seller_offers,description:input.terms,trade_wanted:input.seller_wants});
+      if(check.decision!=='PASS')return json(res,422,{error:'Trade wording requires review or correction.',reason_codes:check.reason_codes});
+      const made=passport.fresh(input);
+      const list=read(TRADES,[]);
+      if(!Array.isArray(list))return json(res,503,{error:'Trade record unavailable'});
+      list.push(made.record);
+      write(TRADES,list);
+      return json(res,201,{ok:true,trade_id:made.record.trade_id,
+        seller_token:made.seller_token,invitation_token:made.invitation_token,
+        status:made.record.status,
+        warning:'Keep your private seller token. Sharing the invite lets another person join. No identity, payment or delivery has been verified.'});
+    }
+    const {list,rec}=getTrade(input);
+    if(action==='view'){
+      return json(res,200,{ok:true,trade:passport.view(rec,input.role,input.token)});
+    }
+    let extra={};
+    if(action==='join'){
+      const joined=passport.join(rec,input.invitation_token,input.buyer_handle);
+      extra={buyer_token:joined.buyer_token,warning:'Keep the buyer token private. Peer confirmations are not verified sales.'};
+    }else if(action==='agree')passport.agree(rec,input.role,input.token);
+    else if(action==='complete')passport.done(rec,input.role,input.token);
+    else if(action==='feedback'){
+      const check=inspectListing({title:'Trade feedback',description:input.comment});
+      if(check.decision!=='PASS')return json(res,422,{error:'Please change feedback wording before saving.',reason_codes:check.reason_codes});
+      passport.feedback(rec,input.role,input.token,input.rating,input.comment);
+    }
+    write(TRADES,list);
+    return json(res,200,{ok:true,trade_id:rec.trade_id,status:rec.status,
+      ledger_head_sha256:rec.events.at(-1).hash,...extra,
+      reputation_credit:0,payment_proven:false,delivery_independently_proven:false});
+  }catch(e){return json(res,e.statusCode||422,{error:e.message||'Invalid trade action'});}
+}
 function safeListing(x) {
   return {
     id: x.id, title: x.title, set_name: x.set_name, collector_number: x.collector_number,
@@ -55,6 +135,8 @@ function safeListing(x) {
     price_nzd: x.price_nzd, accepts_buy: x.accepts_buy, accepts_trade: x.accepts_trade,
     trade_wanted: x.trade_wanted, status: x.status, seller_id: x.seller_id,
     seller_display_name: x.seller_display_name, trader_status: x.trader_status,
+    contact_url: x.public_contact_url || null,
+    reputation_state: 'NEW_OR_UNVERIFIED',
     created_at: x.created_at, updated_at: x.updated_at
   };
 }
@@ -63,10 +145,11 @@ function sellerRecord(user, req, input) {
   const trader = String(input.trader_status || '').toLowerCase();
   if (!['trader','private'].includes(trader)) throw Object.assign(new Error('Choose whether you are selling in trade or as a private seller.'), { statusCode: 422 });
   const address = clean(input.contact_address || seller.location, 300);
-  if (!address) throw Object.assign(new Error('Contact address is required for a physical MTG listing.'), { statusCode: 422 });
+  // Delivery addresses belong in the private two-party exchange, not a public listing form.
+  // Government name is optional; do not infer it from an avatar/account display name.
   return {
-    legal_name: clean(input.legal_name || user.name, 120),
-    contact_address: address,
+    legal_name: clean(input.legal_name || seller.legal_name, 120) || null,
+    contact_address: address || null,
     online_trading_identity: clean(input.online_trading_identity || seller.display_name || user.name, 120),
     trader_status: trader,
     ip_address: ip(req)
@@ -75,6 +158,8 @@ function sellerRecord(user, req, input) {
 async function handle(req, res, url) {
   const route = String(url || req.url || '').split('?')[0];
   if (!route.startsWith('/api/mtg/marketplace')) return false;
+
+  if (await passportHandle(req,res,route))return true;
 
   if (req.method === 'GET' && route === '/api/mtg/marketplace/listings') {
     const listings = read(LISTINGS, []).filter(x => x.status === 'active').map(safeListing);
@@ -89,22 +174,41 @@ async function handle(req, res, url) {
 
   if (req.method === 'POST' && route === '/api/mtg/marketplace/list') {
     const user = currentUser(req);
-    if (!user) return json(res, 401, { error: 'Log in before listing a card.' });
+    const guest = !user;
     const input = await body(req);
+    if(guest && !attemptGuest(req))return json(res,429,{error:'Too many guest listings from this connection. Try later.'});
     const title = clean(input.title, 160);
+    const decision = inspectListing(input);
+    if(decision.decision==='REJECT')
+      return json(res,422,{error:'Listing content failed validation.',reason_codes:decision.reason_codes});
     const price = Number(input.price_nzd);
     const acceptsBuy = bool(input.accepts_buy);
     const acceptsTrade = bool(input.accepts_trade);
     if (!title) return json(res, 422, { error: 'Card name is required.' });
     if (!acceptsBuy && !acceptsTrade) return json(res, 422, { error: 'Choose buy, trade, or both.' });
     if (acceptsBuy && (!Number.isFinite(price) || price <= 0)) return json(res, 422, { error: 'Enter a valid NZD price when accepting buys.' });
-    let compliance;
-    try { compliance = sellerRecord(user, req, input); } catch (err) { return json(res, err.statusCode || 422, { error: err.message }); }
+    let compliance, guestHandle=null, guestContact=null;
+    try{
+      if(guest){
+        guestHandle=clean(input.seller_display_name,80);
+        if(!guestHandle)throw Object.assign(new Error('Choose a trading handle.'),{statusCode:422});
+        guestContact=publicContactUrl(input.contact_url);
+        const kind=String(input.trader_status||'').toLowerCase();
+        if(!['trader','private'].includes(kind))throw Object.assign(new Error('Choose private seller or in-trade seller.'),{statusCode:422});
+        compliance={legal_name:null,contact_address:null,online_trading_identity:guestHandle,
+          trader_status:kind,ip_address:null};
+      }else compliance=sellerRecord(user,req,input);
+    }catch(err){return json(res,err.statusCode||422,{error:err.message});}
+    const ownerToken=guest?crypto.randomBytes(32).toString('hex'):null;
+    const sellerId=guest?'guest_mtg_'+crypto.randomBytes(12).toString('hex'):user.id;
     const now = new Date().toISOString();
     const listing = {
       id: 'mtg_' + crypto.randomBytes(10).toString('hex'),
-      seller_id: user.id,
-      seller_display_name: clean(user.seller?.display_name || user.name, 80),
+      seller_id: sellerId,
+      seller_display_name: guest?guestHandle:clean(user.seller?.display_name || user.name, 80),
+      public_contact_url: guest?guestContact:null,
+      seller_claim_token_sha256:ownerToken?crypto.createHash('sha256').update(ownerToken).digest('hex'):null,
+      contact_verification:'SELF_SUBMITTED_UNVERIFIED',
       title,
       set_name: clean(input.set_name, 120),
       collector_number: clean(input.collector_number, 40),
@@ -130,9 +234,41 @@ async function handle(req, res, url) {
       }
     };
     const listings = read(LISTINGS, []);
+    const recent = listings.filter(x=>
+      (guest?x.public_contact_url===guestContact:x.seller_id===user.id) &&
+      Date.now()-Date.parse(x.created_at)<60*60*1000);
+    if(recent.length>=(guest?4:10))return json(res,429,{error:'Listing limit reached. Try again later.'});
+    const duplicate=recent.some(x=>x.title.toLowerCase()===title.toLowerCase() &&
+      Number(x.price_nzd)===Number(listing.price_nzd) &&
+      x.status!=='removed');
+    if(duplicate)return json(res,409,{error:'This listing has already been submitted.'});
+    listing.status=decision.decision==='QUARANTINE'?'quarantined':'active';
+    listing.moderation={rulepack:decision.policy,status:decision.decision,
+      reason_codes:decision.reason_codes,requires_review:decision.reviewer_required};
     listings.push(listing);
     write(LISTINGS, listings);
-    return json(res, 201, { ok: true, listing: safeListing(listing), fee_nzd: 0, fee_policy: 'MTG_ZERO_FEE' });
+    return json(res, 201, { ok: true, listing: safeListing(listing),
+      publication_state: listing.status==='active'?'ACTIVE':'QUARANTINED_PENDING_REVIEW',
+      guest_owner_token:ownerToken,owner_token_recovery:'NONE_SAVE_PRIVATELY',
+      fee_nzd: 0, fee_policy: 'MTG_ZERO_FEE' });
+  }
+
+  if (req.method === 'POST' && route === '/api/mtg/marketplace/list/remove') {
+    const input=await body(req);
+    const id=clean(input.listing_id,80),provided=clean(input.owner_token,128);
+    const listings=read(LISTINGS,[]);
+    const listing=listings.find(x=>x.id===id);
+    if(!listing)return json(res,404,{error:'Listing not found.'});
+    const user=currentUser(req);
+    const authenticated=user && user.id===listing.seller_id;
+    const hashed=listing.seller_claim_token_sha256;
+    const hasGuestToken=hashed && /^[a-f0-9]{64}$/.test(provided) &&
+      crypto.timingSafeEqual(Buffer.from(hashed,'hex'),
+        Buffer.from(crypto.createHash('sha256').update(provided).digest('hex'),'hex'));
+    if(!authenticated&&!hasGuestToken)return json(res,403,{error:'Owner access required.'});
+    listing.status='removed';listing.updated_at=new Date().toISOString();
+    write(LISTINGS,listings);
+    return json(res,200,{ok:true,status:'REMOVED',fee_nzd:0});
   }
 
   if (req.method === 'POST' && route === '/api/mtg/marketplace/request') {

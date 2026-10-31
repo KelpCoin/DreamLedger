@@ -14,6 +14,16 @@ on:
       - "BEC-PRIME/compiled/website/mtg/**"
       - "BEC-PRIME/compiled/website/assets/mtg-dreamledger-theme.css"
       - "scripts/verify-mtg-dreamledger-theme.cjs"
+      - "public/mtg-marketplace/**"
+      - "public/assets/mtg-reference-import.js"
+      - "public/assets/mtg-reference-import.test.js"
+      - "public/assets/mtg-trade-passport-client.js"
+      - "BEC-PRIME/routes/mtgMarketplace.js"
+      - "BEC-PRIME/routes/mtgMarketplace.passport.test.js"
+      - "BEC-PRIME/lib/mtgReputation*"
+      - "BEC-PRIME/lib/mtgTradePassport*"
+      - "BEC-PRIME/lib/mtgMarketplaceGauntlet*"
+      - "docs/mtg/**"
       - ".github/workflows/mtg-catalogue-validation.yml"
   push:
     branches: [main]
@@ -21,6 +31,16 @@ on:
       - "public/catalog.json"
       - "mtg/**"
       - "public/mtg/**"
+      - "public/mtg-marketplace/**"
+      - "public/assets/mtg-reference-import.js"
+      - "public/assets/mtg-reference-import.test.js"
+      - "public/assets/mtg-trade-passport-client.js"
+      - "BEC-PRIME/routes/mtgMarketplace.js"
+      - "BEC-PRIME/routes/mtgMarketplace.passport.test.js"
+      - "BEC-PRIME/lib/mtgReputation*"
+      - "BEC-PRIME/lib/mtgTradePassport*"
+      - "BEC-PRIME/lib/mtgMarketplaceGauntlet*"
+      - "docs/mtg/**"
       - ".github/workflows/mtg-catalogue-validation.yml"
 
 jobs:
@@ -87,4 +107,57 @@ jobs:
         with:
           name: mtg-dreamledger-visual-parity-proof
           path: proof/MTG-DREAMLEDGER-VISUAL-PARITY.json
+          retention-days: 7
+
+  open-trading-trust-contract:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify no-account listing, private two-party ledger and proof-only reputation
+        run: |
+          node --check BEC-PRIME/routes/mtgMarketplace.js
+          node --check public/assets/mtg-trade-passport-client.js
+          node --check public/assets/mtg-reference-import.js
+          node --test BEC-PRIME/lib/mtgReputation.test.js BEC-PRIME/lib/mtgTradePassport.test.js BEC-PRIME/lib/mtgMarketplaceGauntlet.test.js BEC-PRIME/routes/mtgMarketplace.passport.test.js public/assets/mtg-reference-import.test.js
+      - name: Verify public page does not require registration to publish guest listing
+        run: |
+          node <<'NODE'
+          const fs=require('node:fs');
+          const html=fs.readFileSync('public/mtg-marketplace/index.html','utf8');
+          const route=fs.readFileSync('BEC-PRIME/routes/mtgMarketplace.js','utf8');
+          for(const fragment of ['id="tradeLedger"','id="tradeCreateForm"','name="contact_url"','name="seller_display_name"','Contact seller directly','mtg-trade-passport-client.js']){
+            if(!html.includes(fragment))throw Error('Missing free trading control: '+fragment);
+          }
+          if(!route.includes('guest_owner_token:ownerToken')||!route.includes('await passportHandle(req,res,route)')){
+            throw Error('Guest and private trade entrypoints missing');
+          }
+          if(!html.includes('mtg-dreamledger-theme.css'))throw Error('MTG palette mismatch');
+          console.log('MTG_FREE_OPEN_TRADING_CONTRACT=PASS');
+          NODE
+      - name: Save private machine-readable proof
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p proof/mtg
+          node <<'NODE'
+          const fs=require('fs'),crypto=require('crypto');
+          const files=['BEC-PRIME/lib/mtgTradePassport.js','BEC-PRIME/lib/mtgReputation.js',
+            'BEC-PRIME/lib/mtgMarketplaceGauntlet.js','BEC-PRIME/routes/mtgMarketplace.js',
+            'public/mtg-marketplace/index.html'];
+          const input={schema:'BECK/MTG-OPEN-TRADE-PR-PROOF/v1',
+            mode:'CI_ONLY_NOT_DEPLOYED',free_peer_trading:true,unregistered_guest_listings:true,
+            identity_government_name_required:false,verified_reputation_buyable:false,
+            trade_receipts_are_independently_verified:false,
+            platform_fee_nzd:0,public_post_performed:false,
+            source_sha256:Object.fromEntries(files.map(x=>[x,crypto.createHash('sha256').update(fs.readFileSync(x)).digest('hex')]))};
+          fs.writeFileSync('proof/mtg/MTG-OPEN-TRADE-CI-PROOF.json',JSON.stringify(input,null,2)+'\n');
+          NODE
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mtg-free-trading-trust-proof
+          path: proof/mtg/MTG-OPEN-TRADE-CI-PROOF.json
           retention-days: 7
