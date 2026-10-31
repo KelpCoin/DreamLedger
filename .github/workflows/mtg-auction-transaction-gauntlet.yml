@@ -1,4 +1,4 @@
-name: MTG auction transaction gauntlet
+name: Kingdom auction capability gauntlet (MTG master)
 on:
   pull_request:
     paths:
@@ -45,7 +45,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-      - name: Test Kingdom auction allocation scope and owner approval
+      - name: Verify MTG master to cross-industry CUBE clones, ownership and approval
         run: node --test tests/kingdom-auction-authorization.test.mjs tests/kingdom-auction-router.test.mjs tests/kingdom-auction-master-clone.test.mjs
       - name: Ensure PostgreSQL client
         run: command -v psql >/dev/null || (sudo apt-get update -qq && sudo apt-get install -y postgresql-client)
