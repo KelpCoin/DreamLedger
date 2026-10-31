@@ -63,7 +63,7 @@ function isKnownHeldModernDeckGrid(html) {
     '/data/mtg-owner-decks.json',
     'checkout_verified:false',
     'p.checkout_verified===true',
-    'Only stock-verified items may display a Stripe checkout.'
+    'Checkout is available only for confirmed stock.'
   ].every(x=>html.includes(x)) &&
     !html.includes('window.location.assign(data.checkout_url)') &&
     !html.includes("fetch('/api/offer-checkout/create'") &&
