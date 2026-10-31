@@ -90,6 +90,14 @@ create table if not exists public.mtg_auction_orders_v2(
  refunded_at timestamptz,
  created_at timestamptz not null default now()
 );
+-- Saved auctions are private to the authenticated buyer, never a public follower list.
+create table if not exists public.mtg_auction_watchlist_v2(
+ auction_id uuid not null references public.mtg_auction_lots_v2(id) on delete restrict,
+ user_id uuid not null references auth.users(id) on delete restrict,
+ created_at timestamptz not null default now(),
+ primary key(auction_id,user_id)
+);
+create index if not exists mtg_v2_watch_user on public.mtg_auction_watchlist_v2(user_id,created_at desc);
 create table if not exists public.mtg_auction_events_v2(
  id uuid primary key default gen_random_uuid(),
  auction_id uuid not null references public.mtg_auction_lots_v2(id),
@@ -123,7 +131,7 @@ create table if not exists public.mtg_auction_postings_v2(
 );
 do $$ declare t text; begin
  foreach t in array array['mtg_seller_profiles_v2','mtg_inventory_v2','mtg_auction_lots_v2',
- 'mtg_auction_bids_v2','mtg_auction_orders_v2','mtg_auction_events_v2',
+ 'mtg_auction_bids_v2','mtg_auction_orders_v2','mtg_auction_watchlist_v2','mtg_auction_events_v2',
  'mtg_auction_external_v2','mtg_auction_postings_v2'] loop
  execute format('alter table public.%I enable row level security',t);
  execute format('revoke all on public.%I from public, anon, authenticated',t);
@@ -131,9 +139,10 @@ do $$ declare t text; begin
 end $$;
 grant select,insert,update,delete on public.mtg_seller_profiles_v2,public.mtg_inventory_v2,
  public.mtg_auction_lots_v2,public.mtg_auction_bids_v2,public.mtg_auction_orders_v2,
- public.mtg_auction_events_v2,public.mtg_auction_external_v2,public.mtg_auction_postings_v2
+ public.mtg_auction_watchlist_v2,public.mtg_auction_events_v2,public.mtg_auction_external_v2,public.mtg_auction_postings_v2
  to service_role;
 grant select(id,title,currency,start_cents,increment_cents,high_bid_cents,buy_now_cents,status,starts_at,ends_at,version) on public.mtg_auction_lots_v2 to anon,authenticated;
+grant select(auction_id,created_at) on public.mtg_auction_watchlist_v2 to authenticated;
 grant select on public.mtg_auction_bids_v2,public.mtg_auction_orders_v2,
  public.mtg_inventory_v2,public.mtg_seller_profiles_v2 to authenticated;
 create policy "mtg v2 visible lots" on public.mtg_auction_lots_v2 for select to anon,authenticated
@@ -141,6 +150,8 @@ create policy "mtg v2 visible lots" on public.mtg_auction_lots_v2 for select to 
 create policy "mtg v2 bidder owns bids" on public.mtg_auction_bids_v2 for select to authenticated
  using (bidder_id=(select auth.uid()) or exists(select 1 from public.mtg_auction_lots_v2 l
  where l.id=auction_id and l.seller_id=(select auth.uid())));
+create policy "mtg v2 private watched lots" on public.mtg_auction_watchlist_v2
+ for select to authenticated using(user_id=(select auth.uid()));
 create policy "mtg v2 order parties" on public.mtg_auction_orders_v2 for select to authenticated
  using (buyer_id=(select auth.uid()) or seller_id=(select auth.uid()));
 create policy "mtg v2 inventory owner" on public.mtg_inventory_v2 for select to authenticated
@@ -269,6 +280,22 @@ begin
  return jsonb_build_object('bid_id',b,'accepted_cents',p_amount_cents,'idempotent',false);
 end $$;
 -- Seller may set an optional fixed price ONLY while the lot is still a private draft.
+-- Private buyer saved lots. Neither follow count nor buyer identities are public.
+create or replace function public.mtg_auction_watch_v2(p_auction uuid,p_watch boolean)
+returns jsonb language plpgsql security definer set search_path='' as $
+declare u uuid:=auth.uid(); status text;
+begin
+ if u is null then raise exception 'AUTH_REQUIRED'; end if;
+ if p_watch is null then raise exception 'INVALID_WATCH_ACTION'; end if;
+ if p_watch then
+  select l.status into status from public.mtg_auction_lots_v2 l where l.id=p_auction;
+  if not found or status<>'open' then raise exception 'WATCH_LOT_UNAVAILABLE'; end if;
+  insert into public.mtg_auction_watchlist_v2(auction_id,user_id) values(p_auction,u) on conflict do nothing;
+ else
+  delete from public.mtg_auction_watchlist_v2 where auction_id=p_auction and user_id=u;
+ end if;
+ return jsonb_build_object('auction_id',p_auction,'watching',p_watch);
+end $;
 create or replace function public.mtg_auction_set_buy_now_v2(p_auction uuid,p_buy_now_cents bigint)
 returns jsonb language plpgsql security definer set search_path='' as $
 declare u uuid:=auth.uid(); l public.mtg_auction_lots_v2%rowtype;
@@ -428,6 +455,7 @@ do $tag$ declare f text; begin
   'mtg_auction_submit_v2(uuid,bigint,bigint,bigint,timestamptz)',
   'mtg_seller_verify_v2(uuid,text)','mtg_inventory_verify_v2(uuid,text)',
   'mtg_auction_publish_v2(uuid)','mtg_auction_bid_v2(uuid,bigint,uuid)',
+  'mtg_auction_watch_v2(uuid,boolean)',
   'mtg_auction_set_buy_now_v2(uuid,bigint)','mtg_auction_buy_now_v2(uuid)',
   'mtg_auction_close_v2(uuid)','mtg_auction_bind_session_v2(uuid,text)',
   'mtg_auction_reconcile_v2(text,text,text,bigint,text,text,text)',
@@ -441,6 +469,7 @@ grant execute on function public.mtg_auction_submit_v2(uuid,bigint,bigint,bigint
 grant execute on function public.mtg_auction_bid_v2(uuid,bigint,uuid) to authenticated;
 grant execute on function public.mtg_auction_set_buy_now_v2(uuid,bigint) to authenticated;
 grant execute on function public.mtg_auction_buy_now_v2(uuid) to authenticated;
+grant execute on function public.mtg_auction_watch_v2(uuid,boolean) to authenticated;
 grant execute on function public.mtg_auction_ship_v2(uuid,text) to authenticated;
 grant execute on function public.mtg_auction_deliver_v2(uuid) to authenticated;
 grant execute on function public.mtg_auction_dispute_v2(uuid,text) to authenticated;
