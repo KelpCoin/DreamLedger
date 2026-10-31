@@ -37,6 +37,8 @@ jobs:
         run: command -v psql >/dev/null || (sudo apt-get update -qq && sudo apt-get install -y postgresql-client)
       - name: Execute isolated database and auction safety gauntlet
         run: bash tests/mtg-auction-v2-test.sh
+      - name: Adversarial authorization and replay tests
+        run: bash tests/mtg-auction-v2-adversarial.sh
       - name: Verify public UI has no fake auction lots or local accepted bids
         run: |
           ! grep -q 'local_sandbox' public/auctions.html
