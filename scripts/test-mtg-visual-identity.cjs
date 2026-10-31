@@ -59,4 +59,22 @@ assert.match(diag,/Verify Patreon: integration held/);
 assert.match(diag,/\$2\.99 paid Patreon tier/);
 assert.match(diag,/up to five/i);
 assert.doesNotMatch(diag,/Run free diagnostic|Free Commander diagnostic/i);
+
+const legalPages=[
+ 'public/mtg/index.html','public/mtg/exchange.html','public/mtg/community.html',
+ 'public/mtg/auctions/index.html','public/mtg/diagnostic/index.html',
+ 'public/mtg/dwynen-gilt-leaf-daen.html','public/mtg/jon-irenicus-shattered-one.html',
+ 'public/mtg/quintorius-field-historian.html'
+];
+for(const p of legalPages){
+ const html=read(p);
+ assert.match(html,/Wizards of the Coast Fan Content Policy/,p+': official policy link missing');
+ assert.match(html,/Not approved|not approved|not endorsed/,p+': independent-fan notice missing');
+ assert.doesNotMatch(html,/\bAgent Bridge\b|\bagentic\b|\bElohim\b|\bGauntlet\b|\bAI-powered\b/i,p+': backend jargon must not reach players');
+}
+const front=read('public/index.html');
+for(const route of ['/mtg/','/avatar.html','/billboard.html'])assert.ok(front.includes('href="'+route+'"'),'Public front door missing '+route);
+assert.doesNotMatch(front,/agent bridge|agentic|\bGauntlet\b|\bElohim\b|\bAI\b|\/quote-compare-49\.html|\/truth-oracle\.html/i,'front door must not advertise held projects');
+assert.match(front,/under construction/i,'front door construction state missing');
+
 console.log('MTG REDESIGN PASS: coherent pages, gated commerce, no-login-free diagnostic absent, responsive system.');
