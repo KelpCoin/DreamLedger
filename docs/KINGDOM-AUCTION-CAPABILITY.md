@@ -2,9 +2,40 @@
 
 ## Canonical ownership
 
-Kingdom owns `kingdom.auction.v1`. DreamLedger, MTG and any other silo are **consumers**, never capability owners. A consumer requires its own signed, deployment-bound Gauntlet allocation. A failed, absent, expired, cross-silo or tampered grant blocks writes with HTTP 503. The MTG integration is already staged in draft PR #913.
+Kingdom owns `kingdom.auction.v1`. **MTG is the permanent CUBE master template and the highest-tested reference implementation**. DreamLedger is one distribution SPV. All target silos, including unrelated B2B sectors, are compiled from that master without copying master inventory, branding, payments, identities or customer information. Each deployed silo consumes a separately granted Kingdom capability and requires its own signed, deployment-bound Gauntlet allocation. A failed, absent, expired, cross-silo or tampered grant blocks writes with HTTP 503. The master integration and reusable clone compiler are staged in draft PR #913.
 
-The existing Postgres/Stripe auction transaction implementation is one **adapter**. Do not confuse an adapter with the shared capability or treat passing CI as a live service. Reuse the same allocation protocol for future backends, including local-first SQLite, but do not install a second database merely to pass tests.
+The existing Postgres/Stripe auction transaction implementation in the MTG master is the **reference adapter and quality floor**. Do not confuse an adapter with the shared capability or treat passing CI as a live service. CUBE can replicate the implementation contract into sector-specific adapters, including B2B reverse procurement when genuinely built and verified. Reuse the same allocation protocol for future backends, including local-first SQLite, but do not install a second database merely to pass tests.
+
+
+## CUBE replication: master to every silo
+
+```text
+ELOHIM -> GAUNTLET (commercial case, scope, tests, explicit approval)
+          |
+          v
+KINGDOM ASSET: kingdom.auction.v1 (code, contracts, grant verifier)
+          |
+          v
+MTG MASTER SILO (gold test reference: not MTG-only ownership)
+          |
+          v
+CUBE CLONE COMPILER -> isolated target SPV/silo blueprint
+          |
+          v
+TARGET GAUNTLET + separate identity/store/storage/secrets/payments
+          |
+          v
+TARGET ADAPTER -> approved release -> verified transactions/economics
+```
+
+`BEC-PRIME/capabilities/auction/clone-blueprint.mjs` compiles a request using the MTG master proof and a concrete commercial hypothesis. Target sectors may be supply chain, wholesale, equipment liquidation, government/private procurement, licensing, construction, digital inventory, or another approved niche. **An unrelated sector does not require MTG-compatible products.** The clone inherits *transaction interfaces, reliability tests, evidence contracts, release policies and quality thresholds*, not MTG data or brand identity.
+
+- `english_ascending` is the only implemented live-adapter format in source. `reverse_procurement`, `sealed_bid`, `dutch_descending` and `bulk_lot` are **design-target formats only**, automatically held pending their own transaction engines and adversarial tests.
+- B2B allocation additionally needs business identity, contract terms, tax/fees, invoice/settlement responsibility, supplier proofs, delivery and disputes. It is not granted merely because the MTG reference tests pass.
+- Only the **MTG master** can define the gold regression baseline; derivative silos must pass both the inherited baseline and target-specific tests. Proven fixes can be promoted **back into the master through review**, then recompiled forward. Neither CUBE nor Elohim may automatically weaken security gates or copy sensitive records during this refinement cycle.
+- Windows PowerShell may orchestrate a Python worker, Notion operational mirror, Zapier triggers, Super.io display surface or Kubernetes worker, when connected and authorized. These are *optional execution adapters*, not data sources of truth or automatic permission to publish, buy, sell, copy private content or charge money. The canonical transaction ledger and evidence stay isolated by SPV.
+
+Reference test: `node --test tests/kingdom-auction-master-clone.test.mjs`. Result is a deterministic **PREPARED_NOT_AUTHORIZED** blueprint with SHA-256, not an activated auction or claim of revenue.
 
 ## Authority contract
 
