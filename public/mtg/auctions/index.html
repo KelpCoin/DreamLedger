@@ -66,6 +66,7 @@ async function lots(){
  $("catalogue-status").textContent="Checking verified inventory…";$("lots").replaceChildren();
  try{
   const d=await api("list");const rows=d.auctions||[];
+  let watched=new Set();if(token){try{const w=await api("my_watchlist");watched=new Set((w.watched||[]).map(x=>x.auction_id))}catch{ /* No synthetic watch state on outage. */ }}
   $("catalogue-status").textContent=rows.length?rows.length+" approved live lot(s).":"No approved live auction lots. No bids are being accepted.";
   for(const a of rows){
    const card=el("article",null,"lot");card.append(el("h2",a.title),el("p","Current "+money(a.high_bid_cents||a.start_cents)+" · Minimum increment "+money(a.increment_cents)),el("p","Closing "+new Date(a.ends_at).toLocaleString("en-NZ")));
@@ -92,6 +93,17 @@ async function lots(){
       await lots();await orders();
      }catch(e){$("catalogue-status").textContent="Buy Now unavailable: "+e.message;buy.disabled=false}};
     card.append(buy);
+   }
+   if(token){
+    const watch=el("button",watched.has(a.id)?"Unwatch auction":"Watch auction");
+    watch.onclick=async()=>{watch.disabled=true;try{
+      const enabled=!watched.has(a.id);
+      await api("watch",{p_auction:a.id,p_watch:enabled});
+      if(enabled)watched.add(a.id);else watched.delete(a.id);
+      watch.textContent=enabled?"Unwatch auction":"Watch auction";
+     }catch(e){$("catalogue-status").textContent="Watch unavailable: "+e.message}
+     finally{watch.disabled=false}};
+    card.append(watch);
    }
    card.append(el("small",token?"Final acceptance is server-side.":"Sign in before bidding."));$("lots").append(card);
   }
