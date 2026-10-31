@@ -9,6 +9,9 @@ on:
       - 'scripts/verify-mtg-exchange-worldwide.cjs'
       - 'scripts/test-mtg-commercial-terms-lock.cjs'
       - 'scripts/test-mtg-visual-identity.cjs'
+      - 'scripts/test-mtg-auction-rail.cjs'
+      - 'public/data/mtg-auctions.json'
+      - 'public/assets/mtg-auction-rail.js'
       - 'public/assets/dreamledger-mtg-theme.css'
       - 'public/silos/mtg/silo.json'
       - 'docs/MTG-COMMERCIAL-TERMS-LOCK.json'
@@ -29,6 +32,8 @@ jobs:
         run: node scripts/test-mtg-commercial-terms-lock.cjs
       - name: Verify DreamLedger MTG brand continuity and creator footer
         run: node scripts/test-mtg-visual-identity.cjs
+      - name: Verify three auction spotlights, countdowns and paid-visibility hard gate
+        run: node --test scripts/test-mtg-auction-rail.cjs
       - name: Stage verifier
         run: node scripts/verify-mtg-exchange-worldwide.cjs
       - name: Existing clone safety check (HOLD is allowed)
