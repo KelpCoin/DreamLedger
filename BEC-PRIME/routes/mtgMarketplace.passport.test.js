@@ -10,9 +10,9 @@ process.env.DREAMIEZ_DATA_DIR=path.join(root,'legacy');
 process.env.DREAMLEDGER_MTG_LEDGER_DIR=path.join(root,'mtg');
 const {handle}=require('./mtgMarketplace.js');
 test.after(()=>fs.rmSync(root,{recursive:true,force:true}));
-async function req(method,endpoint,data,ip){
+async function req(method,endpoint,data,ip,cookie){
  const r=Readable.from(data?[JSON.stringify(data)]:[]);
- r.method=method;r.url=endpoint;r.headers={};r.socket={remoteAddress:ip||'203.0.113.22'};
+ r.method=method;r.url=endpoint;r.headers=cookie?{cookie}:{};r.socket={remoteAddress:ip||'203.0.113.22'};
  let status=200,response='';
  const w={writableEnded:false,writeHead(code){status=code;return this;},end(s){response=s;this.writableEnded=true;return this;}};
  const handled=await handle(r,w,endpoint);
@@ -81,4 +81,21 @@ test('two-person trade receipt works without account or settlement claims',async
  assert.equal(view.data.trade.feedback.buyer,undefined);
  assert.equal(view.data.trade.identity_verified,false);
  assert.equal(view.data.trade.platform_fee_nzd,0);
+});
+
+test('registered sellers also need no government name or home address',async()=>{
+ const file=path.join(root,'legacy','users.json');
+ fs.mkdirSync(path.dirname(file),{recursive:true});
+ fs.writeFileSync(file,JSON.stringify([{id:'account-test-1',email:'sample@example.com',
+   name:'TraderAlias',seller:{display_name:'TraderAlias'}}]));
+ const data={title:'Arcane Signet',condition:'Near Mint',price_nzd:5,accepts_buy:true,
+   trader_status:'private',description:'Clean single available locally'};
+ const created=await req('POST','/api/mtg/marketplace/list',data,'203.0.113.23',
+   'dreamiez_session=account-test-1');
+ assert.equal(created.status,201);
+ const rows=JSON.parse(fs.readFileSync(path.join(root,'legacy','mtg-marketplace-listings.json'),'utf8'));
+ const item=rows.find(x=>x.title==='Arcane Signet');
+ assert.equal(item.seller_compliance.legal_name,null);
+ assert.equal(item.seller_compliance.contact_address,null);
+ assert.equal(created.data.guest_owner_token,null);
 });
