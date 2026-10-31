@@ -20,7 +20,7 @@ gallery_search_and_filter:exchange.includes('id="find"')&&exchange.includes('id=
 gallery_first_party_only:exchange.includes('OUR COLLECTION')&&/enquire/i.test(exchange)&&!exchange.includes('buy.stripe.com'),
 community_copy_only:community.includes('id="compose"')&&community.includes('navigator.clipboard.writeText')&&community.includes('Nothing has been submitted')&&community.includes('navigator.share'),
 discord_handoff:home.includes('https://discord.gg/tKxJkhJhCp')&&exchange.includes('https://discord.gg/tKxJkhJhCp')&&community.includes('https://discord.gg/tKxJkhJhCp'),
-peer_payment_truth:/does not handle peer payments/i.test(community)&&!/window\\.location\\.assign\\(.*stripe/i.test(home),
+peer_payment_truth:/does not handle peer payments/i.test(community)&&!home.includes('window.location.assign(data.checkout_url)'),
 diagnostic_nzd29:diagnostic.includes('NZ$29')&&diagnostic.includes('checkout held')&&diagnostic.includes('integration held'),
 paid_patron_tiers:terms.commander_diagnostic.patreon_benefit.entry_tier.included_reports_per_month===1&&terms.commander_diagnostic.patreon_benefit.higher_tiers.included_reports_per_month_max===5,
 physical_checkout_held:catalog.products.every(p=>p.checkout_available===false)&&edh.price===400&&edh.inventory===0,
