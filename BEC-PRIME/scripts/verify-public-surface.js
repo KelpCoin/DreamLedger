@@ -23,7 +23,7 @@ const CATALOG_REQUIRED=[
   {label:'DreamLedger', test:/dreamledger/i},
   {label:'Billboard', test:/href=["']\/billboard(?:\.html)?["']/i},
   {label:'DreamMeez', test:/href=["']\/avatar\.html["']/i},
-  {label:'Truth Oracle', test:/href=["']\/truth-oracle\.html["']/i}
+  {label:'Magic', test:/href=["']\/mtg\/["']/i}
 ];
 const errors=[];
 for(const rel of required){const p=path.join(site,rel);if(!fs.existsSync(p)||fs.statSync(p).size===0)errors.push(`MISSING:${rel}`)}
@@ -43,5 +43,5 @@ const agentPath=path.join(site,'.well-known','agent-commerce.json');let agent={}
 if(agent&&Object.keys(agent).length){
   if(agent.private_material!=='excluded'&&agent.private_material!==undefined)errors.push('AGENT_BOUNDARY:private_material');
 }
-const proof={schema:'dreamledger/public-surface-proof/v16',verdict:errors.length?'FAIL':'PASS',required_files:required,scanned_files:files.map(x=>path.relative(root,x).replace(/\\/g,'/')).sort(),errors,public_boundary:'Customer English only on public HTML/JSON; ops vocabulary blocked'};
+const proof={schema:'dreamledger/public-surface-proof/v17',verdict:errors.length?'FAIL':'PASS',required_files:required,scanned_files:files.map(x=>path.relative(root,x).replace(/\\/g,'/')).sort(),errors,public_boundary:'Customer English only; DreamLedger front door limited to MTG, DreamMeez, and Billboard; hidden URLs require independent server-side quarantine'};
 fs.mkdirSync(path.join(root,'data','proofs'),{recursive:true});fs.writeFileSync(path.join(root,'data','proofs','PUBLIC-SURFACE-PROOF.json'),JSON.stringify(proof,null,2)+'\n','utf8');console.log(JSON.stringify(proof,null,2));process.exit(errors.length?1:0);
