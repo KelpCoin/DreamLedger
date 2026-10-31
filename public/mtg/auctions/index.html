@@ -54,7 +54,7 @@ function el(tag,text,cls){let e=document.createElement(tag);if(text!=null)e.text
 async function api(action,body){
  const headers={"accept":"application/json"};if(token)headers.authorization="Bearer "+token;
  const opts=body?{method:"POST",headers:{...headers,"content-type":"application/json"},body:JSON.stringify(body)}:{headers,cache:"no-store"};
- let r=await fetch("/api/mtg-auction?action="+encodeURIComponent(action),opts);
+ let r=await fetch("/api/kingdom-auction?silo=mtg-master&action="+encodeURIComponent(action),opts);
  let d=await r.json().catch(()=>({error:"INVALID_RESPONSE"}));
  if(!r.ok)throw Error(d.error||"HTTP_"+r.status);return d;
 }
