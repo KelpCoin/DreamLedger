@@ -8,6 +8,8 @@ on:
     paths:
       - "ops/cube/multisilo_777_portfolio.py"
       - "ops/cube/test_multisilo_777_portfolio.py"
+      - "BEC-PRIME/runtime/RevenueBanditEvidence.js"
+      - "BEC-PRIME/runtime/RevenueBanditEvidence.test.js"
       - ".github/workflows/cloud-777-economic-heartbeat.yml"
 
 permissions:
@@ -99,6 +101,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Unit tests for portfolio separation and proof gates
         run: python3 -m unittest discover -s ops/cube -p 'test_multisilo_777_portfolio.py' -v
+      - name: Bandit reward, tenant isolation and proof red-team tests
+        run: node --test BEC-PRIME/runtime/RevenueBanditEvidence.test.js
       - name: Generate read-only 777 audit proof
         run: |
           python3 ops/cube/multisilo_777_portfolio.py --output /tmp/777-MULTISILO-PORTFOLIO.json
