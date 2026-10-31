@@ -66,8 +66,19 @@ export default async function handler(request){
    const upstream=await fetch(env.base+endpoint,{method,headers:h,body:payload,signal:controller.signal,redirect:"error"});
    const data=await upstream.json().catch(()=>({error:"INVALID_UPSTREAM_RESPONSE"}));
    if(!upstream.ok){
-     const missing=upstream.status===404||data?.code==="PGRST202";
-     return json({error:missing?"AUCTION_SCHEMA_NOT_DEPLOYED":(authorized?"AUCTION_OPERATION_REJECTED":"UPSTREAM_REJECTED"),code:data?.code||null},missing?503:upstream.status);
+     const missing=data?.code==="PGRST202"||(upstream.status===404&&!data?.message);
+     const known={
+       BID_TOO_LOW:["OUTBID",409],
+       BIDDING_CLOSED:["AUCTION_CLOSED",409],
+       SELF_BIDDING_FORBIDDEN:["SELF_BIDDING_FORBIDDEN",403],
+       VERIFIED_BUYER_EMAIL_REQUIRED:["EMAIL_CONFIRMATION_REQUIRED",403],
+       SELLER_OR_STOCK_UNVERIFIED:["SELLER_OR_STOCK_UNVERIFIED",409],
+       IDEMPOTENCY_KEY_REUSED:["IDEMPOTENCY_CONFLICT",409],
+       AUCTION_NOT_FOUND:["AUCTION_NOT_FOUND",404]
+     };
+     const mapped=authorized?known[data?.message]:null;
+     return json({error:missing?"AUCTION_SCHEMA_NOT_DEPLOYED":mapped?mapped[0]:(authorized?"AUCTION_OPERATION_REJECTED":"UPSTREAM_REJECTED"),
+       code:data?.code||null},missing?503:mapped?mapped[1]:upstream.status);
    }
    if(action==="login"||action==="signup")return json({
      access_token:data.access_token||null,expires_in:data.expires_in||null,
