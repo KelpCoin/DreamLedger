@@ -365,7 +365,7 @@ end $$;
 
 
 -- Explicit function ACLs; never widen existing unrelated functions.
-do $ declare f text; begin
+do $tag$ declare f text; begin
  foreach f in array array[
   'mtg_seller_register_v2()','mtg_inventory_submit_v2(text,text,text)',
   'mtg_auction_submit_v2(uuid,bigint,bigint,bigint,timestamptz)',
@@ -376,7 +376,7 @@ do $ declare f text; begin
   'mtg_auction_ship_v2(uuid,text)','mtg_auction_deliver_v2(uuid)',
   'mtg_auction_dispute_v2(uuid,text)'
  ] loop execute 'revoke all on function public.'||f||' from public,anon,authenticated'; end loop;
-end $;
+end $tag$;
 grant execute on function public.mtg_seller_register_v2() to authenticated;
 grant execute on function public.mtg_inventory_submit_v2(text,text,text) to authenticated;
 grant execute on function public.mtg_auction_submit_v2(uuid,bigint,bigint,bigint,timestamptz) to authenticated;
