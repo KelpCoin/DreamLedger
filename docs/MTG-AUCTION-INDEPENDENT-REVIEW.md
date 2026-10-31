@@ -141,6 +141,13 @@ Deno.serve(async req=>{
   if(s.metadata?.silo!=="mtg"||!s.metadata?.mtg_order_id)return reply({received:true,ignored:"not_mtg_v2"});
   if(s.payment_status!=="paid")return reply({received:true,ignored:"not_paid"});
   const paymentIntent=typeof s.payment_intent==="string"?s.payment_intent:s.payment_intent?.id||null;
+  const {data:mtgOrder,error:orderError}=await admin.from("mtg_auction_orders_v2")
+    .select("id,stripe_session,amount_cents,currency")
+    .eq("id",s.metadata.mtg_order_id).maybeSingle();
+  if(orderError)return reply({error:"ORDER_LOOKUP_RETRY"},503);
+  if(!mtgOrder||mtgOrder.stripe_session!==s.id)return reply({received:true,ignored:"mtg_order_session_mismatch"});
+  if(mtgOrder.amount_cents!==s.amount_total||mtgOrder.currency.toLowerCase()!==s.currency)
+    return reply({error:"ORDER_AMOUNT_CURRENCY_MISMATCH"},409);
   const {data,error}=await admin.rpc("mtg_auction_reconcile_v2",{
    p_event_id:event.id,p_event_type:event.type,p_session:s.id,
    p_amount_cents:s.amount_total,p_currency:s.currency,p_payload_sha256:payloadHash,
@@ -153,6 +160,11 @@ Deno.serve(async req=>{
   const c=event.data.object as Stripe.Charge;
   const paymentIntent=typeof c.payment_intent==="string"?c.payment_intent:c.payment_intent?.id||null;
   if(!paymentIntent)return reply({received:true,ignored:"no_payment_intent"});
+  // Never record unrelated platform charges (other silos) in the MTG external ledger.
+  const {data:mtgOrder,error:orderError}=await admin.from("mtg_auction_orders_v2")
+    .select("id,amount_cents,currency").eq("stripe_payment_intent",paymentIntent).maybeSingle();
+  if(orderError)return reply({error:"ORDER_LOOKUP_RETRY"},503);
+  if(!mtgOrder)return reply({received:true,ignored:"not_an_mtg_auction_order"});
   const {data,error}=await admin.rpc("mtg_auction_refund_reconcile_v2",{
    p_event_id:event.id,p_payment_intent:paymentIntent,
    p_refunded_cents:c.amount_refunded,p_currency:c.currency,p_payload_sha256:payloadHash
@@ -179,6 +191,10 @@ Deno.serve(async(req)=>{
  const base=Deno.env.get("SUPABASE_URL"),key=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
  const pub=Deno.env.get("SUPABASE_ANON_KEY")||Deno.env.get("SUPABASE_PUBLISHABLE_KEY");
  const stripeKey=Deno.env.get("STRIPE_SECRET_KEY");
+ // Until NZ legal/payment routing and connected-seller responsibility are signed off,
+ // only Stripe TEST mode is permitted, regardless of the payment feature flag.
+ if(Deno.env.get("MTG_AUCTION_PAYMENT_ENV")!=="test"||!stripeKey?.startsWith("sk_test_"))
+   return reply({error:"LIVE_THIRD_PARTY_FUNDS_NOT_AUTHORIZED"},503);
  if(!base||!key||!pub||!stripeKey)return reply({error:"CONFIGURATION_INCOMPLETE"},503);
  const bearer=req.headers.get("authorization")||"";
  if(!/^Bearer .+/.test(bearer))return reply({error:"LOGIN_REQUIRED"},401);
@@ -227,7 +243,7 @@ Deno.serve(async(req)=>{
 - Current branch: fix/mtg-colour-auction-discovery-20261031
 - Target database: Supabase DreamLedger, live SQL connection refused during checks.
 - Tests: isolated Postgres 17 CI; this is not a Stripe end-to-end or production integration proof.
-- Live payment flag: MTG_AUCTION_PAYMENTS_ENABLED must be explicitly true; default held.
+- Live payment is technically forbidden in this draft: feature flag plus MTG_AUCTION_PAYMENT_ENV=test and Stripe sk_test key required. Production real-money processing needs separate redesign/review.
 - Public deployment: not authorized; Vercel production currently sourced from older billboard release branch.
 
 ## Independent review output
