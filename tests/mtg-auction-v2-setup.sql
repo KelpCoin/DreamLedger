@@ -2,7 +2,7 @@
 \set ON_ERROR_STOP on
 create role anon nologin;
 create role authenticated nologin;
-create role service_role nologin;
+create role service_role bypassrls nologin; -- Supabase service_role bypasses RLS, unlike ordinary authenticated users.
 create schema auth;
 create table auth.users(id uuid primary key,email_confirmed_at timestamptz);
 create function auth.uid() returns uuid stable language sql as
