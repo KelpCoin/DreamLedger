@@ -34,11 +34,18 @@ psql -X -v ON_ERROR_STOP=1 -c "set role service_role;select public.mtg_auction_c
 order="$(psql -XAt -c "select id from public.mtg_auction_orders_v2 where auction_id='$lot'")"
 [ -n "$order" ] || { echo "WINNER_ORDER_MISSING";exit 1; }
 psql -X -v ON_ERROR_STOP=1 -c "set role service_role;select public.mtg_auction_bind_session_v2('$order','cs_test_MTGTEST1234');" >/dev/null
-psql -X -v ON_ERROR_STOP=1 -c "set role service_role;select public.mtg_auction_reconcile_v2('evt_wrongMTG1','checkout.session.completed','cs_test_MTGTEST1234',999,'nzd',repeat('c',64),'pi_MTGTEST1234');" | grep -q held
+if psql -X -v ON_ERROR_STOP=1 -c "set role service_role;select public.mtg_auction_reconcile_v2('evt_wrongMTG1','checkout.session.completed','cs_test_MTGTEST1234',999,'nzd',repeat('c',64),'pi_MTGTEST1234');" >/dev/null 2>&1;then
+ echo "WRONG_AMOUNT_EVENT_ACKED";exit 1
+fi
+[ "$(psql -XAt -c "select count(*) from public.mtg_auction_external_v2 where stripe_event_id='evt_wrongMTG1'")" = 0 ] || { echo "WRONG_AMOUNT_EVENT_PERMANENTLY_HELD";exit 1; }
 psql -X -v ON_ERROR_STOP=1 -c "set role service_role;select public.mtg_auction_reconcile_v2('evt_paidMTG1','checkout.session.completed','cs_test_MTGTEST1234',1000,'nzd',repeat('d',64),'pi_MTGTEST1234');" | grep -q applied
 psql -X -v ON_ERROR_STOP=1 -c "set role service_role;select public.mtg_auction_reconcile_v2('evt_paidMTG1','checkout.session.completed','cs_test_MTGTEST1234',1000,'nzd',repeat('d',64),'pi_MTGTEST1234');" | grep -q idempotent
 psql -X -v ON_ERROR_STOP=1 -c "set role authenticated;set request.jwt.claim.sub='11111111-1111-4111-8111-111111111111';select public.mtg_auction_ship_v2('$order',repeat('e',64));" >/dev/null
 psql -X -v ON_ERROR_STOP=1 -c "set role authenticated;set request.jwt.claim.sub='$winner';select public.mtg_auction_deliver_v2('$order');" >/dev/null
+if psql -X -v ON_ERROR_STOP=1 -c "set role service_role;select public.mtg_auction_refund_reconcile_v2('evt_wrongRefund1','pi_MTGTEST1234',999,'nzd',repeat('0',64));" >/dev/null 2>&1;then
+ echo "PARTIAL_REFUND_MISMATCH_ACKED";exit 1
+fi
+[ "$(psql -XAt -c "select count(*) from public.mtg_auction_external_v2 where stripe_event_id='evt_wrongRefund1'")" = 0 ] || { echo "PARTIAL_REFUND_PERMANENTLY_HELD";exit 1; }
 psql -X -v ON_ERROR_STOP=1 -c "set role service_role;select public.mtg_auction_refund_reconcile_v2('evt_refundMTG1','pi_MTGTEST1234',1000,'nzd',repeat('f',64));" | grep -q applied
 psql -X -v ON_ERROR_STOP=1 -c "
 do \$\$ declare unbalanced integer;bad_hash integer;begin
@@ -51,7 +58,7 @@ select count(*) into bad_hash from public.mtg_auction_events_v2 e
 where e.event_sha256<>encode(pg_catalog.sha256(pg_catalog.convert_to(e.previous_hash||e.auction_id::text||e.sequence::text||e.event_type||e.facts::text,'UTF8')),'hex');
 if bad_hash<>0 then raise exception 'HASH_INVALID'; end if;
 if (select status from public.mtg_auction_orders_v2 limit 1)<>'refunded' then raise exception 'REFUND_MISMATCH';end if;
-if (select count(*) from public.mtg_auction_external_v2)<>3 then raise exception 'EVENT_REPLAY';end if;
+if (select count(*) from public.mtg_auction_external_v2)<>2 then raise exception 'EVENT_REPLAY';end if;
 end \$\$;" >/dev/null
 node - <<'NODE'
 const a=require('./BEC-PRIME/auction-engine.js');
