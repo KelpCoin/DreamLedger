@@ -17,6 +17,9 @@ Deno.serve(async req=>{
  let event:Stripe.Event;
  try{event=await stripe.webhooks.constructEventAsync(raw,signature,secret)}
  catch{return reply({error:"BAD_STRIPE_SIGNATURE"},400)}
+ // This integration remains a TEST-only payment lane; no real-money recognition.
+ if(event.livemode!==false||!key.startsWith("sk_test_"))
+   return reply({error:"LIVE_AUCTION_EVENTS_NOT_AUTHORIZED"},503);
  // This endpoint is platform-MTG-only; Connect events have a separate owner.
  if(event.account)return reply({received:true,ignored:"connected_account"});
  const admin=createClient(base,service,{auth:{autoRefreshToken:false,persistSession:false}});
@@ -30,7 +33,7 @@ Deno.serve(async req=>{
     .select("id,stripe_session,amount_cents,currency")
     .eq("id",s.metadata.mtg_order_id).maybeSingle();
   if(orderError)return reply({error:"ORDER_LOOKUP_RETRY"},503);
-  if(!mtgOrder||mtgOrder.stripe_session!==s.id)return reply({received:true,ignored:"mtg_order_session_mismatch"});
+  if(!mtgOrder||mtgOrder.stripe_session!==s.id)return reply({error:"MTG_ORDER_SESSION_RECONCILIATION_REQUIRED"},503);
   if(mtgOrder.amount_cents!==s.amount_total||mtgOrder.currency.toLowerCase()!==s.currency)
     return reply({error:"ORDER_AMOUNT_CURRENCY_MISMATCH"},409);
   const {data,error}=await admin.rpc("mtg_auction_reconcile_v2",{
