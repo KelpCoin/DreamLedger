@@ -22,6 +22,8 @@ jobs:
         run: node BEC-PRIME/scripts/verify-cube-marketplace.js
       - name: Validate 777 CUBE marketplace route matching and honest auction states
         run: node --test public/cube-marketplace-contract.test.cjs
+      - name: Verify 777 shared B2B and A2A payment choice gate
+        run: node --test tests/777-marketplace-payment-choice.test.mjs
       - name: Compile canonical application
         working-directory: BEC-PRIME
         run: npm install --no-audit --no-fund && npm run compile
