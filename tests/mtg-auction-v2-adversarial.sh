@@ -22,5 +22,14 @@ deny PRIVATE_EVIDENCE_READ "set role authenticated;set request.jwt.claim.sub='22
 deny REFUND_REPLAY_TAMPERING "set role service_role;select public.mtg_auction_refund_reconcile_v2('evt_refundMTG1','pi_MTGTEST1234',1000,'nzd',repeat('0',64));"
 deny PAID_EVENT_REPLAY_TAMPERING "set role service_role;select public.mtg_auction_reconcile_v2('evt_paidMTG1','checkout.session.completed','cs_test_MTGTEST1234',1000,'nzd',repeat('0',64),'pi_MTGTEST1234');"
 deny REUSE_INVENTORY "set role authenticated;set request.jwt.claim.sub='11111111-1111-4111-8111-111111111111';select public.mtg_auction_submit_v2((select id from public.mtg_inventory_v2 limit 1),1500,100,0,now()+interval '1 day');"
+# This implementation deliberately rejects live Stripe sessions even for service_role.
+# Check exact error: a generic ORDER_NOT_FOUND would not prove the TEST-only fence.
+outcome=""
+if outcome="$(sql "set role service_role;select public.mtg_auction_bind_session_v2('00000000-0000-4000-8000-000000000001','cs_live_AuctionLeak123');" 2>&1)"; then
+ echo "LIVE_SESSION_BOUND_IN_TEST_MODE";exit 1
+fi
+if ! printf '%s' "$outcome" | grep -q 'INVALID_SESSION_ID'; then
+ echo "LIVE_SESSION_FENCE_NOT_PROVEN";exit 1
+fi
 if [ "$(sql "select public from storage.buckets where id='mtg-auction-evidence'")" != 'f' ];then echo "PRIVATE_BUCKET_MISCONFIGURED";exit 1;fi
 echo "MTG_V2_ADVERSARIAL_PASS: approval, payment, private stock, authorization, replay, bidder privacy and duplicate inventory"
