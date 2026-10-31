@@ -1,3 +1,4 @@
+import {verifyAuctionAllocation,AUCTION_MUTATION_ACTIONS} from "../BEC-PRIME/capabilities/auction/authorization.mjs";
 /** MTG-only Auth + PostgREST gateway. No service-role key or fake bids here.
  * Requires Supabase DB migration and SUPABASE_URL plus publishable/anon key.
  * Authenticated mutations execute atomic RPCs under the caller's JWT. */
@@ -61,6 +62,18 @@ export default async function handler(request){
    if(action==="inventory"&&(!/^[0-9a-f]{64}$/.test(b.p_evidence_sha256||"")||typeof b.p_title!=="string"||typeof b.p_condition!=="string"))return json({error:"INVALID_EVIDENCE"},422);
    endpoint="/rest/v1/rpc/"+name;method="POST";payload=JSON.stringify(b);authorized=true;
  }else{return json({error:"UNKNOWN_AUCTION_ACTION"},404)}
+ // Kingdom owns resource allocation. MTG is an isolated consumer of the shared capability.
+ // The grant is server-side only, HMAC-signed by an owner-approved Gauntlet authority,
+ // bound to this silo, this exact deployed commit, a fixed operation set and expiry.
+ if(request.method==="POST"&&AUCTION_MUTATION_ACTIONS.includes(action)){
+   const decision=verifyAuctionAllocation({
+     envelope:process.env.KINGDOM_AUCTION_ALLOCATION_JSON||"",
+     secret:process.env.KINGDOM_AUCTION_ALLOCATION_SECRET||"",
+     siloId:"mtg-master",action,
+     deploymentSha:process.env.VERCEL_GIT_COMMIT_SHA||process.env.KINGDOM_AUCTION_DEPLOYMENT_SHA||""
+   });
+   if(!decision.ok)return json({error:"KINGDOM_GAUNTLET_ALLOCATION_HOLD",gate:decision.code},503);
+ }
  const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),8000);
  try{
    const upstream=await fetch(env.base+endpoint,{method,headers:h,body:payload,signal:controller.signal,redirect:"error"});
