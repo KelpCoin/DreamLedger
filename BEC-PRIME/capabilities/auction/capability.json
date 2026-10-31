@@ -1,0 +1,48 @@
+{
+  "schema": "kingdom.capability/v1",
+  "capability_id": "kingdom.auction.v1",
+  "owner": "BrownEye Cortex Kingdom",
+  "kind": "reusable commercial capability",
+  "version": "1.0.0-draft",
+  "state": "NON_PRODUCTION",
+  "default_allocation": "DENY",
+  "core_engine": "BEC-PRIME/capabilities/auction/authorization.mjs",
+  "first_consumer": {
+    "silo_id": "mtg-master",
+    "distribution": "dreamledger",
+    "gateway": "handlers/mtg-auction-v2.ts",
+    "state": "DRAFT_DEPENDENCY_BLOCKED",
+    "backend": "supabase-postgrest-rpc-v2"
+  },
+  "requires": {
+    "gauntlet_scorecard_schema": "gauntlet-scorecard/v1",
+    "decision": "PASS",
+    "owner_explicit_approval": true,
+    "economic_basis": [
+      "EXPERIMENT_APPROVED",
+      "REPEATABLE_MARGIN_VERIFIED"
+    ],
+    "signed_deployment_bound_allocation": true,
+    "isolated_tenant_data": true,
+    "payment_authorization": "SEPARATE_FROM_CAPABILITY_GRANT"
+  },
+  "operations": [
+    "register",
+    "inventory",
+    "auction_submit",
+    "bid",
+    "ship",
+    "deliver",
+    "dispute",
+    "checkout"
+  ],
+  "sectors": "general: no per-silo hardcoding in authorization package",
+  "external_actions_default": "HOLD",
+  "silo_data_separation": "different silo IDs require separate signed grants and dedicated storage policies",
+  "economics": {
+    "prediction": "NONE",
+    "success_proof": "independent_paid_order + delivered_item + actual_variable_costs",
+    "financial_status": "NOT_VALIDATED"
+  },
+  "third_party_risk": "No escrow, marketplace payout, seller disbursement or real-money deployment authorized"
+}
