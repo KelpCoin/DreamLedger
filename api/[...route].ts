@@ -20,6 +20,7 @@ const routes: Record<string, Route> = {
   "/api/molt-beach-checkout": { kind: "web", load: () => import("../handlers/billboard-checkout.ts") },
   "/api/molt-beach-inventory": { kind: "web", load: () => import("../handlers/billboard-inventory.ts") },
   "/api/molt-beach-webhook": { kind: "web", load: () => import("../handlers/billboard-webhook.ts") },
+  "/api/mtg-auction": { kind: "web", load: () => import("../handlers/mtg-auction-v2.ts") },
   "/api/version": { kind: "node", load: () => import("../handlers/version.js") },
 };
 const ACCOUNT: Route = { kind: "node", load: () => import("../handlers/account/[...route].js") };
