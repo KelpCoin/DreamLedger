@@ -1,6 +1,6 @@
 // Stripe Checkout creation for confirmed MTG auction winners only.
 // Protected by JWT, trusted database order, and explicit release gate.
-import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+// Deno global types are supplied by the deployed Edge runtime and Deno CI.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 import Stripe from "https://esm.sh/stripe@18.5.0?target=denonext";
 const reply=(v:unknown,s=200)=>new Response(JSON.stringify(v),{status:s,headers:{"content-type":"application/json","cache-control":"no-store"}});
