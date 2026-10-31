@@ -4,10 +4,11 @@ create role anon nologin;
 create role authenticated nologin;
 create role service_role nologin;
 create schema auth;
-create table auth.users(id uuid primary key);
+create table auth.users(id uuid primary key,email_confirmed_at timestamptz);
 create function auth.uid() returns uuid stable language sql as
 $$ select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;
-create table public.mtg_auctions(id uuid primary key,seller_id uuid);
+create table public.mtg_cards(id uuid primary key);
+create table public.mtg_auctions(id uuid primary key,seller_id uuid,status text not null default 'open');
 create table public.mtg_bids(id uuid primary key,auction_id uuid,bidder_id uuid);
 alter table public.mtg_auctions enable row level security;
 alter table public.mtg_bids enable row level security;
@@ -15,6 +16,7 @@ insert into auth.users(id) values
  ('11111111-1111-4111-8111-111111111111'),
  ('22222222-2222-4222-8222-222222222222'),
  ('33333333-3333-4333-8333-333333333333');
+update auth.users set email_confirmed_at=now();
 \i supabase/migrations/20261031201000_mtg_auction_durable_v2.sql
 set request.jwt.claim.sub='11111111-1111-4111-8111-111111111111';
 set role authenticated;
