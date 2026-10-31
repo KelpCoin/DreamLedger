@@ -292,7 +292,7 @@ returns void language plpgsql security definer set search_path='' as $$
 declare o public.mtg_auction_orders_v2%rowtype;
 begin
   -- This release is TEST-ONLY. Never bind a live Stripe session to an auction order.
-  if coalesce(p_session,'') !~ '^cs_test_[A-Za-z0-9]+
+  if coalesce(p_session,'') !~ '^cs_test_[A-Za-z0-9]+$' then raise exception 'INVALID_SESSION_ID'; end if;
  select * into o from public.mtg_auction_orders_v2 where id=p_order for update;
  if not found or o.status<>'awaiting_checkout' or (o.stripe_session is not null and o.stripe_session<>p_session)
  then raise exception 'CHECKOUT_BINDING_CONFLICT'; end if;
