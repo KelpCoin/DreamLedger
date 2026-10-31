@@ -3,6 +3,7 @@
 const http=require('http'),fs=require('fs'),path=require('path'),{URL}=require('url');
 const commercialCell=require('../BEC-PRIME/routes/commercialCell');
 const tollRoad=require('../BEC-PRIME/routes/tollRoad');
+const beckAdInventory=require('../BEC-PRIME/runtime/BeckAdInventoryRead');
 const TollRuntime=require('../BEC-PRIME/runtime/TollRoad');
 const PORT=Number(process.env.PORT||10000);
 const COMMIT=process.env.RENDER_GIT_COMMIT||process.env.RENDER_GIT_COMMIT_SHA||process.env.GITHUB_SHA||'unknown';
@@ -105,6 +106,18 @@ http.createServer(async (req,res)=>{
   }
   if(req.method==='GET'&&p==='/version'){
     return send(res,200,JSON.stringify({service:'dreamledger-storefront',status:'ok',mtg:'master'}),'application/json; charset=utf-8');
+  }
+  // No hard-coded inventory fallback. Browser receives only verified aggregate counts.
+  if(req.method==='GET' && p==='/api/molt-beach-inventory'){
+    if(u.searchParams.get('market')!=='NZ')return send(res,503,JSON.stringify({error:'inventory_not_verified_for_market'}),'application/json; charset=utf-8');
+    res.setHeader('Cache-Control','no-store');
+    try{
+      const snapshot=await beckAdInventory.inventory();
+      return send(res,200,JSON.stringify(snapshot),'application/json; charset=utf-8');
+    }catch(error){
+      console.error('BECK_AD_INVENTORY_GATE',String(error.message||error));
+      return send(res,503,JSON.stringify({error:'verified_ad_inventory_unavailable'}),'application/json; charset=utf-8');
+    }
   }
   if(req.method==='GET' && p==='/api/billboard/public'){
     const base=String(process.env.SUPABASE_URL||'').replace(/\/$/,'');
