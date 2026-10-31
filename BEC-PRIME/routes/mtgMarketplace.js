@@ -145,10 +145,11 @@ function sellerRecord(user, req, input) {
   const trader = String(input.trader_status || '').toLowerCase();
   if (!['trader','private'].includes(trader)) throw Object.assign(new Error('Choose whether you are selling in trade or as a private seller.'), { statusCode: 422 });
   const address = clean(input.contact_address || seller.location, 300);
-  if (!address) throw Object.assign(new Error('Contact address is required for a physical MTG listing.'), { statusCode: 422 });
+  // Delivery addresses belong in the private two-party exchange, not a public listing form.
+  // Government name is optional; do not infer it from an avatar/account display name.
   return {
-    legal_name: clean(input.legal_name || user.name, 120),
-    contact_address: address,
+    legal_name: clean(input.legal_name || seller.legal_name, 120) || null,
+    contact_address: address || null,
     online_trading_identity: clean(input.online_trading_identity || seller.display_name || user.name, 120),
     trader_status: trader,
     ip_address: ip(req)
