@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const { inspectListing } = require('../lib/mtgMarketplaceGauntlet');
+const passport = require('../lib/mtgTradePassport');
 
 const ROOT = path.join(__dirname, '..');
 const DATA_ROOT = process.env.DREAMIEZ_DATA_DIR || ((fs.existsSync('/var/data') && fs.statSync('/var/data').isDirectory()) ? '/var/data/dreamiez' : path.join(ROOT, 'data', 'dreamiez'));
@@ -11,6 +12,11 @@ const LISTINGS = path.join(DATA_ROOT, 'mtg-marketplace-listings.json');
 const REQUESTS = path.join(DATA_ROOT, 'mtg-marketplace-requests.json');
 const USERS = path.join(DATA_ROOT, 'users.json');
 const COOKIE = 'dreamiez_session';
+// Separate MTG passport storage; private records never appear in listing responses.
+const TRADE_ROOT = process.env.DREAMLEDGER_MTG_LEDGER_DIR ||
+  (fs.existsSync('/var/data') ? '/var/data/mtg' : path.join(ROOT,'data','mtg'));
+const TRADES = path.join(TRADE_ROOT,'private-trade-passports.json');
+const guestLimits = new Map();
 
 function read(file, fallback) { try { return JSON.parse(fs.readFileSync(file, 'utf8')); } catch { return fallback; } }
 function write(file, value) {
@@ -49,6 +55,79 @@ function bool(v) { return v === true || v === 'true' || v === 'on' || v === 1 ||
 function ip(req) {
   return clean(String(req.headers['true-client-ip'] || req.headers['cf-connecting-ip'] || String(req.headers['x-forwarded-for'] || '').split(',')[0] || req.socket?.remoteAddress || ''), 128);
 }
+function publicContactUrl(value){
+  const raw=clean(value,1500);
+  if(!/^https:\/\//i.test(raw))throw new Error('Public contact profile must be HTTPS.');
+  let url;
+  try{url=new URL(raw);}catch{throw new Error('Invalid contact profile link.');}
+  if(url.username||url.password||url.port||!url.hostname.includes('.')||
+     /^(localhost|[0-9.]+|\[.*\])$/i.test(url.hostname)||
+     /\.(local|internal|test)$/i.test(url.hostname)){
+    throw new Error('Invalid public contact profile address.');
+  }
+  url.hash='';
+  return url.toString().slice(0,1500);
+}
+function attemptGuest(req){
+  const key=crypto.createHash('sha256').update(ip(req)).digest('hex');
+  const now=Date.now();
+  // Best-effort per-process anti-spam. Requires upstream rate limiting before launch.
+  if(guestLimits.size>20000)guestLimits.clear();
+  const prior=(guestLimits.get(key)||[]).filter(t=>now-t<3600000);
+  if(prior.length>=4)return false;
+  prior.push(now);guestLimits.set(key,prior);
+  return true;
+}
+function getTrade(input){
+  const id=clean(input.trade_id,80);
+  if(!passport.ID.test(id))throw Object.assign(new Error('Invalid trade receipt ID'),{statusCode:422});
+  const list=read(TRADES,[]);
+  const rec=list.find(x=>x.trade_id===id);
+  if(!rec)throw Object.assign(new Error('Trade receipt not found'),{statusCode:404});
+  if(!passport.verifyChain(rec))throw Object.assign(new Error('Trade proof integrity failure'),{statusCode:409});
+  return {list,rec};
+}
+async function passportHandle(req,res,route){
+  if(req.method!=='POST'||!route.startsWith('/api/mtg/marketplace/trade/'))return false;
+  const action=route.slice('/api/mtg/marketplace/trade/'.length);
+  if(!['create','join','view','agree','complete','feedback'].includes(action))return false;
+  const input=await body(req);
+  try{
+    if(action==='create'){
+      if(!attemptGuest(req))return json(res,429,{error:'Too many new trade receipts. Try later.'});
+      const check=inspectListing({title:input.seller_offers,description:input.terms,trade_wanted:input.seller_wants});
+      if(check.decision!=='PASS')return json(res,422,{error:'Trade wording requires review or correction.',reason_codes:check.reason_codes});
+      const made=passport.fresh(input);
+      const list=read(TRADES,[]);
+      if(!Array.isArray(list))return json(res,503,{error:'Trade record unavailable'});
+      list.push(made.record);
+      write(TRADES,list);
+      return json(res,201,{ok:true,trade_id:made.record.trade_id,
+        seller_token:made.seller_token,invitation_token:made.invitation_token,
+        status:made.record.status,
+        warning:'Keep your private seller token. Sharing the invite lets another person join. No identity, payment or delivery has been verified.'});
+    }
+    const {list,rec}=getTrade(input);
+    if(action==='view'){
+      return json(res,200,{ok:true,trade:passport.view(rec,input.role,input.token)});
+    }
+    let extra={};
+    if(action==='join'){
+      const joined=passport.join(rec,input.invitation_token,input.buyer_handle);
+      extra={buyer_token:joined.buyer_token,warning:'Keep the buyer token private. Peer confirmations are not verified sales.'};
+    }else if(action==='agree')passport.agree(rec,input.role,input.token);
+    else if(action==='complete')passport.done(rec,input.role,input.token);
+    else if(action==='feedback'){
+      const check=inspectListing({title:'Trade feedback',description:input.comment});
+      if(check.decision!=='PASS')return json(res,422,{error:'Please change feedback wording before saving.',reason_codes:check.reason_codes});
+      passport.feedback(rec,input.role,input.token,input.rating,input.comment);
+    }
+    write(TRADES,list);
+    return json(res,200,{ok:true,trade_id:rec.trade_id,status:rec.status,
+      ledger_head_sha256:rec.events.at(-1).hash,...extra,
+      reputation_credit:0,payment_proven:false,delivery_independently_proven:false});
+  }catch(e){return json(res,e.statusCode||422,{error:e.message||'Invalid trade action'});}
+}
 function safeListing(x) {
   return {
     id: x.id, title: x.title, set_name: x.set_name, collector_number: x.collector_number,
@@ -56,6 +135,8 @@ function safeListing(x) {
     price_nzd: x.price_nzd, accepts_buy: x.accepts_buy, accepts_trade: x.accepts_trade,
     trade_wanted: x.trade_wanted, status: x.status, seller_id: x.seller_id,
     seller_display_name: x.seller_display_name, trader_status: x.trader_status,
+    contact_url: x.public_contact_url || null,
+    reputation_state: 'NEW_OR_UNVERIFIED',
     created_at: x.created_at, updated_at: x.updated_at
   };
 }
@@ -76,6 +157,8 @@ function sellerRecord(user, req, input) {
 async function handle(req, res, url) {
   const route = String(url || req.url || '').split('?')[0];
   if (!route.startsWith('/api/mtg/marketplace')) return false;
+
+  if (await passportHandle(req,res,route))return true;
 
   if (req.method === 'GET' && route === '/api/mtg/marketplace/listings') {
     const listings = read(LISTINGS, []).filter(x => x.status === 'active').map(safeListing);
