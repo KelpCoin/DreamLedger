@@ -56,3 +56,18 @@ jobs:
           grep -q 'not_an_mtg_auction_order' supabase/functions/mtg-auction-webhook/index.ts
           grep -q 'LIVE_THIRD_PARTY_FUNDS_NOT_AUTHORIZED' supabase/functions/mtg-auction-checkout/index.ts
           grep -q 'mtg_auction_reconcile_v2' supabase/functions/mtg-auction-webhook/index.ts
+
+  mtg-edge-typecheck:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Type-check exact MTG Edge-function source
+        run: |
+          deno check supabase/functions/mtg-auction-checkout/index.ts
+          deno check supabase/functions/mtg-auction-webhook/index.ts
+          deno check supabase/functions/mtg-auction-evidence/index.ts
+          deno check supabase/functions/mtg-auction-close/index.ts
