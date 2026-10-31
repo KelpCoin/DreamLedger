@@ -64,6 +64,46 @@
 <div id="guestOwner" hidden><label for="guestOwnerCode">Private listing removal code</label><input id="guestOwnerCode" readonly autocomplete="off"><p class="import-hint">Save this code now. It is shown once; do not share publicly.</p></div>
 </section>
 
+
+<section class="panel" id="tradeLedger">
+<h2>Private two-person trade receipt (optional)</h2>
+<p class="import-hint">Keep a record of who offered which cards and what both traders agreed. No fee, no government names, no escrow, no forum post. Peer confirmations alone cannot buy reputation.</p>
+<div class="import-layout">
+<form id="tradeCreateForm" class="panel">
+<h3>Start a trade</h3>
+<label for="tradeSeller">Your trading handle</label><input id="tradeSeller" required maxlength="60" placeholder="KiwiDragon">
+<label for="tradeOffers">You offer</label><input id="tradeOffers" required maxlength="600" placeholder="Sol Ring NM">
+<label for="tradeWants">You receive</label><input id="tradeWants" required maxlength="600" placeholder="Arcane Signet LP">
+<label for="tradeTerms">Terms</label><textarea id="tradeTerms" required maxlength="1600" placeholder="NZ tracked shipping, each pays own"></textarea>
+<button type="submit" class="btn primary">Create free trade receipt</button>
+</form>
+<form id="tradeJoinForm" class="panel">
+<h3>Join an existing trade</h3>
+<label for="tradeJoinId">Trade ID</label><input id="tradeJoinId" required autocomplete="off" placeholder="trade_...">
+<label for="tradeJoinInvite">Private invitation code</label><input id="tradeJoinInvite" required autocomplete="off" placeholder="Provided by your trading partner">
+<label for="tradeBuyer">Your trading handle</label><input id="tradeBuyer" required maxlength="60" placeholder="CommanderFan">
+<button type="submit" class="btn primary">Join trade</button>
+</form>
+</div>
+<form id="tradeActionForm" class="panel">
+<h3>Agree, confirm exchange, or leave feedback</h3>
+<div class="form">
+<div class="field"><label for="tradeActionId">Trade ID</label><input id="tradeActionId" required autocomplete="off"></div>
+<div class="field"><label for="tradeRole">Your role</label><select id="tradeRole"><option value="seller">Initiator</option><option value="buyer">Invited trader</option></select></div>
+<div class="field full"><label for="tradeRoleToken">Your private access code</label><input id="tradeRoleToken" required autocomplete="off" placeholder="Keep this secret"></div>
+<div class="field"><label for="tradeAction">Action</label><select id="tradeAction"><option value="view">View agreement</option><option value="agree">Agree to terms</option><option value="complete">Confirm exchange completed</option><option value="feedback">Leave private feedback</option></select></div>
+<div class="field"><label for="tradeRating">Rating, if leaving feedback</label><select id="tradeRating"><option value="positive">Positive</option><option value="neutral">Neutral</option><option value="negative">Negative</option></select></div>
+<div class="field full"><label for="tradeComment">Feedback note (optional)</label><input id="tradeComment" maxlength="350" placeholder="Condition accurately described"></div>
+<div class="field full"><button type="submit" class="btn">Save private action</button></div>
+</div>
+</form>
+<p class="import-hint">Both parties can review and confirm. Feedback stays private until independently verified, and no two-person token can manufacture a verified score. Card-for-card swaps can earn reputation with independent evidence without any purchase.</p>
+<div id="tradeStatus" class="import-status" role="status" aria-live="polite"></div>
+<label for="tradePrivateCode">Private code or invitation link (copy somewhere safe)</label>
+<textarea id="tradePrivateCode" readonly rows="3" autocomplete="off"></textarea>
+<pre id="tradeResult" class="notice" style="white-space:pre-wrap;overflow-wrap:anywhere" hidden></pre>
+</section>
+
 <section class="panel">
 <h2>My offers</h2>
 <div id="requests" class="status">Log in to see your buy/trade requests.</div>
@@ -143,5 +183,6 @@ load();
 })();
 </script>
 <script src="/assets/mtg-reference-import.js"></script>
+<script src="/assets/mtg-trade-passport-client.js"></script>
 </body>
 </html>
