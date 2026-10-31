@@ -4,12 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>List a card · MTG · DreamLedger NZ</title>
-<meta name="description" content="List Magic cards in NZ with 0% success fee. Free account required to publish. Structured fields beat Facebook posts.">
-<meta name="theme-color" content="#0a0b0f">
+<meta name="description" content="List Magic cards in NZ with 0% success fee. Prepare a free MTG listing draft. Publication requires review and is not automatic.">
+<meta name="theme-color" content="#0c0818">
 <link rel="canonical" href="https://dreamledger.org/mtg-list">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,600;9..40,700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0a0b0f;--surface:#161922;--ink:#f4f1ea;--muted:#9aa0b0;--line:#2a3040;--gold:#d4a84b;--gold-b:#e8c06a;--serif:"Instrument Serif",Georgia,serif;--sans:"DM Sans",system-ui,sans-serif}
+:root{--bg:#0c0818;--surface:#211631;--ink:#fffaf0;--muted:#ded0ec;--line:#675080;--gold:#f5c451;--gold-b:#ffe28a;--serif:"Instrument Serif",Georgia,serif;--sans:"DM Sans",system-ui,sans-serif}
 *{box-sizing:border-box;margin:0;padding:0}body{font-family:var(--sans);background:var(--bg);color:var(--ink);line-height:1.5;padding:24px 16px 48px}
 .wrap{max-width:520px;margin:0 auto}a{color:var(--gold-b);font-weight:600}
 h1{font-family:var(--serif);font-size:2rem;font-weight:400;margin:12px 0 8px}
@@ -20,13 +20,14 @@ input,select,textarea{width:100%;padding:12px 14px;border-radius:12px;border:1px
 textarea{min-height:88px;resize:vertical}
 .btn{display:flex;align-items:center;justify-content:center;min-height:52px;margin-top:20px;border-radius:14px;background:linear-gradient(180deg,var(--gold-b),var(--gold));color:#14120c;font-weight:800;border:0;width:100%;font-size:15px;cursor:pointer;text-decoration:none}
 .note{font-size:13px;color:var(--muted);margin-top:14px}.note strong{color:var(--ink)}
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible,a:focus-visible{outline:3px solid #ffe28a;outline-offset:3px}
 </style>
 </head>
 <body>
 <div class="wrap">
   <span class="badge">0% success fee · NZ</span>
   <h1>List a card</h1>
-  <p class="lead">Structured listing beats a Facebook wall post. Publishing needs a <strong>free seller account</strong>. Buyers never need one.</p>
+  <p class="lead">Structured listing beats a Facebook wall post. This prepares a draft in your browser and then opens registration. <strong>It does not submit or publish the listing.</strong> Save a copy of your details before leaving this device.</p>
   <form id="f" action="/register" method="get">
     <label for="name">Card name + set</label>
     <input id="name" name="card" required placeholder="e.g. Ragavan, Nimble Pilferer · MH2">
@@ -46,9 +47,9 @@ textarea{min-height:88px;resize:vertical}
     <textarea id="ship" name="logistics" placeholder="CBD pickup weekends · tracked post +$8"></textarea>
     <label for="notes">Notes / trades wanted</label>
     <textarea id="notes" name="notes" placeholder="ISO: Dockside, optional trade"></textarea>
-    <button class="btn" type="submit">Continue · free account to publish</button>
+    <button class="btn" type="submit">Save draft and continue to registration</button>
   </form>
-  <p class="note"><strong>Why account?</strong> So NZ sellers are reachable and not a random group alias. Platform success fee on peer card sales: <strong>0%</strong>.</p>
+  <p class="note"><strong>Draft saved only on this device, not received by the marketplace.</strong></p><p class="note"><strong>Why account?</strong> So NZ sellers are reachable and not a random group alias. Platform success fee on peer card sales: <strong>0%</strong>.</p>
   <p class="note"><a href="/mtg">← Back to MTG silo</a> · <a href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Commander diagnostic $29</a></p>
 </div>
 <script>
