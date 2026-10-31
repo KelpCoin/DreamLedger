@@ -25,8 +25,9 @@ test('paid featured placements are explicitly verified and never create fake bid
  const promoted=auction('B001',120,'peer',{promotion_paid_verified:true,promoted_slot:2});
  const organic=auction('B002',10,'peer');
  const second=auction('B003',20,'owner');
- const slots=rail.rank([promoted,organic,second],now);
+ const slots=rail.rank([promoted,organic,second],now,true);
  assert.deepEqual(slots.map(x=>x.id),['B002','B001','B003']);
+ assert.deepEqual(rail.rank([promoted,organic,second],now,false).map(x=>x.id),['B002','B003','B001']);
  assert.equal(rail.validAuction(auction('B004',5,'peer',{public_verified:false}),now),false);
  assert.equal(rail.validAuction(auction('B005',-1),now),false);
  assert.equal(rail.validAuction(auction('B006',5,'peer',{currency:'USD'}),now),false);
