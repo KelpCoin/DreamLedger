@@ -63,6 +63,14 @@ test('bid calls preserve JWT, validated cents and request ID',async()=>{
  assert.equal(upstream.options.headers.authorization,'Bearer opaque-jwt');
  assert.deepEqual(JSON.parse(upstream.options.body),payload);
 });
+test('equal-price concurrent loser gets stable OUTBID, not an opaque server failure',async()=>{
+ setup();
+ globalThis.fetch=async()=>new Response(JSON.stringify({code:'P0001',message:'BID_TOO_LOW'}),{status:400});
+ const payload={p_auction:'11111111-1111-4111-8111-111111111111',
+ p_amount_cents:1000,p_request_id:'22222222-2222-4222-8222-222222222222'};
+ const r=await result(request('bid',{method:'POST',headers:{authorization:'Bearer buyer-jwt'},body:payload}));
+ assert.equal(r.status,409);assert.equal(r.data.error,'OUTBID');
+});
 test('origin mismatch refuses submission, no provider call',async()=>{
  setup();let calls=0;globalThis.fetch=async()=>{calls++;throw Error('not expected')};
  const r=await result(request('register',{method:'POST',headers:{origin:'https://evil.example'},body:{}}));
