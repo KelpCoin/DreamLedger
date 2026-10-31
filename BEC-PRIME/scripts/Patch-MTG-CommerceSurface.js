@@ -67,7 +67,10 @@ function isKnownHeldModernDeckGrid(html) {
   ].every(x=>html.includes(x)) &&
     !html.includes('window.location.assign(data.checkout_url)') &&
     !html.includes("fetch('/api/offer-checkout/create'") &&
-    !html.includes('data-dreamledger-mtg-commerce-v2');
+    !html.includes('data-dreamledger-mtg-commerce-v2') &&
+    !html.includes('checkout_verified:true') &&
+    !html.includes('window.location.href = p.checkout_url') &&
+    !html.includes('window.open(p.checkout_url');
   return legacyHeld || redesignedHeld;
 }
 
