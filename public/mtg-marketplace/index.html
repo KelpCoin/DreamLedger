@@ -41,7 +41,7 @@
 
 <section class="panel">
 <h2>List a card</h2>
-<p class="meta">No discussion post needed. You can prepare a listing without registering. To publish a public seller listing, sign in so counterparties can contact you and the legally required trader details can be recorded. No Magic success fee is charged.</p>
+<p class="meta">No discussion post needed. You can prepare a listing without registering. To publish, supply a public handle and contact link, plus private versus in-trade status. An account is optional. No Magic success fee is charged.</p>
 <form id="listingForm" class="form">
 <div class="field"><label>Card name *</label><input name="title" required maxlength="160" placeholder="e.g. Chrome Mox"></div>
 <div class="field"><label>Set</label><input name="set_name" maxlength="120" placeholder="e.g. Special Guests"></div>
@@ -50,15 +50,18 @@
 <div class="field"><label>Language</label><input name="language" value="English" maxlength="40"></div>
 <div class="field"><label>Image URL</label><input name="image_url" type="url" maxlength="1000" placeholder="https://..."></div>
 <div class="field"><label>Buy price NZD</label><input name="price_nzd" type="number" min="0.01" step="0.01" placeholder="50.00"></div>
+<div class="field"><label>Public trading handle (guests)</label><input name="seller_display_name" maxlength="80" autocomplete="nickname" placeholder="KiwiDragonCards"></div>
+<div class="field"><label>Public HTTPS contact link (guests)</label><input name="contact_url" type="url" maxlength="1500" placeholder="https://your-public-trading-profile/..."></div>
 <div class="field"><label>Trader status *</label><select name="trader_status" required><option value="">Choose...</option><option value="private">Private seller</option><option value="trader">Selling in trade</option></select></div>
-<div class="field"><label>Contact address *</label><input name="contact_address" maxlength="300" placeholder="Required for physical listing"></div>
+<div class="field"><label>Contact address (registered sellers; optional for guests)</label><input name="contact_address" maxlength="300" placeholder="Not required for a guest listing"></div>
 <div class="field"><label>Online trading identity</label><input name="online_trading_identity" maxlength="120" placeholder="Your marketplace name"></div>
 <div class="field full"><label>Card description</label><textarea name="description" maxlength="1500" placeholder="Condition notes, language, notable defects, photos, etc."></textarea></div>
 <div class="field full"><label>Trade wanted</label><textarea name="trade_wanted" maxlength="800" placeholder="What would you trade for?"></textarea></div>
 <div class="field full checks"><label><input type="checkbox" name="accepts_buy" checked> Accept buy requests</label><label><input type="checkbox" name="accepts_trade"> Accept trade requests</label></div>
-<div class="field full"><button class="btn primary" type="submit">List card</button></div>
+<div class="field full"><button class="btn primary" type="submit">Publish my card for free</button><p class="import-hint">No account or forum post required for a guest listing. Spam and abuse screening is free and applies equally to everyone.</p></div>
 </form>
-<div id="listingStatus" class="status"></div>
+<div id="listingStatus" class="status" role="status" aria-live="polite"></div>
+<div id="guestOwner" hidden><label for="guestOwnerCode">Private listing removal code</label><input id="guestOwnerCode" readonly autocomplete="off"><p class="import-hint">Save this code now. It is shown once; do not share publicly.</p></div>
 </section>
 
 <section class="panel">
@@ -135,7 +138,7 @@ $('referenceForm').addEventListener('submit',function(e){
 });
 showRefCount();
 
-$('listingForm').addEventListener('submit',async e=>{e.preventDefault();const fd=new FormData(e.currentTarget);const body=Object.fromEntries(fd.entries());body.accepts_buy=fd.get('accepts_buy')==='on';body.accepts_trade=fd.get('accepts_trade')==='on';try{await api('/api/mtg/marketplace/list',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});$('listingStatus').className='status success';$('listingStatus').textContent='Card listed. NZ$0 Magic marketplace fee.';e.currentTarget.reset();fd.get('accepts_buy');await load();}catch(err){$('listingStatus').className='status error';$('listingStatus').textContent=err.message;}});
+$('listingForm').addEventListener('submit',async e=>{e.preventDefault();const fd=new FormData(e.currentTarget);const body=Object.fromEntries(fd.entries());body.accepts_buy=fd.get('accepts_buy')==='on';body.accepts_trade=fd.get('accepts_trade')==='on';try{const result=await api('/api/mtg/marketplace/list',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});$('listingStatus').className='status success';$('listingStatus').textContent=result.publication_state==='ACTIVE'?'Card listed. NZ$0 Magic marketplace fee.':'Listing held for moderation, no charge.';$('guestOwner').hidden=!result.guest_owner_token;if(result.guest_owner_token)$('guestOwnerCode').value=result.guest_owner_token;e.currentTarget.reset();await load();}catch(err){$('listingStatus').className='status error';$('listingStatus').textContent=err.message;}});
 load();
 })();
 </script>
