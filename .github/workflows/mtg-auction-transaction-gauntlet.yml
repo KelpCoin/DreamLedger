@@ -47,3 +47,6 @@ jobs:
           grep -q 'AUCTION_V1_DISABLED' BEC-PRIME/auction-engine.js
           grep -q 'Original card photo' public/mtg/auctions/index.html
           grep -q 'mtg-auction-evidence' supabase/functions/mtg-auction-evidence/index.ts
+          grep -q 'not_an_mtg_auction_order' supabase/functions/mtg-auction-webhook/index.ts
+          grep -q 'LIVE_THIRD_PARTY_FUNDS_NOT_AUTHORIZED' supabase/functions/mtg-auction-checkout/index.ts
+          grep -q 'mtg_auction_reconcile_v2' supabase/functions/mtg-auction-webhook/index.ts
