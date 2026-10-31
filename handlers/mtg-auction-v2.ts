@@ -31,7 +31,11 @@ export default async function handler(request){
  const h={"apikey":env.key,"content-type":"application/json","accept":"application/json"};
  if(auth)h.authorization=auth;
  let endpoint="",method="GET",payload,authorized=false;
- if(action==="list"&&request.method==="GET"){
+ if(action==="evidence_config"&&request.method==="GET"){
+   if(!auth)return json({error:"LOGIN_REQUIRED"},401);
+   return json({url:env.base+"/functions/v1/mtg-auction-evidence",apikey:env.key,max_bytes:5242880,
+     accepted_types:["image/jpeg","image/png","image/webp"]});
+ }else if(action==="list"&&request.method==="GET"){
    endpoint="/rest/v1/mtg_auction_lots_v2?select=id,title,currency,start_cents,increment_cents,high_bid_cents,status,ends_at,version&status=eq.open&order=ends_at.asc&limit=50";
  }else if(action==="my_orders"&&request.method==="GET"){
    if(!auth)return json({error:"LOGIN_REQUIRED"},401);
