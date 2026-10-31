@@ -1,0 +1,12 @@
+'use strict';
+const {test}=require('node:test'),assert=require('node:assert/strict'),{evaluate}=require('./self-service-readiness.cjs');
+const good={demand:{independent_buyer:true,buyer_request_ref:'https://example.org/buyer'},rights:{original_work:true,third_party_material:'excluded',attestation_ref:'proof:rights'},privacy:{customer_data:'excluded',silo_review:'passed',review_ref:'proof:silo'},economics:{price_nzd:199,price_ref:'stripe:price_test',variable_cost_nzd:10,operator_minutes:20,labour_rate_nzd_hour:40,measured_cost_ref:'proof:cost'},fulfillment:{unattended_test_passed:true,delivery_receipt_tested:true,test_ref:'proof:delivery'},publication:{approved:true,approval_ref:'proof:approval'}};
+const change=fn=>{const x=JSON.parse(JSON.stringify(good));fn(x);return x};
+test('unknown evidence fails closed',()=>assert.equal(evaluate({}).verdict,'HOLD'));
+test('buyer source required',()=>assert.equal(evaluate(change(x=>delete x.demand.buyer_request_ref)).verdict,'HOLD'));
+test('third-party content rejected',()=>assert.equal(evaluate(change(x=>x.rights.third_party_material='included')).verdict,'HOLD'));
+test('negative margins rejected',()=>assert.equal(evaluate(change(x=>x.economics.variable_cost_nzd=300)).verdict,'HOLD'));
+test('manual delivery rejected',()=>assert.equal(evaluate(change(x=>x.fulfillment.unattended_test_passed=false)).verdict,'HOLD'));
+test('unapproved publication rejected',()=>assert.equal(evaluate(change(x=>x.publication.approved=false)).verdict,'HOLD'));
+test('passing evidence still does not publish',()=>{const r=evaluate(good);assert.equal(r.verdict,'READY_FOR_HUMAN_RELEASE_REVIEW');assert.equal(r.publication_performed,false);assert.equal(r.checkout_enabled_by_this_tool,false)});
+test('invalid input rejected',()=>assert.throws(()=>evaluate(null),TypeError));
