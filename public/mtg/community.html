@@ -1,0 +1,65 @@
+<!doctype html><html lang="en-NZ" data-silo="mtg"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#090e12">
+<meta name="description" content="Free NZ Magic: The Gathering buy, sell and trade community. Prepare a card offer and continue the conversation in our Discord.">
+<title>Buy, sell & trade for free | DreamLedger Magic NZ</title>
+<link rel="canonical" href="https://dreamledger.org/mtg/community.html"><link rel="stylesheet" href="/assets/dreamledger-mtg-theme.css"></head><body>
+<header class="mtg-header"><div class="mtg-container mtg-top"><a href="/mtg/" class="mtg-wordmark"><span class="mtg-mark">D</span><span>dream<span class="mtg-mark-text">ledger</span><small>MAGIC NZ</small></span></a>
+<nav class="mtg-nav" aria-label="Magic navigation"><a href="/mtg/">Explore</a><a href="/mtg/exchange.html">Card gallery</a><a href="/mtg/#shop">Our decks</a><a href="/mtg/diagnostic/">Diagnostic</a><a class="mtg-nav-cta" href="/mtg/community.html" aria-current="page">Trade free ↗</a></nav></div></header>
+<main class="mtg-main mtg-container">
+<section class="mtg-subpage"><div class="mtg-kicker"><span class="mtg-dot"></span> FREE NZ CARD TRADING</div>
+<h1 class="mtg-page-title">Buy, sell<br><span style="color:#32db89">or trade.</span></h1>
+<p class="mtg-lead">Make a listing and share it with NZ players. Free to list, no DreamLedger commission.</p>
+<div class="mtg-actions"><a class="mtg-button primary" href="https://discord.gg/tKxJkhJhCp" target="_blank" rel="noopener noreferrer">Open trading community</a><a class="mtg-button" href="#make-offer">List a card</a></div>
+<div class="mtg-micro"><span>Free listings</span><span>0% platform fee</span><span>Direct deals between players</span></div>
+</section>
+<section class="mtg-section" id="make-offer"><div class="mtg-section-head"><div><div class="mtg-kicker">SELL · BUY · TRADE</div><h2>List your card</h2>
+<p>Enter the details, then share your listing with other players. No account needed to prepare or share.</p></div></div>
+<div class="mtg-form"><form id="compose">
+<div class="mtg-grid" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr))">
+<div><label for="kind">I want to</label><select id="kind"><option>SELL</option><option>BUY</option><option>TRADE</option></select>
+<label for="name">Card, deck or collection</label><input id="name" maxlength="180" placeholder="e.g. Sol Ring, Commander Masters" required>
+<label for="printing">Set / collector number / condition</label><input id="printing" maxlength="180" placeholder="e.g. CMM #395, NM, nonfoil"></div>
+<div><label for="quantity">Quantity</label><input id="quantity" type="number" min="1" max="1000" step="1" value="1" required>
+<label for="price">NZD asking price or trade value (optional)</label><input id="price" type="number" step=".01" min="0" max="1000000" placeholder="e.g. 12.50">
+<label for="region">City or region</label><input id="region" maxlength="80" placeholder="e.g. Tauranga or Auckland"></div></div>
+<label for="handoff">How you want to trade</label><select id="handoff"><option>Pickup or tracked shipping to discuss</option><option>Pickup preferred</option><option>Tracked shipping preferred</option></select>
+<label for="notes">Additional terms (optional)</label><textarea id="notes" maxlength="360" placeholder="Looking for specific swaps? Postage preferences?"></textarea>
+<div class="mtg-actions" style="margin-top:20px"><button type="submit" class="mtg-button primary">Preview listing</button><button type="button" id="copy" class="mtg-button">Copy listing</button><button type="button" id="share" class="mtg-button">Share listing</button></div></form>
+<output id="preview" aria-live="polite">Your listing preview appears here.</output><p id="status" class="mtg-micro" role="status">No account or payment needed.</p>
+<div class="mtg-actions"><a class="mtg-button primary" target="_blank" rel="noopener noreferrer" href="https://discord.gg/tKxJkhJhCp">Open trading community</a></div></div>
+</section>
+<p class="mtg-micro">Check the exact card, condition, payment and delivery terms with the other player. DreamLedger does not handle peer payments. No on-site trade ledger is live yet.</p>
+</main><footer class="mtg-footer"><div class="mtg-container"><div class="mtg-footer-grid"><div><a class="mtg-wordmark" href="/mtg/"><span class="mtg-mark">D</span><span>dream<span class="mtg-mark-text">ledger</span></span></a><p>For NZ Magic players. Independent fan project.</p></div><div><a href="/mtg/">Home</a><a href="/mtg/exchange.html">Card gallery</a><a href="/mtg/diagnostic/">Commander Diagnostic</a><p><a href="https://discord.gg/tKxJkhJhCp" target="_blank" rel="noopener noreferrer">Happy Homarid MTG Discord</a><a href="https://www.patreon.com/happyhomarid" target="_blank" rel="noopener noreferrer">Happy Homarid Patreon</a></p></div></div><p class="mtg-legal">DreamLedger Magic is unofficial Fan Content permitted under the <a href="https://company.wizards.com/en/legal/fancontentpolicy" target="_blank" rel="noopener noreferrer">Wizards of the Coast Fan Content Policy</a>. It is not approved or endorsed by Wizards. Portions of the materials used belong to Wizards of the Coast. &copy; Wizards of the Coast LLC.</p></div></footer>
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+function create(){
+ const val=id=>$(id).value.trim().replace(/[\r\n\t]+/g,' ').slice(0,360);
+ if(!val('name')){$('preview').textContent='Enter a card or deck name first.';return false}
+ const quantity=Number(val('quantity'));if(!Number.isSafeInteger(quantity)||quantity<1||quantity>1000){$('preview').textContent='Quantity must be between 1 and 1000.';return false}
+ const price=val('price');const amount=price?Number(price):null;
+ if(amount!==null&&(!Number.isFinite(amount)||amount<0||amount>1000000)){$('preview').textContent='Please check your NZD amount.';return false}
+ const lines=['[NZ MTG '+val('kind')+']',val('name'),'Quantity: '+quantity];
+ if(val('printing'))lines.push('Printing / condition: '+val('printing'));
+ if(amount!==null)lines.push('Price or trade value: NZ$'+amount.toFixed(2));
+ if(val('region'))lines.push('Region: '+val('region'));
+ lines.push('Handoff: '+val('handoff'));if(val('notes'))lines.push('Notes: '+val('notes'));
+ lines.push('Discuss with me in Discord. This is a peer-to-peer offer, not verified by DreamLedger.');
+ $('preview').textContent=lines.join('\n');$('status').textContent='Ready to copy. Nothing has been submitted.';return true;
+}
+$('compose').addEventListener('submit',e=>{e.preventDefault();create()});
+$('copy').addEventListener('click',async()=>{
+ if(!create())return;
+ try{await navigator.clipboard.writeText($('preview').textContent);$('status').textContent='Copied. Paste into the appropriate Discord buy/sell/trade channel.'}
+ catch(e){$('status').textContent='Clipboard unavailable. Select and copy the generated text manually.'}
+});
+$('share').addEventListener('click',async()=>{
+ if(!create())return;
+ const text=$('preview').textContent;
+ try{
+  if(navigator.share){await navigator.share({title:'NZ Magic card listing',text});$('status').textContent='Listing shared.';return;}
+  await navigator.clipboard.writeText(text);$('status').textContent='Copied. Paste into your trading community.';
+ }catch(e){if(e.name!=='AbortError')$('status').textContent='Share unavailable. Use Copy listing instead.';}
+});
+})();
+</script></body></html>

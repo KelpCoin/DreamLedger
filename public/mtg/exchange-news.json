@@ -1,0 +1,41 @@
+{
+  "schema": "dreamledger/mtg-reviewed-news/v1",
+  "editorial": "Source-linked, manually reviewed, NOT a live automatic feed",
+  "items": [
+    {
+      "title": "Star Trek Commander decklists published: four themed preconstructed decks",
+      "url": "https://magic.wizards.com/en/news/announcements/star-trek-commander-decklists",
+      "source": "Wizards of the Coast",
+      "date": "2026-10-20",
+      "reviewed": true
+    },
+    {
+      "title": "MTG Arena October 26 updates: Star Trek early access and event schedule",
+      "url": "https://magic.wizards.com/en/news/mtg-arena/announcements-october-26-2026",
+      "source": "Wizards of the Coast",
+      "date": "2026-10-26",
+      "reviewed": true
+    },
+    {
+      "title": "Secret Lair Set Phasers to Superdrop announced for November 9",
+      "url": "https://magic.wizards.com/en/news/announcements/secret-lair-set-phasers-to-superdrop",
+      "source": "Wizards of the Coast",
+      "date": "2026-10-27",
+      "reviewed": true
+    },
+    {
+      "title": "Reality Fracture set released October 2, 2026",
+      "url": "https://magic.wizards.com/en/products",
+      "source": "Wizards of the Coast",
+      "date": "2026-10-02",
+      "reviewed": true
+    },
+    {
+      "title": "Browse Happy Homarid deck and creator content on Patreon",
+      "url": "https://www.patreon.com/happyhomarid",
+      "source": "Happy Homarid",
+      "date": "2026-10-31",
+      "reviewed": true
+    }
+  ]
+}

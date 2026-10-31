@@ -1,0 +1,32 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
+const root=path.join(__dirname,'..'),read=p=>fs.readFileSync(path.join(root,p),'utf8');
+const commercial=JSON.parse(read('docs/MTG-COMMERCIAL-TERMS-LOCK.json'));
+const fees=JSON.parse(read('docs/BECK-SILO-FEE-POLICY.json'));
+const d=commercial.commander_diagnostic;
+assert.equal(d.price_nzd,29);
+assert.equal(d.patreon_benefit.entry_tier.display_price,'$2.99');
+assert.equal(d.patreon_benefit.entry_tier.included_reports_per_month,1);
+assert.equal(d.patreon_benefit.higher_tiers.included_reports_per_month_max,5);
+assert.equal(d.patreon_benefit.higher_tiers.exact_quota_by_tier,'NOT_YET_SPECIFIED_OR_VERIFIED');
+assert.equal(d.patreon_benefit.additional_report_price_nzd,29);
+assert.equal(d.free_no_login_reports,'PROHIBITED');
+assert.equal(d.public_checkout,'HOLD_UNTIL_VERIFIED');
+assert.equal(d.patreon_oauth,'NOT_CONNECTED');
+assert.equal(fees.rules['dreamledger-mtg'].platform_fee_bps,0);
+assert.equal(commercial.marketplace.platform_commission_bps,0);
+for(const p of ['public/mtg/index.html','public/mtg/exchange.html','public/mtg/diagnostic/index.html','mtg/index.html','BEC-PRIME/compiled/website/mtg/index.html','BEC-PRIME/website/mtg-catalog.html']){
+ const s=read(p);
+ assert.match(s,/NZ\$29/,p+': paid price missing');
+ assert.match(s,/Patreon/i,p+': paid member benefit missing');
+ assert.doesNotMatch(s,/free commander diagnostic|run free diagnostic|two included per month|two included diagnostics per month/i,p+': unauthorized free entitlement');
+}
+const diag=read('public/mtg/diagnostic/index.html');
+assert.match(diag,/one included diagnostic per month/i);
+assert.match(diag,/up to five included diagnostics per month/i);
+assert.match(diag,/Pay NZ\$29: checkout held/);
+assert.match(diag,/Verify Patreon: integration held/);
+assert.match(diag,/Nothing is charged|No payments are taken/i);
+assert.doesNotMatch(diag,/MTGFreeDiagnostic\.evaluate|diagnostic\/parse\.js|Stripe checkout live/i);
+assert.equal(fs.existsSync(path.join(root,'public/mtg/diagnostic/parse.js')),false);
+console.log('PASS: NZD29 Commander Diagnostic, Patreon $2.99 one/month, higher tiers max five, no free diagnostics, 0% peer fees, purchase held.');

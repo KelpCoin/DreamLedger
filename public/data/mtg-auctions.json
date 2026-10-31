@@ -1,0 +1,28 @@
+{
+  "schema": "dreamledger/mtg-auction-surface/v1",
+  "silo": "mtg",
+  "currency": "NZD",
+  "verified_at": null,
+  "source": "operator_reviewed_auction_public_projection",
+  "release": {
+    "public_bidding_enabled": false,
+    "merchant_auction_enabled": false,
+    "peer_auction_enabled": false,
+    "paid_featured_placements_enabled": false,
+    "settlement_verified": false
+  },
+  "featured_slots": 3,
+  "auction_slots": [],
+  "auction_count": 0,
+  "promotion": {
+    "optional": true,
+    "max_positions": 3,
+    "organic_visibility_remains_free": true,
+    "fee_nzd": null,
+    "rate_status": "NOT_APPROVED",
+    "purchase_enabled": false,
+    "billing": "only separately verified explicit opt-in; no buyer or seller transaction commission"
+  },
+  "last_updated": "2026-10-31",
+  "disclaimer": "No auctions or purchase slots are represented as live unless reconciled with signed verified auction and payment evidence. Each future auction requires real seller, exact item, closing time and atomic highest-bid ledger."
+}

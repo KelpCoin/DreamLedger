@@ -1,0 +1,21 @@
+name: Billboard Visible Demo Review
+on:
+  pull_request:
+    paths:
+      - 'public/billboard.html'
+      - 'scripts/test-billboard-demo-availability.cjs'
+      - '.github/workflows/billboard-demo-review.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  demo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check billboard preview and held checkout
+        run: node --test scripts/test-billboard-demo-availability.cjs

@@ -1,6 +1,7 @@
 'use strict';
 // Storefront server — public/ is Render rootDir. Whitelist + safe file fallback.
 const http=require('http'),fs=require('fs'),path=require('path'),{URL}=require('url');
+const {allowedPublicRoute}=require('./route-quarantine');
 const commercialCell=require('../BEC-PRIME/routes/commercialCell');
 const tollRoad=require('../BEC-PRIME/routes/tollRoad');
 const TollRuntime=require('../BEC-PRIME/runtime/TollRoad');
@@ -10,7 +11,7 @@ const ROOT=__dirname;
 const ENGINE_INTERNAL_URL=String(process.env.ENGINE_INTERNAL_URL||'').replace(/\/$/,'');
 const ENGINE_INTERNAL_API_KEY=String(process.env.ENGINE_INTERNAL_API_KEY||'');
 const PUBLIC_FILES={
-  '/':'home.html','/index.html':'home.html','/status':'status.html','/status/':'status.html','/status.html':'status.html',
+  '/':'index.html','/index.html':'index.html','/status':'status.html','/status/':'status.html','/status.html':'status.html',
   '/about':'about.html','/about/':'about.html','/privacy':'privacy.html','/privacy/':'privacy.html','/privacy.html':'privacy.html','/terms':'terms.html','/terms/':'terms.html','/terms.html':'terms.html','/security':'security.html','/security/':'security.html','/security.html':'security.html','/contact':'contact.html','/contact/':'contact.html','/trust':'trust.html','/trust/':'trust.html',
   '/catalogue':'catalogue.html','/catalogue/':'catalogue.html','/catalogue.html':'catalogue.html',
   '/app.js':'app.js',
@@ -100,6 +101,18 @@ http.createServer(async (req,res)=>{
   headers(res);
   const u=new URL(req.url||'/','http://localhost');
   const p=u.pathname;
+  if(req.method==='GET'&&p==='/catalog.json'){
+    try{
+      const full=JSON.parse(fs.readFileSync(path.join(ROOT,'catalog.json'),'utf8'));
+      const owner=JSON.parse(fs.readFileSync(path.join(ROOT,'data/mtg-catalog.json'),'utf8'));
+      if(!Array.isArray(full.products)||owner.silo!=='mtg'||!Array.isArray(owner.products))throw Error('INVALID_MTG_CATALOG');
+      const ids=new Set(owner.products.map(x=>x.id));
+      const products=full.products.filter(x=>ids.has(x.id));
+      if(!products.length||products.some(x=>x.checkout_available===true))throw Error('MTG_CATALOG_CHECKOUT_HOLD_FAILED');
+      res.setHeader('Cache-Control','no-store');
+      return send(res,200,JSON.stringify({...full,products}),'application/json; charset=utf-8');
+    }catch(e){return send(res,503,JSON.stringify({error:'catalog_unavailable'}),'application/json; charset=utf-8');}
+  }
   if(req.method==='GET'&&p==='/healthz'){
     return send(res,200,JSON.stringify({ok:true,service:'dreamledger-storefront'}),'application/json; charset=utf-8');
   }
@@ -158,6 +171,13 @@ http.createServer(async (req,res)=>{
     }
   }
   if(req.method!=='GET'&&req.method!=='HEAD') return send(res,405,'Method Not Allowed','text/plain; charset=utf-8');
+  // Public construction quarantine. Keep the services running privately while
+  // preventing visitors from opening retired marketing/engineering pages.
+  if(!allowedPublicRoute(p)){
+    res.setHeader('X-Robots-Tag','noindex, nofollow');
+    res.setHeader('Cache-Control','no-store');
+    return send(res,404,'DreamLedger: this page is under construction.','text/plain; charset=utf-8');
+  }
   const file=PUBLIC_FILES[p];
   if(file) return serveFile(res,file);
   if(p.indexOf('..')!==-1) return send(res,403,'Forbidden','text/plain; charset=utf-8');

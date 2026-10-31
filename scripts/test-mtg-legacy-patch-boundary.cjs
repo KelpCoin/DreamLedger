@@ -15,15 +15,28 @@ const { isKnownHeldModernDeckGrid } = require(patcher);
 assert.equal(fs.readFileSync(source).equals(before), true, 'import changed source');
 assert.equal(isKnownHeldModernDeckGrid(code), true, 'known held NZ grid rejected');
 
-const rejected = [
-  code.replace('Checkout held until independent reservation and fulfilment proof.', ''),
-  code.replace('Boolean(p.checkout_available)===Boolean(m.checkout_available)', ''),
-  code.replace("const CATALOG='/data/mtg-catalog.json'", ''),
-  code.replace('id="grid"', 'id="arbitrary"'),
-  code + "\nwindow.location.assign(data.checkout_url)",
-  code + "\nbuy.stripe.com",
-  code + "\nfetch('/api/offer-checkout/create'"
+const substitutions = [
+  ['data-silo="mtg"','data-silo="untrusted"'],
+  ['dreamledger-mtg-theme.css','unverified-theme.css'],
+  ['id="deckRail"','id="badRail"'],
+  ['id="singleRail"','id="badSingles"'],
+  ['/data/mtg-catalog.json','/data/other-catalog.json'],
+  ['/catalog.json','/other-catalog.json'],
+  ['/data/mtg-owner-decks.json','/data/other-decks.json'],
+  ['checkout_verified:false','checkout_verified:true'],
+  ['p.checkout_verified===true','p.checkout_verified!==true'],
+  ['Checkout is available only for confirmed stock.','Every item is available for checkout.']
 ];
+const rejected = substitutions.map(([from,to],i)=>{
+  assert.ok(code.includes(from),'fixture source drift '+i+': '+from);
+  return code.replace(from,to);
+});
+rejected.push(
+  code+"\\nwindow.location.assign(data.checkout_url)",
+  code+"\\nfetch('/api/offer-checkout/create'",
+  code+"\\ncheckout_verified:true",
+  code+"\\ndata-dreamledger-mtg-commerce-v2"
+);
 rejected.forEach((fixture, index) => assert.equal(
   isKnownHeldModernDeckGrid(fixture), false, 'unsafe/unknown fixture ' + index
 ));

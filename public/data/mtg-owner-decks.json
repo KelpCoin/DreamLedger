@@ -1,0 +1,6 @@
+{
+  "schema": "dreamledger/mtg-owner-decks/v1",
+  "silo": "mtg",
+  "description": "Owner-supplied fast listings and optional exact-printing decklists. Existing MTG catalogue entries are also displayed; do not duplicate them here.",
+  "decks": []
+}

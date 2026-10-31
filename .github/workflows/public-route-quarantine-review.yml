@@ -1,0 +1,26 @@
+name: Public Route Quarantine Review
+on:
+  pull_request:
+    paths:
+      - 'public/server.js'
+      - 'public/route-quarantine.js'
+      - 'public/index.html'
+      - 'BEC-PRIME/scripts/Patch-Catalogue-Public-Surface.js'
+      - 'scripts/test-public-route-quarantine.cjs'
+      - '.github/workflows/public-route-quarantine-review.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  quarantine:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate approved public routes and safe 404s
+        run: node --test scripts/test-public-route-quarantine.cjs
+      - name: Verify JavaScript syntax
+        run: node --check public/server.js && node --check BEC-PRIME/scripts/Patch-Catalogue-Public-Surface.js
