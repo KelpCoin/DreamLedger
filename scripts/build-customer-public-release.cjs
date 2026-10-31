@@ -10,7 +10,7 @@ const REQUIRED=[
  'index.html','avatar.html','billboard.html','ticker.html','login.html','register.html','account.html',
  'privacy.html','terms.html','catalog.json','data/mtg-catalog.json',
  'data/mtg-owner-decks.json','data/mtg-owner-singles.json','data/mtg-auctions.json',
- 'data/ticker.json','assets/dreamledger-mtg-theme.css','assets/mtg-auction-rail.js',
+ 'assets/dreamledger-mtg-theme.css','assets/mtg-auction-rail.js',
  'assets/mtg-deck-grid.js','assets/avatar-identity.js','assets/avatar-chip.js','assets/ticker.js'
 ];
 const OPTIONAL=[
