@@ -1,0 +1,31 @@
+name: BECK Ad Commerce Candidate Tests
+
+on:
+  pull_request:
+    paths:
+      - "BEC-PRIME/runtime/AdInventoryGate*"
+      - "BEC-PRIME/runtime/BeckAdReservationClient*"
+      - "supabase/migrations/202611010001_beck_ad_reservations.sql"
+      - ".github/workflows/beck-ad-commerce.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  offline-guards:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate source syntax
+        run: |
+          node --check BEC-PRIME/runtime/AdInventoryGate.js
+          node --check BEC-PRIME/runtime/BeckAdReservationClient.js
+      - name: Run reservation and payment evidence tests (no secrets)
+        run: node --test BEC-PRIME/runtime/AdInventoryGate.test.js BEC-PRIME/runtime/BeckAdReservationClient.test.js
+      - name: Emit source evidence checksums
+        run: sha256sum BEC-PRIME/runtime/AdInventoryGate.js BEC-PRIME/runtime/BeckAdReservationClient.js supabase/migrations/202611010001_beck_ad_reservations.sql
