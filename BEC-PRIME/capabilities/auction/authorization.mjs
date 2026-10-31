@@ -1,6 +1,6 @@
 import {createHmac,createHash,timingSafeEqual} from "node:crypto";
 
-const ACTIONS=new Set(["register","inventory","auction_submit","buy_now_set","buy_now","bid","ship","deliver","dispute","checkout"]);
+const ACTIONS=new Set(["register","inventory","auction_submit","buy_now_set","buy_now","watch","bid","ship","deliver","dispute","checkout"]);
 const CAPABILITY="kingdom.auction.v1";
 const HEX64=/^[a-f0-9]{64}$/;
 const SLUG=/^[a-z0-9][a-z0-9_-]{1,63}$/;
