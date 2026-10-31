@@ -2,7 +2,7 @@
 <html lang="en-NZ" data-silo="mtg">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#060a08">
+<meta name="theme-color" content="#090e12">
 <title>DreamLedger MTG | Trade, collect, play. Aotearoa New Zealand</title>
 <meta name="description" content="A place for New Zealand Magic: The Gathering players. Free buy, sell and trade community, Commander decks and singles, with a two-party trade ledger on the way.">
 <link rel="canonical" href="https://dreamledger.org/mtg/">
@@ -19,6 +19,7 @@
 </nav></div></header>
 <main class="mtg-main">
 <div class="mtg-container">
+<section class="mtg-news" aria-label="Magic news"><strong>Magic news</strong><div class="mtg-news-links" id="mtgNewsLinks"><span>Latest updates</span></div></section>
 <section class="mtg-auction-section" aria-labelledby="auctionHeading">
  <div class="mtg-auction-intro">
   <div><div class="mtg-kicker">FEATURED AUCTIONS</div>
@@ -113,4 +114,16 @@ async function load(){
 load();
 })();
 </script>
-<script src="/assets/mtg-auction-rail.js"></script></body></html>
+<script src="/assets/mtg-auction-rail.js"></script><script>
+(async function(){
+ const box=document.getElementById('mtgNewsLinks');if(!box)return;
+ try{
+  const r=await fetch('/mtg/exchange-news.json',{cache:'no-store'});if(!r.ok)throw Error('news');
+  const v=await r.json();if(!Array.isArray(v.items))throw Error('news');
+  const items=v.items.filter(x=>x.reviewed===true&&typeof x.title==='string'&&/^https:\/\//.test(x.url||'')).slice(0,5);
+  if(!items.length){box.textContent='No news updates';return;}
+  box.replaceChildren(...items.map(x=>{const a=document.createElement('a');a.href=x.url;a.target='_blank';a.rel='noopener noreferrer';a.textContent=x.title;return a;}));
+ }catch(_){box.textContent='News updates unavailable';}
+})();
+</script>
+</body></html>
