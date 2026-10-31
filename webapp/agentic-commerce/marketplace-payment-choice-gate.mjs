@@ -16,7 +16,7 @@ function observed(iso,key,nowMs){
  return iso;
 }
 export function evaluateMarketplaceQuote({
- listing, quantity=1, item_cents, shipping_cents, payment_quotes, policy, actor,
+ listing, silo_id, quantity=1, item_cents, shipping_cents, payment_quotes, policy, actor,
  now='2026-11-01T00:00:00.000Z'
 }={}){
  const ms=Date.parse(now);
@@ -33,7 +33,7 @@ export function evaluateMarketplaceQuote({
  cents(total,'TOTAL');
  if(!policy||policy.schema!=='BECK/EMPIRE-SILO-REGISTRY/v1'||
   !policy.silos||!policy.silos.MTG||!policy.silos.OTHER)fail('UNTRUSTED_FEE_POLICY');
- const silo=required(listing.silo_id,'SILO_ID');
+ const silo=required(silo_id,'SILO_ID');
  // Fee policy is a server-owned read of the existing Canonical Registry.
  // No buyer-provided basis points may override it.
  const isMaster=silo==='dreamledger-mtg'||silo==='mtg-master';
