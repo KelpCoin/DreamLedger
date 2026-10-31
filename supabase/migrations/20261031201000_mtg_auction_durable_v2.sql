@@ -282,7 +282,7 @@ end $$;
 -- Seller may set an optional fixed price ONLY while the lot is still a private draft.
 -- Private buyer saved lots. Neither follow count nor buyer identities are public.
 create or replace function public.mtg_auction_watch_v2(p_auction uuid,p_watch boolean)
-returns jsonb language plpgsql security definer set search_path='' as $
+returns jsonb language plpgsql security definer set search_path='' as $$
 declare u uuid:=auth.uid(); status text;
 begin
  if u is null then raise exception 'AUTH_REQUIRED'; end if;
@@ -295,9 +295,9 @@ begin
   delete from public.mtg_auction_watchlist_v2 where auction_id=p_auction and user_id=u;
  end if;
  return jsonb_build_object('auction_id',p_auction,'watching',p_watch);
-end $;
+end $$;
 create or replace function public.mtg_auction_set_buy_now_v2(p_auction uuid,p_buy_now_cents bigint)
-returns jsonb language plpgsql security definer set search_path='' as $
+returns jsonb language plpgsql security definer set search_path='' as $$
 declare u uuid:=auth.uid(); l public.mtg_auction_lots_v2%rowtype;
 begin
  if u is null then raise exception 'AUTH_REQUIRED'; end if;
@@ -309,11 +309,11 @@ begin
  update public.mtg_auction_lots_v2 set buy_now_cents=p_buy_now_cents,version=version+1 where id=l.id;
  perform mtg_private.event(l.id,'buy_now_terms_set',u,jsonb_build_object('enabled',p_buy_now_cents is not null));
  return jsonb_build_object('id',l.id,'buy_now_cents',p_buy_now_cents);
-end $;
+end $$;
 
 -- Buy Now converts one available lot to an unpaid order atomically. NO real charge is taken.
 create or replace function public.mtg_auction_buy_now_v2(p_auction uuid)
-returns jsonb language plpgsql security definer set search_path='' as $
+returns jsonb language plpgsql security definer set search_path='' as $$
 declare u uuid:=auth.uid(); l public.mtg_auction_lots_v2%rowtype; o uuid; existing record;
 begin
  if u is null then raise exception 'AUTH_REQUIRED'; end if;
@@ -341,7 +341,7 @@ begin
  high_bid_cents=buy_now_cents,high_bidder=u,version=version+1 where id=l.id;
  perform mtg_private.event(l.id,'buy_now_reserved',u,jsonb_build_object('order_id',o,'amount_cents',l.buy_now_cents));
  return jsonb_build_object('order_id',o,'idempotent',false,'checkout_pending',true);
-end $;
+end $$;
 
 create or replace function public.mtg_auction_close_v2(p_auction uuid)
 returns jsonb language plpgsql security definer set search_path='' as $$
