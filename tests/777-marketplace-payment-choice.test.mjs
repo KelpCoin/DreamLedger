@@ -88,7 +88,7 @@ test('provider monthly plan cost must be allocated explicitly before a quote',()
 });
 test('large fixed monthly plan can reverse the fee ranking; costs are scenarios',()=>{
  const a={...provider,code:'sandbox_a',total_fee_cents:35,monthly_platform_fee_cents:9900,assumed_monthly_transactions:10};
- const b={...provider,code:'sandbox_b',total_fee_cents:1090,monthly_platform_fee_cents:0,assumed_monthly_transactions:10};
+ const b={...provider,code:'sandbox_b',total_fee_cents:1000,monthly_platform_fee_cents:0,assumed_monthly_transactions:10};
  const q=quote({payment_quotes:[a,b]});
  assert.deepEqual(q.payment_options.map(x=>x.code),['sandbox_b','sandbox_a']);
  assert.equal(q.payment_options[1].estimated_plan_fee_share_cents,990);
