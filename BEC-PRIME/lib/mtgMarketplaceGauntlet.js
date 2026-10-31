@@ -13,7 +13,7 @@ function inspectListing(input){
  if(/<\s*(?:script|iframe|object|embed|svg|form)\b/i.test(text))errors.push('EMBEDDED_MARKUP');
  const links=(text.match(/https?:\/\//ig)||[]).length;
  if(links>=3)review.push('LINK_SPAM');
- if(/(?:.)\1{22,}/u.test(text))review.push('REPETITIVE_CONTENT');
+ if(/(.)\1{22,}/u.test(text))review.push('REPETITIVE_CONTENT');
  if(/\b(?:join our telegram|guaranteed 100% profit|free money claim|send gift cards to reserve)\b/i.test(text))
    review.push('COMMERCIAL_SPAM_PATTERN');
  // High-confidence direct harassment threats, not ordinary MTG game terminology.
