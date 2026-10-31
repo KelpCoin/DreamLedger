@@ -1,0 +1,3 @@
+supplier,price,delivery,known_subtotal,delivery_unknown,lead_time,moq,terms,notes
+"FICTIONAL SUPPLIER A","420.00","35.00","455.00","NO","7 business days","100","Due on invoice","Packaging unknown"
+"FICTIONAL SUPPLIER B","445.00","UNKNOWN","445.00","YES","5 business days","100","UNKNOWN","Shipping unknown; total is incomplete"
