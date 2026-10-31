@@ -26,6 +26,13 @@ Deno.serve(async req=>{
   if(s.metadata?.silo!=="mtg"||!s.metadata?.mtg_order_id)return reply({received:true,ignored:"not_mtg_v2"});
   if(s.payment_status!=="paid")return reply({received:true,ignored:"not_paid"});
   const paymentIntent=typeof s.payment_intent==="string"?s.payment_intent:s.payment_intent?.id||null;
+  const {data:mtgOrder,error:orderError}=await admin.from("mtg_auction_orders_v2")
+    .select("id,stripe_session,amount_cents,currency")
+    .eq("id",s.metadata.mtg_order_id).maybeSingle();
+  if(orderError)return reply({error:"ORDER_LOOKUP_RETRY"},503);
+  if(!mtgOrder||mtgOrder.stripe_session!==s.id)return reply({received:true,ignored:"mtg_order_session_mismatch"});
+  if(mtgOrder.amount_cents!==s.amount_total||mtgOrder.currency.toLowerCase()!==s.currency)
+    return reply({error:"ORDER_AMOUNT_CURRENCY_MISMATCH"},409);
   const {data,error}=await admin.rpc("mtg_auction_reconcile_v2",{
    p_event_id:event.id,p_event_type:event.type,p_session:s.id,
    p_amount_cents:s.amount_total,p_currency:s.currency,p_payload_sha256:payloadHash,
@@ -38,6 +45,11 @@ Deno.serve(async req=>{
   const c=event.data.object as Stripe.Charge;
   const paymentIntent=typeof c.payment_intent==="string"?c.payment_intent:c.payment_intent?.id||null;
   if(!paymentIntent)return reply({received:true,ignored:"no_payment_intent"});
+  // Never record unrelated platform charges (other silos) in the MTG external ledger.
+  const {data:mtgOrder,error:orderError}=await admin.from("mtg_auction_orders_v2")
+    .select("id,amount_cents,currency").eq("stripe_payment_intent",paymentIntent).maybeSingle();
+  if(orderError)return reply({error:"ORDER_LOOKUP_RETRY"},503);
+  if(!mtgOrder)return reply({received:true,ignored:"not_an_mtg_auction_order"});
   const {data,error}=await admin.rpc("mtg_auction_refund_reconcile_v2",{
    p_event_id:event.id,p_payment_intent:paymentIntent,
    p_refunded_cents:c.amount_refunded,p_currency:c.currency,p_payload_sha256:payloadHash
