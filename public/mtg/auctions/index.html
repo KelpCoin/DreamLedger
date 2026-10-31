@@ -40,6 +40,7 @@ small{display:block;color:var(--muted)}.notice{border-left:4px solid var(--gold)
 <div class="row"><div><label for="start">Starting price (NZD)</label><input id="start" type="number" min="1" step="0.01"></div>
 <div><label for="increment">Minimum increment (NZD)</label><input id="increment" type="number" min="1" step="0.01" value="1"></div>
 <div><label for="reserve">Reserve (NZD)</label><input id="reserve" type="number" min="0" step="0.01" value="0"></div></div>
+<label for="buy-now-price">Optional Buy Now price (NZD, leave blank to disable)</label><input id="buy-now-price" type="number" min="1" step="0.01" placeholder="Optional fixed price">
 <label for="end">Requested closing date and time</label><input id="end" type="datetime-local">
 <button id="lot-submit">Submit auction draft</button></details>
 <p id="seller-status" class="status" aria-live="polite"></p></section>
@@ -82,7 +83,17 @@ async function lots(){
      $("catalogue-status").textContent="Bid recorded: "+result.result.bid_id;await lots();
     }catch(e){$("catalogue-status").textContent="Bid not confirmed: "+e.message+". If your network failed, retry the same amount to reuse the request ID.";btn.disabled=false}
    };
-   card.append(field,btn,el("small",token?"Final acceptance is server-side.":"Sign in before bidding."));$("lots").append(card);
+   card.append(field,btn);
+   if(a.buy_now_cents&&!a.high_bid_cents){
+    const buy=el("button","Buy Now for "+money(a.buy_now_cents));buy.disabled=!token;
+    buy.onclick=async()=>{buy.disabled=true;try{
+      const r=await api("buy_now",{p_auction:a.id});
+      $("catalogue-status").textContent="Buy Now reserved. NOT PAID. Order "+r.result.order_id+".";
+      await lots();await orders();
+     }catch(e){$("catalogue-status").textContent="Buy Now unavailable: "+e.message;buy.disabled=false}};
+    card.append(buy);
+   }
+   card.append(el("small",token?"Final acceptance is server-side.":"Sign in before bidding."));$("lots").append(card);
   }
  }catch(e){$("catalogue-status").textContent="Auctions unavailable: "+e.message+". No simulated listings or bids are shown."}
 }
@@ -126,7 +137,7 @@ $("photo-upload").onclick=async()=>{
  }catch(err){$("evidence").value="";status.textContent=err.message}
 };
 $("inventory-submit").onclick=async()=>{try{const d=await api("inventory",{p_title:$("item-title").value,p_condition:$("condition").value,p_evidence_sha256:$("evidence").value});$("inventory-id").value=d.result;$("seller-status").textContent="Inventory submitted for human review: "+d.result}catch(e){$("seller-status").textContent=e.message}};
-$("lot-submit").onclick=async()=>{try{const end=new Date($("end").value);if(!Number.isFinite(end.getTime()))throw Error("Choose a valid end date");const d=await api("auction_submit",{p_inventory:$("inventory-id").value,p_start_cents:cents("start"),p_increment_cents:cents("increment"),p_reserve_cents:cents("reserve"),p_ends_at:end.toISOString()});$("seller-status").textContent="Auction draft created. Manual approval required. ID: "+d.result}catch(e){$("seller-status").textContent=e.message}};
+$("lot-submit").onclick=async()=>{try{const end=new Date($("end").value);if(!Number.isFinite(end.getTime()))throw Error("Choose a valid end date");const d=await api("auction_submit",{p_inventory:$("inventory-id").value,p_start_cents:cents("start"),p_increment_cents:cents("increment"),p_reserve_cents:cents("reserve"),p_ends_at:end.toISOString()});const wanted=$("buy-now-price").value.trim();if(wanted!==""){await api("buy_now_set",{p_auction:d.result,p_buy_now_cents:cents("buy-now-price")})} $("seller-status").textContent="Auction draft created. Manual approval required. ID: "+d.result}catch(e){$("seller-status").textContent=e.message}};
 authUI();lots();orders();
 })();
 </script></body></html>
