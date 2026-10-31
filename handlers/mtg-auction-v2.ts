@@ -11,6 +11,7 @@ const routes={
  auction_submit:["mtg_auction_submit_v2",["p_inventory","p_start_cents","p_increment_cents","p_reserve_cents","p_ends_at"]],
  buy_now_set:["mtg_auction_set_buy_now_v2",["p_auction","p_buy_now_cents"]],
  buy_now:["mtg_auction_buy_now_v2",["p_auction"]],
+ watch:["mtg_auction_watch_v2",["p_auction","p_watch"]],
  bid:["mtg_auction_bid_v2",["p_auction","p_amount_cents","p_request_id"]],
  ship:["mtg_auction_ship_v2",["p_order","p_proof_sha256"]],
  deliver:["mtg_auction_deliver_v2",["p_order"]],
@@ -40,6 +41,9 @@ export default async function handler(request){
      accepted_types:["image/jpeg","image/png","image/webp"]});
  }else if(action==="list"&&request.method==="GET"){
    endpoint="/rest/v1/mtg_auction_lots_v2?select=id,title,currency,start_cents,increment_cents,high_bid_cents,buy_now_cents,status,ends_at,version&status=eq.open&order=ends_at.asc&limit=50";
+ }else if(action==="my_watchlist"&&request.method==="GET"){
+   if(!auth)return json({error:"LOGIN_REQUIRED"},401);
+   endpoint="/rest/v1/mtg_auction_watchlist_v2?select=auction_id,created_at&order=created_at.desc&limit=100";
  }else if(action==="my_orders"&&request.method==="GET"){
    if(!auth)return json({error:"LOGIN_REQUIRED"},401);
    endpoint="/rest/v1/mtg_auction_orders_v2?select=id,auction_id,amount_cents,currency,status,paid_at,shipped_at,delivered_at&order=created_at.desc&limit=50";
@@ -59,6 +63,8 @@ export default async function handler(request){
    try{b=await request.json()}catch{return json({error:"INVALID_JSON"},400)}
    if(!b||typeof b!=="object"||Array.isArray(b))return json({error:"INVALID_PAYLOAD"},400);
    if(Object.keys(b).some(k=>!keys.includes(k))||keys.some(k=>!(k in b)))return json({error:"UNEXPECTED_OR_MISSING_FIELDS"},422);
+   if(action==="watch"&&(!uuid.test(b.p_auction)||typeof b.p_watch!=="boolean"))
+     return json({error:"INVALID_WATCH_ACTION"},422);
    if(action==="buy_now"&&!uuid.test(b.p_auction))return json({error:"INVALID_AUCTION_ID"},422);
    if(action==="buy_now_set"&&(!uuid.test(b.p_auction)||
      (b.p_buy_now_cents!==null&&(!Number.isSafeInteger(b.p_buy_now_cents)||b.p_buy_now_cents<100||b.p_buy_now_cents>100000000000))))
@@ -89,6 +95,7 @@ export default async function handler(request){
      const known={
        BID_TOO_LOW:["OUTBID",409],
        BUY_NOW_UNAVAILABLE:["BUY_NOW_UNAVAILABLE",409],
+       WATCH_LOT_UNAVAILABLE:["WATCH_LOT_UNAVAILABLE",409],
        SELF_PURCHASE_FORBIDDEN:["SELF_PURCHASE_FORBIDDEN",403],
        DRAFT_SELLER_REQUIRED:["DRAFT_SELLER_REQUIRED",403],
        BIDDING_CLOSED:["AUCTION_CLOSED",409],
