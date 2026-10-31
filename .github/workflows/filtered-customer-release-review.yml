@@ -1,0 +1,35 @@
+name: Filtered Customer Release Review
+on:
+  pull_request:
+    paths:
+      - 'scripts/build-customer-public-release.cjs'
+      - 'scripts/verify-vercel-public-release.cjs'
+      - 'public/index.html'
+      - 'public/billboard.html'
+      - 'public/mtg/**'
+      - 'public/avatar.html'
+      - 'vercel.json'
+      - '.github/workflows/filtered-customer-release-review.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Generate customer-only static site
+        run: node scripts/build-customer-public-release.cjs
+      - name: Verify no unapproved website pages or checkout
+        run: node scripts/verify-vercel-public-release.cjs
+      - name: Upload filtered release proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: filtered-customer-release-proof
+          path: artifacts/filtered-customer-release-proof.json
+          if-no-files-found: warn
