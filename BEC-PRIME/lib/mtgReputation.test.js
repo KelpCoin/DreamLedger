@@ -65,3 +65,12 @@ test('two anonymous self-issued trade tokens alone cannot buy reputation',()=>{
  assert.equal(r.score_0_to_100,null);
  assert.equal(r.verified_transactions,0);
 });
+
+test('one repeat trading partner cannot manufacture a high seller score',()=>{
+ const receipts=Array.from({length:25},(_,i)=>rec('repeat'+i,'same-buyer'));
+ const r=reputation('seller-a',receipts);
+ assert.equal(r.verified_transactions,1);
+ assert.equal(r.unique_verified_counterparties,1);
+ assert.equal(r.ignored_unverified_receipts,24);
+ assert(r.score_0_to_100<100);
+});
