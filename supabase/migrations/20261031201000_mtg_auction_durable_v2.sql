@@ -5,6 +5,10 @@ create schema if not exists mtg_private;
 revoke all on schema mtg_private from public, anon, authenticated;
 
 -- Disable unauthenticated/nonatomic legacy auction writes, including direct bids.
+-- Historic v1 rows are not approved v2 inventory: fail closed without deleting records.
+update public.mtg_auctions set status='draft' where status='open';
+revoke insert,update,delete on public.mtg_cards from anon,authenticated;
+drop policy if exists "mtg cards owner write" on public.mtg_cards;
 revoke insert, update, delete on public.mtg_auctions from anon, authenticated;
 revoke insert, update, delete on public.mtg_bids from anon, authenticated;
 drop policy if exists "mtg auctions seller write" on public.mtg_auctions;
@@ -232,6 +236,8 @@ declare u uuid:=auth.uid(); l public.mtg_auction_lots_v2%rowtype; oldbid public.
  b uuid; floor_price bigint; t timestamptz:=clock_timestamp();
 begin
  if u is null then raise exception 'AUTH_REQUIRED'; end if;
+ if not exists(select 1 from auth.users where id=u and email_confirmed_at is not null)
+ then raise exception 'VERIFIED_BUYER_EMAIL_REQUIRED'; end if;
  if p_request_id is null or p_amount_cents is null or p_amount_cents>100000000000 then raise exception 'INVALID_BID'; end if;
  select * into l from public.mtg_auction_lots_v2 where id=p_auction for update;
  if not found then raise exception 'AUCTION_NOT_FOUND'; end if;
