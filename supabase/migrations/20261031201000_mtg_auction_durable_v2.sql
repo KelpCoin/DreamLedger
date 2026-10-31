@@ -121,7 +121,7 @@ do $$ declare t text; begin
  execute format('revoke all on public.%I from public, anon, authenticated',t);
  end loop;
 end $$;
-grant select on public.mtg_auction_lots_v2 to anon,authenticated;
+grant select(id,title,currency,start_cents,increment_cents,high_bid_cents,status,starts_at,ends_at,version) on public.mtg_auction_lots_v2 to anon,authenticated;
 grant select on public.mtg_auction_bids_v2,public.mtg_auction_orders_v2,
  public.mtg_inventory_v2,public.mtg_seller_profiles_v2 to authenticated;
 create policy "mtg v2 visible lots" on public.mtg_auction_lots_v2 for select to anon,authenticated
@@ -301,7 +301,7 @@ begin
   return jsonb_build_object('idempotent',true,'outcome',(select outcome from public.mtg_auction_external_v2 where stripe_event_id=p_event_id));
  end if;
  select * into o from public.mtg_auction_orders_v2 where stripe_session=p_session for update;
- if found and p_event_type='checkout.session.completed' and o.status='awaiting_checkout' and
+ if found and p_event_type in ('checkout.session.completed','checkout.session.async_payment_succeeded') and o.status='awaiting_checkout' and
  p_currency='nzd' and p_amount_cents=o.amount_cents and p_payment_intent like 'pi_%' then
   update public.mtg_auction_orders_v2 set status='paid',paid_at=now(),stripe_payment_intent=p_payment_intent where id=o.id;
   update public.mtg_auction_lots_v2 set status='paid',version=version+1 where id=o.auction_id;
@@ -380,3 +380,34 @@ grant execute on function public.mtg_auction_publish_v2(uuid) to service_role;
 grant execute on function public.mtg_auction_close_v2(uuid) to service_role;
 grant execute on function public.mtg_auction_bind_session_v2(uuid,text) to service_role;
 grant execute on function public.mtg_auction_reconcile_v2(text,text,text,bigint,text,text,text) to service_role;
+
+-- Verified refunds: only full refunds are automatically accounted; partial refunds are held for review.
+create or replace function public.mtg_auction_refund_reconcile_v2(
+ p_event_id text,p_payment_intent text,p_refunded_cents bigint,p_currency text,p_payload_sha256 text)
+returns jsonb language plpgsql security definer set search_path='' as $$
+declare o public.mtg_auction_orders_v2%rowtype; outcome text:='held';
+begin
+ if p_event_id !~ '^evt_[A-Za-z0-9_]+$' or p_payment_intent !~ '^pi_[A-Za-z0-9_]+$'
+ or p_payload_sha256 !~ '^[0-9a-f]{64}$' then raise exception 'INVALID_REFUND_EVENT'; end if;
+ perform pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtextextended(p_event_id,1));
+ if exists(select 1 from public.mtg_auction_external_v2 where stripe_event_id=p_event_id) then
+  if exists(select 1 from public.mtg_auction_external_v2 where stripe_event_id=p_event_id and payload_sha256<>p_payload_sha256)
+  then raise exception 'EVENT_ID_PAYLOAD_CONFLICT'; end if;
+  return jsonb_build_object('idempotent',true,'outcome',(select outcome from public.mtg_auction_external_v2 where stripe_event_id=p_event_id));
+ end if;
+ select * into o from public.mtg_auction_orders_v2 where stripe_payment_intent=p_payment_intent for update;
+ if found and o.status in ('paid','shipped','delivered','disputed') and p_refunded_cents=o.amount_cents and p_currency='nzd' then
+  update public.mtg_auction_orders_v2 set status='refunded',refunded_at=now() where id=o.id;
+  update public.mtg_auction_lots_v2 set status='refunded',version=version+1 where id=o.auction_id;
+  insert into public.mtg_auction_postings_v2(journal_id,account,side,amount_cents) values
+   (p_event_id,'unallocated_liability','debit',o.amount_cents),
+   (p_event_id,'stripe_clearing','credit',o.amount_cents);
+  perform mtg_private.event(o.auction_id,'stripe_refunded',null,jsonb_build_object('event_id',p_event_id,'amount_cents',o.amount_cents));
+  outcome:='applied';
+ end if;
+ insert into public.mtg_auction_external_v2(stripe_event_id,event_type,payload_sha256,order_id,outcome)
+ values(p_event_id,'charge.refunded',p_payload_sha256,case when found then o.id else null end,outcome);
+ return jsonb_build_object('idempotent',false,'outcome',outcome);
+end $$;
+revoke all on function public.mtg_auction_refund_reconcile_v2(text,text,bigint,text,text) from public,anon,authenticated;
+grant execute on function public.mtg_auction_refund_reconcile_v2(text,text,bigint,text,text) to service_role;
