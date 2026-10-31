@@ -12,7 +12,7 @@
 
 ## Database bid-placement function
 ```sql
-ccreate or replace function public.mtg_auction_bid_v2(p_auction uuid,p_amount_cents bigint,p_request_id uuid)
+create or replace function public.mtg_auction_bid_v2(p_auction uuid,p_amount_cents bigint,p_request_id uuid)
 returns jsonb language plpgsql security definer set search_path='' as $$
 declare u uuid:=auth.uid(); l public.mtg_auction_lots_v2%rowtype; oldbid public.mtg_auction_bids_v2%rowtype;
  b uuid; floor_price bigint; t timestamptz;
@@ -50,7 +50,7 @@ end $$;
 
 ## Database paid-event reconciliation
 ```sql
-ccreate or replace function public.mtg_auction_reconcile_v2(
+create or replace function public.mtg_auction_reconcile_v2(
  p_event_id text,p_event_type text,p_session text,p_amount_cents bigint,p_currency text,p_payload_sha256 text,
  p_payment_intent text default null)
 returns jsonb language plpgsql security definer set search_path='' as $$
@@ -86,7 +86,7 @@ end $$;
 
 ## Database refund reconciliation
 ```sql
-ccreate or replace function public.mtg_auction_refund_reconcile_v2(
+create or replace function public.mtg_auction_refund_reconcile_v2(
  p_event_id text,p_payment_intent text,p_refunded_cents bigint,p_currency text,p_payload_sha256 text)
 returns jsonb language plpgsql security definer set search_path='' as $$
 declare o public.mtg_auction_orders_v2%rowtype; outcome text:='held';
@@ -119,7 +119,7 @@ end $$;
 
 ## Stripe webhook handler (verbatim)
 ```typescript
-/// MTG Stripe webhook. Raw request signature verified before touching the external ledger.
+// MTG Stripe webhook. Raw request signature verified before touching the external ledger.
 // Never infer a paid order from a client redirect or a client-submitted ID.
 // Built-in Deno runtime types, no JSR edge-runtime dependency.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
@@ -188,7 +188,7 @@ Deno.serve(async req=>{
 
 ## Stripe checkout creation (verbatim)
 ```typescript
-/// Stripe Checkout creation for confirmed MTG auction winners only.
+// Stripe Checkout creation for confirmed MTG auction winners only.
 // Protected by JWT, trusted database order, and explicit release gate.
 // Deno global types are supplied by the deployed Edge runtime and Deno CI.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
