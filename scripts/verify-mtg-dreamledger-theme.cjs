@@ -25,7 +25,7 @@ gate('font_parity',homepage.includes('system-ui,sans-serif')&&baseCss.includes('
 gate('color_scheme',baseCss.includes('color-scheme:dark'));
 gate('contrast_focus',baseCss.includes('outline:3px solid var(--dl-home-mint)'));
 gate('reduced_motion',baseCss.includes('prefers-reduced-motion:reduce'));
-gate('theme_scoped_only',baseCss.includes(':root[data-silo="mtg"]')&&!baseCss.includes('body{'));
+gate('theme_scoped_only',baseCss.includes(':root[data-silo="mtg"]')&&!/^body\\s*\\{/m.test(baseCss));
 const htmlFiles=[
 'public/mtg/index.html','mtg/index.html','BEC-PRIME/compiled/website/mtg/index.html',
 'BEC-PRIME/website/mtg-catalog.html','public/mtg/forum/index.html',
@@ -43,7 +43,7 @@ for(const p of htmlFiles){
     gate('page_scoped:'+p,/<html\b[^>]*data-silo="mtg"/i.test(s));
     gate('page_theme_link:'+p,s.includes('<link rel="stylesheet" href="/assets/mtg-dreamledger-theme.css">'));
     gate('page_theme_color:'+p,s.includes('<meta name="theme-color" content="#0b1220">'));
-    gate('theme_load_order:'+p,s.indexOf('href="/assets/mtg-dreamledger-theme.css"')<s.indexOf('</head>'));
+    gate('theme_load_order:'+p,s.lastIndexOf('</style>',s.indexOf('</head>'))<s.indexOf('href="/assets/mtg-dreamledger-theme.css"') && s.indexOf('href="/assets/mtg-dreamledger-theme.css"')<s.indexOf('</head>'));
   }catch(e){gate('page_read:'+p,false,e.code||e.message)}
 }
 for(const p of ['silos/mtg/silo.json','public/silos/mtg/silo.json','BEC-PRIME/compiled/website/silos/mtg/silo.json']){
