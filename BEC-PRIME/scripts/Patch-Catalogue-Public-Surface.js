@@ -25,8 +25,26 @@ if(!focusOffer&&!html.includes('FIND SOMETHING'))html=html.replace('</header>','
 if(!focusOffer&&!html.includes('FIND SOMETHING'))html=html.replace('</body>','<div aria-label="Discovery"><strong>FIND SOMETHING</strong></div></body>');
 if(!/href=["']\/avatar\.html["']/i.test(html))throw new Error('PUBLIC CATALOGUE FAILED: missing DreamMeez canonical door');
 if(!/href=["']\/truth-oracle\.html["']/i.test(html))throw new Error('PUBLIC CATALOGUE FAILED: missing Truth Oracle canonical door');
+// Keep the owner-approved construction front door intact. The private compiled
+// catalogue remains available for review, but it must not overwrite the public
+// three-surface homepage during an ordinary build.
+let deployedHtml=html;
+let publicationMode='SYNC_CANONICAL_COMPILE_TO_DEPLOYED_SURFACE';
+if(fs.existsSync(DEPLOYED)){
+  const curated=fs.readFileSync(DEPLOYED,'utf8');
+  if(curated.includes('data-public-gate="owner-construction-v1"')){
+    for(const expected of ['href="/mtg/"','href="/avatar.html"','href="/billboard.html"']){
+      if(!curated.includes(expected))throw new Error('PUBLIC_GATE_MISSING:'+expected);
+    }
+    if(/agentic|agent.bridge|\\bElohim\\b|\\bGauntlet\\b|\\bAI-powered\\b|\/quote-compare-49\\.html/i.test(curated)){
+      throw new Error('PUBLIC_GATE_FORBIDDEN_CONTENT');
+    }
+    deployedHtml=curated;
+    publicationMode='OWNER_CONSTRUCTION_GATE_PRESERVED';
+  }
+}
 fs.mkdirSync(path.dirname(DEPLOYED),{recursive:true});
-fs.writeFileSync(DEPLOYED,html,'utf8');
+fs.writeFileSync(DEPLOYED,deployedHtml,'utf8');
 const discovery={
   schema:'dreamledger/agent-commerce-manifest/v1',
   service:'DreamLedger',
@@ -52,7 +70,7 @@ fs.writeFileSync(path.join(DEPLOYED_WELL_KNOWN,'agent-commerce.json'),discoveryT
 const ucp='{"schema":"dreamledger/ucp/v1","service":"DreamLedger","source_of_truth":"/api/offers","approval_model":"explicit_human_approval","checkout":"/api/offer-checkout/create"}\n';
 fs.writeFileSync(path.join(WELL_KNOWN,'ucp'),ucp,'utf8');
 fs.writeFileSync(path.join(DEPLOYED_WELL_KNOWN,'ucp'),ucp,'utf8');
-const proof={status:'PASS',mode:'SYNC_CANONICAL_COMPILE_TO_DEPLOYED_SURFACE',file:INDEX,deployed_file:DEPLOYED,sha256:crypto.createHash('sha256').update(html,'utf8').digest('hex'),required_present:[...required,'DreamMeez control','DreamMeez canonical door','Truth Oracle canonical door'],forbidden_absent:forbidden,agent_discovery_published:true,agent_discovery_sha256:crypto.createHash('sha256').update(discoveryText,'utf8').digest('hex'),ucp_published:true,truth_oracle_surface_required:'truth-oracle.html and truth-oracle.json are checked by verify-public-surface',generated_at:new Date().toISOString()};
+const proof={status:'PASS',mode:publicationMode,file:INDEX,deployed_file:DEPLOYED,sha256:crypto.createHash('sha256').update(deployedHtml,'utf8').digest('hex'),required_present:[...required,'DreamMeez control','DreamMeez canonical door','Truth Oracle canonical door'],forbidden_absent:forbidden,agent_discovery_published:true,agent_discovery_sha256:crypto.createHash('sha256').update(discoveryText,'utf8').digest('hex'),ucp_published:true,truth_oracle_surface_required:'truth-oracle.html and truth-oracle.json are checked by verify-public-surface',generated_at:new Date().toISOString()};
 fs.mkdirSync(path.join(ROOT,'RUN-PROOFS'),{recursive:true});
 fs.writeFileSync(path.join(ROOT,'RUN-PROOFS','CATALOGUE-PUBLIC-SURFACE-PROOF.json'),JSON.stringify(proof,null,2)+'\n');
 console.log(JSON.stringify(proof,null,2));
