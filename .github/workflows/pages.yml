@@ -53,6 +53,7 @@ jobs:
           test -s _site/pulse/index.html
           test -s _site/mtg/index.html
           test -s _site/assets/silo-master.css
+          test -s _site/assets/mtg-dreamledger-theme.css
           test -s _site/data/mtg-catalog.json
           test -s _site/silos/mtg/silo.json
           test "$(cat _site/CNAME)" = "dreamledger.org"
@@ -60,9 +61,11 @@ jobs:
           grep -Fq "Claim a founding billboard tile" _site/index.html
           grep -Fq "Build your DreamMeez free" _site/index.html
           grep -Fq "Revenue paths live now" _site/index.html
-          grep -Fq "Magic · Buy & sell singles" _site/mtg/index.html
+          grep -Fq "Magic · Buy &amp; sell singles" _site/mtg/index.html
           grep -Fq "Master silo" _site/mtg/index.html
           grep -Fq "/silos/mtg/silo.json" _site/mtg/index.html
+          grep -Fq "mtg-dreamledger-theme.css" _site/mtg/index.html
+          grep -Fq -- "--dl-home-mint:#a9f2d0" _site/assets/mtg-dreamledger-theme.css
 
           python - <<'PY'
           from html.parser import HTMLParser
@@ -150,6 +153,7 @@ jobs:
           fetch_check "" "Claim a founding billboard tile"
           fetch_check "mtg/" "Master silo"
           fetch_check "assets/silo-master.css" ":root"
+          fetch_check "assets/mtg-dreamledger-theme.css" "--dl-home-mint:#a9f2d0"
           fetch_check "data/mtg-catalog.json" '"products"'
           fetch_check "silos/mtg/silo.json" '"slug"'
 
