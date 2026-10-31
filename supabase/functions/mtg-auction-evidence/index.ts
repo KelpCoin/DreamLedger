@@ -44,12 +44,31 @@ Deno.serve(async(req)=>{
  const {data:existing,error:lookupErr}=await admin.from("mtg_auction_evidence_v2").select("id,storage_key").eq("owner_id",user.id).eq("sha256",hash).maybeSingle();
  if(lookupErr)return json({error:"EVIDENCE_LOOKUP_FAILED"},503);
  if(existing)return json({ok:true,sha256:hash,evidence_id:existing.id,idempotent:true});
- const {error:uploadErr}=await admin.storage.from("mtg-auction-evidence").upload(key,bytes,
+ // Immutable content-addressed object. Never overwrite a seller's original.
+ const bucket=admin.storage.from("mtg-auction-evidence");
+ const {error:uploadErr}=await bucket.upload(key,bytes,
  {contentType:ct,cacheControl:"0",upsert:false});
- if(uploadErr)return json({error:"EVIDENCE_UPLOAD_RETRY_OR_CONFLICT"},503);
+ if(uploadErr){
+  // A prior upload can have completed even when the DB insert timed out.
+  // Recover only if we can read the existing private object and verify its bytes.
+  const {data:stored,error:readErr}=await bucket.download(key);
+  if(readErr||!stored)return json({error:"EVIDENCE_UPLOAD_UNAVAILABLE"},503);
+  const recovered=new Uint8Array(await stored.arrayBuffer());
+  const recoveredHash=Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256",recovered)))
+   .map(b=>b.toString(16).padStart(2,"0")).join("");
+  if(recovered.byteLength!==bytes.byteLength||recoveredHash!==hash)
+   return json({error:"EVIDENCE_OBJECT_HASH_CONFLICT"},409);
+ }
  const {data:evidence,error:writeErr}=await admin.from("mtg_auction_evidence_v2")
  .insert({owner_id:user.id,sha256:hash,storage_key:key,content_type:ct,byte_size:bytes.byteLength})
  .select("id").single();
- if(writeErr)return json({error:"EVIDENCE_RECORD_REQUIRES_RECONCILIATION"},503);
- return json({ok:true,sha256:hash,evidence_id:evidence.id,idempotent:false});
+ if(writeErr){
+  // A parallel request may have committed the same owner/hash row first.
+  const {data:committed,error:checkErr}=await admin.from("mtg_auction_evidence_v2")
+   .select("id,storage_key").eq("owner_id",user.id).eq("sha256",hash).maybeSingle();
+  if(checkErr||!committed||committed.storage_key!==key)
+   return json({error:"EVIDENCE_RECORD_REQUIRES_RECONCILIATION"},503);
+  return json({ok:true,sha256:hash,evidence_id:committed.id,idempotent:true});
+ }
+ return json({ok:true,sha256:hash,evidence_id:evidence.id,idempotent:!!uploadErr});
 });
