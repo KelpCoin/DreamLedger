@@ -6,6 +6,14 @@ on:
       - "public/catalog.json"
       - "mtg/**"
       - "public/mtg/**"
+      - "public/assets/mtg-dreamledger-theme.css"
+      - "public/silos/mtg/silo.json"
+      - "silos/mtg/silo.json"
+      - "BEC-PRIME/website/mtg-catalog.html"
+      - "BEC-PRIME/website/assets/mtg-dreamledger-theme.css"
+      - "BEC-PRIME/compiled/website/mtg/**"
+      - "BEC-PRIME/compiled/website/assets/mtg-dreamledger-theme.css"
+      - "scripts/verify-mtg-dreamledger-theme.cjs"
       - ".github/workflows/mtg-catalogue-validation.yml"
   push:
     branches: [main]
@@ -54,3 +62,20 @@ jobs:
           }
           console.log('MTG catalogue validation passed.');
           NODE
+
+  visual-parity:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Verify homepage-matched MTG styling, manifests and contrast
+        run: node scripts/verify-mtg-dreamledger-theme.cjs
+      - name: Archive deterministic styling proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mtg-dreamledger-visual-parity-proof
+          path: proof/MTG-DREAMLEDGER-VISUAL-PARITY.json
+          retention-days: 7
