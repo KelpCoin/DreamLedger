@@ -26,6 +26,6 @@ jobs:
           node --check BEC-PRIME/runtime/AdInventoryGate.js
           node --check BEC-PRIME/runtime/BeckAdReservationClient.js
       - name: Run reservation and payment evidence tests (no secrets)
-        run: node --test BEC-PRIME/runtime/AdInventoryGate.test.js BEC-PRIME/runtime/BeckAdReservationClient.test.js
+        run: node --test BEC-PRIME/runtime/AdInventoryGate.test.js BEC-PRIME/runtime/BeckAdReservationClient.test.js BEC-PRIME/runtime/BeckAdSqlContract.test.js
       - name: Emit source evidence checksums
         run: sha256sum BEC-PRIME/runtime/AdInventoryGate.js BEC-PRIME/runtime/BeckAdReservationClient.js supabase/migrations/202611010001_beck_ad_reservations.sql
