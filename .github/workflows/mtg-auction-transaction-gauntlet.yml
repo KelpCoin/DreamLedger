@@ -54,6 +54,8 @@ jobs:
         run: bash tests/mtg-auction-v2-adversarial.sh
       - name: Bid deadline lock-race and anti-snipe regression
         run: bash tests/mtg-auction-v2-deadline.sh
+      - name: Atomic Buy Now and competing buyer regression
+        run: bash tests/mtg-auction-v2-buy-now.sh
       - name: Web gateway HTTP Request smoke tests
         run: node --test tests/mtg-auction-gateway.test.mjs
       - name: Verify public UI has no fake auction lots or local accepted bids
