@@ -10,9 +10,9 @@ function validAuction(a,now){
   a.public_verified===true&&a.db_verified===true&&Number.isFinite(close)&&close>now&&Number.isFinite(open)&&open<=now&&
   typeof a.current_bid_nzd==='number'&&Number.isFinite(a.current_bid_nzd)&&a.current_bid_nzd>=0&&a.current_bid_nzd<=1000000;
 }
-function rank(auctions,now){
+function rank(auctions,now,promotionsEnabled=false){
  const all=Array.isArray(auctions)?auctions.filter(a=>validAuction(a,now)):[];
- const promoted=all.filter(a=>a.promotion_paid_verified===true&&Number.isInteger(a.promoted_slot)&&a.promoted_slot>=1&&a.promoted_slot<=3)
+ const promoted=all.filter(a=>promotionsEnabled&&a.promotion_paid_verified===true&&Number.isInteger(a.promoted_slot)&&a.promoted_slot>=1&&a.promoted_slot<=3)
   .sort((a,b)=>a.promoted_slot-b.promoted_slot||Date.parse(a.ends_at)-Date.parse(b.ends_at));
  const chosen=[],seen=new Set(),slots=[null,null,null];
  for(const a of promoted){if(!slots[a.promoted_slot-1]&&!seen.has(a.id)){slots[a.promoted_slot-1]=a;seen.add(a.id)}}
@@ -30,12 +30,12 @@ function remaining(end,now){
 function el(tag,className,value){const n=document.createElement(tag);if(className)n.className=className;if(value!==undefined)n.textContent=String(value);return n}
 function render(target,source,now){
  if(!target)return {shown:0};
- const list=rank(source?.auction_slots,now),verified=source?.schema==='dreamledger/mtg-auction-surface/v1'&&source?.silo==='mtg'&&source?.release?.public_bidding_enabled===true;
+ const list=rank(source?.auction_slots,now,source?.release?.paid_featured_placements_enabled===true),verified=source?.schema==='dreamledger/mtg-auction-surface/v1'&&source?.silo==='mtg'&&source?.release?.public_bidding_enabled===true;
  const cards=[];
  for(let i=0;i<3;i++){
   const a=verified?list[i]:null,article=el('article','mtg-auction-slot'),top=el('div','mtg-auction-slot-top'),body=el('div','mtg-auction-slot-body');
   top.append(el('span','mtg-auction-num','0'+(i+1)));
-  top.append(el('span','mtg-auction-pill',a?(a.promotion_paid_verified&&a.promoted_slot===i+1?'FEATURED · PAID PLACEMENT':'ENDING SOON'):'POSITION OPEN'));
+  top.append(el('span','mtg-auction-pill',a?(source?.release?.paid_featured_placements_enabled===true&&a.promotion_paid_verified&&a.promoted_slot===i+1?'FEATURED · PAID PLACEMENT':'ENDING SOON'):'POSITION OPEN'));
   body.append(el('div','mtg-auction-kind',a?(a.seller_type==='owner'?'DREAMLEDGER OWNER AUCTION':'PLAYER-TO-PLAYER AUCTION'):'NZ MTG · AUCTION SPOTLIGHT'));
   body.append(el('h3','',a?a.title:['The next big card.','A collector’s next find.','Your next winning bid.'][i]));
   if(a){
