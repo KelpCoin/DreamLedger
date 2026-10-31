@@ -36,6 +36,11 @@ export default async function handler(request){
  }else if(action==="my_orders"&&request.method==="GET"){
    if(!auth)return json({error:"LOGIN_REQUIRED"},401);
    endpoint="/rest/v1/mtg_auction_orders_v2?select=id,auction_id,amount_cents,currency,status,paid_at,shipped_at,delivered_at&order=created_at.desc&limit=50";
+ }else if(action==="checkout"&&request.method==="POST"){
+   if(!auth)return json({error:"LOGIN_REQUIRED"},401);
+   let p;try{p=await request.json()}catch{return json({error:"INVALID_JSON"},400)}
+   if(!uuid.test(p?.order_id))return json({error:"INVALID_ORDER_ID"},422);
+   endpoint="/functions/v1/mtg-auction-checkout";method="POST";payload=JSON.stringify({order_id:p.order_id});authorized=true;
  }else if((action==="signup"||action==="login")&&request.method==="POST"){
    let p;try{p=await request.json()}catch{return json({error:"INVALID_JSON"},400)}
    if(typeof p.email!=="string"||p.email.length>254||typeof p.password!=="string"||p.password.length>128||p.password.length<8)return json({error:"INVALID_CREDENTIAL_FORMAT"},422);
