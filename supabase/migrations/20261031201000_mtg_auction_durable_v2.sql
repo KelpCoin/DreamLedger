@@ -324,6 +324,8 @@ begin
   perform mtg_private.event(o.auction_id,'stripe_paid',null,jsonb_build_object('event_id',p_event_id,'amount_cents',o.amount_cents));
   outcome:='applied';
  end if;
+ -- Never deduplicate a mismatched event as permanently held. Roll back and retry.
+ if outcome<>'applied' then raise exception 'PAYMENT_EVENT_REQUIRES_RECONCILIATION'; end if;
  insert into public.mtg_auction_external_v2(stripe_event_id,event_type,stripe_session,payload_sha256,order_id,outcome)
  values(p_event_id,p_event_type,p_session,p_payload_sha256,case when found then o.id else null end,outcome);
  return jsonb_build_object('idempotent',false,'outcome',outcome);
@@ -417,6 +419,8 @@ begin
   perform mtg_private.event(o.auction_id,'stripe_refunded',null,jsonb_build_object('event_id',p_event_id,'amount_cents',o.amount_cents));
   outcome:='applied';
  end if;
+ -- Never deduplicate a mismatched event as permanently held. Roll back and retry.
+ if outcome<>'applied' then raise exception 'REFUND_EVENT_REQUIRES_RECONCILIATION'; end if;
  insert into public.mtg_auction_external_v2(stripe_event_id,event_type,payload_sha256,order_id,outcome)
  values(p_event_id,'charge.refunded',p_payload_sha256,case when found then o.id else null end,outcome);
  return jsonb_build_object('idempotent',false,'outcome',outcome);
