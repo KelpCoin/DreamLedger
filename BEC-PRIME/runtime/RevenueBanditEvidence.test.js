@@ -60,3 +60,12 @@ test('rejects unsupported silo and malformed inputs',()=>{
   assert.throws(()=>assessPortfolio([]),/ARMS_INVALID/);
   assert.throws(()=>assessPortfolio([{id:'same',silo:'mtg',events:[]},{id:'same',silo:'avatar',events:[]}]),/DUPLICATE_ARM/);
 });
+
+test('loss-making exposure arm is excluded from all shadow priorities',()=>{
+  const events=Array.from({length:30},(_,i)=>exposure('agent_bridge',i));
+  events.push({...sale('agent_bridge',0),direct_cost_minor:10000});
+  const portfolio=assessPortfolio([{id:'loss-at-scale',silo:'agent_bridge',events}]);
+  assert.equal(portfolio.arms[0].reported_contribution_minor,-5100);
+  assert.equal(portfolio.shadow_priority.length,0);
+  assert.equal(portfolio.outcome,'NO_SUPPORTED_REWARD_TO_OPTIMIZE');
+});
