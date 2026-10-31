@@ -23,7 +23,7 @@ function grant(silo='mtg-master',duration_seconds=600){
  approval:{explicit:true,reference:'test-owner-approval-001',economic_basis:'EXPERIMENT_APPROVED',
  capability:'kingdom.auction.v1',silo_id:silo},
  resource:{capability_id:'kingdom.auction.v1',silo_id:silo,
- actions:['register','inventory','auction_submit','buy_now_set','buy_now','bid','ship','deliver','dispute','checkout'],
+ actions:['register','inventory','auction_submit','buy_now_set','buy_now','watch','bid','ship','deliver','dispute','checkout'],
  duration_seconds,deployment_sha:deploymentSha},secret:gateSecret});
 }
 
