@@ -1,0 +1,30 @@
+name: MTG auction live release proof (read-only)
+on:
+  workflow_dispatch:
+    inputs:
+      tested_sha:
+        description: Exact 40-character CI-tested commit SHA expected at dreamledger.org
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  production-parity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Probe production version, catalogue, evidence auth and UI without mutations
+        env:
+          EXPECTED_MTG_RELEASE_SHA: ${{ inputs.tested_sha }}
+        run: node scripts/mtg-auction-live-release-gate.mjs --sha "$EXPECTED_MTG_RELEASE_SHA" --output mtg-auction-release-proof.json
+      - name: Persist release proof even when parity fails
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mtg-auction-release-proof
+          path: mtg-auction-release-proof.json
+          if-no-files-found: warn
