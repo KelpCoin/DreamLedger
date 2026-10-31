@@ -3,8 +3,8 @@
   "git": {
     "deploymentEnabled": false
   },
-  "buildCommand": "node scripts/verify-vercel-public-release.cjs",
-  "outputDirectory": "public",
+  "buildCommand": "node scripts/build-customer-public-release.cjs && node scripts/verify-vercel-public-release.cjs",
+  "outputDirectory": "public-release",
   "functions": {
     "api/**/*.ts": {
       "maxDuration": 30,
@@ -20,28 +20,24 @@
       "destination": "/index.html"
     },
     {
-      "source": "/b2b",
-      "destination": "/b2b.html"
-    },
-    {
-      "source": "/b2b/",
-      "destination": "/b2b.html"
-    },
-    {
-      "source": "/marketplace",
-      "destination": "/marketplace.html"
-    },
-    {
-      "source": "/marketplace/",
-      "destination": "/marketplace.html"
-    },
-    {
       "source": "/billboard",
       "destination": "/billboard.html"
     },
     {
       "source": "/billboard/",
       "destination": "/billboard.html"
+    },
+    {
+      "source": "/avatar",
+      "destination": "/avatar.html"
+    },
+    {
+      "source": "/mtg",
+      "destination": "/mtg/index.html"
+    },
+    {
+      "source": "/ticker",
+      "destination": "/ticker.html"
     }
   ]
 }
