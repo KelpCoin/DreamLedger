@@ -106,7 +106,7 @@ create table if not exists public.mtg_auction_external_v2(
 create table if not exists public.mtg_auction_postings_v2(
  id uuid primary key default gen_random_uuid(),
  journal_id text not null,
- account text not null check(account in('stripe_clearing','seller_payable','refunds_pending')),
+ account text not null check(account in('stripe_clearing','unallocated_liability','refunds_pending')),
  side text not null check(side in('debit','credit')),
  amount_cents bigint not null check(amount_cents>0),
  currency text not null default 'NZD' check(currency='NZD'),
@@ -145,7 +145,7 @@ begin
  select sequence,event_sha256 into n,prev from public.mtg_auction_events_v2
  where auction_id=p_auction order by sequence desc limit 1;
  n:=coalesce(n,0)+1; prev:=coalesce(prev,repeat('0',64));
- h:=encode(extensions.digest(convert_to(prev||p_auction::text||n::text||p_type||p_facts::text,'UTF8'),'sha256'),'hex');
+ h:=encode(pg_catalog.sha256(pg_catalog.convert_to(prev||p_auction::text||n::text||p_type||p_facts::text,'UTF8')),'hex');
  insert into public.mtg_auction_events_v2(auction_id,sequence,event_type,actor_id,facts,previous_hash,event_sha256)
  values(p_auction,n,p_type,p_actor,p_facts,prev,h);
 end $$;
@@ -194,9 +194,7 @@ end $$;
 create or replace function public.mtg_seller_verify_v2(p_seller uuid,p_ref text)
 returns void language plpgsql security definer set search_path='' as $$
 begin
- if current_user<>'service_role' and session_user<>'service_role'
- then raise exception 'SERVICE_ROLE_REQUIRED'; end if;
- if length(trim(coalesce(p_ref,'')))<12 then raise exception 'VERIFICATION_EVIDENCE_REQUIRED'; end if;
+  if length(trim(coalesce(p_ref,'')))<12 then raise exception 'VERIFICATION_EVIDENCE_REQUIRED'; end if;
  update public.mtg_seller_profiles_v2 set status='verified',verification_ref=p_ref,verified_at=now() where user_id=p_seller;
  if not found then raise exception 'SELLER_NOT_FOUND'; end if;
 end $$;
@@ -204,8 +202,7 @@ create or replace function public.mtg_inventory_verify_v2(p_inventory uuid,p_sha
 returns void language plpgsql security definer set search_path='' as $$
 declare i public.mtg_inventory_v2%rowtype;
 begin
- if current_user<>'service_role' and session_user<>'service_role' then raise exception 'SERVICE_ROLE_REQUIRED'; end if;
- select * into i from public.mtg_inventory_v2 where id=p_inventory for update;
+  select * into i from public.mtg_inventory_v2 where id=p_inventory for update;
  if not found or i.status<>'pending' or i.evidence_sha256<>p_sha or
  not exists(select 1 from public.mtg_seller_profiles_v2 where user_id=i.seller_id and status='verified')
  then raise exception 'INVENTORY_NOT_VERIFIABLE'; end if;
@@ -215,8 +212,7 @@ create or replace function public.mtg_auction_publish_v2(p_auction uuid)
 returns void language plpgsql security definer set search_path='' as $$
 declare l public.mtg_auction_lots_v2%rowtype;
 begin
- if current_user<>'service_role' and session_user<>'service_role' then raise exception 'SERVICE_ROLE_REQUIRED'; end if;
- select * into l from public.mtg_auction_lots_v2 where id=p_auction for update;
+  select * into l from public.mtg_auction_lots_v2 where id=p_auction for update;
  if not found or l.status<>'draft' or l.ends_at<=now()+interval '5 minutes'
  or not exists(select 1 from public.mtg_inventory_v2 i join public.mtg_seller_profiles_v2 s on i.seller_id=s.user_id
  where i.id=l.inventory_id and i.seller_id=l.seller_id and i.status='verified' and s.status='verified')
@@ -260,8 +256,7 @@ create or replace function public.mtg_auction_close_v2(p_auction uuid)
 returns jsonb language plpgsql security definer set search_path='' as $$
 declare l public.mtg_auction_lots_v2%rowtype; o uuid;
 begin
- if current_user<>'service_role' and session_user<>'service_role' then raise exception 'SERVICE_ROLE_REQUIRED'; end if;
- select * into l from public.mtg_auction_lots_v2 where id=p_auction for update;
+  select * into l from public.mtg_auction_lots_v2 where id=p_auction for update;
  if not found then raise exception 'AUCTION_NOT_FOUND'; end if;
  if l.status in ('unsold','awaiting_payment','paid','shipped','delivered','disputed','refunded') then
   select id into o from public.mtg_auction_orders_v2 where auction_id=l.id;
@@ -284,8 +279,7 @@ create or replace function public.mtg_auction_bind_session_v2(p_order uuid,p_ses
 returns void language plpgsql security definer set search_path='' as $$
 declare o public.mtg_auction_orders_v2%rowtype;
 begin
- if current_user<>'service_role' and session_user<>'service_role' then raise exception 'SERVICE_ROLE_REQUIRED'; end if;
- if coalesce(p_session,'') !~ '^cs_(test_|live_)[A-Za-z0-9]+$' then raise exception 'INVALID_SESSION_ID'; end if;
+  if coalesce(p_session,'') !~ '^cs_(test_|live_)[A-Za-z0-9]+$' then raise exception 'INVALID_SESSION_ID'; end if;
  select * into o from public.mtg_auction_orders_v2 where id=p_order for update;
  if not found or o.status<>'awaiting_checkout' or (o.stripe_session is not null and o.stripe_session<>p_session)
  then raise exception 'CHECKOUT_BINDING_CONFLICT'; end if;
@@ -298,8 +292,7 @@ create or replace function public.mtg_auction_reconcile_v2(
 returns jsonb language plpgsql security definer set search_path='' as $$
 declare o public.mtg_auction_orders_v2%rowtype; l public.mtg_auction_lots_v2%rowtype; outcome text:='held';
 begin
- if current_user<>'service_role' and session_user<>'service_role' then raise exception 'SERVICE_ROLE_REQUIRED'; end if;
- if p_event_id !~ '^evt_[A-Za-z0-9_]+$' or p_payload_sha256 !~ '^[0-9a-f]{64}$'
+  if p_event_id !~ '^evt_[A-Za-z0-9_]+$' or p_payload_sha256 !~ '^[0-9a-f]{64}$'
  then raise exception 'INVALID_EXTERNAL_EVENT'; end if;
  perform pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtextextended(p_event_id,1));
  if exists(select 1 from public.mtg_auction_external_v2 where stripe_event_id=p_event_id) then
@@ -315,7 +308,7 @@ begin
   update public.mtg_inventory_v2 set status='sold' where id=(select inventory_id from public.mtg_auction_lots_v2 where id=o.auction_id);
   insert into public.mtg_auction_postings_v2(journal_id,account,side,amount_cents) values
    (p_event_id,'stripe_clearing','debit',o.amount_cents),
-   (p_event_id,'seller_payable','credit',o.amount_cents);
+   (p_event_id,'unallocated_liability','credit',o.amount_cents);
   perform mtg_private.event(o.auction_id,'stripe_paid',null,jsonb_build_object('event_id',p_event_id,'amount_cents',o.amount_cents));
   outcome:='applied';
  end if;
