@@ -57,14 +57,26 @@ export function evaluateMarketplaceQuote({
      !HASH.test(q.provider_terms_sha256||''))fail('RAIL_VERIFICATION_REQUIRED');
   observed(q.observed_at,'RAIL_QUOTE',ms);
   const railFee=cents(q.total_fee_cents,'RAIL_FEE');
+  // A per-transaction claim cannot hide mandatory monthly plan charges.
+  // Allocation is a scenario, never measured actual contribution.
+  const monthly=cents(q.monthly_platform_fee_cents,'MONTHLY_FEE');
+  if(!Number.isSafeInteger(q.assumed_monthly_transactions)||
+     q.assumed_monthly_transactions<1||q.assumed_monthly_transactions>10000000)
+    fail('MONTHLY_TRANSACTION_BASIS_REQUIRED');
+  const amortized=Math.ceil(monthly/q.assumed_monthly_transactions);
+  const totalFee=railFee+amortized+fee;
+  cents(totalFee,'TOTAL_FEE');
   // A rail may be noncustodial, but that is NOT evidence of licensing exemption.
-  const provenance={source:'OPERATOR_VERIFIED_PROVIDER_QUOTE_NOT_REVALIDATED_HERE',
+  const provenance={source:'OPERATOR_SUPPLIED_PROVIDER_QUOTE_NOT_INDEPENDENTLY_REVALIDATED',
    observed_at:q.observed_at,terms_url:q.provider_terms_url,terms_sha256:q.provider_terms_sha256};
   offers.push({code,rail_fee_cents:railFee,
+    mandatory_monthly_plan_fee_cents:monthly,
+    assumed_monthly_transactions:q.assumed_monthly_transactions,
+    estimated_plan_fee_share_cents:amortized,
     platform_fee_cents:fee,
-    quoted_total_fees_cents:railFee+fee,
+    quoted_total_fees_cents:totalFee,
     gross_item_shipping_cents:total,
-    seller_before_shipping_and_costs_cents:total-railFee-fee,
+    seller_before_shipping_and_costs_cents:total-totalFee,
     provenance,
     payment_status:'NOT_INITIATED',provider_onboarding:'NOT_VERIFIED_BY_THIS_MODULE'});
  }
@@ -75,7 +87,7 @@ export function evaluateMarketplaceQuote({
   item_price_minor:unit,quantity,shipping_minor:shipping,currency:listing.price.currency,
   gross_minor:total,fee_policy_bps:platformBps,payment_options:offers,
   authority_status:authority,action_status:'QUOTE_ONLY_NOT_PAYABLE',
-  payment_status:'NOT_INITIATED',settlement_verified:false,
+  payment_status:'NOT_INITIATED',settlement_verified:false,economically_validated:false,
   fulfillment_verified:false,delivery_verified:false,
   legal_review:'REQUIRED_FOR_PROTECTION_ESCROW_OR_AGENT_SETTLEMENT',
   observed_at:now,
