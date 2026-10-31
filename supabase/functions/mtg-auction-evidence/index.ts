@@ -1,6 +1,6 @@
 // Evidence ingress. Image bytes are private; hash is computed server-side.
 // Supabase service role is never returned to caller. Do not enable public storage access.
-import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+// Deno runtime types are built in; no JSR dependency required.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 const ORIGIN="https://dreamledger.org";
 const headers={"Access-Control-Allow-Origin":ORIGIN,"Vary":"Origin",
