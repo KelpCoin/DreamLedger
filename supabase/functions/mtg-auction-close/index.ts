@@ -1,5 +1,5 @@
 // Authenticated closing worker. Configure private scheduled invocation only after approval.
-import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+// Deno runtime types are built in; no JSR import required.
 import {createClient} from "https://esm.sh/@supabase/supabase-js@2.57.2";
 const reply=(v:unknown,s=200)=>new Response(JSON.stringify(v),{status:s,headers:{"content-type":"application/json","cache-control":"no-store"}});
 Deno.serve(async(req)=>{
