@@ -139,7 +139,7 @@ jobs:
               rm -f "$body"
               exit 1
             fi
-            if [ -n "$marker" ] && ! grep -Fq "$marker" "$body"; then
+            if [ -n "$marker" ] && ! grep -Fq -- "$marker" "$body"; then
               echo "FAIL marker missing route=${path} marker=${marker}"
               rm -f "$body"
               exit 1
