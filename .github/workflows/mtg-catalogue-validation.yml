@@ -6,6 +6,14 @@ on:
       - "public/catalog.json"
       - "mtg/**"
       - "public/mtg/**"
+      - "public/assets/mtg-dreamledger-theme.css"
+      - "public/silos/mtg/silo.json"
+      - "silos/mtg/silo.json"
+      - "BEC-PRIME/website/mtg-catalog.html"
+      - "BEC-PRIME/website/assets/mtg-dreamledger-theme.css"
+      - "BEC-PRIME/compiled/website/mtg/**"
+      - "BEC-PRIME/compiled/website/assets/mtg-dreamledger-theme.css"
+      - "scripts/verify-mtg-dreamledger-theme.cjs"
       - ".github/workflows/mtg-catalogue-validation.yml"
   push:
     branches: [main]
@@ -40,17 +48,43 @@ jobs:
               throw new Error('Claim-only deck must not claim direct checkout: ' + id);
             }
           }
+          // The MTG master loads source-specific and global catalogue JSON at runtime.
+          // Legacy assertions targeted the retired static preview and a removed get() wrapper.
           const html = fs.readFileSync('mtg/index.html', 'utf8');
-          if (!html.includes('/public/catalog.json')) throw new Error('Root preview catalogue must use tracked public catalogue data');
           const liveHtml = fs.readFileSync('public/mtg/index.html', 'utf8');
-          if (!liveHtml.includes("get('/catalog.json')")) throw new Error('Live public MTG page must load the tracked catalogue.json');
+          for (const page of [html, liveHtml]) {
+            if (!page.includes("fetch('/data/mtg-catalog.json'") ||
+                !page.includes("fetch('/catalog.json'")) {
+              throw new Error('MTG master must verify both tracked catalogues');
+            }
+            if (!page.includes('checkout held')) {
+              throw new Error('MTG source must preserve checkout hold');
+            }
+          }
           for (const page of ['public/mtg/quintorius-field-historian.html', 'public/mtg/dwynen-gilt-leaf-daen.html']) {
             if (!fs.existsSync(page)) throw new Error('Missing deployed public route: ' + page);
           }
-          if (!html.includes('EDH_QUINTORIUS_0002') || !html.includes('EDH_DWYNEN_0003')) throw new Error('Catalogue must prioritize the new decks');
+          // Product identities are checked above from public/catalog.json, not embedded in page markup.
           for (const page of ['mtg/quintorius-field-historian.html', 'mtg/dwynen-gilt-leaf-daen.html']) {
             const body = fs.readFileSync(page, 'utf8');
             if (!body.includes('decklist') && !body.includes('decklist')) throw new Error('Missing decklist reference in ' + page);
           }
           console.log('MTG catalogue validation passed.');
           NODE
+
+  visual-parity:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Verify homepage-matched MTG styling, manifests and contrast
+        run: node scripts/verify-mtg-dreamledger-theme.cjs
+      - name: Archive deterministic styling proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mtg-dreamledger-visual-parity-proof
+          path: proof/MTG-DREAMLEDGER-VISUAL-PARITY.json
+          retention-days: 7

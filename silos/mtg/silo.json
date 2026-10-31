@@ -6,8 +6,8 @@
   "name": "Magic: The Gathering",
   "short": "Magic",
   "tagline": "Singles and decks — see the cards, then deal.",
-  "accent": "#d8b56b",
-  "accent_bright": "#e8c87a",
+  "accent": "#a9f2d0",
+  "accent_bright": "#a9f2d0",
   "route": "/mtg/",
   "list_route": "/mtg-list",
   "catalog": "/data/mtg-catalog.json",
@@ -22,7 +22,13 @@
     "content": true,
     "promotion": true
   },
-  "capabilities_by_ref": ["catalog", "gauntlet", "commerce-spine", "news-carousel", "fossil"],
+  "capabilities_by_ref": [
+    "catalog",
+    "gauntlet",
+    "commerce-spine",
+    "news-carousel",
+    "fossil"
+  ],
   "inventory_policy": "empty_until_verified_supply",
   "payment_truth": "settled_payment_only",
   "browse_free": true,
@@ -30,11 +36,33 @@
   "success_fee_peer": 0,
   "currency": "NZD",
   "listing_template_ref": "AGENT_BUS/SILOS/MTG-LISTING-TEMPLATE.md",
-  "listing_fields_required": ["title", "condition", "finish", "price_nzd", "city", "meetup_or_post"],
-  "listing_fields_optional": ["photos", "language", "quantity", "bundle_discount", "trades_wanted"],
+  "listing_fields_required": [
+    "title",
+    "condition",
+    "finish",
+    "price_nzd",
+    "city",
+    "meetup_or_post"
+  ],
+  "listing_fields_optional": [
+    "photos",
+    "language",
+    "quantity",
+    "bundle_discount",
+    "trades_wanted"
+  ],
   "product_kinds": [
-    {"id": "single", "label": "Single", "primary": true},
-    {"id": "commander-deck", "label": "Commander deck", "detail_pattern": "/mtg/{slug}.html", "grid_capability": "card_image_grid"}
+    {
+      "id": "single",
+      "label": "Single",
+      "primary": true
+    },
+    {
+      "id": "commander-deck",
+      "label": "Commander deck",
+      "detail_pattern": "/mtg/{slug}.html",
+      "grid_capability": "card_image_grid"
+    }
   ],
   "clone": {
     "rule": "Clone shell + capability bindings. Never copy inventory. Never invent templates outside factory.",
@@ -56,7 +84,13 @@
       "{{SILO_LIST_ROUTE}}": "list_route",
       "{{SILO_CATALOG}}": "catalog"
     },
-    "do_not_copy": ["product inventory rows", "customer data", "stripe credentials", "analytics identities", "other silo promotion"]
+    "do_not_copy": [
+      "product inventory rows",
+      "customer data",
+      "stripe credentials",
+      "analytics identities",
+      "other silo promotion"
+    ]
   },
   "gauntlet": {
     "accept_when": [
@@ -74,13 +108,32 @@
     ]
   },
   "surface": {
-    "hero_pills": ["Singles first", "0% success fee", "See the cards"],
-    "primary_cta": {"label": "Sell a single", "href_key": "list_route"},
-    "secondary_cta": {"label": "Browse decks", "href": "#decks"},
+    "hero_pills": [
+      "Singles first",
+      "0% success fee",
+      "See the cards"
+    ],
+    "primary_cta": {
+      "label": "Sell a single",
+      "href_key": "list_route"
+    },
+    "secondary_cta": {
+      "label": "Browse decks",
+      "href": "#decks"
+    },
     "community_blocks": [
-      {"title": "List a single", "body": "Name, condition, NZD price, city. Buyers see a clean card face — not a blurry album."},
-      {"title": "Buy with eyes open", "body": "Open lists for decks. Clear terms for singles. Confirm before you pay or ship."},
-      {"title": "Trade carefully", "body": "Accounts keep people reachable. Deals stay between humans who show up as themselves."}
+      {
+        "title": "List a single",
+        "body": "Name, condition, NZD price, city. Buyers see a clean card face — not a blurry album."
+      },
+      {
+        "title": "Buy with eyes open",
+        "body": "Open lists for decks. Clear terms for singles. Confirm before you pay or ship."
+      },
+      {
+        "title": "Trade carefully",
+        "body": "Accounts keep people reachable. Deals stay between humans who show up as themselves."
+      }
     ]
   }
 }
