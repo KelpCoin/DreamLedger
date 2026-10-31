@@ -8,7 +8,15 @@
 <link rel="canonical" href="https://dreamledger.org/mtg/">
 <link rel="stylesheet" href="/assets/silo-master.css">
 <style>
-:root{ --silo-name:"Magic"; --silo-accent:#d8b56b; --silo-accent-bright:#e8c87a; }
+:root{--silo-name:"Magic";--silo-bg:#0c0818;--silo-bg-elev:#171027;--silo-surface:#211631;--silo-surface-2:#302143;--silo-line:#675080;--silo-ink:#fffaf0;--silo-muted:#ded0ec;--silo-dim:#c9b6d9;--silo-accent:#f5c451;--silo-accent-bright:#ffe28a;--silo-accent-soft:rgba(245,196,81,.16)}
+body.silo-body{background-image:radial-gradient(ellipse at 12% 2%,rgba(120,64,194,.26),transparent 54%),radial-gradient(ellipse at 90% 16%,rgba(245,196,81,.09),transparent 43%)}
+.silo-hdr{background:rgba(12,8,24,.96)}
+.silo-nav a:focus-visible,.silo-btn:focus-visible,.silo-body a:focus-visible{outline:3px solid #ffe28a;outline-offset:3px}
+.silo-eyebrow,.deck .tag,.silo-section-h a{color:#ffe28a}
+.silo-small,.clone-meta{color:#c9b6d9}
+.deck-banner{background:linear-gradient(120deg,#553076,#211631 75%);color:#ffe28a}
+.silo-pill-gold{border-color:#a78747}
+@media(max-width:690px){.silo-hdr-inner{height:auto;min-height:64px;flex-wrap:wrap;padding-top:8px;padding-bottom:8px}.silo-nav{width:100%;justify-content:flex-start;overflow-x:auto;flex-wrap:nowrap}.silo-nav a{white-space:nowrap;padding:8px 10px}}
 .hero{padding:36px 0 20px}
 .grid{display:grid;gap:14px;grid-template-columns:1fr}
 @media(min-width:640px){.grid{grid-template-columns:1fr 1fr}}
@@ -44,6 +52,7 @@
   <nav class="silo-nav">
     <a id="navList" href="/mtg-list">Sell single</a>
     <a href="#decks">Decks</a>
+    <a href="#auctions">Auctions</a>
     <a href="#how">How it works</a>
     <a href="/register">Join free</a>
     <a class="silo-cta" id="navCta" href="/mtg-list">List free</a>
@@ -69,6 +78,15 @@
     <div class="silo-section-h"><h2 class="silo-h2">How this space works</h2></div>
     <div class="community" id="community"></div>
   </section>
+  <section class="silo-section" id="auctions" aria-labelledby="auction-heading">
+    <div class="silo-section-h"><h2 class="silo-h2" id="auction-heading">MTG auctions</h2></div>
+    <div class="silo-panel silo-panel-accent">
+      <span class="silo-pill silo-pill-gold">Auction launch pending</span>
+      <p class="silo-lead" style="margin-top:12px">Auction listings and live bidding are not active yet. No bids are accepted and no auction winner or payment is implied.</p>
+      <p style="color:var(--silo-muted)">The auction system will require verified stock, published closing times, recorded bids, seller review and a clear winner and payment process before activation.</p>
+      <a class="silo-btn silo-btn-ghost" href="/mtg-list">Prepare a card listing</a>
+    </div>
+  </section>
   <section class="silo-section" id="decks">
     <div class="silo-section-h"><h2 class="silo-h2">Decks for sale</h2></div>
     <div id="status" class="status-bar">Loading inventory…</div>
@@ -87,6 +105,7 @@
 <footer class="silo-footer silo-wrap">
   <a href="/">Home</a>
   <a href="/mtg/">Magic</a>
+  <a href="/mtg/#auctions">Auctions</a>
   <a id="footList" href="/mtg-list">Sell single</a>
   <a href="/register">Join</a>
   <p style="margin-top:12px">DreamLedger Magic — see the cards, then deal.</p>
