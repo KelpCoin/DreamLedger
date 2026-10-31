@@ -10,6 +10,10 @@ Deno.serve(async(req)=>{
  const base=Deno.env.get("SUPABASE_URL"),key=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
  const pub=Deno.env.get("SUPABASE_ANON_KEY")||Deno.env.get("SUPABASE_PUBLISHABLE_KEY");
  const stripeKey=Deno.env.get("STRIPE_SECRET_KEY");
+ // Until NZ legal/payment routing and connected-seller responsibility are signed off,
+ // only Stripe TEST mode is permitted, regardless of the payment feature flag.
+ if(Deno.env.get("MTG_AUCTION_PAYMENT_ENV")!=="test"||!stripeKey?.startsWith("sk_test_"))
+   return reply({error:"LIVE_THIRD_PARTY_FUNDS_NOT_AUTHORIZED"},503);
  if(!base||!key||!pub||!stripeKey)return reply({error:"CONFIGURATION_INCOMPLETE"},503);
  const bearer=req.headers.get("authorization")||"";
  if(!/^Bearer .+/.test(bearer))return reply({error:"LOGIN_REQUIRED"},401);
