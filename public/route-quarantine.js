@@ -14,7 +14,9 @@ function allowedPublicRoute(input){
   const p=String(input||'');
   if(EXACT.has(p))return true;
   if(/^\/(?:mtg|phinhaven|dreammeez)(?:[\/.\-]|$)/i.test(p))return true;
-  if(/^\/(?:assets|data)(?:\/|$)/i.test(p))return true;
+  if(/^\/assets\//i.test(p))return true;
+  if(/^\/data\/(?:mtg-catalog\.json|mtg-owner-decks\.json|mtg-owner-singles\.json|mtg-auctions\.json|decklists\/|avatar|dreammeez|phinhaven)/i.test(p))return true;
+  if(p==='/catalog.json')return true;
   if(/^\/\.well-known\/(?:security\.txt|assetlinks\.json|apple-app-site-association)$/i.test(p))return true;
   return false;
 }
