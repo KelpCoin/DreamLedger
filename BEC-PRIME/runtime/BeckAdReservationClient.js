@@ -14,7 +14,9 @@ function validate(input) {
   const {placement,idempotency_key}=input;
   if(!placement||!idempotency_key||typeof idempotency_key!=='string'||
      !/^[a-zA-Z0-9:_-]{8,128}$/.test(idempotency_key))throw Error('reservation_key_invalid');
-  compile([{...placement,status:'APPROVED'}]);
+  // A caller cannot silently upgrade draft inventory into an approved claim.
+  if(placement.status!=='APPROVED')throw Error('reservation_placement_not_approved');
+  compile([placement]);
   if(!/^[a-z0-9_-]{2,80}$/.test(placement.exhaust)||!/^[a-z0-9_-]{2,80}$/.test(placement.silo)||!/^[a-z0-9_-]{2,80}$/.test(placement.canvas_id||''))
     throw Error('reservation_namespace_invalid');
   if(!['NZD','USD'].includes(placement.currency))throw Error('reservation_currency_invalid');
@@ -26,6 +28,26 @@ function validate(input) {
     p_hold_minutes:60
   };
 }
+
+function matchesClaim(row,params) {
+  if(!row||typeof row!=='object'||Array.isArray(row)||
+     typeof row.reservation_id!=='string'||
+     !/^[a-f0-9]{8}-[a-f0-9]{4}-[1-8][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(row.reservation_id))
+    return false;
+  // The RPC must attest the EXACT claim, not merely the correct canvas/key.
+  const fields=[
+    ['exhaust','p_exhaust'],['silo','p_silo'],['canvas','p_canvas'],
+    ['idempotency_key','p_key'],['x','p_x'],['y','p_y'],
+    ['width','p_width'],['height','p_height'],
+    ['canvas_width','p_canvas_width'],['canvas_height','p_canvas_height'],
+    ['price_minor','p_price_minor'],['currency','p_currency']
+  ];
+  if(!fields.every(([field,param])=>row[field]===params[param]))return false;
+  const start=Date.parse(row.campaign_start),end=Date.parse(row.campaign_end);
+  return Number.isFinite(start)&&Number.isFinite(end)&&
+    start===Date.parse(params.p_start)&&end===Date.parse(params.p_end);
+}
+
 async function reserve(input,{env=process.env,fetchImpl=globalThis.fetch,timeoutMs=DEFAULT_TIMEOUT_MS}={}) {
   const params=validate(input);
   const {base,key}=configured(env);
@@ -45,12 +67,11 @@ async function reserve(input,{env=process.env,fetchImpl=globalThis.fetch,timeout
     throw Error('beck_ad_reservation_rejected');
   }
   let result;try{result=await response.json()}catch{throw Error('beck_ad_response_invalid')}
-  if(!result||typeof result!=='object'||!result.reservation_id||
-    result.exhaust!==params.p_exhaust||result.silo!==params.p_silo||
-    result.canvas!==params.p_canvas||result.idempotency_key!==params.p_key)
-    throw Error('beck_ad_response_invalid');
+  if(!matchesClaim(result,params))throw Error('beck_ad_response_invalid');
+  const expiry=Date.parse(result.hold_expires_at);
   if(!['HELD','PAID','APPROVED','PUBLISHED'].includes(result.status)||
-     (result.status==='HELD'&&!(Date.parse(result.hold_expires_at)>Date.now())))
+     !Number.isFinite(expiry)||
+     (result.status==='HELD'&&!(expiry>Date.now())))
     throw Error('beck_ad_reservation_not_active');
   return {reservation_id:result.reservation_id,expires_at:result.hold_expires_at,status:result.status,
     exhaust:result.exhaust,silo:result.silo,canvas:result.canvas,idempotency_key:params.p_key};
