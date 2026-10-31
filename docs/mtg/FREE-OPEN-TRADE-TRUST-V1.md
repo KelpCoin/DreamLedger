@@ -19,7 +19,7 @@ authorised by this file.
 - **Peer-attested trade**: the initiator and an invited participant claim they agreed and completed an exchange. A receipt hash is a continuity marker, not independent confirmation; neither participant is necessarily an independently distinct human.
 - **Independently verified transaction**: distinct independently checked counterparties, completed exchange and delivery proof. Paid sales also need provider-reconciled settlement. This is eligible for a conservative reputation score.
 
-Display new users as **No verified history yet**, never 0 stars. Verified history uses a Wilson 95% lower confidence bound with the verified count and actual positive/negative outcome counts; rating can never be purchased. Neutral reviews remain visible in future feedback UX but are not included in the current numeric function until an explicit scoring policy exists. Self-submitted external posts may be shown as **linked, unverified history**, never as verified sales. Imported handles require a separate ownership challenge before any future verified-ownership badge.
+Display new users as **No verified history yet**, never 0 stars. Verified history uses a Wilson 95% lower confidence bound with a limit of one reputation-contributing outcome per independently identified counterparty and the actual positive/negative outcome counts; rating can never be purchased. Neutral reviews remain visible in future feedback UX but are not included in the current numeric function until an explicit scoring policy exists. Self-submitted external posts may be shown as **linked, unverified history**, never as verified sales. Imported handles require a separate ownership challenge before any future verified-ownership badge.
 
 ## Free, private trade ledger
 
