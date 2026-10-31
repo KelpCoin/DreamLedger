@@ -233,7 +233,7 @@ end $$;
 create or replace function public.mtg_auction_bid_v2(p_auction uuid,p_amount_cents bigint,p_request_id uuid)
 returns jsonb language plpgsql security definer set search_path='' as $$
 declare u uuid:=auth.uid(); l public.mtg_auction_lots_v2%rowtype; oldbid public.mtg_auction_bids_v2%rowtype;
- b uuid; floor_price bigint; t timestamptz:=clock_timestamp();
+ b uuid; floor_price bigint; t timestamptz;
 begin
  if u is null then raise exception 'AUTH_REQUIRED'; end if;
  if not exists(select 1 from auth.users where id=u and email_confirmed_at is not null)
@@ -241,6 +241,8 @@ begin
  if p_request_id is null or p_amount_cents is null or p_amount_cents>100000000000 then raise exception 'INVALID_BID'; end if;
  select * into l from public.mtg_auction_lots_v2 where id=p_auction for update;
  if not found then raise exception 'AUCTION_NOT_FOUND'; end if;
+ -- Evaluate the deadline AFTER any wait on FOR UPDATE, never at function entry.
+ t:=clock_timestamp();
  select * into oldbid from public.mtg_auction_bids_v2
  where auction_id=l.id and bidder_id=u and request_id=p_request_id;
  if found then
