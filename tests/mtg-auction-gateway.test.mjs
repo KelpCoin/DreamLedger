@@ -23,7 +23,7 @@ function grant(silo='mtg-master',duration_seconds=600){
  approval:{explicit:true,reference:'test-owner-approval-001',economic_basis:'EXPERIMENT_APPROVED',
  capability:'kingdom.auction.v1',silo_id:silo},
  resource:{capability_id:'kingdom.auction.v1',silo_id:silo,
- actions:['register','inventory','auction_submit','bid','ship','deliver','dispute','checkout'],
+ actions:['register','inventory','auction_submit','buy_now_set','buy_now','bid','ship','deliver','dispute','checkout'],
  duration_seconds,deployment_sha:deploymentSha},secret:gateSecret});
 }
 
@@ -112,6 +112,22 @@ test('Kingdom auction grant missing denies bids even with JWT, before upstream r
  body:{p_auction:'11111111-1111-4111-8111-111111111111',p_amount_cents:1000,
  p_request_id:'22222222-2222-4222-8222-222222222222'}}));
  assert.equal(r.status,503);assert.equal(r.data.error,'KINGDOM_GAUNTLET_ALLOCATION_HOLD');assert.equal(calls,0);
+});
+test('Buy Now validates ownership of price and passes only UUID to locked RPC',async()=>{
+ setup();let upstream;
+ globalThis.fetch=async(url,options)=>{
+  upstream={url,options};
+  return new Response(JSON.stringify({order_id:'order-test',checkout_pending:true}),{status:200});
+ };
+ const id='11111111-1111-4111-8111-111111111111';
+ const r=await result(request('buy_now',{method:'POST',headers:{authorization:'Bearer buyer'},
+ body:{p_auction:id}}));
+ assert.equal(r.status,200);
+ assert.match(upstream.url,/mtg_auction_buy_now_v2$/);
+ assert.deepEqual(JSON.parse(upstream.options.body),{p_auction:id});
+ const forged=await result(request('buy_now',{method:'POST',headers:{authorization:'Bearer buyer'},
+ body:{p_auction:id,p_buy_now_cents:100}}));
+ assert.equal(forged.status,422);
 });
 test('Cross-silo signed grant cannot buy authorization to bid on MTG',async()=>{
  setup();process.env.KINGDOM_AUCTION_ALLOCATION_JSON=JSON.stringify(grant('other-silo'));
