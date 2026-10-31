@@ -25,7 +25,7 @@ const substitutions = [
   ['/data/mtg-owner-decks.json','/data/other-decks.json'],
   ['checkout_verified:false','checkout_verified:true'],
   ['p.checkout_verified===true','p.checkout_verified!==true'],
-  ['Only stock-verified items may display a Stripe checkout.','Every item is available for checkout.']
+  ['Checkout is available only for confirmed stock.','Every item is available for checkout.']
 ];
 const rejected = substitutions.map(([from,to],i)=>{
   assert.ok(code.includes(from),'fixture source drift '+i+': '+from);
