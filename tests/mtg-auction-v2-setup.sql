@@ -4,6 +4,8 @@ create role anon nologin;
 create role authenticated nologin;
 create role service_role bypassrls nologin; -- Supabase service_role bypasses RLS, unlike ordinary authenticated users.
 create schema auth;
+create schema storage;
+create table storage.buckets(id text primary key,name text not null,public boolean not null,file_size_limit integer,allowed_mime_types text[]);
 create table auth.users(id uuid primary key,email_confirmed_at timestamptz);
 create function auth.uid() returns uuid stable language sql as
 $$ select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;
@@ -18,9 +20,17 @@ insert into auth.users(id) values
  ('33333333-3333-4333-8333-333333333333');
 update auth.users set email_confirmed_at=now();
 \i supabase/migrations/20261031201000_mtg_auction_durable_v2.sql
+\i supabase/migrations/20261031230000_mtg_auction_evidence_storage.sql
 set request.jwt.claim.sub='11111111-1111-4111-8111-111111111111';
 set role authenticated;
 select public.mtg_seller_register_v2();
+reset role;
+set role service_role;
+insert into public.mtg_auction_evidence_v2(owner_id,sha256,storage_key,content_type,byte_size)
+ values('11111111-1111-4111-8111-111111111111',repeat('a',64),
+ '11111111-1111-4111-8111-111111111111/'||repeat('a',64)||'.jpg','image/jpeg',1234);
+reset role;
+set role authenticated;
 select public.mtg_inventory_submit_v2('Verified test Commander deck','Near mint',repeat('a',64));
 reset role;
 set role service_role;
