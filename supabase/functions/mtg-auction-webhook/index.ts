@@ -1,6 +1,6 @@
 // MTG Stripe webhook. Raw request signature verified before touching the external ledger.
 // Never infer a paid order from a client redirect or a client-submitted ID.
-import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+// Built-in Deno runtime types, no JSR edge-runtime dependency.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 import Stripe from "https://esm.sh/stripe@18.5.0?target=denonext";
 const reply=(v:unknown,s=200)=>new Response(JSON.stringify(v),{status:s,headers:{"content-type":"application/json","cache-control":"no-store"}});
