@@ -59,7 +59,7 @@ create table if not exists public.mtg_auction_lots_v2(
 -- Fixed Buy Now is optional and is disabled once bidding begins.
 alter table public.mtg_auction_lots_v2 add column if not exists buy_now_cents bigint;
 alter table public.mtg_auction_lots_v2 add constraint mtg_v2_buy_now_positive
- check(buy_now_cents is null or buy_now_cents>=start_cents);
+ check(buy_now_cents is null or buy_now_cents>=greatest(start_cents,reserve_cents));
 create unique index if not exists mtg_v2_one_lot_per_inventory on public.mtg_auction_lots_v2(inventory_id);
 create index if not exists mtg_v2_open_due on public.mtg_auction_lots_v2(status,ends_at);
 create table if not exists public.mtg_auction_bids_v2(
@@ -277,7 +277,7 @@ begin
  select * into l from public.mtg_auction_lots_v2 where id=p_auction for update;
  if not found or l.seller_id<>u or l.status<>'draft' then raise exception 'DRAFT_SELLER_REQUIRED'; end if;
  if p_buy_now_cents is not null and
- (p_buy_now_cents<l.start_cents or p_buy_now_cents>100000000000)
+ (p_buy_now_cents<greatest(l.start_cents,l.reserve_cents) or p_buy_now_cents>100000000000)
  then raise exception 'INVALID_BUY_NOW_PRICE'; end if;
  update public.mtg_auction_lots_v2 set buy_now_cents=p_buy_now_cents,version=version+1 where id=l.id;
  perform mtg_private.event(l.id,'buy_now_terms_set',u,jsonb_build_object('enabled',p_buy_now_cents is not null));
