@@ -1,0 +1,32 @@
+name: Zero-Cost Cloudflare Static Review
+on:
+  pull_request:
+    paths:
+      - 'scripts/build-cloudflare-free-release.cjs'
+      - 'scripts/test-cloudflare-free-release.cjs'
+      - 'scripts/build-customer-public-release.cjs'
+      - '.github/workflows/cloudflare-free-static-review.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  static:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Build Cloudflare Pages static preview
+        run: node scripts/build-cloudflare-free-release.cjs
+      - name: Verify no unsupported paid checkout or secret migration
+        run: node --test scripts/test-cloudflare-free-release.cjs
+      - name: Archive preview and immutable build proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: cloudflare-static-zero-cost-preview
+          path: |
+            public-release/
+            artifacts/cloudflare-free-static-proof.json
+          if-no-files-found: error
