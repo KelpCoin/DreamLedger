@@ -7,6 +7,7 @@ on:
       - 'public/mtg/auctions/**'
       - 'handlers/mtg-auction-v2.ts'
       - 'supabase/functions/mtg-auction-*/**'
+      - 'supabase/functions/mtg-auction-deno.json'
       - 'tests/mtg-auction-v2-*'
       - 'tests/mtg-auction-gateway.test.mjs'
       - 'scripts/mtg-auction-live-release-gate.mjs'
@@ -67,7 +68,7 @@ jobs:
           deno-version: v2.x
       - name: Type-check exact MTG Edge-function source
         run: |
-          deno check supabase/functions/mtg-auction-checkout/index.ts
-          deno check supabase/functions/mtg-auction-webhook/index.ts
-          deno check supabase/functions/mtg-auction-evidence/index.ts
-          deno check supabase/functions/mtg-auction-close/index.ts
+          deno check --config supabase/functions/mtg-auction-deno.json supabase/functions/mtg-auction-checkout/index.ts
+          deno check --config supabase/functions/mtg-auction-deno.json supabase/functions/mtg-auction-webhook/index.ts
+          deno check --config supabase/functions/mtg-auction-deno.json supabase/functions/mtg-auction-evidence/index.ts
+          deno check --config supabase/functions/mtg-auction-deno.json supabase/functions/mtg-auction-close/index.ts
