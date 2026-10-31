@@ -1,0 +1,43 @@
+name: MTG auction transaction gauntlet
+on:
+  pull_request:
+    paths:
+      - 'supabase/migrations/*mtg_auction_durable_v2.sql'
+      - 'handlers/mtg-auction-v2.ts'
+      - 'supabase/functions/mtg-auction-*/**'
+      - 'tests/mtg-auction-v2-*'
+      - 'BEC-PRIME/auction-engine.js'
+      - '.github/workflows/mtg-auction-transaction-gauntlet.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  mtg-postgres-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ensure PostgreSQL client
+        run: command -v psql >/dev/null || (sudo apt-get update -qq && sudo apt-get install -y postgresql-client)
+      - name: Execute isolated database and auction safety gauntlet
+        run: bash tests/mtg-auction-v2-test.sh
+      - name: Verify public UI has no fake auction lots or local accepted bids
+        run: |
+          ! grep -q 'local_sandbox' public/auctions.html
+          ! grep -q 'AUC-MTG-FETCHLAND-001' public/auctions.html
+          grep -q 'id="auctions"' public/mtg/index.html
+          grep -q 'AUCTION_V1_DISABLED' BEC-PRIME/auction-engine.js
