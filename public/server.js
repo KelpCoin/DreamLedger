@@ -5,6 +5,7 @@ const commercialCell=require('../BEC-PRIME/routes/commercialCell');
 const tollRoad=require('../BEC-PRIME/routes/tollRoad');
 const beckAdInventory=require('../BEC-PRIME/runtime/BeckAdInventoryRead');
 const beckAdCheckout=require('../BEC-PRIME/runtime/BeckAdCheckout');
+const beckAdWebhook=require('../BEC-PRIME/runtime/BeckAdPaymentWebhook');
 const TollRuntime=require('../BEC-PRIME/runtime/TollRoad');
 const PORT=Number(process.env.PORT||10000);
 const COMMIT=process.env.RENDER_GIT_COMMIT||process.env.RENDER_GIT_COMMIT_SHA||process.env.GITHUB_SHA||'unknown';
@@ -107,6 +108,28 @@ http.createServer(async (req,res)=>{
   }
   if(req.method==='GET'&&p==='/version'){
     return send(res,200,JSON.stringify({service:'dreamledger-storefront',status:'ok',mtg:'master'}),'application/json; charset=utf-8');
+  }
+  // Separate signed Stripe webhook for BECK ad reservations. Does not publish ads.
+  if(req.method==='POST' && p==='/api/webhooks/beck-ad-stripe'){
+    res.setHeader('Cache-Control','no-store');
+    if(!beckAdWebhook.enabled(process.env))
+      return send(res,503,JSON.stringify({error:'ad_webhook_not_activated'}),'application/json; charset=utf-8');
+    try{
+      let bytes=0;const chunks=[];
+      for await(const chunk of req){
+        bytes+=chunk.length;
+        if(bytes>65536)return send(res,413,JSON.stringify({error:'request_too_large'}),'application/json; charset=utf-8');
+        chunks.push(chunk);
+      }
+      const outcome=await beckAdWebhook.processStripeEvent(
+        Buffer.concat(chunks),String(req.headers['stripe-signature']||''));
+      return send(res,200,JSON.stringify(outcome),'application/json; charset=utf-8');
+    }catch(e){
+      const status=e?.statusCode===400?400:503;
+      console.error('BECK_AD_WEBHOOK_GATE',status,String(e?.message||'unknown').slice(0,100));
+      return send(res,status,JSON.stringify({error:status===400?'invalid_stripe_event':'ad_payment_record_unavailable'}),
+        'application/json; charset=utf-8');
+    }
   }
   // Money path remains disabled unless all three operator-controlled release flags exist.
   if(req.method==='POST' && p==='/api/molt-beach-checkout'){
