@@ -33,5 +33,9 @@ assert(edge.includes('marketplace_orders')&&edge.includes('marketplace_fulfillme
 assert(!/\.(insert|upsert|update|delete)\s*\(/.test(edge),'return verifier must be read-only');
 assert(edge.includes("LOOKUP='COMMANDER-DECK-DIAGNOSTIC-001'"),'canonical Stripe lookup key');
 assert(edge.includes('p.unit_amount===2900'),'price in minor units');
+const webhook=read('supabase/functions/stripe-revenue-41104f355d6878cdd6d1f9dc/index.ts');
+assert(webhook.includes('MTG_DIAG_CONTRACT_MISMATCH'),'live webhook candidate must fail closed before settlement');
+assert(webhook.includes('line_items.data.price.product'),'webhook must inspect purchased product');
+assert(!webhook.includes('sku=listing.sku===\"COMMANDER-DECK-DIAGNOSTIC-001\" ? \"CMD-DIAG-29\"'),'no legacy alias remap');
 assert(template.member_benefits[0].included_per_month===1,'Patreon monthly included diagnostic');
 console.log('BECK_MTG_COMMUNITY_CHECKOUT_PASS: free hub first, NZD29 paid offer secondary, payment processing fail-closed');
