@@ -7,10 +7,11 @@ const {stripTypeScriptTypes}=require('node:module');
 const source=fs.readFileSync('handlers/commercial-diagnostic-input.ts','utf8');
 const ts=stripTypeScriptTypes(source,{mode:'strip'}).replace(
  'export default async function handler','globalThis.__handler = async function handler');
-const session='cs_test_SYNTHETIC12345678901';
+const session='cs_live_SYNTHETIC12345678901';
+const testSession='cs_test_SYNTHETIC12345678901';
 const fullDeck=Array.from({length:100},(_,i)=>'1 Synthetic Card '+(i+1)).join('\n');
 function setup(serverResponse={status:200,body:{ok:true,status:'queued',fulfillment_id:'f-synthetic'}},
-  verifier={status:200,body:{state:'paid_recorded',retryable:false}}){
+  verifier={status:200,body:{state:'paid_recorded',retryable:false}},env={}){
  const calls=[];
  const fetch=async(url,options)=>{
   calls.push({url:String(url),method:options.method,headers:options.headers,
@@ -19,7 +20,7 @@ function setup(serverResponse={status:200,body:{ok:true,status:'queued',fulfillm
   return new Response(typeof target.body==='string'?target.body:JSON.stringify(target.body),{status:target.status,
     headers:{'content-type':'application/json'}});
  };
- const context={Response,Request,URL,TextEncoder,AbortSignal,fetch,console,globalThis:null};
+ const context={Response,Request,URL,TextEncoder,AbortSignal,fetch,console,process:{env},globalThis:null};
  context.globalThis=context;
  vm.runInNewContext(ts,context,{filename:'commercial-diagnostic-input.ts'});
  const invoke=(body,origin='https://dreamledger.org',method='POST')=>context.__handler(
@@ -138,4 +139,47 @@ test('100-card quantity notation and section headers pass structural preflight',
  const response=await t.invoke({session_id:session,decklist:deck});
  assert.equal(response.status,202);
  assert.equal(t.calls.length,2);
+});
+
+test('TEST checkout cannot send decklist to LIVE intake without isolated project configuration',async()=>{
+ const t=setup();
+ const r=await t.invoke({session_id:testSession,decklist:fullDeck});
+ assert.equal(r.status,503);
+ assert.equal((await r.json()).error,'TEST_DIAGNOSTIC_INPUT_UNAVAILABLE');
+ assert.equal(t.calls.length,0,'no provider read or write before test isolation');
+});
+test('configured TEST checkout routes only to exact isolated existing Supabase intake',async()=>{
+ const ref='abcdefghijklmnopqrst';
+ const url='https://'+ref+'.supabase.co/functions/v1/marketplace-diagnostic-input';
+ const t=setup(undefined,undefined,{
+  BECK_STRIPE_TEST_PROJECT_REF:ref,MTG_DIAGNOSTIC_TEST_INPUT_URL:url
+ });
+ const r=await t.invoke({session_id:testSession,decklist:fullDeck});
+ assert.equal(r.status,202);
+ assert.equal(t.calls.length,2);
+ assert.equal(t.calls[0].method,'GET');
+ assert(t.calls[0].url.endsWith('session_id='+testSession));
+ assert.equal(t.calls[1].method,'POST');
+ assert.equal(t.calls[1].url,url);
+ assert.notEqual(t.calls[1].url,'https://wbwgroygjeyukkspnqiy.supabase.co/functions/v1/marketplace-diagnostic-input');
+ assert.equal((await r.json()).report_delivered,false);
+});
+test('TEST checkout rejects production project, wrong endpoint and missing project',async()=>{
+ const ref='abcdefghijklmnopqrst';
+ const variants=[
+  {BECK_STRIPE_TEST_PROJECT_REF:'wbwgroygjeyukkspnqiy',
+   MTG_DIAGNOSTIC_TEST_INPUT_URL:'https://wbwgroygjeyukkspnqiy.supabase.co/functions/v1/marketplace-diagnostic-input'},
+  {BECK_STRIPE_TEST_PROJECT_REF:ref,
+   MTG_DIAGNOSTIC_TEST_INPUT_URL:'https://wbwgroygjeyukkspnqiy.supabase.co/functions/v1/marketplace-diagnostic-input'},
+  {BECK_STRIPE_TEST_PROJECT_REF:ref,
+   MTG_DIAGNOSTIC_TEST_INPUT_URL:'https://'+ref+'.supabase.co/functions/v1/unrelated'},
+  {BECK_STRIPE_TEST_PROJECT_REF:ref},
+  {MTG_DIAGNOSTIC_TEST_INPUT_URL:'https://'+ref+'.supabase.co/functions/v1/marketplace-diagnostic-input'}
+ ];
+ for(const env of variants){
+  const t=setup(undefined,undefined,env);
+  const r=await t.invoke({session_id:testSession,decklist:fullDeck});
+  assert.equal(r.status,503,JSON.stringify(env));
+  assert.equal(t.calls.length,0,'must not access any provider for invalid isolation');
+ }
 });
