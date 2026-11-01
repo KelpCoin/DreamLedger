@@ -1,0 +1,33 @@
+{
+  "schema": "MTG/spec-verification/v1",
+  "release_commit": "70920f4021f65eddbf3b32c8b921e112cc0cac88",
+  "tests_passed": 25,
+  "shared_theme_checks_passed": 41,
+  "auction_slots": [
+    "owner",
+    "owner",
+    "community"
+  ],
+  "browser_rendered_homepage_and_mtg": {
+    "background": "rgb(8, 11, 16)",
+    "body_font": "Inter, \"Segoe UI\", system-ui, sans-serif",
+    "heading_font": "\"Space Grotesk\", Inter, \"Segoe UI\", system-ui, sans-serif",
+    "signal": "#c5ff35"
+  },
+  "mtg_price_color": "rgb(247, 249, 251)",
+  "calculator_browser_test": {
+    "buy": 2,
+    "sell": 3,
+    "quantity": 4,
+    "fees": 1,
+    "net_tix": 3,
+    "break_even": 2.25
+  },
+  "news_sources": [
+    "https://www.mtgo.com/news/mtgo102726",
+    "https://www.magic.wizards.com/en/news/announcements/where-to-find-star-trek-previews"
+  ],
+  "news_updated": "2026-11-01",
+  "premium_features": "planned_not_active",
+  "verifier": "node --test scripts/test-mtg-header-market.cjs && node scripts/verify-mtg-dreamledger-theme.cjs"
+}

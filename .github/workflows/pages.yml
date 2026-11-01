@@ -65,7 +65,7 @@ jobs:
           grep -Fq "Your free deck workbench" _site/mtg/index.html
           grep -Fq "/silos/mtg/silo.json" _site/mtg/index.html
           grep -Fq "mtg-dreamledger-theme.css" _site/mtg/index.html
-          grep -Fq -- "--dl-home-mint:#a9f2d0" _site/assets/mtg-dreamledger-theme.css
+          grep -Fq -- "--dl-home-mint:#c5ff35" _site/assets/mtg-dreamledger-theme.css
 
           python - <<'PY'
           from html.parser import HTMLParser
@@ -153,7 +153,7 @@ jobs:
           fetch_check "" "Claim a founding billboard tile"
           fetch_check "mtg/" "Your free deck workbench"
           fetch_check "assets/silo-master.css" ":root"
-          fetch_check "assets/mtg-dreamledger-theme.css" "--dl-home-mint:#a9f2d0"
+          fetch_check "assets/mtg-dreamledger-theme.css" "--dl-home-mint:#c5ff35"
           fetch_check "data/mtg-catalog.json" '"products"'
           fetch_check "silos/mtg/silo.json" '"slug"'
 
