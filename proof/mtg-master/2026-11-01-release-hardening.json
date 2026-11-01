@@ -40,6 +40,13 @@
       "active": false,
       "source": "Stripe live account read, 2026-11-01",
       "sku": "CMD-DIAG-29"
+    },
+    "diagnostic_delivery_contract_review": {
+      "stripe_link_metadata_sku_id": "CMD-DIAG-29",
+      "deployed_supabase_input_expects": "COMMANDER-DECK-DIAGNOSTIC-001",
+      "status": "POTENTIAL_MISMATCH_PENDING_E2E_TEST",
+      "database_verification": "UNAVAILABLE_CONNECTION_REFUSED",
+      "pre_sale_gate": "DO_NOT_ACTIVATE_LINK_UNTIL_WIRING_AND_DELIVERY_VALIDATED"
     }
   },
   "gates": {
