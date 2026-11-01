@@ -29,17 +29,15 @@
   <div class="box">
     <span class="badge">Paid → deliver</span>
     <h1 class="silo-h2">Submit your Commander decklist</h1>
-    <p class="silo-lead" style="margin-bottom:16px">NZ$29 diagnostic. Payment must be verifiable (Stripe session) before fulfillment is accepted.</p>
+    <p class="silo-lead" style="margin-bottom:16px">NZ$29 diagnostic. We verify your payment with Stripe before accepting the list. No extra account needed.</p>
     <div id="need-pay" hidden>
       <p style="color:var(--silo-muted);font-size:14px;margin-bottom:12px">This form accepts existing paid diagnostic orders. Checkout is currently held for new purchases; see the NZ$29 product page for current status.</p>
       <a class="silo-btn silo-btn-gold" href="/mtg/diagnostic.html">View NZ$29 diagnostic</a>
     </div>
     <form id="f">
-      <label class="silo-label" for="email">Email used at checkout</label>
-      <input class="silo-input" id="email" type="email" required autocomplete="email" placeholder="you@example.com">
       <label class="silo-label" for="session_id">Checkout session ID</label>
       <input class="silo-input" id="session_id" required placeholder="cs_live_..." autocomplete="off">
-      <p class="hint">From Stripe success URL or receipt. Starts with cs_.</p>
+      <p class="hint">Filled in automatically after checkout. Your Stripe reference is checked before intake.</p>
       <label class="silo-label" for="decklist">Commander decklist</label>
       <textarea class="silo-textarea" id="decklist" required minlength="20" placeholder="1 Sol Ring&#10;1 Command Tower&#10;1 Your Commander"></textarea>
       <p class="hint">Full list · at least 20 characters.</p>
@@ -52,9 +50,7 @@
 (function(){
   var q=new URLSearchParams(location.search);
   var session=q.get('session_id')||q.get('sessionId')||'';
-  var email=q.get('email')||'';
   if(session) document.getElementById('session_id').value=session;
-  if(email) document.getElementById('email').value=email;
   if(!session) document.getElementById('need-pay').hidden=false;
   document.getElementById('f').addEventListener('submit',async function(e){
     e.preventDefault();
@@ -64,7 +60,6 @@
     btn.disabled=true;
     try{
       var r=await fetch('/api/commercial/input',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-        email:document.getElementById('email').value.trim(),
         session_id:document.getElementById('session_id').value.trim(),
         decklist:document.getElementById('decklist').value
       })});
