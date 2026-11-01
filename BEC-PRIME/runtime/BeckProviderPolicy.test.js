@@ -12,7 +12,7 @@ test('the BECK agent contract explicitly retires Render',()=>{
  assert.match(agent,/Never suggest restarting, using, monitoring, repairing, deploying to, paying for, or depending on Render/);
 });
 test('accessibility and no-PC execution stay mandatory',()=>{
- assert.match(agent,/not be handed repetitive manual code edits/);
+ assert.match(agent,/must \*\*not\*\* be handed repetitive manual code edits/);
  assert.match(agent,/cloud-continued, no-PC workflows/);
  assert.match(agent,/DreamLedger is one exhaust/);
 });
