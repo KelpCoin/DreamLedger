@@ -10,11 +10,13 @@ const request={market:'NZ',size:'small',email:'buyer@example.invalid',
  request_key:'synthetic_once_per_checkout_123456'};
 const stock={inventory_source:'verified_registered_supabase',market:'NZ',
  total_founding_units:100,remaining_founding_units:100,unavailable_positions:[]};
-const reserveOk=async()=>({status:'HELD',reservation_id:'test-hold-123',expires_at:'2026-11-01T01:00:00Z'});
+const holdId='11111111-1111-4111-8111-111111111111';
+const reserveOk=async()=>({status:'HELD',reservation_id:holdId,expires_at:'2026-11-01T01:00:00Z'});
+const bindOk=async ({reservation_id,session_id})=>({linked:true,reservation_id,checkout_session_id:session_id});
 const checkoutOk=async()=>({ok:true,json:async()=>({id:'cs_test_offline_dummy',
  url:'https://checkout.stripe.com/c/pay/synthetic',livemode:false,payment_status:'unpaid'})});
 async function run(opts={}){return prepareCheckout(request,{env:enabled,now,getInventory:async()=>stock,
- makeReservation:reserveOk,fetchImpl:checkoutOk,...opts});}
+ makeReservation:reserveOk,bindReservation:bindOk,fetchImpl:checkoutOk,...opts});}
 test('default flags reject before reading provider or inventory',async()=>{
  let calls=0;
  await assert.rejects(()=>run({env:{...enabled,BECK_AD_OWNER_RELEASE_APPROVED:'false'},
@@ -55,7 +57,7 @@ test('reserve is required before Stripe and metadata has attribution',async()=>{
    for(const key of ['product_sku','product_id','offer_id','silo','source'])
      assert.ok(form.get('payment_intent_data[metadata]['+key+']'));
    assert.equal(form.get('line_items[0][price_data][unit_amount]'),'5000');
-   assert.equal(form.get('metadata[reservation_id]'),'test-hold-123');
+   assert.equal(form.get('metadata[reservation_id]'),holdId);
    assert.equal(form.get('metadata[review_status]'),'APPROVAL_REQUIRED');
    assert.equal(form.get('expires_at'),String(Math.floor(now.valueOf()/1000)+1800));
    seenKey=options.headers['idempotency-key'];
@@ -88,5 +90,22 @@ test('live Stripe key cannot accept testmode response',async()=>{
 test('conflicting tile retries only bounded times',async()=>{
  let n=0;
  const r=await run({makeReservation:async()=>{n++;if(n===1)throw Error('beck_ad_inventory_conflict');return reserveOk();}});
- assert.equal(n,2);assert.equal(r.reservation_id,'test-hold-123');
+ assert.equal(n,2);assert.equal(r.reservation_id,holdId);
+});
+
+test('binding failure expires orphan Checkout Session before revealing URL',async()=>{
+ let expireCalls=0;
+ await assert.rejects(()=>run({
+   bindReservation:async()=>{throw Error('database unavailable')},
+   fetchImpl:async(url)=>{
+     if(url.endsWith('/expire')){expireCalls++;return {ok:true};}
+     return checkoutOk();
+   }
+ }),/checkout_binding_unverified/);
+ assert.equal(expireCalls,1);
+});
+test('binding a different reservation is never treated as success',async()=>{
+ await assert.rejects(()=>run({
+   bindReservation:async({session_id})=>({linked:true,reservation_id:'WRONG',checkout_session_id:session_id})
+ }),/checkout_binding_unverified/);
 });
