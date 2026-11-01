@@ -1,0 +1,15 @@
+'use strict';
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const read=p=>fs.readFileSync(path.join(__dirname,'..',p),'utf8');
+const mtg=read('public/mtg/index.html');
+const checkout=read('public/success.html');
+const quote=read('public/quote-comparison/index.html');
+const v=JSON.parse(read('vercel.json'));
+assert.equal((mtg.match(/data-auction-slot=/g)||[]).length,3);
+assert.ok(mtg.includes('/mtg/diagnostic.html'));
+assert.ok(!/Payment received|Stripe has confirmed checkout/i.test(checkout));
+assert.ok(quote.includes('Blank freight is not assumed free.'));
+for(const p of ['/thanks','/thanks/']) assert.ok(v.rewrites.some(x=>x.source===p&&x.destination==='/thanks.html'));
+console.log('BECK_MTG_RELEASE_SAFE_PASS');
