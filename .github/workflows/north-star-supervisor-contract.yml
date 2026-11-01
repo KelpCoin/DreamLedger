@@ -7,6 +7,8 @@ on:
       - 'runtime/lm_studio/economic_swarm_controller.py'
       - 'runtime/lm_studio/north_star_priority_audit.py'
       - 'public/mtg/index.html'
+      - 'supabase/functions/marketplace-diagnostic-delivery/index.ts'
+      - 'scripts/test-beck-diagnostic-bridge.cjs'
       - 'runtime/lm_studio/Install-NorthStarSupervisorTask.ps1'
       - 'runtime/lm_studio/NORTH-STAR-SUPERVISOR.md'
       - '.github/workflows/north-star-supervisor-contract.yml'
