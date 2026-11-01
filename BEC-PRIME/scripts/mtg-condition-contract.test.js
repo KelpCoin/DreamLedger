@@ -103,3 +103,91 @@ test('static root free-first regression', () => {
   assert.ok(a.indexOf('id="welcome"') >= 0 && a.indexOf('id="welcome"') < a.indexOf('id="auctions"'));
   assert.equal(a.includes('https://buy.stripe.com/'), false);
 });
+
+test('live Stripe inactive diagnostic stays held in approved and featured source without changing IDs', () => {
+  const approved = json('BEC-PRIME/catalog/offers/approved.json').approved;
+  const a = approved.find(x => x.offer_id === 'OFFER-CMD-DIAG-29-NZD');
+  const featured = json('BEC-PRIME/catalog/featured-offer.json');
+  const product = json('BEC-PRIME/catalog/products/' + id + '.json');
+  assert.ok(a);
+  assert.equal(a.payment_link_id, 'plink_1UKS00EGgEAnUFF9kUjraaL5');
+  assert.equal(a.payment_link_status, 'INACTIVE_LIVEMODE');
+  assert.equal(a.release_status, 'HOLD');
+  assert.equal(featured.payment_link_status, 'INACTIVE_LIVEMODE');
+  assert.equal(featured.public_visibility, 'held');
+  assert.equal(featured.stripe_product_id, 'prod_V6iVKl9HgFpzRU');
+  assert.equal(featured.stripe_price_id, 'price_1UFFY1EGgEAnUFF9Yq03zIa7');
+  assert.equal(featured.price, 29);
+  assert.equal(product.price, 29);
+  assert.equal(product.status, 'held');
+  assert.equal(product.checkout.mode, 'disabled');
+});
+
+test('historically approved MTG offer cannot auto-promote to checkout-ready', () => {
+  const { compileApprovedOffers } = require('../compiler/OfferCompiler');
+  const records = json('BEC-PRIME/catalog/offers/approved.json').approved;
+  const capabilities = records.map(r => ({id: r.capability_id, silo: r.silo}));
+  const compiled = compileApprovedOffers(records, capabilities, []);
+  assert.equal(compiled.errors.length, 0);
+  const a = compiled.approved.find(x => x.offer_id === 'OFFER-CMD-DIAG-29-NZD');
+  assert.ok(a);
+  assert.equal(a.status, 'HELD_UNVERIFIED');
+  assert.equal(a.approval_required, true);
+  assert.equal(a.checkout_available, false);
+  assert.ok(a.readiness_blockers.includes('LINK_NOT_VERIFIED_ACTIVE'));
+  assert.ok(a.readiness_blockers.includes('PRODUCT_NOT_PUBLISHED'));
+  assert.ok(a.readiness_blockers.includes('TRUSTED_PROVIDER_RECEIPT_REQUIRED'));
+  for (const offer of compiled.approved) {
+    assert.equal(offer.checkout_available, false, offer.offer_id);
+    assert.ok(offer.readiness_blockers.includes('TRUSTED_PROVIDER_RECEIPT_REQUIRED'));
+  }
+});
+
+test('fabricated local approval, active link, and ready fulfillment cannot replace provider receipt', () => {
+  const { assessApprovedReadiness } = require('../compiler/OfferCompiler');
+  const record = {
+    product_id: id, silo: 'mtg', price: 29, currency: 'NZD',
+    payment_link_status: 'ACTIVE_LIVEMODE',
+    payment_link_url: 'https://buy.stripe.com/example',
+    payment_link_id: 'plink_test'
+  };
+  const product = {
+    id, silo: 'mtg', status: 'published', price: 29, currency: 'nzd',
+    checkout: {mode: 'payment_link'},
+    commercial_truth: {
+      sellable: true, approval_required: false,
+      payment_link: record.payment_link_url,
+      stripe_payment_link_id: record.payment_link_id
+    }
+  };
+  const blockers = assessApprovedReadiness(record, product, {ready: true, operator_required: false});
+  assert.deepEqual(blockers, ['TRUSTED_PROVIDER_RECEIPT_REQUIRED']);
+  assert.ok(assessApprovedReadiness(record, null, null).includes('CANONICAL_PRODUCT_MISSING_OR_MISMATCHED'));
+  assert.ok(assessApprovedReadiness({...record, release_status: 'HOLD'}, product, {ready:true,operator_required:false}).includes('OWNER_RELEASE_HOLD'));
+});
+
+test('Gauntlet accepts correctly held historical approval but never calls it a sale', () => {
+  const os = require('node:os');
+  const {run} = require('../gauntlet/GauntletV6');
+  const {compileApprovedOffers} = require('../compiler/OfferCompiler');
+  const approved = json('BEC-PRIME/catalog/offers/approved.json');
+  const caps = json('BEC-PRIME/catalog/ip-capabilities.json');
+  const compiled = compileApprovedOffers(approved.approved, caps.capabilities, []);
+  assert.equal(compiled.errors.length, 0);
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'beck-held-offer-'));
+  try {
+    const offerFile = path.join(tmp, 'offers.json');
+    fs.writeFileSync(offerFile, JSON.stringify({offers: compiled.approved}));
+    const g = run({
+      offerFile,
+      approvedFile: path.join(root, 'BEC-PRIME/catalog/offers/approved.json'),
+      ipFile: path.join(root, 'BEC-PRIME/catalog/ip-capabilities.json'),
+      writeProof: false
+    });
+    assert.equal(g.status, 'PASS', JSON.stringify(g.checks.filter(x => x.status === 'FAIL')));
+    assert.equal(g.checks.some(x => x.id.includes('.held') && x.status === 'PASS'), true);
+    assert.equal(compiled.approved.some(x => x.checkout_available), false);
+  } finally {
+    fs.rmSync(tmp, {recursive: true, force: true});
+  }
+});
