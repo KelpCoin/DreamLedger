@@ -22,7 +22,7 @@ async function check(){
    case 'paid_recorded':
     show('Payment verified.','The payment and order record have been matched. Continue through the verified intake route to submit your decklist.');
     next.hidden=false;
-    next.href='https://wbwgroygjeyukkspnqiy.supabase.co/functions/v1/marketplace-diagnostic-delivery?session_id='+encodeURIComponent(sid);
+    next.href='/diagnostic-input.html?session_id='+encodeURIComponent(sid);
     return;
    case 'paid_pending_record':
     show('Payment confirmed. Your access will appear shortly.','Stripe reports paid; we are waiting for the webhook-backed order record. This page does not grant access.');
