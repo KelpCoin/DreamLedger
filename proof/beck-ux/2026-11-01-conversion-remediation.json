@@ -11,7 +11,9 @@
     "mobile CTA carousel home",
     "compact three MTG auction placeholders",
     "no fabricated checkout or bids",
-    "free supplier worksheet: unknown delivery cost no longer assumed NZ$0"
+    "free supplier worksheet: unknown delivery cost no longer assumed NZ$0",
+    "mobile swipeable existing marketplace product and silo catalogues",
+    "neutral payment return at legacy /success.html; no URL-based settlement assertion"
   ],
   "publication": "DRAFT_NO_DEPLOY",
   "real_checkout": "BLOCKED_PRODUCTION_SECRETS",
@@ -21,7 +23,9 @@
     "six_intent_cards": true,
     "mtg_three_slots": true,
     "mtg_auction_coming_soon": true,
-    "quote_delivery_never_default_zero": true
+    "quote_delivery_never_default_zero": true,
+    "mobile_marketplace_rails": true,
+    "legacy_success_neutral": true
   },
   "notes": [
     "CSS-only illustrative card backs; no copyrighted artwork embedded.",
@@ -29,17 +33,22 @@
     "Do not merge into the auto-disabled production branch without a reviewed release plan."
   ],
   "ci": {
-    "verified_run": "41260717289",
+    "latest_source_commit": "036d98fd55b8f2b3274eadabd2db532890d8c623",
+    "verified_run": "41261002154",
     "public_portfolio_contract": "PASS",
-    "output": "BECK_UX_SAFE_PASS: 6 CTA cards, 3 MTG placeholders, 2 thanks routes, payment holds intact",
-    "other_failing_workflows": [
-      "Phin Haven Gauntlet: billboard catalog held status mismatch",
-      "MTG catalogue validation: root preview tracking expectation",
-      "BEC-PRIME Gates: legacy MTG condition/publisher expectation",
-      "Stripe Checkout Contract: two false-positive candidate producers in older paths",
-      "North Star supervisor: JSON-LD parsed as executable JavaScript"
+    "other_successful_checks": [
+      "Checkout Metadata Contract",
+      "BECK Existing First Dollar Contract",
+      "Round-Trip Artifact Contract"
+    ],
+    "remaining_failed_checks": [
+      "MTG catalogue validation",
+      "Phin Haven Gauntlet",
+      "BEC-PRIME Gates",
+      "Stripe Checkout Contract",
+      "North Star supervisor contract"
     ],
     "all_ci_green": false,
-    "remaining": "Do not merge until broader regressions are reconciled, and independent deployment/checkout evidence exists."
+    "remark": "DRAFT. No deployment, payment, paid order or measured mobile performance proved."
   }
 }
