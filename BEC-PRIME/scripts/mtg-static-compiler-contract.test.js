@@ -37,5 +37,5 @@ test('missing or duplicated auction slot fails closed', () => {
 });
 test('free-first profile cannot silently lose its carousel', () => {
   assert.equal(staticMtgTemplateProfile(free.replace('class="hub-free-card"', 'class="hub-card"')), null);
-  assert.equal(staticMtgTemplateProfile(free.replace('id="welcome"', 'id="other"')), 'catalogue-only');
+  assert.equal(staticMtgTemplateProfile(free.replace('id="welcome"', 'id="other"')), null);
 });
