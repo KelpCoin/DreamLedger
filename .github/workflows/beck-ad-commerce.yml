@@ -87,4 +87,4 @@ jobs:
         run: bash scripts/beck-ad-postgres-contract.sh
       - name: Source evidence checksums
         if: always()
-        run: sha256sum scripts/beck-ad-postgres-contract.sh supabase/migrations/202611010001_beck_ad_reservations.sql supabase/migrations/202611010002_beck_ad_checkout_binding.sql supabase/migrations/202611010003_beck_ad_checkout_lifecycle.sql
+        run: sha256sum scripts/beck-ad-postgres-contract.sh supabase/migrations/202611010001_beck_ad_reservations.sql supabase/migrations/202611010002_beck_ad_checkout_binding.sql supabase/migrations/202611010003_beck_ad_checkout_lifecycle.sql proof/beck-ads/2026-11-01-payment-intent-uniqueness.json
