@@ -7,6 +7,7 @@ on:
       - "BEC-PRIME/runtime/BeckAdReservationClient*"
       - "BEC-PRIME/runtime/BeckAdInventoryRead*"
       - "BEC-PRIME/runtime/BeckAdCheckout*"
+      - "supabase/migrations/202611010002_beck_ad_checkout_binding.sql"
       - "public/server.js"
       - "public/billboard.html"
       - "public/assets/beck-billboard-inventory*"
@@ -32,9 +33,10 @@ jobs:
           node --check BEC-PRIME/runtime/BeckAdReservationClient.js
           node --check BEC-PRIME/runtime/BeckAdInventoryRead.js
           node --check BEC-PRIME/runtime/BeckAdCheckout.js
+          node --check BEC-PRIME/runtime/BeckAdCheckoutBinding.js
           node --check public/server.js
           node --check public/assets/beck-billboard-inventory.js
       - name: Run reservation and payment evidence tests (no secrets)
-        run: node --test BEC-PRIME/runtime/AdInventoryGate.test.js BEC-PRIME/runtime/BeckAdReservationClient.test.js BEC-PRIME/runtime/BeckAdSqlContract.test.js BEC-PRIME/runtime/BeckAdInventoryRead.test.js public/assets/beck-billboard-inventory.test.js BEC-PRIME/runtime/BeckAdCheckout.test.js
+        run: node --test BEC-PRIME/runtime/AdInventoryGate.test.js BEC-PRIME/runtime/BeckAdReservationClient.test.js BEC-PRIME/runtime/BeckAdSqlContract.test.js BEC-PRIME/runtime/BeckAdInventoryRead.test.js public/assets/beck-billboard-inventory.test.js BEC-PRIME/runtime/BeckAdCheckout.test.js BEC-PRIME/runtime/BeckAdCheckoutBinding.test.js
       - name: Emit source evidence checksums
-        run: sha256sum BEC-PRIME/runtime/AdInventoryGate.js BEC-PRIME/runtime/BeckAdReservationClient.js BEC-PRIME/runtime/BeckAdInventoryRead.js BEC-PRIME/runtime/BeckAdCheckout.js supabase/migrations/202611010001_beck_ad_reservations.sql
+        run: sha256sum BEC-PRIME/runtime/AdInventoryGate.js BEC-PRIME/runtime/BeckAdReservationClient.js BEC-PRIME/runtime/BeckAdInventoryRead.js BEC-PRIME/runtime/BeckAdCheckout.js BEC-PRIME/runtime/BeckAdCheckoutBinding.js supabase/migrations/202611010001_beck_ad_reservations.sql supabase/migrations/202611010002_beck_ad_checkout_binding.sql
