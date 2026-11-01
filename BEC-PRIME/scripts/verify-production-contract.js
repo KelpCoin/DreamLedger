@@ -86,6 +86,7 @@ if (featured.payment_link_status !== offer?.payment_link_status) {
 if (held) {
   // This is an expected release hold, not a reason to activate checkout.
   if (offer?.payment_link_status !== 'INACTIVE_LIVEMODE' ||
+      featured.payment_link_status !== 'INACTIVE_LIVEMODE' ||
       offer?.release_status !== 'HOLD' ||
       featured.release_status !== 'HOLD' ||
       featured.public_visibility !== 'held') {
