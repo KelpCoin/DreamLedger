@@ -1,0 +1,58 @@
+# BECK multi-exhaust advertising commerce v1: staged, NOT live
+
+Canonical tracker: https://github.com/KelpCoin/DreamLedger/issues/922
+Implementation review branch: https://github.com/KelpCoin/DreamLedger/pull/921
+
+## Infrastructure lock: Render retired (2026-11-01)
+
+Operator directive: **BECK does not use Render.** Never audit, deploy, troubleshoot, revive, budget for, or propose it. Historical provider services are not current runtime dependencies, and their billing state is not a product-development blocker. Do not ask Biggie or Peggy to restore a provider or do routine manual operational work.
+
+Use the existing GitHub and GitHub Actions for code/review/CI; use connected Supabase, Stripe and other approved provider-native capabilities only when positively verified. None should be called "live customer hosting" without actual proof. Keep all customer-facing activation, schema writes, spending and irreversible financial actions approval-gated. DreamLedger is one BECK exhaust.
+
+## Implemented on the draft branch
+- BECK-wide pure inventory validation (scope: exhaust + silo + canvas + time window + geometry).
+- Payment method contract identifiers: stripe, bank_transfer, paypal, usdc. **These are not payment integrations.**
+- Backend-only Supabase RPC client, with bounded timeout, service-role authentication and fail-closed validation.
+- Transaction-safe SQL migration using scope-level advisory transaction locks and idempotency uniqueness.
+- Closed-by-default registered canvas dimensions; no buyer-provided fake canvas capacity.
+- Node offline regression tests; no credentials or provider calls required; the latest cloud CI should be verified from its own run logs.
+- Pull-request CI workflow and proof from recorded GitHub Actions run 41255747928: 82/82 checks passed on the tested commit, but staged code is not a live checkout.
+
+## Existing-source audit findings
+- The compiled website presents a rich /billboard storefront and references /api/molt-beach-inventory and /api/molt-beach-checkout, but the api/molt-beach-*.ts files referenced by the legacy validator were NOT FOUND at the default branch.
+- public/server.js serves public/billboard.html, not the compiled billboard HTML; the staged review branch adds guarded Molt Beach inventory and checkout handlers, not production deployment.
+- BEC-PRIME/routes/billboard-v2.js and BEC-PRIME/lib/billboardAutoFulfillment.js each write separate JSON market inventory and differ in their fulfillment behavior. Neither was modified here.
+- Live Supabase project was listed HEALTHY but SQL inspection failed with connection refused. No migration was run.
+- A signed Stripe webhook candidate exists on the review branch, but no live webhook activation, crypto custody, PayPal integration, bank reconciliation, impression tracking or verified revenue has been established.
+
+## Production blockers, in dependency order
+1. Confirm actual live serving topology and choose one canonical ad commerce URL/route; reconcile existing claims, pricing, dates and legacy inventory without dropping paid customers.
+2. Inventory owner attests to canvases, capacity and historical sold/booked coordinates. Backfill before enabling booking and prove total free footprint using the real data.
+3. In an approved database change window, apply migration then test real concurrent reservation races, stale-hold recovery, duplicate idempotency and rollback.
+4. Add one supported end-to-end checkout adapter (start with already-connected Stripe), preserve signed session/webhook metadata and payment/attribution evidence. A 30-minute Stripe session must expire before the 60-minute reservation hold. Never charge if placement reservation is unconfirmed.
+5. Implement failed/expired/rejected/refunded checkout state machine and human-approved ad content. Stripe settlement is not fulfillment.
+6. Add independent serve proof with creative hash, timestamp, canonical QR and exposed duration. Do not invent views, physical DOOH access or audience.
+7. Only then evaluate bank transfer, PayPal and USDC rails with independently verified receipts, legal/account compatibility and refund policy.
+8. Deploy only after approval, live tests, rollback, fail-closed alerts and no new recurring spend.
+
+## Running the tests
+```bash
+node --test BEC-PRIME/runtime/AdInventoryGate.test.js BEC-PRIME/runtime/BeckAdReservationClient.test.js
+```
+No other service required.
+
+## Rollback and truth contract
+Close the draft PR or revert its commits. No production route, live Stripe link, public post, Supabase schema or price was changed by this candidate. The current state is STAGED_NOT_DEPLOYED, not a working ad sales system.
+
+## Staged read-only storefront integration
+- public/server.js now has GET /api/molt-beach-inventory for the NZ 1000x1000 registered canvas. This is still on the review branch, NOT the live site.
+- BEC-PRIME/runtime/BeckAdInventoryRead.js reads registered canvas and nonexpired bookings from the existing Supabase PostgREST service role, which is used only server-side. It computes real 100x100 free cells instead of claiming a constant 100, and never outputs customer email or payment credentials.
+- Missing or unregistered canvas, inconsistent overlapping rows, truncated provider output or network failure returns HTTP 503. There is no public checkout activation and no replacement for unverified earlier inventory until validated backfill.
+- The original public/billboard.html is still not the compiled billboard; all legacy claims must be reconciled before approving any publication.
+
+## Verified existing Vercel deployment topology (2026-11-01)
+- Connected Vercel project **dreamledger** (ID prj_f5tZguWpULJAG0Iu78XVendoavQO) includes dreamledger.org and www.dreamledger.org. The most recent production READY deployment returned by provider was dpl_917J2ri5vPFkXRX75qHKyEYJ4f7f, Git SHA d9c5e725a2dde931eefcb6b289972227fe41de50, branch billboard-verified-release-20261027. This is provider metadata, **not** proof of any paid order.
+- Root vercel.json builds the static **public/** directory and declares **api/**/*.ts** functions. Its git.deploymentEnabled flag is false. Therefore a draft branch PR and the old public/server.js handler are not operational deployment paths. No deploy was requested or made.
+- New review-branch entrypoints: api/molt-beach-inventory.ts, api/molt-beach-checkout.ts and api/webhooks/beck-ad-stripe.ts. These wrap the staged server-only BECK inventory/checkout/payment modules. Public GET inventory fails closed; all money paths remain disabled until specific flags and owner approval.
+- Before any approved deployment: test Vercel function compilation on the actual project, prove DNS/alias routing and exactly which Git SHA is live, ensure secure server-only secrets, verify Supabase migrations with real data and safe rollback, then only consider checkout activation. The existing Postgres-in-GitHub tests are disposable, not a live database test. No new paid hosting or recurring infrastructure is authorized.
+- The *only* inferred hosting platform for the live DreamLedger site from current provider evidence is the existing Vercel project. Never substitute a retired provider, local PC or hosted VM.

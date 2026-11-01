@@ -1,0 +1,16 @@
+'use strict';
+const {test}=require('node:test');
+const assert=require('node:assert/strict');
+const {compile,reconcile}=require('./AdInventoryGate');
+const tile=(id,patch={})=>({id,exhaust:'dreamledger',silo:'ads',canvas_id:'main',x:0,y:0,width:100,height:100,canvas_width:1000,canvas_height:1000,price_minor:5000,currency:'NZD',status:'APPROVED',start_utc:'2026-11-01T00:00:00Z',end_utc:'2026-12-01T00:00:00Z',...patch});
+test('deterministic candidate never publishes',()=>{const a=compile([tile('aa'),tile('bb',{x:100})]);assert.equal(a.status,'CANDIDATE_NOT_PUBLISHED');assert.equal(a.inventory_sha256,compile([tile('bb',{x:100}),tile('aa')]).inventory_sha256)});
+test('double-booking fails closed',()=>assert.throws(()=>compile([tile('aa'),tile('bb')]),/inventory_overlap/));
+test('out-of-bounds placement fails',()=>assert.throws(()=>compile([tile('aa',{x:950})]),/out_of_bounds/));
+test('exhaust namespaces isolated',()=>assert.equal(compile([tile('aa'),tile('bb',{exhaust:'game'})]).count,2));
+test('sequential time windows allowed',()=>assert.equal(compile([tile('aa'),tile('bb',{start_utc:'2026-12-01T00:00:00Z',end_utc:'2027-01-01T00:00:00Z'})]).count,2));
+const order={order_id:'ord1',placement_id:'a',method:'usdc',amount_minor:5000,currency:'NZD'};
+const evidence={provider_verified:true,final_settlement:true,order_id:'ord1',amount_minor:5000,currency:'NZD',provider_transaction_id:'0xabcde',asset:'USDC',network:'base',chain_confirmed:true};
+test('USDC requires chain confirmation',()=>assert.equal(reconcile(order,{...evidence,chain_confirmed:false}).settlement,'UNVERIFIED'));
+test('payment does not imply ad delivery',()=>assert.equal(reconcile(order,evidence).economic_event,'NOT_VERIFIED'));
+test('delivery requires separate independent reconciliation',()=>{const r=reconcile(order,{...evidence,creative_approved:true,delivery_verified:true,delivery_proof_sha256:'a'.repeat(64)});assert.equal(r.economic_event,'ELIGIBLE_FOR_INDEPENDENT_RECONCILIATION');assert.equal(r.public_activation,'APPROVAL_REQUIRED')});
+test('wrong order attribution rejected',()=>assert.equal(reconcile(order,{...evidence,order_id:'other'}).settlement,'UNVERIFIED'));

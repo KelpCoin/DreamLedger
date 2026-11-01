@@ -1,0 +1,85 @@
+{
+  "schema": "BECK/cloud-reality-and-delivery-gate/v2",
+  "verified_at_utc": "2026-11-01T00:45:10Z",
+  "repository": "KelpCoin/DreamLedger",
+  "draft_review": "https://github.com/KelpCoin/DreamLedger/pull/921",
+  "canonical_gate": "https://github.com/KelpCoin/DreamLedger/issues/922",
+  "test_evidence": {
+    "github_actions_run": "https://github.com/KelpCoin/DreamLedger/actions/runs/41257974606",
+    "offline_application_tests": {
+      "passed": 113,
+      "failed": 0
+    },
+    "ephemeral_postgres": {
+      "result": "PASSED",
+      "scope": "disposable CI postgres; not production",
+      "migration_count": 3,
+      "checks": [
+        "serialized reservation race",
+        "no double sell after bound session expiry",
+        "exact creative hash on paid receipt",
+        "provider-verified unpaid release",
+        "no automatic publishing"
+      ]
+    }
+  },
+  "actual_hosting": {
+    "provider": "Vercel (already connected, no new provider)",
+    "project": "dreamledger",
+    "production_domain": "dreamledger.org",
+    "production_deployment_id": "dpl_917J2ri5vPFkXRX75qHKyEYJ4f7f",
+    "production_sha": "d9c5e725a2dde931eefcb6b289972227fe41de50",
+    "production_git_ref": "billboard-verified-release-20261027",
+    "git_auto_deployment_enabled": false,
+    "status_source": "Vercel connected API read-only"
+  },
+  "project_local_configuration": {
+    "observed_env_variables": [
+      {
+        "key": "NEON_DATABASE_URL",
+        "target": [
+          "preview"
+        ],
+        "git_branch": "feat/multitenant-marketplace-figure-eight-council-20261026"
+      }
+    ],
+    "production_database_credentials_observed": false,
+    "production_stripe_key_observed": false,
+    "production_supabase_credentials_observed": false,
+    "shared_env_variables_verified": false,
+    "credential_values_accessed": false
+  },
+  "connected_neon": {
+    "project": "dreamledger-migration-staging",
+    "project_id": "falling-base-50259456",
+    "database": "neondb",
+    "observed_existing_relations": [
+      "marketplace.billboard_placements",
+      "marketplace.stock_reservations",
+      "marketplace.orders",
+      "public.commercial_orders",
+      "public.commercial_payments",
+      "public.commercial_fulfillment_outbox"
+    ],
+    "counts_for_each_observed_relation": 0,
+    "vercel_connection_string_points_to_this_project": "NOT_VERIFIED",
+    "read_only_query": true
+  },
+  "staged_ad_code": {
+    "vercel_api_routes": [
+      "api/molt-beach-inventory.ts",
+      "api/molt-beach-checkout.ts",
+      "api/webhooks/beck-ad-stripe.ts"
+    ],
+    "backend_dependencies": "Current draft uses Supabase PostgREST and cannot be asserted operational with observed Vercel configuration",
+    "sql_migrations": "STAGED_ONLY",
+    "customer_checkout_active": false,
+    "customer_payment_verified": false,
+    "fulfillment_verified": false,
+    "new_publication": false,
+    "new_spend": false
+  },
+  "production_verdict": "NO_GO",
+  "next_acceptance_gate": "Use existing Vercel/Neon real credentials and canonical existing market/order ledgers, prove Vercel deployed code/Stripe credentials and independent paid + delivered order after explicit owner approval. No duplicate infrastructure.",
+  "retired_infrastructure_rule": "Do not use or query Render."
+}

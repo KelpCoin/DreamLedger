@@ -1,0 +1,34 @@
+{
+  "schema": "BECK/ad-commerce-ci-proof/v1",
+  "scope": "BECK-wide, draft branch",
+  "repository": "KelpCoin/DreamLedger",
+  "pull_request": "https://github.com/KelpCoin/DreamLedger/pull/921",
+  "workflow_run_id": 41254592087,
+  "workflow_url": "https://github.com/KelpCoin/DreamLedger/actions/runs/41254592087",
+  "tested_commit": "882de1fdcc9c46212d08b6b5183c3c03d81617b9",
+  "verified_from": "GitHub Actions job logs, job 124694958213",
+  "test_total": 22,
+  "test_passed": 22,
+  "test_failed": 0,
+  "checks": [
+    "node syntax",
+    "inventory and payment evidence guards",
+    "RPC client failure boundaries",
+    "SQL static contract gates",
+    "source SHA256 emitted"
+  ],
+  "source_sha256": {
+    "AdInventoryGate.js": "9c1f54b5354822a9467598e3d5e1f369985d9e2fec7be190a037f847c47fdf48",
+    "BeckAdReservationClient.js": "72a9ae9721520018214f18175d126043506eed5bbfa242e3cbc511204712eb32",
+    "202611010001_beck_ad_reservations.sql": "f02feb868a8ef51acb5b1e3a3ff41011f676f91b56618372b83356eb28ed6f71"
+  },
+  "baseline": "First cloud run 41254517675 failed 5/22 from one-character test placement IDs; repaired in tested commit.",
+  "production_state": {
+    "database_migration": "NOT_APPLIED",
+    "database_concurrency_test": "NOT_RUN",
+    "public_checkout": "NOT_ACTIVATED",
+    "additional_payment_rails": "NOT_CONNECTED",
+    "independent_paid_and_delivered_revenue": "NOT_VERIFIED",
+    "public_publication": "NOT_AUTHORIZED"
+  }
+}

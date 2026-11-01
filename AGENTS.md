@@ -6,6 +6,14 @@ This repository may be worked on by multiple humans, cloud agents, phone agents,
 
 The shared objective is to move durable work forward without duplicate work, conflicting edits, lost context, or fake completion.
 
+## BECK non-negotiable cloud and accessibility constraint (2026-11-01)
+
+- **Render is retired and not part of BECK's operating stack.** Never suggest restarting, using, monitoring, repairing, deploying to, paying for, or depending on Render. Prior historical deployments or suspended Render services must not appear as current blockers to BECK. Do not query Render as part of routine health or architecture checks.
+- Prefer the **already-connected, demonstrably working, zero-incremental-cost** GitHub/GitHub Actions, Supabase, Stripe, and other expressly approved provider-native services, each only for its supported capability. GitHub CI is verification, not an automatic substitute for a deployed customer-facing endpoint. Do not invent live compute, background processing, or economic events.
+- Respect the users' accessibility needs: Biggie and Peggy must **not** be handed repetitive manual code edits, uploads, outreach, service restoration, or other avoidable operational chores. Use phone-first, cloud-continued, no-PC workflows with tests, evidence and rollback. Only request consent or irreducible externally controlled actions.
+- These are operating constraints for the full **BECK factory ecosystem**. DreamLedger is one exhaust, not the platform boundary. Keep brand/data silos isolated, and require explicit approval for public posts, actual charges, nonreversible changes, or spending.
+- When a cloud provider is unavailable, record it as unverified and implement another unblocked, no-new-cost part of the canonical queue. Do not revive retired infrastructure as a workaround.
+
 ## Source-of-truth order
 
 1. Git history and the checked-out repository are the authoritative implementation state.
