@@ -51,6 +51,20 @@ export default async function handler(req:Request):Promise<Response>{
    return json(422,{error:"INVALID_DIAGNOSTIC_INPUT"});
  const deckError=decklistError(body.decklist);
  if(deckError)return json(422,{error:deckError,expected_cards:100});
+ // The status verifier may read an isolated TEST ledger, but its success is
+ // NOT permission to submit test data into the LIVE diagnostic intake.
+ // Route only to an explicitly configured, distinct existing test project.
+ let intakeTarget=TARGET;
+ if(String(body.session_id).startsWith("cs_test_")){
+  const env=typeof process!=="undefined"?process.env:{};
+  const ref=String(env.BECK_STRIPE_TEST_PROJECT_REF||"").trim();
+  const configured=String(env.MTG_DIAGNOSTIC_TEST_INPUT_URL||"").trim();
+  const expected=`https://${ref}.supabase.co/functions/v1/marketplace-diagnostic-input`;
+  if(!/^[a-z0-9]{20}$/.test(ref)||ref==="wbwgroygjeyukkspnqiy"||
+     configured!==expected||configured===TARGET)
+   return json(503,{error:"TEST_DIAGNOSTIC_INPUT_UNAVAILABLE",retryable:false});
+  intakeTarget=configured;
+ }
  // Browser navigation is not authorization. Require an independent read-only
  // provider-backed exact Price/SKU + webhook order check on every POST.
  let check:Response;
@@ -76,7 +90,7 @@ export default async function handler(req:Request):Promise<Response>{
  }
  let response:Response;
  try{
-  response=await fetch(TARGET,{method:"POST",redirect:"error",headers:{
+  response=await fetch(intakeTarget,{method:"POST",redirect:"error",headers:{
    "content-type":"application/json","accept":"application/json"},
    body:JSON.stringify({session_id:body.session_id,decklist:body.decklist}),
    signal:AbortSignal.timeout(10000)});
