@@ -1,0 +1,63 @@
+{
+  "schema": "beck/mtg-master-community-template/v1",
+  "name": "Happy Homarid community hub template",
+  "master_silo": "mtg",
+  "site_path": "/mtg/",
+  "patreon_url": "https://www.patreon.com/happyhomarid",
+  "public_priority": [
+    "free_deck_tools",
+    "free_card_and_deck_browsing",
+    "free_trade_post_builder",
+    "free_community_access",
+    "free_mtgo_single_spread"
+  ],
+  "free_policy": {
+    "browse": true,
+    "deck_tools": true,
+    "peer_listing_post_draft": true,
+    "peer_success_fee_percent": 0,
+    "requires_signup_to_browse": false,
+    "notes": "Cards, shipping, private deal prices and optional paid diagnostics are not free. Community Discord requires Discord account."
+  },
+  "paid_catalogue": [
+    {
+      "sku": "COMMANDER-DECK-DIAGNOSTIC-001",
+      "price_nzd": 29,
+      "placement": "secondary_below_free_tools_and_catalogue",
+      "checkout_status": "HELD_UNTIL_E2E_PROVEN",
+      "one_off_product": true
+    }
+  ],
+  "member_benefits": [
+    {
+      "provider": "patreon",
+      "tier": "lowest_tier",
+      "sku": "COMMANDER-DECK-DIAGNOSTIC-001",
+      "included_per_month": 1,
+      "redemption_gate": [
+        "verified_patreon_membership_and_tier",
+        "monthly_quota_not_exhausted",
+        "paid_diagnostic_delivery_operational"
+      ],
+      "automation_state": "NOT_VERIFIED_END_TO_END",
+      "never_grant_on_unverified_claim": true
+    }
+  ],
+  "future_tcg_policy": {
+    "source": "mtg-master",
+    "clone": "shared community UI/components, tools, Gauntlet, proof standards and Patreon benefit pattern",
+    "requires": "verified supply/community demand and owner approval before public launch",
+    "patreon_strategy": "reuse Happy Homarid template; decide separate campaigns only with evidence and owner approval",
+    "never_copy": [
+      "inventory",
+      "customer records",
+      "Patreon identity tokens",
+      "Stripe secrets",
+      "paid entitlements",
+      "analytics identity"
+    ],
+    "no_new_recurring_costs_without_approval": true
+  },
+  "cross_silo": "strict; never mix MTG community data or promotion with adult silo",
+  "publication": "owner_approval_required"
+}

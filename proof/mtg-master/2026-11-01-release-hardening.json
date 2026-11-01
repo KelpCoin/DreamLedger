@@ -1,0 +1,103 @@
+{
+  "schema": "beck/mtg-master-release-evidence/v1",
+  "date": "2026-11-01",
+  "base": "release/phone-catalog-20261101",
+  "branch": "beck/mtg-master-release-hardening-20261101",
+  "scope": [
+    "public/thanks.html",
+    "public/success.html",
+    "public/quote-comparison/index.html",
+    "public/mtg/index.html",
+    "public/diagnostic-input.html",
+    "public/marketplace.html",
+    "vercel.json",
+    "scripts/verify-vercel-public-release.cjs",
+    "scripts/test-beck-mtg-master-release.cjs",
+    "public/mtg/diagnostic.html",
+    "public/assets/mtg-community.css",
+    "public/assets/checkout-return.js",
+    "supabase/functions/mtg-commander-status/index.ts",
+    "config/mtg-master-community.json",
+    "scripts/test-beck-supabase-checkout.cjs",
+    "supabase/functions/stripe-revenue-41104f355d6878cdd6d1f9dc/index.ts"
+  ],
+  "status": "COMMUNITY_AND_CHECKOUT_SOURCE_GATED; STATUS_EDGE_ACTIVE; STRIPE_LINK_HELD; LIVE_REVENUE_WEBHOOK_RELEASE_BLOCKED",
+  "economic_evidence": {
+    "stripe_account": "acct_1SNVPvEGgEAnUFF9",
+    "recent_checkout_sample_count": 30,
+    "recent_checkout_sample_paid": 0,
+    "recent_checkout_sample_expired": 30,
+    "all_returned_charges": 2,
+    "charge_amounts": [
+      {
+        "amount": 500,
+        "currency": "nzd"
+      },
+      {
+        "amount": 100,
+        "currency": "usd"
+      }
+    ],
+    "attributed_paid_orders": 0,
+    "attributed_delivered_orders": 0,
+    "limitation": "Recent checkout sample is not a complete sessions census; two charges are historical unattributed, not zero overall payment activity",
+    "commander_diagnostic_live_payment_link": {
+      "payment_link_id": "plink_1UKS00EGgEAnUFF9kUjraaL5",
+      "active": false,
+      "live_lookup_key": "COMMANDER-DECK-DIAGNOSTIC-001",
+      "metadata_sku_id": "COMMANDER-DECK-DIAGNOSTIC-001",
+      "price_id": "price_1UFFY1EGgEAnUFF9Yq03zIa7",
+      "product_id": "prod_V6iVKl9HgFpzRU",
+      "price_nzd": 29,
+      "return_url": "https://dreamledger.org/thanks?session_id={CHECKOUT_SESSION_ID}",
+      "verified_by": "live Stripe connector read after updates",
+      "changed_without_activating": true
+    },
+    "diagnostic_delivery_contract_review": {
+      "status": "STRIPE_PRICE_AND_LINK_IDENTIFIERS_ALIGNED",
+      "deployed_status_endpoint": "Supabase mtg-commander-status v1 ACTIVE",
+      "deployed_source_matches_github": true,
+      "hermetic_scenarios": 9,
+      "hermetic_real_charges": 0,
+      "client_polling_bounded": 6,
+      "direct_database_management_sql": "CONNECTION_REFUSED_IPV6",
+      "authenticated_input_e2e": "NOT_VERIFIED",
+      "webhook_idempotency_e2e": "NOT_VERIFIED",
+      "required_pre_sale_gate": "DO_NOT_ACTIVATE_LINK_UNTIL_FULL_TEST_PAYMENT_DELIVERY_AND_QUOTA_VERIFIED",
+      "live_revenue_webhook": {
+        "slug": "stripe-revenue-41104f355d6878cdd6d1f9dc",
+        "version": 28,
+        "enabled_stripe_endpoint": true,
+        "legacy_commander_sku_remap_deployed": true,
+        "source_patch_removes_remap_and_checks_price_product": true,
+        "source_patch_deployed": false,
+        "revenue_catalog_canonical_sku_row": "NOT_VERIFIED",
+        "skus_canonical_row": "NOT_VERIFIED",
+        "webhook_dlq_alert": "NOT_VERIFIED"
+      }
+    }
+  },
+  "gates": {
+    "mtg_catalogue": "hold unpaid deck checkout",
+    "thanks": "new payment-neutral page with both rewrites",
+    "success": "neutral checkout return",
+    "cost_comparison": "missing freight excluded from comparable totals",
+    "deployment": "not verified",
+    "commander_diagnostic_product": "PAID_NZD29_ONLY_SECONDARY; checkout held",
+    "public_checkout_return": "PROCESSING_ONLY; Stripe verified by server; DB webhook order required; never grants entitlement",
+    "public_site_release": "PR_930_OPEN; VERCEL_PRODUCTION_PERMISSION_NOT_CONFIRMED",
+    "live_payment": "INACTIVE_NEEDS_E2E",
+    "tcg_expansion": "TEMPLATE_PREPARED; no extra Patreon accounts or storefronts created",
+    "commercial_critical": "DO NOT ENABLE NZD29 PAYMENT LINK until live revenue webhook canonical SKU mapping, catalog rows, DLQ and E2E delivery pass"
+  },
+  "community": {
+    "hero_priority": "free tools, card browse, trade post, community, MTGO spread",
+    "free_feature_cards": 5,
+    "auction_slots": 3,
+    "paid_nzd29_product_visible_below_free_sections": true,
+    "patreon_lowest_tier_included_diagnostic_per_month": 1,
+    "patreon_entitlement_integration": "UNVERIFIED",
+    "tcg_future_template": "config/mtg-master-community.json",
+    "public_web_release": "NOT_VERIFIED"
+  }
+}

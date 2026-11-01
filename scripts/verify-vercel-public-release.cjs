@@ -59,3 +59,11 @@ console.log('BECK_PUBLIC_RELEASE_FILES_PASS: '+mustExist.length+' routes, '+cata
 
 /* Study handover integration: enforce the same source-of-truth storefront contract on every Vercel build. */
 require('./test_beck_vercel_contract.cjs');
+
+require('./test-beck-mtg-master-release.cjs');
+
+// Exercise the real same-origin diagnostic intake handler under synthetic payment and provider failures.
+require('node:child_process').execFileSync(process.execPath,['--test','scripts/test-beck-diagnostic-bridge.cjs'],{stdio:'inherit'});
+
+// Gate: never treat a Stripe redirect as an entitlement.
+require('node:child_process').execFileSync(process.execPath,['scripts/test-beck-supabase-checkout.cjs'],{stdio:'inherit'});

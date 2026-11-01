@@ -41,3 +41,26 @@
 .phone-catalog .tool{padding:18px}
 .phone-catalog .bec-footer p{font-size:11px}
 @media(min-width:760px){.phone-catalog .auction-slot img{width:48px;height:67px}.phone-catalog .auction-slot h2{font-size:13px}.phone-catalog .auction-grid{max-width:520px}.phone-catalog .section-head h1{font-size:32px}}
+
+/* Master silo: useful free community first, paid digital products later. */
+.phone-catalog .hub-intro{padding:20px 0 18px;border-bottom:1px solid var(--line);overflow:hidden}
+.phone-catalog .hub-eyebrow{font-size:11px;color:var(--signal,#c5ff35);font-weight:800;letter-spacing:.1em;margin:0 0 10px}
+.phone-catalog .hub-intro h1{font-size:clamp(33px,7.5vw,60px);line-height:1;letter-spacing:-.06em;margin:0 0 13px;max-width:570px}
+.phone-catalog .hub-lead{font-size:clamp(16px,3.2vw,20px);line-height:1.45;color:var(--ink);margin:0 0 17px;max-width:600px}
+.phone-catalog .hub-quicklinks{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 9px}
+.phone-catalog .hub-quicklinks .btn{min-height:48px}
+.phone-catalog .hub-honest{font-size:12px;line-height:1.5;color:var(--muted);margin:7px 0 15px}
+.phone-catalog .hub-rail{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;padding:3px 2px 14px;margin-right:-14px;scrollbar-width:thin}
+.phone-catalog .hub-free-card{display:flex;flex:0 0 clamp(215px,68vw,275px);min-height:142px;flex-direction:column;gap:8px;scroll-snap-align:start;padding:16px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(145deg,#15222b,#111722);text-decoration:none;transition:border-color .12s}
+.phone-catalog .hub-free-card:hover,.phone-catalog .hub-free-card:focus-visible{border-color:var(--signal,#c5ff35)}
+.phone-catalog .hub-free-card span{font-size:10px;font-weight:800;color:var(--signal,#c5ff35);letter-spacing:.08em}
+.phone-catalog .hub-free-card strong{font-family:"Space Grotesk",Inter,system-ui,sans-serif;font-size:20px;line-height:1.2;letter-spacing:-.03em;color:var(--ink)}
+.phone-catalog .hub-free-card small{font-size:12px;color:var(--muted);line-height:1.45}
+.phone-catalog .hub-membership{display:flex;justify-content:space-between;align-items:center;gap:18px;padding:22px 0 8px;margin-top:15px;border-top:1px solid var(--line)}
+.phone-catalog .hub-membership h2{font-size:21px;margin:0 0 7px}
+.phone-catalog .hub-membership p:not(.hub-eyebrow){font-size:13px;line-height:1.6;color:var(--muted);max-width:590px;margin:0}
+.phone-catalog .hub-membership p a{text-decoration:underline;text-underline-offset:3px;color:var(--ink)}
+.phone-catalog .hub-patreon-link{flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:11px;padding:12px 16px;min-height:46px;color:var(--ink);font-size:13px;font-weight:700}
+.phone-catalog .hub-membership .hub-eyebrow{font-size:10px}
+@media(max-width:630px){.phone-catalog .hub-intro{padding:16px 0 7px}.phone-catalog .hub-membership{display:block}.phone-catalog .hub-patreon-link{margin-top:15px}.phone-catalog .hub-quicklinks .btn{font-size:13px;padding:10px 12px}}
+@media(prefers-reduced-motion:reduce){.phone-catalog .hub-free-card{transition:none}}

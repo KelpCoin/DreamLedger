@@ -7,6 +7,8 @@ on:
       - 'runtime/lm_studio/economic_swarm_controller.py'
       - 'runtime/lm_studio/north_star_priority_audit.py'
       - 'public/mtg/index.html'
+      - 'supabase/functions/marketplace-diagnostic-delivery/index.ts'
+      - 'scripts/test-beck-diagnostic-bridge.cjs'
       - 'runtime/lm_studio/Install-NorthStarSupervisorTask.ps1'
       - 'runtime/lm_studio/NORTH-STAR-SUPERVISOR.md'
       - '.github/workflows/north-star-supervisor-contract.yml'
@@ -32,6 +34,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Verify paid diagnostic intake provider gate
+        run: node --test scripts/test-beck-diagnostic-bridge.cjs
       - name: Compile North Star controller
         run: python -m py_compile runtime/lm_studio/economic_swarm_controller.py
       - name: Offline supervisor self-test
@@ -43,7 +50,13 @@ jobs:
         run: |
           $html = Get-Content public/mtg/index.html -Raw
           $blocks = [regex]::Matches($html, '(?is)<script\b(?![^>]*\bsrc=)[^>]*>(.*?)</script\s*>')
-          if ($blocks.Count -eq 0) { throw 'No inline script found in MTG landing page' }
+          if ($blocks.Count -eq 0) {
+            foreach ($script in @('public/assets/mtg-community.js','public/assets/mtg-workbench.js','public/assets/mtg-market-desk.js','public/assets/catalog-rails.js')) {
+              if (-not (Test-Path -LiteralPath $script)) { throw ("MTG external JavaScript missing: {0}" -f $script) }
+              node --check $script
+              if ($LASTEXITCODE -ne 0) { throw ("MTG external JavaScript syntax failed: {0}" -f $script) }
+            }
+          }
           $i = 0
           foreach ($block in $blocks) {
             $scriptPath = Join-Path $env:TEMP ("mtg-inline-{0}.js" -f $i)

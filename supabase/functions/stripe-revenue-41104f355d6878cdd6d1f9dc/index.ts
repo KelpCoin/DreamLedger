@@ -6,6 +6,10 @@ const SUPABASE_URL=Deno.env.get("SUPABASE_URL")||"";
 const SERVICE_ROLE_KEY=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")||"";
 const STRIPE_WEBHOOK_SIGNING_SECRET=Deno.env.get("STRIPE_WEBHOOK_SIGNING_SECRET")||"";
 const STRIPE_API_KEY=Deno.env.get("STRIPE_API_KEY")||Deno.env.get("STRIPE_SECRET_KEY")||"";
+// Test settlement must be explicitly isolated. Production remains live-only.
+const SETTLEMENT_MODE=(Deno.env.get("BECK_STRIPE_SETTLEMENT_MODE")||"live").trim();
+const TEST_PROJECT_REF=(Deno.env.get("BECK_STRIPE_TEST_PROJECT_REF")||"").trim();
+const TEST_DIAG_PRICE=(Deno.env.get("BECK_STRIPE_TEST_DIAGNOSTIC_PRICE_ID")||"").trim();
 const supabase=SUPABASE_URL&&SERVICE_ROLE_KEY?createClient(SUPABASE_URL,SERVICE_ROLE_KEY):null;
 Deno.serve(async(req)=>{
  if(req.method==="GET")return Response.json({service:FUNCTION_NAME,status:"healthy",configured:Boolean(SUPABASE_URL&&SERVICE_ROLE_KEY&&STRIPE_API_KEY&&STRIPE_WEBHOOK_SIGNING_SECRET)});
@@ -14,6 +18,15 @@ Deno.serve(async(req)=>{
  const {default:Stripe}=await import("npm:stripe@22"); const stripe=new Stripe(STRIPE_API_KEY); const cryptoProvider=Stripe.createSubtleCryptoProvider();
  const signature=req.headers.get("stripe-signature")||""; const raw=await req.text(); let event:any;
  try{event=await stripe.webhooks.constructEventAsync(raw,signature,STRIPE_WEBHOOK_SIGNING_SECRET,undefined,cryptoProvider)}catch(error){return new Response("invalid signature",{status:400})}
+ // Reject mode mismatch BEFORE touching database, including webhook-event persistence.
+ const isolatedTest=SETTLEMENT_MODE==="test"&&event.livemode===false&&
+   /^(sk|rk)_test_/.test(STRIPE_API_KEY)&&
+   /^[a-z0-9]{20}$/.test(TEST_PROJECT_REF)&&
+   TEST_PROJECT_REF!=="wbwgroygjeyukkspnqiy"&&
+   (SUPABASE_URL.endsWith("/")?SUPABASE_URL.slice(0,-1):SUPABASE_URL)===`https://${TEST_PROJECT_REF}.supabase.co`&&
+   /^price_[A-Za-z0-9_]+$/.test(TEST_DIAG_PRICE);
+ if(!((SETTLEMENT_MODE==="live"&&event.livemode===true)||isolatedTest))
+   return new Response("Stripe settlement environment mismatch",{status:409});
  const eventId=String(event.id||""); const eventType=String(event.type||""); if(!eventId)return new Response("missing event id",{status:400});
  const {data:existingWebhook}=await supabase.from("stripe_webhook_events").select("event_id,processed").eq("event_id",eventId).maybeSingle();
  if(existingWebhook?.processed===true)return Response.json({received:true,duplicate:true,event_id:eventId});
@@ -37,6 +50,12 @@ Deno.serve(async(req)=>{
  const session=event.data?.object||{}; const metadata=session.metadata||{}; const amountMinor=Number(session.amount_total||0); const currency=String(session.currency||"").toUpperCase(); const paymentIntentId=typeof session.payment_intent==="string"?session.payment_intent:null; const checkoutSessionId=String(session.id||""); const customerEmail=session.customer_details?.email||session.customer_email||null; const customFields=Array.isArray(session.custom_fields)?session.custom_fields:[]; const charityField=customFields.find((field:any)=>String(field?.key||"")==="charity"); const charityIdentifier=String(charityField?.text?.value||"").trim();
  if(!checkoutSessionId||session.payment_status!=="paid")return new Response("checkout session is not paid",{status:400}); if(currency!=="NZD")return new Response("unexpected currency",{status:400});
  const marketplaceListingId=String(metadata.marketplace_listing_id||"");
+ // A diagnostic cannot fall through to the generic revenue-only route without
+ // the marketplace order that owns automatic decklist fulfillment.
+ const DIAG_SKU="COMMANDER-DECK-DIAGNOSTIC-001";
+ const DIAG_LEGACY="CMD-DIAG-29";
+ const diagnosticMetadata=[metadata.sku_id,metadata.sku].some(x=>x===DIAG_SKU||x===DIAG_LEGACY);
+ if(diagnosticMetadata&&!marketplaceListingId)return new Response("MTG diagnostic marketplace listing required",{status:409});
  let marketplaceSettlement:any=null;
  let marketplaceListing:any=null;
  let sku=String(metadata.sku_id||metadata.sku||""); if(metadata.opportunity_id==="ACNC_RESEARCH_001"&&metadata.fulfillment_worker==="ACNC_RESEARCH_WORKER"&&metadata.source_gauntlet==="ACNC_PASS") sku="ACNC-CHARITY-DD-99";
@@ -44,11 +63,49 @@ Deno.serve(async(req)=>{
    const {data:listing,error:listingError}=await supabase.from("marketplace_listings").select("id,sku,title,price_nzd,status,inventory,seller_id,organization_id,fulfillment_type,metadata").eq("id",marketplaceListingId).single();
    if(listingError||!listing)return new Response("marketplace listing not found",{status:400});
    marketplaceListing=listing;
+   // MTG digital fulfillment is a strict canonical SKU contract, not an alias.
+   if(diagnosticMetadata||String(listing.sku)===DIAG_SKU||String(listing.sku)===DIAG_LEGACY){
+     // The old alias is never a settlement identity. Any diagnostic marker
+     // demands the exact canonical listing AND signed Checkout metadata.
+     if(String(listing.sku)!==DIAG_SKU||String(metadata.sku_id||"")!==DIAG_SKU||!checkoutSessionId)
+       return new Response("MTG diagnostic session metadata mismatch",{status:409});
+     let verified:any;
+     try{
+       verified=await stripe.checkout.sessions.retrieve(checkoutSessionId,{expand:["line_items.data.price.product"]});
+     }catch{
+       console.error("MTG_DIAG_STRIPE_SESSION_READ_FAILED",{event_id:eventId});
+       return new Response("MTG diagnostic Stripe verification unavailable",{status:503});
+     }
+     const items=verified.line_items?.data||[];
+     const item=items.length===1?items[0]:null;
+     const price=item?.price;
+     const product=price?.product;
+     const expectedPrice=SETTLEMENT_MODE==="test"?TEST_DIAG_PRICE:"price_1UFFY1EGgEAnUFF9Yq03zIa7";
+     const valid=verified.id===checkoutSessionId&&verified.livemode===event.livemode&&
+       session.livemode===event.livemode&&
+       checkoutSessionId.startsWith(SETTLEMENT_MODE==="test"?"cs_test_":"cs_live_")&&
+       verified.payment_status==="paid"&&verified.mode==="payment"&&verified.status==="complete"&&
+       verified.currency==="nzd"&&verified.amount_subtotal===2900&&verified.amount_total===2900&&
+       session.amount_total===2900&&verified.payment_intent===paymentIntentId&&
+       verified.metadata?.sku_id===DIAG_SKU&&verified.metadata?.marketplace_listing_id===marketplaceListingId&&
+       !verified.line_items?.has_more&&item?.quantity===1&&price?.id===expectedPrice&&
+       price?.lookup_key==="COMMANDER-DECK-DIAGNOSTIC-001"&&
+       price?.metadata?.dreamledger_sku==="COMMANDER-DECK-DIAGNOSTIC-001"&&
+       product?.metadata?.dreamledger_sku==="COMMANDER-DECK-DIAGNOSTIC-001";
+     if(!valid){
+       console.error("MTG_DIAG_CONTRACT_MISMATCH",{event_id:eventId});
+       return new Response("MTG diagnostic line-item contract mismatch",{status:409});
+     }
+   }
    const {data:settlement,error:settlementError}=await supabase.rpc("marketplace_settle_stripe_payment",{p_listing_id:marketplaceListingId,p_checkout_session_id:checkoutSessionId,p_payment_intent_id:paymentIntentId,p_event_id:eventId,p_amount_nzd:amountMinor/100,p_currency:currency,p_customer_email:customerEmail,p_quantity:1});
    if(settlementError)return new Response("marketplace settlement failed",{status:500});
+   // An RPC without a durable order receipt is NOT successful settlement.
+   // Fail closed and leave the signed event retryable instead of creating
+   // revenue-only entitlements for an unconfirmed marketplace order.
+   const marketplaceOrderId=typeof settlement?.order_id==="string"?settlement.order_id.trim():"";
+   if(!marketplaceOrderId)return new Response("marketplace settlement receipt missing",{status:503});
    marketplaceSettlement=settlement;
-   sku=listing.sku==="COMMANDER-DECK-DIAGNOSTIC-001" ? "CMD-DIAG-29" : String(listing.sku||"");
-   const marketplaceOrderId=String(marketplaceSettlement?.order_id||"");
+   sku=String(listing.sku||"");
    if(marketplaceOrderId){
      const transferGroup=`order_${marketplaceOrderId}`;
      await supabase.from("marketplace_orders").update({stripe_transfer_group:transferGroup}).eq("id",marketplaceOrderId);

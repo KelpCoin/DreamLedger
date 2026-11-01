@@ -6,6 +6,13 @@ on:
       - "public/catalog.json"
       - "mtg/**"
       - "public/mtg/**"
+      - "public/diagnostic-input.html"
+      - "public/assets/checkout-return.js"
+      - "handlers/commercial-diagnostic-input.ts"
+      - "api/[...route].ts"
+      - "scripts/test-beck-diagnostic-bridge.cjs"
+      - "scripts/test-beck-supabase-checkout.cjs"
+      - "supabase/functions/mtg-commander-status/index.ts"
       - "scripts/import-mtg-rapid-decks.cjs"
       - "scripts/test-mtg-rapid-decks.cjs"
       - "AGENT_BUS/BRIDGE/MTG_INTAKE/rapid-decks-template.csv"
@@ -18,12 +25,29 @@ on:
       - "public/mtg/**"
       - ".github/workflows/mtg-catalogue-validation.yml"
 
+permissions:
+  contents: read
+
 jobs:
   validate-mtg-listings:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Verify isolated test-mode status and ledger read boundary
+        run: node --test scripts/test-beck-supabase-checkout.cjs
+      - name: Attest exact status verifier source and test SHA256
+        run: sha256sum supabase/functions/mtg-commander-status/index.ts scripts/test-beck-supabase-checkout.cjs
+      - name: Verify diagnostic paid-decklist browser-to-Supabase bridge
+        run: node --test scripts/test-beck-diagnostic-bridge.cjs
+      - name: Verify signed Commander webhook SKU and Stripe settlement guard
+        run: node --test scripts/test-commander-signed-webhook.cjs
+      - name: Attest exact webhook source and regression SHA256
+        run: sha256sum supabase/functions/stripe-revenue-41104f355d6878cdd6d1f9dc/index.ts scripts/test-commander-signed-webhook.cjs
       - name: Validate catalogue records and buyer routes
         run: |
           node <<'NODE'
@@ -44,13 +68,21 @@ jobs:
             }
           }
           const html = fs.readFileSync('mtg/index.html', 'utf8');
-          if (!html.includes('/public/catalog.json')) throw new Error('Root preview catalogue must use tracked public catalogue data');
           const liveHtml = fs.readFileSync('public/mtg/index.html', 'utf8');
-          if (!liveHtml.includes("get('/catalog.json')")) throw new Error('Live public MTG page must load the tracked catalogue.json');
+          const expectedAttr = 'data-catalog="/data/mtg-catalog.json"';
+          if (!html.includes(expectedAttr) || !liveHtml.includes(expectedAttr)) {
+            throw new Error('Both MTG storefronts must use the tracked public/data/mtg-catalog.json');
+          }
+          const liveCatalog = JSON.parse(fs.readFileSync('public/data/mtg-catalog.json', 'utf8'));
+          for (const [id] of required) {
+            if (!(liveCatalog.products || []).some(p => p.id === id && p.silo === 'mtg')) {
+              throw new Error('Missing canonical public MTG product: ' + id);
+            }
+          }
           for (const page of ['public/mtg/quintorius-field-historian.html', 'public/mtg/dwynen-gilt-leaf-daen.html']) {
             if (!fs.existsSync(page)) throw new Error('Missing deployed public route: ' + page);
           }
-          if (!html.includes('EDH_QUINTORIUS_0002') || !html.includes('EDH_DWYNEN_0003')) throw new Error('Catalogue must prioritize the new decks');
+          if (!liveCatalog.products || liveCatalog.products.findIndex(p => p.id === 'EDH_QUINTORIUS_0002') < 0 || liveCatalog.products.findIndex(p => p.id === 'EDH_DWYNEN_0003') < 0) throw new Error('Canonical catalogue must contain the new decks');
           for (const page of ['mtg/quintorius-field-historian.html', 'mtg/dwynen-gilt-leaf-daen.html']) {
             const body = fs.readFileSync(page, 'utf8');
             if (!body.includes('decklist') && !body.includes('decklist')) throw new Error('Missing decklist reference in ' + page);

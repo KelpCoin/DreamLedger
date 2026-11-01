@@ -97,7 +97,7 @@
       "checkout_available": false,
       "checkout_url": null,
       "category": "public-placements",
-      "availability": "verification_required",
+      "availability": "review_required",
       "payment_link_id": "plink_1UCrekEGgEAnUFF9XVRM04aG",
       "stripe_price_id": "price_1UCrecEGgEAnUFF9lximUXtk",
       "inventory": 0,

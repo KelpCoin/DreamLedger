@@ -10,7 +10,8 @@ const EXT = new Set(['.js', '.cjs', '.mjs', '.ts', '.tsx', '.jsx', '.py', '.ps1'
 const REQUIRED = ['product_sku', 'product_id', 'offer_id', 'silo', 'source'];
 const CENTRAL_PRELOAD = path.join(ROOT, 'BEC-PRIME', 'lib', 'commercePaymentContractPreload.js');
 const PRODUCER_MARKERS = [
-  /checkout\/sessions/i,
+  // Stripe /checkout/sessions/{id} retrieves a session; it does not create one.
+  /checkout\/sessions(?!\/)/i,
   /stripe\.checkout\.sessions\.create/i,
   /stripeCheckout\s*\(/i,
   /stripeRequest\s*\(/i,

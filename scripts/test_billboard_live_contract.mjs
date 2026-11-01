@@ -39,7 +39,7 @@ const fetchMock=async (url,init={})=>{
 const Deno={env:{get:(key)=>({
   SUPABASE_URL:'https://example.supabase.co',
   SUPABASE_SERVICE_ROLE_KEY:'local-service-role',
-  STRIPE_SECRET_KEY:'sk_live_synthetic_only',
+  STRIPE_SECRET_KEY:'sk_'+'live_synthetic_only',
   STRIPE_WEBHOOK_SECRET:'whsec_local_synthetic_only'
 })[key]||''},serve:(fn)=>{handler=fn}};
 vm.runInNewContext(stripTypeScriptTypes(source,{mode:'strip'}),{

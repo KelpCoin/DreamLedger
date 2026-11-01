@@ -1,6 +1,11 @@
 name: Commander Diagnostic Fulfillment Worker
 
 on:
+  pull_request:
+    paths:
+      - 'workers/marketplace/commander_marketplace_worker.py'
+      - 'workers/marketplace/test_commander_marketplace_worker.py'
+      - '.github/workflows/commander-diagnostic-fulfillment.yml'
   push:
     branches: [main]
   workflow_dispatch:
@@ -15,7 +20,19 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  validate-worker:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify cloud model credential boundary and fail-closed delivery
+        run: python3 -m unittest discover -s workers/marketplace -p 'test_commander_marketplace_worker.py' -v
+      - name: Attest exact source and test SHA256
+        run: sha256sum workers/marketplace/commander_marketplace_worker.py workers/marketplace/test_commander_marketplace_worker.py
+
   fulfill:
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
