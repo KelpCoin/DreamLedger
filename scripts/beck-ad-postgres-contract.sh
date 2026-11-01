@@ -40,6 +40,12 @@ if q "SELECT public.beck_ad_record_paid('$id'::uuid,'cs_live_ci_one','evt_ci_one
  echo "FAIL: unbound checkout accepted"; exit 1
 fi
 q "SELECT (public.beck_ad_bind_checkout('$id'::uuid,'cs_live_ci_one',clock_timestamp()+interval '30 minutes','Synthetic title','https://example.invalid/',repeat('a',64))).reservation_id"
+# Simulate a delayed webhook after original hold expiry. A bound session must
+# remain excluded from another sale, yet a verified paid receipt must succeed.
+q "UPDATE public.beck_ad_reservations SET hold_expires_at=clock_timestamp()-interval '2 minutes' WHERE reservation_id='$id'"
+if reserve ci-late-resale-0001 >/tmp/beck-ad-resell.log 2>&1; then
+ echo "FAIL: expired bound checkout was sold twice";exit 1
+fi
 if q "SELECT public.beck_ad_record_paid('$id'::uuid,'cs_live_ci_one','evt_ci_one','pi_ci_one',5000,'NZD',true,repeat('b',64))" >/dev/null 2>&1; then
  echo "FAIL: wrong creative SHA accepted"; exit 1
 fi
@@ -48,4 +54,4 @@ q "SELECT (public.beck_ad_record_paid('$id'::uuid,'cs_live_ci_one','evt_ci_one',
 [[ "$(q "SELECT status FROM public.beck_ad_reservations WHERE reservation_id='$id'")" == "PAID" ]] || exit 1
 [[ "$(q "SELECT status FROM public.beck_ad_payment_receipts WHERE reservation_id='$id'")" == "PAID_PENDING_CREATIVE_REVIEW" ]] || exit 1
 [[ "$(q 'SELECT count(*) FROM public.beck_ad_payment_receipts')" == "1" ]] || exit 1
-echo "PASS: two SQL migrations, concurrency, idempotency, payment attribution and independent creative review."
+echo "PASS: two SQL migrations, concurrency, no resale of expired bound Checkout, idempotency, and paid creative review."
