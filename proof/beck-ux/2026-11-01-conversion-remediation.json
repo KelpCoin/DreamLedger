@@ -1,0 +1,29 @@
+{
+  "schema": "beck-ux-remediation/v1",
+  "date": "2026-11-01",
+  "branch": "beck/mobile-carousel-conversion-fix-20261101",
+  "base": "billboard-verified-release-20261027",
+  "baseline": {
+    "home_blob": "8a1ff8e640b11f13facd0987f6f3f0f1d3e1e974",
+    "mtg_blob": "611b74c23fbf86a3982748d7b10c813cddfa2a66"
+  },
+  "scope": [
+    "mobile CTA carousel home",
+    "compact three MTG auction placeholders",
+    "no fabricated checkout or bids"
+  ],
+  "publication": "DRAFT_NO_DEPLOY",
+  "real_checkout": "BLOCKED_PRODUCTION_SECRETS",
+  "revenue_assertion": "NONE",
+  "source_checks": {
+    "home_carousel": true,
+    "six_intent_cards": true,
+    "mtg_three_slots": true,
+    "mtg_auction_coming_soon": true
+  },
+  "notes": [
+    "CSS-only illustrative card backs; no copyrighted artwork embedded.",
+    "No paid CTA for held billboard or unverified MTG stock.",
+    "Do not merge into the auto-disabled production branch without a reviewed release plan."
+  ]
+}
