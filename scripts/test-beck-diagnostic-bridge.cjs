@@ -183,3 +183,13 @@ test('TEST checkout rejects production project, wrong endpoint and missing proje
   assert.equal(t.calls.length,0,'must not access any provider for invalid isolation');
  }
 });
+
+test('private diagnostic report contract refuses unverified access',()=>{
+ const s=fs.readFileSync('supabase/functions/marketplace-diagnostic-delivery/index.ts','utf8');
+ for(const key of ['CANONICAL_SKU','CANONICAL_PRICE','CANONICAL_PRODUCT','canonicalPaid(session)',
+ 'checkoutEmail!==email','order.payment_status!=="paid"','order.fulfillment_status!=="fulfilled"',
+ 'storage.download(path)','crypto.subtle.digest','storage.createSignedUrl(path,60)',
+ 'delivery_receipt_recorded:false','"cache-control":"no-store"']){
+  assert(s.includes(key),'Missing fail-closed report gate: '+key);
+ }
+});
