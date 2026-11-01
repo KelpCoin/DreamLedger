@@ -2,7 +2,7 @@
 const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
 const root=path.resolve(__dirname,'..');
 const read=p=>fs.readFileSync(path.join(root,p),'utf8');
-const worksheet=read('public/quote-comparison/index.html'),home=read('public/index.html'),mtg=read('public/mtg/index.html'),thanks=read('public/thanks.html'),quote=read('public/quote-compare-49.html'),v=JSON.parse(read('vercel.json'));
+const success=read('public/success.html'),worksheet=read('public/quote-comparison/index.html'),home=read('public/index.html'),mtg=read('public/mtg/index.html'),thanks=read('public/thanks.html'),quote=read('public/quote-compare-49.html'),v=JSON.parse(read('vercel.json'));
 assert.equal(v.git.deploymentEnabled['*'],false,'draft branch must not auto-deploy');
 assert.ok(home.includes('id="beck-rail"')&&home.includes('scroll-snap-type:x mandatory'),'mobile carousel');
 assert.equal((home.match(/class="beck-tile"/g)||[]).length,6,'six entry cards');
@@ -17,4 +17,5 @@ for(const route of ['/thanks','/thanks/'])assert.ok(v.rewrites.some(r=>r.source=
 assert.ok(quote.includes('Before you pay:')&&quote.includes('free browser comparison worksheet'),'free alternative');
 assert.ok(worksheet.includes("o.comparable_total=o.price===null||o.delivery===null?null:o.price+o.delivery;"),'missing freight may never count as free');
 assert.ok(worksheet.includes('Blank freight is not assumed free.'),'worksheet total disclosure');
+assert.ok(success.includes('Returning from checkout does not prove')&&!success.includes('Payment received'),'legacy success must not assert paid state');
 console.log('BECK_UX_SAFE_PASS: 6 CTA cards, 3 MTG placeholders, 2 thanks routes, payment holds intact');
