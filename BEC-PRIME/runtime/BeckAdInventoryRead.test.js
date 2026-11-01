@@ -45,3 +45,17 @@ test('truncated provider rows fail closed',async()=>{
  await assert.rejects(()=>inventory({env,now,fetchImpl:mock(canvas,Array.from({length:1000},(_,i)=>slot('n'+i)))}),/unverified/);
 });
 test('network loss fails closed',async()=>await assert.rejects(()=>inventory({env,now,fetchImpl:async()=>{throw Error('network')}}),/unverified/));
+
+
+test('future confirmed booking is included in permanent footprint',async()=>{
+ let queryUrl='';
+ const fetchImpl=async(url)=>{
+   if(url.includes('/beck_ad_canvases?'))return {ok:true,json:async()=>canvas};
+   queryUrl=url;
+   return {ok:true,json:async()=>[slot('future_01',{campaign_start:'2026-12-01T00:00:00Z',campaign_end:'2999-01-01T00:00:00Z'})]};
+ };
+ const r=await inventory({env,now,fetchImpl});
+ assert.equal(r.remaining_founding_units,99);
+ assert.equal(queryUrl.includes('campaign_start='),false);
+ assert.equal(r.unavailable_positions.length,1);
+});
