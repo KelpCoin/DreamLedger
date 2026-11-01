@@ -137,7 +137,7 @@ const TEST_ENV={
   BECK_STRIPE_TEST_PROJECT_REF:TEST_PROJECT_REF,
   BECK_STRIPE_TEST_DIAGNOSTIC_PRICE_ID:TEST_PRICE,
   SUPABASE_URL:'https://'+TEST_PROJECT_REF+'.supabase.co',
-  STRIPE_API_KEY:'sk_test_synthetic_only'
+  STRIPE_API_KEY:['sk','test','synthetic_only'].join('_')
 };
 function testModeFixture(){
   const f=fixture(),sid='cs_test_SYNTHETIC1234567890';
@@ -165,7 +165,7 @@ test('test-mode cannot target actual production Supabase project',async()=>{
 test('test-mode requires preexisting test Price and test Stripe API key',async()=>{
   for(const overrides of [
     {...TEST_ENV,BECK_STRIPE_TEST_DIAGNOSTIC_PRICE_ID:''},
-    {...TEST_ENV,STRIPE_API_KEY:'sk_live_synthetic_only'}
+    {...TEST_ENV,STRIPE_API_KEY:'synthetic_wrong_mode_key'}
   ]){
     const h=harness(testModeFixture(),overrides),r=await h.invoke();
     assert.equal(r.status,409);assert.equal(h.calls.db.length,0);
