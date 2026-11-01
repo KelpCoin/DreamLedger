@@ -29,6 +29,14 @@ jobs:
           node-version: 20
       - name: Verify Stripe Checkout producers
         run: node BEC-PRIME/scripts/verify-stripe-checkout-contract.js
+      - name: Use Node 24 for signed webhook contract
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Signed Commander webhook contract (synthetic, no DB writes)
+        run: node --test scripts/test-commander-signed-webhook.cjs
+      - name: SHA256 source and regression
+        run: sha256sum supabase/functions/stripe-revenue-41104f355d6878cdd6d1f9dc/index.ts scripts/test-commander-signed-webhook.cjs
       - name: Syntax check verifier
         run: node --check BEC-PRIME/scripts/verify-stripe-checkout-contract.js
       - name: Syntax check public hypothesis surface
