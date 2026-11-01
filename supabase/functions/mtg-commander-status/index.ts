@@ -24,7 +24,7 @@ Deno.serve(async req=>{
  const testMode=id.startsWith('cs_test_');
  const key=testMode?Deno.env.get('STRIPE_TEST_SECRET_KEY'):(Deno.env.get('STRIPE_API_KEY')||Deno.env.get('STRIPE_SECRET_KEY'));
  const expectedPrice=testMode?Deno.env.get('MTG_DIAGNOSTIC_TEST_PRICE_ID'):LIVE_PRICE;
- if(!key||!expectedPrice)return output('verification_unavailable',503,origin,{retryable:true});
+ if(!key||!expectedPrice||(testMode&&!/^(sk|rk)_test_/.test(key)))return output('verification_unavailable',503,origin,{retryable:true});
  let s;
  try{
   const q=new URLSearchParams();q.append('expand[]','line_items.data.price.product');
@@ -42,8 +42,19 @@ Deno.serve(async req=>{
  line.quantity===1&&s.currency==='nzd'&&s.amount_subtotal===2900;
  if(!match)return output('product_mismatch',409,origin);
  if(s.payment_status!=='paid')return output('awaiting_payment',200,origin,{retryable:true});
- const url=Deno.env.get('SUPABASE_URL')||'',role=Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')||'';
- if(!/^https:\/\/[a-z0-9-]+\.supabase\.co\/?$/.test(url)||!role)return output('paid_pending_record',200,origin,{retryable:true});
+ // Test checkout must read the isolated test ledger, never the live ledger.
+ const liveUrl=(Deno.env.get('SUPABASE_URL')||'').replace(/\/$/,'');
+ const liveRole=Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')||'';
+ const testRef=(Deno.env.get('BECK_STRIPE_TEST_PROJECT_REF')||'').trim();
+ const testUrl=(Deno.env.get('MTG_DIAGNOSTIC_TEST_SUPABASE_URL')||'').replace(/\/$/,'');
+ const testRole=Deno.env.get('MTG_DIAGNOSTIC_TEST_SUPABASE_SERVICE_ROLE_KEY')||'';
+ const isolatedTestDb=/^[a-z0-9]{20}$/.test(testRef)&&
+   testRef!=='wbwgroygjeyukkspnqiy'&&
+   testUrl===`https://${testRef}.supabase.co`&&
+   testUrl!==liveUrl&&Boolean(testRole)&&testRole!==liveRole;
+ const url=testMode?(isolatedTestDb?testUrl:''):liveUrl;
+ const role=testMode?(isolatedTestDb?testRole:''):liveRole;
+ if(!/^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(url)||!role)return output('paid_pending_record',200,origin,{retryable:true});
  try{
   const root=url.replace(/\/$/,'');
   const headers={'apikey':role,'Authorization':'Bearer '+role};

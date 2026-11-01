@@ -11,6 +11,8 @@ on:
       - "handlers/commercial-diagnostic-input.ts"
       - "api/[...route].ts"
       - "scripts/test-beck-diagnostic-bridge.cjs"
+      - "scripts/test-beck-supabase-checkout.cjs"
+      - "supabase/functions/mtg-commander-status/index.ts"
       - "scripts/import-mtg-rapid-decks.cjs"
       - "scripts/test-mtg-rapid-decks.cjs"
       - "AGENT_BUS/BRIDGE/MTG_INTAKE/rapid-decks-template.csv"
@@ -36,6 +38,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
+      - name: Verify isolated test-mode status and ledger read boundary
+        run: node --test scripts/test-beck-supabase-checkout.cjs
+      - name: Attest exact status verifier source and test SHA256
+        run: sha256sum supabase/functions/mtg-commander-status/index.ts scripts/test-beck-supabase-checkout.cjs
       - name: Verify diagnostic paid-decklist browser-to-Supabase bridge
         run: node --test scripts/test-beck-diagnostic-bridge.cjs
       - name: Verify signed Commander webhook SKU and Stripe settlement guard

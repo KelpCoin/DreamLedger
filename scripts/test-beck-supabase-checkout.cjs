@@ -35,4 +35,39 @@ test('matching webhook-backed order and fulfillment permits read-only next step'
  assert.equal(a.calls.length,6);assert(a.calls.every(x=>x.method==='GET'));
 });
 test('failed fulfillment stays pending',async()=>{const a=setup(sample(),[{id:'ord-1',payment_status:'paid',listing_id:listing}],[{fulfillment_id:'ful-1',status:'failed'}]);assert.equal((await a.call()).body.state,'paid_pending_record')});
-console.log('BECK_SUPABASE_CHECKOUT_HERMETIC_PASS: 9 scenarios, no network, no charges');
+const testSession=()=>{
+ const s=sample();s.id='cs_test_SYNTHETIC1234567890';s.livemode=false;
+ s.line_items.data[0].price.id='price_TESTSYNTHETIC';return s;
+};
+const testUrl='https://example.supabase.co/functions/v1/mtg-commander-status?session_id=cs_test_SYNTHETIC1234567890';
+const testVars={STRIPE_TEST_SECRET_KEY:'sk_test_SYNTHETIC',MTG_DIAGNOSTIC_TEST_PRICE_ID:'price_TESTSYNTHETIC'};
+const testDb={...testVars,BECK_STRIPE_TEST_PROJECT_REF:'abcdefghijklmnopqrst',
+ MTG_DIAGNOSTIC_TEST_SUPABASE_URL:'https://abcdefghijklmnopqrst.supabase.co',
+ MTG_DIAGNOSTIC_TEST_SUPABASE_SERVICE_ROLE_KEY:'synthetic-test-role'};
+test('test-mode paid session never reads production ledger without isolated test DB',async()=>{
+ const a=setup(testSession(),[{id:'ord-1',payment_status:'paid',listing_id:listing}],[{fulfillment_id:'ful-1',status:'queued'}],testVars);
+ assert.equal((await a.call(testUrl)).body.state,'paid_pending_record');
+ assert.equal(a.calls.length,1);
+ assert(a.calls[0].url.includes('api.stripe.com'));
+});
+test('isolated test-mode ledger can verify paid test order without production reads',async()=>{
+ const a=setup(testSession(),[{id:'ord-1',payment_status:'paid',listing_id:listing}],[{fulfillment_id:'ful-1',status:'queued'}],testDb);
+ assert.equal((await a.call(testUrl)).body.state,'paid_recorded');
+ assert.equal(a.calls.length,3);
+ assert(a.calls.slice(1).every(c=>c.url.startsWith('https://abcdefghijklmnopqrst.supabase.co/rest/v1/')));
+ assert(a.calls.every(c=>c.method==='GET'));
+});
+test('test-mode DB cannot alias production project or reuse production role',async()=>{
+ const a=setup(testSession(),[],[],{...testDb,MTG_DIAGNOSTIC_TEST_SUPABASE_URL:'https://example.supabase.co'});
+ assert.equal((await a.call(testUrl)).body.state,'paid_pending_record');
+ assert.equal(a.calls.length,1);
+ const b=setup(testSession(),[],[],{...testDb,MTG_DIAGNOSTIC_TEST_SUPABASE_SERVICE_ROLE_KEY:'synthetic-role'});
+ assert.equal((await b.call(testUrl)).body.state,'paid_pending_record');
+ assert.equal(b.calls.length,1);
+});
+test('test-mode Stripe lookup rejects a live-mode key before network access',async()=>{
+ const a=setup(testSession(),[],[],{...testDb,STRIPE_TEST_SECRET_KEY:'sk_live_SYNTHETIC'});
+ assert.equal((await a.call(testUrl)).body.state,'verification_unavailable');
+ assert.equal(a.calls.length,0);
+});
+console.log('BECK_SUPABASE_CHECKOUT_HERMETIC_PASS: 13 scenarios, no network, no charges');
