@@ -82,7 +82,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: node --test scripts/test-mtg-header-market.cjs scripts/test-mtg-community-workbench.cjs scripts/test-beck-mtg-master-hardening.cjs BEC-PRIME/cube/clone-silo.test.js
+      - run: |
+          node BEC-PRIME/compiler/MTGCatalogCompiler.js
+          node --test scripts/test-mtg-header-market.cjs scripts/test-mtg-community-workbench.cjs scripts/test-beck-mtg-master-hardening.cjs BEC-PRIME/cube/clone-silo.test.js
 
   visual-parity:
     runs-on: ubuntu-latest
