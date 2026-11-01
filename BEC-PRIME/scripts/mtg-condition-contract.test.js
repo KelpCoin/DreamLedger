@@ -191,3 +191,115 @@ test('Gauntlet accepts correctly held historical approval but never calls it a s
     fs.rmSync(tmp, {recursive: true, force: true});
   }
 });
+
+const vm = require('node:vm');
+
+// Exercise the actual CLI verifier with isolated in-memory catalogue fixtures.
+// No real product, payment link, checkout, provider or compiled artefact is changed.
+function inspectProductionContract(mutator = () => {}) {
+  const fixture = {
+    product: json('BEC-PRIME/catalog/products/' + id + '.json'),
+    approved: json('BEC-PRIME/catalog/offers/approved.json'),
+    featured: json('BEC-PRIME/catalog/featured-offer.json')
+  };
+  mutator(fixture);
+  const fakeRoot = path.join(root, 'BEC-PRIME');
+  let proof, exitCode;
+  const fakeFs = {
+    existsSync: () => true,
+    statSync: () => ({size: 1}),
+    readFileSync: p => {
+      const rel = path.relative(fakeRoot, p).replace(/\\/g, '/');
+      if (rel === 'catalog/products/' + id + '.json') return JSON.stringify(fixture.product);
+      if (rel === 'catalog/offers/approved.json') return JSON.stringify(fixture.approved);
+      if (rel === 'catalog/featured-offer.json') return JSON.stringify(fixture.featured);
+      return '<!doctype html><html><body>Free tools</body></html>';
+    },
+    writeFileSync: (_p, data) => { proof = JSON.parse(data); }
+  };
+  const script = read('BEC-PRIME/scripts/verify-production-contract.js');
+  vm.runInNewContext(script, {
+    require: name => name === 'fs' ? fakeFs : require(name),
+    __dirname: path.join(fakeRoot, 'scripts'),
+    console: {log() {}},
+    process: {exit: code => { exitCode = code; }}
+  }, {timeout: 2000});
+  assert.ok(proof, 'verifier must write a machine-readable proof');
+  return {proof, exitCode};
+}
+
+test('production contract correctly classifies an intentional hold without imaginary link drift', () => {
+  const {proof, exitCode} = inspectProductionContract();
+  assert.equal(exitCode, 1, 'held product MUST block release');
+  assert.equal(proof.status, 'FAIL');
+  assert.equal(proof.release_gate, 'HOLD');
+  assert.equal(proof.release_reason, 'EXPECTED_HELD_UNSELLABLE');
+  assert.equal(proof.catalogue_integrity, 'PASS');
+  assert.equal(proof.errors.includes('STRIPE_LINK_DRIFT'), false);
+  assert.ok(proof.errors.includes('STRIPE_LINK_NOT_LIVEMODE'));
+  assert.ok(proof.errors.includes('PRODUCT_NOT_SELLABLE'));
+});
+
+test('production contract rejects mismatched approved versus featured payment URL', () => {
+  const {proof, exitCode} = inspectProductionContract(f => {
+    f.featured.payment_link_url = 'https://buy.stripe.com/wrong-reference';
+  });
+  assert.equal(exitCode, 1);
+  assert.equal(proof.catalogue_integrity, 'FAIL');
+  assert.ok(proof.errors.includes('STRIPE_LINK_DRIFT'));
+});
+
+test('production contract rejects payment link ID and state divergence', () => {
+  const {proof} = inspectProductionContract(f => {
+    f.featured.payment_link_id = 'plink_wrong';
+    f.featured.payment_link_status = 'ACTIVE_LIVEMODE';
+  });
+  assert.equal(proof.catalogue_integrity, 'FAIL');
+  assert.ok(proof.errors.includes('STRIPE_LINK_ID_DRIFT'));
+  assert.ok(proof.errors.includes('STRIPE_LINK_STATUS_DRIFT'));
+  assert.ok(proof.errors.includes('HELD_SOURCE_INCONSISTENT'));
+});
+
+test('production contract catches price and SKU tampering even while held', () => {
+  const {proof, exitCode} = inspectProductionContract(f => {
+    f.featured.price = 30;
+    f.featured.sku = 'UNRELATED-SKU';
+  });
+  assert.equal(exitCode, 1);
+  assert.equal(proof.catalogue_integrity, 'FAIL');
+  assert.ok(proof.errors.includes('PRICE_DRIFT'));
+  assert.ok(proof.errors.includes('SKU_DRIFT'));
+});
+
+test('source-only fake active checkout cannot attest settlement or delivery', () => {
+  const {proof, exitCode} = inspectProductionContract(f => {
+    const a = f.approved.approved.find(x => x.offer_id === 'OFFER-CMD-DIAG-29-NZD');
+    f.product.status = 'published';
+    f.product.checkout.mode = 'payment_link';
+    f.product.commercial_truth.approval_required = false;
+    f.product.commercial_truth.sellable = true;
+    f.product.commercial_truth.payment_link = a.payment_link_url;
+    a.payment_link_status = 'ACTIVE_LIVEMODE';
+    a.release_status = 'READY';
+    f.featured.payment_link_status = 'ACTIVE_LIVEMODE';
+    f.featured.release_status = 'READY';
+    f.featured.public_visibility = 'public';
+  });
+  assert.equal(exitCode, 1);
+  assert.equal(proof.status, 'FAIL');
+  assert.equal(proof.release_gate, 'HOLD');
+  assert.equal(proof.catalogue_integrity, 'PASS');
+  assert.ok(proof.errors.includes('LIVE_PROVIDER_SETTLEMENT_AND_DELIVERY_UNVERIFIED'));
+});
+
+test('a nonheld product cannot silently omit its own approved payment link', () => {
+  const {proof, exitCode} = inspectProductionContract(f => {
+    f.product.status = 'published';
+    f.product.checkout.mode = 'payment_link';
+    f.product.commercial_truth.approval_required = false;
+    f.product.commercial_truth.sellable = true;
+  });
+  assert.equal(exitCode, 1);
+  assert.ok(proof.errors.includes('STRIPE_LINK_DRIFT'));
+  assert.equal(proof.catalogue_integrity, 'FAIL');
+});
