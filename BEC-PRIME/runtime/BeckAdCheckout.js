@@ -3,6 +3,7 @@
 const crypto=require('node:crypto');
 const {inventory}=require('./BeckAdInventoryRead');
 const {reserve}=require('./BeckAdReservationClient');
+const {bindCheckout}=require('./BeckAdCheckoutBinding');
 const RELEASE=['BECK_AD_CHECKOUT_ENABLED','BECK_AD_OWNER_RELEASE_APPROVED','BECK_AD_WEBHOOK_DELIVERY_READY'];
 const ID='BECK-AD-FOUNDING-100X100';
 const FIXED_START='2026-11-01T00:00:00Z';
@@ -39,7 +40,7 @@ function occupiedCells(placements){
   return used;
 }
 async function prepareCheckout(value,{env=process.env,fetchImpl=globalThis.fetch,
-    getInventory=inventory,makeReservation=reserve,now=new Date()}={}){
+    getInventory=inventory,makeReservation=reserve,bindReservation=bindCheckout,now=new Date()}={}){
   if(!releaseEnabled(env))throw error('checkout_disabled');
   if(!env.STRIPE_SECRET_KEY||!/^sk_(test|live)_/.test(env.STRIPE_SECRET_KEY))throw error('stripe_not_configured');
   const data=parseInput(value);
@@ -108,6 +109,24 @@ async function prepareCheckout(value,{env=process.env,fetchImpl=globalThis.fetch
      typeof session.url!=='string'||!session.url.startsWith('https://checkout.stripe.com/')||
      session.payment_status==='paid'||(env.STRIPE_SECRET_KEY.startsWith('sk_live_')&&session.livemode!==true))
     throw error('checkout_provider_invalid');
+  // Stripe session must be durably linked to the held position before the URL leaves the server.
+  // If binding fails, attempt to expire the orphan Checkout Session (no charge performed).
+  try{
+    const linked=await bindReservation({
+      reservation_id:hold.reservation_id,session_id:session.id,
+      expires_at:new Date(expiresAt*1000).toISOString()
+    },{env,fetchImpl});
+    if(linked?.linked!==true||linked.checkout_session_id!==session.id||
+       linked.reservation_id!==hold.reservation_id)throw error('checkout_binding_unverified');
+  }catch{
+    try{
+      await fetchImpl('https://api.stripe.com/v1/checkout/sessions/'+encodeURIComponent(session.id)+'/expire',{
+        method:'POST',headers:{authorization:'Bearer '+env.STRIPE_SECRET_KEY,
+          'content-type':'application/x-www-form-urlencoded'},
+        signal:AbortSignal.timeout(5000)});
+    }catch{}
+    throw error('checkout_binding_unverified');
+  }
   return {checkout_url:session.url,session_id:session.id,reservation_id:hold.reservation_id,
     payment_verified:false,delivery_verified:false,publication:'APPROVAL_REQUIRED',expires_at:new Date(expiresAt*1000).toISOString()};
 }
