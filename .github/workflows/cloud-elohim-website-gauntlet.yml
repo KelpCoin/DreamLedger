@@ -39,8 +39,30 @@ jobs:
       - name: Install
         run: npm ci --no-audit --no-fund
 
+      - name: MTG static compiler fail-closed regression
+        run: node --test scripts/mtg-static-compiler-contract.test.js
+
       - name: Cloud Elohim compile
         run: npm run compile
+
+      - name: MTG static compiler immutable source proof
+        if: always()
+        env:
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          mkdir -p ../proof/mtg-static-compiler
+          printf 'pr_head_sha=%s\nci_checkout_sha=%s\nstatus=STAGED_CHECKOUT_UNVERIFIED\n' "$PR_HEAD_SHA" "$GITHUB_SHA" > ../proof/mtg-static-compiler/attestation.txt
+          sha256sum scripts/Patch-MTG-CommerceSurface.js scripts/mtg-static-compiler-contract.test.js >> ../proof/mtg-static-compiler/attestation.txt
+          cat ../proof/mtg-static-compiler/attestation.txt
+
+      - name: Upload MTG static compiler proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mtg-static-compiler-${{ github.run_id }}
+          path: proof/mtg-static-compiler/attestation.txt
+          if-no-files-found: error
+          retention-days: 30
 
       - name: Cloud Elohim worker proof
         run: |

@@ -197,9 +197,46 @@ function runGauntlet(candidates, capabilities) {
   return { passed, rejected };
 }
 
+// Catalogue approval records are historical intent, not a live-provider receipt.
+// This compiler has no authenticated provider observation and MUST NOT emit a
+// checkout-enabled offer merely because approved_by or link status says active.
+function assessApprovedReadiness(record, product, fulfillment) {
+  const blockers = [];
+  if (record.release_status === 'HOLD') blockers.push('OWNER_RELEASE_HOLD');
+  if (record.payment_link_status !== 'ACTIVE_LIVEMODE') blockers.push('LINK_NOT_VERIFIED_ACTIVE');
+  if (!product || product.id !== record.product_id || product.silo !== record.silo) {
+    blockers.push('CANONICAL_PRODUCT_MISSING_OR_MISMATCHED');
+  } else {
+    if (product.status !== 'published') blockers.push('PRODUCT_NOT_PUBLISHED');
+    if (product.commercial_truth?.sellable !== true ||
+        product.commercial_truth?.approval_required !== false) blockers.push('PRODUCT_COMMERCIAL_APPROVAL_UNVERIFIED');
+    if (!product.checkout || product.checkout.mode === 'disabled') blockers.push('PRODUCT_CHECKOUT_DISABLED');
+    if (Number(product.price) !== Number(record.price) ||
+        String(product.currency || '').toUpperCase() !== record.currency) blockers.push('PRODUCT_PRICE_CURRENCY_DRIFT');
+    if (!product.commercial_truth?.payment_link ||
+        product.commercial_truth.payment_link !== record.payment_link_url) blockers.push('PRODUCT_PAYMENT_LINK_UNBOUND');
+    if (product.commercial_truth?.stripe_payment_link_id &&
+        product.commercial_truth.stripe_payment_link_id !== record.payment_link_id) blockers.push('STRIPE_LINK_ID_DRIFT');
+  }
+  if (!fulfillment || fulfillment.ready !== true || fulfillment.operator_required !== false)
+    blockers.push('AUTOMATED_FULFILLMENT_UNVERIFIED');
+  // No authenticated, signed, fresh provider receipt is accepted by this
+  // offline compiler. A separate, approved runtime gate must validate one.
+  blockers.push('TRUSTED_PROVIDER_RECEIPT_REQUIRED');
+  return blockers;
+}
+function readApprovedProduct(id) {
+  if (typeof id !== 'string' || !/^[A-Z0-9_-]{3,120}$/.test(id)) return null;
+  try { return JSON.parse(fs.readFileSync(path.join(ROOT, 'catalog', 'products', id + '.json'), 'utf8')); }
+  catch { return null; }
+}
+
 function compileApprovedOffers(records, capabilities, generatedOffers) {
   const byId = new Map(capabilities.map(c => [c.id, c]));
   const generatedIds = new Set(generatedOffers.map(o => o.offer_id));
+  let fulfillmentRegistry = null;
+  try { fulfillmentRegistry = JSON.parse(fs.readFileSync(path.join(ROOT, 'fulfillment', 'PRODUCT-FULFILLMENT-REGISTRY.json'), 'utf8')); }
+  catch { /* Missing or malformed fulfillment registry is a checkout hold. */ }
   const approved = [];
   const errors = [];
   const required = ['offer_id', 'capability_id', 'silo', 'name', 'problem', 'input', 'output', 'delivery_mechanism', 'deliverable', 'target_buyer', 'eligibility', 'constraints', 'price', 'currency', 'refund_rules', 'payment_adapter', 'checkout_route', 'proof_of_delivery', 'verification_rules', 'provenance', 'approved_by', 'approved_at'];
@@ -218,14 +255,20 @@ function compileApprovedOffers(records, capabilities, generatedOffers) {
       // with the same offer ID. The approved record becomes the sole canonical public offer.
     }
 
+    const product = readApprovedProduct(record.product_id);
+    const fulfillment = fulfillmentRegistry?.entries?.[record.offer_id] ||
+      fulfillmentRegistry?.entries?.[record.product_id] || null;
+    const readinessBlockers = assessApprovedReadiness(record, product, fulfillment);
+    const ready = readinessBlockers.length === 0;
     const offer = {
       ...record,
       version: 'offer-v1',
       pricing_strategy: record.pricing_strategy || 'fixed',
       pricing_tier: record.pricing_tier || 'snapshot',
-      approval_required: false,
-      checkout_available: true,
-      status: 'VERIFIED_AVAILABLE'
+      approval_required: !ready,
+      checkout_available: ready,
+      status: ready ? 'VERIFIED_AVAILABLE' : 'HELD_UNVERIFIED',
+      readiness_blockers: readinessBlockers
     };
     delete offer.approved_by;
     delete offer.approved_at;
@@ -285,7 +328,10 @@ function compile() {
     rejected_offer_ids: allRejected.map(item => item.offer_id || item.candidate?.offer_id || item.capability_id || null),
     approval_required_for_generated_offers: gauntlet.passed.every(o => o.approval_required === true),
     checkout_disabled_for_generated_offers: gauntlet.passed.every(o => o.checkout_available === false),
-    approved_checkout_enabled_only_by_explicit_record: approvedResult.approved.every(o => o.checkout_available === true && o.approval_required === false),
+    approved_checkout_enabled_only_by_explicit_record: approvedResult.approved.filter(o => o.checkout_available).every(o => o.approval_required === false),
+    approved_held_unverified_count: approvedResult.approved.filter(o => o.status === 'HELD_UNVERIFIED').length,
+    provider_verified_checkout_count: 0,
+    production_payment_verified: false,
     silo_integrity: finalOffers.every(o => byCapability(capabilities, o.capability_id)?.silo === o.silo),
     deterministic_ids: new Set(finalOffers.map(o => o.offer_id)).size === finalOffers.length,
     deterministic_proof: true
@@ -294,7 +340,7 @@ function compile() {
   return { ...deterministicManifest, candidates: generated.candidates, passed: finalOffers, rejected: allRejected };
 }
 
-module.exports = { compile, loadCapabilities, loadApprovedOffers, generateCandidates, runGauntlet, compileApprovedOffers, eligibility };
+module.exports = { compile, loadCapabilities, loadApprovedOffers, generateCandidates, runGauntlet, compileApprovedOffers, assessApprovedReadiness, eligibility };
 
 if (require.main === module) {
   const result = compile();

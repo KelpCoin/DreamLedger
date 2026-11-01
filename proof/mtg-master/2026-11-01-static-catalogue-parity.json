@@ -1,0 +1,56 @@
+{
+  "schema": "beck/mtg-catalogue-parity-gate/v1",
+  "date_utc": "2026-11-01",
+  "issue": 711,
+  "review_pr": 933,
+  "source_commit": "d49188a0bad479988453ed77dc68ef1980b53276",
+  "status": "STAGED_AWAITING_SAME_HEAD_CI",
+  "objective": "Eliminate contradictory static-root MTG inventory/price and replace stale condition tests with source-backed fail-closed checks",
+  "sha256": {
+    "data/mtg-catalog.json": "d8e42f2f28c2f932adb3ea52c5b9592a6f1c1b185656c6f7b397916fd27ebcb5",
+    "public/data/mtg-catalog.json": "d8e42f2f28c2f932adb3ea52c5b9592a6f1c1b185656c6f7b397916fd27ebcb5",
+    "BEC-PRIME/scripts/mtg-condition-contract.test.js": "12014689201b261ebfa0db53dfb1c53c4f748d044213705aacf61e567821b729",
+    "public/catalog.json": "0940f5bf44a6f1679f96f37e754c7c4b7c42b96040b5cf1c713a0c0b915ba1a4"
+  },
+  "known_disputed_item": {
+    "id": "EDH_0001",
+    "indicative_nzd": 230,
+    "sellable_inventory": 0,
+    "availability": "review_required",
+    "checkout_available": false,
+    "previous_unverified_root_claim": {
+      "nzd": 400,
+      "inventory": 1
+    }
+  },
+  "diagnostic": {
+    "id": "COMMANDER-DECK-DIAGNOSTIC-001",
+    "nzd": 29,
+    "status": "held",
+    "stripe_link_active": false,
+    "verified_delivery": false
+  },
+  "provider_readonly": {
+    "vercel_production_deployment": "dpl_3GFK78W1ddLFoMueeTED5dadeQdT",
+    "vercel_production_sha": "53d8ea7bc1aeea19cbdf2d8b265751229434e4fe",
+    "neon_staging_commerce_table_counts": {
+      "placements": 0,
+      "reservations": 0,
+      "orders": 0,
+      "commercial_orders": 0,
+      "commercial_payments": 0,
+      "fulfillment_outbox": 0
+    },
+    "stripe_recent_checkout_sample": {
+      "checked": 30,
+      "expired_unpaid": 30,
+      "has_more": true
+    },
+    "stripe_diagnostic_payment_link": "INACTIVE"
+  },
+  "economic_truth": "NO_VERIFIED_INDEPENDENT_PAID_AND_DELIVERED_CUSTOMER",
+  "runtime_truth": "NOT_DEPLOYED",
+  "safety": "NO_NEW_COST_NO_PAYMENT_ACTIVATION_NO_LIVE_MUTATIONS_NO_PUBLIC_POST",
+  "rollback": "revert commits 693b4c0d4710a5e9aafe70a376c8fd0121c3f63c and d49188a0bad479988453ed77dc68ef1980b53276 on draft PR #933",
+  "next_bounded_job": "Inspect exact same-head BEC-PRIME Gates and release CI, repair remaining authentic failures without loosening payment holds."
+}

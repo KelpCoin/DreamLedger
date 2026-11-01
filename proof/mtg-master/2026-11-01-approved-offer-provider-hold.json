@@ -1,0 +1,123 @@
+{
+  "schema": "beck/cloud-build-claim/v1",
+  "observed_at_utc": "2026-11-01T04:47:05Z",
+  "job": "P0-711-approved-offer-provider-hold",
+  "worker": "BECK Cloud Build Loop",
+  "issue": 711,
+  "review_pr": 933,
+  "review_branch": "beck/mtg-static-compiler-failclosed-20261101",
+  "validated_preproof_commit": "3342bfc01008b5fd57d7d0a1d2b72e594fc64872",
+  "objective": "Stop historical operator-approved offer metadata from silently compiling to a live checkout when canonical product, fulfillment and authenticated provider evidence are unverified.",
+  "status": "STAGED_SOURCE_AND_TEST_ACCEPTANCE_VERIFIED_NOT_ECONOMICALLY_VALIDATED",
+  "changes": [
+    "Preserved existing Commander Diagnostic Stripe Product, Price, Payment Link ID, URL and NZD 29 amount; corrected source link status to INACTIVE_LIVEMODE and public visibility to held.",
+    "OfferCompiler now rejects checkout promotion from approval metadata alone and reports per-offer readiness blockers; trusted provider receipts cannot be inferred by the offline compiler.",
+    "Gauntlet and PowerShell approved-offer verifier now require historical approvals to compile as HELD_UNVERIFIED, approval_required=true, checkout_available=false.",
+    "Committed deterministic generated offer catalog and source-hash proof; both historical approved records compile held; no live mutation."
+  ],
+  "source_sha256": {
+    "BEC-PRIME/compiler/OfferCompiler.js": "9d0db0295e66a24434ae185180d3163a84aae2a5f2b2727c7e8d3ac5d05981ac",
+    "BEC-PRIME/gauntlet/GauntletV6.js": "6243afe4ba7abcf45371d983f73e819815fb0858e579166bdc1e81cd4717c505",
+    "BEC-PRIME/scripts/Verify-ApprovedOfferContract.ps1": "ead0f92289cf3794d5e74f815fef60f3bc3a62cb7232f0348456a939d4c43313",
+    "BEC-PRIME/scripts/mtg-condition-contract.test.js": "2febdd1ed98b8dd4cdbd9febaa0ec215931ab90c145422c2cafe7f83146251e3",
+    "BEC-PRIME/catalog/offers/approved.json": "06784db8349ee1da5ab77ef7720704172e84ce52e93ccdbefb848745c94aeaa4",
+    "BEC-PRIME/catalog/featured-offer.json": "115007a0da275f0f426988e01896317c111f9230135cf0bf58cd4fea631de121",
+    "BEC-PRIME/catalog/offers/offers.json": "ad84414a6827bf67c85e9b1ede2e6382ef17e5037b6c8a7dee1b159bf5ccfca6",
+    "BEC-PRIME/PROOF-OFFER-COMPILATION.json": "187c700b87c895e3b9ad5131c74a83d7ffd0b3e700105db0ba4c44cda1af37ad"
+  },
+  "same_head_ci": {
+    "commit": "3342bfc01008b5fd57d7d0a1d2b72e594fc64872",
+    "npm_test": {
+      "run": 41274397313,
+      "result": "26 PASS 0 FAIL, overall workflow FAILED at production-contract"
+    },
+    "offer_catalog_contract": {
+      "run": 41274397310,
+      "result": "PASS; generated source parity, PowerShell held-offer contract and public surface reachability"
+    },
+    "mtg_catalogue_validation": {
+      "run": 41274397323,
+      "result": "PASS"
+    },
+    "stripe_checkout_contract": {
+      "run": 41274397282,
+      "result": "PASS"
+    },
+    "checkout_metadata_contract": {
+      "run": 41274397300,
+      "result": "PASS"
+    },
+    "cloud_elohim_gauntlet": {
+      "run": 41274397335,
+      "result": "FAIL at production contract; no full Gauntlet PASS"
+    },
+    "compiler_pong": {
+      "run": 41274397365,
+      "result": "FAIL at production contract"
+    },
+    "production_contract_errors": [
+      "STRIPE_LINK_DRIFT",
+      "STRIPE_LINK_NOT_LIVEMODE",
+      "PRODUCT_NOT_SELLABLE"
+    ],
+    "humanizer": "NOT_RUN_AS_SEPARATE_ACCEPTANCE"
+  },
+  "read_only_provider_truth": {
+    "stripe": {
+      "account": "acct_1SNVPvEGgEAnUFF9",
+      "link_id": "plink_1UKS00EGgEAnUFF9kUjraaL5",
+      "link_active": false,
+      "most_recent_checkout_sessions_checked": 30,
+      "most_recent_sessions_expired_unpaid": 30,
+      "has_more_sessions": true,
+      "charges_found": 2,
+      "attributable_commercial_orders_verified": 0
+    },
+    "vercel": {
+      "project": "dreamledger",
+      "latest_ready_production_deployment": "dpl_3GFK78W1ddLFoMueeTED5dadeQdT",
+      "git_sha": "53d8ea7bc1aeea19cbdf2d8b265751229434e4fe",
+      "review_branch_deployed": false,
+      "production_db_or_stripe_env_verified": false,
+      "only_project_local_database_variable_scope": "PREVIEW_DIFFERENT_BRANCH"
+    },
+    "neon": {
+      "project": "dreamledger-migration-staging",
+      "verified_seven_commerce_tables_row_counts": "0 each",
+      "production_mapping": "UNVERIFIED"
+    },
+    "supabase": {
+      "project": "DreamLedger",
+      "read_only_sql": "ECONNREFUSED"
+    },
+    "autonomy": {
+      "pr": 932,
+      "ci_run": 41264851853,
+      "ci_status": "PASS_ON_STAGED_PR",
+      "production_runtime_proof": "NOT_VERIFIED"
+    }
+  },
+  "blockers_ranked": [
+    "1. Live diagnostic Payment Link inactive; no independently verified settlement, signed webhook entitlement and automated delivery.",
+    "2. Production contract deliberately fails while canonical product held; compiled-only CI cannot certify a release.",
+    "3. Existing Vercel production lacks verified mapped backend and production secrets; Neon staging is not production evidence."
+  ],
+  "economic_truth": {
+    "externally_paid_delivered_reconciled_orders_verified": 0,
+    "positive_contribution_margin_verified": false,
+    "attributable_revenue_nzd": null,
+    "business_value_forecast": null
+  },
+  "guardrails": {
+    "merge": false,
+    "deploy": false,
+    "charge": false,
+    "checkout_activation": false,
+    "public_post": false,
+    "spend_nzd": 0,
+    "live_schema_mutation": false,
+    "operator_chores": 0
+  },
+  "rollback": "Revert staged PR #933 changes in reverse order (3342bfc, eb559bf, 95861a2, 24b9ef4, b02ce33, 0557248, 7bdf912, 04c1152); no live rollback because no production deployment occurred.",
+  "next_bounded_job": "On existing issue #711, reconcile BEC-PRIME/scripts/verify-production-contract.js so intentionally held SKU is reported as an explicit release HOLD without misleading link-drift terminology; keep production exit nonzero, verify compiler-only checks separately, and do not activate checkout."
+}

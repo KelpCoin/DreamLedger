@@ -12,13 +12,15 @@
   "stripe_product_id": "prod_V6iVKl9HgFpzRU",
   "stripe_price_id": "price_1UFFY1EGgEAnUFF9Yq03zIa7",
   "payment_link_id": "plink_1UKS00EGgEAnUFF9kUjraaL5",
-  "payment_link_status": "ACTIVE_LIVEMODE",
-  "public_visibility": "featured",
+  "payment_link_status": "INACTIVE_LIVEMODE",
+  "public_visibility": "held",
   "evidence_status": "awaiting_first_payment",
   "private_material": "excluded",
   "approved_by": "operator",
   "approved_at": "2026-08-23",
   "checkout_url": "https://dreamledger.org/mtg/diagnostic.html",
   "checkout_route": "first_party_intake_then_stripe_checkout_session",
-  "fulfillment_route": "https://dreamledger.org/mtg/diagnostic-success.html?session_id={CHECKOUT_SESSION_ID}"
+  "fulfillment_route": "https://dreamledger.org/mtg/diagnostic-success.html?session_id={CHECKOUT_SESSION_ID}",
+  "release_status": "HOLD",
+  "release_block_reason": "EXTERNAL_PAYMENT_AND_AUTOMATED_DELIVERY_NOT_VERIFIED"
 }

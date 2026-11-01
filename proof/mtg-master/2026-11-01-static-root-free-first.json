@@ -1,0 +1,17 @@
+{
+  "schema": "beck/mtg-static-root-parity/v1",
+  "status": "STAGED_AWAITING_SAME_HEAD_CI",
+  "date_utc": "2026-11-01",
+  "issue": 711,
+  "pr": 933,
+  "base_head": "e86b292945df07c8cbee661fe10e7d4e3f406cd7",
+  "source": "mtg/index.html",
+  "source_sha256": "f7777a4c920c45ce2b9d0caa563885e3247c4b16b097db00ade665e46be06657",
+  "regression": "BEC-PRIME/scripts/mtg-condition-contract.test.js",
+  "regression_sha256": "b5ec89a7c379979ab761563c33423585d2f20c3b766a23c2345ed9c08cf4ce19",
+  "scope": "Copy reviewed public free-first hub to static root; assert five cards before three auction placeholders; no checkout",
+  "remaining": "Root/public data/mtg-catalog.json diverge and two legacy condition assertions are stale; do not invent inventory or change prices",
+  "production": "NOT_DEPLOYED",
+  "economic": "NOT_VALIDATED",
+  "rollback": "revert this atomic commit; no production writes"
+}
