@@ -20,6 +20,7 @@ const routes: Record<string, Route> = {
   "/api/dreammeez/checkin": { kind: "node", load: () => import("../handlers/dreammeez/checkin.js") },
   "/api/stripe-link": { kind: "web", load: () => import("../handlers/stripe-link.ts") },
   "/api/offer-checkout/create": { kind: "web", load: () => import("../handlers/stripe-link.ts") },
+  "/api/commercial/input": { kind: "web", load: () => import("../handlers/commercial-diagnostic-input.ts") },
   "/api/molt-beach-checkout": { kind: "web", load: () => import("../handlers/billboard-checkout.ts") },
   "/api/molt-beach-inventory": { kind: "web", load: () => import("../handlers/billboard-inventory.ts") },
   "/api/molt-beach-webhook": { kind: "web", load: () => import("../handlers/billboard-webhook.ts") },
