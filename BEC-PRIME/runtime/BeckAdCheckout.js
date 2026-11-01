@@ -2,7 +2,7 @@
 // BECK ad checkout candidate: NOT LIVE. Requires three explicit release controls.
 const crypto=require('node:crypto');
 const {inventory}=require('./BeckAdInventoryRead');
-const {reserve}=require('./BeckAdReservationClient');
+const {reserve,lookupReservation}=require('./BeckAdReservationClient');
 const {bindCheckout}=require('./BeckAdCheckoutBinding');
 const RELEASE=['BECK_AD_CHECKOUT_ENABLED','BECK_AD_OWNER_RELEASE_APPROVED','BECK_AD_WEBHOOK_DELIVERY_READY'];
 const ID='BECK-AD-FOUNDING-100X100';
@@ -40,36 +40,54 @@ function occupiedCells(placements){
   return used;
 }
 async function prepareCheckout(value,{env=process.env,fetchImpl=globalThis.fetch,
-    getInventory=inventory,makeReservation=reserve,bindReservation=bindCheckout,now=new Date()}={}){
+    getInventory=inventory,makeReservation=reserve,findExisting=lookupReservation,bindReservation=bindCheckout,now=new Date()}={}){
   if(!releaseEnabled(env))throw error('checkout_disabled');
   if(!env.STRIPE_SECRET_KEY||!/^sk_(test|live)_/.test(env.STRIPE_SECRET_KEY))throw error('stripe_not_configured');
   const data=parseInput(value);
   if(!(now instanceof Date)||!Number.isFinite(now.valueOf())||typeof fetchImpl!=='function')throw error('checkout_clock_or_network_unavailable');
-  const live=await getInventory({env,fetchImpl,now});
-  if(live?.inventory_source!=='verified_registered_supabase'||live.market!=='NZ'||
-     live.total_founding_units!==100||!Number.isInteger(live.remaining_founding_units)||
-     live.remaining_founding_units<=0)throw error('verified_inventory_unavailable');
-  const used=occupiedCells(live.unavailable_positions);
-  if(100-used.size!==live.remaining_founding_units)throw error('inventory_count_conflict');
   const digest=crypto.createHash('sha256').update(data.requestKey+'|'+data.email+'|'+data.title+'|'+data.destination_url).digest('hex');
   const key='beck_'+digest.slice(0,60);
-  const offset=parseInt(digest.slice(0,8),16)%100;
   let hold;
-  // No session is created unless a single atomic reservation succeeds.
-  for(let i=0;i<100;i++){
-    const cell=(offset+i)%100;if(used.has(cell))continue;
-    const x=(cell%10)*100,y=Math.floor(cell/10)*100;
-    const placement={id:'nz_tile_'+cell,exhaust:'dreamledger',silo:'ads',canvas_id:'nz_board',
-      x,y,width:100,height:100,canvas_width:1000,canvas_height:1000,
-      price_minor:5000,currency:'NZD',status:'APPROVED',
-      start_utc:FIXED_START,end_utc:FIXED_END};
-    try{
-      hold=await makeReservation({placement,idempotency_key:key},{env,fetchImpl});
-      break;
-    }catch(e){
-      // A conflict can be retried with another cell. All other failures are fail-closed.
-      if(e?.message==='beck_ad_inventory_conflict'){used.add(cell);continue}
-      throw error('reservation_unavailable');
+  // First inspect a previous claim for the exact same logical request. Never
+  // allocate a different spot simply because the original claim now occupies it.
+  const previous=await findExisting({exhaust:'dreamledger',silo:'ads',
+    canvas:'nz_board',idempotency_key:key},{env,fetchImpl});
+  if(previous){
+    if(previous.status!=='HELD'||previous.price_minor!==5000||previous.currency!=='NZD'||
+       previous.width!==100||previous.height!==100||
+       previous.canvas_width!==1000||previous.canvas_height!==1000||
+       !Number.isInteger(previous.x)||!Number.isInteger(previous.y)||
+       previous.x<0||previous.y<0||previous.x+100>1000||previous.y+100>1000||
+       Date.parse(previous.campaign_start)!==Date.parse(FIXED_START)||
+       Date.parse(previous.campaign_end)!==Date.parse(FIXED_END)||
+       (previous.checkout_session_expires_at&&
+        Date.parse(previous.checkout_session_expires_at)<=now.valueOf()+60000))
+      throw error('reservation_replay_unavailable');
+    hold={reservation_id:previous.reservation_id,status:previous.status,
+      expires_at:previous.hold_expires_at};
+  }else{
+    const live=await getInventory({env,fetchImpl,now});
+    if(live?.inventory_source!=='verified_registered_supabase'||live.market!=='NZ'||
+       live.total_founding_units!==100||!Number.isInteger(live.remaining_founding_units)||
+       live.remaining_founding_units<=0)throw error('verified_inventory_unavailable');
+    const used=occupiedCells(live.unavailable_positions);
+    if(100-used.size!==live.remaining_founding_units)throw error('inventory_count_conflict');
+    const offset=parseInt(digest.slice(0,8),16)%100;
+    // No session is created unless a single atomic reservation succeeds.
+    for(let i=0;i<100;i++){
+      const cell=(offset+i)%100;if(used.has(cell))continue;
+      const x=(cell%10)*100,y=Math.floor(cell/10)*100;
+      const placement={id:'nz_tile_'+cell,exhaust:'dreamledger',silo:'ads',canvas_id:'nz_board',
+        x,y,width:100,height:100,canvas_width:1000,canvas_height:1000,
+        price_minor:5000,currency:'NZD',status:'APPROVED',
+        start_utc:FIXED_START,end_utc:FIXED_END};
+      try{
+        hold=await makeReservation({placement,idempotency_key:key},{env,fetchImpl});
+        break;
+      }catch(e){
+        if(e?.message==='beck_ad_inventory_conflict'){used.add(cell);continue}
+        throw error('reservation_unavailable');
+      }
     }
   }
   if(!hold?.reservation_id||hold.status!=='HELD'||Date.parse(hold.expires_at)<=now.valueOf()+35*60*1000)
