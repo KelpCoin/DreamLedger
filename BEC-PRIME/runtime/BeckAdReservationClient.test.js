@@ -1,7 +1,7 @@
 'use strict';
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
-const {configured,validate,reserve}=require('./BeckAdReservationClient');
+const {configured,validate,reserve,lookupReservation}=require('./BeckAdReservationClient');
 const placement={id:'placement_nz_01',exhaust:'dreamledger',silo:'ads',canvas_id:'nz_board',x:0,y:0,width:100,height:100,canvas_width:1000,canvas_height:1000,price_minor:5000,currency:'NZD',status:'APPROVED',start_utc:'2026-11-01T00:00:00Z',end_utc:'2027-11-01T00:00:00Z'};
 const order={placement,idempotency_key:'checkout_001'};
 const env={SUPABASE_URL:'https://example.supabase.co',SUPABASE_SERVICE_ROLE_KEY:'server-only-test-service-role-key-not-real'};
@@ -53,4 +53,37 @@ test('rejects a wrong currency and invalid reservation identity',async()=>{
 test('rejects incomplete or malformed RPC responses',async()=>{
  await assert.rejects(()=>rpcReply({campaign_start:undefined}),/response_invalid/);
  await assert.rejects(()=>rpcReply({hold_expires_at:'not-a-date'}),/not_active/);
+});
+
+test('PostgREST overlap response retries without leaking provider text',async()=>{
+ await assert.rejects(()=>reserve(order,{env,fetchImpl:async()=>({
+  ok:false,status:400,json:async()=>({message:'inventory_overlap'})
+ })}),/beck_ad_inventory_conflict/);
+});
+test('PostgREST idempotency conflicts never cause alternative allocations',async()=>{
+ await assert.rejects(()=>reserve(order,{env,fetchImpl:async()=>({
+  ok:false,status:400,json:async()=>({message:'idempotency_conflict'})
+ })}),/beck_ad_idempotency_conflict/);
+});
+test('read-only lookup returns the exact existing claim or null',async()=>{
+ const scope={exhaust:'dreamledger',silo:'ads',canvas:'nz_board',idempotency_key:'checkout_001'};
+ let requests=0;
+ const found=await lookupReservation(scope,{env,fetchImpl:async(url,opts)=>{
+   requests++;assert.match(url,/beck_ad_reservations\?/);
+   assert.match(url,/idempotency_key=eq.checkout_001/);
+   assert.equal(opts.headers.authorization,'Bearer '+env.SUPABASE_SERVICE_ROLE_KEY);
+   return {ok:true,json:async()=>[rpcRow()]};
+ }});
+ assert.equal(requests,1);assert.equal(found.reservation_id,rpcRow().reservation_id);
+ const empty=await lookupReservation(scope,{env,fetchImpl:async()=>({ok:true,json:async()=>[]})});
+ assert.equal(empty,null);
+});
+test('ambiguous or forged reservation lookup fails closed',async()=>{
+ const scope={exhaust:'dreamledger',silo:'ads',canvas:'nz_board',idempotency_key:'checkout_001'};
+ await assert.rejects(()=>lookupReservation(scope,{env,fetchImpl:async()=>({
+  ok:true,json:async()=>[rpcRow(),rpcRow()]
+ })}),/lookup_unavailable/);
+ await assert.rejects(()=>lookupReservation(scope,{env,fetchImpl:async()=>({
+  ok:true,json:async()=>[rpcRow({idempotency_key:'different'})]
+ })}),/lookup_unavailable/);
 });
