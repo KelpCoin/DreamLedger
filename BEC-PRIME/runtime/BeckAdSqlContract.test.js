@@ -53,3 +53,10 @@ test('payment receipts are unique and closed to anonymous clients',()=>{
  assert.match(checkoutSql,/ENABLE ROW LEVEL SECURITY/);
  assert.match(checkoutSql,/REVOKE ALL ON public\.beck_ad_payment_receipts FROM PUBLIC, anon, authenticated/);
 });
+
+test('bound checkouts cannot be oversold after hold expiry',()=>{
+ assert.match(sql,/r.checkout_session_id IS NOT NULL/);
+ assert.match(sql,/checkout_session_id text/);
+ assert.match(checkoutSql,/r.checkout_session_expires_at IS NULL/);
+ assert.doesNotMatch(checkoutSql,/IF r.status<>'HELD' OR r.hold_expires_at<=clock_timestamp\(\)/);
+});
