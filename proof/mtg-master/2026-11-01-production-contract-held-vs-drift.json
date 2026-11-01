@@ -1,0 +1,102 @@
+{
+  "schema": "BECK/MTG-PRODUCTION-CONTRACT-REVIEW/v1",
+  "observation_date_utc": "2026-11-01",
+  "job": "Issue #711: distinguish held diagnostic from unexpected catalogue drift, retain nonzero release gate",
+  "source_commit": "4d69980852feb36ffafd13b2ac8bc43e73665e01",
+  "branch": "beck/mtg-static-compiler-failclosed-20261101",
+  "source_sha256": {
+    "BEC-PRIME/scripts/verify-production-contract.js": "4f14c3f4f4fbeeef4562f74d18954e0626ba749efad36f3d6fe01ccf5fe1e349",
+    "BEC-PRIME/scripts/mtg-condition-contract.test.js": "6ceb9151761143eac5423eb7b5abe5c471ac5bcdcb0191ad2cf29ac6d1ed5d39"
+  },
+  "tests": {
+    "run_id": 41277871681,
+    "source_head": "4d69980852feb36ffafd13b2ac8bc43e73665e01",
+    "node_application_tests": {
+      "passed": 32,
+      "failed": 0
+    },
+    "production_contract": {
+      "catalogue_integrity": "PASS",
+      "release_gate": "HOLD",
+      "exit_code": 1,
+      "release_reason": "EXPECTED_HELD_UNSELLABLE",
+      "errors": [
+        "STRIPE_LINK_NOT_LIVEMODE",
+        "PRODUCT_NOT_SELLABLE"
+      ]
+    },
+    "workflow_conclusion": "failure",
+    "reason": "deliberate release gate rejects unverified paid diagnostic; other compiler/Phin/Elohim workflows red"
+  },
+  "provider_read_only": {
+    "stripe_account": "acct_1SNVPvEGgEAnUFF9",
+    "payment_link": {
+      "id": "plink_1UKS00EGgEAnUFF9kUjraaL5",
+      "active": false,
+      "livemode": true,
+      "metadata_sku_id": "COMMANDER-DECK-DIAGNOSTIC-001",
+      "canonical_source_sku": "CMD-DIAG-29",
+      "metadata_mapping": "REVIEW_REQUIRED_NOT_PROOF_OF_SETTLEMENT"
+    },
+    "price": {
+      "id": "price_1UFFY1EGgEAnUFF9Yq03zIa7",
+      "product_id": "prod_V6iVKl9HgFpzRU",
+      "unit_amount_minor": 2900,
+      "currency": "nzd",
+      "active": true
+    },
+    "newest_checkout_sessions": {
+      "inspected": 15,
+      "has_more": true,
+      "expired_unpaid": 15,
+      "paid": 0,
+      "coverage": "ONLY_15_NEWEST"
+    },
+    "charges": {
+      "inspected": 2,
+      "has_more": false,
+      "successful": 2,
+      "commercially_attributed_to_diagnostic": 0,
+      "details": "NZD 5 and USD 1, no matching SKU metadata"
+    },
+    "payouts": {
+      "inspected": 0,
+      "has_more": false
+    },
+    "vercel": {
+      "project": "dreamledger",
+      "latest_ready_production_commit": "53d8ea7bc1aeea19cbdf2d8b265751229434e4fe",
+      "latest_ready_production_branch": "release/phone-catalog-20261101",
+      "project_local_database_environment": "NEON_DATABASE_URL scoped preview to another branch only",
+      "production_database_mapping": "UNVERIFIED"
+    },
+    "neon": {
+      "project": "dreamledger-migration-staging",
+      "placements": 0,
+      "reservations": 0,
+      "marketplace_orders": 0,
+      "commercial_orders": 0,
+      "commercial_payments": 0,
+      "fulfillment_outbox": 0,
+      "scope": "STAGING_ONLY_NOT_PRODUCTION_REVENUE"
+    }
+  },
+  "economic_truth": {
+    "independent_paid_delivered_reconciled_customer": "NOT_VERIFIED",
+    "positive_contribution_margin": "NOT_VERIFIED",
+    "revenue_claim": "NONE"
+  },
+  "guardrails": {
+    "public_release": "HOLD",
+    "stripe_activation": "NONE",
+    "live_schema_mutation": "NONE",
+    "deployment": "NONE",
+    "merge": "NONE",
+    "outreach": "NONE",
+    "spending": "NONE",
+    "operator_chores": "NONE",
+    "retired_provider_used": false
+  },
+  "rollback": "Revert source commits 57498cc58bb0d10fca70f93261a9cbbe11f1f32e and 4d69980852feb36ffafd13b2ac8bc43e73665e01 plus test commit 6e831a48c83cd8f4692fc81fab3fbde934262c5d; no production rollback.",
+  "next_bounded_job": "Inspect the PR #930 canonical webhook SKU normalization against the existing inactive live Payment Link metadata and the signed event idempotency/fulfillment contract. Add isolated synthetic tests only; no webhook deployment, link activation or charges. Reuse issue #711 and existing release PR."
+}
