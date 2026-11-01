@@ -1,12 +1,76 @@
 {
-  "schema_version": "CUBE-CLONE-CONTRACT-1.0",
-  "source_repo": "KelpCoin/DreamLedger",
-  "purpose": "Clone isolated commercial surfaces without copying private control-plane material.",
-  "allowed_silos": ["mtg", "crypto", "media_music", "digital_products"],
-  "neutral_host": "dreamledger",
-  "isolation": {"catalog": true, "checkout": true, "analytics": true, "customer_data": true, "content": true, "promotion": true, "credentials": true},
-  "forbidden_source_paths": ["BEC-PRIME/catalog/ip-capabilities.json", ".env", ".env.*", "secrets", "private", "proofs/private"],
-  "required_inputs": ["silo_name", "product_name", "price_nzd", "stripe_product_id"],
-  "activation_rule": "Generation does not imply public activation. Deployment and promotion remain explicit operations.",
-  "money_claim_rule": "No revenue claim without verified payment evidence."
+  "schema_version": "CUBE-CLONE-CONTRACT-2.0",
+  "purpose": "Produce domain-neutral, isolated, inactive commercial and community silo candidates. MTG is a proving fixture, never a requirement in shared business logic.",
+  "reference_silo": "mtg",
+  "schema": "CUBE/SILO/v2",
+  "required_inputs": [
+    "slug",
+    "display_name",
+    "brand",
+    "locale",
+    "jurisdiction",
+    "currency",
+    "inventory_mode",
+    "payment_provider",
+    "domain_fields",
+    "legal_pack"
+  ],
+  "allowed_inventory_modes": [
+    "physical",
+    "digital",
+    "service",
+    "mixed"
+  ],
+  "allowed_payment_providers": [
+    "stripe",
+    "external",
+    "none"
+  ],
+  "domain_fields_policy": "Domain-specific attributes belong in config and item metadata, not the core listing, order, payment, fulfillment or evidence schemas.",
+  "money_model": {
+    "unit": "integer_minor_currency_units",
+    "currency": "ISO-4217",
+    "fee": "basis_points_configurable_0_to_10000",
+    "no_assumed_provider": true
+  },
+  "isolation": [
+    "inventory",
+    "seller_principal",
+    "buyer_principal",
+    "payments",
+    "entitlements",
+    "fulfillment",
+    "brand",
+    "legal_pack",
+    "community",
+    "analytics",
+    "credentials"
+  ],
+  "forbidden_inputs": [
+    ".env",
+    "customer_data",
+    "stripe_secret",
+    "access_token",
+    "physical_inventory_copies",
+    "payment_intent_ids"
+  ],
+  "activation": {
+    "generated_state": "draft",
+    "seed_inventory": [],
+    "checkout_enabled": false,
+    "public_approved": false,
+    "legal_review_approved": false,
+    "server_attestation_required": true,
+    "fulfillment_reconciled": false,
+    "community_signal_verified": false,
+    "never_auto_publish": true,
+    "never_auto_spend": true
+  },
+  "evidence_contract": "No available/sold/verified/paid/delivered or community activity claims without independently verifiable respective evidence and per-silo attribution.",
+  "clone_output": [
+    "silo.json",
+    "catalogue.json",
+    "health-contract.json"
+  ],
+  "release_condition": "Activation requires independently reviewed jurisdictional legal pack, owner-approved public release, trusted supply attestations, configured payment adapter, settlement/fulfillment receipts, and tested safety controls. A successful compile is not a release."
 }
