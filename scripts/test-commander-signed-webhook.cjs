@@ -15,7 +15,7 @@ const SECRET='whsec_synthetic_only_not_a_secret';
 const PRICE='price_1UFFY1EGgEAnUFF9Yq03zIa7';
 const source=fs.readFileSync('supabase/functions/stripe-revenue-41104f355d6878cdd6d1f9dc/index.ts','utf8');
 const executable=stripTypeScriptTypes(
-  source.replace(/^import .*;\\s*$/gm,'')
+  source.replace(/^import .*;\s*$/gm,'')
         .replace('const {default:Stripe}=await import("npm:stripe@22");','const Stripe=globalThis.__Stripe;'),
   {mode:'strip'});
 function fixture(){
