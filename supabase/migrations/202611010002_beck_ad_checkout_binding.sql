@@ -26,6 +26,10 @@ CREATE TABLE IF NOT EXISTS public.beck_ad_payment_receipts (
     CHECK (status IN ('PAID_PENDING_CREATIVE_REVIEW','REFUND_REVIEW','DELIVERED_VERIFIED')),
   recorded_at timestamptz NOT NULL DEFAULT clock_timestamp()
 );
+-- One settled Stripe PaymentIntent may never fund two reservations, even when
+-- distinct Checkout Sessions/events arrive concurrently. Enforced by PostgreSQL.
+CREATE UNIQUE INDEX IF NOT EXISTS beck_ad_unique_payment_intent
+ ON public.beck_ad_payment_receipts (payment_intent_id);
 ALTER TABLE public.beck_ad_payment_receipts ENABLE ROW LEVEL SECURITY;
 REVOKE ALL ON public.beck_ad_payment_receipts FROM PUBLIC, anon, authenticated;
 GRANT SELECT, INSERT ON public.beck_ad_payment_receipts TO service_role;
