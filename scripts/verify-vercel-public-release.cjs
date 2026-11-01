@@ -61,3 +61,6 @@ console.log('BECK_PUBLIC_RELEASE_FILES_PASS: '+mustExist.length+' routes, '+cata
 require('./test_beck_vercel_contract.cjs');
 
 require('./test-beck-mtg-master-release.cjs');
+
+// Gate: never treat Stripe redirects as payment or entitlements.
+require('node:child_process').execFileSync(process.execPath,['scripts/test-beck-checkout-status.mjs'],{stdio:'inherit'});
