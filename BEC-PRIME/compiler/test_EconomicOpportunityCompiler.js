@@ -71,4 +71,70 @@ test('Malformed and missing inputs fail closed', () => {
   assert.equal(verdict(score({})),'QUARANTINE');
 });
 
+test('Unknown and malformed monetary declarations stay unknown', () => {
+  const { money } = require('./EconomicOpportunityCompiler');
+  for (const value of [undefined, null, '', ' ', false, true, [], [1], {}, -1, '-1', NaN, Infinity, 'Infinity', '0x10', '1e9']) {
+    assert.equal(money(value), null, String(value));
+    const s = score({...sample, test_cost_nzd: value});
+    assert.equal(s.cost_known, false);
+    assert.equal(s.zero_cost_is_unverified, false);
+    assert.equal(s.roi, 0);
+  }
+});
+test('Explicit zero and positive decimal declarations survive without verification', () => {
+  const { money } = require('./EconomicOpportunityCompiler');
+  for (const [input, expected] of [[0,0], ['0',0], [12.5,12.5], [' 12.50 ',12.5]]) {
+    assert.equal(money(input),expected);
+    assert.equal(score({...sample,test_cost_nzd:input}).verified_settlement,false);
+  }
+});
+test('CLI preserves unknowns in JSON and Markdown, integrity and release gates', () => {
+  const fs = require('node:fs');
+  const os = require('node:os');
+  const path = require('node:path');
+  const { spawnSync } = require('node:child_process');
+  const crypto = require('node:crypto');
+  const root = fs.mkdtempSync(path.join(os.tmpdir(),'beck-money-'));
+  try {
+    fs.mkdirSync(path.join(root,'compiler'));
+    fs.mkdirSync(path.join(root,'opportunities'));
+    const script = path.join(root,'compiler','EconomicOpportunityCompiler.js');
+    fs.copyFileSync(require.resolve('./EconomicOpportunityCompiler'),script);
+    const fixtures = [
+      {opportunity_id:'unknown',silo:'B2B',title:'Unknown amounts'},
+      {opportunity_id:'malformed',silo:'B2B',title:'Malformed amounts',price_nzd:false,test_cost_nzd:[],upside_nzd:' '},
+      {opportunity_id:'zero',silo:'MTG',title:'Declared zero',price_nzd:29,test_cost_nzd:0,upside_nzd:100},
+      {opportunity_id:'blocked',silo:'ADULT',title:'Quarantined',test_cost_nzd:0}
+    ];
+    fixtures.forEach((f,i)=>fs.writeFileSync(path.join(root,'opportunities',i+'.json'),JSON.stringify(f)));
+    const run = spawnSync(process.execPath,[script],{encoding:'utf8',timeout:10000});
+    assert.equal(run.status,0,run.stderr);
+    const out = path.join(root,'compiled','opportunities');
+    const report = JSON.parse(fs.readFileSync(path.join(out,'ECONOMIC_GAUNTLET.json'),'utf8'));
+    const md = fs.readFileSync(path.join(out,'ECONOMIC_GAUNTLET.md'),'utf8');
+    assert.equal(report.schema_version,'1.1');
+    for (const id of ['unknown','malformed']) {
+      const r=report.results.find(x=>x.opportunity_id===id);
+      for (const key of ['price_nzd','test_cost_nzd','upside_nzd']) {
+        assert.equal(r[key],null);
+        assert.equal(r.economic_value_status[key],'UNKNOWN');
+      }
+      assert.equal(r.scoring.cost_known,false);
+    }
+    const zero=report.results.find(x=>x.opportunity_id==='zero');
+    assert.equal(zero.test_cost_nzd,0);
+    assert.equal(zero.economic_value_status.test_cost_nzd,'UNVERIFIED_DECLARATION');
+    assert.equal(zero.scoring.zero_cost_is_unverified,true);
+    assert.match(md,/Unknown amounts.*UNKNOWN.*UNKNOWN/);
+    assert.match(md,/Declared zero.*NZ\$0 \(declared\)/);
+    assert.equal(report.results.find(x=>x.opportunity_id==='blocked').verdict,'QUARANTINE');
+    assert.equal(report.production_release_allowed,false);
+    assert.equal(report.approval_required,true);
+    for (const r of report.results) assert.equal(r.public_action,'APPROVAL_REQUIRED');
+    const digest=report.integrity_sha256;
+    delete report.integrity_sha256;
+    assert.equal(crypto.createHash('sha256').update(JSON.stringify(report)).digest('hex'),digest);
+  } finally { fs.rmSync(root,{recursive:true,force:true}); }
+});
+
 process.stdout.write('PASS ' + cases + ' policy regression groups\n');
