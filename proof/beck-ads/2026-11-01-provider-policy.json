@@ -1,0 +1,36 @@
+{
+  "schema": "BECK/provider-policy-proof/v1",
+  "directive_date": "2026-11-01",
+  "status": "DURABLE_RULE_STAGED",
+  "user_directive": "Render is retired; BECK does not use Render.",
+  "guardrails": {
+    "retired_provider": "Render",
+    "no_provider_queries": true,
+    "no_reactivation": true,
+    "no_provider_deployments": true,
+    "no_provider_paid_plans": true,
+    "no_manual_chore_transfer_to_operators": true,
+    "no_new_recurring_spend": true,
+    "no_public_activation_without_approval": true,
+    "cloud_runtime_proof_required": true
+  },
+  "canonical_sources": {
+    "agent_contract": "AGENTS.md",
+    "engineering_contract": "docs/BECK-AD-COMMERCE-CANDIDATE.md",
+    "economic_queue": "https://github.com/KelpCoin/DreamLedger/issues/922",
+    "code_review": "https://github.com/KelpCoin/DreamLedger/pull/921",
+    "recurring_task": "BECK Cloud Build Loop"
+  },
+  "evidence": {
+    "automation_update": "confirmed_success, enabled and schedule unchanged",
+    "git_commit_agent_contract": "cb700ff20bc08947e3a93de999d4433a090e263d",
+    "git_commit_documentation": "dd6398c7509ada26f0ce5eaffb4867277bd041ee",
+    "git_issue_updated": true,
+    "git_pr_updated": true
+  },
+  "caveats": [
+    "This is durable GitHub/repeating task context, not a direct edit to ChatGPT's asynchronous personal Memory summary.",
+    "Draft PR is not merged; main branch agent policy is unchanged until approved.",
+    "GitHub CI is not a deployed customer-facing runtime."
+  ]
+}
