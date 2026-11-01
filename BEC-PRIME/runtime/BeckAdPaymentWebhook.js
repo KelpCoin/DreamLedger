@@ -30,15 +30,15 @@ async function processStripeEvent(raw,signature,{env=process.env,fetchImpl=globa
  if(event.livemode!==true||!ALLOWED.has(event.type))return {received:true,ignored:'not_live_paid_checkout'};
  if(event.account&&event.account!==env.BECK_AD_STRIPE_ACCOUNT_ID)throw failure('wrong_stripe_account',400);
  const s=event.data?.object||{};
- if(s.livemode!==true||s.payment_status!=='paid'||s.amount_total!==5000||
-    String(s.currency||'').toLowerCase()!=='nzd'||!/^cs_live_[A-Za-z0-9_]+$/.test(s.id||'')||
-    !/^pi_[A-Za-z0-9_]+$/.test(s.payment_intent||'')||
-    !/^evt_[A-Za-z0-9_]+$/.test(event.id||''))throw failure('payment_evidence_invalid',400);
  const m=s.metadata||{};
  if(m.product_sku!==SKU||m.product_id!==SKU||m.offer_id!==SKU||
     m.silo!=='ads'||m.source!=='beck_ad_reserved_checkout'||
     !/^[a-f0-9-]{36}$/i.test(m.reservation_id||''))
    return {received:true,ignored:'not_beck_ad_checkout'};
+ if(s.livemode!==true||s.payment_status!=='paid'||s.amount_total!==5000||
+    String(s.currency||'').toLowerCase()!=='nzd'||!/^cs_live_[A-Za-z0-9_]+$/.test(s.id||'')||
+    !/^pi_[A-Za-z0-9_]+$/.test(s.payment_intent||'')||
+    !/^evt_[A-Za-z0-9_]+$/.test(event.id||''))throw failure('payment_evidence_invalid',400);
  const headers={authorization:'Bearer '+env.STRIPE_SECRET_KEY,accept:'application/json'};
  let stripeRes;try{
    stripeRes=await fetchImpl('https://api.stripe.com/v1/checkout/sessions/'+encodeURIComponent(s.id),{
@@ -49,7 +49,8 @@ async function processStripeEvent(raw,signature,{env=process.env,fetchImpl=globa
  if(!verified||verified.id!==s.id||verified.livemode!==true||verified.payment_status!=='paid'||
     verified.amount_total!==5000||String(verified.currency||'').toLowerCase()!=='nzd'||
     verified.payment_intent!==s.payment_intent||
-    JSON.stringify(verified.metadata||{})!==JSON.stringify(m))
+    ['product_sku','product_id','offer_id','silo','source','reservation_id']
+      .some(k=>verified.metadata?.[k]!==m[k]))
    throw failure('stripe_independent_mismatch',400);
  const {base,key}=configured(env);
  let db;try{
