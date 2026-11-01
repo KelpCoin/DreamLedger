@@ -78,6 +78,8 @@ footer{border-top:1px solid #33535b;color:var(--sub);padding:20px 0 40px;font-si
 @media(max-width:930px){.hero{grid-template-columns:1fr}.pricebox{max-width:550px}.studio{grid-template-columns:1fr}.panel{padding:17px}}
 @media(max-width:540px){.worktop{grid-template-columns:1fr}.creative h3{font-size:clamp(23px,9vw,53px)}.creative p{font-size:clamp(12px,4vw,19px)}.cell .mini-title{font-size:3px}.explain{grid-template-columns:1fr}.navlinks{gap:8px;font-size:12px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+.cell.reserved{border-color:#a78b4d;background:repeating-linear-gradient(135deg,#273139,#273139 7px,#463b26 7px,#463b26 14px)}
+.cell.reserved.active{outline-color:#ffcf78}
 </style>
 </head>
 <body>
@@ -122,6 +124,7 @@ footer{border-top:1px solid #33535b;color:var(--sub);padding:20px 0 40px;font-si
 <label for="positionpicker">Accessible position selector (1–100)</label>
 <select id="positionpicker" aria-describedby="selected"></select>
 <p class="legend">Tap any square or use arrow keys to explore. Unmarked squares do not imply availability. No paid placements are simulated.</p>
+<p id="inventoryproof" class="small" role="status" aria-live="polite">Checking verified inventory. No positions are offered for purchase.</p>
 </div>
 </div>
 <div class="workfoot"><span id="selected" class="position" aria-live="polite">Preview position 45 / 100</span><button type="button" id="download" class="btn">Download your preview PNG</button></div>
@@ -164,16 +167,20 @@ function mini(){
  const b=canvas.querySelectorAll(".cell");
  b.forEach((cell,i)=>{
  cell.classList.toggle("active",i===choice);cell.dataset.theme=theme;cell.tabIndex=i===choice?0:-1;
+ const verified=window.BECKBoardInventory?.verified===true;
+ const reserved=verified&&window.BECKBoardInventory.blocked.has(i);
+ cell.classList.toggle("reserved",reserved);
  cell.replaceChildren();
  if(i===choice){
  if(uploaded){const img=document.createElement("img");img.className="mini";img.alt="";img.src=objectUrl;cell.append(img)}
  else {const t=document.createElement("span");t.className="mini-title";t.textContent=text();cell.append(t)}
- cell.setAttribute("aria-label","Preview position "+(i+1)+" of 100, selected");
+ cell.setAttribute("aria-label","Preview position "+(i+1)+" of 100, selected; "+(verified?(reserved?"occupied":"currently unreserved"):"availability unverified"));
  cell.setAttribute("aria-pressed","true");
- }else{cell.setAttribute("aria-label","Preview position "+(i+1)+" of 100, not confirmed available");cell.setAttribute("aria-pressed","false")}
+ }else{cell.setAttribute("aria-label","Preview position "+(i+1)+" of 100; "+(verified?(reserved?"occupied":"currently unreserved"):"availability unverified"));cell.setAttribute("aria-pressed","false")}
  });
  positionpicker.value=String(choice+1);
- $("selected").textContent="Preview position "+(choice+1)+" / 100 · Row "+(Math.floor(choice/10)+1)+", column "+(choice%10+1);
+ $("selected").textContent="Preview position "+(choice+1)+" / 100 · Row "+(Math.floor(choice/10)+1)+", column "+(choice%10+1)+
+ (window.BECKBoardInventory?.verified===true?(window.BECKBoardInventory.blocked.has(choice)?" · occupied":" · currently unreserved"):" · availability unverified");
 }
 function render(){
  $("previewbrand").textContent=text();$("previewtag").textContent=caption();
@@ -201,6 +208,7 @@ $("artfile").addEventListener("change",e=>{
  clearImage();uploaded=file;objectUrl=URL.createObjectURL(file);$("message").textContent="Your image is shown locally. No upload has occurred.";render();
 });
 window.addEventListener("resize",fit);
+window.addEventListener("beck-ad-inventory-updated",mini);
 $("download").addEventListener("click",()=>{
  const out=document.createElement("canvas");out.width=1000;out.height=1000;
  const ctx=out.getContext("2d");if(!ctx)return;
@@ -235,5 +243,6 @@ setTheme("lime");render();
 })();
 })();
 </script>
+<script defer src="/assets/beck-billboard-inventory.js"></script>
 </body>
 </html>
