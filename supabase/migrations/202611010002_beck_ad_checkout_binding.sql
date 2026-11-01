@@ -4,7 +4,12 @@ BEGIN;
 
 ALTER TABLE public.beck_ad_reservations
   ADD COLUMN IF NOT EXISTS checkout_session_id text,
-  ADD COLUMN IF NOT EXISTS checkout_session_expires_at timestamptz;
+  ADD COLUMN IF NOT EXISTS checkout_session_expires_at timestamptz,
+  ADD COLUMN IF NOT EXISTS creative_title text,
+  ADD COLUMN IF NOT EXISTS creative_destination_url text,
+  ADD COLUMN IF NOT EXISTS creative_manifest_sha256 text,
+  ADD COLUMN IF NOT EXISTS creative_review_status text NOT NULL DEFAULT 'NOT_SUBMITTED'
+    CHECK (creative_review_status IN ('NOT_SUBMITTED','PENDING_REVIEW','APPROVED','REJECTED'));
 CREATE UNIQUE INDEX IF NOT EXISTS beck_ad_unique_checkout_session
  ON public.beck_ad_reservations (checkout_session_id)
  WHERE checkout_session_id IS NOT NULL;
@@ -26,20 +31,31 @@ REVOKE ALL ON public.beck_ad_payment_receipts FROM PUBLIC, anon, authenticated;
 GRANT SELECT, INSERT ON public.beck_ad_payment_receipts TO service_role;
 
 CREATE OR REPLACE FUNCTION public.beck_ad_bind_checkout(
- p_reservation_id uuid,p_session_id text,p_session_expires_at timestamptz
+ p_reservation_id uuid,p_session_id text,p_session_expires_at timestamptz,
+ p_title text,p_destination_url text,p_creative_sha256 text
 ) RETURNS public.beck_ad_reservations
 LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog, public
 AS $$
 DECLARE r public.beck_ad_reservations; updated public.beck_ad_reservations;
 BEGIN
  IF p_reservation_id IS NULL OR p_session_id IS NULL OR
-    p_session_id !~ '^cs_(test|live)_[A-Za-z0-9_]+$'
+    p_session_id !~ '^cs_(test|live)_[A-Za-z0-9_]+$' OR
+    p_title IS NULL OR length(btrim(p_title)) NOT BETWEEN 1 AND 80 OR
+    p_destination_url IS NULL OR length(p_destination_url)>500 OR
+    p_destination_url !~ '^https://[^ /]+' OR
+    p_creative_sha256 IS NULL OR p_creative_sha256 !~ '^[a-f0-9]{64}$'
  THEN RAISE EXCEPTION 'invalid_checkout_binding' USING ERRCODE='22023'; END IF;
  SELECT * INTO r FROM public.beck_ad_reservations WHERE reservation_id=p_reservation_id;
  IF NOT FOUND THEN RAISE EXCEPTION 'reservation_missing' USING ERRCODE='P0001'; END IF;
  PERFORM pg_advisory_xact_lock(hashtextextended(r.exhaust||':'||r.silo||':'||r.canvas,0));
  SELECT * INTO r FROM public.beck_ad_reservations WHERE reservation_id=p_reservation_id FOR UPDATE;
- IF r.checkout_session_id=p_session_id THEN RETURN r; END IF;
+ IF r.checkout_session_id=p_session_id THEN
+   IF r.creative_manifest_sha256 IS DISTINCT FROM p_creative_sha256 OR
+      r.creative_title IS DISTINCT FROM p_title OR
+      r.creative_destination_url IS DISTINCT FROM p_destination_url
+   THEN RAISE EXCEPTION 'creative_replay_conflict' USING ERRCODE='23505'; END IF;
+   RETURN r;
+ END IF;
  IF r.checkout_session_id IS NOT NULL OR r.status<>'HELD'
     OR r.hold_expires_at<=clock_timestamp() OR
     p_session_expires_at IS NULL OR
@@ -48,13 +64,15 @@ BEGIN
  THEN RAISE EXCEPTION 'checkout_binding_not_allowed' USING ERRCODE='P0001'; END IF;
  UPDATE public.beck_ad_reservations
  SET checkout_session_id=p_session_id,checkout_session_expires_at=p_session_expires_at,
+     creative_title=p_title,creative_destination_url=p_destination_url,
+     creative_manifest_sha256=p_creative_sha256,creative_review_status='PENDING_REVIEW',
      updated_at=clock_timestamp()
  WHERE reservation_id=p_reservation_id RETURNING * INTO updated;
  RETURN updated;
 END $$;
-REVOKE ALL ON FUNCTION public.beck_ad_bind_checkout(uuid,text,timestamptz)
+REVOKE ALL ON FUNCTION public.beck_ad_bind_checkout(uuid,text,timestamptz,text,text,text)
  FROM PUBLIC,anon,authenticated;
-GRANT EXECUTE ON FUNCTION public.beck_ad_bind_checkout(uuid,text,timestamptz) TO service_role;
+GRANT EXECUTE ON FUNCTION public.beck_ad_bind_checkout(uuid,text,timestamptz,text,text,text) TO service_role;
 
 -- Caller MUST verify Stripe HMAC and independently retrieve the relevant Stripe
 -- Checkout Session before invoking. SQL itself cannot authenticate Stripe.
@@ -81,6 +99,7 @@ BEGIN
  IF r.checkout_session_id IS DISTINCT FROM p_session_id
     OR r.price_minor<>p_amount_minor OR r.currency<>p_currency
     OR r.exhaust<>'dreamledger' OR r.silo<>'ads' OR r.canvas<>'nz_board'
+    OR r.creative_manifest_sha256 IS NULL OR r.creative_review_status<>'PENDING_REVIEW'
  THEN RAISE EXCEPTION 'payment_not_attributed' USING ERRCODE='P0001'; END IF;
  SELECT * INTO existing FROM public.beck_ad_payment_receipts
   WHERE reservation_id=p_reservation_id;
