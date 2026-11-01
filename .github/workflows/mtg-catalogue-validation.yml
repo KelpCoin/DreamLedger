@@ -38,6 +38,10 @@ jobs:
           node-version: "24"
       - name: Verify diagnostic paid-decklist browser-to-Supabase bridge
         run: node --test scripts/test-beck-diagnostic-bridge.cjs
+      - name: Verify signed Commander webhook SKU and Stripe settlement guard
+        run: node --test scripts/test-commander-signed-webhook.cjs
+      - name: Attest exact webhook source and regression SHA256
+        run: sha256sum supabase/functions/stripe-revenue-41104f355d6878cdd6d1f9dc/index.ts scripts/test-commander-signed-webhook.cjs
       - name: Validate catalogue records and buyer routes
         run: |
           node <<'NODE'

@@ -37,6 +37,12 @@ Deno.serve(async(req)=>{
  const session=event.data?.object||{}; const metadata=session.metadata||{}; const amountMinor=Number(session.amount_total||0); const currency=String(session.currency||"").toUpperCase(); const paymentIntentId=typeof session.payment_intent==="string"?session.payment_intent:null; const checkoutSessionId=String(session.id||""); const customerEmail=session.customer_details?.email||session.customer_email||null; const customFields=Array.isArray(session.custom_fields)?session.custom_fields:[]; const charityField=customFields.find((field:any)=>String(field?.key||"")==="charity"); const charityIdentifier=String(charityField?.text?.value||"").trim();
  if(!checkoutSessionId||session.payment_status!=="paid")return new Response("checkout session is not paid",{status:400}); if(currency!=="NZD")return new Response("unexpected currency",{status:400});
  const marketplaceListingId=String(metadata.marketplace_listing_id||"");
+ // A diagnostic cannot fall through to the generic revenue-only route without
+ // the marketplace order that owns automatic decklist fulfillment.
+ const DIAG_SKU="COMMANDER-DECK-DIAGNOSTIC-001";
+ const DIAG_LEGACY="CMD-DIAG-29";
+ const diagnosticMetadata=[metadata.sku_id,metadata.sku].some(x=>x===DIAG_SKU||x===DIAG_LEGACY);
+ if(diagnosticMetadata&&!marketplaceListingId)return new Response("MTG diagnostic marketplace listing required",{status:409});
  let marketplaceSettlement:any=null;
  let marketplaceListing:any=null;
  let sku=String(metadata.sku_id||metadata.sku||""); if(metadata.opportunity_id==="ACNC_RESEARCH_001"&&metadata.fulfillment_worker==="ACNC_RESEARCH_WORKER"&&metadata.source_gauntlet==="ACNC_PASS") sku="ACNC-CHARITY-DD-99";
@@ -45,8 +51,10 @@ Deno.serve(async(req)=>{
    if(listingError||!listing)return new Response("marketplace listing not found",{status:400});
    marketplaceListing=listing;
    // MTG digital fulfillment is a strict canonical SKU contract, not an alias.
-   if(String(listing.sku)==="COMMANDER-DECK-DIAGNOSTIC-001"){
-     if(String(metadata.sku_id||"")!=="COMMANDER-DECK-DIAGNOSTIC-001"||!checkoutSessionId)
+   if(diagnosticMetadata||String(listing.sku)===DIAG_SKU||String(listing.sku)===DIAG_LEGACY){
+     // The old alias is never a settlement identity. Any diagnostic marker
+     // demands the exact canonical listing AND signed Checkout metadata.
+     if(String(listing.sku)!==DIAG_SKU||String(metadata.sku_id||"")!==DIAG_SKU||!checkoutSessionId)
        return new Response("MTG diagnostic session metadata mismatch",{status:409});
      let verified:any;
      try{
@@ -60,7 +68,11 @@ Deno.serve(async(req)=>{
      const price=item?.price;
      const product=price?.product;
      const valid=verified.id===checkoutSessionId&&verified.livemode===true&&
-       verified.payment_status==="paid"&&verified.currency==="nzd"&&verified.amount_subtotal===2900&&
+       event.livemode===true&&session.livemode===true&&
+       verified.payment_status==="paid"&&verified.mode==="payment"&&verified.status==="complete"&&
+       verified.currency==="nzd"&&verified.amount_subtotal===2900&&verified.amount_total===2900&&
+       session.amount_total===2900&&verified.payment_intent===paymentIntentId&&
+       verified.metadata?.sku_id===DIAG_SKU&&verified.metadata?.marketplace_listing_id===marketplaceListingId&&
        !verified.line_items?.has_more&&item?.quantity===1&&price?.id==="price_1UFFY1EGgEAnUFF9Yq03zIa7"&&
        price?.lookup_key==="COMMANDER-DECK-DIAGNOSTIC-001"&&
        price?.metadata?.dreamledger_sku==="COMMANDER-DECK-DIAGNOSTIC-001"&&
