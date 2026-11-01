@@ -45,7 +45,10 @@ async function inventory({env=process.env,fetchImpl=globalThis.fetch,now=new Dat
     inventory_source:'verified_registered_supabase',canvas:{width:1000,height:1000},total_pixels:1000000,
     sold_pixels:paidPixels,held_pixels:heldPixels,allocated_pixels:paidPixels+heldPixels,
     total_founding_units:100,remaining_founding_units:remaining,
-    campaign_count:active.length,published_positions:active.filter(r=>r.status==='PUBLISHED').map(r=>({id:r.reservation_id,x:r.x,y:r.y,width:r.width,height:r.height})),
+    campaign_count:active.length,
+    // Occupancy includes PAID and HELD space, not only published creative. No PII.
+    unavailable_positions:active.map(r=>({x:r.x,y:r.y,width:r.width,height:r.height})),
+    published_positions:active.filter(r=>r.status==='PUBLISHED').map(r=>({id:r.reservation_id,x:r.x,y:r.y,width:r.width,height:r.height})),
     audience_claims_verified:false,payment_claims_verified:false};
 }
 module.exports={inventory};
