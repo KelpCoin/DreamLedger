@@ -6,6 +6,11 @@ on:
       - "public/catalog.json"
       - "mtg/**"
       - "public/mtg/**"
+      - "public/diagnostic-input.html"
+      - "public/assets/checkout-return.js"
+      - "handlers/commercial-diagnostic-input.ts"
+      - "api/[...route].ts"
+      - "scripts/test-beck-diagnostic-bridge.cjs"
       - "scripts/import-mtg-rapid-decks.cjs"
       - "scripts/test-mtg-rapid-decks.cjs"
       - "AGENT_BUS/BRIDGE/MTG_INTAKE/rapid-decks-template.csv"
@@ -24,6 +29,11 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Verify diagnostic paid-decklist browser-to-Supabase bridge
+        run: node --test scripts/test-beck-diagnostic-bridge.cjs
       - name: Validate catalogue records and buyer routes
         run: |
           node <<'NODE'
