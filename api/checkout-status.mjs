@@ -34,7 +34,7 @@ export default async function handler(request){
  if(!price||!product||typeof product!=='object')return reply({state:'product_mismatch'},409);
  const lookup=testMode?(process.env.MTG_DIAGNOSTIC_TEST_LOOKUP_KEY||LOOKUP):LOOKUP;
  const valid=price.id===expectedPrice&&price.lookup_key===lookup&&
-  price.metadata?.dreamledger_sku===SKU&&product.metadata?.dreamledger_sku===SKU&&
+  price.metadata?.dreamledger_sku===SKU&&product.metadata?.dreamledger_sku===SKU&&session.metadata?.sku_id===SKU&&
   (testMode||product.id===LIVE_PRODUCT)&&price.unit_amount===2900&&price.currency==='nzd'&&
   item.quantity===1&&session.currency==='nzd'&&session.amount_subtotal===2900;
  if(!valid)return reply({state:'product_mismatch'},409);
