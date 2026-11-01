@@ -8,63 +8,75 @@
 <link rel="canonical" href="https://dreamledger.org/">
 <link rel="stylesheet" href="/assets/bec-neon.css">
 <style>
-.bec-hero{position:relative}.signal-orbit{border:1px solid #314431;border-radius:999px;padding:7px 13px;font:800 11px ui-monospace,monospace;color:#c5ff35;display:inline-block;margin-bottom:8px}
-.orbit{height:1px;background:linear-gradient(90deg,#c5ff35,transparent);margin:26px 0 0}
-.bec-feature{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(250px,.8fr);gap:16px}
-.bec-feature .bec-card:first-child{border-color:#627936;background:radial-gradient(circle at 100% 0%,#1a2c1d,transparent 60%),#101722}
-.mosaic{display:grid;grid-template-columns:repeat(8,1fr);grid-auto-rows:24px;gap:4px;margin-top:8px}
-.mosaic span{background:#17252a;border:1px solid #40504b;border-radius:3px}
-.mosaic span:nth-child(7n+2){background:#263c25}.mosaic span:nth-child(11n+4){background:#c5ff35}
-.bec-metric{color:#c5ff35;font:850 12px ui-monospace,monospace}
-@media(max-width:790px){.bec-feature{grid-template-columns:1fr}.mosaic{grid-auto-rows:16px}}
+/* BECK human-reviewed mobile-first task cards. No purchased state inferred. */
+html{scroll-behavior:smooth}#beck-home{max-width:1160px;margin:auto}
+#beck-home .beck-intro{padding:24px 0 13px}#beck-home .beck-intro h1{font-size:clamp(31px,5vw,52px);line-height:1.02;letter-spacing:-.06em;margin:5px 0 9px;max-width:17ch}
+#beck-home .beck-intro p{max-width:60ch;color:#b3bfcb;margin:6px 0 12px;font-size:15px}
+#beck-home .beck-label{font:800 11px/1.5 ui-monospace,monospace;letter-spacing:.09em;text-transform:uppercase;color:#c5ff35}
+#beck-home .beck-deck-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:9px}
+#beck-home h2{margin:0;font-size:clamp(22px,3vw,30px);letter-spacing:-.04em}
+#beck-home .beck-controls{display:flex;gap:6px}
+#beck-home .beck-controls button{background:#171e28;color:#f7f9fb;border:1px solid #667586;border-radius:8px;min-width:42px;min-height:42px;font:800 22px system-ui;cursor:pointer}
+#beck-home .beck-controls button:focus-visible,#beck-home a:focus-visible{outline:3px solid #f7f9fb;outline-offset:3px}
+#beck-home .beck-rail{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:thin;scroll-padding:2px;padding:3px 2px 15px;-webkit-overflow-scrolling:touch}
+#beck-home .beck-tile{scroll-snap-align:start;flex:0 0 min(82vw,330px);min-width:0;min-height:260px;background:#111722;border:1px solid #354656;border-radius:17px;padding:19px;display:flex;flex-direction:column}
+#beck-home .beck-tile[data-intent="business"]{border-color:#748b3e}
+#beck-home .beck-tile h3{font-size:clamp(22px,3vw,29px);margin:9px 0 8px;line-height:1.05;letter-spacing:-.04em}
+#beck-home .beck-tile p{color:#c0ccd7;line-height:1.42;font-size:14px;margin:0 0 12px;flex:1}
+#beck-home .beck-state{font:800 11px ui-monospace,monospace;text-transform:uppercase;color:#c5ff35}
+#beck-home .beck-state.held{color:#e8c87a}
+#beck-home .beck-tile .bec-btn{align-self:stretch;margin-top:auto;text-align:center;min-height:48px}
+#beck-home .beck-extra{padding:18px 0;border-top:1px solid #293544;margin-top:12px}
+#beck-home .beck-extra p{color:#b3bfcb;max-width:60ch}
+#beck-home .beck-mini{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}
+#beck-home .beck-mini a{border:1px solid #596778;color:#f7f9fb;border-radius:11px;min-height:44px;padding:11px 13px;font-weight:750}
+#beck-home .beck-small{font-size:12px;color:#9babb9}
+@media(min-width:850px){#beck-home .beck-rail{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));overflow:visible}#beck-home .beck-tile{min-height:275px}#beck-home .beck-controls{display:none}}
+@media(max-width:700px){.bec-neon .bec-header{display:block;padding:10px 0}.bec-neon .bec-nav{display:flex;flex-wrap:nowrap;overflow-x:auto;gap:17px;scrollbar-width:thin;white-space:nowrap}.bec-neon .bec-logo{display:block;padding-bottom:6px}.bec-neon .bec-nav a{min-height:42px;display:inline-flex;align-items:center}#beck-home .beck-intro{padding-top:20px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 </style>
 </head>
 <body class="bec-neon">
 <div class="bec-wrap">
 <header class="bec-header">
 <a class="bec-logo" href="/" aria-label="DreamLedger home">DREAM<span>LEDGER</span></a>
-<nav class="bec-nav" aria-label="Main navigation">
-<a href="/shop.html">Shop</a><a href="/avatar.html">Create avatar</a><a href="/marketplace.html">All offers</a><a href="/quote-compare-49.html">Compare quotes · NZ$49</a><a href="/billboard.html">Billboard</a><a href="/sell.html">Sell</a>
-</nav></header>
-<main>
-<section class="bec-hero">
-<div class="signal-orbit">POWERED BY BECK / CREATOR-LED COMMERCE</div>
-<h1>ONE DOORWAY.<br><span class="bec-signal">EVERYTHING ELSE.</span></h1>
-<p>Shop, create, trade, play and build. DreamLedger is one public home for a larger BECK ecosystem: original digital worlds, useful tools, honest marketplaces and room for independent sellers.</p>
-<div class="bec-actions"><a class="bec-btn" href="/quote-compare-49.html">Compare supplier quotes - NZ$49</a><a class="bec-btn secondary" href="/marketplace.html">Explore the marketplace</a><a class="bec-btn secondary" href="/go">Scan / Explore the canonical gateway</a><a class="bec-btn secondary" href="/billboard.html">See the Internet Billboard</a></div>
-<div class="orbit"></div>
+<nav class="bec-nav" aria-label="Main navigation"><a href="/quote-compare-49.html">Business</a><a href="/mtg/">Magic</a><a href="/billboard.html">Billboard</a><a href="/avatar.html">Avatars</a><a href="/marketplace.html">All offers</a><a href="/trust/">Trust</a></nav></header>
+<main id="beck-home">
+<section class="beck-intro" aria-labelledby="beck-home-title">
+<div class="beck-label">DREAMLEDGER / FIND YOUR NEXT STEP</div>
+<h1 id="beck-home-title">What are you here to do?</h1>
+<p>Choose a card. Each takes you straight to its own shop or tool. No account needed just to look.</p>
 </section>
-<section class="bec-section" aria-labelledby="discover">
-<p class="bec-kicker">Find what matters to you</p><h2 id="discover">Browse without the noise.</h2>
-<form class="bec-search" role="search" action="/marketplace.html" method="get">
-<label for="home-search" class="bec-kicker">Search</label><input id="home-search" type="search" name="q" maxlength="100" placeholder="Search products, tools, worlds, services…" aria-label="Search DreamLedger">
-<label for="home-region" class="bec-kicker">Region</label><select name="region" id="home-region" aria-label="Preferred shopping region"><option value="NZ">New Zealand</option><option value="AU">Australia</option><option value="GLOBAL">Anywhere</option></select>
-<button class="bec-btn" type="submit">Find matches</button></form>
-<p class="bec-muted" style="font-size:13px;margin-top:10px">Region is your preference, not a claim of stock or an automatic location permission request. Shipping and eligibility must be confirmed for each offer.</p>
-<div class="bec-grid" style="margin-top:26px">
-<a class="bec-card bec-category" href="/shop.html"><span class="bec-chip">CREATIVE / DIGITAL</span><h3>Make it yours</h3><p>DreamMeez, avatar identity, digital accessories and creative worlds.</p></a>
-<a class="bec-card bec-category" href="/marketplace.html?q=marketplace"><span class="bec-chip">MARKETPLACE</span><h3>Buy &amp; sell</h3><p>Discover current inventory, independent seller pathways and secondhand goods.</p></a>
-<a class="bec-card bec-category" href="/marketplace.html?q=business"><span class="bec-chip">BUSINESS / TOOLS</span><h3>Make work easier</h3><p>Supplier comparisons, downloadable assets and bounded business outcomes.</p></a>
-<a class="bec-card bec-category" href="/marketplace.html"><span class="bec-chip">FULL CATALOGUE</span><h3>Browse Everything</h3><p>All currently published catalogue entries, filtered by your interest.</p></a>
-</div></section>
-<section class="bec-section" aria-labelledby="originals">
-<p class="bec-kicker">DreamLedger Originals / Featured paths</p><h2 id="originals">Made here. Built to grow.</h2>
-<div class="bec-feature">
-<article class="bec-card"><span class="bec-chip">FOUNDING DIGITAL SPACE</span><h3>Your space on the Internet Billboard.</h3><p>Explore the full million-pixel canvas. Founding 100 × 100 placements use the existing NZ$50 offer and content review process. No invented placements or traffic claims.</p>
-<div class="mosaic" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div><a class="bec-btn" href="/billboard.html">Explore the full canvas</a></article>
-<div class="bec-grid" style="grid-template-columns:1fr">
-<article class="bec-card"><span class="bec-chip">AVATAR / GAME IDENTITY</span><h3>DreamMeez &amp; Phinhaven</h3><p>Explore digital identity and cosmetic experiences. Demo unlocks are not paid entitlements.</p><a class="bec-btn secondary" href="/avatar.html">Open avatar studio</a></article>
-<article class="bec-card"><span class="bec-chip">ACTIVE SERVICE / NZ$49</span><h3>Supplier Quote Comparison</h3><p>Send 2-5 private supplier quotes after Stripe checkout. Get a structured CSV and readable summary. Manual review; delivery target within 24 hours after complete intake.</p><a class="bec-btn" href="/quote-compare-49.html">View service and checkout</a></article>
-<article class="bec-card"><span class="bec-chip">FREE ENTRY / HUMAN UTILITY</span><h3>Useful before you buy</h3><p>Supplier Quote Comparison Worksheet, NZ seller-profit calculator and other free tools. No supplier data was uploaded by visiting this page.</p><a class="bec-btn secondary" href="/quote-comparison/">Start free quote worksheet</a></article>
-</div></div></section>
-<section class="bec-section"><p class="bec-kicker">Independent sellers / Creator-first</p><h2>Everyone can have a place.<br><span class="bec-signal">Nothing fake gets a sale.</span></h2>
-<div class="bec-grid">
-<article class="bec-card"><h3>List or discover</h3><p>Explore the existing marketplace intake and available published products. A submitted listing stays pending until accepted by policy.</p><a class="bec-btn secondary" href="/sell.html">Seller entry</a></article>
-<article class="bec-card"><h3>Magic: The Gathering</h3><p>HappyHomarid remains its own MTG silo and reference implementation, not the whole DreamLedger storefront. Commander Deck Diagnostic is a silo-specific offer, not this site's flagship.</p><a class="bec-btn secondary" href="/mtg/">Explore MTG</a><a class="bec-btn secondary" href="/mtg/#decks">View deck &amp; secure checkout</a></article>
-<article class="bec-card"><h3>Trust &amp; agent commerce</h3><p>Truth Oracle evidence review and Agent Bridge · Preview (held) are separately governed pathways. A checkout is never proof of paid fulfilment.</p><a class="bec-btn secondary" href="/trust/">View the evidence standard</a></article>
-</div></section>
-<section class="bec-section" id="quote-tool"><p class="bec-kicker">Free commercial entry point</p><h2>Try before you spend.</h2><p class="bec-muted">Compare quote options using the existing browser-side tool or download the comparison-template.csv. No supplier data was uploaded by this page.</p><div class="bec-actions"><a class="bec-btn secondary" href="/quote-comparison/">Open free comparison tool</a><a class="bec-btn secondary" href="/marketplace.html">Browse Everything</a></div></section>
-<div class="bec-note">BECK powers the economic and engineering loops. DreamLedger is one storefront, not the whole engine. Published offers are not proof of live stock, fulfilled orders or revenue. Payments and delivery are separately verified.</div>
+<section aria-labelledby="beck-choose">
+<div class="beck-deck-head"><h2 id="beck-choose">Choose your path</h2><div class="beck-controls"><button type="button" id="beck-prev" aria-label="Previous cards">&#8249;</button><button type="button" id="beck-next" aria-label="Next cards">&#8250;</button></div></div>
+<div class="beck-rail" id="beck-rail" role="region" aria-label="Browse DreamLedger services" tabindex="0">
+<article class="beck-tile" data-intent="business"><span class="beck-state">Business / NZ$49</span><h3>Compare supplier quotes</h3><p>Have two to five quotes? Get a side-by-side CSV and a summary of the trade-offs. Human-reviewed delivery, not instant automation.</p><a class="bec-btn" href="/quote-compare-49.html">See the service</a></article>
+<article class="beck-tile" data-intent="magic"><span class="beck-state">Magic / Free to browse</span><h3>Magic cards and decks</h3><p>Browse the Happy Homarid catalogue, prepare a card listing, or join the community. Pay only where checkout is verified.</p><a class="bec-btn secondary" href="/mtg/">Enter Magic</a></article>
+<article class="beck-tile" data-intent="billboard"><span class="beck-state held">Billboard / Checkout paused</span><h3>Try a billboard tile</h3><p>Preview a 100 by 100 web tile. The NZ$50 founding offer is held until inventory and delivery checks pass.</p><a class="bec-btn secondary" href="/billboard.html">Preview a tile</a></article>
+<article class="beck-tile" data-intent="free"><span class="beck-state">Free / Browser tool</span><h3>Compare quotes yourself</h3><p>Use the free worksheet to put prices, lead times and exclusions in one place before deciding.</p><a class="bec-btn secondary" href="/quote-comparison/">Open free worksheet</a></article>
+<article class="beck-tile" data-intent="avatar"><span class="beck-state">Creative / Try for free</span><h3>Build an avatar</h3><p>Explore DreamMeez, with trial features clearly separated from paid entitlements.</p><a class="bec-btn secondary" href="/avatar.html">Open avatar studio</a></article>
+<article class="beck-tile" data-intent="shop"><span class="beck-state">Marketplace / Browse</span><h3>See the full catalogue</h3><p>Find current listings and services across DreamLedger without taking a detour through every section.</p><a class="bec-btn secondary" href="/marketplace.html">Browse offers</a></article>
+</div>
+</section>
+<section class="beck-extra" aria-labelledby="beck-tools-title"><h2 id="beck-tools-title">A quicker way in</h2>
+<p>Know what you're looking for? Search the catalogue directly.</p>
+<form class="bec-search" role="search" action="/marketplace.html" method="get"><label for="home-search" class="beck-label">Find an offer</label><input id="home-search" type="search" name="q" maxlength="100" placeholder="Product, service or tool"><button class="bec-btn" type="submit">Search</button></form>
+<div class="beck-mini"><a href="/sell.html">List an item</a><a href="/truth-oracle.html">Truth Oracle</a><a href="/tools/free.html">Free tools</a><a href="/go">QR gateway</a></div>
+<p class="beck-small">An offer page is not proof of available inventory. Payment and completed delivery are verified separately. No invented reviews, guarantees, auction activity or ad reach.</p>
+</section>
 </main>
+<script>
+(function(){
+var rail=document.getElementById('beck-rail');
+function move(direction){
+ if(!rail)return;
+ var card=rail.querySelector('.beck-tile');if(!card)return;
+ var step=card.getBoundingClientRect().width+12;
+ rail.scrollBy({left:direction*step,behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
+}
+document.getElementById('beck-prev').addEventListener('click',function(){move(-1)});
+document.getElementById('beck-next').addEventListener('click',function(){move(1)});
+})();
+</script>
 <footer class="bec-footer">DREAMLEDGER / POWERED BY BECK · <a href="/go">Canonical doorway</a> · <a href="/terms.html">Terms</a> · <a href="/privacy.html">Privacy</a> · <a href="/trust/">Evidence</a></footer>
 </div></body></html>
