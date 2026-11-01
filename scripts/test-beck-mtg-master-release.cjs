@@ -4,7 +4,7 @@ const fs=require('node:fs');
 const path=require('node:path');
 const read=p=>fs.readFileSync(path.join(__dirname,'..',p),'utf8');
 const mtg=read('public/mtg/index.html'),success=read('public/success.html'),thanks=read('public/thanks.html');
-const ret=read('public/assets/checkout-return.js'),template=JSON.parse(read('config/mtg-master-community.json')));
+const ret=read('public/assets/checkout-return.js'),template=JSON.parse(read('config/mtg-master-community.json'));
 const market=read('public/marketplace.html'),paid=read('public/mtg/diagnostic.html'),manifest=JSON.parse(read('silos/mtg/silo.json'));
 assert.equal((mtg.match(/data-auction-slot=/g)||[]).length,3,'three actual auction placeholders');
 assert.equal((mtg.match(/class="hub-free-card"/g)||[]).length,5,'five functional free entry cards');
