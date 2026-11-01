@@ -23,13 +23,15 @@ async function inventory({env=process.env,fetchImpl=globalThis.fetch,now=new Dat
   if(canvasRows.length!==1||canvasRows[0].booking_enabled!==true||canvasRows[0].width!==1000||canvasRows[0].height!==1000)throw fetchError();
   const at=now.toISOString();
   const rows=await query('beck_ad_reservations',{
-    select:'reservation_id,x,y,width,height,status,hold_expires_at,campaign_start,campaign_end',
+    select:'reservation_id,x,y,width,height,status,hold_expires_at,checkout_session_id,campaign_start,campaign_end',
     exhaust:'eq.dreamledger',silo:'eq.ads',canvas:'eq.nz_board',
     status:'in.(HELD,PAID,APPROVED,PUBLISHED)',
     // Founding placement extends into the future: future reservations consume that space too.
     campaign_end:'gt.'+at,limit:'1000'
   });
-  const active=rows.filter(r=>ACTIVE.has(r.status)&&(r.status!=='HELD'||Date.parse(r.hold_expires_at)>now.valueOf()));
+  // A Checkout Session can complete after the hold expires but before its webhook arrives.
+  // Never advertise bound inventory as free until independent unpaid/expiry proof releases it.
+  const active=rows.filter(r=>ACTIVE.has(r.status)&&(r.status!=='HELD'||Date.parse(r.hold_expires_at)>now.valueOf()||Boolean(r.checkout_session_id)));
   const slots=active.map(r=>({id:String(r.reservation_id),exhaust:'dreamledger',silo:'ads',canvas_id:'nz_board',
     x:r.x,y:r.y,width:r.width,height:r.height,canvas_width:1000,canvas_height:1000,
     price_minor:1,currency:'NZD',status:'APPROVED',start_utc:r.campaign_start,end_utc:r.campaign_end}));
