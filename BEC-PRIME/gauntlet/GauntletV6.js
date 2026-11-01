@@ -48,11 +48,21 @@ function run(options = {}) {
     }
 
     if (explicitlyApproved) {
-      if (offer.approval_required !== false) fail(checks, `${prefix}.approval`, 'Explicitly approved offer must have approval_required=false');
-      if (offer.checkout_available !== true) fail(checks, `${prefix}.checkout`, 'Explicitly approved offer must have checkout enabled');
-      if (offer.status !== 'VERIFIED_AVAILABLE') fail(checks, `${prefix}.status`, 'Explicitly approved offer must be VERIFIED_AVAILABLE');
-      pass(checks, `${prefix}.approval`, 'Explicit operator approval record present');
-      pass(checks, `${prefix}.checkout`, 'Checkout enabled only for explicitly approved offer');
+      // Historical owner approval does not override a missing live provider receipt.
+      if (offer.status === 'HELD_UNVERIFIED') {
+        if (offer.approval_required !== true || offer.checkout_available !== false ||
+            !Array.isArray(offer.readiness_blockers) ||
+            !offer.readiness_blockers.includes('TRUSTED_PROVIDER_RECEIPT_REQUIRED')) {
+          fail(checks, `${prefix}.held`, 'Held approved offer must remain non-checkoutable with provider evidence missing');
+        } else {
+          pass(checks, `${prefix}.held`, 'Historical approval retained; payment and release are held without trusted provider receipt');
+        }
+      } else {
+        if (offer.approval_required !== false) fail(checks, `${prefix}.approval`, 'Approved available offer must have approval_required=false');
+        if (offer.checkout_available !== true) fail(checks, `${prefix}.checkout`, 'Approved available offer must have checkout enabled');
+        if (offer.status !== 'VERIFIED_AVAILABLE') fail(checks, `${prefix}.status`, 'Approved available offer must be VERIFIED_AVAILABLE');
+        pass(checks, `${prefix}.approval`, 'Explicit operator approval record present');
+      }
     } else {
       if (offer.approval_required !== true) fail(checks, `${prefix}.approval`, 'Human approval gate must remain locked');
       if (offer.checkout_available !== false) fail(checks, `${prefix}.checkout`, 'Checkout must remain disabled until approval');
