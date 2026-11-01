@@ -31,7 +31,7 @@ function fixture(){
        product:{metadata:{dreamledger_sku:SKU}}}}]}};
  return{event,verified,listing:{id:LISTING,sku:SKU}};
 }
-function harness(f,overrides={}){
+function harness(f,overrides={},settlementResult={data:null,error:{message:'SYNTHETIC_SETTLEMENT_STOP'}}){
  let handler;const calls={db:[],rpc:[],stripe:[]};
  const db={
    from(table){
@@ -46,8 +46,8 @@ function harness(f,overrides={}){
    },
    async rpc(name,args){
      calls.rpc.push({name,args});
-     // Stop at the real settlement boundary: never fabricate a paid order.
-     return {data:null,error:{message:'SYNTHETIC_SETTLEMENT_STOP'}};
+     // Synthetic boundary only; no real DB writes or paid order evidence.
+     return settlementResult;
    }
  };
  class FakeStripe{
@@ -91,6 +91,19 @@ test('signed canonical event reaches settlement boundary, but test never writes 
  assert.equal(h.calls.rpc[0].name,'marketplace_settle_stripe_payment');
  assert.equal(h.calls.rpc[0].args.p_amount_nzd,29);
 });
+test('missing durable marketplace order receipt fails closed without revenue fallback',async()=>{
+ for(const receipt of [null,{}, {order_id:null}, {order_id:''}]){
+   const h=harness(fixture(),{}, {data:receipt,error:null});
+   const r=await h.invoke();
+   assert.equal(r.status,503);
+   assert.equal(h.calls.rpc.length,1);
+   assert.equal(h.calls.rpc[0].name,'marketplace_settle_stripe_payment');
+   assert.equal(h.calls.db.includes('revenue_catalog'),false);
+   assert.equal(h.calls.db.includes('revenue_orders'),false);
+   assert.equal(h.calls.db.includes('revenue_entitlements'),false);
+ }
+});
+
 test('signed canonical metadata with legacy listing cannot bypass exact Price check',async()=>{
  const f=fixture();f.listing.sku=ALIAS;
  const h=harness(f),r=await h.invoke();

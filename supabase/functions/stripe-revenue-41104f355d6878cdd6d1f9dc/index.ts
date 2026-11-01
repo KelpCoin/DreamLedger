@@ -99,9 +99,13 @@ Deno.serve(async(req)=>{
    }
    const {data:settlement,error:settlementError}=await supabase.rpc("marketplace_settle_stripe_payment",{p_listing_id:marketplaceListingId,p_checkout_session_id:checkoutSessionId,p_payment_intent_id:paymentIntentId,p_event_id:eventId,p_amount_nzd:amountMinor/100,p_currency:currency,p_customer_email:customerEmail,p_quantity:1});
    if(settlementError)return new Response("marketplace settlement failed",{status:500});
+   // An RPC without a durable order receipt is NOT successful settlement.
+   // Fail closed and leave the signed event retryable instead of creating
+   // revenue-only entitlements for an unconfirmed marketplace order.
+   const marketplaceOrderId=typeof settlement?.order_id==="string"?settlement.order_id.trim():"";
+   if(!marketplaceOrderId)return new Response("marketplace settlement receipt missing",{status:503});
    marketplaceSettlement=settlement;
    sku=String(listing.sku||"");
-   const marketplaceOrderId=String(marketplaceSettlement?.order_id||"");
    if(marketplaceOrderId){
      const transferGroup=`order_${marketplaceOrderId}`;
      await supabase.from("marketplace_orders").update({stripe_transfer_group:transferGroup}).eq("id",marketplaceOrderId);
