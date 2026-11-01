@@ -1,8 +1,5 @@
 // Read-only checkout return status. Webhook/database remain the authority for entitlements.
-const SKU='COMMANDER-DECK-DIAGNOSTIC-001';
-const LOOKUP='COMMANDER_DECK_DIAGNOSTIC_001_NZD_29';
-const LIVE_PRICE='price_1UFFY1EGgEAnUFF9Yq03zIa7';
-const LIVE_PRODUCT='prod_V6iVKl9HgFpzRU';
+import {SKU,LOOKUP,LIVE_PRICE,LIVE_PRODUCT,AMOUNT_NZD_CENTS} from './_commander-contract.mjs';
 const headers={'Cache-Control':'no-store, max-age=0','Referrer-Policy':'no-referrer','X-Content-Type-Options':'nosniff'};
 const reply=(data,code=200)=>Response.json(data,{status:code,headers});
 async function readJson(url,options){
@@ -35,8 +32,8 @@ export default async function handler(request){
  const lookup=testMode?(process.env.MTG_DIAGNOSTIC_TEST_LOOKUP_KEY||LOOKUP):LOOKUP;
  const valid=price.id===expectedPrice&&price.lookup_key===lookup&&
   price.metadata?.dreamledger_sku===SKU&&product.metadata?.dreamledger_sku===SKU&&session.metadata?.sku_id===SKU&&
-  (testMode||product.id===LIVE_PRODUCT)&&price.unit_amount===2900&&price.currency==='nzd'&&
-  item.quantity===1&&session.currency==='nzd'&&session.amount_subtotal===2900;
+  (testMode||product.id===LIVE_PRODUCT)&&price.unit_amount===AMOUNT_NZD_CENTS&&price.currency==='nzd'&&
+  item.quantity===1&&session.currency==='nzd'&&session.amount_subtotal===AMOUNT_NZD_CENTS;
  if(!valid)return reply({state:'product_mismatch'},409);
  // No status from a URL parameter can create an order, payment or entitlement.
  if(session.payment_status!=='paid')return reply({state:'awaiting_payment',retryable:true});
