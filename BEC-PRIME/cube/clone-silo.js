@@ -115,8 +115,10 @@ function main(args) {
   for (const [key,file] of Object.entries({manifest:'silo.json',
      catalogue:'catalogue.json',health:'health-contract.json',seedReview:'seed-review.json'}))
     fs.writeFileSync(path.join(dir,file),JSON.stringify(compiled[key],null,2)+'\n',{flag:'wx'});
+  fs.writeFileSync(path.join(dir,'index.html'),require('./render-silo').renderSilo(compiled),{flag:'wx'});
+  fs.copyFileSync(path.resolve(__dirname,'../../public/assets/mtg-community.css'),path.join(dir,'community.css'),fs.constants.COPYFILE_EXCL);
   process.stdout.write(JSON.stringify({slug:compiled.manifest.slug,
-    state:'DRAFT_HOLD',written:4,checkout_enabled:false})+'\n');
+    state:'DRAFT_HOLD',written:6,checkout_enabled:false})+'\n');
 }
 if (require.main === module) main(process.argv.slice(2));
 module.exports={compileSilo};

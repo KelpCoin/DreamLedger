@@ -105,3 +105,11 @@ test('committed real master and unrelated example both compile to empty private 
   assert.equal(out.seedReview.candidates.length,0);
  }
 });
+
+test('cloned shell shares the visual system without copying MTG links, inventory or identity',()=>{
+ const {renderSilo}=require('./render-silo');const compiled=compileSilo(baby);const html=renderSilo(compiled);
+ assert.ok(html.includes('community.css'));assert.ok(html.includes('No listings yet'));assert.ok(html.includes('noindex,nofollow'));
+ assert.ok(!html.includes('discord.gg'));assert.ok(!html.includes('hello@dreamledger'));assert.ok(!html.includes('Sol Ring'));
+ assert.throws(()=>renderSilo({...compiled,catalogue:{products:[{id:'copied-stock'}]}}),/EMPTY_DRAFT/);
+ const hostile=compileSilo({...baby,display_name:'<img src=x onerror=alert(1)>'});assert.ok(!renderSilo(hostile).includes('<img'));
+});

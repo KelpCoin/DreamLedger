@@ -1,15 +1,15 @@
 {
   "slug": "mtg",
-  "display_name": "Happy Homarid Magic",
+  "display_name": "DreamLedger Magic NZ",
   "locale": "en-NZ",
   "jurisdiction": "NZ",
   "currency": "NZD",
   "inventory_mode": "physical",
-  "payment_provider": "stripe",
+  "payment_provider": "none",
   "peer_fee_basis_points": 0,
   "brand": {
-    "name": "Happy Homarid",
-    "accent": "#d8b56b"
+    "name": "DreamLedger",
+    "accent": "#a9f2d0"
   },
   "domain_fields": [
     "card_name",

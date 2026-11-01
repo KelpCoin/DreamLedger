@@ -1,0 +1,8 @@
+'use strict';
+// Shared storefront shell for CUBE candidates. No source catalogue or identities.
+function renderSilo({manifest:m,catalogue:c}){
+ if(!m||m.state!=='draft'||m.checkout_enabled!==false||!c||c.products.length!==0)throw Error('EMPTY_DRAFT_REQUIRED');
+ const esc=v=>String(v).replace(/[&<>"']/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x]));
+ return `<!doctype html><html lang="${esc(m.locale)}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>${esc(m.display_name)}</title><link rel="stylesheet" href="community.css"></head><body><a class="skip" href="#main">Skip to content</a><header><div class="wrap top"><span class="brand">${esc(m.brand.name)}</span><nav aria-label="Catalogue"><a href="#listings">Browse</a><a href="#about">About</a></nav></div></header><main class="wrap" id="main"><section class="hero"><div><p class="eyebrow">${esc(m.jurisdiction)} · ${esc(m.currency)}</p><h1>${esc(m.display_name)}</h1><p class="lead">Find your community.</p></div><aside class="panel"><h2>Private preview</h2><p>This new community has no published listings yet. Accounts, posts and checkout are not enabled.</p></aside></section><section class="section" id="listings"><h2>Browse listings</h2><div class="empty"><h3>No listings yet</h3><p>Inventory from another community is never copied into this one.</p></div></section><section class="section" id="about"><h2>Built for this community</h2><p>Currency: ${esc(m.currency)}. Peer fee: ${m.peer_fee_basis_points/100}%. Any payment-provider fees are separate.</p><p>Membership or payments never establish trade reputation.</p></section></main></body></html>`;
+}
+module.exports={renderSilo};

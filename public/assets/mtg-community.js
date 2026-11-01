@@ -6,11 +6,11 @@ function table(headers,rows){const t=node('table'),head=node('thead'),hr=node('t
 let products=[];
 function render(){
  const items=W.filter(products,{query:$('search').value,kind:$('kind').value,maxPrice:$('max-price').value,sort:$('sort').value});
- $('catalog-status').textContent=items.length+' listing'+(items.length===1?'':'s')+' shown · NZD · availability confirmed by seller';
+ $('catalog-status').textContent=items.length+' listing'+(items.length===1?'':'s')+' shown · NZD · ask seller to confirm stock';
  $('catalog').replaceChildren();
  if(!items.length){const box=node('div',undefined,'empty');box.append(node('h3','No matching listings'),node('p','Try another name or price, or take your wanted list to the community.'));const reset=node('button','Clear filters');reset.type='button';reset.onclick=()=>{$('search').value='';$('kind').value='all';$('max-price').value='';render();$('search').focus()};box.append(reset,document.createTextNode(' '),link('Open community','#community'));$('catalog').append(box);return;}
  for(const p of items){
-  const card=node('article',undefined,'deck');card.append(node('span',p.category==='single'?'SINGLE':'COMMANDER DECK','badge'),node('h3',p.name),node('p',p.description),node('div',p.price_verified?'NZ$'+Number(p.price).toFixed(2):'Price on enquiry','price'),node('p',p.condition||'Ask the seller for condition and actual-card photos.'));
+  const card=node('article',undefined,'deck');card.append(node('span',p.category==='single'?'SINGLE':'COMMANDER DECK','badge'),node('h3',p.name),node('p',p.availability==='review_required'?'Ask the seller for the current decklist, asking price and availability.':p.description),node('div',p.price_verified?'NZ$'+Number(p.price).toFixed(2):'Price on enquiry','price'),node('p',p.condition||'Ask the seller for condition and actual-card photos.'));
   const actions=node('div',undefined,'actions');
   if(typeof p.detail_url==='string'&&/^\/mtg\/[a-z0-9-]+\.html$/i.test(p.detail_url))actions.append(link('View deck details',p.detail_url,'btn'));
   else {const d=node('details'),s=node('summary','Listing details');d.append(s,node('p','Seller confirmation is required for the current decklist, stock and asking price. There is no online checkout for this listing.'));card.append(d);}
