@@ -3,21 +3,27 @@
 Canonical tracker: https://github.com/KelpCoin/DreamLedger/issues/922
 Implementation review branch: https://github.com/KelpCoin/DreamLedger/pull/921
 
+## Infrastructure lock: Render retired (2026-11-01)
+
+Operator directive: **BECK does not use Render.** Never audit, deploy, troubleshoot, revive, budget for, or propose it. Historical provider services are not current runtime dependencies, and their billing state is not a product-development blocker. Do not ask Biggie or Peggy to restore a provider or do routine manual operational work.
+
+Use the existing GitHub and GitHub Actions for code/review/CI; use connected Supabase, Stripe and other approved provider-native capabilities only when positively verified. None should be called "live customer hosting" without actual proof. Keep all customer-facing activation, schema writes, spending and irreversible financial actions approval-gated. DreamLedger is one BECK exhaust.
+
 ## Implemented on the draft branch
 - BECK-wide pure inventory validation (scope: exhaust + silo + canvas + time window + geometry).
 - Payment method contract identifiers: stripe, bank_transfer, paypal, usdc. **These are not payment integrations.**
 - Backend-only Supabase RPC client, with bounded timeout, service-role authentication and fail-closed validation.
 - Transaction-safe SQL migration using scope-level advisory transaction locks and idempotency uniqueness.
 - Closed-by-default registered canvas dimensions; no buyer-provided fake canvas capacity.
-- Node offline regression tests; no credentials or provider calls required.
-- Pull-request CI workflow (pending first cloud runner execution).
+- Node offline regression tests; no credentials or provider calls required; the latest cloud CI should be verified from its own run logs.
+- Pull-request CI workflow and proof from recorded GitHub Actions run 41255747928: 82/82 checks passed on the tested commit, but staged code is not a live checkout.
 
 ## Existing-source audit findings
 - The compiled website presents a rich /billboard storefront and references /api/molt-beach-inventory and /api/molt-beach-checkout, but the api/molt-beach-*.ts files referenced by the legacy validator were NOT FOUND at the default branch.
-- public/server.js serves public/billboard.html, not the compiled billboard HTML, and does not implement those referenced Molt Beach APIs.
+- public/server.js serves public/billboard.html, not the compiled billboard HTML; the staged review branch adds guarded Molt Beach inventory and checkout handlers, not production deployment.
 - BEC-PRIME/routes/billboard-v2.js and BEC-PRIME/lib/billboardAutoFulfillment.js each write separate JSON market inventory and differ in their fulfillment behavior. Neither was modified here.
 - Live Supabase project was listed HEALTHY but SQL inspection failed with connection refused. No migration was run.
-- No provider webhook, crypto custody, PayPal approval, bank account reconciliation, impression tracking or verified new revenue was established by this change.
+- A signed Stripe webhook candidate exists on the review branch, but no live webhook activation, crypto custody, PayPal integration, bank reconciliation, impression tracking or verified revenue has been established.
 
 ## Production blockers, in dependency order
 1. Confirm actual live serving topology and choose one canonical ad commerce URL/route; reconcile existing claims, pricing, dates and legacy inventory without dropping paid customers.
