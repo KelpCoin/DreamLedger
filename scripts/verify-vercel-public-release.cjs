@@ -43,7 +43,8 @@ if(!edh||!globalEdh||edh.silo!=='mtg'||edh.price!==globalEdh.price||
   throw new Error('MTG_MASTER_UNVERIFIED_STOCK_OR_PRICE');
 const mtgHtml=fs.readFileSync(path.join(root,'public/mtg/index.html'),'utf8');
 const detail=fs.readFileSync(path.join(root,'public/mtg/edh-0001.html'),'utf8');
-if(!mtgHtml.includes('Checkout held')||!detail.includes('checkout held')||
+const mtgRuntime=fs.readFileSync(path.join(root,'public/assets/mtg-community.js'),'utf8');
+if(!mtgRuntime.includes('There is no online checkout')||!mtgHtml.includes('/assets/mtg-community.js')||!detail.includes('checkout held')||
    mtgHtml.includes('buy.stripe.com')||detail.includes('buy.stripe.com')||
    mtgHtml.includes('var FALLBACK')||mtgHtml.split('</html>').length!==2)
   throw new Error('MTG_MASTER_UNSAFE_PAYMENT_OR_MALFORMED_HTML');
