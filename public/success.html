@@ -1,55 +1,26 @@
 <!doctype html>
-<html lang="en-NZ">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="robots" content="noindex">
-<title>Payment received · DreamLedger</title>
-<meta name="description" content="Thank you. Your DreamLedger payment was received. Complete any required next step.">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=Instrument+Serif&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/shop.css">
-<style>
-main{max-width:520px;margin:48px auto;padding:0 20px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:28px}
-h1{font-size:1.75rem;margin-bottom:8px}
-.ok{color:#15803d;font-size:13px;font-weight:700;margin-bottom:12px}
-p{color:var(--muted);font-size:15px;margin-bottom:12px}
-.session{font-family:ui-monospace,Menlo,monospace;font-size:12px;word-break:break-all;background:#f0eeea;padding:10px 12px;border-radius:10px;margin:16px 0}
-.actions{display:flex;flex-direction:column;gap:10px;margin-top:20px}
-.actions a{text-align:center}
-</style>
-</head>
-<body>
-<header class="hdr"><div class="hdr-inner">
-  <a class="brand" href="/">DreamLedger</a>
-  <nav class="hdr-nav"><a href="/shop.html">Shop</a></nav>
-</div></header>
-<main>
-  <div class="card">
-    <div class="ok">Payment received</div>
-    <h1>Thank you</h1>
-    <p>Stripe has confirmed checkout. A sale only becomes a completed delivery after any product-specific next step below.</p>
-    <div class="session" id="session">Looking up session…</div>
-    <div class="actions">
-      <a class="btn btn-dark btn-block" id="diag" href="/diagnostic-input.html">Commander diagnostic — submit decklist</a>
-      <a class="btn btn-line btn-block" href="/">Back to shop</a>
-    </div>
-    <p style="margin-top:18px;font-size:13px">Billboard and digital downloads: we will follow the fulfilment path for that product. Keep your receipt email.</p>
-  </div>
-</main>
+<html lang="en-NZ"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer"><meta name="theme-color" content="#080b10">
+<title>Checkout return | DreamLedger</title><link rel="stylesheet" href="/assets/bec-neon.css">
+<style>.return-main{width:min(560px,100%);margin:0 auto;padding:30px 0 50px}.return-card{border-radius:18px;background:#111722;border:1px solid #405064;padding:24px}.return-card h1{font-size:clamp(28px,5vw,44px);margin:8px 0;letter-spacing:-.05em}.return-card p{color:#c4cdd5}.return-actions{display:grid;gap:10px;margin:19px 0}.return-actions a{min-height:48px}.return-small{font-size:13px}</style></head>
+<body class="bec-neon"><div class="bec-wrap">
+<header class="bec-header"><a class="bec-logo" href="/">DREAM<span>LEDGER</span></a><nav class="bec-nav"><a href="/shop.html">Shop</a><a href="/contact.html">Support</a></nav></header>
+<main class="return-main"><section class="return-card"><p class="bec-kicker">Checkout / Next steps</p><h1>Check your payment receipt.</h1>
+<p>Returning from checkout does not prove that payment succeeded. We verify settlement through the payment provider, and delivery through the relevant fulfilment record.</p>
+<p>If your receipt shows a completed payment, follow the next steps for the product you bought. Do not pay twice.</p>
+<div class="return-actions">
+<a class="bec-btn" id="diag" href="/diagnostic-input.html">Commander diagnostic: submit your decklist</a>
+<a class="bec-btn secondary" href="/quote-intake.html">Quote Comparison: send your intake</a>
+<a class="bec-btn secondary" href="/contact.html">Payment or delivery problem?</a>
+<a class="bec-btn secondary" href="/">Back to DreamLedger</a>
+</div><p class="return-small">The diagnostic form must verify payment before granting a paid deliverable. A session ID alone is not evidence of payment. Keep your provider receipt.</p>
+</section></main></div>
 <script>
 (function(){
-  var q=new URLSearchParams(location.search);
-  var sid=q.get('session_id')||q.get('sessionId')||'';
-  var el=document.getElementById('session');
-  var diag=document.getElementById('diag');
-  if(sid){
-    el.textContent='Session: '+sid;
-    diag.href='/diagnostic-input.html?session_id='+encodeURIComponent(sid);
-  }else{
-    el.textContent='No session id in this URL. If you paid for the Commander diagnostic, open the decklist form and paste the session id from your receipt.';
-  }
+var q=new URLSearchParams(location.search);
+var sid=q.get('session_id')||q.get('sessionId')||'';
+if(/^cs_(?:test_)?[A-Za-z0-9_]{10,}$/.test(sid)){
+ document.getElementById('diag').href='/diagnostic-input.html?session_id='+encodeURIComponent(sid);
+}
 })();
-</script>
-</body>
-</html>
+</script></body></html>
