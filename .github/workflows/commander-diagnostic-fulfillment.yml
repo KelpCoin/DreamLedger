@@ -28,6 +28,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Verify cloud model credential boundary and fail-closed delivery
         run: python3 -m unittest discover -s workers/marketplace -p 'test_commander_marketplace_worker.py' -v
+      - name: Attest exact source and test SHA256
+        run: sha256sum workers/marketplace/commander_marketplace_worker.py workers/marketplace/test_commander_marketplace_worker.py
 
   fulfill:
     if: github.event_name != 'pull_request'
