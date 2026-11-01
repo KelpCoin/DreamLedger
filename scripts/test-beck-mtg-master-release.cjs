@@ -9,6 +9,16 @@ const quote=read('public/quote-comparison/index.html');
 const v=JSON.parse(read('vercel.json'));
 assert.equal((mtg.match(/data-auction-slot=/g)||[]).length,3);
 assert.ok(mtg.includes('/mtg/diagnostic.html'));
+const paid=read('public/mtg/diagnostic.html');
+const market=read('public/marketplace.html');
+const intake=read('public/diagnostic-input.html');
+assert.ok(paid.includes('NZ$29') && !paid.includes('Free Commander deck check'));
+assert.ok(!paid.includes('id="check"') && !paid.includes('id="decklist"'));
+assert.ok(mtg.includes('NZ$29 · Digital product'));
+assert.ok(market.includes('NZ$29 · PAID DIGITAL PRODUCT · CHECKOUT HELD'));
+assert.ok(intake.includes('NZ$29 diagnostic') && !intake.includes('Free deck check'));
+assert.ok(!paid.includes('https://buy.stripe.com/'));
+
 assert.ok(!/Payment received|Stripe has confirmed checkout/i.test(checkout));
 assert.ok(quote.includes('Blank freight is not assumed free.'));
 for(const p of ['/thanks','/thanks/']) assert.ok(v.rewrites.some(x=>x.source===p&&x.destination==='/thanks.html'));
