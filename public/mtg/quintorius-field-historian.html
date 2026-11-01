@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en-NZ">
+<html data-silo="mtg" lang="en-NZ">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -7,7 +7,7 @@
 <meta name="description" content="See every card. Quintorius, Field Historian Commander deck for sale in NZ. Sleeved, free shipping.">
 <link rel="stylesheet" href="/assets/mtg-deck-grid.css">
 <style>
-:root{color-scheme:dark;--bg:#07080c;--ink:#f3f0e8;--muted:#9aa0b0;--line:#262b38;--gold:#d8b56b;--surface:#11141c}
+:root{color-scheme:dark;--bg:#07080c;--ink:#f3f0e8;--muted:#9aa0b0;--line:#262b38;--gold:var(--signal, #c5ff35);--surface:#11141c}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,sans-serif}
 a{color:var(--gold);text-decoration:none}
@@ -17,7 +17,7 @@ a{color:var(--gold);text-decoration:none}
 .brand em{font-style:normal;color:var(--gold)}
 .top-actions{display:flex;gap:8px;align-items:center}
 .btn{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:0 14px;border-radius:10px;font-weight:800;font-size:13px;border:1px solid var(--line);color:var(--ink)}
-.btn.gold{background:linear-gradient(180deg,#e8c87a,var(--gold));color:#12100a;border-color:var(--gold)}
+.btn.gold{background:linear-gradient(180deg,var(--signal, #c5ff35),var(--gold));color:#12100a;border-color:var(--gold)}
 .wrap{max-width:1200px;margin:auto;padding:20px 16px 100px}
 .hero{display:grid;gap:20px;margin-bottom:8px}
 @media(min-width:900px){.hero{grid-template-columns:1fr 280px;align-items:start}}
@@ -26,7 +26,7 @@ h1{font-size:clamp(1.8rem,4.5vw,2.6rem);letter-spacing:-.04em;line-height:1.08;m
 .sub{color:var(--muted);margin:0 0 14px;max-width:36em}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
 .chip{font-size:11px;font-weight:700;padding:5px 10px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
-.chip.on{border-color:rgba(216,181,107,.45);color:var(--gold)}
+.chip.on{border-color:var(--line);color:var(--gold)}
 .buy-card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;position:sticky;top:72px}
 .price{font-size:2rem;font-weight:900;letter-spacing:-.03em;margin:0 0 4px}
 .price small{font-size:.7rem;font-weight:600;color:var(--muted)}
@@ -45,8 +45,8 @@ h1{font-size:clamp(1.8rem,4.5vw,2.6rem);letter-spacing:-.04em;line-height:1.08;m
 .safe b{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:4px}
 .safe span{font-size:13px;color:var(--muted);line-height:1.4}
 </style>
-</head>
-<body>
+<link rel="stylesheet" href="/assets/mtg-dreamledger-theme.css"></head>
+<body class="bec-neon">
 <header class="top"><div class="top-inner">
   <a class="brand" href="/mtg/">Dream<em>Ledger</em> · Magic</a>
   <div class="top-actions">
