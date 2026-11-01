@@ -5,6 +5,29 @@ const TARGET="https://wbwgroygjeyukkspnqiy.supabase.co/functions/v1/marketplace-
 const STATUS="https://wbwgroygjeyukkspnqiy.supabase.co/functions/v1/mtg-commander-status";
 const ORIGINS=new Set(["https://dreamledger.org","https://www.dreamledger.org"]);
 const SID=/^cs_(live|test)_[A-Za-z0-9_]{10,180}$/;
+// A paid diagnostic must receive a complete 100-card Commander list before
+// any upstream payment lookup or durable intake. Card legality is not inferred.
+function decklistError(text:string):string|null{
+ let total=0,entries=0;
+ for(const raw of text.split(/\r?\n/)){
+  const line=raw.trim();
+  if(!line||line.startsWith("#")||line.startsWith("//"))continue;
+  if(/^(sideboard|maybeboard|considering)\b/i.test(line))return "DECKLIST_UNSUPPORTED_SECTION";
+  if(/^(commander|mainboard|deck)\s*:\s*$/i.test(line))continue;
+  const card=line.replace(/^(commander|mainboard|deck)\s*:\s*/i,"");
+  const match=/^(\d{1,3})x?\s+(.+)$/i.exec(card);
+  if(/^\d/.test(card)&&!match)return "DECKLIST_INVALID_CARD";
+  const quantity=match?Number(match[1]):1;
+  const name=(match?match[2]:card).trim();
+  if(!name||name.length>160||quantity<1||quantity>100||
+     /[<>{}\u0000-\u001f]/.test(name)||/https?:\/\/|www\./i.test(name))
+   return "DECKLIST_INVALID_CARD";
+  total+=quantity;
+  entries++;
+  if(total>100||entries>100)return "DECKLIST_CARD_COUNT";
+ }
+ return total===100?null:"DECKLIST_CARD_COUNT";
+}
 const json=(status:number,body:unknown)=>new Response(JSON.stringify(body),{
  status,headers:{"content-type":"application/json; charset=utf-8","cache-control":"no-store",
  "x-content-type-options":"nosniff"}
@@ -26,6 +49,8 @@ export default async function handler(req:Request):Promise<Response>{
     !SID.test(String(body.session_id||""))||
     typeof body.decklist!=="string"||body.decklist.length<20||body.decklist.length>30000)
    return json(422,{error:"INVALID_DIAGNOSTIC_INPUT"});
+ const deckError=decklistError(body.decklist);
+ if(deckError)return json(422,{error:deckError,expected_cards:100});
  // Browser navigation is not authorization. Require an independent read-only
  // provider-backed exact Price/SKU + webhook order check on every POST.
  let check:Response;

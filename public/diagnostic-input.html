@@ -40,7 +40,7 @@
       <p class="hint">Filled in automatically after checkout. Your Stripe reference is checked before intake.</p>
       <label class="silo-label" for="decklist">Commander decklist</label>
       <textarea class="silo-textarea" id="decklist" required minlength="20" placeholder="1 Sol Ring&#10;1 Command Tower&#10;1 Your Commander"></textarea>
-      <p class="hint">Full list · at least 20 characters.</p>
+      <p class="hint">Exactly 100 cards including your commander. Use one card per line, e.g. 1 Sol Ring.</p>
       <button class="silo-btn silo-btn-gold silo-btn-block" type="submit" id="submit" style="margin-top:18px">Submit for fulfillment</button>
     </form>
     <div id="status" role="status"></div>
@@ -68,7 +68,7 @@
         status.textContent='Accepted. Fulfillment queued.\nPath: paid → delivered → proven.';
         setTimeout(function(){ location.href='/thanks-diagnostic.html'; },900);
       }else{
-        status.textContent=d.error||('Submission failed ('+r.status+')');
+        status.textContent=(d.error==='DECKLIST_CARD_COUNT'?'Please paste all 100 cards, including your commander.':d.error==='DECKLIST_INVALID_CARD'?'Check card quantities and names in your decklist.':d.error==='DECKLIST_UNSUPPORTED_SECTION'?'Remove sideboard and maybeboard sections; submit the 100-card Commander deck only.':d.error)||('Submission failed ('+r.status+')');
         btn.disabled=false;
       }
     }catch(err){
