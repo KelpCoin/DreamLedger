@@ -25,6 +25,7 @@ function staticMtgTemplateProfile(html) {
   if ((html.match(/data-auction-slot="/g) || []).length !== 3) return null;
   // A static template is never evidence that payment is enabled or fulfilled.
   if (/buy\.stripe\.com|\/api\/offer-checkout\/create|redirectToCheckout|checkout_url|Payment received|Order confirmed/i.test(html)) return null;
+  if (html.includes('class="hub-free-card"') && !html.includes('id="welcome"')) return null;
   if (html.includes('id="welcome"')) {
     if ((html.match(/class="hub-free-card"/g) || []).length !== 5) return null;
     if (html.indexOf('id="welcome"') > html.indexOf('id="auctions"')) return null;
