@@ -44,9 +44,17 @@ jobs:
             }
           }
           const html = fs.readFileSync('mtg/index.html', 'utf8');
-          if (!html.includes('/public/catalog.json')) throw new Error('Root preview catalogue must use tracked public catalogue data');
           const liveHtml = fs.readFileSync('public/mtg/index.html', 'utf8');
-          if (!liveHtml.includes("get('/catalog.json')")) throw new Error('Live public MTG page must load the tracked catalogue.json');
+          const expectedAttr = 'data-catalog="/data/mtg-catalog.json"';
+          if (!html.includes(expectedAttr) || !liveHtml.includes(expectedAttr)) {
+            throw new Error('Both MTG storefronts must use the tracked public/data/mtg-catalog.json');
+          }
+          const liveCatalog = JSON.parse(fs.readFileSync('public/data/mtg-catalog.json', 'utf8'));
+          for (const [id] of required) {
+            if (!(liveCatalog.products || []).some(p => p.id === id && p.silo === 'mtg')) {
+              throw new Error('Missing canonical public MTG product: ' + id);
+            }
+          }
           for (const page of ['public/mtg/quintorius-field-historian.html', 'public/mtg/dwynen-gilt-leaf-daen.html']) {
             if (!fs.existsSync(page)) throw new Error('Missing deployed public route: ' + page);
           }
