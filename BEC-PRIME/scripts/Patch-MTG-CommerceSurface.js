@@ -7,12 +7,40 @@ const ROOT = path.join(__dirname, '..');
 const SOURCE = path.join(ROOT, 'website', 'mtg-catalog.html');
 const PROOF = path.join(ROOT, 'PROOF-MTG-COMMERCE-SURFACE.json');
 const MARKER = 'data-dreamledger-mtg-commerce-v2';
+ 
+// A separate static, free-first MTG hub replaced the old inline commerce
+// renderer. Recognize it only by its exact manifest/catalogue boundaries and
+// three empty auction slots. Never graft a legacy BUY NOW handler onto it.
+function staticMtgTemplateProfile(html) {
+  if (typeof html !== 'string') return null;
+  const required = [
+    'data-silo="mtg"',
+    'data-manifest="/silos/mtg/silo.json"',
+    'data-catalog="/data/mtg-catalog.json"',
+    'id="catalog"',
+    'id="auctions"',
+    '/assets/mtg-community.js'
+  ];
+  if (!required.every(token => html.includes(token))) return null;
+  if ((html.match(/data-auction-slot="/g) || []).length !== 3) return null;
+  // A static template is never evidence that payment is enabled or fulfilled.
+  if (/buy\.stripe\.com|\/api\/offer-checkout\/create|redirectToCheckout|checkout_url|Payment received|Order confirmed/i.test(html)) return null;
+  if (html.includes('id="welcome"')) {
+    if ((html.match(/class="hub-free-card"/g) || []).length !== 5) return null;
+    if (html.indexOf('id="welcome"') > html.indexOf('id="auctions"')) return null;
+    return 'free-first';
+  }
+  return 'catalogue-only';
+}
 
-function writeProof(status = 'PASS') {
+
+function writeProof(status = 'PASS', profile = null) {
   const proof = {
     schema: 'BEC-PRIME/MTG-COMMERCE-SURFACE/v2',
     status,
     legacy_render_patch_applied: status === 'PASS',
+    static_template_profile: profile,
+    checkout_activated: false,
     // Modern template has a separate detail-page flow; this patch cannot
     // certify its checkout or stock truth just because the HTML exists.
     checkout_verified: false,
@@ -20,10 +48,12 @@ function writeProof(status = 'PASS') {
     marker: MARKER,
     route: '/mtg',
     aliases: ['/mtg', '/mtg/', '/MTG', '/MTG/'],
-    inventory_endpoint: '/api/products',
-    checkout_endpoint: '/api/offer-checkout/create',
+    inventory_endpoint: status === 'PASS' ? '/api/products' : null,
+    checkout_endpoint: status === 'PASS' ? '/api/offer-checkout/create' : null,
     horizontal_catalogue: true,
-    displays: ['image', 'name', 'price_nzd', 'availability', 'buy_button', 'condition_for_verified_singles_only'],
+    displays: status === 'PASS'
+      ? ['image', 'name', 'price_nzd', 'availability', 'buy_button', 'condition_for_verified_singles_only']
+      : ['static_catalogue', 'auction_placeholders', 'unverified_checkout'],
     generated_at: new Date().toISOString()
   };
   fs.writeFileSync(PROOF, JSON.stringify(proof, null, 2) + '\n', 'utf8');
@@ -50,6 +80,12 @@ function patch() {
     // embeds no such function. DO NOT splice the legacy renderer into it.
     // Safely skip an obsolete MTG-only presentation patch without blocking
     // the niche-agnostic commerce compiler for other silos.
+    const staticProfile = staticMtgTemplateProfile(html);
+    if (staticProfile) {
+      console.log('MTG_LEGACY_PATCH_SKIPPED_STATIC_TEMPLATE', staticProfile);
+      writeProof('SKIPPED_STATIC_TEMPLATE_CHECKOUT_UNVERIFIED', staticProfile);
+      return;
+    }
     if (html.includes('id="grid"') && html.includes('const decks=(data.products||[]).filter(isPhysical);') &&
         html.includes('See cards &amp; buy')) {
       console.log('MTG_LEGACY_PATCH_SKIPPED_MODERN_TEMPLATE');
@@ -108,4 +144,5 @@ rail.querySelectorAll('.mtg-buy').forEach(button=>button.addEventListener('click
   writeProof();
 }
 
-patch();
+if (require.main === module) patch();
+module.exports = {staticMtgTemplateProfile, patch};
