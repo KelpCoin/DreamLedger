@@ -1,0 +1,41 @@
+{
+  "schema": "beck-ad-payment-intent-uniqueness/v1",
+  "as_of_utc": "2026-11-01",
+  "status": "STAGED_NOT_DEPLOYED",
+  "base_pr": 926,
+  "canonical_gate_issue": 922,
+  "control": "Unique PostgreSQL payment_intent_id across ad payment receipts; atomic rejection of cross-reservation replay; existing event/session uniqueness preserved.",
+  "test_scope": "GitHub Actions disposable PostgreSQL only; no live DB mutations",
+  "regressions": [
+    "same payment_intent_id cannot pay two distinct reservations",
+    "duplicate event_id cannot pay a distinct reservation",
+    "rejected replay preserves HELD reservation and original paid receipt",
+    "distinct PaymentIntent can settle a separate reservation",
+    "previous concurrent capacity and unpaid expiry tests remain"
+  ],
+  "provider_evidence": {
+    "neon_project": "dreamledger-migration-staging",
+    "neon_six_ledger_tables_row_counts": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "stripe_account": "acct_1SNVPvEGgEAnUFF9",
+    "stripe_latest_sessions_checked": 30,
+    "stripe_latest_sessions_all_expired_unpaid": true,
+    "stripe_full_history_exhaustive": false,
+    "vercel_production_database_credentials_verified": false,
+    "vercel_only_project_local_neon_credential": "PREVIEW_ONLY_OTHER_BRANCH"
+  },
+  "release_gates": [
+    "OWNER_APPROVAL_REQUIRED",
+    "PRODUCTION_DB_MAPPING_UNVERIFIED",
+    "STRIPE_SECRET_SCOPE_UNVERIFIED",
+    "SCHEMA_NOT_APPLIED",
+    "DELIVERY_UNVERIFIED"
+  ],
+  "rollback": "Discard this isolated branch and draft PR; no live data or deployments changed. If ever applied with approval, rollback requires a reviewed migration and ledger reconciliation before dropping uniqueness."
+}

@@ -55,6 +55,26 @@ q "SELECT (public.beck_ad_record_paid('$id'::uuid,'cs_live_ci_one','evt_ci_one',
 [[ "$(q "SELECT status FROM public.beck_ad_reservations WHERE reservation_id='$id'")" == "PAID" ]] || exit 1
 [[ "$(q "SELECT status FROM public.beck_ad_payment_receipts WHERE reservation_id='$id'")" == "PAID_PENDING_CREATIVE_REVIEW" ]] || exit 1
 [[ "$(q 'SELECT count(*) FROM public.beck_ad_payment_receipts')" == "1" ]] || exit 1
+# Cross-reservation payment-intent replay must fail atomically even if session
+# and event IDs are different. Only disposable CI PostgreSQL is modified.
+id3="$(q "SELECT (public.beck_ad_reserve_tile('dreamledger','ads','nz_board','ci-pi-reuse-target',200,0,100,100,1000,1000,'2026-11-01T00:00:00Z','3000-01-01T00:00:00Z',5000,'NZD',60)).reservation_id")"
+q "SELECT (public.beck_ad_bind_checkout('$id3'::uuid,'cs_live_ci_pi_reuse',clock_timestamp()+interval '30 minutes','Replay test','https://example.invalid/',repeat('e',64))).reservation_id"
+if q "SELECT public.beck_ad_record_paid('$id3'::uuid,'cs_live_ci_pi_reuse','evt_ci_pi_reuse','pi_ci_one',5000,'NZD',true,repeat('e',64))" >/dev/null 2>&1; then
+ echo "FAIL: one Stripe PaymentIntent attributed to two reservations";exit 1
+fi
+[[ "$(q "SELECT status FROM public.beck_ad_reservations WHERE reservation_id='$id3'")" == "HELD" ]] || exit 1
+[[ "$(q 'SELECT count(*) FROM public.beck_ad_payment_receipts')" == "1" ]] || exit 1
+q "SELECT (public.beck_ad_record_paid('$id3'::uuid,'cs_live_ci_pi_reuse','evt_ci_distinct','pi_ci_distinct',5000,'NZD',true,repeat('e',64))).status"
+[[ "$(q "SELECT status FROM public.beck_ad_reservations WHERE reservation_id='$id3'")" == "PAID" ]] || exit 1
+[[ "$(q 'SELECT count(*) FROM public.beck_ad_payment_receipts')" == "2" ]] || exit 1
+# A different reservation cannot steal a previously recorded event ID either.
+id4="$(q "SELECT (public.beck_ad_reserve_tile('dreamledger','ads','nz_board','ci-event-reuse-target',300,0,100,100,1000,1000,'2026-11-01T00:00:00Z','3000-01-01T00:00:00Z',5000,'NZD',60)).reservation_id")"
+q "SELECT (public.beck_ad_bind_checkout('$id4'::uuid,'cs_live_ci_event_reuse',clock_timestamp()+interval '30 minutes','Event replay test','https://example.invalid/',repeat('f',64))).reservation_id"
+if q "SELECT public.beck_ad_record_paid('$id4'::uuid,'cs_live_ci_event_reuse','evt_ci_one','pi_ci_unique_third',5000,'NZD',true,repeat('f',64))" >/dev/null 2>&1; then
+ echo "FAIL: one Stripe event attributed to two reservations";exit 1
+fi
+[[ "$(q "SELECT status FROM public.beck_ad_reservations WHERE reservation_id='$id4'")" == "HELD" ]] || exit 1
+[[ "$(q 'SELECT count(*) FROM public.beck_ad_payment_receipts')" == "2" ]] || exit 1
 # Reconcile an independently verified expired UNPAID session, distinct from the paid tile.
 id2="$(q "SELECT (public.beck_ad_reserve_tile('dreamledger','ads','nz_board','ci-unpaid-release-001',100,0,100,100,1000,1000,'2026-11-01T00:00:00Z','3000-01-01T00:00:00Z',5000,'NZD',60)).reservation_id")"
 q "SELECT (public.beck_ad_bind_checkout('$id2'::uuid,'cs_live_ci_unpaid',clock_timestamp()+interval '30 minutes','Unpaid synthetic','https://example.invalid/',repeat('c',64))).reservation_id"
