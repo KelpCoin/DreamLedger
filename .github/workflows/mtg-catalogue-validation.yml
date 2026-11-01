@@ -58,7 +58,7 @@ jobs:
           for (const page of ['public/mtg/quintorius-field-historian.html', 'public/mtg/dwynen-gilt-leaf-daen.html']) {
             if (!fs.existsSync(page)) throw new Error('Missing deployed public route: ' + page);
           }
-          if (!html.includes('EDH_QUINTORIUS_0002') || !html.includes('EDH_DWYNEN_0003')) throw new Error('Catalogue must prioritize the new decks');
+          if (!liveCatalog.products || liveCatalog.products.findIndex(p => p.id === 'EDH_QUINTORIUS_0002') < 0 || liveCatalog.products.findIndex(p => p.id === 'EDH_DWYNEN_0003') < 0) throw new Error('Canonical catalogue must contain the new decks');
           for (const page of ['mtg/quintorius-field-historian.html', 'mtg/dwynen-gilt-leaf-daen.html']) {
             const body = fs.readFileSync(page, 'utf8');
             if (!body.includes('decklist') && !body.includes('decklist')) throw new Error('Missing decklist reference in ' + page);
