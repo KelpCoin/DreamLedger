@@ -113,7 +113,7 @@ BEGIN
    THEN RAISE EXCEPTION 'payment_replay_conflict' USING ERRCODE='23505'; END IF;
    RETURN existing; -- Do not record a second charge or second fulfillment.
  END IF;
- IF r.status<>'HELD' OR r.hold_expires_at<=clock_timestamp()
+ IF r.status<>'HELD' OR r.checkout_session_expires_at IS NULL
     OR r.checkout_session_expires_at<=clock_timestamp()-interval '7 days'
  THEN RAISE EXCEPTION 'late_or_unheld_payment_requires_refund_review'
    USING ERRCODE='P0001'; END IF;
