@@ -39,6 +39,9 @@ jobs:
       - name: Install
         run: npm ci --no-audit --no-fund
 
+      - name: MTG static compiler fail-closed regression
+        run: node --test scripts/mtg-static-compiler-contract.test.js
+
       - name: Cloud Elohim compile
         run: npm run compile
 
