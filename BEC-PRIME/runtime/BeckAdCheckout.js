@@ -47,6 +47,9 @@ async function prepareCheckout(value,{env=process.env,fetchImpl=globalThis.fetch
   if(!(now instanceof Date)||!Number.isFinite(now.valueOf())||typeof fetchImpl!=='function')throw error('checkout_clock_or_network_unavailable');
   const digest=crypto.createHash('sha256').update(data.requestKey+'|'+data.email+'|'+data.title+'|'+data.destination_url).digest('hex');
   const key='beck_'+digest.slice(0,60);
+  const creativeSha256=crypto.createHash('sha256').update(JSON.stringify({
+    title:data.title,destination_url:data.destination_url
+  })).digest('hex');
   let hold;
   // First inspect a previous claim for the exact same logical request. Never
   // allocate a different spot simply because the original claim now occupies it.
@@ -106,13 +109,15 @@ async function prepareCheckout(value,{env=process.env,fetchImpl=globalThis.fetch
     'metadata[product_sku]':ID,'metadata[product_id]':ID,
     'metadata[offer_id]':ID,'metadata[silo]':'ads','metadata[source]':'beck_ad_reserved_checkout',
     'metadata[reservation_id]':hold.reservation_id,
+    'metadata[creative_sha256]':creativeSha256,
     'metadata[review_status]':'APPROVAL_REQUIRED',
     'payment_intent_data[metadata][product_sku]':ID,
     'payment_intent_data[metadata][product_id]':ID,
     'payment_intent_data[metadata][offer_id]':ID,
     'payment_intent_data[metadata][silo]':'ads',
     'payment_intent_data[metadata][source]':'beck_ad_reserved_checkout',
-    'payment_intent_data[metadata][reservation_id]':hold.reservation_id
+    'payment_intent_data[metadata][reservation_id]':hold.reservation_id,
+    'payment_intent_data[metadata][creative_sha256]':creativeSha256
   });
   let res;try{
     res=await fetchImpl('https://api.stripe.com/v1/checkout/sessions',{
@@ -132,7 +137,8 @@ async function prepareCheckout(value,{env=process.env,fetchImpl=globalThis.fetch
   try{
     const linked=await bindReservation({
       reservation_id:hold.reservation_id,session_id:session.id,
-      expires_at:new Date(expiresAt*1000).toISOString()
+      expires_at:new Date(expiresAt*1000).toISOString(),
+      title:data.title,destination_url:data.destination_url,creative_sha256:creativeSha256
     },{env,fetchImpl});
     if(linked?.linked!==true||linked.checkout_session_id!==session.id||
        linked.reservation_id!==hold.reservation_id)throw error('checkout_binding_unverified');
