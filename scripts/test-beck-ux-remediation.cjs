@@ -2,7 +2,7 @@
 const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
 const root=path.resolve(__dirname,'..');
 const read=p=>fs.readFileSync(path.join(root,p),'utf8');
-const home=read('public/index.html'),mtg=read('public/mtg/index.html'),thanks=read('public/thanks.html'),quote=read('public/quote-compare-49.html'),v=JSON.parse(read('vercel.json'));
+const worksheet=read('public/quote-comparison/index.html'),home=read('public/index.html'),mtg=read('public/mtg/index.html'),thanks=read('public/thanks.html'),quote=read('public/quote-compare-49.html'),v=JSON.parse(read('vercel.json'));
 assert.equal(v.git.deploymentEnabled['*'],false,'draft branch must not auto-deploy');
 assert.ok(home.includes('id="beck-rail"')&&home.includes('scroll-snap-type:x mandatory'),'mobile carousel');
 assert.equal((home.match(/class="beck-tile"/g)||[]).length,6,'six entry cards');
@@ -15,4 +15,6 @@ assert.ok(!mtg.includes('https://buy.stripe.com/'),'no unreserved deck checkout'
 assert.ok(thanks.includes('cannot independently confirm')&&!/Payment received|Payment successful|Order confirmed/i.test(thanks),'return cannot assert payment');
 for(const route of ['/thanks','/thanks/'])assert.ok(v.rewrites.some(r=>r.source===route&&r.destination==='/thanks.html'),'missing thanks route');
 assert.ok(quote.includes('Before you pay:')&&quote.includes('free browser comparison worksheet'),'free alternative');
+assert.ok(worksheet.includes("o.comparable_total=o.price===null||o.delivery===null?null:o.price+o.delivery;"),'missing freight may never count as free');
+assert.ok(worksheet.includes('Blank freight is not assumed free.'),'worksheet total disclosure');
 console.log('BECK_UX_SAFE_PASS: 6 CTA cards, 3 MTG placeholders, 2 thanks routes, payment holds intact');
