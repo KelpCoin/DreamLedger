@@ -124,6 +124,9 @@ jobs:
           python-version: '3.12'
       - name: Permanent Humanizer Gauntlet review
         run: python scripts/check-phone-copy.py
+      - name: Canonical Gauntlet V6
+        run: |
+          node -e "const r=require('./BEC-PRIME/gauntlet/GauntletV6').run(); console.log(JSON.stringify(r,null,2)); process.exit(r.status==='PASS'?0:1)"
       - name: Catalogue and calculator contracts
         run: |
           node BEC-PRIME/compiler/MTGCatalogCompiler.js
@@ -146,5 +149,6 @@ jobs:
           path: |
             proof/phone-humanizer.json
             proof/phone/
+            BEC-PRIME/data/proofs/GAUNTLET-V6-LATEST.json
           if-no-files-found: error
           retention-days: 30

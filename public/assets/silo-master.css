@@ -1,3 +1,4 @@
+@import url('/assets/bec-neon.css');
 /* DreamLedger MASTER SILO stencil — MTG is the reference clone */
 :root{
   --silo-bg:#0a0b0f;--silo-bg-elev:#12141c;--silo-surface:#161922;--silo-surface-2:#1c2030;
@@ -71,3 +72,10 @@ body.silo-body{
 .silo-label{display:block;font-size:12px;font-weight:700;color:var(--silo-muted);margin:14px 0 6px}
 .silo-input,.silo-select,.silo-textarea{width:100%;padding:12px 14px;border-radius:var(--silo-radius-sm);border:1px solid var(--silo-line);background:var(--silo-surface);color:var(--silo-ink);font:inherit}
 .silo-textarea{min-height:100px;resize:vertical}
+
+/* Shared phone-first stencil: clones retain DreamLedger typography and palette. */
+body.silo-body{--silo-bg:#080b10;--silo-bg-elev:#111722;--silo-surface:#111722;--silo-surface-2:#141e28;--silo-ink:#f7f9fb;--silo-muted:#b3bfcb;--silo-dim:#b3bfcb;--silo-line:#2d3948;--silo-accent:#c5ff35;--silo-accent-bright:#c5ff35;--silo-accent-soft:rgba(197,255,53,.17);--silo-serif:"Space Grotesk",Inter,"Segoe UI",system-ui,sans-serif;--silo-sans:Inter,"Segoe UI",system-ui,sans-serif;background-image:radial-gradient(ellipse at 82% -13%,#1b3137 0,transparent 43%)}
+.silo-body .silo-display{font-size:32px;font-weight:600}.silo-body .silo-display em,.silo-body .silo-display span{font-style:normal;font-weight:600}
+.silo-body .silo-h2,.silo-body .silo-h3{font-weight:600}.silo-body .silo-wrap{padding-inline:14px}
+.silo-body .silo-rail{scrollbar-width:thin;overscroll-behavior-x:contain}.silo-body .silo-rail::-webkit-scrollbar{display:block;height:6px}
+@media(prefers-reduced-motion:reduce){.silo-body *{scroll-behavior:auto!important}}

@@ -21,7 +21,7 @@ const {chromium}=require('playwright');
     assert.equal(await page.locator('#catalog a[href*="stripe"]').count(),0);
     assert.equal(await page.evaluate(()=>getComputedStyle(document.querySelector('h1')).fontFamily),theme.h);
     assert.equal(await page.evaluate(()=>getComputedStyle(document.body).getPropertyValue('--signal')),theme.signal);
-    if(width<500){await page.screenshot({path:'proof/phone/mtg-'+width+'.png',fullPage:true});const rail=page.locator('#catalog');await rail.focus();await page.keyboard.press('ArrowRight');assert(await rail.evaluate(e=>e.scrollLeft)>0,'Keyboard scroll');await page.getByRole('button',{name:'Previous decks'}).click();}
+    if(width<500){await page.screenshot({path:'proof/phone/mtg-'+width+'.png',fullPage:true});const rail=page.locator('#catalog');await rail.focus();await page.keyboard.press('ArrowRight');await page.waitForFunction(()=>document.getElementById('catalog').scrollLeft>0);assert(await rail.evaluate(e=>e.scrollLeft)>0,'Keyboard scroll');await page.getByRole('button',{name:'Previous decks'}).click();}
     await page.locator('#search').fill('Dwynen');assert.equal(await page.locator('#catalog .deck').count(),1);
     await page.locator('#search').fill('zz-no-match');await page.getByRole('button',{name:'Clear filters'}).click();assert.equal(await page.locator('#catalog .deck').count(),4);
     await page.locator('summary').click();await page.locator('#max-price').fill('90');assert.equal(await page.locator('#catalog .deck').count(),2);
