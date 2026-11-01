@@ -34,6 +34,9 @@ CREATE TABLE IF NOT EXISTS public.beck_ad_reservations (
   campaign_end timestamptz NOT NULL,
   status text NOT NULL DEFAULT 'HELD' CHECK (status IN ('HELD','PAID','APPROVED','PUBLISHED','CANCELLED','EXPIRED')),
   hold_expires_at timestamptz NOT NULL,
+  -- Preserve bound checkouts even if webhook processing is delayed.
+  checkout_session_id text,
+  checkout_session_expires_at timestamptz,
   price_minor integer NOT NULL CHECK (price_minor > 0),
   currency text NOT NULL CHECK (currency IN ('NZD','USD')),
   created_at timestamptz NOT NULL DEFAULT now(),
@@ -103,7 +106,8 @@ BEGIN
     SELECT 1 FROM public.beck_ad_reservations r
     WHERE r.exhaust=p_exhaust AND r.silo=p_silo AND r.canvas=p_canvas
       AND r.status IN ('HELD','PAID','APPROVED','PUBLISHED')
-      AND (r.status <> 'HELD' OR r.hold_expires_at > clock_timestamp())
+      -- A bound Stripe Session stays unavailable until verified unpaid/expired.
+      AND (r.status <> 'HELD' OR r.hold_expires_at > clock_timestamp() OR r.checkout_session_id IS NOT NULL)
       AND p_start < r.campaign_end AND r.campaign_start < p_end
       AND p_x < r.x+r.width AND r.x < p_x+p_width
       AND p_y < r.y+r.height AND r.y < p_y+p_height
