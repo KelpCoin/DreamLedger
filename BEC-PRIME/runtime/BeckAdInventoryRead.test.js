@@ -59,3 +59,12 @@ test('future confirmed booking is included in permanent footprint',async()=>{
  assert.equal(queryUrl.includes('campaign_start='),false);
  assert.equal(r.unavailable_positions.length,1);
 });
+
+test('expired hold bound to Stripe remains unavailable pending verified provider outcome',async()=>{
+ const r=await inventory({env,now,fetchImpl:mock(canvas,[slot('hold_bound_01',{
+   status:'HELD',checkout_session_id:'cs_live_pendingpaid',
+   hold_expires_at:'2000-01-01T00:00:00Z'
+ })])});
+ assert.equal(r.remaining_founding_units,99);
+ assert.equal(r.held_pixels,10000);
+});
