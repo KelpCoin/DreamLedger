@@ -31,7 +31,7 @@ function fixture(){
        product:{metadata:{dreamledger_sku:SKU}}}}]}};
  return{event,verified,listing:{id:LISTING,sku:SKU}};
 }
-function harness(f){
+function harness(f,overrides={}){
  let handler;const calls={db:[],rpc:[],stripe:[]};
  const db={
    from(table){
@@ -64,7 +64,7 @@ function harness(f){
  }
  const env={SUPABASE_URL:'https://synthetic.supabase.co',
    SUPABASE_SERVICE_ROLE_KEY:'synthetic-role',STRIPE_API_KEY:'synthetic-key',
-   STRIPE_WEBHOOK_SIGNING_SECRET:SECRET};
+   STRIPE_WEBHOOK_SIGNING_SECRET:SECRET,...overrides};
  const context={Deno:{env:{get:k=>env[k]},serve:fn=>{handler=fn}},
    createClient:()=>db,createMarketplaceSellerTransfers:async()=>{throw Error('unexpected transfer')},
    Response,Request,console,crypto:crypto.webcrypto,globalThis:null,__Stripe:FakeStripe};
@@ -128,4 +128,60 @@ test('unexpected total or Price cannot settle',async()=>{
    const h=harness(f),r=await h.invoke();
    assert.equal(r.status,409);assert.equal(h.calls.rpc.length,0);
  }
+});
+
+const TEST_PROJECT_REF='abcdefghijklmnopqrst';
+const TEST_PRICE='price_synthetic_test_commander';
+const TEST_ENV={
+  BECK_STRIPE_SETTLEMENT_MODE:'test',
+  BECK_STRIPE_TEST_PROJECT_REF:TEST_PROJECT_REF,
+  BECK_STRIPE_TEST_DIAGNOSTIC_PRICE_ID:TEST_PRICE,
+  SUPABASE_URL:'https://'+TEST_PROJECT_REF+'.supabase.co',
+  STRIPE_API_KEY:'sk_test_synthetic_only'
+};
+function testModeFixture(){
+  const f=fixture(),sid='cs_test_SYNTHETIC1234567890';
+  f.event.livemode=false;f.event.data.object.livemode=false;
+  f.event.data.object.id=sid;f.verified.livemode=false;f.verified.id=sid;
+  f.verified.line_items.data[0].price.id=TEST_PRICE;
+  return f;
+}
+test('isolated signed test-mode event reaches synthetic settlement boundary only',async()=>{
+  const h=harness(testModeFixture(),TEST_ENV),r=await h.invoke();
+  assert.equal(r.status,500);assert.equal(h.calls.rpc.length,1);
+  assert.equal(h.calls.rpc[0].name,'marketplace_settle_stripe_payment');
+  assert.equal(h.calls.rpc[0].args.p_amount_nzd,29);
+});
+test('test-mode event is rejected before live database access',async()=>{
+  const h=harness(testModeFixture()),r=await h.invoke();
+  assert.equal(r.status,409);assert.equal(h.calls.db.length,0);
+});
+test('test-mode cannot target actual production Supabase project',async()=>{
+  const h=harness(testModeFixture(),{...TEST_ENV,
+    BECK_STRIPE_TEST_PROJECT_REF:'wbwgroygjeyukkspnqiy',
+    SUPABASE_URL:'https://wbwgroygjeyukkspnqiy.supabase.co'}),r=await h.invoke();
+  assert.equal(r.status,409);assert.equal(h.calls.db.length,0);
+});
+test('test-mode requires preexisting test Price and test Stripe API key',async()=>{
+  for(const overrides of [
+    {...TEST_ENV,BECK_STRIPE_TEST_DIAGNOSTIC_PRICE_ID:''},
+    {...TEST_ENV,STRIPE_API_KEY:'sk_live_synthetic_only'}
+  ]){
+    const h=harness(testModeFixture(),overrides),r=await h.invoke();
+    assert.equal(r.status,409);assert.equal(h.calls.db.length,0);
+  }
+});
+test('wrong test Price cannot reach settlement RPC',async()=>{
+  const f=testModeFixture();f.verified.line_items.data[0].price.id='price_other_test';
+  const h=harness(f,TEST_ENV),r=await h.invoke();
+  assert.equal(r.status,409);assert.equal(h.calls.rpc.length,0);
+});
+test('test-mode event with live retrieved Checkout cannot settle',async()=>{
+  const f=testModeFixture();f.verified.livemode=true;
+  const h=harness(f,TEST_ENV),r=await h.invoke();
+  assert.equal(r.status,409);assert.equal(h.calls.rpc.length,0);
+});
+test('live event cannot access isolated test database',async()=>{
+  const h=harness(fixture(),TEST_ENV),r=await h.invoke();
+  assert.equal(r.status,409);assert.equal(h.calls.db.length,0);
 });

@@ -6,6 +6,10 @@ const SUPABASE_URL=Deno.env.get("SUPABASE_URL")||"";
 const SERVICE_ROLE_KEY=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")||"";
 const STRIPE_WEBHOOK_SIGNING_SECRET=Deno.env.get("STRIPE_WEBHOOK_SIGNING_SECRET")||"";
 const STRIPE_API_KEY=Deno.env.get("STRIPE_API_KEY")||Deno.env.get("STRIPE_SECRET_KEY")||"";
+// Test settlement must be explicitly isolated. Production remains live-only.
+const SETTLEMENT_MODE=(Deno.env.get("BECK_STRIPE_SETTLEMENT_MODE")||"live").trim();
+const TEST_PROJECT_REF=(Deno.env.get("BECK_STRIPE_TEST_PROJECT_REF")||"").trim();
+const TEST_DIAG_PRICE=(Deno.env.get("BECK_STRIPE_TEST_DIAGNOSTIC_PRICE_ID")||"").trim();
 const supabase=SUPABASE_URL&&SERVICE_ROLE_KEY?createClient(SUPABASE_URL,SERVICE_ROLE_KEY):null;
 Deno.serve(async(req)=>{
  if(req.method==="GET")return Response.json({service:FUNCTION_NAME,status:"healthy",configured:Boolean(SUPABASE_URL&&SERVICE_ROLE_KEY&&STRIPE_API_KEY&&STRIPE_WEBHOOK_SIGNING_SECRET)});
@@ -14,6 +18,15 @@ Deno.serve(async(req)=>{
  const {default:Stripe}=await import("npm:stripe@22"); const stripe=new Stripe(STRIPE_API_KEY); const cryptoProvider=Stripe.createSubtleCryptoProvider();
  const signature=req.headers.get("stripe-signature")||""; const raw=await req.text(); let event:any;
  try{event=await stripe.webhooks.constructEventAsync(raw,signature,STRIPE_WEBHOOK_SIGNING_SECRET,undefined,cryptoProvider)}catch(error){return new Response("invalid signature",{status:400})}
+ // Reject mode mismatch BEFORE touching database, including webhook-event persistence.
+ const isolatedTest=SETTLEMENT_MODE==="test"&&event.livemode===false&&
+   /^(sk|rk)_test_/.test(STRIPE_API_KEY)&&
+   /^[a-z0-9]{20}$/.test(TEST_PROJECT_REF)&&
+   TEST_PROJECT_REF!=="wbwgroygjeyukkspnqiy"&&
+   (SUPABASE_URL.endsWith("/")?SUPABASE_URL.slice(0,-1):SUPABASE_URL)===`https://${TEST_PROJECT_REF}.supabase.co`&&
+   /^price_[A-Za-z0-9_]+$/.test(TEST_DIAG_PRICE);
+ if(!((SETTLEMENT_MODE==="live"&&event.livemode===true)||isolatedTest))
+   return new Response("Stripe settlement environment mismatch",{status:409});
  const eventId=String(event.id||""); const eventType=String(event.type||""); if(!eventId)return new Response("missing event id",{status:400});
  const {data:existingWebhook}=await supabase.from("stripe_webhook_events").select("event_id,processed").eq("event_id",eventId).maybeSingle();
  if(existingWebhook?.processed===true)return Response.json({received:true,duplicate:true,event_id:eventId});
@@ -67,13 +80,15 @@ Deno.serve(async(req)=>{
      const item=items.length===1?items[0]:null;
      const price=item?.price;
      const product=price?.product;
-     const valid=verified.id===checkoutSessionId&&verified.livemode===true&&
-       event.livemode===true&&session.livemode===true&&
+     const expectedPrice=SETTLEMENT_MODE==="test"?TEST_DIAG_PRICE:"price_1UFFY1EGgEAnUFF9Yq03zIa7";
+     const valid=verified.id===checkoutSessionId&&verified.livemode===event.livemode&&
+       session.livemode===event.livemode&&
+       checkoutSessionId.startsWith(SETTLEMENT_MODE==="test"?"cs_test_":"cs_live_")&&
        verified.payment_status==="paid"&&verified.mode==="payment"&&verified.status==="complete"&&
        verified.currency==="nzd"&&verified.amount_subtotal===2900&&verified.amount_total===2900&&
        session.amount_total===2900&&verified.payment_intent===paymentIntentId&&
        verified.metadata?.sku_id===DIAG_SKU&&verified.metadata?.marketplace_listing_id===marketplaceListingId&&
-       !verified.line_items?.has_more&&item?.quantity===1&&price?.id==="price_1UFFY1EGgEAnUFF9Yq03zIa7"&&
+       !verified.line_items?.has_more&&item?.quantity===1&&price?.id===expectedPrice&&
        price?.lookup_key==="COMMANDER-DECK-DIAGNOSTIC-001"&&
        price?.metadata?.dreamledger_sku==="COMMANDER-DECK-DIAGNOSTIC-001"&&
        product?.metadata?.dreamledger_sku==="COMMANDER-DECK-DIAGNOSTIC-001";
