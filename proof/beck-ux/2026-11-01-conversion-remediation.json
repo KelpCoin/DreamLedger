@@ -1,0 +1,54 @@
+{
+  "schema": "beck-ux-remediation/v1",
+  "date": "2026-11-01",
+  "branch": "beck/mobile-carousel-conversion-fix-20261101",
+  "base": "billboard-verified-release-20261027",
+  "baseline": {
+    "home_blob": "8a1ff8e640b11f13facd0987f6f3f0f1d3e1e974",
+    "mtg_blob": "611b74c23fbf86a3982748d7b10c813cddfa2a66"
+  },
+  "scope": [
+    "mobile CTA carousel home",
+    "compact three MTG auction placeholders",
+    "no fabricated checkout or bids",
+    "free supplier worksheet: unknown delivery cost no longer assumed NZ$0",
+    "mobile swipeable existing marketplace product and silo catalogues",
+    "neutral payment return at legacy /success.html; no URL-based settlement assertion"
+  ],
+  "publication": "DRAFT_NO_DEPLOY",
+  "real_checkout": "BLOCKED_PRODUCTION_SECRETS",
+  "revenue_assertion": "NONE",
+  "source_checks": {
+    "home_carousel": true,
+    "six_intent_cards": true,
+    "mtg_three_slots": true,
+    "mtg_auction_coming_soon": true,
+    "quote_delivery_never_default_zero": true,
+    "mobile_marketplace_rails": true,
+    "legacy_success_neutral": true
+  },
+  "notes": [
+    "CSS-only illustrative card backs; no copyrighted artwork embedded.",
+    "No paid CTA for held billboard or unverified MTG stock.",
+    "Do not merge into the auto-disabled production branch without a reviewed release plan."
+  ],
+  "ci": {
+    "latest_source_commit": "036d98fd55b8f2b3274eadabd2db532890d8c623",
+    "verified_run": "41261002154",
+    "public_portfolio_contract": "PASS",
+    "other_successful_checks": [
+      "Checkout Metadata Contract",
+      "BECK Existing First Dollar Contract",
+      "Round-Trip Artifact Contract"
+    ],
+    "remaining_failed_checks": [
+      "MTG catalogue validation",
+      "Phin Haven Gauntlet",
+      "BEC-PRIME Gates",
+      "Stripe Checkout Contract",
+      "North Star supervisor contract"
+    ],
+    "all_ci_green": false,
+    "remark": "DRAFT. No deployment, payment, paid order or measured mobile performance proved."
+  }
+}

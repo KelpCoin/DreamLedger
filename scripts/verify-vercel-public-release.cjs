@@ -58,3 +58,6 @@ console.log('BECK_PUBLIC_RELEASE_FILES_PASS: '+mustExist.length+' routes, '+cata
 
 /* Study handover integration: enforce the same source-of-truth storefront contract on every Vercel build. */
 require('./test_beck_vercel_contract.cjs');
+
+// Conversion review and checkout-return truth gate.
+require('./test-beck-ux-remediation.cjs');
