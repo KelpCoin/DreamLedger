@@ -6,7 +6,7 @@ function table(headers,rows){const t=node('table'),head=node('thead'),hr=node('t
 let products=[];
 function render(){
  const items=W.filter(products,{query:$('search').value,kind:$('kind').value,maxPrice:$('max-price').value,sort:$('sort').value});
- $('catalog-status').textContent=items.length+' listings · NZD · confirm stock with seller';
+ $('catalog-status').textContent=items.length+' listing'+(items.length===1?'':'s')+' · NZD · confirm stock with seller';
  $('catalog').replaceChildren();
  if(!items.length){const box=node('div',undefined,'empty');box.append(node('h3','No matching listings'),node('p','Try another name or price, or take your wanted list to the community.'));const reset=node('button','Clear filters');reset.type='button';reset.onclick=()=>{$('search').value='';$('kind').value='all';$('max-price').value='';render();$('search').focus()};box.append(reset,document.createTextNode(' '),link('Open community','/mtg/community/'));$('catalog').append(box);return;}
  for(const p of items){
