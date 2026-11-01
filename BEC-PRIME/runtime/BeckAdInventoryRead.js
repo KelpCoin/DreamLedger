@@ -26,7 +26,8 @@ async function inventory({env=process.env,fetchImpl=globalThis.fetch,now=new Dat
     select:'reservation_id,x,y,width,height,status,hold_expires_at,campaign_start,campaign_end',
     exhaust:'eq.dreamledger',silo:'eq.ads',canvas:'eq.nz_board',
     status:'in.(HELD,PAID,APPROVED,PUBLISHED)',
-    campaign_start:'lte.'+at,campaign_end:'gt.'+at,limit:'1000'
+    // Founding placement extends into the future: future reservations consume that space too.
+    campaign_end:'gt.'+at,limit:'1000'
   });
   const active=rows.filter(r=>ACTIVE.has(r.status)&&(r.status!=='HELD'||Date.parse(r.hold_expires_at)>now.valueOf()));
   const slots=active.map(r=>({id:String(r.reservation_id),exhaust:'dreamledger',silo:'ads',canvas_id:'nz_board',
