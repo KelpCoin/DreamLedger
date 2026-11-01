@@ -1,0 +1,88 @@
+{
+  "schema": "BECK/checkout-response-attestation-proof/v1",
+  "observed_date_utc": "2026-11-01",
+  "classification": "STAGED_NOT_DEPLOYED",
+  "source_branch": "beck/checkout-response-attestation-20261101",
+  "parent_pr": 921,
+  "canonical_gate_issue": 922,
+  "purpose": "Fail closed if Stripe Checkout create response does not match exact authorized NZD 50 founding tile, bound reservation, creative SHA256, expiry and mode.",
+  "verified_read_only_evidence": {
+    "github": {
+      "parent_head_sha": "d4d4cbe3b05e13d520fc2f0739eaa4c91e4545a3",
+      "previous_ci_run_id": 41257974606,
+      "previous_ci_jobs": [
+        "offline-guards:success",
+        "ephemeral-postgres:success"
+      ],
+      "previous_ci_is_live": false
+    },
+    "vercel": {
+      "project": "dreamledger",
+      "domain": "dreamledger.org",
+      "project_local_env_keys": [
+        "NEON_DATABASE_URL"
+      ],
+      "env_scope": "preview-only:feat/multitenant-marketplace-figure-eight-council-20261026",
+      "production_credential_mapping_verified": false,
+      "shared_env_verified": false,
+      "git_auto_deployment_enabled": false
+    },
+    "neon": {
+      "project": "dreamledger-migration-staging",
+      "project_id": "falling-base-50259456",
+      "database": "neondb",
+      "row_counts": {
+        "marketplace_billboard_placements": 0,
+        "marketplace_stock_reservations": 0,
+        "marketplace_orders": 0,
+        "public_commercial_orders": 0,
+        "public_commercial_payments": 0,
+        "public_commercial_fulfillment_outbox": 0
+      },
+      "schema_contract": "Existing billboard_placements uses units and owner_organization_id; no registered geometry canvas. Existing stock_reservations requires listing_id. Cannot reuse new tile RPC without explicit schema reconciliation.",
+      "production_mapping_verified": false
+    },
+    "supabase": {
+      "active_project": "DreamLedger",
+      "sql_read": "CONNECTION_REFUSED",
+      "migrations_applied_to_live": false
+    },
+    "stripe": {
+      "account": "acct_1SNVPvEGgEAnUFF9",
+      "mode": "live",
+      "sample": "30 most recent checkout sessions returned by list endpoint",
+      "sample_expired_unpaid": 30,
+      "sample_paid": 0,
+      "has_more": true,
+      "scope_limitation": "Only latest 30, not a full account reconciliation; historical payments not assessed."
+    }
+  },
+  "code_changes": {
+    "checks": [
+      "session ID matches secret-key mode",
+      "HTTPS checkout.stripe.com URL",
+      "livemode parity",
+      "mode payment",
+      "status open",
+      "payment_status unpaid",
+      "amount_total 5000",
+      "currency nzd",
+      "exact expiry",
+      "product/offer/silo/source/reservation/creative/review metadata parity"
+    ],
+    "failure": "checkout_provider_invalid before binding or returning URL",
+    "tests": "offline regression with mutated provider response; cloud CI must independently verify"
+  },
+  "release_gates": {
+    "owner_approval_required": true,
+    "production_deployment": false,
+    "checkout_activation": false,
+    "live_database_mutation": false,
+    "customer_charges": false,
+    "public_posting": false,
+    "new_paid_infrastructure": false
+  },
+  "ci_status": "PENDING_FRESH_RUN",
+  "source_sha256": "GitHub Actions sha256sum step is authoritative after new PR CI",
+  "rollback": "Close draft PR without merging; no deployed change exists."
+}

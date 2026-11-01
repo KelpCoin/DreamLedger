@@ -1,6 +1,7 @@
 'use strict';
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
+const crypto=require('node:crypto');
 const {prepareCheckout,parseInput,releaseEnabled}=require('./BeckAdCheckout');
 const now=new Date('2026-11-01T00:00:00Z');
 const enabled={BECK_AD_CHECKOUT_ENABLED:'true',BECK_AD_OWNER_RELEASE_APPROVED:'true',
@@ -13,8 +14,20 @@ const stock={inventory_source:'verified_registered_supabase',market:'NZ',
 const holdId='11111111-1111-4111-8111-111111111111';
 const reserveOk=async()=>({status:'HELD',reservation_id:holdId,expires_at:'2026-11-01T01:00:00Z'});
 const bindOk=async ({reservation_id,session_id})=>({linked:true,reservation_id,checkout_session_id:session_id});
-const checkoutOk=async()=>({ok:true,json:async()=>({id:'cs_test_offline_dummy',
- url:'https://checkout.stripe.com/c/pay/synthetic',livemode:false,payment_status:'unpaid'})});
+const creativeSha=crypto.createHash('sha256').update(JSON.stringify({
+ title:request.title,destination_url:request.destination_url
+})).digest('hex');
+const expectedMetadata={
+ product_sku:'BECK-AD-FOUNDING-100X100',product_id:'BECK-AD-FOUNDING-100X100',
+ offer_id:'BECK-AD-FOUNDING-100X100',silo:'ads',source:'beck_ad_reserved_checkout',
+ reservation_id:holdId,creative_sha256:creativeSha,review_status:'APPROVAL_REQUIRED'
+};
+const checkoutOk=async()=>({ok:true,json:async()=>({
+ id:'cs_test_offline_dummy',url:'https://checkout.stripe.com/c/pay/synthetic',
+ livemode:false,mode:'payment',status:'open',payment_status:'unpaid',
+ amount_total:5000,currency:'nzd',expires_at:Math.floor(now.valueOf()/1000)+1800,
+ metadata:{...expectedMetadata}
+})});
 async function run(opts={}){return prepareCheckout(request,{env:enabled,now,getInventory:async()=>stock,
  makeReservation:reserveOk,findExisting:async()=>null,bindReservation:bindOk,fetchImpl:checkoutOk,...opts});}
 test('default flags reject before reading provider or inventory',async()=>{
@@ -82,6 +95,37 @@ test('provider transport failure never claims paid',async()=>{
 test('provider unexpected host is rejected',async()=>{
  await assert.rejects(()=>run({fetchImpl:async()=>({ok:true,json:async()=>({id:'cs_test_fake',
  url:'https://evil.invalid/checkout',livemode:false})})}),/checkout_provider_invalid/);
+});
+test('provider response cannot silently change price, expiry, metadata or session state',async()=>{
+ const good=await (await checkoutOk()).json();
+ const altered=[
+  ['price',{amount_total:4900}],
+  ['currency',{currency:'usd'}],
+  ['expiry',{expires_at:good.expires_at+600}],
+  ['mode',{mode:'setup'}],
+  ['status',{status:'expired'}],
+  ['payment',{payment_status:'paid'}],
+  ['merchant mode',{livemode:true}],
+  ['missing metadata',{metadata:undefined}],
+  ['wrong reservation',{metadata:{...good.metadata,reservation_id:'other'}}],
+  ['wrong creative',{metadata:{...good.metadata,creative_sha256:'b'.repeat(64)}}],
+  ['wrong SKU',{metadata:{...good.metadata,product_sku:'other'}}],
+  ['missing review gate',{metadata:{...good.metadata,review_status:undefined}}]
+ ];
+ for(const [name,patch] of altered){
+   let binds=0;
+   await assert.rejects(()=>run({
+     fetchImpl:async()=>({ok:true,json:async()=>({...good,...patch})}),
+     bindReservation:async()=>{binds++;return bindOk({reservation_id:holdId,session_id:good.id});}
+   }),/checkout_provider_invalid/,name);
+   assert.equal(binds,0,'no database bind for '+name);
+ }
+});
+test('test-mode key cannot accept a live Checkout Session ID',async()=>{
+ const good=await (await checkoutOk()).json();
+ await assert.rejects(()=>run({fetchImpl:async()=>({ok:true,json:async()=>({
+  ...good,id:'cs_live_wrongmode'
+ })})}),/checkout_provider_invalid/);
 });
 test('live Stripe key cannot accept testmode response',async()=>{
  await assert.rejects(()=>run({env:{...enabled,STRIPE_SECRET_KEY:'sk_live_offline_fake'},

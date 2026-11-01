@@ -128,9 +128,20 @@ async function prepareCheckout(value,{env=process.env,fetchImpl=globalThis.fetch
   }catch{throw error('checkout_provider_unavailable')}
   if(!res?.ok)throw error('checkout_provider_rejected');
   let session;try{session=await res.json()}catch{throw error('checkout_provider_invalid')}
-  if(!session||typeof session.id!=='string'||!/^cs_(test|live)_/.test(session.id)||
+  // The provider must attest the exact sellable contract before any checkout
+  // URL is returned. A merely well-formed cs_* ID could be a different price,
+  // inventory reservation, merchant mode or creative, leaving an orphan payment.
+  const expectedLive=env.STRIPE_SECRET_KEY.startsWith('sk_live_');
+  const expectedPrefix=expectedLive?'cs_live_':'cs_test_';
+  const metadataKeys=['product_sku','product_id','offer_id','silo','source',
+    'reservation_id','creative_sha256','review_status'];
+  if(!session||typeof session.id!=='string'||!session.id.startsWith(expectedPrefix)||
+     !/^cs_(test|live)_[A-Za-z0-9_]+$/.test(session.id)||
      typeof session.url!=='string'||!session.url.startsWith('https://checkout.stripe.com/')||
-     session.payment_status==='paid'||(env.STRIPE_SECRET_KEY.startsWith('sk_live_')&&session.livemode!==true))
+     session.livemode!==expectedLive||session.mode!=='payment'||session.status!=='open'||
+     session.payment_status!=='unpaid'||session.amount_total!==5000||
+     session.currency!=='nzd'||session.expires_at!==expiresAt||
+     metadataKeys.some(k=>session.metadata?.[k]!==form.get('metadata['+k+']')))
     throw error('checkout_provider_invalid');
   // Stripe session must be durably linked to the held position before the URL leaves the server.
   // If binding fails, attempt to expire the orphan Checkout Session (no charge performed).
