@@ -15,7 +15,7 @@ async function check(){
   const abort=new AbortController();
   const cutoff=setTimeout(()=>abort.abort(),8500);
   let resp;
-  try{resp=await fetch('/api/checkout-status?session_id='+encodeURIComponent(sid),{credentials:'same-origin',cache:'no-store',signal:abort.signal,headers:{Accept:'application/json'}});}
+  try{resp=await fetch('https://wbwgroygjeyukkspnqiy.supabase.co/functions/v1/mtg-commander-status?session_id='+encodeURIComponent(sid),{credentials:'omit',cache:'no-store',signal:abort.signal,headers:{Accept:'application/json'}});}
   finally{clearTimeout(cutoff);}
   const data=await resp.json();
   switch(data.state){
