@@ -38,4 +38,13 @@ assert(webhook.includes('MTG_DIAG_CONTRACT_MISMATCH'),'live webhook candidate mu
 assert(webhook.includes('line_items.data.price.product'),'webhook must inspect purchased product');
 assert(!webhook.includes('sku=listing.sku===\"COMMANDER-DECK-DIAGNOSTIC-001\" ? \"CMD-DIAG-29\"'),'no legacy alias remap');
 assert(template.member_benefits[0].included_per_month===1,'Patreon monthly included diagnostic');
+const intakeHtml=read('public/diagnostic-input.html');
+const intakeHandler=read('handlers/commercial-diagnostic-input.ts');
+const gateway=read('api/[...route].ts');
+assert(gateway.includes('"/api/commercial/input"'),'paid diagnostic form must have an actual gateway route');
+assert(gateway.includes('../handlers/commercial-diagnostic-input.ts'),'gateway must use existing paid-intake bridge');
+assert(intakeHtml.includes("fetch('/api/commercial/input'"),'paid diagnostic intake form posts to real same-origin endpoint');
+assert(ret.includes("next.href='/diagnostic-input.html?session_id='"),'paid recorded buyer must reach paid decklist form');
+assert(intakeHandler.includes('/functions/v1/marketplace-diagnostic-input'),'bridge must reuse existing deployed Supabase diagnostic service');
+assert(intakeHandler.includes('report_delivered:false'),'queued intake must never claim report delivered');
 console.log('BECK_MTG_COMMUNITY_CHECKOUT_PASS: free hub first, NZD29 paid offer secondary, payment processing fail-closed');
