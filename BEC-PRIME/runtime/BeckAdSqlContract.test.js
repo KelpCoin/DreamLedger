@@ -29,3 +29,27 @@ test('client roles cannot access raw inventory or reserve RPC',()=>{
  assert.match(sql,/REVOKE ALL ON FUNCTION public\.beck_ad_reserve_tile/);
  assert.match(sql,/TO service_role/);
 });
+
+const checkoutSql=fs.readFileSync(path.resolve(__dirname,'../../supabase/migrations/202611010002_beck_ad_checkout_binding.sql'),'utf8');
+test('payment migration provides checkout binding and receipt function once',()=>{
+ assert.equal((checkoutSql.match(/CREATE OR REPLACE FUNCTION public\.beck_ad_bind_checkout/g)||[]).length,1);
+ assert.equal((checkoutSql.match(/CREATE OR REPLACE FUNCTION public\.beck_ad_record_paid/g)||[]).length,1);
+ assert.match(checkoutSql,/CREATE TABLE IF NOT EXISTS public\.beck_ad_payment_receipts/);
+ assert.match(checkoutSql,/\bBEGIN;[\s\S]*\bCOMMIT;/);
+});
+test('paid receipt never auto-publishes and remains in review',()=>{
+ assert.match(checkoutSql,/PAID_PENDING_CREATIVE_REVIEW/);
+ assert.doesNotMatch(checkoutSql,/UPDATE public\.beck_ad_reservations SET status='PUBLISHED'/);
+ assert.match(checkoutSql,/SET status='PAID'/);
+});
+test('payment and binding require held and non-expired reservation',()=>{
+ assert.match(checkoutSql,/r\.status<>'HELD'/);
+ assert.match(checkoutSql,/r\.hold_expires_at<=clock_timestamp\(\)/);
+ assert.match(checkoutSql,/r\.checkout_session_id IS DISTINCT FROM p_session_id/);
+});
+test('payment receipts are unique and closed to anonymous clients',()=>{
+ assert.match(checkoutSql,/reservation_id uuid NOT NULL UNIQUE/);
+ assert.match(checkoutSql,/checkout_session_id text NOT NULL UNIQUE/);
+ assert.match(checkoutSql,/ENABLE ROW LEVEL SECURITY/);
+ assert.match(checkoutSql,/REVOKE ALL ON public\.beck_ad_payment_receipts FROM PUBLIC, anon, authenticated/);
+});
