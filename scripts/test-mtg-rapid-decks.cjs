@@ -4,14 +4,16 @@ const {csvRows,slug}=require('./import-mtg-rapid-decks.cjs');
 test('rapid CSV parses quoted commas and owner supplied fields',()=>{const r=csvRows('name,commander,price_nzd\n"Pirates, Ahoy","Edward Kenway",199\n');assert.deepEqual(r[1],['Pirates, Ahoy','Edward Kenway','199']);assert.equal(slug('Edward Kenway'),'EDWARD-KENWAY');});
 test('public MTG shelf consumes canonical catalog and never upgrades inquiry stub to checkout',()=>{
  const h=fs.readFileSync('public/mtg/index.html','utf8');
- assert(h.includes("fetch('/catalog.json'"));
- assert(h.includes("p.sale_mode==='stripe_checkout'"));
- assert(h.includes("p.checkout_available===true"));
- assert(h.includes("p.id==='EDH_0001'"));
- assert(h.includes('Ask for decklist / buy details'));
- assert(h.includes('Available · ask to finish listing'));
- assert(h.includes('Commander: '));
- for(const m of h.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g))if(m[1].trim()&&!m[0].includes('application/ld+json'))new vm.Script(m[1]);
+ const runtime=fs.readFileSync('public/assets/mtg-community.js','utf8');
+ const catalog=JSON.parse(fs.readFileSync('public/data/mtg-catalog.json','utf8'));
+ assert(h.includes('data-catalog="/data/mtg-catalog.json"'));
+ assert(h.includes('src="/assets/mtg-community.js"'));
+ assert(catalog.products.some(p=>p.id==='EDH_0001'&&p.checkout_available===false));
+ assert(runtime.includes("'/catalog.json'"));
+ assert(runtime.includes("p.availability!=='review_required'"));
+ assert(runtime.includes('There is no online checkout for this listing'));
+ assert(!h.includes('https://buy.stripe.com/'));
+ new vm.Script(runtime);
 });
 test('importer is inquiry-only by construction',()=>{
  const s=fs.readFileSync('scripts/import-mtg-rapid-decks.cjs','utf8');
