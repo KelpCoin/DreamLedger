@@ -113,5 +113,54 @@ class CommanderWorkerSecurityTests(unittest.TestCase):
         self.assertFalse(list(Path(self.tmp.name).glob("*.md")))
 
 
+    def test_complete_commander_decklist_accepts_quantity_notation_and_headers(self):
+        deck="Commander:\n1x Synthetic Commander\nMainboard:\n99 Synthetic Basic Lands"
+        self.assertEqual(self.worker.parse_deck(deck),[
+            (1,"Synthetic Commander"),(99,"Synthetic Basic Lands")])
+        deck="\n".join("1 Synthetic Card "+str(i) for i in range(100))
+        self.assertEqual(len(self.worker.parse_deck(deck)),100)
+
+    def test_incomplete_or_malformed_decklist_is_never_accepted(self):
+        full="\n".join("1 Synthetic Card "+str(i) for i in range(100))
+        cases=[
+            "\n".join("1 Synthetic Card "+str(i) for i in range(99)),
+            full+"\n1 Extra Card",
+            full+"\nSideboard: 1 Extra Card",
+            full+"\nMaybeboard:",
+            "0 Invalid Card\n"+full,
+            "1000 Invalid Quantity\n"+full,
+            "1xMalformed Quantity\n"+full,
+            "100 https://example.test/card",
+            "100 <script>alert(1)</script>",
+            "100 Synthetic Card\n1 Extra Card",
+            "Commander:\nMainboard:\n",
+            "100 "+("X"*161),
+        ]
+        for deck in cases:
+            with self.subTest(case=deck[:50]):
+                with self.assertRaisesRegex(RuntimeError,"^DECKLIST_REQUIRES_CORRECTION$"):
+                    self.worker.parse_deck(deck)
+
+    def test_invalid_paid_deck_never_reaches_enrichment_model_or_delivery(self):
+        calls=[]
+        job={"fulfillment_id":"synthetic-f-invalid","order_id":"synthetic-o-invalid",
+             "input_payload":{"decklist":"99 Synthetic Cards"}}
+        def rpc(name,args):
+            calls.append((name,args))
+            return [job] if name=="claim_marketplace_fulfillment" else True
+        with patch.object(self.worker,"rpc",side_effect=rpc),\
+             patch.object(self.worker,"scryfall_batch") as enrich,\
+             patch.object(self.worker,"lm_diagnose") as model,\
+             patch.object(self.worker,"upload") as upload:
+            self.assertTrue(self.worker.run_once())
+            enrich.assert_not_called()
+            model.assert_not_called()
+            upload.assert_not_called()
+        self.assertEqual([name for name,_ in calls],
+                         ["claim_marketplace_fulfillment","fail_marketplace_fulfillment"])
+        self.assertEqual(calls[1][1]["p_reason"],"awaiting_buyer_input")
+        self.assertFalse(list(Path(self.tmp.name).glob("*.md")))
+
+
 if __name__=="__main__":
     unittest.main()
