@@ -64,6 +64,12 @@ async function reserve(input,{env=process.env,fetchImpl=globalThis.fetch,timeout
   if(!response||!response.ok) {
     // Never propagate raw PostgREST errors, which may contain internal details.
     if(response?.status===409)throw Error('beck_ad_inventory_conflict');
+    // PostgREST reports the SQL P0001 overlap exception as HTTP 400.
+    if(response?.status===400){
+      let payload=null;try{payload=await response.json()}catch{}
+      if(payload?.message==='inventory_overlap')throw Error('beck_ad_inventory_conflict');
+      if(payload?.message==='idempotency_conflict')throw Error('beck_ad_idempotency_conflict');
+    }
     throw Error('beck_ad_reservation_rejected');
   }
   let result;try{result=await response.json()}catch{throw Error('beck_ad_response_invalid')}
