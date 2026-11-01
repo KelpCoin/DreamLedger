@@ -5,7 +5,7 @@
   "generated_at": null,
   "git_commit": null,
   "input_capabilities_sha256": "1bdc927bd040e03eb7d8da6a3b5b408ae788670495593b54c15a82608b0ad005",
-  "approved_offers_sha256": "ea7641f365bf9fd429d6b14b1370d60b5a389c80d2cd24490e9c9c39259a854f",
+  "approved_offers_sha256": "06784db8349ee1da5ab77ef7720704172e84ce52e93ccdbefb848745c94aeaa4",
   "source": "catalog/ip-capabilities.json",
   "approval_source": "catalog/offers/approved.json",
   "schema": "compiler/schemas/offer.schema.json",
@@ -60,6 +60,9 @@
   "approval_required_for_generated_offers": true,
   "checkout_disabled_for_generated_offers": true,
   "approved_checkout_enabled_only_by_explicit_record": true,
+  "approved_held_unverified_count": 2,
+  "provider_verified_checkout_count": 0,
+  "production_payment_verified": false,
   "silo_integrity": true,
   "deterministic_ids": true,
   "deterministic_proof": true
