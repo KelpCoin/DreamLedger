@@ -19,9 +19,10 @@ for(const p of mtg.products.filter(p=>p&&p.status==='published')){
 assert.equal(manifest.inventory_policy,'empty_until_verified_supply');
 for(const p of ['public/mtg/index.html','mtg/index.html','BEC-PRIME/compiled/website/mtg/index.html','BEC-PRIME/website/mtg-catalog.html']){
  const src=read(p);
- assert.ok(src.includes('/catalog.json'),'missing independent catalogue reference: '+p);
+ const runtime=src.includes('/assets/mtg-community.js')?read('public/assets/mtg-community.js'):src;
+ assert.ok(runtime.includes('/catalog.json'),'missing independent catalogue reference: '+p);
  assert.ok(!src.includes('See cards &amp; buy'),'physical checkout CTA not held: '+p);
- assert.ok(src.includes('Checkout held')||src.includes('checkout held'),'no hold notice: '+p);
+ assert.ok(src.includes('Checkout held')||src.includes('checkout held')||runtime.includes('There is no online checkout'),'no accurate checkout notice: '+p);
 }
 const preload=read('BEC-PRIME/lib/mtgRoutePreload.js');
 assert.ok(preload.includes("MTG checkout held: atomic stock reservation"),'server route not held');

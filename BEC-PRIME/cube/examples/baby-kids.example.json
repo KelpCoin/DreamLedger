@@ -1,0 +1,32 @@
+{
+  "slug": "baby-kids",
+  "display_name": "Baby and Kids Example",
+  "locale": "en-NZ",
+  "jurisdiction": "NZ",
+  "currency": "NZD",
+  "inventory_mode": "physical",
+  "payment_provider": "external",
+  "peer_fee_basis_points": 0,
+  "brand": {
+    "name": "Baby and Kids Example",
+    "accent": "#ffb9ba"
+  },
+  "domain_fields": [
+    "age_range",
+    "size",
+    "material",
+    "condition",
+    "safety_disclosures",
+    "photos_front_back"
+  ],
+  "legal_pack": {
+    "required_policy_types": [
+      "consumer_terms",
+      "returns_refunds",
+      "privacy",
+      "marketplace_safety",
+      "product_safety"
+    ]
+  },
+  "seed_candidates": []
+}

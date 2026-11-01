@@ -6,7 +6,11 @@ on:
       - "public/catalog.json"
       - "mtg/**"
       - "public/mtg/**"
-      - "public/assets/mtg-dreamledger-theme.css"
+      - "public/assets/mtg-*.js"
+      - "public/assets/mtg-*.css"
+      - "public/mtg-list/**"
+      - "BEC-PRIME/cube/**"
+      - "scripts/test-mtg-community-workbench.cjs"
       - "public/silos/mtg/silo.json"
       - "silos/mtg/silo.json"
       - "BEC-PRIME/website/mtg-catalog.html"
@@ -53,12 +57,14 @@ jobs:
           const html = fs.readFileSync('mtg/index.html', 'utf8');
           const liveHtml = fs.readFileSync('public/mtg/index.html', 'utf8');
           for (const page of [html, liveHtml]) {
-            if (!page.includes("fetch('/data/mtg-catalog.json'") ||
-                !page.includes("fetch('/catalog.json'")) {
-              throw new Error('MTG master must verify both tracked catalogues');
+            if (!page.includes('data-catalog="/data/mtg-catalog.json"') ||
+                !page.includes('/assets/mtg-community.js')) {
+              throw new Error('MTG entry must load the verified catalogue runtime');
             }
-            if (!page.includes('checkout held')) {
-              throw new Error('MTG source must preserve checkout hold');
+            const runtime = fs.readFileSync('public/assets/mtg-community.js', 'utf8');
+            if (!runtime.includes("'/catalog.json'") || !runtime.includes('price_verified:') ||
+                !runtime.includes('There is no online checkout')) {
+              throw new Error('Catalogue authority and accurate checkout status required');
             }
           }
           for (const page of ['public/mtg/quintorius-field-historian.html', 'public/mtg/dwynen-gilt-leaf-daen.html']) {
@@ -71,6 +77,12 @@ jobs:
           }
           console.log('MTG catalogue validation passed.');
           NODE
+
+  visitor-tools:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: node --test scripts/test-mtg-community-workbench.cjs scripts/test-beck-mtg-master-hardening.cjs BEC-PRIME/cube/clone-silo.test.js
 
   visual-parity:
     runs-on: ubuntu-latest

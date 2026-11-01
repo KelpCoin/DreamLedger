@@ -5,8 +5,9 @@ const path = require('path');
 const crypto = require('crypto');
 
 const ROOT = path.join(__dirname, '..');
-const SOURCE = path.join(ROOT, 'website', 'mtg-catalog.html');
-const ASSET_SOURCE = path.join(ROOT, 'website', 'assets');
+const SOURCE = path.join(ROOT, '..', 'public', 'mtg', 'index.html');
+const ASSET_SOURCE = path.join(ROOT, '..', 'public', 'assets');
+const ASSETS = ['mtg-community.css','mtg-dreamledger-theme.css','mtg-community.js','mtg-workbench.js','mtg-listing.js','mtg-deck-grid.js','mtg-deck-grid.css'];
 const OUT_DIR = path.join(ROOT, 'compiled', 'website', 'mtg');
 const ASSET_OUT = path.join(ROOT, 'compiled', 'website', 'assets');
 const OUT = path.join(OUT_DIR, 'index.html');
@@ -23,7 +24,7 @@ function compile() {
   fs.copyFileSync(SOURCE, OUT);
 
   if (fs.existsSync(ASSET_SOURCE)) {
-    for (const name of fs.readdirSync(ASSET_SOURCE)) {
+    for (const name of ASSETS) {
       const src = path.join(ASSET_SOURCE, name);
       const dst = path.join(ASSET_OUT, name);
       if (fs.statSync(src).isFile()) fs.copyFileSync(src, dst);
@@ -33,15 +34,15 @@ function compile() {
   const proof = {
     schema: 'BEC-PRIME/MTG-CATALOG-COMPILATION/v3',
     status: 'PASS',
-    source: 'BEC-PRIME/website/mtg-catalog.html',
+    source: 'public/mtg/index.html',
     output: 'BEC-PRIME/compiled/website/mtg/index.html',
-    asset_source: 'BEC-PRIME/website/assets',
+    asset_source: 'public/assets',
     asset_output: 'BEC-PRIME/compiled/website/assets',
     catalog_sha256: sha256File(OUT),
-    assets: fs.existsSync(ASSET_SOURCE) ? fs.readdirSync(ASSET_SOURCE).filter(x => fs.statSync(path.join(ASSET_SOURCE, x)).isFile()) : [],
+    assets: fs.existsSync(ASSET_SOURCE) ? ASSETS.filter(x => fs.statSync(path.join(ASSET_SOURCE, x)).isFile()) : [],
     price_unit: 'major_nzd',
-    checkout_endpoint: '/api/checkout/create',
-    inventory_sources: ['/api/products', '/api/catalog'],
+    checkout_endpoint: null,
+    inventory_sources: ['/data/mtg-catalog.json', '/catalog.json'],
     excluded_public_surfaces: ['cinema.html', 'dreamiez'],
     generated_at: new Date().toISOString()
   };

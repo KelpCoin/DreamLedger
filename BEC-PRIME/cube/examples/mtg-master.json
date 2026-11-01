@@ -1,0 +1,34 @@
+{
+  "slug": "mtg",
+  "display_name": "DreamLedger Magic NZ",
+  "locale": "en-NZ",
+  "jurisdiction": "NZ",
+  "currency": "NZD",
+  "inventory_mode": "physical",
+  "payment_provider": "none",
+  "peer_fee_basis_points": 0,
+  "brand": {
+    "name": "DreamLedger",
+    "accent": "#a9f2d0"
+  },
+  "domain_fields": [
+    "card_name",
+    "set_code",
+    "condition",
+    "finish",
+    "decklist_url",
+    "card_language",
+    "foil"
+  ],
+  "legal_pack": {
+    "required_policy_types": [
+      "consumer_terms",
+      "returns_refunds",
+      "privacy",
+      "marketplace_safety",
+      "image_rights",
+      "non_endorsement"
+    ]
+  },
+  "seed_candidates": []
+}
