@@ -1,0 +1,53 @@
+{
+  "schema": "beck/economic-proof/v1",
+  "date_utc": "2026-11-01",
+  "objective": "Prevent an unverified Checkout Session from reaching the paid Commander decklist intake on the staged same-origin Vercel bridge",
+  "truth_label": "STAGED_NONLIVE",
+  "parent_issue": 711,
+  "review_pr": 930,
+  "baseline_commit": "8c0a8ca4370bb528bc076a749b45352710891fc2",
+  "verified_source_commit": "897389cf6c8df0860d3ef41535b58c11b5babe0d",
+  "source": {
+    "path": "handlers/commercial-diagnostic-input.ts",
+    "sha256": "9deef0c1f93cffce9db2baf9868783f3d21b5d316af4d56c8c8f1f3d9ca389b7"
+  },
+  "regression": {
+    "path": "scripts/test-beck-diagnostic-bridge.cjs",
+    "sha256": "513787057ed5bb33cfad56c451d68e96a3c02cdbb5d2e1de7149af3e2edce89a",
+    "tests": 11,
+    "passed": 11,
+    "failed": 0,
+    "workflow": "North Star supervisor contract",
+    "run_id": 41281697495,
+    "job_id": 124774745238
+  },
+  "acceptance": "For every POST, require existing read-only Supabase status service to report exact SKU/Price and webhook-backed paid order/fulfillment state=paid_recorded with retryable=false before forwarding decklist to existing intake. Reject all other states or unavailable verifier. No payment or fulfillment authority added.",
+  "provider_truth": {
+    "vercel_production_sha": "53d8ea7bc1aeea19cbdf2d8b265751229434e4fe",
+    "vercel_source_parity": false,
+    "live_payment_link": "plink_1UKS00EGgEAnUFF9kUjraaL5",
+    "live_payment_link_active": false,
+    "live_price_id": "price_1UFFY1EGgEAnUFF9Yq03zIa7",
+    "live_price_nzd_minor": 2900,
+    "supabase_sql": "ECONNREFUSED",
+    "supabase_status_function": "ACTIVE v1",
+    "supabase_intake_function": "ACTIVE v6",
+    "supabase_revenue_webhook": "ACTIVE v28, legacy SKU remap, source correction not deployed",
+    "stripe_recent_sessions": "15 inspected, all expired/unpaid; incomplete historic scan",
+    "neon_public_jobs": "absent in inspected staging DB; no production mapping established"
+  },
+  "economic_truth": {
+    "independent_paid_delivered_reconciled_customer": "NOT_VERIFIED",
+    "positive_contribution_margin": "NOT_VERIFIED",
+    "incremental_revenue_claim": false
+  },
+  "remaining_blocks": [
+    "Test-mode signed Stripe webhook and real database order/entitlement writes not demonstrated; Supabase SQL connection refused",
+    "Deployed webhook SKU remap and source/deployment parity remain unresolved; no approved release",
+    "No verified automatic report generation, private retrieval and delivery receipt; no measured fees/refunds/support margin"
+  ],
+  "rollback": "Revert source/test/workflow commits on PR #930; production was not modified.",
+  "next_bounded_job": "On existing PR #930, exercise exact signed test-mode webhook and durable order+entitlement persistence on an authorized existing test environment, fail closed if credentials or SQL remain unavailable; otherwise stage automatic diagnostic worker/delivery receipt contract without checkout activation.",
+  "operator_chores": 0,
+  "owner_approval_required_before": "Any deployment, credential activation, live Payment Link activation or customer charge"
+}
