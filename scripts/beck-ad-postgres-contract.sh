@@ -16,6 +16,7 @@ END $$;
 SQL
 psql -X -v ON_ERROR_STOP=1 -q -f supabase/migrations/202611010001_beck_ad_reservations.sql
 psql -X -v ON_ERROR_STOP=1 -q -f supabase/migrations/202611010002_beck_ad_checkout_binding.sql
+psql -X -v ON_ERROR_STOP=1 -q -f supabase/migrations/202611010003_beck_ad_checkout_lifecycle.sql
 psql -X -v ON_ERROR_STOP=1 -q -c "INSERT INTO public.beck_ad_canvases(exhaust,silo,canvas,width,height,inventory_owner,booking_enabled) VALUES('dreamledger','ads','nz_board',1000,1000,'CI_SYNTHETIC',true)"
 reserve() {
  psql -X -v ON_ERROR_STOP=1 -q -t -A -c "SELECT (public.beck_ad_reserve_tile('dreamledger','ads','nz_board','$1',0,0,100,100,1000,1000,'2026-11-01T00:00:00Z','3000-01-01T00:00:00Z',5000,'NZD',60)).reservation_id;"
@@ -54,4 +55,16 @@ q "SELECT (public.beck_ad_record_paid('$id'::uuid,'cs_live_ci_one','evt_ci_one',
 [[ "$(q "SELECT status FROM public.beck_ad_reservations WHERE reservation_id='$id'")" == "PAID" ]] || exit 1
 [[ "$(q "SELECT status FROM public.beck_ad_payment_receipts WHERE reservation_id='$id'")" == "PAID_PENDING_CREATIVE_REVIEW" ]] || exit 1
 [[ "$(q 'SELECT count(*) FROM public.beck_ad_payment_receipts')" == "1" ]] || exit 1
-echo "PASS: two SQL migrations, concurrency, no resale of expired bound Checkout, idempotency, and paid creative review."
+# Reconcile an independently verified expired UNPAID session, distinct from the paid tile.
+id2="$(q "SELECT (public.beck_ad_reserve_tile('dreamledger','ads','nz_board','ci-unpaid-release-001',100,0,100,100,1000,1000,'2026-11-01T00:00:00Z','3000-01-01T00:00:00Z',5000,'NZD',60)).reservation_id")"
+q "SELECT (public.beck_ad_bind_checkout('$id2'::uuid,'cs_live_ci_unpaid',clock_timestamp()+interval '30 minutes','Unpaid synthetic','https://example.invalid/',repeat('c',64))).reservation_id"
+q "UPDATE public.beck_ad_reservations SET checkout_session_expires_at=clock_timestamp()-interval '2 minutes' WHERE reservation_id='$id2'"
+if q "SELECT public.beck_ad_release_expired_checkout('$id'::uuid,'cs_live_ci_one','expired','unpaid',repeat('d',64),clock_timestamp())" >/dev/null 2>&1;then
+ echo "FAIL: already-paid reservation was released";exit 1
+fi
+q "SELECT (public.beck_ad_release_expired_checkout('$id2'::uuid,'cs_live_ci_unpaid','expired','unpaid',repeat('d',64),clock_timestamp())).provider_status"
+q "SELECT (public.beck_ad_release_expired_checkout('$id2'::uuid,'cs_live_ci_unpaid','expired','unpaid',repeat('d',64),clock_timestamp())).provider_status"
+[[ "$(q "SELECT status FROM public.beck_ad_reservations WHERE reservation_id='$id2'")" == "EXPIRED" ]] || exit 1
+[[ "$(q 'SELECT count(*) FROM public.beck_ad_checkout_releases')" == "1" ]] || exit 1
+echo "PASS: three SQL migrations, concurrency, bound-session no-oversell, verified release, paid receipt and review gates."
+
