@@ -18,9 +18,10 @@
     "public/assets/checkout-return.js",
     "supabase/functions/mtg-commander-status/index.ts",
     "config/mtg-master-community.json",
-    "scripts/test-beck-supabase-checkout.cjs"
+    "scripts/test-beck-supabase-checkout.cjs",
+    "supabase/functions/stripe-revenue-41104f355d6878cdd6d1f9dc/index.ts"
   ],
-  "status": "FREE_FIRST_MTG_SOURCE_COMMITTED_SUPABASE_STATUS_ACTIVE_LIVE_CHECKOUT_HELD",
+  "status": "COMMUNITY_AND_CHECKOUT_SOURCE_GATED; STATUS_EDGE_ACTIVE; STRIPE_LINK_HELD; LIVE_REVENUE_WEBHOOK_RELEASE_BLOCKED",
   "economic_evidence": {
     "stripe_account": "acct_1SNVPvEGgEAnUFF9",
     "recent_checkout_sample_count": 30,
@@ -62,7 +63,18 @@
       "direct_database_management_sql": "CONNECTION_REFUSED_IPV6",
       "authenticated_input_e2e": "NOT_VERIFIED",
       "webhook_idempotency_e2e": "NOT_VERIFIED",
-      "required_pre_sale_gate": "DO_NOT_ACTIVATE_LINK_UNTIL_FULL_TEST_PAYMENT_DELIVERY_AND_QUOTA_VERIFIED"
+      "required_pre_sale_gate": "DO_NOT_ACTIVATE_LINK_UNTIL_FULL_TEST_PAYMENT_DELIVERY_AND_QUOTA_VERIFIED",
+      "live_revenue_webhook": {
+        "slug": "stripe-revenue-41104f355d6878cdd6d1f9dc",
+        "version": 28,
+        "enabled_stripe_endpoint": true,
+        "legacy_commander_sku_remap_deployed": true,
+        "source_patch_removes_remap_and_checks_price_product": true,
+        "source_patch_deployed": false,
+        "revenue_catalog_canonical_sku_row": "NOT_VERIFIED",
+        "skus_canonical_row": "NOT_VERIFIED",
+        "webhook_dlq_alert": "NOT_VERIFIED"
+      }
     }
   },
   "gates": {
@@ -75,7 +87,8 @@
     "public_checkout_return": "PROCESSING_ONLY; Stripe verified by server; DB webhook order required; never grants entitlement",
     "public_site_release": "PR_930_OPEN; VERCEL_PRODUCTION_PERMISSION_NOT_CONFIRMED",
     "live_payment": "INACTIVE_NEEDS_E2E",
-    "tcg_expansion": "TEMPLATE_PREPARED; no extra Patreon accounts or storefronts created"
+    "tcg_expansion": "TEMPLATE_PREPARED; no extra Patreon accounts or storefronts created",
+    "commercial_critical": "DO NOT ENABLE NZD29 PAYMENT LINK until live revenue webhook canonical SKU mapping, catalog rows, DLQ and E2E delivery pass"
   },
   "community": {
     "hero_priority": "free tools, card browse, trade post, community, MTGO spread",
