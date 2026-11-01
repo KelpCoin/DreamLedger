@@ -64,22 +64,41 @@ if (
   errors.push('SKU_DRIFT');
 }
 
-const paymentLink = product.commercial_truth?.payment_link || '';
-
-if (
-  product.commercial_truth?.payment_link !== paymentLink ||
-  featured.payment_link_url !== paymentLink ||
-  offer?.payment_link_url !== paymentLink
-) {
+// A held digital SKU intentionally has no public checkout/payment link on
+// its product record. The approved/featured Stripe IDs remain reference-only.
+const held = product.status === 'held' &&
+  product.checkout?.mode === 'disabled' &&
+  product.commercial_truth?.approval_required === true &&
+  product.commercial_truth?.sellable === false;
+const paymentLink = offer?.payment_link_url;
+const productLink = product.commercial_truth?.payment_link;
+if (!paymentLink || featured.payment_link_url !== paymentLink ||
+    (productLink != null && productLink !== paymentLink) ||
+    (!held && productLink !== paymentLink)) {
   errors.push('STRIPE_LINK_DRIFT');
 }
-
-if (offer && offer.payment_link_status !== 'ACTIVE_LIVEMODE') {
-  errors.push('STRIPE_LINK_NOT_LIVEMODE');
+if (!offer?.payment_link_id || featured.payment_link_id !== offer.payment_link_id) {
+  errors.push('STRIPE_LINK_ID_DRIFT');
 }
-
-if (product.commercial_truth?.approval_required !== false || product.commercial_truth?.sellable !== true) {
-  errors.push('PRODUCT_NOT_SELLABLE');
+if (featured.payment_link_status !== offer?.payment_link_status) {
+  errors.push('STRIPE_LINK_STATUS_DRIFT');
+}
+if (held) {
+  // This is an expected release hold, not a reason to activate checkout.
+  if (offer?.payment_link_status !== 'INACTIVE_LIVEMODE' ||
+      offer?.release_status !== 'HOLD' ||
+      featured.release_status !== 'HOLD' ||
+      featured.public_visibility !== 'held') {
+    errors.push('HELD_SOURCE_INCONSISTENT');
+  }
+  errors.push('STRIPE_LINK_NOT_LIVEMODE', 'PRODUCT_NOT_SELLABLE');
+} else {
+  if (offer?.payment_link_status !== 'ACTIVE_LIVEMODE') errors.push('STRIPE_LINK_NOT_LIVEMODE');
+  if (product.commercial_truth?.approval_required !== false ||
+      product.commercial_truth?.sellable !== true) errors.push('PRODUCT_NOT_SELLABLE');
+  // Source declarations cannot attest live Stripe, signed settlement or delivery.
+  // No local metadata flag can turn this source-only verifier into a release pass.
+  errors.push('LIVE_PROVIDER_SETTLEMENT_AND_DELIVERY_UNVERIFIED');
 }
 
 const homepageFile = path.join(root, 'compiled/website/index.html');
@@ -108,6 +127,9 @@ if (fs.existsSync(homepageFile)) {
 const result = {
   schema: 'BEC-PRIME/PRODUCTION-CONTRACT/v3',
   status: errors.length ? 'FAIL' : 'PASS',
+  release_gate: 'HOLD',
+  catalogue_integrity: errors.some(x => /(?:_DRIFT|MISSING|INVALID_JSON|BOUNDARY_LEAK|INCONSISTENT)/.test(x)) ? 'FAIL' : 'PASS',
+  release_reason: held ? 'EXPECTED_HELD_UNSELLABLE' : 'PROVIDER_SETTLEMENT_AND_DELIVERY_NOT_ATTESTED',
   checked_at: new Date().toISOString(),
   canonical_offer: {
     offer_id: 'OFFER-CMD-DIAG-29-NZD',
