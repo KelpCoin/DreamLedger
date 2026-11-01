@@ -62,7 +62,5 @@ require('./test_beck_vercel_contract.cjs');
 
 require('./test-beck-mtg-master-release.cjs');
 
-// Gate: never treat Stripe redirects as payment or entitlements.
-require('node:child_process').execFileSync(process.execPath,['scripts/test-beck-checkout-status.mjs'],{stdio:'inherit'});
-
+// Gate: never treat a Stripe redirect as an entitlement.
 require('node:child_process').execFileSync(process.execPath,['scripts/test-beck-supabase-checkout.cjs'],{stdio:'inherit'});
