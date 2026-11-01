@@ -20,7 +20,7 @@ test('failing release checks take precedence over other commercial ideas',()=>{
 test('even green CI does not become proof of paid delivery or economic success',()=>{
  const a=evaluate(snapshot([good]));
  assert.equal(a.next_bounded_job.operation,'VERIFY_LIVE_RUNTIME_AND_PAID_DELIVERY');
- assert.equal(a.production_verified,false);
+ assert.equal(a.production_verified,null);
  assert.equal(a.external_paid_and_delivered_orders_verified,null);
  assert.equal(a.contribution_profit_nzd,null);
  assert.equal(a.next_bounded_job.approval_required,true);
