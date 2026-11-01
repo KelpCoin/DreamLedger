@@ -78,7 +78,8 @@ GRANT EXECUTE ON FUNCTION public.beck_ad_bind_checkout(uuid,text,timestamptz,tex
 -- Checkout Session before invoking. SQL itself cannot authenticate Stripe.
 CREATE OR REPLACE FUNCTION public.beck_ad_record_paid(
  p_reservation_id uuid,p_session_id text,p_event_id text,
- p_payment_intent_id text,p_amount_minor integer,p_currency text,p_livemode boolean
+ p_payment_intent_id text,p_amount_minor integer,p_currency text,p_livemode boolean,
+ p_creative_sha256 text
 ) RETURNS public.beck_ad_payment_receipts
 LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog, public
 AS $$
@@ -91,6 +92,7 @@ BEGIN
     OR p_livemode IS DISTINCT FROM true
     OR p_amount_minor IS NULL OR p_amount_minor<>5000
     OR p_currency<>'NZD'
+    OR p_creative_sha256 IS NULL OR p_creative_sha256 !~ '^[a-f0-9]{64}$'
  THEN RAISE EXCEPTION 'payment_evidence_invalid' USING ERRCODE='22023'; END IF;
  SELECT * INTO r FROM public.beck_ad_reservations WHERE reservation_id=p_reservation_id;
  IF NOT FOUND THEN RAISE EXCEPTION 'reservation_missing' USING ERRCODE='P0001'; END IF;
@@ -99,7 +101,8 @@ BEGIN
  IF r.checkout_session_id IS DISTINCT FROM p_session_id
     OR r.price_minor<>p_amount_minor OR r.currency<>p_currency
     OR r.exhaust<>'dreamledger' OR r.silo<>'ads' OR r.canvas<>'nz_board'
-    OR r.creative_manifest_sha256 IS NULL OR r.creative_review_status<>'PENDING_REVIEW'
+    OR r.creative_manifest_sha256 IS DISTINCT FROM p_creative_sha256
+    OR r.creative_review_status<>'PENDING_REVIEW'
  THEN RAISE EXCEPTION 'payment_not_attributed' USING ERRCODE='P0001'; END IF;
  SELECT * INTO existing FROM public.beck_ad_payment_receipts
   WHERE reservation_id=p_reservation_id;
@@ -123,8 +126,8 @@ BEGIN
  WHERE reservation_id=p_reservation_id;
  RETURN existing; -- Paid receipt is NOT verified delivery.
 END $$;
-REVOKE ALL ON FUNCTION public.beck_ad_record_paid(uuid,text,text,text,integer,text,boolean)
+REVOKE ALL ON FUNCTION public.beck_ad_record_paid(uuid,text,text,text,integer,text,boolean,text)
  FROM PUBLIC,anon,authenticated;
-GRANT EXECUTE ON FUNCTION public.beck_ad_record_paid(uuid,text,text,text,integer,text,boolean)
+GRANT EXECUTE ON FUNCTION public.beck_ad_record_paid(uuid,text,text,text,integer,text,boolean,text)
  TO service_role;
 COMMIT;
