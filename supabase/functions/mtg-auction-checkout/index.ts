@@ -3,6 +3,7 @@
 // Deno global types are supplied by the deployed Edge runtime and Deno CI.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 import Stripe from "https://esm.sh/stripe@18.5.0?target=denonext";
+import { verifyMtgTestSession } from "./session-guard.ts";
 const reply=(v:unknown,s=200)=>new Response(JSON.stringify(v),{status:s,headers:{"content-type":"application/json","cache-control":"no-store"}});
 Deno.serve(async(req)=>{
  if(req.method!=="POST")return reply({error:"METHOD_NOT_ALLOWED"},405);
@@ -36,7 +37,7 @@ Deno.serve(async(req)=>{
  try{
   if(order.stripe_session){
    const existing=await stripe.checkout.sessions.retrieve(order.stripe_session);
-   if(existing.status!=="open"||!existing.url)return reply({error:"CHECKOUT_EXPIRED_REVIEW_REQUIRED"},409);
+   if(!verifyMtgTestSession(existing,order))return reply({error:"CHECKOUT_ATTESTATION_FAILED_REVIEW_REQUIRED"},409);
    return reply({checkout_url:existing.url,session_id:existing.id});
   }
   // Order ID uniquely fences Stripe retries and replays.
@@ -49,7 +50,7 @@ Deno.serve(async(req)=>{
    success_url:"https://dreamledger.org/mtg/auctions/?payment=processing",
    cancel_url:"https://dreamledger.org/mtg/auctions/?payment=cancelled"
   },{idempotencyKey:"mtg-v2-order-"+order.id+"-"+order.amount_cents});
-  if(!session.url)return reply({error:"STRIPE_CHECKOUT_NO_URL"},503);
+  if(!verifyMtgTestSession(session,order))return reply({error:"STRIPE_CHECKOUT_ATTESTATION_FAILED"},503);
   const {error:bindError}=await admin.rpc("mtg_auction_bind_session_v2",{p_order:order.id,p_session:session.id});
   if(bindError)return reply({error:"CHECKOUT_BINDING_REQUIRES_REVIEW"},503);
   return reply({checkout_url:session.url,session_id:session.id});
