@@ -2,6 +2,11 @@ name: DreamLedger Economic Supervisor
 
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - 'ops/decision/beck-autonomy-gate.mjs'
+      - 'ops/decision/beck-autonomy-gate.test.mjs'
+      - '.github/workflows/economic-supervisor.yml'
   schedule:
     - cron: '*/15 * * * *'
   push:
@@ -13,6 +18,8 @@ on:
 
 permissions:
   contents: read
+  checks: read
+  pull-requests: read
 
 concurrency:
   group: dreamledger-economic-supervisor
@@ -20,6 +27,7 @@ concurrency:
 
 jobs:
   verify-and-route:
+    if: github.event_name != 'pull_request'
     runs-on: windows-latest
     timeout-minutes: 15
     defaults:
@@ -65,6 +73,13 @@ jobs:
           ECONOMIC_BOOTSTRAP_ROOT: ${{ github.workspace }}\economic-bootstrap
         run: .\scripts\DreamLedger-Economic-Bootstrap.ps1
 
+      - name: BECK independent economic and CI gate
+        if: always()
+        env:
+          GH_API_TOKEN: ${{ github.token }}
+        run: |
+          node "$env:GITHUB_WORKSPACE\ops\decision\beck-autonomy-gate.mjs" --prs 930,926,921,924 --output "$env:GITHUB_WORKSPACE\economic-bootstrap\autonomy-gate.json"
+
       - name: Locate latest evidence run
         id: evidence
         run: |
@@ -92,3 +107,28 @@ jobs:
           } else {
             Write-Host 'No next-action evidence was produced.'
           }
+
+  autonomy-contract:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify economic gate is fail-closed
+        run: node --test ops/decision/beck-autonomy-gate.test.mjs
+      - name: Verify cloud proof without live provider access
+        run: |
+          node ops/decision/beck-autonomy-gate.mjs --output proof/autonomy-ci.json
+          node -e "const x=require('./proof/autonomy-ci.json');if(x.status!=='NOT_ECONOMICALLY_VALIDATED'||x.attributable_revenue_nzd!==null||x.public_release!=='OWNER_APPROVAL_REQUIRED')process.exit(2)"
+          sha256sum proof/autonomy-ci.json
+      - name: Upload immutable-run evidence artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: beck-autonomy-contract-${{ github.run_id }}
+          path: proof/autonomy-ci.json
+          if-no-files-found: warn
+          retention-days: 30
