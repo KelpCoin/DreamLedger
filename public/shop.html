@@ -1,22 +1,115 @@
 <!doctype html>
 <html lang="en-NZ">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Shop · DreamLedger NZ</title>
-<meta name="description" content="Compiler-emitted DreamLedger face.">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#080b10">
+<title>DreamMeez Shop | Avatars, cosmetics and supporters | DreamLedger</title>
+<meta name="description" content="Discover DreamMeez cosmetics and supporter offers. Free avatar creation, transparent checkout, clear delivery boundaries.">
 <link rel="canonical" href="https://dreamledger.org/shop.html">
-<meta name="bec-compiler" content="WebsiteFaceCompiler">
+<link rel="stylesheet" href="/assets/bec-neon.css">
 <style>
-:root{--bg:#0a0b0f;--surface:#141722;--ink:#f4f1ea;--muted:#9aa0b0;--line:#2a3040;--gold:#d8b56b;--goldb:#e8c87a}*{box-sizing:border-box;margin:0;padding:0}body{font:16px/1.5 system-ui,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}a{color:var(--goldb);text-decoration:none;font-weight:700}.wrap{max-width:960px;margin:auto;padding:24px 16px 80px}.top{display:flex;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--line);margin-bottom:28px;gap:12px;flex-wrap:wrap}.brand span{color:var(--gold)}nav a{margin-left:12px;font-size:13px;color:var(--muted)}.eyebrow{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:10px}h1{font-size:clamp(2rem,6vw,3rem);letter-spacing:-.04em;line-height:1.05;margin-bottom:12px}.lead{color:var(--muted);max-width:36em;margin-bottom:28px}.grid{display:grid;gap:14px}@media(min-width:640px){.grid{grid-template-columns:1fr 1fr}}.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:8px}.card.hero{border-color:#d8b56b66;grid-column:1/-1}.tag{font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--gold)}.price{font-size:1.6rem;font-weight:900}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 16px;border-radius:12px;background:linear-gradient(180deg,var(--goldb),var(--gold));color:#14120c;font-weight:900;border:0}.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}.actions{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0}.note{margin-top:28px;font-size:12px;color:var(--muted)}.badge{display:inline-block;font-size:10px;padding:4px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted);margin-bottom:12px}.banner{margin:0 0 20px;padding:14px 16px;border-radius:12px;border:1px solid #d8b56b44;background:#1a160c;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}.door p{color:var(--muted);font-size:13px;flex:1}
+.dl-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(235px,1fr));gap:14px}
+.dl-offer .tag{font-size:11px;color:#c5ff35;font-weight:800}
+.dl-offer h3{font-size:22px}
+.dl-offer .terms{font-size:13px;color:#b3bfcb}
+.dl-offer .price{font-size:23px;font-weight:900}
+.dl-offer .bec-btn{margin-top:auto}
+.dl-hero-detail{max-width:780px}
+.dl-alert{border-left:3px solid #c5ff35;padding:12px 15px;color:#b3bfcb;background:#0d141d}
+.dl-split{display:grid;grid-template-columns:1.1fr .9fr;gap:16px}
+@media(max-width:760px){.dl-split{grid-template-columns:1fr}}
+.dl-filters{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 19px}
+.dl-filters button{font:700 13px/1.3 system-ui;min-height:44px;border:1px solid #536270;border-radius:10px;background:#121b24;color:#fff;padding:9px 15px;cursor:pointer}
+.dl-filters button[aria-pressed="true"]{color:#0a1107;border-color:#c5ff35;background:#c5ff35}
+.dl-offer .meta{font:650 12px/1.4 system-ui;color:#b3bfcb}
+.dl-track{display:flex;gap:10px;align-items:center;flex-wrap:wrap;color:#afc0cc;font-size:13px;margin-top:12px}
+.dl-track a{color:#c5ff35;text-decoration:underline}
 </style>
-</head>
-<body>
-<div class="wrap"><header class="top"><a class="brand" href="/">Dream<span>Ledger</span></a><nav><a href="/money.html">Pay</a><a href="/shop.html">Shop</a><a href="/mtg/">Magic</a><a href="/avatar.html">Avatar</a></nav></header><span class="badge">emitted by WebsiteFaceCompiler · face=shop</span><p class="eyebrow">Compiler exhaust · checkout-ready</p><h1>Pay for real work.</h1><p class="lead">Lowest price first. Every button uses a live Stripe route from the registry.</p><div class="banner"><div><strong>Fastest path:</strong> Supporter — Sprout · NZ$3.99</div><a class="btn" href="/buy/DREAMMEEZ-SUPPORTER-SPROUT">Pay NZ$3.99 →</a></div><div class="grid"><article class="card hero"><div class="tag">Lowest friction</div><h2>Supporter — Sprout</h2><div class="price">NZ$3.99</div><a class="btn" href="/buy/DREAMMEEZ-SUPPORTER-SPROUT">Pay on Stripe →</a></article>
-<article class="card"><div class="tag">Micro</div><h2>Document Extraction</h2><div class="price">NZ$5</div><a class="btn" href="/buy/DOC-EXTRACT-50">Pay on Stripe →</a></article>
-<article class="card"><div class="tag">Micro</div><h2>Supplier Check</h2><div class="price">NZ$5</div><a class="btn" href="/buy/SUPPLIER-CHECK-50">Pay on Stripe →</a></article>
-<article class="card"><div class="tag">Magic</div><h2>Commander Deck Diagnostic</h2><div class="price">NZ$29</div><a class="btn" href="/buy/COMMANDER-DECK-DIAGNOSTIC-001">Pay on Stripe →</a></article>
-<article class="card"><div class="tag">Seller</div><h2>Seller Profit Audit</h2><div class="price">NZ$29</div><a class="btn" href="/buy/SELLER-PROFIT-AUDIT-001">Pay on Stripe →</a></article>
-<article class="card"><div class="tag">Tools</div><h2>Discord Webhook Kit</h2><div class="price">NZ$79</div><a class="btn" href="/buy/DISCORD-WEBHOOK-STARTER-KIT-001">Pay on Stripe →</a></article></div><p class="note">Sorted by price from registry.</p></div>
+<script src="/assets/catalog-rails.js" defer></script></head>
+<body class="bec-neon">
+<div class="bec-wrap">
+<header class="bec-header">
+<a class="bec-logo" href="/" aria-label="DreamLedger home">DREAM<span>LEDGER</span></a>
+<nav class="bec-nav" aria-label="Shop navigation">
+<a href="/shop.html" aria-current="page">Shop</a><a href="/avatar.html">Create avatar</a><a href="/marketplace.html">All offers</a><a href="/quote-compare-49.html">Compare quotes · NZ$49</a><a href="/billboard.html">Billboard</a><a href="/sell.html">Sell</a>
+</nav>
+</header>
+<main>
+<section class="bec-hero">
+<p class="bec-kicker">DreamMeez / Digital identity / A BECK storefront silo</p>
+<h1>MAKE A LOOK.<br><span class="bec-signal">MAKE IT YOURS.</span></h1>
+<p class="dl-hero-detail">Build your avatar for free, then explore existing cosmetic and supporter products. Check the exact offer before paying. A preview is not a paid unlock and checkout is not a delivery receipt.</p>
+<p style="color:#c5ff35;font-weight:800">Every body type, height, build and basic expression is free. No body-size surcharge. Optional fashion only.</p>
+<div class="bec-actions"><a class="bec-btn" href="/avatar.html">Create your free avatar</a><a class="bec-btn secondary" href="#dreammeez-offers">Browse DreamMeez offers</a><a class="bec-btn secondary" href="/marketplace.html">All DreamLedger products</a></div>
+</section>
+<section class="bec-section" style="padding-top:0">
+  <div class="bec-card" style="border-color:#627936;display:flex;flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:space-between">
+    <div><span class="bec-chip">DREAMLEDGER SERVICE / REAL CHECKOUT</span><h3 style="margin:6px 0">Comparing suppliers?</h3><p>Get a structured quote comparison for NZ$49. Manual delivery after complete intake.</p></div>
+    <a href="/quote-compare-49.html" class="bec-btn">View the NZ$49 service</a>
+  </div>
+</section>
+<section class="bec-section" aria-label="How the avatar shop works">
+<div class="dl-split">
+<div class="bec-card"><span class="bec-chip">01 / CREATE</span><h3>Identity stays free</h3><p>Choose from five prototype silhouettes, nine heights and ten builds without paying. Try free concept looks before browsing optional fashion. Original drawn assets and universal garment fit still require artist review.</p><a class="bec-btn secondary" href="/avatar.html">Open studio</a></div>
+<div class="bec-card"><span class="bec-chip">02 / SHOP</span><h3>Know exactly what you buy</h3><p>Only catalogue offers with a configured secure Stripe checkout have purchase links. Delivery and entitlement remain separate from a payment receipt.</p><a class="bec-btn secondary" href="#dreammeez-offers">See offers</a></div>
+</div>
+</section>
+<section id="dreammeez-offers" class="bec-section">
+<p class="bec-kicker">Live catalogue / DreamMeez</p><h2>Cosmetics and supporter memberships</h2>
+<p class="dl-alert">Avatar Studio prototypes are free previews, not the paid products below. Paid entitlement delivery is not independently verified. For help with an order, use <a href="/contact.html" style="color:#c5ff35;text-decoration:underline">contact and support</a>. Never pay based on an implied in-game benefit.</p>
+<div class="dl-filters" role="group" aria-label="Filter DreamMeez offers"><button type="button" data-dl-filter="all" aria-pressed="true">Everything</button><button type="button" data-dl-filter="cosmetics" aria-pressed="false">One-time cosmetics</button><button type="button" data-dl-filter="supporters" aria-pressed="false">Monthly supporters</button></div>
+<div id="dreammeez-status" class="bec-muted" role="status" aria-live="polite">Checking the existing published catalogue...</div>
+<div class="dl-tiles" id="dreammeez-products" aria-live="polite"></div>
+</section>
+<section class="bec-section"><h2>More than avatars.</h2><div class="bec-actions"><a class="bec-btn secondary" href="/quote-compare-49.html">Supplier Quote Comparison</a><a class="bec-btn secondary" href="/mtg/">HappyHomarid MTG</a><a class="bec-btn secondary" href="/billboard.html">Internet Billboard</a></div></section>
+</main><footer class="bec-footer">DREAMLEDGER / POWERED BY BECK · <a href="/contact.html">Contact</a> · <a href="/terms.html">Terms</a> · <a href="/marketplace.html">Browse all</a></footer>
+</div>
+<script>
+(function(){
+"use strict";
+var grid=document.getElementById("dreammeez-products"),status=document.getElementById("dreammeez-status");
+function el(tag,cls,text){var x=document.createElement(tag);if(cls)x.className=cls;if(text)x.textContent=text;return x;}
+function stripe(v){try{var u=new URL(String(v||""));return u.protocol==="https:"&&(u.hostname==="buy.stripe.com"||u.hostname==="checkout.stripe.com")?u.href:null;}catch(e){return null;}}
+var products=[],current="all";
+function isSupport(p){return /supporter/i.test(String(p.id||"")+" "+String(p.name||""));}
+function show(){
+  grid.replaceChildren();
+  var visible=products.filter(function(p){return current==="all"||(current==="supporters"?isSupport(p):!isSupport(p));});
+  visible.forEach(function(p){
+    var monthly=isSupport(p),card=el("article","bec-card dl-offer");
+    card.appendChild(el("span","bec-chip",monthly?"MONTHLY SUPPORTER":"ONE-TIME COSMETIC"));
+    card.appendChild(el("h3","",String(p.name||"DreamMeez offer")));
+    card.appendChild(el("p","",String(p.description||"Read all terms before purchasing.")));
+    var amount=Number(p.price),currency=String(p.currency||"NZD").toUpperCase();
+    card.appendChild(el("div","bec-price",Number.isFinite(amount)?currency+" "+amount.toFixed(2)+(monthly?" / month":" once"):"Price unavailable"));
+    card.appendChild(el("p","meta",monthly?"A recurring payment. Confirm cancellation and monthly benefits at checkout.":"A one-time offer. Previewing a different prototype does not grant this item."));
+    card.appendChild(el("p","bec-muted","Paid avatar entitlement and fulfilment are not yet independently verified."));
+    var link=stripe(p.checkout_url);
+    if(p.checkout_available&&link){var order=el("a","bec-btn","Review item and pay securely");order.href=link;order.rel="nofollow noopener";card.appendChild(order);}
+    else card.appendChild(el("span","bec-chip","Checkout not verified"));
+    var actions=el("div","dl-track");
+    var studio=el("a","","Create a free avatar");studio.href="/avatar.html";actions.appendChild(studio);
+    var help=el("a","","Order help");help.href="/contact.html";actions.appendChild(help);
+    card.appendChild(actions);grid.appendChild(card);
+  });
+  if(!visible.length)grid.appendChild(el("p","bec-muted","No matching catalogue offers. Try another category."));
+  status.textContent=visible.length+" of "+products.length+" published DreamMeez catalogue offers. Payments and deliveries are separate proof states.";
+}
+document.querySelectorAll("[data-dl-filter]").forEach(function(b){b.addEventListener("click",function(){
+  current=b.getAttribute("data-dl-filter");
+  document.querySelectorAll("[data-dl-filter]").forEach(function(x){x.setAttribute("aria-pressed",String(x===b));});
+  show();
+});});
+function normalize(data){var arr=Array.isArray(data.products)?data.products:[];return arr.filter(function(p){return p.category==="avatar-accessories"&&(p.status==="LISTED"||p.status==="published");}).map(function(p){return{
+  id:String(p.id||""),name:String(p.name||""),description:String(p.description||""),category:p.category,price:Number(p.price),currency:String(p.currency||"nzd"),
+  checkout_available:p.checkout_available===true,checkout_url:p.checkout_url
+};});}
+fetch("/api/discovery/catalog",{cache:"no-store"}).then(function(r){if(!r.ok)throw Error("Catalogue HTTP "+r.status);return r.json();})
+.catch(function(){return fetch("/catalog.json",{cache:"no-store"}).then(function(r){if(!r.ok)throw Error("Static catalogue unavailable");return r.json();});})
+.then(function(data){products=normalize(data).sort(function(a,b){return (isSupport(a)?1:0)-(isSupport(b)?1:0)||a.price-b.price;});show();})
+.catch(function(){status.textContent="Catalogue temporarily unavailable. Purchase links have not been shown without verification.";grid.replaceChildren();});
+
+})();
+</script>
 </body>
 </html>

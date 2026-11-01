@@ -7,7 +7,7 @@ const crypto = require('crypto');
 const ROOT = path.join(__dirname, '..');
 const SOURCE = path.join(ROOT, '..', 'public', 'mtg', 'index.html');
 const ASSET_SOURCE = path.join(ROOT, '..', 'public', 'assets');
-const ASSETS = ['bec-neon.css','mtg-market-desk.js','mtg-community.css','mtg-dreamledger-theme.css','mtg-community.js','mtg-workbench.js','mtg-listing.js','mtg-deck-grid.js','mtg-deck-grid.css'];
+const ASSETS = ['catalog-rails.js','mtg-card-back.webp','bec-neon.css','mtg-market-desk.js','mtg-community.css','mtg-dreamledger-theme.css','mtg-community.js','mtg-workbench.js','mtg-listing.js','mtg-deck-grid.js','mtg-deck-grid.css'];
 const OUT_DIR = path.join(ROOT, 'compiled', 'website', 'mtg');
 const ASSET_OUT = path.join(ROOT, 'compiled', 'website', 'assets');
 const OUT = path.join(OUT_DIR, 'index.html');
@@ -21,7 +21,8 @@ function compile() {
   if (!fs.existsSync(SOURCE)) throw new Error('MTG catalog source missing');
   fs.mkdirSync(OUT_DIR, { recursive: true });
   fs.mkdirSync(ASSET_OUT, { recursive: true });
-  fs.copyFileSync(SOURCE, OUT);
+  fs.cpSync(path.dirname(SOURCE), OUT_DIR, {recursive:true});
+  fs.cpSync(path.join(ASSET_SOURCE,'fonts'),path.join(ASSET_OUT,'fonts'),{recursive:true});
 
   if (fs.existsSync(ASSET_SOURCE)) {
     for (const name of ASSETS) {

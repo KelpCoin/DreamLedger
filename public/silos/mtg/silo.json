@@ -5,9 +5,9 @@
   "slug": "mtg",
   "name": "Magic: The Gathering",
   "short": "Magic",
-  "tagline": "Singles and decks — see the cards, then deal.",
-  "accent": "#a9f2d0",
-  "accent_bright": "#a9f2d0",
+  "tagline": "Cards, decks and players in New Zealand.",
+  "accent": "#c5ff35",
+  "accent_bright": "#c5ff35",
   "route": "/mtg/",
   "list_route": "/mtg-list",
   "catalog": "/data/mtg-catalog.json",
@@ -70,7 +70,7 @@
       "Copy public/silos/mtg/silo.json to public/silos/{slug}/silo.json",
       "Set slug, name, short, accent, routes, catalog path",
       "Create empty catalog public/data/{slug}-catalog.json with products: []",
-      "Point public/{slug}/index.html at silo-master.css + new manifest path",
+      "Point public/{slug}/index.html at shared bec-neon.css, catalog-rails.js and new manifest path",
       "Cube compile_candidate then gauntlet_check then publish_approval_gate",
       "Activate only with verified supply atom and buyer path"
     ],
@@ -121,12 +121,12 @@
     },
     "secondary_cta": {
       "label": "Browse decks",
-      "href": "#decks"
+      "href": "/mtg/#cards"
     },
     "community_blocks": [
       {
         "title": "List a single",
-        "body": "Name, condition, NZD price, city. Buyers see a clean card face — not a blurry album."
+        "body": "Name, condition, NZD price, city. Buyers see a clean card face \u2014 not a blurry album."
       },
       {
         "title": "Buy with eyes open",
@@ -136,7 +136,33 @@
         "title": "Trade carefully",
         "body": "Accounts keep people reachable. Deals stay between humans who show up as themselves."
       }
-    ]
+    ],
+    "layout": "phone-first-carousel-catalogue",
+    "stylesheet": "/assets/bec-neon.css",
+    "carousel_script": "/assets/catalog-rails.js",
+    "auction_slots": [
+      {
+        "slot": 1,
+        "allocation": "owner"
+      },
+      {
+        "slot": 2,
+        "allocation": "owner"
+      },
+      {
+        "slot": 3,
+        "allocation": "community"
+      }
+    ],
+    "empty_auction": {
+      "image": "/assets/mtg-card-back.webp",
+      "label": "Auction coming soon"
+    },
+    "task_routes": {
+      "tools": "/mtg/tools/",
+      "market": "/mtg/market/",
+      "community": "/mtg/community/"
+    }
   },
   "commerce_gate": {
     "physical_checkout": "HELD",

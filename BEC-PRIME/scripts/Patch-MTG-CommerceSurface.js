@@ -57,6 +57,19 @@ function patch() {
     writeProof();
     return;
   }
+  // Canonical phone catalogue has an external safe renderer, not the legacy inline checkout.
+  const publicRoot=path.join(ROOT,'..','public');
+  const canonical=fs.readFileSync(path.join(publicRoot,'mtg','index.html'),'utf8');
+  const runtime=fs.readFileSync(path.join(publicRoot,'assets','mtg-community.js'),'utf8');
+  const catalog=JSON.parse(fs.readFileSync(path.join(publicRoot,'data','mtg-catalog.json'),'utf8'));
+  if(html===canonical && html.includes('data-catalog="/data/mtg-catalog.json"') &&
+     html.includes('/assets/mtg-community.js') && runtime.includes("'/catalog.json'") &&
+     runtime.includes('price_verified:') && runtime.includes('There is no online checkout') &&
+     !/buy\.stripe\.com|checkout_url|innerHTML/.test(runtime) &&
+     catalog.products.every(p=>p.checkout_available===false)) {
+    writeProof('SKIPPED_CANONICAL_PHONE_CATALOG_CHECKOUT_HELD');
+    return;
+  }
   const original = html;
 
   html = html.replace(
