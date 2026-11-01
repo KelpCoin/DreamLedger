@@ -10,6 +10,15 @@ const HUMAN = path.join(OUT, 'ECONOMIC_GAUNTLET.md');
 
 const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
 function num(v, fallback = 0) { const n = Number(v); return Number.isFinite(n) ? n : fallback; }
+// Candidate amounts are declarations, never verified costs or receipts.
+// Do not coerce null, blank strings, booleans or containers into money.
+function money(v) {
+  if (typeof v !== 'number' && typeof v !== 'string') return null;
+  if (typeof v === 'string' && !/^\d+(?:\.\d+)?$/.test(v.trim())) return null;
+  const n = Number(v);
+  return Number.isFinite(n) && n >= 0 ? n : null;
+}
+function displayMoney(v) { return v === null ? 'UNKNOWN' : `NZ$${v} (declared)`; }
 function hash(s) { return crypto.createHash('sha256').update(s, 'utf8').digest('hex'); }
 
 function loadCandidates() {
@@ -33,9 +42,9 @@ function score(o) {
   const claimedEvidence = clamp(num(o.evidence_score,0),0,10);
   const evidence = Math.min(claimedEvidence,4);
   const declarations = Array.isArray(o.evidence_required) ? o.evidence_required.filter(x=>typeof x==='string'&&x.trim()) : [];
-  const cost = num(o.test_cost_nzd,NaN);
-  const upside = num(o.upside_nzd,NaN);
-  const costKnown = Number.isFinite(cost)&&cost>=0;
+  const cost = money(o.test_cost_nzd);
+  const upside = money(o.upside_nzd);
+  const costKnown = cost !== null;
   const costFreeClaimed = costKnown&&cost===0;
   const roi = (costKnown&&cost>0&&Number.isFinite(upside)&&upside>0)
     ? clamp((upside/cost)/10,0,10) : 0;
@@ -73,9 +82,11 @@ function main() {
       channels: data.channels || [],
       buyer: data.buyer,
       offer: data.offer,
-      price_nzd: num(data.price_nzd),
-      test_cost_nzd: num(data.test_cost_nzd),
-      upside_nzd: num(data.upside_nzd),
+      price_nzd: money(data.price_nzd),
+      test_cost_nzd: money(data.test_cost_nzd),
+      upside_nzd: money(data.upside_nzd),
+      economic_value_status: Object.fromEntries(['price_nzd', 'test_cost_nzd', 'upside_nzd']
+        .map(key => [key, money(data[key]) === null ? 'UNKNOWN' : 'UNVERIFIED_DECLARATION'])),
       smallest_test: data.smallest_test,
       evidence_required: data.evidence_required || [],
       proof_required: data.proof_required || [],
@@ -87,7 +98,7 @@ function main() {
   }).sort((a, b) => Number(a.verdict === 'QUARANTINE') - Number(b.verdict === 'QUARANTINE') || b.scoring.total - a.scoring.total);
 
   const payload = {
-    schema_version: '1.0',
+    schema_version: '1.1',
     generated_utc: new Date().toISOString(),
     compiler: 'EconomicOpportunityCompiler',
     claim_boundary: 'RANKING_ONLY_NO_REVENUE_CLAIM',
@@ -102,11 +113,11 @@ function main() {
   fs.writeFileSync(REPORT, JSON.stringify(payload, null, 2) + '\n', 'utf8');
 
   const lines = ['# ECONOMIC GAUNTLET', '', `Generated: ${payload.generated_utc}`, '', '| Rank | Opportunity | Score | Verdict | Test | Upside |', '|---:|---|---:|---|---:|---:|'];
-  results.forEach((r, i) => lines.push(`| ${i + 1} | ${r.title} | ${r.scoring.total} | ${r.verdict} | NZ$${r.test_cost_nzd} | NZ$${r.upside_nzd} |`));
+  results.forEach((r, i) => lines.push(`| ${i + 1} | ${r.title} | ${r.scoring.total} | ${r.verdict} | ${displayMoney(r.test_cost_nzd)} | ${displayMoney(r.upside_nzd)} |`));
   lines.push('', '## Boundary', '', 'This report ranks hypotheses. It does not prove demand, sales, or revenue. Historical evidence scores are unverified declarations, NZ$0 costs do not prove ROI, and ranking cannot authorize publication, spending, payment or revenue claims.', '', `Integrity SHA-256: ${payload.integrity_sha256}`);
   fs.writeFileSync(HUMAN, lines.join('\n') + '\n', 'utf8');
   console.log(JSON.stringify({ status: 'PASS', report: REPORT, human_report: HUMAN, candidates: results.length, recommended_next: payload.recommended_next && payload.recommended_next.opportunity_id }, null, 2));
 }
 
 if (require.main === module) main();
-module.exports = { score, verdict, normalizeSilo, main };
+module.exports = { score, verdict, normalizeSilo, money, main };
