@@ -49,9 +49,16 @@ foreach ($record in $approvedRecords) {
         continue
     }
     $offer = $compiledById[$id]
-    if ($offer.approval_required -ne $false) { $errors.Add("${id}: approval_required must be false") }
-    if ($offer.checkout_available -ne $true) { $errors.Add("${id}: checkout_available must be true") }
-    if ($offer.status -ne 'VERIFIED_AVAILABLE') { $errors.Add("${id}: status must be VERIFIED_AVAILABLE") }
+    # A historical approval record is not a provider-backed authorization to sell.
+    # This source-only compiler has no trusted live payment/fulfillment receipt.
+    if ($offer.status -ne 'HELD_UNVERIFIED') {
+        $errors.Add("${id}: source-only compiler must keep offer HELD_UNVERIFIED")
+    }
+    if ($offer.approval_required -ne $true) { $errors.Add("${id}: unverified offer must retain approval_required=true") }
+    if ($offer.checkout_available -ne $false) { $errors.Add("${id}: unverified offer must keep checkout_available=false") }
+    if (@($offer.readiness_blockers) -notcontains 'TRUSTED_PROVIDER_RECEIPT_REQUIRED') {
+        $errors.Add("${id}: missing explicit trusted-provider-receipt blocker")
+    }
     if ($offer.silo -ne $record.silo) { $errors.Add("${id}: silo mismatch between approved source and compiled catalog") }
     if ([double]$offer.price -ne [double]$record.price) { $errors.Add("${id}: price mismatch between approved source and compiled catalog") }
     if ([string]$offer.currency -ne [string]$record.currency) { $errors.Add("${id}: currency mismatch between approved source and compiled catalog") }
@@ -81,7 +88,10 @@ $proof = [ordered]@{
     approved_count = $approvedRecords.Count
     compiled_count = $compiledRecords.Count
     approved_offer_ids = @($approvedRecords | ForEach-Object { $_.offer_id })
-    contract = 'every approved source record must exist in offers.json as VERIFIED_AVAILABLE and checkoutable'
+    release_status = 'HOLD'
+    provider_receipt_verified = $false
+    checkoutable_count = 0
+    contract = 'historical approvals must compile as held until independent provider receipt and release approval'
 }
 $proof | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $proofFile -Encoding UTF8
-Write-Host "PASS: $($approvedRecords.Count) approved offer records are present and checkoutable in compiled catalog." -ForegroundColor Green
+Write-Host "PASS: $($approvedRecords.Count) historical approvals compiled HELD; checkout disabled, provider receipt missing." -ForegroundColor Green
