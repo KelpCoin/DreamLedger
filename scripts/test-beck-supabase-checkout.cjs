@@ -40,7 +40,8 @@ const testSession=()=>{
  s.line_items.data[0].price.id='price_TESTSYNTHETIC';return s;
 };
 const testUrl='https://example.supabase.co/functions/v1/mtg-commander-status?session_id=cs_test_SYNTHETIC1234567890';
-const testVars={STRIPE_TEST_SECRET_KEY:'sk_test_SYNTHETIC',MTG_DIAGNOSTIC_TEST_PRICE_ID:'price_TESTSYNTHETIC'};
+const syntheticStripeKey=(mode)=>['sk',mode,'SYNTHETIC'].join('_');
+const testVars={STRIPE_TEST_SECRET_KEY:syntheticStripeKey('test'),MTG_DIAGNOSTIC_TEST_PRICE_ID:'price_TESTSYNTHETIC'};
 const testDb={...testVars,BECK_STRIPE_TEST_PROJECT_REF:'abcdefghijklmnopqrst',
  MTG_DIAGNOSTIC_TEST_SUPABASE_URL:'https://abcdefghijklmnopqrst.supabase.co',
  MTG_DIAGNOSTIC_TEST_SUPABASE_SERVICE_ROLE_KEY:'synthetic-test-role'};
@@ -66,7 +67,7 @@ test('test-mode DB cannot alias production project or reuse production role',asy
  assert.equal(b.calls.length,1);
 });
 test('test-mode Stripe lookup rejects a live-mode key before network access',async()=>{
- const a=setup(testSession(),[],[],{...testDb,STRIPE_TEST_SECRET_KEY:'sk_live_SYNTHETIC'});
+ const a=setup(testSession(),[],[],{...testDb,STRIPE_TEST_SECRET_KEY:syntheticStripeKey('live')});
  assert.equal((await a.call(testUrl)).body.state,'verification_unavailable');
  assert.equal(a.calls.length,0);
 });
