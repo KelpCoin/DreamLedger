@@ -15,7 +15,7 @@ const reservation='11111111-1111-4111-8111-111111111111';
 const session={id:'cs_live_offline_only',livemode:true,payment_status:'paid',
  amount_total:5000,currency:'nzd',payment_intent:'pi_offline_only',
  metadata:{product_sku:sku,product_id:sku,offer_id:sku,silo:'ads',
- source:'beck_ad_reserved_checkout',reservation_id:reservation}};
+ source:'beck_ad_reserved_checkout',reservation_id:reservation,creative_sha256:'a'.repeat(64)}};
 const event={id:'evt_offline_only',type:'checkout.session.completed',livemode:true,
  data:{object:session}};
 const receipt={event_id:'evt_offline_only',reservation_id:reservation,
@@ -79,6 +79,7 @@ test('writes paid receipt only after verified provider read',async()=>{
  assert.equal(body.p_reservation_id,reservation);
  assert.equal(body.p_amount_minor,5000);
  assert.equal(body.p_livemode,true);
+ assert.equal(body.p_creative_sha256,'a'.repeat(64));
  assert.equal(result.payment_recorded,true);
  assert.equal(result.publication,'NOT_AUTHORIZED');
  assert.equal(result.delivery_verified,false);
@@ -96,4 +97,21 @@ test('bad HMAC never fetches provider or database',async()=>{
  const p=pack();let n=0;
  await assert.rejects(()=>processStripeEvent(p.raw,'t=1,v1=deadbeef',{env,now,fetchImpl:async()=>{n++}}),/invalid_stripe_signature/);
  assert.equal(n,0);
+});
+
+test('creative fingerprint mismatch prevents recording paid receipt',async()=>{
+ const p=pack();
+ const calls=[];
+ const verified={...session,metadata:{...session.metadata,creative_sha256:'b'.repeat(64)}};
+ await assert.rejects(()=>processStripeEvent(p.raw,p.header,{env,now,fetchImpl:net(calls,{verifiedSession:verified})}),/stripe_independent_mismatch/);
+ assert.equal(calls.length,1);
+});
+test('missing creative fingerprint cannot claim BECK ad payment',async()=>{
+ const missing={...session,metadata:{...session.metadata}};
+ delete missing.metadata.creative_sha256;
+ const p=pack({...event,data:{object:missing}});
+ const calls=[];
+ const out=await processStripeEvent(p.raw,p.header,{env,now,fetchImpl:net(calls)});
+ assert.equal(out.ignored,'not_beck_ad_checkout');
+ assert.equal(calls.length,0);
 });
