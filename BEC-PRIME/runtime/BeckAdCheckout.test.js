@@ -16,7 +16,7 @@ const bindOk=async ({reservation_id,session_id})=>({linked:true,reservation_id,c
 const checkoutOk=async()=>({ok:true,json:async()=>({id:'cs_test_offline_dummy',
  url:'https://checkout.stripe.com/c/pay/synthetic',livemode:false,payment_status:'unpaid'})});
 async function run(opts={}){return prepareCheckout(request,{env:enabled,now,getInventory:async()=>stock,
- makeReservation:reserveOk,bindReservation:bindOk,fetchImpl:checkoutOk,...opts});}
+ makeReservation:reserveOk,findExisting:async()=>null,bindReservation:bindOk,fetchImpl:checkoutOk,...opts});}
 test('default flags reject before reading provider or inventory',async()=>{
  let calls=0;
  await assert.rejects(()=>run({env:{...enabled,BECK_AD_OWNER_RELEASE_APPROVED:'false'},
@@ -108,4 +108,32 @@ test('binding a different reservation is never treated as success',async()=>{
  await assert.rejects(()=>run({
    bindReservation:async({session_id})=>({linked:true,reservation_id:'WRONG',checkout_session_id:session_id})
  }),/checkout_binding_unverified/);
+});
+
+test('same customer replay reuses held tile even if inventory now marks full',async()=>{
+ let inventoryCalls=0,reserveCalls=0,lookupCalls=0;
+ const prev={reservation_id:holdId,status:'HELD',hold_expires_at:'2026-11-01T01:00:00Z',
+  checkout_session_expires_at:'2026-11-01T00:30:00Z',
+  price_minor:5000,currency:'NZD',width:100,height:100,
+  canvas_width:1000,canvas_height:1000,x:0,y:0,
+  campaign_start:'2026-11-01T00:00:00Z',campaign_end:'3000-01-01T00:00:00Z'};
+ const result=await run({
+   findExisting:async()=>{lookupCalls++;return prev},
+   getInventory:async()=>{inventoryCalls++;return {...stock,remaining_founding_units:0}},
+   makeReservation:async()=>{reserveCalls++;return reserveOk()}
+ });
+ assert.equal(result.reservation_id,holdId);
+ assert.equal(lookupCalls,1);
+ assert.equal(inventoryCalls,0);
+ assert.equal(reserveCalls,0);
+});
+test('a paid or expired replay never creates another Stripe session',async()=>{
+ for(const status of ['PAID','EXPIRED']){
+   let charged=false;
+   await assert.rejects(()=>run({
+     findExisting:async()=>({reservation_id:holdId,status}),
+     fetchImpl:async()=>{charged=true;return checkoutOk()}
+   }),/reservation_replay_unavailable/);
+   assert.equal(charged,false);
+ }
 });
