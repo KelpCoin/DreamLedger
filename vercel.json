@@ -49,6 +49,14 @@
     {
       "source": "/api/billboard/public",
       "destination": "/api/billboard-public"
+    },
+    {
+      "source": "/thanks",
+      "destination": "/thanks.html"
+    },
+    {
+      "source": "/thanks/",
+      "destination": "/thanks.html"
     }
   ]
 }
