@@ -31,16 +31,37 @@ def sha256(p):
     return h.hexdigest(),n
 
 def parse_deck(text):
-    rows=[]
+    """Match the paid same-origin 100-card intake contract before any enrichment."""
+    if not isinstance(text,str) or not 20<=len(text)<=30000:
+        raise RuntimeError("DECKLIST_REQUIRES_CORRECTION")
+    rows=[]; total=0
     for raw in text.splitlines():
         s=raw.strip()
-        if not s or s.startswith("#"): continue
-        s=re.sub(r"^(Commander|Sideboard)\s*:\s*","",s,flags=re.I)
-        m=re.match(r"^(\d+)x?\s+(.+?)(?:\s+\[[^]]+\])?$",s)
-        if m: qty,name=int(m.group(1)),m.group(2).strip()
-        else: qty,name=1,s
-        rows.append((qty,name))
+        if not s or s.startswith("#") or s.startswith("//"):
+            continue
+        if re.match(r"^(sideboard|maybeboard|considering)\b",s,re.I):
+            raise RuntimeError("DECKLIST_REQUIRES_CORRECTION")
+        if re.fullmatch(r"(commander|mainboard|deck)\s*:",s,re.I):
+            continue
+        s=re.sub(r"^(commander|mainboard|deck)\s*:\s*","",s,flags=re.I)
+        if re.match(r"^\d",s):
+            m=re.fullmatch(r"(\d{1,3})x?\s+(.+)",s,flags=re.I)
+            if not m:
+                raise RuntimeError("DECKLIST_REQUIRES_CORRECTION")
+            qty,name=int(m.group(1)),m.group(2).strip()
+        else:
+            qty,name=1,s
+        if (not 1<=qty<=100 or not name or len(name)>160 or
+                re.search(r"[<>{}\x00-\x1f]",name) or
+                re.search(r"https?://|www\.",name,re.I)):
+            raise RuntimeError("DECKLIST_REQUIRES_CORRECTION")
+        rows.append((qty,name)); total+=qty
+        if total>100 or len(rows)>100:
+            raise RuntimeError("DECKLIST_REQUIRES_CORRECTION")
+    if total!=100:
+        raise RuntimeError("DECKLIST_REQUIRES_CORRECTION")
     return rows
+
 
 def scryfall_batch(names):
     key=hashlib.sha256("\n".join(sorted(names)).encode()).hexdigest()+".json"
@@ -158,7 +179,7 @@ def run_once():
         return True
     except Exception as e:
         allowed={"CLOUD_MODEL_NOT_CONFIGURED","CLOUD_MODEL_ENDPOINT_NOT_APPROVED","CLOUD_MODEL_REQUEST_FAILED","CLOUD_MODEL_RESPONSE_TOO_LARGE","CLOUD_MODEL_RESPONSE_INVALID","CLOUD_MODEL_DIAGNOSTIC_INVALID"}
-        reason=str(e) if str(e) in allowed else "FULFILLMENT_WORKER_FAILED"
+        reason="awaiting_buyer_input" if str(e)=="DECKLIST_REQUIRES_CORRECTION" else (str(e) if str(e) in allowed else "FULFILLMENT_WORKER_FAILED")
         rpc("fail_marketplace_fulfillment",{"p_fulfillment_id":fid,"p_worker_id":WORKER_ID,"p_reason":reason}); return True
 
 if __name__=="__main__":
