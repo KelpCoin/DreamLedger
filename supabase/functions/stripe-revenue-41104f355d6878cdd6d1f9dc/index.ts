@@ -44,10 +44,36 @@ Deno.serve(async(req)=>{
    const {data:listing,error:listingError}=await supabase.from("marketplace_listings").select("id,sku,title,price_nzd,status,inventory,seller_id,organization_id,fulfillment_type,metadata").eq("id",marketplaceListingId).single();
    if(listingError||!listing)return new Response("marketplace listing not found",{status:400});
    marketplaceListing=listing;
+   // MTG digital fulfillment is a strict canonical SKU contract, not an alias.
+   if(String(listing.sku)==="COMMANDER-DECK-DIAGNOSTIC-001"){
+     if(String(metadata.sku_id||"")!=="COMMANDER-DECK-DIAGNOSTIC-001"||!checkoutSessionId)
+       return new Response("MTG diagnostic session metadata mismatch",{status:409});
+     let verified:any;
+     try{
+       verified=await stripe.checkout.sessions.retrieve(checkoutSessionId,{expand:["line_items.data.price.product"]});
+     }catch{
+       console.error("MTG_DIAG_STRIPE_SESSION_READ_FAILED",{event_id:eventId});
+       return new Response("MTG diagnostic Stripe verification unavailable",{status:503});
+     }
+     const items=verified.line_items?.data||[];
+     const item=items.length===1?items[0]:null;
+     const price=item?.price;
+     const product=price?.product;
+     const valid=verified.id===checkoutSessionId&&verified.livemode===true&&
+       verified.payment_status==="paid"&&verified.currency==="nzd"&&verified.amount_subtotal===2900&&
+       !verified.line_items?.has_more&&item?.quantity===1&&price?.id==="price_1UFFY1EGgEAnUFF9Yq03zIa7"&&
+       price?.lookup_key==="COMMANDER-DECK-DIAGNOSTIC-001"&&
+       price?.metadata?.dreamledger_sku==="COMMANDER-DECK-DIAGNOSTIC-001"&&
+       product?.metadata?.dreamledger_sku==="COMMANDER-DECK-DIAGNOSTIC-001";
+     if(!valid){
+       console.error("MTG_DIAG_CONTRACT_MISMATCH",{event_id:eventId});
+       return new Response("MTG diagnostic line-item contract mismatch",{status:409});
+     }
+   }
    const {data:settlement,error:settlementError}=await supabase.rpc("marketplace_settle_stripe_payment",{p_listing_id:marketplaceListingId,p_checkout_session_id:checkoutSessionId,p_payment_intent_id:paymentIntentId,p_event_id:eventId,p_amount_nzd:amountMinor/100,p_currency:currency,p_customer_email:customerEmail,p_quantity:1});
    if(settlementError)return new Response("marketplace settlement failed",{status:500});
    marketplaceSettlement=settlement;
-   sku=listing.sku==="COMMANDER-DECK-DIAGNOSTIC-001" ? "CMD-DIAG-29" : String(listing.sku||"");
+   sku=String(listing.sku||"");
    const marketplaceOrderId=String(marketplaceSettlement?.order_id||"");
    if(marketplaceOrderId){
      const transferGroup=`order_${marketplaceOrderId}`;
