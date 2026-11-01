@@ -23,13 +23,14 @@ for(const file of [success,thanks]){
  assert(!/Payment received|Payment successful|Order confirmed/i.test(file),'no false confirmation');
  assert(!file.includes('id="return-next" class="bec-btn" href="https://'),'no unlocked action in default HTML');
 }
-assert(ret.includes('/api/checkout-status?session_id='),'checkout calls server');
+assert(ret.includes('/functions/v1/mtg-commander-status?session_id='),'checkout calls deployed Supabase server');
 assert(ret.includes("case 'paid_pending_record':"),'pending webhook state distinguished');
 assert(ret.includes("case 'paid_recorded':"),'DB-confirmed state distinct');
 assert(ret.includes('attempts<6'),'bounded polling');
-assert(api.includes('line_items.data.price.product'),'inspect actual bought product');
-assert(api.includes('marketplace_orders')&&api.includes('marketplace_fulfillments'),'read webhook-backed ledger');
-assert(!/\.(insert|upsert|update|delete)\s*\(/.test(api),'return verifier must be read-only');
+const edge=read('supabase/functions/mtg-commander-status/index.ts');
+assert(edge.includes('line_items.data.price.product'),'deployed edge inspects actual bought product');
+assert(edge.includes('marketplace_orders')&&edge.includes('marketplace_fulfillments'),'deployed edge reads webhook-backed ledger');
+assert(!/\.(insert|upsert|update|delete)\s*\(/.test(edge),'return verifier must be read-only');
 assert(contract.includes("LOOKUP='COMMANDER-DECK-DIAGNOSTIC-001'"),'canonical lookup key');
 assert(contract.includes('AMOUNT_NZD_CENTS=2900'),'price in minor units');
 console.log('BECK_MTG_COMMUNITY_CHECKOUT_PASS: free hub first, NZD29 paid offer secondary, payment processing fail-closed');
