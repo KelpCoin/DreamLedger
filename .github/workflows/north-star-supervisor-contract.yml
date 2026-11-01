@@ -43,7 +43,13 @@ jobs:
         run: |
           $html = Get-Content public/mtg/index.html -Raw
           $blocks = [regex]::Matches($html, '(?is)<script\b(?![^>]*\bsrc=)[^>]*>(.*?)</script\s*>')
-          if ($blocks.Count -eq 0) { throw 'No inline script found in MTG landing page' }
+          if ($blocks.Count -eq 0) {
+            foreach ($script in @('public/assets/mtg-community.js','public/assets/mtg-workbench.js','public/assets/mtg-market-desk.js','public/assets/catalog-rails.js')) {
+              if (-not (Test-Path -LiteralPath $script)) { throw ("MTG external JavaScript missing: {0}" -f $script) }
+              node --check $script
+              if ($LASTEXITCODE -ne 0) { throw ("MTG external JavaScript syntax failed: {0}" -f $script) }
+            }
+          }
           $i = 0
           foreach ($block in $blocks) {
             $scriptPath = Join-Path $env:TEMP ("mtg-inline-{0}.js" -f $i)
