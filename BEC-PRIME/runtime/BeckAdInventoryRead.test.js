@@ -23,6 +23,7 @@ test('empty verified registered canvas has 100 free founding cells',async()=>{
 test('published cell reduces exact free footprint',async()=>{
  const r=await inventory({env,now,fetchImpl:mock(canvas,[slot('placed_01')])});
  assert.equal(r.remaining_founding_units,99);assert.equal(r.sold_pixels,10000);
+ assert.deepEqual(r.unavailable_positions,[{x:0,y:0,width:100,height:100}]);
  assert.equal(r.published_positions.length,1);assert.equal(r.payment_claims_verified,false);
 });
 test('expired holds cannot create false scarcity',async()=>{
