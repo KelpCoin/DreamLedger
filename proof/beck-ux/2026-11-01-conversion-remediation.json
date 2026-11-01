@@ -10,7 +10,8 @@
   "scope": [
     "mobile CTA carousel home",
     "compact three MTG auction placeholders",
-    "no fabricated checkout or bids"
+    "no fabricated checkout or bids",
+    "free supplier worksheet: unknown delivery cost no longer assumed NZ$0"
   ],
   "publication": "DRAFT_NO_DEPLOY",
   "real_checkout": "BLOCKED_PRODUCTION_SECRETS",
@@ -19,11 +20,26 @@
     "home_carousel": true,
     "six_intent_cards": true,
     "mtg_three_slots": true,
-    "mtg_auction_coming_soon": true
+    "mtg_auction_coming_soon": true,
+    "quote_delivery_never_default_zero": true
   },
   "notes": [
     "CSS-only illustrative card backs; no copyrighted artwork embedded.",
     "No paid CTA for held billboard or unverified MTG stock.",
     "Do not merge into the auto-disabled production branch without a reviewed release plan."
-  ]
+  ],
+  "ci": {
+    "verified_run": "41260717289",
+    "public_portfolio_contract": "PASS",
+    "output": "BECK_UX_SAFE_PASS: 6 CTA cards, 3 MTG placeholders, 2 thanks routes, payment holds intact",
+    "other_failing_workflows": [
+      "Phin Haven Gauntlet: billboard catalog held status mismatch",
+      "MTG catalogue validation: root preview tracking expectation",
+      "BEC-PRIME Gates: legacy MTG condition/publisher expectation",
+      "Stripe Checkout Contract: two false-positive candidate producers in older paths",
+      "North Star supervisor: JSON-LD parsed as executable JavaScript"
+    ],
+    "all_ci_green": false,
+    "remaining": "Do not merge until broader regressions are reconciled, and independent deployment/checkout evidence exists."
+  }
 }
