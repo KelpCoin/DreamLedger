@@ -9,6 +9,7 @@ on:
       - "BEC-PRIME/runtime/BeckAdCheckout*"
       - "BEC-PRIME/runtime/BeckAdPaymentWebhook*"
       - "supabase/migrations/202611010002_beck_ad_checkout_binding.sql"
+      - "scripts/beck-ad-postgres-contract.sh"
       - "public/server.js"
       - "AGENTS.md"
       - "docs/BECK-AD-COMMERCE-CANDIDATE.md"
@@ -45,3 +46,37 @@ jobs:
         run: node --test BEC-PRIME/runtime/AdInventoryGate.test.js BEC-PRIME/runtime/BeckAdReservationClient.test.js BEC-PRIME/runtime/BeckAdSqlContract.test.js BEC-PRIME/runtime/BeckAdInventoryRead.test.js public/assets/beck-billboard-inventory.test.js BEC-PRIME/runtime/BeckAdCheckout.test.js BEC-PRIME/runtime/BeckAdCheckoutBinding.test.js BEC-PRIME/runtime/BeckAdPaymentWebhook.test.js BEC-PRIME/runtime/BeckProviderPolicy.test.js
       - name: Emit source evidence checksums
         run: sha256sum BEC-PRIME/runtime/AdInventoryGate.js BEC-PRIME/runtime/BeckAdReservationClient.js BEC-PRIME/runtime/BeckAdInventoryRead.js BEC-PRIME/runtime/BeckAdCheckout.js BEC-PRIME/runtime/BeckAdCheckoutBinding.js BEC-PRIME/runtime/BeckAdPaymentWebhook.js supabase/migrations/202611010001_beck_ad_reservations.sql supabase/migrations/202611010002_beck_ad_checkout_binding.sql
+
+  ephemeral-postgres:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: beck_ad_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d beck_ad_ci"
+          --health-interval 5s --health-timeout 3s --health-retries 12
+    env:
+      PGHOST: 127.0.0.1
+      PGPORT: "5432"
+      PGDATABASE: beck_ad_ci
+      PGUSER: postgres
+      PGPASSWORD: postgres
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify throwaway database target and psql availability
+        run: |
+          command -v psql
+          test "$PGDATABASE" = "beck_ad_ci"
+          test "$PGHOST" = "127.0.0.1"
+      - name: Apply staged migrations and prove concurrent exclusion
+        run: bash scripts/beck-ad-postgres-contract.sh
+      - name: Source evidence checksums
+        if: always()
+        run: sha256sum scripts/beck-ad-postgres-contract.sh supabase/migrations/202611010001_beck_ad_reservations.sql supabase/migrations/202611010002_beck_ad_checkout_binding.sql
