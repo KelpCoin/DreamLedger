@@ -5,9 +5,11 @@ const {configured}=require('./BeckAdReservationClient');
 function fail(message){return Error('beck_ad_expiry_'+message)}
 async function reconcileExpiredCheckout(reservation,{env=process.env,fetchImpl=globalThis.fetch,now=new Date()}={}){
  if(env.BECK_AD_EXPIRY_RECONCILIATION_ENABLED!=='true')throw fail('disabled');
+ if(!(now instanceof Date)||!Number.isFinite(now.valueOf()))throw fail('clock_invalid');
  if(!reservation||reservation.status!=='HELD'||
     !/^[a-f0-9]{8}-[a-f0-9-]{27}$/i.test(reservation.reservation_id||'')||
     !/^cs_(test|live)_[A-Za-z0-9_]+$/.test(reservation.checkout_session_id||'')||
+    !/^[a-f0-9]{64}$/.test(reservation.creative_manifest_sha256||'')||
     !Number.isFinite(Date.parse(reservation.checkout_session_expires_at))||
     Date.parse(reservation.checkout_session_expires_at)>=now.valueOf())
     throw fail('not_eligible');
