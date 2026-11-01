@@ -33,7 +33,8 @@ async function processStripeEvent(raw,signature,{env=process.env,fetchImpl=globa
  const m=s.metadata||{};
  if(m.product_sku!==SKU||m.product_id!==SKU||m.offer_id!==SKU||
     m.silo!=='ads'||m.source!=='beck_ad_reserved_checkout'||
-    !/^[a-f0-9-]{36}$/i.test(m.reservation_id||''))
+    !/^[a-f0-9-]{36}$/i.test(m.reservation_id||'')||
+    !/^[a-f0-9]{64}$/.test(m.creative_sha256||''))
    return {received:true,ignored:'not_beck_ad_checkout'};
  if(s.livemode!==true||s.payment_status!=='paid'||s.amount_total!==5000||
     String(s.currency||'').toLowerCase()!=='nzd'||!/^cs_live_[A-Za-z0-9_]+$/.test(s.id||'')||
@@ -49,7 +50,7 @@ async function processStripeEvent(raw,signature,{env=process.env,fetchImpl=globa
  if(!verified||verified.id!==s.id||verified.livemode!==true||verified.payment_status!=='paid'||
     verified.amount_total!==5000||String(verified.currency||'').toLowerCase()!=='nzd'||
     verified.payment_intent!==s.payment_intent||
-    ['product_sku','product_id','offer_id','silo','source','reservation_id']
+    ['product_sku','product_id','offer_id','silo','source','reservation_id','creative_sha256']
       .some(k=>verified.metadata?.[k]!==m[k]))
    throw failure('stripe_independent_mismatch',400);
  const {base,key}=configured(env);
@@ -60,7 +61,7 @@ async function processStripeEvent(raw,signature,{env=process.env,fetchImpl=globa
      body:JSON.stringify({
        p_reservation_id:m.reservation_id,p_session_id:s.id,p_event_id:event.id,
        p_payment_intent_id:s.payment_intent,p_amount_minor:5000,p_currency:'NZD',
-       p_livemode:true
+       p_livemode:true,p_creative_sha256:m.creative_sha256
      }),signal:AbortSignal.timeout(8000)});
  }catch{throw failure('payment_receipt_store_unavailable')}
  if(!db?.ok)throw failure('payment_receipt_store_rejected');
