@@ -21,32 +21,42 @@ function loadCandidates() {
     });
 }
 
+function normalizeSilo(silo) {
+  const result=typeof silo==='string' ? silo.toUpperCase().trim().replace(/[\s-]+/g,'_') : '';
+  return result || 'UNKNOWN';
+}
+
 function score(o) {
-  const evidence = num(o.evidence_score, 0);
-  const evidenceReady = Array.isArray(o.evidence_required) && o.evidence_required.length > 0;
-  const cost = num(o.test_cost_nzd, 0);
-  const upside = num(o.upside_nzd, 0);
-  const risk = clamp(num(o.risk_score, 5), 0, 10);
-  const speed = clamp(num(o.speed_score, 5), 0, 10);
-  const isolation = o.silo === 'MTG' || o.silo === 'INVERSE_SHOPPING' || o.silo === 'BILLBOARD' || o.silo === 'ELOM' ? 10 : 0;
-  const roi = cost <= 0 ? 10 : clamp((upside / cost) / 10, 0, 10);
-  const total = (evidence * 0.30) + (roi * 0.25) + (speed * 0.20) + ((10 - risk) * 0.15) + (isolation * 0.10);
+  if (!o || typeof o !== 'object' || Array.isArray(o)) o={};
+  const silo = normalizeSilo(o.silo);
+  const frozen = silo==='AMPLISSA'||silo==='ADULT'||silo==='SILO_ADULT';
+  const claimedEvidence = clamp(num(o.evidence_score,0),0,10);
+  const evidence = Math.min(claimedEvidence,4);
+  const declarations = Array.isArray(o.evidence_required) ? o.evidence_required.filter(x=>typeof x==='string'&&x.trim()) : [];
+  const cost = num(o.test_cost_nzd,NaN);
+  const upside = num(o.upside_nzd,NaN);
+  const costKnown = Number.isFinite(cost)&&cost>=0;
+  const costFreeClaimed = costKnown&&cost===0;
+  const roi = (costKnown&&cost>0&&Number.isFinite(upside)&&upside>0)
+    ? clamp((upside/cost)/10,0,10) : 0;
+  const risk=clamp(num(o.risk_score,7),0,10);
+  const speed=clamp(num(o.speed_score,3),0,10);
+  const total=Number(((evidence*0.40)+(roi*0.10)+(speed*0.20)+((10-risk)*0.30)).toFixed(2));
   return {
-    evidence,
-    roi,
-    speed,
-    risk,
-    silo_alignment: isolation,
-    total: Number(total.toFixed(2)),
-    evidence_ready: evidenceReady
+    evidence, claimed_evidence:claimedEvidence, evidence_score_is_self_reported:true,
+    evidence_declarations_only:declarations.length>0,
+    verified_external_buyer:false, verified_settlement:false, verified_fulfillment:false,
+    cost_known:costKnown, zero_cost_is_unverified:costFreeClaimed,
+    roi, speed, risk, silo_alignment:0, silo, frozen, total,
+    evidence_ready:false, release_authorized:false
   };
 }
 
 function verdict(s) {
-  if (!s.evidence_ready) return 'NEEDS_EVIDENCE';
-  if (s.total >= 7.0 && s.evidence >= 6.0 && s.risk <= 6) return 'PASS';
-  if (s.risk >= 8) return 'QUARANTINE';
-  return 'FAIL';
+  if(s.frozen)return 'QUARANTINE';
+  if(s.silo==='UNKNOWN')return 'QUARANTINE';
+  if(s.risk>=8)return 'QUARANTINE';
+  return 'NEEDS_EXTERNAL_VERIFICATION';
 }
 
 function main() {
@@ -71,9 +81,10 @@ function main() {
       proof_required: data.proof_required || [],
       scoring,
       verdict: verdict(scoring),
-      public_action: data.public_action || 'APPROVAL_REQUIRED'
+      public_action: 'APPROVAL_REQUIRED',
+      requested_public_action: data.public_action || null
     };
-  }).sort((a, b) => b.scoring.total - a.scoring.total);
+  }).sort((a, b) => Number(a.verdict === 'QUARANTINE') - Number(b.verdict === 'QUARANTINE') || b.scoring.total - a.scoring.total);
 
   const payload = {
     schema_version: '1.0',
@@ -82,16 +93,20 @@ function main() {
     claim_boundary: 'RANKING_ONLY_NO_REVENUE_CLAIM',
     candidate_count: results.length,
     results,
-    recommended_next: results.find(r => r.verdict === 'PASS') || results.find(r => r.verdict === 'NEEDS_EVIDENCE') || null
+    recommended_next: results.find(r => r.verdict === 'NEEDS_EXTERNAL_VERIFICATION') || null,
+    approval_required: true,
+    production_release_allowed: false,
+    independent_economic_truth: 'NOT_VERIFIED'
   };
   payload.integrity_sha256 = hash(JSON.stringify(payload));
   fs.writeFileSync(REPORT, JSON.stringify(payload, null, 2) + '\n', 'utf8');
 
   const lines = ['# ECONOMIC GAUNTLET', '', `Generated: ${payload.generated_utc}`, '', '| Rank | Opportunity | Score | Verdict | Test | Upside |', '|---:|---|---:|---|---:|---:|'];
   results.forEach((r, i) => lines.push(`| ${i + 1} | ${r.title} | ${r.scoring.total} | ${r.verdict} | NZ$${r.test_cost_nzd} | NZ$${r.upside_nzd} |`));
-  lines.push('', '## Boundary', '', 'This report ranks hypotheses. It does not prove demand, sales, or revenue. A PASS only means the candidate meets the local scoring gate and has declared evidence requirements.', '', `Integrity SHA-256: ${payload.integrity_sha256}`);
+  lines.push('', '## Boundary', '', 'This report ranks hypotheses. It does not prove demand, sales, or revenue. Historical evidence scores are unverified declarations, NZ$0 costs do not prove ROI, and ranking cannot authorize publication, spending, payment or revenue claims.', '', `Integrity SHA-256: ${payload.integrity_sha256}`);
   fs.writeFileSync(HUMAN, lines.join('\n') + '\n', 'utf8');
   console.log(JSON.stringify({ status: 'PASS', report: REPORT, human_report: HUMAN, candidates: results.length, recommended_next: payload.recommended_next && payload.recommended_next.opportunity_id }, null, 2));
 }
 
-main();
+if (require.main === module) main();
+module.exports = { score, verdict, normalizeSilo, main };
