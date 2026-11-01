@@ -1,0 +1,40 @@
+{
+  "status": "LIVE",
+  "date": "2026-11-01",
+  "production_commit": "53d8ea7bc1aeea19cbdf2d8b265751229434e4fe",
+  "source_test_commit": "fe08dbd0592e5286fa8a88cd0f77b889f506a069",
+  "deployment": "dpl_3GFK78W1ddLFoMueeTED5dadeQdT",
+  "url": "https://dreamledger.org/mtg/",
+  "source_pr": 928,
+  "cloud": {
+    "run": 41260953758,
+    "job": 124713931107,
+    "status": "success",
+    "browser_checks": 32,
+    "widths": [
+      360,
+      390,
+      768,
+      1280
+    ],
+    "humanizer": "PASS_REVIEW_SIGNAL",
+    "gauntlet_v6": "PASS",
+    "artifact": 13065012360
+  },
+  "live_checks": [
+    "MTG landing rendered",
+    "All three actual Magic card backs loaded",
+    "Dwynen search returns one listing",
+    "Homepage catalogue rendered",
+    "Shared Inter font and #c5ff35 accent confirmed"
+  ],
+  "known_limitations": [
+    "Broader legacy commerce compiler fails STRIPE_LINK_DRIFT / PRODUCT_NOT_SELLABLE for held diagnostic; no full commerce certification claimed.",
+    "Auctions are empty placeholders; no fabricated bids or live auction.",
+    "Advanced Patreon market tools remain planned."
+  ],
+  "rollback": {
+    "deployment": "dpl_GHv1D9h78s519ERwcUi9yuDzs6Ni",
+    "commit": "70920f4021f65eddbf3b32c8b921e112cc0cac88"
+  }
+}

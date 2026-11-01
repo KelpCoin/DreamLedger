@@ -6,4 +6,4 @@ Acceptance: three card-back auction slots on one row at 360px; no fabricated auc
 
 Reference patterns: Moxfield search and deck discovery, TappedOut list/collection tools, MTGStocks separation of free/premium market features, MTG Salvation community destinations. Card-back source: https://cards.scryfall.io/back.png, Wizards of the Coast imagery. Fonts: Google Fonts Inter and Space Grotesk, locally hosted.
 
-Status: implemented; cloud validation and production check pending. Production baseline 70920f4021f65eddbf3b32c8b921e112cc0cac88; deploy bounded release branch rather than unrelated main changes.
+Status: LIVE. Cloud Humanizer, canonical Gauntlet V6 and 32 phone/tablet/desktop route checks passed. Live homepage and MTG search/auction/theme checks passed. See proof/PHONE-CATALOG-LIVE-20261101.json and PR #928. The legacy commerce compiler remains blocked on the held diagnostic; this is not full commerce certification. Production baseline 70920f4021f65eddbf3b32c8b921e112cc0cac88; deploy bounded release branch rather than unrelated main changes.
