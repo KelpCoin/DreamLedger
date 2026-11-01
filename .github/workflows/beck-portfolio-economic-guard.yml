@@ -1,0 +1,51 @@
+name: BECK portfolio economic guard
+
+on:
+  pull_request:
+    paths:
+      - 'BEC-PRIME/compiler/EconomicOpportunityCompiler.js'
+      - 'BEC-PRIME/compiler/test_EconomicOpportunityCompiler.js'
+      - '.github/workflows/beck-portfolio-economic-guard.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: beck-portfolio-economic-guard-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  economic-guard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Checkout candidate
+        uses: actions/checkout@v4
+      - name: Offline scoring regression
+        run: node BEC-PRIME/compiler/test_EconomicOpportunityCompiler.js
+      - name: Compile hypotheses privately (no external action)
+        run: node BEC-PRIME/compiler/EconomicOpportunityCompiler.js
+      - name: Reject any false economic readiness
+        shell: bash
+        run: |
+          node - <<'NODE'
+          const assert = require('node:assert/strict');
+          const fs = require('node:fs');
+          const r = JSON.parse(fs.readFileSync('BEC-PRIME/compiled/opportunities/ECONOMIC_GAUNTLET.json','utf8'));
+          assert.equal(r.approval_required, true);
+          assert.equal(r.production_release_allowed, false);
+          assert.equal(r.independent_economic_truth, 'NOT_VERIFIED');
+          assert.ok(Array.isArray(r.results));
+          for(const x of r.results) {
+            assert.equal(x.public_action,'APPROVAL_REQUIRED');
+            assert.notEqual(x.verdict,'PASS');
+            assert.equal(x.scoring.verified_external_buyer,false);
+            assert.equal(x.scoring.verified_settlement,false);
+            assert.equal(x.scoring.release_authorized,false);
+            if(['AMPLISSA','ADULT','SILO_ADULT'].includes(x.scoring.silo)) {
+              assert.equal(x.verdict,'QUARANTINE');
+            }
+          }
+          process.stdout.write('PASS ' + r.results.length + ' unverified candidate(s) remain safely gated\\n');
+          NODE
