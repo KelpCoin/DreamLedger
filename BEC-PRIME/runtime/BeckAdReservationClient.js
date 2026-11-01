@@ -76,4 +76,34 @@ async function reserve(input,{env=process.env,fetchImpl=globalThis.fetch,timeout
   return {reservation_id:result.reservation_id,expires_at:result.hold_expires_at,status:result.status,
     exhaust:result.exhaust,silo:result.silo,canvas:result.canvas,idempotency_key:params.p_key};
 }
-module.exports={configured,validate,reserve};
+
+async function lookupReservation({exhaust,silo,canvas,idempotency_key},
+  {env=process.env,fetchImpl=globalThis.fetch}={}){
+  for(const v of [exhaust,silo,canvas])
+    if(typeof v!=='string'||!/^[a-z0-9_-]{2,80}$/.test(v))throw Error('beck_ad_reservation_lookup_invalid');
+  if(typeof idempotency_key!=='string'||!/^[A-Za-z0-9:_-]{8,128}$/.test(idempotency_key))
+    throw Error('beck_ad_reservation_lookup_invalid');
+  const {base,key}=configured(env);
+  if(typeof fetchImpl!=='function')throw Error('beck_ad_reservation_lookup_unavailable');
+  const u=new URL(base+'/rest/v1/beck_ad_reservations');
+  const params={select:'reservation_id,status,exhaust,silo,canvas,idempotency_key,x,y,width,height,canvas_width,canvas_height,price_minor,currency,campaign_start,campaign_end,hold_expires_at,checkout_session_id,checkout_session_expires_at',
+    exhaust:'eq.'+exhaust,silo:'eq.'+silo,canvas:'eq.'+canvas,
+    idempotency_key:'eq.'+idempotency_key,limit:'2'};
+  for(const [k,v] of Object.entries(params))u.searchParams.set(k,v);
+  let res;try{res=await fetchImpl(u.toString(),{
+    headers:{apikey:key,authorization:'Bearer '+key,accept:'application/json'},
+    signal:AbortSignal.timeout(DEFAULT_TIMEOUT_MS)
+  })}catch{throw Error('beck_ad_reservation_lookup_unavailable')}
+  if(!res?.ok)throw Error('beck_ad_reservation_lookup_unavailable');
+  let rows;try{rows=await res.json()}catch{throw Error('beck_ad_reservation_lookup_unavailable')}
+  if(!Array.isArray(rows)||rows.length>1)throw Error('beck_ad_reservation_lookup_unavailable');
+  if(!rows.length)return null;
+  const row=rows[0];
+  if(!row||row.exhaust!==exhaust||row.silo!==silo||row.canvas!==canvas||
+     row.idempotency_key!==idempotency_key||
+     !/^[a-f0-9]{8}-[a-f0-9]{4}-[1-8][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(row.reservation_id||''))
+    throw Error('beck_ad_reservation_lookup_unavailable');
+  return row;
+}
+
+module.exports={configured,validate,reserve,lookupReservation};
