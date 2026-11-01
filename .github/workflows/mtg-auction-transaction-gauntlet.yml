@@ -79,6 +79,8 @@ jobs:
       - uses: denoland/setup-deno@v2
         with:
           deno-version: v2.x
+      - name: Verify exact test-only Checkout Session attestation
+        run: deno test --config supabase/functions/mtg-auction-deno.json supabase/functions/mtg-auction-checkout/session-guard.test.ts
       - name: Type-check exact MTG Edge-function source
         run: |
           deno check --config supabase/functions/mtg-auction-deno.json supabase/functions/mtg-auction-checkout/index.ts
