@@ -47,3 +47,12 @@ test('static root publication contains the manifest-driven MTG master paths', ()
   assert.equal(read('mtg/index.html'), read('public/mtg/index.html'));
   assert.equal(read('data/mtg-catalog.json'), read('public/data/mtg-catalog.json'));
 });
+
+test('static root free-first regression', () => {
+ const a=read('mtg/index.html'),b=read('public/mtg/index.html');
+ assert.equal(a,b);
+ assert.equal((a.match(/class="hub-free-card"/g)||[]).length,5);
+ assert.equal((a.match(/data-auction-slot=/g)||[]).length,3);
+ assert.ok(a.indexOf('id="welcome"')>=0&&a.indexOf('id="welcome"')<a.indexOf('id="auctions"'));
+ assert.equal(a.includes('https://buy.stripe.com/'),false);
+});
