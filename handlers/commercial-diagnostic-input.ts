@@ -2,6 +2,7 @@
 // Payment, inventory and entitlement authority remain in Stripe + the existing
 // Supabase service. This function never marks an order paid or delivered.
 const TARGET="https://wbwgroygjeyukkspnqiy.supabase.co/functions/v1/marketplace-diagnostic-input";
+const STATUS="https://wbwgroygjeyukkspnqiy.supabase.co/functions/v1/mtg-commander-status";
 const ORIGINS=new Set(["https://dreamledger.org","https://www.dreamledger.org"]);
 const SID=/^cs_(live|test)_[A-Za-z0-9_]{10,180}$/;
 const json=(status:number,body:unknown)=>new Response(JSON.stringify(body),{
@@ -25,6 +26,29 @@ export default async function handler(req:Request):Promise<Response>{
     !SID.test(String(body.session_id||""))||
     typeof body.decklist!=="string"||body.decklist.length<20||body.decklist.length>30000)
    return json(422,{error:"INVALID_DIAGNOSTIC_INPUT"});
+ // Browser navigation is not authorization. Require an independent read-only
+ // provider-backed exact Price/SKU + webhook order check on every POST.
+ let check:Response;
+ try{
+  check=await fetch(STATUS+"?session_id="+encodeURIComponent(body.session_id),{
+   method:"GET",redirect:"error",cache:"no-store",
+   headers:{"accept":"application/json","origin":"https://dreamledger.org"},
+   signal:AbortSignal.timeout(6500)});
+ }catch{return json(503,{error:"DIAGNOSTIC_PAYMENT_VERIFIER_UNAVAILABLE",retryable:true})}
+ if(!check.ok)return json(503,{error:"DIAGNOSTIC_PAYMENT_VERIFIER_UNAVAILABLE",retryable:true});
+ let verdict:any;
+ try{
+  const raw=await check.text();
+  if(raw.length>2048)throw Error("oversized verifier response");
+  verdict=JSON.parse(raw);
+ }catch{return json(503,{error:"DIAGNOSTIC_PAYMENT_VERIFIER_INVALID",retryable:true})}
+ if(verdict?.state!=="paid_recorded"||verdict?.retryable!==false){
+  if(verdict?.state==="product_mismatch"||verdict?.state==="invalid_session")
+   return json(409,{error:"DIAGNOSTIC_PAYMENT_CONTRACT_MISMATCH"});
+  if(verdict?.state==="awaiting_payment"||verdict?.state==="paid_pending_record")
+   return json(409,{error:"PAYMENT_OR_FULFILLMENT_NOT_READY",retryable:verdict.state==="paid_pending_record"});
+  return json(503,{error:"DIAGNOSTIC_PAYMENT_VERIFIER_UNAVAILABLE",retryable:true});
+ }
  let response:Response;
  try{
   response=await fetch(TARGET,{method:"POST",redirect:"error",headers:{
