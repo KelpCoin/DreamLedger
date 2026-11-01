@@ -1,0 +1,47 @@
+{
+  "schema": "beck/mtg-master-release-evidence/v1",
+  "date": "2026-11-01",
+  "base": "release/phone-catalog-20261101",
+  "branch": "beck/mtg-master-release-hardening-20261101",
+  "scope": [
+    "public/thanks.html",
+    "public/success.html",
+    "public/quote-comparison/index.html",
+    "public/mtg/diagnostic.html",
+    "public/mtg/index.html",
+    "public/diagnostic-input.html",
+    "public/marketplace.html",
+    "vercel.json",
+    "scripts/verify-vercel-public-release.cjs",
+    "scripts/test-beck-mtg-master-release.cjs"
+  ],
+  "status": "AWAITING_EXTERNAL_CI_AND_PRODUCTION_DEPLOYMENT",
+  "economic_evidence": {
+    "stripe_account": "acct_1SNVPvEGgEAnUFF9",
+    "recent_checkout_sample_count": 30,
+    "recent_checkout_sample_paid": 0,
+    "recent_checkout_sample_expired": 30,
+    "all_returned_charges": 2,
+    "charge_amounts": [
+      {
+        "amount": 500,
+        "currency": "nzd"
+      },
+      {
+        "amount": 100,
+        "currency": "usd"
+      }
+    ],
+    "attributed_paid_orders": 0,
+    "attributed_delivered_orders": 0,
+    "limitation": "Recent checkout sample is not a complete sessions census; two charges are historical unattributed, not zero overall payment activity"
+  },
+  "gates": {
+    "mtg_catalogue": "hold unpaid deck checkout",
+    "new_free_tool": "browser-only structure check",
+    "thanks": "new payment-neutral page with both rewrites",
+    "success": "neutral checkout return",
+    "cost_comparison": "missing freight excluded from comparable totals",
+    "deployment": "not verified"
+  }
+}
