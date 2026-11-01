@@ -60,3 +60,14 @@ test('bound checkouts cannot be oversold after hold expiry',()=>{
  assert.match(checkoutSql,/r.checkout_session_expires_at IS NULL/);
  assert.doesNotMatch(checkoutSql,/IF r.status<>'HELD' OR r.hold_expires_at<=clock_timestamp\(\)/);
 });
+
+const lifecycleSql=fs.readFileSync(path.resolve(__dirname,'../../supabase/migrations/202611010003_beck_ad_checkout_lifecycle.sql'),'utf8');
+test('release RPC is exclusively for provider-verified unpaid expired sessions',()=>{
+ assert.match(lifecycleSql,/CREATE OR REPLACE FUNCTION public\.beck_ad_release_expired_checkout/);
+ assert.match(lifecycleSql,/p_status IS DISTINCT FROM 'expired'/);
+ assert.match(lifecycleSql,/p_payment_status IS DISTINCT FROM 'unpaid'/);
+ assert.match(lifecycleSql,/beck_ad_payment_receipts/);
+ assert.match(lifecycleSql,/r\.status IS DISTINCT FROM 'HELD'/);
+ assert.match(lifecycleSql,/REVOKE ALL ON FUNCTION public\.beck_ad_release_expired_checkout/);
+ assert.doesNotMatch(lifecycleSql,/SET status='PUBLISHED'/);
+});
