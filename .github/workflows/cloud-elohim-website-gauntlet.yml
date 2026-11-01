@@ -47,9 +47,11 @@ jobs:
 
       - name: MTG static compiler immutable source proof
         if: always()
+        env:
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
           mkdir -p ../proof/mtg-static-compiler
-          printf 'source_commit=%s\nstatus=STAGED_CHECKOUT_UNVERIFIED\n' "$GITHUB_SHA" > ../proof/mtg-static-compiler/attestation.txt
+          printf 'pr_head_sha=%s\nci_checkout_sha=%s\nstatus=STAGED_CHECKOUT_UNVERIFIED\n' "$PR_HEAD_SHA" "$GITHUB_SHA" > ../proof/mtg-static-compiler/attestation.txt
           sha256sum scripts/Patch-MTG-CommerceSurface.js scripts/mtg-static-compiler-contract.test.js >> ../proof/mtg-static-compiler/attestation.txt
           cat ../proof/mtg-static-compiler/attestation.txt
 
